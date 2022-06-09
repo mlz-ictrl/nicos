@@ -190,6 +190,13 @@ class DeviceDataset(NexusElementBase):
             self.attrs[key] = val
         NexusElementBase.__init__(self)
 
+    def testAppend(self, sinkhandler):
+        NexusElementBase.testAppend(self, sinkhandler)
+        if self.device not in (v.name for v in (
+                sinkhandler.startdataset.devvalueinfo +
+                sinkhandler.startdataset.envvalueinfo)):
+            self.doAppend = False
+
     def create(self, name, h5parent, sinkhandler):
         if (self.device, self.parameter) in sinkhandler.dataset.metainfo:
             self.value = sinkhandler.dataset.metainfo[
@@ -248,13 +255,18 @@ class DeviceDataset(NexusElementBase):
         if name not in h5parent:
             # can happen, when we cannot find the device on creation
             return
+        if not self.doAppend:
+            return
+
         dset = h5parent[name]
-        for dev in sinkhandler.dataset.devices:
+        devices = (sinkhandler.dataset.devices +
+                   sinkhandler.dataset.environment)
+        values = (sinkhandler.dataset.devvaluelist +
+                  sinkhandler.dataset.envvaluelist)
+        for dev, val in zip(devices, values):
             if dev.name == self.device:
-                value = dev.read()
-                if self.doAppend:
-                    self.resize_dataset(dset)
-                    dset[self.np] = value
+                self.resize_dataset(dset)
+                dset[self.np] = val
 
     def scanlink(self, name, sinkhandler, h5parent, linkroot):
         for dev in sinkhandler.dataset.devices:
