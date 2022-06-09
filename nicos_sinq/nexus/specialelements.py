@@ -32,7 +32,8 @@ import time
 import numpy as np
 
 from nicos import session
-from nicos.core.errors import ConfigurationError
+from nicos.core.device import Readable
+from nicos.core.errors import ConfigurationError, NicosError
 from nicos.nexus.elements import DeviceDataset, NexusElementBase, \
     NexusSampleEnv, NXAttribute
 
@@ -281,14 +282,50 @@ class OutSampleEnv(NexusSampleEnv):
     functionality. It prevents NXlogs to be created for
     standard instrument components.
     """
-    def __init__(self, blocklist=None, update_interval=10):
+    def __init__(self, blocklist=None, update_interval=10, postfix=None):
         self._blocklist = blocklist
-        NexusSampleEnv.__init__(self, update_interval)
+        NexusSampleEnv.__init__(self, update_interval, postfix)
 
     def isValidDevice(self, dev):
         if self._blocklist and dev.name in self._blocklist:
             return False
-        return NexusElementBase.isValidDevice(self, dev)
+        return True
+
+    def create(self, name, h5parent, sinkhandler):
+        self.starttime = time.time()
+        for dev in sinkhandler.dataset.environment:
+            # There can be DeviceStatistics in the environment.
+            # We do not know how to write those
+            if isinstance(dev, Readable) and self.isValidDevice(dev):
+                self.createNXlog(h5parent, dev)
+
+    def updatelog(self, h5parent, dataset):
+        current_time = time.time()
+        for devidx, dev in enumerate(dataset.environment):
+            if not isinstance(dev, Readable) or not self.isValidDevice(dev):
+                continue
+            logname = dev.name
+            if self._postfix:
+                logname += self._postfix
+            loggroup = h5parent[logname]
+            dset = loggroup['value']
+            val = dataset.envvaluelist[devidx]
+            if val is None:
+                return
+            idx = len(dset)
+            # We need to control the amount of data written as update
+            # gets called frequently. This tests:
+            # - The value has changed at all
+            # - Against a maximum update interval
+            if val != dset[idx - 1] and \
+               current_time > self._last_update[dev.name] +\
+                    self._update_interval:
+                dset.resize((idx + 1,))
+                dset[idx] = val
+                dset = loggroup['time']
+                dset.resize((idx + 1,))
+                dset[idx] = current_time - self.starttime
+                self._last_update[dev.name] = current_time
 
 
 class OptionalDeviceDataset(DeviceDataset):
@@ -373,3 +410,36 @@ class DevStat(NexusElementBase):
                 dset[self.np] = val
             else:
                 dset[0] = val
+
+
+class ScanSampleEnv(NexusElementBase):
+    """
+    This class stores all known environment devices using their NICOS
+    names.
+    """
+
+    def __init__(self):
+        self.doAppend = True
+        self._managed_devices = []
+        NexusElementBase.__init__(self)
+
+    def create(self, name, h5parent, sinkhandler):
+        for dev in sinkhandler.dataset.environment:
+            # Prevent duplicate creations
+            if dev.name not in h5parent:
+                dset = h5parent.create_dataset(dev.name, (1,),
+                                               maxshape=(None,), dtype=float)
+                try:
+                    inf = session.getDevice(dev.name).info()
+                    dset.attrs['units'] = np.string_(inf[0][3])
+                except NicosError:
+                    pass
+                self._managed_devices.append(dev.name)
+
+    def results(self, name, h5parent, sinkhandler, results):
+        for dev in sinkhandler.dataset.environment:
+            if dev.name in self._managed_devices:
+                dset = h5parent[dev.name]
+                value = dev.read()
+                self.resize_dataset(dset)
+                dset[self.np] = value
