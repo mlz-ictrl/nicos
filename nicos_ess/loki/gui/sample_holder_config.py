@@ -29,47 +29,14 @@ from functools import partial
 from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
-from nicos.guisupport.qt import QAbstractSpinBox, QAction, QCursor, \
-    QDoubleSpinBox, QHeaderView, QItemDelegate, QKeySequence, QMenu, \
-    QShortcut, Qt, QTableView, QTableWidgetItem, pyqtSlot
+from nicos.guisupport.qt import QAction, QCursor, QHeaderView, QItemDelegate, \
+    QKeySequence, QMenu, QShortcut, Qt, QTableView, QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.gui.panels.panel import PanelBase
 from nicos_ess.loki.gui.samples_model import SamplesTableModel
+from nicos_ess.loki.gui.table_delegates import LimitsDelegate, ReadOnlyDelegate
 from nicos_ess.loki.gui.table_helper import Clipboard, TableHelper
-
-
-def add_spinbox_limits(spinbox, minimum, maximum, precision):
-    spinbox.setMinimum(minimum)
-    spinbox.setMaximum(maximum)
-    spinbox.setDecimals(precision)
-
-
-class ReadOnlyDelegate(QItemDelegate):
-    def createEditor(self, parent, option, index):
-        return None
-
-
-class LimitsDelegate(QItemDelegate):
-    def __init__(self, x_limits=(0, 0), y_limits=(0, 0), x_precision=3,
-                 y_precision=3):
-        QItemDelegate.__init__(self)
-        self.x_limits = x_limits
-        self.y_limits = y_limits
-        self.x_precision = x_precision
-        self.y_precision = y_precision
-
-    def createEditor(self, parent, option, index):
-        editor = QDoubleSpinBox(parent)
-        editor.setButtonSymbols(QAbstractSpinBox.NoButtons)
-        if index.column() == 0:
-            minimum, maximum = self.x_limits
-            precision = self.x_precision
-        else:
-            minimum, maximum = self.y_limits
-            precision = self.y_precision
-        add_spinbox_limits(editor, minimum, maximum, precision)
-        return editor
 
 
 class LokiSampleHolderPanel(PanelBase):
@@ -99,7 +66,8 @@ class LokiSampleHolderPanel(PanelBase):
         self.cell_spacings = {}
         self.number_cells = {}
         self.cartridges = {}
-        self.delegate = LimitsDelegate()
+        self.x_delegate = LimitsDelegate()
+        self.y_delegate = LimitsDelegate()
         self.labelWarning.setStyleSheet('color: red')
         self.labelWarning.setVisible(False)
         self._configure_combos()
@@ -224,9 +192,9 @@ class LokiSampleHolderPanel(PanelBase):
         self.saveButton.setVisible(False)
 
     def _edit_mode(self):
-        self.delegate.x_limits = self.client.eval(f'{self._dev_name}.xlimits',
+        self.x_delegate.limits = self.client.eval(f'{self._dev_name}.xlimits',
                                                   (0, 0))
-        self.delegate.y_limits = self.client.eval(f'{self._dev_name}.ylimits',
+        self.y_delegate.limits = self.client.eval(f'{self._dev_name}.ylimits',
                                                   (0, 0))
         for combo in self.cartridge_combos:
             combo.setEnabled(True)
@@ -271,7 +239,8 @@ class LokiSampleHolderPanel(PanelBase):
     def _set_table_height(self, num_rows):
         row_height = self.tableTopFirst.verticalHeader().defaultSectionSize()
         for table in self.cartridge_tables:
-            table.setItemDelegate(self.delegate)
+            table.setItemDelegateForColumn(0, self.x_delegate)
+            table.setItemDelegateForColumn(1, self.y_delegate)
             # +1 for header
             table.setMinimumHeight(row_height * (num_rows + 1))
 
@@ -329,10 +298,10 @@ class LokiSampleHolderPanel(PanelBase):
             table.setItem(i, 1, QTableWidgetItem(f'{y}'))
 
     def _check_y_range(self, y):
-        self._check_in_range(y, self.delegate.y_limits, 'y')
+        self._check_in_range(y, self.y_delegate.limits, 'y')
 
     def _check_x_valid(self, x):
-        self._check_in_range(x, self.delegate.x_limits, 'x')
+        self._check_in_range(x, self.x_delegate.limits, 'x')
 
     def set_enabled_controls(self):
         is_rotation = False

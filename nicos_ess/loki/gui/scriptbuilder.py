@@ -33,35 +33,24 @@ from functools import partial
 from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.utils import loadUi
 from nicos.core import InvalidValueError
-from nicos.guisupport.qt import QAction, QComboBox, QCursor, QFileDialog, \
-    QHeaderView, QItemDelegate, QKeySequence, QMenu, QShortcut, Qt, \
-    QTableView, QToolBar, pyqtSlot
+from nicos.guisupport.qt import QAction, QCursor, QFileDialog, QHeaderView, \
+    QKeySequence, QMenu, QShortcut, Qt, QTableView, QToolBar, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.gui.panels.panel import PanelBase
 from nicos_ess.loki.gui.sample_holder_config import ReadOnlyDelegate
 from nicos_ess.loki.gui.script_generator import ScriptFactory, TransOrder
 from nicos_ess.loki.gui.scriptbuilder_model import LokiScriptModel
+from nicos_ess.loki.gui.table_delegates import ComboBoxDelegate, LimitsDelegate
 from nicos_ess.loki.gui.table_helper import Clipboard, TableHelper
 from nicos_ess.utilities.csv_utils import export_table_to_csv, \
     import_table_from_csv
 
+
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
-
-class ComboBoxDelegate(QItemDelegate):
-    def __init__(self):
-        QItemDelegate.__init__(self)
-        self.items = []
-
-    def createEditor(self, parent, option, index):
-        editor = QComboBox(parent)
-        editor.addItems(self.items)
-        return editor
-
-
 Column = namedtuple('Column', ['header', 'optional', 'style',
-                               'can_bulk_update'])
+                               'can_bulk_update', 'delegate'])
 
 
 class LokiScriptBuilderPanel(PanelBase):
@@ -85,19 +74,22 @@ class LokiScriptBuilderPanel(PanelBase):
 
         self.columns = OrderedDict({
             'position': Column('Position', False, QHeaderView.ResizeToContents,
-                               False),
+                               False, ComboBoxDelegate()),
             'sample': Column('Sample Details', False, QHeaderView.Stretch,
-                             False),
+                             False, ReadOnlyDelegate()),
             'trans_duration': Column('TRANS Duration', False,
-                                     QHeaderView.ResizeToContents, True),
+                                     QHeaderView.ResizeToContents, True,
+                                     LimitsDelegate((0, 1e308), 1)),
             'sans_duration': Column('SANS Duration', False,
-                                    QHeaderView.ResizeToContents, True),
+                                    QHeaderView.ResizeToContents, True,
+                                    LimitsDelegate((0, 1e308), 1)),
             'temperature': Column('Temperature', True,
-                                  QHeaderView.ResizeToContents, True),
+                                  QHeaderView.ResizeToContents, True,
+                                  LimitsDelegate((0, 1e308))),
             'pre-command': Column('Pre-command', True,
-                                  QHeaderView.ResizeToContents, True),
+                                  QHeaderView.ResizeToContents, True, None),
             'post-command': Column('Post-command', True,
-                                   QHeaderView.ResizeToContents, True),
+                                   QHeaderView.ResizeToContents, True, None),
         })
         self.columns_headers = list(self.columns.keys())
 
@@ -128,7 +120,7 @@ class LokiScriptBuilderPanel(PanelBase):
                 samples_by_position[sample['position']] = {
                     k: v for k, v in sample.items()
                     if k not in ['position', 'notes']}
-            self.combo_delegate.items = positions
+            self.columns['position'].delegate.items = positions
             self.model.samples = samples_by_position
             self.model.update_all_samples(raise_error=False)
 
@@ -206,8 +198,9 @@ class LokiScriptBuilderPanel(PanelBase):
         self.tableView.setSelectionMode(QTableView.ContiguousSelection)
         self.table_helper = TableHelper(self.tableView, self.model, Clipboard())
 
-        self.tableView.setItemDelegateForColumn(0, self.combo_delegate)
-        self.tableView.setItemDelegateForColumn(1, ReadOnlyDelegate())
+        for i, column in enumerate(self.columns.values()):
+            if column.delegate:
+                self.tableView.setItemDelegateForColumn(i, column.delegate)
 
         for name, checkbox in self.optional_columns_to_checkbox.items():
             checkbox.stateChanged.connect(

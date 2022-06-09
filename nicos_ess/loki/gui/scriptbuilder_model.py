@@ -69,7 +69,7 @@ class LokiScriptModel(TableModel):
         if column == SAMPLE_INFO_INDEX:
             # Sample information is auto-filled
             return
-        value = value.strip()
+        value = value.strip() if isinstance(value, str) else value
         mapping = self._mappings.get(self._headings[column],
                                      self._headings[column])
         self._table_data[row][column] = value
