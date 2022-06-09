@@ -29,18 +29,39 @@ SINQ  monochromator
 SINQ uses a different way to calculate monochromator focusing
 """
 
-from nicos.devices.generic.mono import from_k, to_k
+import math
+
+from nicos.devices.generic.mono import to_k
 from nicos.devices.tas.mono import Monochromator
 
 
 class SinqMonochromator(Monochromator):
     def _movefoci(self, focmode, hfocuspars, vfocuspars):
         focusv = self._attached_focusv
+        th, _ = self._calc_angles(to_k(self.target, self.unit))
         if focusv:
-            focusv.move(
-                self._calfocus(from_k(to_k(self.target, self.unit), 'A'),
-                               vfocuspars))
+            vcurve = vfocuspars[0] + \
+                     vfocuspars[1] / math.sin(math.radians(abs(th)))
+            focusv.move(vcurve)
+        focush = self._attached_focush
+        if focush:
+            hcurve = hfocuspars[0] + \
+                     hfocuspars[1]*math.sin(math.radians(abs(th)))
+            focush.move(hcurve)
 
-    def _calfocus(self, lam, focuspars):
-        return focuspars[0] + focuspars[1] / (self.target / (2.0 *
-                                                             self.dvalue))
+
+class TasAnalyser(SinqMonochromator):
+    """
+    This adds the offset magic for a5(theta) required at SINQ TAS analysers
+    """
+    def doWriteScatteringsense(self, value):
+        off = self._attached_theta.offset
+        if self.scatteringsense == -1 and value == 1:
+            off += 180
+        elif self.scatteringsense == 1 and value == -1:
+            off -= 180
+        if off > 180:
+            off -= 360
+        elif off < -180:
+            off += 360
+        self._attached_theta.offset = off
