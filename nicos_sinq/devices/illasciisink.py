@@ -181,7 +181,16 @@ class ILLAsciiHandler(DataSinkHandler):
         positions = self.dataset.startpositions
         for dev in self.dataset.devices:
             if len(positions) > 1:
-                step = positions[1][devidx] - positions[0][devidx]
+                pnext = positions[1][devidx]
+                start = positions[0][devidx]
+                if isinstance(start, tuple):
+                    # This happens in qscans
+                    names = ['QH', 'QK', 'QL', 'EN']
+                    for name, s, n in zip(names, start, pnext):
+                        self._header += 'D%s= %8.4f ' % (name, n - s)
+                    devidx += 1
+                    continue
+                step = pnext - pnext
             else:
                 step = .0
             self._header += 'D%s= %8.4f ' % (dev.name.upper(), step)
@@ -244,9 +253,11 @@ class ILLAsciiHandler(DataSinkHandler):
             self._initHeader()
 
         for i in range(len(self.dataset.devices)):
-            self.scanvalues[self.dataset.devices[i].name].append(
-                subset.devvaluelist[i])
-
+            dev = self.dataset.devices[i]
+            if dev == session.instrument:
+                self.scanvalues[dev.name].append(tuple(subset.devvaluelist))
+            else:
+                self.scanvalues[dev.name].append(subset.devvaluelist[i])
         for dev in self.dataset.environment:
             self.scanvalues[dev.name].append(dev.read())
 
@@ -265,8 +276,12 @@ class ILLAsciiHandler(DataSinkHandler):
             fmt = '(I4,1X,'
             header = ' PNT'
             for dev in self.dataset.devices:
-                fmt += 'F9.4,1X'
-                header += ' %9s' % dev.name.upper()
+                if dev == session.instrument:
+                    fmt += 'F9.41X,F9.41X,F9.41X,F9.4IX'
+                    header += '         H         K         L        EN'
+                else:
+                    fmt += 'F9.4,1X'
+                    header += ' %9s' % dev.name.upper()
             fmt += 'F8.0,1X,F8.0,1X,F9.2,1X,F8.0,1X,F8.0,1X,'
             header += '      M1       M2       TIME     CNTS       M3'
             for dev in self.dataset.environment:
@@ -275,10 +290,24 @@ class ILLAsciiHandler(DataSinkHandler):
             fmt += ')'
             out.write('FORMT: %s\nDATA_:\n%s\n' % (fmt, header))
 
-            for i in range(self.dataset.npoints):
+            # Fix for cases where dataset.npoints is wrong: either
+            # points were skipped or it is manualscan
+            name = self.sink.scaninfo[0]
+            np = len(self.scanvalues[name])
+            for i in range(np):
                 line = '%4d ' % (i + 1)
                 for dev in self.dataset.devices:
-                    line += '%9.4f ' % self.scanvalues[dev.name][i]
+                    # For compatibility with old files we want the
+                    # %9.4f format wherever possible. The dev.format()
+                    # is a fallback
+                    if dev == session.instrument:
+                        line += '%9.4f %9.4f %9.4f %9.4f ' % self.scanvalues[
+                            dev.name][i]
+                    else:
+                        try:
+                            line += '%9.4f ' % self.scanvalues[dev.name][i]
+                        except TypeError:
+                            line += dev.format(self.scanvalues[dev.name][i])
 
                 # There is a tight correlation between this and sink.scaninfo!
                 name = self.sink.scaninfo[0]
@@ -294,8 +323,11 @@ class ILLAsciiHandler(DataSinkHandler):
                 line += '%8ld %8ld %9.2f %8ld %8ld ' % (m1, m2, time, cts, m3)
 
                 for dev in self.dataset.environment:
-                    line += '%9.4f ' % self.scanvalues[dev.name]
-
+                    # See above regarding formatting
+                    try:
+                        line += '%9.4f ' % self.scanvalues[dev.name][i]
+                    except TypeError:
+                        line += dev.format(self.scanvalues[dev.name][i])
                 out.write(line + '\n')
 
 
