@@ -1,7 +1,7 @@
 build/
 dist/
 
-*.pyc
+__pycache__/
 *.egg-info
 *.log
 *.log.gz
@@ -54,5 +54,3 @@ mprofile_*.dat
 
 #PyCharm
 .idea/
-
-__pycache__
