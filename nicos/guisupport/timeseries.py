@@ -148,10 +148,10 @@ class TimeSeries:
     def y(self):
         return self.data[:self.n, 1]
 
-    def init_empty(self):
+    def initEmpty(self):
         self.data = np.zeros((self.minsize, 2))
 
-    def init_from_history(self, history, starttime, endtime):
+    def initFromHistory(self, history, starttime, endtime):
         ltime = 0
         lvalue = None
         maxdelta = max(2 * self.interval, 11)
@@ -168,9 +168,10 @@ class TimeSeries:
                 except Exception:
                     continue
             if not isinstance(value, number_types):
-                # if it's a string, create a new unique integer value for the string
+                # if it's a string, create a new unique integer value for it
                 if isinstance(value, str):
-                    value = self.string_mapping.setdefault(value, len(self.string_mapping))
+                    value = self.string_mapping.setdefault(
+                        value, len(self.string_mapping))
                 # other values we can't use
                 else:
                     continue
@@ -208,27 +209,28 @@ class TimeSeries:
                 '%g=%s' % (v, k) for (k, v) in
                 sorted(self.string_mapping.items(), key=lambda x: x[1]))
 
-    def synthesize_value(self):
+    def synthesizeValue(self):
         if not self.n:
             return
         delta = currenttime() - self._last_update_time
         if delta > self.interval:
-            self.add_value(self.data[self.n - 1, 0] + delta, self.last_y,
-                           real=False, use_expr=False)
+            self.addValue(self.data[self.n - 1, 0] + delta, self.last_y,
+                          real=False, use_expr=False)
 
-    def add_value(self, vtime, value, real=True, use_expr=True):
+    def addValue(self, vtime, value, real=True, use_expr=True):
+        if use_expr and self.expr:
+            try:
+                value = eval(self.expr, KEYEXPR_NS, {'x': value})
+            except Exception:
+                return
         if not isinstance(value, number_types):
             if isinstance(value, str):
-                value = self.string_mapping.setdefault(value, len(self.string_mapping))
+                value = self.string_mapping.setdefault(
+                    value, len(self.string_mapping))
                 self.info = ', '.join(
                     '%g=%s' % (v, k) for (k, v) in
                     sorted(self.string_mapping.items(), key=lambda x: x[1]))
             else:
-                return
-        elif use_expr and self.expr:
-            try:
-                value = eval(self.expr, KEYEXPR_NS, {'x': value})
-            except Exception:
                 return
         n, real_n = self.n, self.real_n
         arrsize = self.data.shape[0]
