@@ -343,12 +343,12 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             # restrict time of value to 1 minute past at
             # maximum, so that it doesn't get culled by the windowing
             time = max(time, currenttime() - 60)
-            series.add_value(time, value)
+            series.addValue(time, value)
 
     def addcurve(self, key, expr, title):
         series = TimeSeries(title, self.props['plotinterval'], expr,
                             self.props['plotwindow'], self)
-        series.init_empty()
+        series.initEmpty()
         curve = PlotCurve([currenttime()], [0], legend=title)
         self.plotcurves[series] = curve
         self.ncurves += 1
@@ -360,7 +360,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         # record the current value at least every 5 seconds, to avoid curves
         # not updating if the value doesn't change
         def update():
-            series.synthesize_value()
+            series.synthesizeValue()
         self.ctimers[curve] = QTimer(singleShot=True)
         self.ctimers[curve].timeout.connect(update)
 
