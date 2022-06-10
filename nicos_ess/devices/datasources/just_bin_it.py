@@ -406,11 +406,11 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         config = self._create_config(count_interval, unique_id)
 
         if count_interval:
-            self.log.info(
+            self.log.debug(
                 'Requesting just-bin-it to start counting for %s seconds',
                 count_interval)
         else:
-            self.log.info('Requesting just-bin-it to start counting')
+            self.log.debug('Requesting just-bin-it to start counting')
 
         self._send_command(self.command_topic, json.dumps(config).encode())
 
@@ -462,7 +462,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
 
     def _handle_message(self, msg):
         if 'response' in msg and msg['response'] == 'ACK':
-            self.log.info(
+            self.log.debug(
                 'Counting request acknowledged by just-bin-it')
             return True
         elif 'response' in msg and msg['response'] == 'ERR':
