@@ -63,7 +63,7 @@ devices = dict(
     SciChat=device(
         'nicos_ess.devices.scichat.ScichatBot',
         description='Connects to SciChat as a write-only client',
-        url='https://scitest.esss.lu.se/_matrix/client/r0',
+        url='https://server.scichat.esss.lu.se/_matrix/client/r0',
         room_id='!gaEXiGVYXizrNgFExx:ess',
     ),
 )
