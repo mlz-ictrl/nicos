@@ -320,6 +320,7 @@ class FileWriterStatus(KafkaStatusHandler):
 class FileWriterSinkHandler(DataSinkHandler):
     """Sink handler for the NeXus file-writer"""
     _scan_set = None
+    _current_file = None
 
     def prepare(self):
         if self.sink._manual_start or self._scan_set:
@@ -346,6 +347,7 @@ class FileWriterSinkHandler(DataSinkHandler):
             return
 
         if self._scan_set and self.dataset.number > 1:
+            self.dataset.filenames = [self._current_file]
             return
 
         if hasattr(self.dataset, 'replay_info'):
@@ -363,6 +365,7 @@ class FileWriterSinkHandler(DataSinkHandler):
                                                             datetime_now)
         self.sink._start_job(self.dataset.filenames[0], self.dataset.counter,
                              structure, datetime_now)
+        self._current_file = self.dataset.filenames[0]
 
     def end(self):
         if self.sink._manual_start:
@@ -373,6 +376,7 @@ class FileWriterSinkHandler(DataSinkHandler):
 
         self.sink._stop_job()
         self.sink.end()
+        self._current_file = None
 
     def _get_scan_set(self):
         if not self.sink.one_file_per_scan:
