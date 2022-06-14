@@ -28,7 +28,8 @@ devices = dict(
                filewriter_root='/opt/nicos-data/loki',
                sample='Sample',
                cache_filepath='/opt/nicos-data/loki/cached_proposals.json'),
-    conssink=device('nicos.devices.datasinks.ConsoleScanSink', ),
+    conssink=device(
+        'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'),
     daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
     Space=device(

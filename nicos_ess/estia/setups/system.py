@@ -32,7 +32,8 @@ devices = dict(
                sample='Sample',
                cache_filepath=f'{configdata("config.ESTIA_DATA_ROOT")}'
                f'/estia/cached_proposals.json'),
-    conssink=device('nicos.devices.datasinks.ConsoleScanSink', ),
+    conssink=device(
+        'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'),
     daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
     Space=device(
         'nicos.devices.generic.FreeSpace',
