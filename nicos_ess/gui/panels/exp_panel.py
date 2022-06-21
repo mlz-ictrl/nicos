@@ -30,7 +30,7 @@
 from copy import deepcopy
 
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
-    combineUsers, splitUsers
+    combineUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.guisupport.qt import QDialogButtonBox, QHeaderView, QIntValidator, \
     QListWidgetItem, Qt, pyqtSlot
@@ -41,12 +41,13 @@ from nicos_ess.gui.panels.panel import PanelBase
 
 
 class ProposalSettings:
-    def __init__(self, proposal_id='', title='', users=None, local_contacts='',
-                 abort_on_error='', notifications=None, samples=None):
+    def __init__(self, proposal_id='', title='', users=None,
+                 local_contacts=None, abort_on_error='', notifications=None,
+                 samples=None):
         self.proposal_id = proposal_id
         self.title = title
         self.users = users if users else []
-        self.local_contacts = local_contacts
+        self.local_contacts = local_contacts if local_contacts else [{}]
         self.samples = samples if samples else []
         self.notifications = notifications if notifications else []
         self.abort_on_error = abort_on_error
@@ -79,25 +80,33 @@ class ExpPanel(PanelBase):
         self._user_fields = ['name', 'email', 'affiliation']
         self.to_monitor = ['sample/samples', 'exp/propinfo']
         self.users_model = TableModel(self._user_fields)
-        self.users_model.data_updated.connect(self.on_users_changed)
+        self.users_model.data_updated.connect(self._check_for_changes)
         self.userTable.setModel(self.users_model)
         self.userTable.horizontalHeader().setSectionResizeMode(
             QHeaderView.Interactive)
+
+        self.contacts_model = TableModel(['name', 'email', 'affiliation'])
+        self.contacts_model.insert_row(0)
+        self.contacts_model.data_updated.connect(self._check_for_changes)
+        self.contactsTable.setModel(self.contacts_model)
+        self.contactsTable.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
 
         self.samples_model = TableModel(['name', 'formula', 'number of',
                                          'mass/volume', 'density'],
                                         mappings={'number of': 'number_of',
                                                   'mass/volume': 'mass_volume'},
                                         transposed=True)
-        self.samples_model.data_updated.connect(self.on_samples_changed)
+        self.samples_model.data_updated.connect(self._check_for_changes)
         self.sampleTable.setModel(self.samples_model)
         self.sampleTable.horizontalHeader().setSectionResizeMode(
             QHeaderView.Interactive)
 
         self.proposalNum.setValidator(QIntValidator(0, 999999999))
 
-        self._text_controls = (self.propTitle, self.localContacts,
-                               self.proposalNum, self.proposalQuery)
+        self._text_controls = (self.propTitle, self.proposalNum,
+                               self.proposalQuery)
+        self._tables = (self.sampleTable, self.contactsTable, self.userTable)
 
         self.hide_samples = options.get('hide_sample', False)
         if self.hide_samples:
@@ -158,22 +167,23 @@ class ExpPanel(PanelBase):
 
         if values:
             users = [dict(user) for user in values[2]]
+            contacts = [dict(contact) for contact in values[3]]
             self.old_settings = \
                 ProposalSettings(decodeAny(values[0]), decodeAny(values[1]),
-                                 users, decodeAny(values[3]),
-                                 values[4] == 'abort', notif_emails, samples)
+                                 users, contacts, values[4] == 'abort',
+                                 notif_emails, samples)
             self.new_settings = deepcopy(self.old_settings)
             self._update_panel()
 
     def _update_panel(self):
         self.proposalNum.setText(self.old_settings.proposal_id)
         self.propTitle.setText(self.old_settings.title)
-        self.localContacts.setText(self.old_settings.local_contacts)
         self.errorAbortBox.setChecked(self.old_settings.abort_on_error)
         self.notifEmails.setPlainText(
             '\n'.join(self.old_settings.notifications))
         self._update_samples_model(self.old_settings.samples)
         self._update_users_model(self.old_settings.users)
+        self._update_contacts_model(self.old_settings.local_contacts)
         self._format_sample_table()
         self._format_user_table()
 
@@ -209,6 +219,7 @@ class ExpPanel(PanelBase):
             control.setText('')
         self._update_samples_model([])
         self._update_users_model([])
+        self._update_contacts_model([])
         self.notifEmails.setPlainText('')
         self.old_settings = ProposalSettings()
         self.new_settings = ProposalSettings()
@@ -222,11 +233,11 @@ class ExpPanel(PanelBase):
     def setViewOnly(self, viewonly):
         for control in self._text_controls:
             control.setEnabled(not viewonly)
+        for table in self._tables:
+            table.setEnabled(not viewonly)
         self.notifEmails.setEnabled(not viewonly)
         self.errorAbortBox.setEnabled(not viewonly)
         self.queryDBButton.setEnabled(not viewonly)
-        self.sampleTable.setEnabled(not viewonly)
-        self.userTable.setEnabled(not viewonly)
         self.addUserButton.setEnabled(not viewonly)
         self.deleteUserButton.setEnabled(not viewonly)
         self.addSampleButton.setEnabled(not viewonly)
@@ -236,11 +247,6 @@ class ExpPanel(PanelBase):
         else:
             self._check_for_changes()
             self._is_proposal_system_available()
-
-    def _format_local_contacts(self, local_contacts):
-        if local_contacts:
-            return splitUsers(local_contacts)
-        return []
 
     def applyChanges(self):
         self.queryDBButton.setFocus(True)
@@ -257,8 +263,8 @@ class ExpPanel(PanelBase):
             self.showError(str(error))
 
     def _set_experiment(self):
-        local_contacts = self._format_local_contacts(
-            self.new_settings.local_contacts)
+        local_contacts = [contact for contact in self.contacts_model.raw_data
+                          if contact.get('name', None)]
 
         users = [user for user in self.users_model.raw_data
                  if any((user.get(field) for field in self._user_fields))]
@@ -268,7 +274,6 @@ class ExpPanel(PanelBase):
                     'users': users}
 
         if self.new_settings.proposal_id != self.old_settings.proposal_id:
-            self.client.run('FinishExperiment()', noqueue=True)
             exp_args['proposal'] = self.new_settings.proposal_id
             command = 'Exp.new(%s)'
         else:
@@ -277,23 +282,16 @@ class ExpPanel(PanelBase):
         self.client.eval(code)
 
     def _set_samples(self):
-        if self.hide_samples:
+        if self.hide_samples or \
+                self.samples_model.raw_data == self.old_settings.samples:
             return
 
-        if self.samples_model.raw_data != self.old_settings.samples:
-            self.client.run('Exp.sample.clear()')
-            for index, sample in enumerate(self.samples_model.raw_data):
-                set_sample_cmd = self._create_set_sample_command(index, sample)
-                self.client.run(set_sample_cmd)
-
-    def _create_set_sample_command(self, index, sample):
-        name = sample.get('name', '')
-        name = name if name else f'sample {index + 1}'
-        return f'SetSample({index}, \'{name}\', ' \
-               f'formula=\'{sample.get("formula", "")}\', ' \
-               f'number_of={sample.get("number_of", 1)}, ' \
-               f'mass_volume=\'{sample.get("mass_volume", "")}\', ' \
-               f'density=\'{sample.get("density", "")}\')'
+        samples = {}
+        for index, sample in enumerate(self.samples_model.raw_data):
+            if not sample.get('name', ''):
+                sample['name'] = f'sample {index + 1}'
+            samples[index] = sample
+        self.client.run(f'Exp.sample.set_samples({dict(samples)})')
 
     def _set_abort_on_error(self):
         abort_on_error = self.new_settings.abort_on_error
@@ -344,10 +342,9 @@ class ExpPanel(PanelBase):
                 self.proposalNum.setText(result.get('proposal', proposal))
                 self.propTitle.setText(result.get('title', ''))
                 self._update_users_model(result.get('users', []))
-                self._format_user_table()
-                self.localContacts.setText(
-                    combineUsers(result.get('localcontacts', [])))
+                self._update_contacts_model(result.get('localcontacts', []))
                 self._update_samples_model(result['samples'])
+                self._format_user_table()
                 self._format_sample_table()
             else:
                 self.showError('Querying proposal management system failed')
@@ -357,6 +354,9 @@ class ExpPanel(PanelBase):
 
     def _update_users_model(self, users):
         self.users_model.raw_data = deepcopy(users)
+
+    def _update_contacts_model(self, contacts):
+        self.contacts_model.raw_data = deepcopy(contacts or [{}])
 
     def choose_proposal(self, proposals):
         dlg = dialogFromUi(self, 'panels/setup_exp_proposal.ui')
@@ -385,17 +385,6 @@ class ExpPanel(PanelBase):
         self.new_settings.title = value.strip()
         self._check_for_changes()
 
-    def on_samples_changed(self):
-        self._check_for_changes()
-
-    def on_users_changed(self):
-        self._check_for_changes()
-
-    @pyqtSlot(str)
-    def on_localContacts_textChanged(self, value):
-        self.new_settings.local_contacts = value.strip()
-        self._check_for_changes()
-
     @pyqtSlot()
     def on_errorAbortBox_clicked(self):
         self.new_settings.abort_on_error = self.errorAbortBox.isChecked()
@@ -410,6 +399,8 @@ class ExpPanel(PanelBase):
     def _check_for_changes(self):
         has_changed = self.new_settings != self.old_settings
         has_changed |= self.users_model.raw_data != self.old_settings.users
+        has_changed |= self.contacts_model.raw_data != \
+                       self.old_settings.local_contacts
         if not self.hide_samples:
             has_changed |= \
                 self.samples_model.raw_data != self.old_settings.samples

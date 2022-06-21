@@ -47,10 +47,12 @@ class EssExperiment(Experiment):
 
     parameter_overrides = {
         'propprefix': Override(default=''),
+        'proptype': Override(settable=True),
         'serviceexp': Override(default='Service'),
         'sendmail': Override(default=False),
         'zipdata': Override(default=False),
         'users': Override(default=[], type=listof(dict)),
+        'localcontact': Override(default=[], type=listof(dict)),
     }
 
     def doInit(self, mode):
@@ -65,13 +67,13 @@ class EssExperiment(Experiment):
             self.log.warn('proposal look-up not available: %s', error)
 
     def doReadTitle(self):
-        if self.proptype == 'service':
-            return 'Service mode'
-        else:
-            return self.propinfo.get('title', '')
+        return self.propinfo.get('title', '')
 
     def doReadUsers(self):
         return self.propinfo.get('users', [])
+
+    def doReadLocalcontact(self):
+        return self.propinfo.get('localcontacts', [])
 
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         if self._mode == SIMULATION:
@@ -83,22 +85,25 @@ class EssExperiment(Experiment):
         if not proposal.isnumeric():
             raise UsageError('Proposal ID must be numeric')
 
-        # Handle back compatibility with user/users
+        # Handle back compatibility
         users = user if user else kwds.get('users', [])
+        localcontacts = localcontact if localcontact \
+            else kwds.get('localcontacts', [])
 
         self._check_users(users)
-        self._check_local_contacts(localcontact)
+        self._check_local_contacts(localcontacts)
 
         # combine all arguments into the keywords dict
         kwds['proposal'] = proposal
         kwds['title'] = str(title) if title else ''
-        kwds['localcontacts'] = localcontact if localcontact else []
+        kwds['localcontacts'] = localcontacts
         kwds['users'] = users
 
         # give an opportunity to check proposal database etc.
         propinfo = self._newPropertiesHook(proposal, kwds)
         self._setROParam('propinfo', propinfo)
         self._setROParam('proposal', proposal)
+        self.proptype = 'service' if proposal == '0' else 'user'
 
         # Update cached values of the volatile parameters
         self._pollParam('title')
@@ -134,7 +139,8 @@ class EssExperiment(Experiment):
             mailaddress(contact.get('email', ''))
 
     def finish(self):
-        pass
+        self.new(0, 'Service mode')
+        self.sample.set_samples({})
 
     def _canQueryProposals(self):
         if self._client:
