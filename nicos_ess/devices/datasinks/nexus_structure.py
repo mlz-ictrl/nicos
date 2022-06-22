@@ -19,12 +19,14 @@
 #
 # Module authors:
 #   Matt Clarke <matt.clarke@ess.eu>
+#   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
 import copy
 import json
 import time
 
+from nicos import session
 from nicos.core import Device, NicosError, Override, Param, relative_path
 
 from nicos_ess.nexus.converter import NexusTemplateConverter
@@ -106,6 +108,43 @@ class NexusStructureJsonFile(NexusStructureProvider):
         if users_str:
             structure = structure.replace('"$USERS$"', users_str)
         return structure
+
+
+class NexusStructureAreaDetector(NexusStructureJsonFile):
+    """
+    This class adds some extra consideration to instrument setups with
+    area detectors with changing image size (e.g. neutron or light tomography).
+    """
+    parameters = {
+        'area_det_collector_device': Param('Area collector device name',
+            type=str, mandatory=True, userparam=True, settable=True),
+    }
+
+    def get_structure(self, dataset, start_time):
+        structure = NexusStructureJsonFile.get_structure(self, dataset,
+                                                         start_time)
+        return self._add_area_detector_array_size(structure)
+
+    def _add_area_detector_array_size(self, structure):
+        json_dict = json.loads(structure)
+        self._replace_area_detector_placeholder(json_dict)
+        return json.dumps(json_dict)
+
+    def _replace_area_detector_placeholder(self, data):
+        for item in data['children']:
+            if 'config' in item and 'array_size' in item['config']:
+                if item['config']['array_size'] == '$AREADET$':
+                    item['config']['array_size'] = []
+                    for val in self._get_detector_device_array_size(item['config']):
+                        item['config']['array_size'].append(val)
+            if 'children' in item:
+                self._replace_area_detector_placeholder(item)
+
+    def _get_detector_device_array_size(self, json_config):
+        area_detector_collector = session.getDevice(
+            self.area_det_collector_device)
+        return area_detector_collector.get_array_size(json_config['topic'],
+                                                      json_config['source'])
 
 
 class NexusStructureTemplate(NexusStructureProvider):

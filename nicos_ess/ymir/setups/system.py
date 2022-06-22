@@ -39,11 +39,23 @@ devices = dict(
         minfree=5,
     ),
     liveview=device('nicos.devices.datasinks.LiveViewSink',),
-    NexusStructure=device(
+    NexusStructure_Basic=device(
         'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
         description='Provides the NeXus structure',
         nexus_config_path='nicos_ess/ymir/nexus/ymir_basic.json',
         visibility=(),
+    ),
+    NexusStructure_AreaDetector=device(
+        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureAreaDetector',
+        description='Provides the NeXus structure',
+        nexus_config_path='nicos_ess/ymir/nexus/ymir_ltomo.json',
+        area_det_collector_device='area_detector_collector',
+        visibility=(),
+    ),
+    NexusStructure=device(
+        'nicos.devices.generic.DeviceAlias',
+        alias='NexusStructure_AreaDetector',
+        devclass='nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
     ),
     FileWriterStatus=device(
         'nicos_ess.devices.datasinks.file_writer.FileWriterStatus',
