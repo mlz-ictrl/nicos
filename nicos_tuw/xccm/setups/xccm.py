@@ -9,5 +9,7 @@ includes = [
     'sample_motors',
     'detector_motors',
     'optic_motors',
+    'capillary_motors',
+    'pinhole_motors',
     'IOcard'
 ]

@@ -1,0 +1,48 @@
+description = 'motors moving the focussing capillaries in the optics chamber.'
+
+group = 'lowlevel'
+
+tangobase = 'tango://localhost:10000/box/'
+
+devices = dict(
+    cap_Ty_m = device('nicos.devices.entangle.Motor',
+        description = 'capillary translation y-axis motor',
+        tangodevice = tangobase + 'capillary/Ty_motor',
+        visibility = (),
+    ),
+    cap_Ty = device('nicos.devices.generic.Axis',
+        description = 'capillary translation y-axis',
+        motor = 'cap_Ty_m',
+        precision = 0.01,
+    ),
+    cap_Tz_m = device('nicos.devices.entangle.Motor',
+        description = 'capillary translation z-axis motor',
+        tangodevice = tangobase + 'capillary/Tz_motor',
+        visibility = (),
+    ),
+    cap_Tz = device('nicos.devices.generic.Axis',
+        description = 'capillary translation z-axis',
+        motor = 'cap_Tz_m',
+        precision = 0.01,
+    ),
+    cap_Ry_m = device('nicos.devices.entangle.Motor',
+        description = 'capillary rotation y-axis motor',
+        tangodevice = tangobase + 'capillary/Ry_motor',
+        visibility = (),
+    ),
+    cap_Ry = device('nicos.devices.generic.Axis',
+        description = 'capillary rotation y-axis',
+        motor = 'cap_Ry_m',
+        precision = 0.01,
+    ),
+    cap_Rz_m = device('nicos.devices.entangle.Motor',
+        description = 'capillary rotation z-axis motor',
+        tangodevice = tangobase + 'capillary/Rz_motor',
+        visibility = (),
+    ),
+    cap_Rz = device('nicos.devices.generic.Axis',
+        description = 'capillary rotation z-axis',
+        motor = 'cap_Rz_m',
+        precision = 0.01,
+    ),
+)
