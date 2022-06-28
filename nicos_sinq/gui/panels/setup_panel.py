@@ -82,7 +82,8 @@ class ExpPanel(MlzExpPanel):
 
     def on_script_path_button_clicked(self):
         dialog = QFileDialog(self)
-        dialog.setFileMode(QFileDialog.DirectoryOnly)
+        dialog.setFileMode(QFileDialog.Directory)
+        dialog.setOption(QFileDialog.ShowDirsOnly, True)
         if dialog.exec_() == QDialog.Accepted:
             scriptpath = dialog.selectedFiles()[0]
             self.client.run(f'Exp.scriptpath = "{scriptpath}"')
