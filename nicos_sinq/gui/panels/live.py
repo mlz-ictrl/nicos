@@ -26,8 +26,7 @@
 A slider allows to select which scanpoint to display"""
 
 import numpy as np
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel
+from nicos.guisupport.qt import Qt, QLabel
 
 from nicos.clients.flowui.panels.live import \
     LiveDataPanel as FlowuiLiveDataPanel

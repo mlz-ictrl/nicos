@@ -27,9 +27,7 @@ from types import MethodType as createBoundMethod
 
 import numpy as np
 from polarTransform import convertToPolarImage
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QDialog
+from nicos.guisupport.qt import pyqtSlot, QIntValidator, QDialog
 from scipy import ndimage
 
 from nicos.clients.flowui.panels.live import LiveDataPanel as EssLiveDataPanel

@@ -21,8 +21,8 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QScrollArea, QSizePolicy
+from nicos.guisupport.qt import Qt, QHBoxLayout, QLabel, QScrollArea, \
+    QSizePolicy
 
 from nicos.clients.gui.panels import Panel
 
