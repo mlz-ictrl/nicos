@@ -24,8 +24,8 @@
 
 from os import path
 
-from nicos.guisupport.qt import QDialog, QDialogButtonBox, QMenu, QRegExp, \
-    QRegExpValidator, Qt, uic
+from nicos.guisupport.qt import QDialog, QDialogButtonBox, QMenu, \
+    QRegularExpression, QRegularExpressionValidator, Qt, uic
 
 from .. import classparser
 from ..utilities.utilities import getClass
@@ -55,8 +55,8 @@ class NewDeviceDialog(QDialog):
         self.checkBoxCustomClasses.stateChanged.connect(
             self.stateChangedHandler)
 
-        self.lineEditDeviceName.setValidator(QRegExpValidator(
-            QRegExp('[A-Za-z0-9_]*')))
+        self.lineEditDeviceName.setValidator(QRegularExpressionValidator(
+            QRegularExpression('[A-Za-z0-9_]*')))
         self.pushButtonSelectClass.setMenu(self.menu)
         self.buttonBox.button(QDialogButtonBox.Ok).setDisabled(True)
         self.lineEditDeviceName.textChanged['const QString &'].connect(

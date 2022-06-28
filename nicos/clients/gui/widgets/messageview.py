@@ -30,8 +30,8 @@ from logging import DEBUG, ERROR, FATAL, INFO, WARNING
 from time import localtime, strftime
 
 from nicos.guisupport.qt import QBrush, QColor, QFont, QMainWindow, QPainter, \
-    QPixmap, QRect, QRegExp, QSize, Qt, QTextBrowser, QTextCharFormat, \
-    QTextCursor, QTextEdit
+    QPixmap, QRect, QRegularExpression, QSize, Qt, QTextBrowser, \
+    QTextCharFormat, QTextCursor, QTextEdit
 from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -251,7 +251,7 @@ class MessageView(QTextBrowser):
     def findNext(self, what, regex=False):
         cursor = self.textCursor()
         if regex:
-            rx = QRegExp(what, Qt.CaseInsensitive)
+            rx = QRegularExpression(what, Qt.CaseInsensitive)
             newcurs = self.document().find(rx, cursor)
         else:
             newcurs = self.document().find(what, cursor)
@@ -261,8 +261,8 @@ class MessageView(QTextBrowser):
     def occur(self, what, regex=False):
         content = self.toPlainText().split('\n')
         if regex:
-            regexp = QRegExp(what, Qt.CaseInsensitive)
-            content = [line for line in content if regexp.indexIn(line) >= 0]
+            rx = QRegularExpression(what, Qt.CaseInsensitive)
+            content = [line for line in content if rx.match(line).hasMatch()]
         else:
             what = what.lower()
             content = [line for line in content if what in line.lower()]

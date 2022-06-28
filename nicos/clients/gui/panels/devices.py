@@ -34,8 +34,8 @@ from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
 from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     QCursor, QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
-    QMessageBox, QPalette, QPushButton, QRegExp, Qt, QTreeWidgetItem, \
-    pyqtSignal, pyqtSlot, sip
+    QMessageBox, QPalette, QPushButton, QRegularExpression, Qt, \
+    QTreeWidgetItem, pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.utils import AttrDict
@@ -682,16 +682,16 @@ class DevicesPanel(Panel):
     def on_filter_editTextChanged(self, text):
         for i in range(self.filter.count()):
             if text == self.filter.itemText(i):
-                rx = QRegExp(self.filter.itemData(i))
+                rx = QRegularExpression(self.filter.itemData(i))
                 break
         else:
-            rx = QRegExp(text)
+            rx = QRegularExpression(text)
         for i in range(self.tree.topLevelItemCount()):
             setupitem = self.tree.topLevelItem(i)
             all_children_hidden = True
             for j in range(setupitem.childCount()):
                 devitem = setupitem.child(j)
-                if rx.indexIn(devitem.text(0)) == -1:
+                if rx.match(devitem.text(0)).hasMatch():
                     devitem.setHidden(True)
                 else:
                     devitem.setHidden(False)

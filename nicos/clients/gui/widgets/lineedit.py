@@ -28,8 +28,8 @@ import re
 
 from nicos.clients.gui.utils import ScriptExecQuestion
 from nicos.guisupport.qt import QApplication, QColor, QCompleter, QEvent, \
-    QKeyEvent, QLineEdit, QMessageBox, QPalette, QRegExp, QRegExpValidator, \
-    QStringListModel, Qt, pyqtSignal
+    QKeyEvent, QLineEdit, QMessageBox, QPalette, QRegularExpression, \
+    QRegularExpressionValidator, QStringListModel, Qt, pyqtSignal
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
 
 wordsplit_re = re.compile(r'[ \t\n\"\\\'`@$><=;|&{(\[]')
@@ -183,7 +183,8 @@ class CommandLineEdit(HistoryLineEdit):
         HistoryLineEdit.__init__(self, parent, history)
         self.textChanged.connect(self.on_textChanged)
         self.returnPressed.connect(self.on_returnPressed)
-        self.setValidator(QRegExpValidator(QRegExp(r"^\S.*"), self))
+        self.setValidator(QRegularExpressionValidator(QRegularExpression(r"^\S.*"),
+                                                      self))
         self.current_status = None
         self.error_status = None
 
