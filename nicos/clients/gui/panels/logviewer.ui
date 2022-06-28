@@ -248,7 +248,7 @@
  <connections>
   <connection>
    <sender>serviceComboBox</sender>
-   <signal>currentIndexChanged(QString)</signal>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>LogViewerWindow</receiver>
    <slot>updateView()</slot>
    <hints>
