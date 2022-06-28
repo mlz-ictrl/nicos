@@ -26,8 +26,7 @@
 
 from nicos.core import SIMULATION, Attach, ConfigurationError, HasLimits, \
     InvalidValueError, Moveable, Override, Param, ProgrammingError, \
-    floatrange, limits, oneof
-from nicos.devices.entangle import AnalogInput
+    floatrange, oneof
 from nicos.utils import clamp
 
 
@@ -239,35 +238,3 @@ class CCRControl(HasLimits, Moveable):
         else:
             raise ProgrammingError(self, 'unknown mode %r, don\'t know how to '
                                    'handle it!' % self.regulationmode)
-
-
-# This class is used to access the pressure regulation limits
-# on newer CCR-Boxes. Since requirements are not fully clear,
-# this is to be treated EXPERIMENTAL and may change drastically in the future.
-class PLCLimits(AnalogInput, Moveable):
-    """Device accessing the limits of an pressure PLC-device
-
-    1st Iteration. Implementation will adapt to requirements,
-    which are not yet fully defined.
-    Deriving from AnalogInput as this already handles the unit.
-    AnalogOutput has HasLimits mixin is therefore too complex.
-    Could also inherit from PyTangoDevice instead of AnalogInput,
-    but would need to duplicate unit handling.
-
-    In the future this may use the pressure sensor as attached_device
-    and use the tango_device of the sensor directly.
-    Also in the future, the limits may be calculated from a Temperature.
-
-    As long as none of the details of 'in the future we may...' is clear,
-    we stick with a minimalist implementation allowing setting and
-    reading the limits as an additional device (of this class).
-    """
-
-    valuetype = limits
-
-    def doStart(self, target):
-        self._dev.SetParam([[min(target)], ['UserMin']])
-        self._dev.SetParam([[max(target)], ['UserMax']])
-
-    def doRead(self, maxage=0):
-        return self._dev.GetParam('UserMin'), self._dev.GetParam('UserMax')

@@ -10,6 +10,8 @@
 
 .. module:: nicos_mlz.devices.ccr
 .. autoclass:: CCRControl()
+
+.. module:: nicos_mlz.devices.ccr.plc
 .. autoclass:: PLCLimits()
 
 .. module:: nicos_mlz.devices.amagnet
