@@ -246,7 +246,7 @@ class ValueDisplay(NicosWidget, QWidget):
             if value < 0:
                 self.reinitLayout()
             else:
-                onechar = QFontMetrics(self.valueFont).width('0')
+                onechar = QFontMetrics(self.valueFont).horizontalAdvance('0')
                 self.valuelabel.setMinimumSize(QSize(round(onechar * (value + .5)), 0))
         elif pname == 'istext':
             self.valuelabel.setFont(value and self.font() or self.valueFont)

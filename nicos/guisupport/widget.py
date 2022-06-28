@@ -254,7 +254,7 @@ class NicosWidget(NicosListener):
                     self.props[prop] = PropDef.convert(pdef.default(self))
                 else:
                     self.props[prop] = PropDef.convert(pdef.default)
-        self._scale = QFontMetrics(self.valueFont).width('0')
+        self._scale = QFontMetrics(self.valueFont).horizontalAdvance('0')
         self.initUi()
 
     def initUi(self):
@@ -263,7 +263,7 @@ class NicosWidget(NicosListener):
     def propertyUpdated(self, pname, value):
         """Called when a property in self.properties has been updated."""
         if pname == 'valueFont':
-            self._scale = QFontMetrics(value).width('0')
+            self._scale = QFontMetrics(value).horizontalAdvance('0')
         self.update()
 
     def setClient(self, client):

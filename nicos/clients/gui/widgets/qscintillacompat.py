@@ -98,7 +98,8 @@ class QScintillaCompatible(QPlainTextEdit):
                                               cr.height()))
 
     def lineNumberAreaWidth(self):
-        return 3 + self.fontMetrics().width(str(max(1, self.blockCount())))
+        return 3 + self.fontMetrics().horizontalAdvance(
+            str(max(1, self.blockCount())))
 
     def highlightCurrentLine(self):
         extraSelections = []

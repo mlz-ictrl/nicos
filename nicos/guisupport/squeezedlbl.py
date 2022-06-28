@@ -62,7 +62,7 @@ class SqueezedLabel(QLabel, NicosWidget):
         squeezed = False
         new_lines = []
         for line in text.split('\n'):
-            if fm.width(line) > labelwidth:
+            if fm.horizontalAdvance(line) > labelwidth:
                 squeezed = True
                 new_lines.append(fm.elidedText(line, Qt.ElideRight, labelwidth))
             else:

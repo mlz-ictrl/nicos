@@ -39,6 +39,11 @@ from PyQt5.QtWidgets import *
 
 import nicos.guisupport.gui_rc_qt5
 
+# compat for Qt < 5.11
+if not hasattr(QFontMetrics, 'horizontalAdvance'):
+    QFontMetrics.horizontalAdvance = \
+        lambda self, *args, **kwargs: self.width(*args, **kwargs)
+
 try:
     from PyQt5 import sip
 except ImportError:
