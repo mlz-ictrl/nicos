@@ -65,27 +65,27 @@ def savePlot(widget, default_file_type, old_file_path=None):
 
 def setBackgroundColor(widget, color):
     palette = widget.palette()
-    palette.setColor(QPalette.Window, color)
-    palette.setColor(QPalette.Base, color)
-    widget.setBackgroundRole(QPalette.Window)
+    palette.setColor(QPalette.ColorRole.Window, color)
+    palette.setColor(QPalette.ColorRole.Base, color)
+    widget.setBackgroundRole(QPalette.ColorRole.Window)
     widget.setPalette(palette)
 
 
 def setForegroundColor(widget, color):
     palette = widget.palette()
-    palette.setColor(QPalette.WindowText, color)
-    palette.setColor(QPalette.Text, color)
-    widget.setForegroundRole(QPalette.WindowText)
+    palette.setColor(QPalette.ColorRole.WindowText, color)
+    palette.setColor(QPalette.ColorRole.Text, color)
+    widget.setForegroundRole(QPalette.ColorRole.WindowText)
     widget.setPalette(palette)
 
 
 def setBothColors(widget, colors):
     palette = widget.palette()
-    palette.setColor(QPalette.WindowText, colors[0])
-    palette.setColor(QPalette.Window, colors[1])
-    palette.setColor(QPalette.Base, colors[1])
-    widget.setBackgroundRole(QPalette.Window)
-    widget.setForegroundRole(QPalette.WindowText)
+    palette.setColor(QPalette.ColorRole.WindowText, colors[0])
+    palette.setColor(QPalette.ColorRole.Window, colors[1])
+    palette.setColor(QPalette.ColorRole.Base, colors[1])
+    widget.setBackgroundRole(QPalette.ColorRole.Window)
+    widget.setForegroundRole(QPalette.ColorRole.WindowText)
     widget.setPalette(palette)
 
 
@@ -103,7 +103,7 @@ class DoubleValidator(QDoubleValidator):
 
     def validate(self, string, pos):
         if ',' in string:
-            return QValidator.Invalid, string, pos
+            return QValidator.State.Invalid, string, pos
         elif string.startswith('.'):
             return QDoubleValidator.validate(self, '0' + string, pos + 1)
         elif string.startswith('-.') or string.startswith('+.'):
@@ -122,7 +122,7 @@ def waitCursor():
             pass
     """
     try:
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         yield
     finally:
         QApplication.restoreOverrideCursor()

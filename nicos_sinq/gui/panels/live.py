@@ -37,7 +37,7 @@ class ScanSlider(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setLayout(QVBoxLayout())
-        self.slider = QSlider(Qt.Horizontal, self)
+        self.slider = QSlider(Qt.Orientation.Horizontal, self)
         self.title = QLabel('Scanpoint selection', self)
         self.title.setMaximumHeight(25)
         self.layout().addWidget(self.title)

@@ -130,7 +130,7 @@ class Cmdlet(QWidget):
         For use in isValid().
         """
         if condition:
-            setBackgroundColor(ctl, Qt.white)
+            setBackgroundColor(ctl, Qt.GlobalColor.white)
         else:
             setBackgroundColor(ctl, invalid)
         if isinstance(ctl, QAbstractSpinBox):

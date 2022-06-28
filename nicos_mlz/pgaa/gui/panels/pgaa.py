@@ -78,7 +78,7 @@ class PGAAPanel(Panel):
 
         self.motorslide = DevSlider(client, 'sc', 1, 16, parent=self)
         self.motorslide.setParent(self.MotorGroup)
-        self.motorslide.setOrientation(Qt.Horizontal)
+        self.motorslide.setOrientation(Qt.Orientation.Horizontal)
         self.motorslide.setGeometry(10, 60, 221, 22)
         self.motorval = MotorValue(client, self)
         self.motorval.setParent(self.MotorGroup)
@@ -94,7 +94,7 @@ class PGAAPanel(Panel):
 
         self.pushmover = PushSlider(client, 'push', parent=self)
         self.pushmover.setParent(self.MotorGroup)
-        self.pushmover.setOrientation(Qt.Vertical)
+        self.pushmover.setOrientation(Qt.Orientation.Vertical)
         self.pushmover.setGeometry(240, 25, 22, 51)
 
         self.ellcol = ElCol(client)
@@ -121,7 +121,7 @@ class PGAAPanel(Panel):
             QueueSource(client, self, startwidg=self.startQ),
             QueueSource.column_order, self)
         self.active_table.setSelectionMode(
-            QAbstractItemView.SingleSelection)
+            QAbstractItemView.SelectionMode.SingleSelection)
         self.active_table.handle_drop = self.active_table.source.insert_new
         self.active_table.rearrange = self.active_table.source.rearrange
         self.active_table.keypress = self.active_table.source.keypress
@@ -131,7 +131,8 @@ class PGAAPanel(Panel):
         self.log_table = TableWidget(LogSource(client, self), Log.column_order,
                                      self)
         self.log_table.setAcceptDrops(False)
-        self.log_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.log_table.setSelectionMode(QAbstractItemView.SelectionMode
+                                        .SingleSelection)
         self.logLayout.addWidget(self.log_table)
 
         self.pattern_table = TableWidget(Template(client, self),
@@ -167,15 +168,15 @@ class TableWidget(QTableWidget):
         if parent:
             self.log = parent.parent().log
         self.setShowGrid(False)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        # self.setDragDropMode(QAbstractItemView.DragDrop)
+        self.setSelectionBehavior(QAbstractItemView.SelectionMode.SelectRows)
+        # self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
         # self.setDragDropOverwriteMode(True)
         # self.setDropIndicatorShown(True)
         self.verticalHeader().hide()
         hdr = self.horizontalHeader()
-        hdr.setSectionResizeMode(QHeaderView.Interactive)
+        hdr.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         # self.setDropIndicatorShown(True)
 
         self.source = source
@@ -765,7 +766,7 @@ class QueueSource(QObject):
             self.viewer.setFocus()
 
     def keypress(self, e):
-        if e.key() == Qt.Key_Delete:
+        if e.key() == Qt.Key.Key_Delete:
             ind = self.viewer.selectedIndexes()[0].row()
             self.delete(ind)
         else:
@@ -856,7 +857,7 @@ class Template(QObject):
         self.template.set_doubleclick()
 
     def keypress(self, e):
-        if e.key() == Qt.Key_Return:
+        if e.key() == Qt.Key.Key_Return:
             if self.template.is_enabled():
                 # self.template.set_enabled(False)
                 self.viewer.setFocus()

@@ -42,12 +42,13 @@ class HistoryLineEdit(QLineEdit):
 
     escapePressed = pyqtSignal()
 
-    scrollingKeys = [Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown]
+    scrollingKeys = [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_PageUp,
+                     Qt.Key.Key_PageDown]
 
     def __init__(self, parent, history=None):
         QLineEdit.__init__(self, parent)
         self.run_color = QColor('#ffdddd')
-        self.idle_color = self.palette().color(QPalette.Base)
+        self.idle_color = self.palette().color(QPalette.ColorRole.Base)
         self.active_fgcolor = QColor('#000000')
         self.inactive_fgcolor = QColor('#c9c9c9')
         self.error_fgcolor = QColor("#ff0000")
@@ -61,7 +62,7 @@ class HistoryLineEdit(QLineEdit):
 
     def event(self, event):
         # need to reimplement the general event handler to enable catching Tab
-        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
+        if event.type() == QEvent.Type.KeyPress and event.key() == Qt.Key.Key_Tab:
             fullstring = self.text()
             lastword = wordsplit_re.split(fullstring)[-1]
             # pylint: disable=too-many-function-args
@@ -85,35 +86,36 @@ class HistoryLineEdit(QLineEdit):
         key_code = kev.key()
 
         # if it's a shifted scroll key...
-        if kev.modifiers() & Qt.ShiftModifier and \
+        if kev.modifiers() & Qt.KeyboardModifier.ShiftModifier and \
                 self.scrollWidget and \
                 key_code in self.scrollingKeys:
             # create a new, unshifted key event and send it to the
             # scrolling widget
-            nev = QKeyEvent(kev.type(), kev.key(), Qt.NoModifier)
+            nev = QKeyEvent(kev.type(), kev.key(),
+                            Qt.KeyboardModifier.NoModifier)
             QApplication.sendEvent(self.scrollWidget, nev)
             return
 
-        if key_code == Qt.Key_Escape:
+        if key_code == Qt.Key.Key_Escape:
             # abort history search
             self.setText(self._start_text)
             self._current = -1
             self.escapePressed.emit()
             QLineEdit.keyPressEvent(self, kev)
 
-        elif key_code == Qt.Key_Up:
+        elif key_code == Qt.Key.Key_Up:
             # go earlier
             if self._current == -1:
                 self._start_text = self.text()
                 self._current = len(self.history)
             self.stepHistory(-1)
-        elif key_code == Qt.Key_Down:
+        elif key_code == Qt.Key.Key_Down:
             # go later
             if self._current == -1:
                 return
             self.stepHistory(1)
 
-        elif key_code == Qt.Key_PageUp:
+        elif key_code == Qt.Key.Key_PageUp:
             # go earlier with prefix
             if self._current == -1:
                 self._current = len(self.history)
@@ -121,14 +123,14 @@ class HistoryLineEdit(QLineEdit):
             prefix = self.text()[:self.cursorPosition()]
             self.stepHistoryUntil(prefix, 'up')
 
-        elif key_code == Qt.Key_PageDown:
+        elif key_code == Qt.Key.Key_PageDown:
             # go later with prefix
             if self._current == -1:
                 return
             prefix = self.text()[:self.cursorPosition()]
             self.stepHistoryUntil(prefix, 'down')
 
-        elif key_code == Qt.Key_Return or key_code == Qt.Key_Enter:
+        elif key_code == Qt.Key.Key_Return or key_code == Qt.Key.Key_Enter:
             # accept - add to history and do normal processing
             self._current = -1
             text = self.text()
@@ -237,9 +239,9 @@ class CommandLineEdit(HistoryLineEdit):
         if self.current_status != 'idle':
             qwindow = ScriptExecQuestion()
             result = qwindow.exec()
-            if result == QMessageBox.Cancel:
+            if result == QMessageBox.StandardButton.Cancel:
                 return
-            elif result == QMessageBox.Apply:
+            elif result == QMessageBox.StandardButton.Apply:
                 if self.current_status != 'idle':
                     # if still busy try immediate execution, may raise,
                     # else just queue it
@@ -251,8 +253,8 @@ class ShadowTextLineEdit(QLineEdit):
 
     def __init__(self, *args):
         QLineEdit.__init__(self, *args)
-        self._textcolor = self.palette().color(QPalette.Text)
-        self._shadowcolor = self.palette().color(QPalette.Dark)
+        self._textcolor = self.palette().color(QPalette.ColorRole.Text)
+        self._shadowcolor = self.palette().color(QPalette.ColorRole.Dark)
         self._shadowed = True
         self.setShadowText('')
 

@@ -51,11 +51,11 @@ class VerticalSplitter(Splitter):
 
     def __init__(self, item, window, menuwindow, topwindow, parent=None):
         Splitter.__init__(self, item, window, menuwindow, topwindow, parent)
-        self.setOrientation(Qt.Vertical)
+        self.setOrientation(Qt.Orientation.Vertical)
 
 
 class HorizontalSplitter(Splitter):
 
     def __init__(self, item, window, menuwindow, topwindow, parent=None):
         Splitter.__init__(self, item, window, menuwindow, topwindow, parent)
-        self.setOrientation(Qt.Horizontal)
+        self.setOrientation(Qt.Orientation.Horizontal)

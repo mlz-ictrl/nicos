@@ -51,11 +51,11 @@ magenta = QTextCharFormat()
 magenta.setForeground(QBrush(QColor('#C000C0')))
 
 bold = QTextCharFormat()
-bold.setFontWeight(QFont.Bold)
+bold.setFontWeight(QFont.Weight.Bold)
 
 redbold = QTextCharFormat()
 redbold.setForeground(QBrush(QColor('red')))
-redbold.setFontWeight(QFont.Bold)
+redbold.setFontWeight(QFont.Weight.Bold)
 
 # REs for hyperlinks
 
@@ -83,7 +83,7 @@ class MessageView(QTextBrowser):
         self.setFullTimestamps(False)
         self._background_image = None
         self._background_image_area = None
-        self.insert_position = QTextCursor.End
+        self.insert_position = QTextCursor.MoveOperation.End
 
     def setFullTimestamps(self, on):
         if on:
@@ -251,7 +251,7 @@ class MessageView(QTextBrowser):
     def findNext(self, what, regex=False):
         cursor = self.textCursor()
         if regex:
-            rx = QRegularExpression(what, Qt.CaseInsensitive)
+            rx = QRegularExpression(what, Qt.CaseSensitivity.CaseInsensitive)
             newcurs = self.document().find(rx, cursor)
         else:
             newcurs = self.document().find(what, cursor)
@@ -261,7 +261,7 @@ class MessageView(QTextBrowser):
     def occur(self, what, regex=False):
         content = self.toPlainText().split('\n')
         if regex:
-            rx = QRegularExpression(what, Qt.CaseInsensitive)
+            rx = QRegularExpression(what, Qt.CaseSensitivity.CaseInsensitive)
             content = [line for line in content if rx.match(line).hasMatch()]
         else:
             what = what.lower()
@@ -287,7 +287,8 @@ class MessageView(QTextBrowser):
         size = self._background_image.size()
 
         # scale to viewport size and add some margin
-        size.scale(self.viewport().size() - QSize(30, 30), Qt.KeepAspectRatio)
+        size.scale(self.viewport().size() - QSize(30, 30),
+                   Qt.AspectRatioMode.KeepAspectRatio)
 
         # center background image
         p = (self.viewport().size() - size) / 2
@@ -304,9 +305,9 @@ class MessageView(QTextBrowser):
 
     def enableReverseScrolling(self, value):
         if value:
-            self.insert_position = QTextCursor.Start
+            self.insert_position = QTextCursor.MoveOperation.Start
         else:
-            self.insert_position = QTextCursor.End
+            self.insert_position = QTextCursor.MoveOperation.End
 
     def resizeEvent(self, ev):
         # recalculate the background area only if necessary

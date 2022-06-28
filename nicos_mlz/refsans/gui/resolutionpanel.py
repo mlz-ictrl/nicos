@@ -92,7 +92,7 @@ class ResolutionPanel(NicosWidget, Panel):
                                 'The following devices are not available:<br>'
                                 "'%s'" % ', '.join(missed_devices))
             self.buttonBox.removeButton(
-                self.buttonBox.button(QDialogButtonBox.Apply))
+                self.buttonBox.button(QDialogButtonBox.StandardButton.Apply))
 
     def _update_key(self, key, value):
         pass
@@ -120,5 +120,6 @@ class ResolutionPanel(NicosWidget, Panel):
 
     @pyqtSlot('QAbstractButton *')
     def createScript(self, button):
-        if self.buttonBox.standardButton(button) == QDialogButtonBox.Apply:
+        if self.buttonBox.standardButton(button) \
+                == QDialogButtonBox.StandardButton.Apply:
             pass

@@ -38,7 +38,7 @@ class RefsansView(QGraphicsView):
     def __init__(self, parent=None):
         scene = QGraphicsScene()
         QGraphicsView.__init__(self, scene)
-        self.setRenderHints(QPainter.Antialiasing)
+        self.setRenderHints(QPainter.RenderHint.Antialiasing)
 
         self._tube = Tube(scene=scene)
         self._tube.setRotation(1)

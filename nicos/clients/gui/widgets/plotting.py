@@ -380,7 +380,7 @@ class ArbitraryFitter(Fitter):
     def begin(self):
         dlg = ArbyFitDialog(self.plot)
         ret = dlg.exec()
-        if ret != QDialog.Accepted:
+        if ret != QDialog.DialogCode.Accepted:
             return
 
         fcnstr, params, values, xmin, xmax = dlg.getFunction()
@@ -622,7 +622,7 @@ class NicosPlot(DlgUtils):
             for _, descr in visible_curves:
                 QListWidgetItem(descr, dlg.list)
             dlg.list.setCurrentRow(0)
-            if dlg.exec() != QDialog.Accepted:
+            if dlg.exec() != QDialog.DialogCode.Accepted:
                 return
             fitcurve = visible_curves[dlg.list.currentRow()][0]
         else:
@@ -681,23 +681,23 @@ class NicosPlot(DlgUtils):
 
         def checkAll():
             for i in range(dlg.list.count()):
-                dlg.list.item(i).setCheckState(Qt.Checked)
+                dlg.list.item(i).setCheckState(Qt.CheckState.Checked)
         dlg.selectall.clicked.connect(checkAll)
         for i, descr in visible_curves:
             li = QListWidgetItem(descr, dlg.list)
             if len(visible_curves) == 1:
-                li.setCheckState(Qt.Checked)
+                li.setCheckState(Qt.CheckState.Checked)
                 dlg.operation.setFocus()
             else:
-                li.setCheckState(Qt.Unchecked)
-        if dlg.exec() != QDialog.Accepted:
+                li.setCheckState(Qt.CheckState.Unchecked)
+        if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         # evaluate selection
         op = dlg.operation.text()
         curves = []
         for i in range(dlg.list.count()):
             li = dlg.list.item(i)
-            if li.checkState() == Qt.Checked:
+            if li.checkState() == Qt.CheckState.Checked:
                 curves.append(i)
 
         # modify curve data
@@ -1012,7 +1012,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
     def _enterFitMode(self):
         self.parent_window.statusBar.showMessage(self.statusMessage)
         self._cursor = self.cursor()
-        self.setCursor(QCursor(Qt.CrossCursor))
+        self.setCursor(QCursor(Qt.CursorShape.CrossCursor))
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
         self.setMouseSelectionEnabled(False)
 
@@ -1165,7 +1165,7 @@ class ViewPlot(NicosGrPlot):
                                'Select curve(s), file name and format',
                                '', 'ASCII data files (*.dat)')
         res = dlg.exec()
-        if res != QDialog.Accepted:
+        if res != QDialog.DialogCode.Accepted:
             return
         if not dlg.selectedFiles():
             return

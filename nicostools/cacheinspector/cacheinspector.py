@@ -47,14 +47,14 @@ class StatusBarHandler(Handler):
         if self._statusbar:
             msg = record.message
             palette = self._statusbar.palette()
-            color = Qt.black
+            color = Qt.GlobalColor.black
             if record.levelno == WARNING:
-                color = Qt.darkMagenta
+                color = Qt.GlobalColor.darkMagenta
                 msg = 'Warning: ' + msg
             elif record.levelno == ERROR:
-                color = Qt.red
+                color = Qt.GlobalColor.red
                 msg = 'Error: ' + msg
-            palette.setColor(QPalette.WindowText, color)
+            palette.setColor(QPalette.ColorRole.WindowText, color)
             self._statusbar.setPalette(palette)
             self._statusbar.showMessage(msg)
 

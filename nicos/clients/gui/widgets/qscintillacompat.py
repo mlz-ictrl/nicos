@@ -65,7 +65,7 @@ class QScintillaCompatible(QPlainTextEdit):
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.lineNumberArea)
-        painter.fillRect(event.rect(), Qt.lightGray)
+        painter.fillRect(event.rect(), Qt.GlobalColor.lightGray)
 
         block = self.firstVisibleBlock()
         blockNumber = block.blockNumber()
@@ -76,10 +76,10 @@ class QScintillaCompatible(QPlainTextEdit):
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(blockNumber + 1)
-                painter.setPen(Qt.black)
+                painter.setPen(Qt.GlobalColor.black)
                 painter.drawText(0, top, self.lineNumberArea.width(),
-                                 self.fontMetrics().height(), Qt.AlignRight,
-                                 number)
+                                 self.fontMetrics().height(),
+                                 Qt.AlignmentFlag.AlignRight, number)
 
             block = block.next()
             top = bottom
@@ -106,10 +106,11 @@ class QScintillaCompatible(QPlainTextEdit):
 
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-            lineColor = QColor(Qt.yellow).lighter(160)
+            lineColor = QColor(Qt.GlobalColor.yellow).lighter(160)
 
             selection.format.setBackground(lineColor)
-            selection.format.setProperty(QTextFormat.FullWidthSelection, True)
+            selection.format.setProperty(
+                QTextFormat.Property.FullWidthSelection, True)
             selection.cursor = self.textCursor()
             selection.cursor.clearSelection()
             extraSelections.append(selection)
@@ -140,7 +141,7 @@ class QScintillaCompatible(QPlainTextEdit):
         self.insertPlainText(text)
 
     def moveToEnd(self):
-        self.moveCursor(QTextCursor.End)
+        self.moveCursor(QTextCursor.MoveOperation.End)
 
     def beginUndoAction(self):
         pass
@@ -150,9 +151,11 @@ class QScintillaCompatible(QPlainTextEdit):
 
     def setCursorPosition(self, line, column):
         cursor = self.textCursor()
-        cursor.move(QTextCursor.Start)
-        cursor.move(QTextCursor.Down, QTextCursor.MoveAnchor, line)
-        cursor.move(QTextCursor.Right, QTextCursor.MoveAnchor, column)
+        cursor.move(QTextCursor.MoveOperation.Start)
+        cursor.move(QTextCursor.MoveOperation.Down,
+                    QTextCursor.MoveMode.MoveAnchor, line)
+        cursor.move(QTextCursor.MoveOperation.Right,
+                    QTextCursor.MoveMode.MoveAnchor, column)
         self.setTextCursor(cursor)
 
     def findFirst(self, text, regexp, case, wholeword, wrap, forward=True,

@@ -71,25 +71,31 @@ class LokiScriptBuilderPanel(PanelBase):
 
         self.columns = OrderedDict({
             'position':
-                Column('Position', False, QHeaderView.ResizeToContents, False,
-                       ComboBoxDelegate()),
+                Column('Position', False,
+                       QHeaderView.ResizeMode.ResizeToContents,
+                       False, ComboBoxDelegate()),
             'sample':
-                Column('Sample Details', False, QHeaderView.Stretch, False,
-                       ReadOnlyDelegate()),
+                Column('Sample Details', False, QHeaderView.ResizeMode.Stretch,
+                       False, ReadOnlyDelegate()),
             'trans_duration':
-                Column('TRANS Duration', False, QHeaderView.ResizeToContents,
+                Column('TRANS Duration', False,
+                       QHeaderView.ResizeMode.ResizeToContents,
                        True, LimitsDelegate((0, 1e308), 1)),
             'sans_duration':
-                Column('SANS Duration', False, QHeaderView.ResizeToContents,
+                Column('SANS Duration', False,
+                       QHeaderView.ResizeMode.ResizeToContents,
                        True, LimitsDelegate((0, 1e308), 1)),
             'temperature':
-                Column('Temperature', True, QHeaderView.ResizeToContents, True,
-                       LimitsDelegate((0, 1e308))),
+                Column('Temperature', True,
+                       QHeaderView.ResizeMode.ResizeToContents,
+                       True, LimitsDelegate((0, 1e308))),
             'pre-command':
-                Column('Pre-command', True, QHeaderView.ResizeToContents, True,
-                       None),
+                Column('Pre-command', True,
+                       QHeaderView.ResizeMode.ResizeToContents,
+                       True, None),
             'post-command':
-                Column('Post-command', True, QHeaderView.ResizeToContents,
+                Column('Post-command', True,
+                       QHeaderView.ResizeMode.ResizeToContents,
                        True, None),
         })
         self.columns_headers = list(self.columns.keys())
@@ -216,7 +222,8 @@ class LokiScriptBuilderPanel(PanelBase):
         self._link_duration_combobox_to_column('trans_duration',
                                                self.comboTransDurationType)
 
-        self.tableView.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.tableView.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Fixed)
         for i, column in enumerate(self.columns.values()):
             self.tableView.horizontalHeader().setSectionResizeMode(
                 i, column.style)
@@ -236,7 +243,7 @@ class LokiScriptBuilderPanel(PanelBase):
             control.setEnabled(not viewonly)
 
     def _init_right_click_context_menu(self):
-        self.tableView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tableView.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.tableView.customContextMenuRequested.connect(
             self._show_context_menu)
 
@@ -261,7 +268,7 @@ class LokiScriptBuilderPanel(PanelBase):
     def _create_shortcut_key(self, shortcut_keys, to_call):
         shortcut = QShortcut(shortcut_keys, self.tableView)
         shortcut.activated.connect(to_call)
-        shortcut.setContext(Qt.WidgetShortcut)
+        shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
 
     def _open_file(self):
         try:
@@ -302,7 +309,7 @@ class LokiScriptBuilderPanel(PanelBase):
             if i == self.model.num_entries:
                 self.model.insert_row(i)
             index = self.model.createIndex(i, 0)
-            self.model.setData(index, s, Qt.EditRole)
+            self.model.setData(index, s, Qt.ItemDataRole.EditRole)
         self.tableView.selectRow(0)
 
     def _fill_table(self, headers, data):
@@ -437,7 +444,8 @@ class LokiScriptBuilderPanel(PanelBase):
         for index in self.tableView.selectedIndexes():
             column = self.columns_headers[index.column()]
             if self.columns[column].can_bulk_update:
-                self.model.setData(index, self.txtValue.text(), Qt.EditRole)
+                self.model.setData(index, self.txtValue.text(),
+                                   Qt.ItemDataRole.EditRole)
 
     def _extract_script_data(self):
         # Row will contribute to script only if 'sample' and 'position' filled
@@ -512,7 +520,7 @@ class LokiScriptBuilderPanel(PanelBase):
                                     f'duration(s): {", ".join(invalid_rows)}.')
 
     def _on_optional_column_toggled(self, column_name, state):
-        if state == Qt.Checked:
+        if state == Qt.CheckState.Checked:
             self._show_column(column_name)
         else:
             self._hide_column(column_name)
@@ -532,4 +540,4 @@ class LokiScriptBuilderPanel(PanelBase):
             f'\n({value})')
 
     def _set_column_title(self, index, title):
-        self.model.setHeaderData(index, Qt.Horizontal, title)
+        self.model.setHeaderData(index, Qt.Orientation.Horizontal, title)

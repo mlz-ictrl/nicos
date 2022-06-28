@@ -54,9 +54,9 @@ class FileFilterDialog(QFileDialog):
 
     def __init__(self, *args):
         QFileDialog.__init__(self, *args)
-        self.setAcceptMode(QFileDialog.AcceptOpen)
-        self.setFileMode(QFileDialog.ExistingFiles)
-        self.setOption(QFileDialog.DontUseNativeDialog)
+        self.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+        self.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        self.setOption(QFileDialog.Option.DontUseNativeDialog)
         filterproxy = FileFilterProxyModel(self)
         self.setProxyModel(filterproxy)
         child = None  # make pylint happy

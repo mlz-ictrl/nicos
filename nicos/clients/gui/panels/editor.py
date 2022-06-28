@@ -91,7 +91,7 @@ class SimResultFrame(QWidget):
         loadUi(self, 'panels/simresult.ui')
         self.simOutStack.setCurrentIndex(0)
         hdr = self.simRanges.header()
-        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
 
         self.panel = panel
         self.simuuid = None
@@ -137,7 +137,7 @@ class SimResultFrame(QWidget):
                 item = QTreeWidgetItem([devname, dmin, '-', dmax, '', aliascol])
                 self.simRanges.addTopLevelItem(item)
 
-        self.simRanges.sortByColumn(0, Qt.AscendingOrder)
+        self.simRanges.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
     def on_simErrorsOnly_toggled(self, on):
         self.simOutStack.setCurrentIndex(on)
@@ -403,9 +403,9 @@ class EditorPanel(Panel):
             self.currentEditor.beginUndoAction()
             if self.currentEditor.text():
                 res = OverwriteQuestion().exec()
-                if res == QMessageBox.Apply:
+                if res == QMessageBox.StandardButton.Apply:
                     self.currentEditor.clear()
-                elif res == QMessageBox.Cancel:
+                elif res == QMessageBox.StandardButton.Cancel:
                     return
             # append() and setText() would clear undo history in QScintilla,
             # therefore we use these calls
@@ -554,17 +554,17 @@ class EditorPanel(Panel):
             printer.setOutputFileName('')
             printer.setDocName(self.filenames[self.currentEditor])
             # printer.setFullPage(True)
-            if QPrintDialog(printer, self).exec() == QDialog.Accepted:
+            if QPrintDialog(printer, self).exec() == QDialog.DialogCode.Accepted:
                 lexer = self.currentEditor.lexer()
                 bgcolor = lexer.paper(0)
                 # printer prints background color too, so set it to white
-                lexer.setPaper(Qt.white)
+                lexer.setPaper(Qt.GlobalColor.white)
                 printer.printRange(self.currentEditor)
                 lexer.setPaper(bgcolor)
         else:
             printer = QPrinter()
             printer.setOutputFileName('')
-            if QPrintDialog(printer, self).exec() == QDialog.Accepted:
+            if QPrintDialog(printer, self).exec() == QDialog.DialogCode.Accepted:
                 getattr(self.currentEditor, 'print')(printer)
 
     def validateScript(self):
@@ -652,13 +652,19 @@ class EditorPanel(Panel):
                 self.filenames[editor]
         else:
             message = 'Save new file before continuing?'
-        buttons = QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel
+        buttons = (QMessageBox.StandardButton.Save |
+                   QMessageBox.StandardButton.Discard |
+                   QMessageBox.StandardButton.Cancel)
         if askonly:
-            buttons = QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
+            buttons = (QMessageBox.StandardButton.Yes |
+                       QMessageBox.StandardButton.No |
+                       QMessageBox.StandardButton.Cancel)
         rc = QMessageBox.question(self, 'User Editor', message, buttons)
-        if rc in (QMessageBox.Save, QMessageBox.Yes):
+        if rc in (QMessageBox.StandardButton.Save,
+                  QMessageBox.StandardButton.Yes):
             return self.saveFile(editor)
-        if rc in (QMessageBox.Discard, QMessageBox.No):
+        if rc in (QMessageBox.StandardButton.Discard,
+                  QMessageBox.StandardButton.No):
             return True
         return False
 

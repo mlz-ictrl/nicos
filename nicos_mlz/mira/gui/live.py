@@ -54,14 +54,14 @@ class LiveDataPanel(Panel):
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
-        policy.setVerticalPolicy(QSizePolicy.Fixed)
+        policy.setVerticalPolicy(QSizePolicy.Policy.Fixed)
         self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
         if CascadeWidget:
             self.widget = CascadeWidget(self)
-            self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             self.widgetLayout.addWidget(self.widget)
         else:
             raise RuntimeError('The Cascade live widget is not available')
@@ -72,8 +72,8 @@ class LiveDataPanel(Panel):
             ctrl.setRange(0, 100000000)
             ctrl.setEnabled(False)
             ctrl.setMaximumWidth(90)
-            ctrl.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Fixed))
+            ctrl.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Fixed,
+                                           QSizePolicy.Policy.Fixed))
             ctrl.valueChanged.connect(self.on_rangeChanged)
 
         self.liveitem = QListWidgetItem('<Live>', self.fileList)
@@ -290,11 +290,11 @@ class LiveDataPanel(Panel):
 
     @pyqtSlot()
     def on_actionPrint_triggered(self):
-        printer = QPrinter(QPrinter.HighResolution)
-        printer.setColorMode(QPrinter.Color)
-        printer.setPageOrientation(QPageLayout.Landscape)
+        printer = QPrinter(QPrinter.PrinterMode.HighResolution)
+        printer.setColorMode(QPrinter.ColorMode.Color)
+        printer.setPageOrientation(QPageLayout.Orientation.Landscape)
         printer.setOutputFileName('')
-        if QPrintDialog(printer, self).exec() == QDialog.Accepted:
+        if QPrintDialog(printer, self).exec() == QDialog.DialogCode.Accepted:
             self.widget.GetPlot().print_(printer)
         self.statusBar.showMessage('Plot successfully printed to %s.' %
                                    str(printer.printerName()))

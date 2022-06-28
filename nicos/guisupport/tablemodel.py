@@ -83,12 +83,12 @@ class TableModel(QAbstractTableModel):
         return copy.copy(self._table_data)
 
     def data(self, index, role):
-        if role == Qt.DisplayRole or role == Qt.EditRole:
+        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
             row, column = self._get_row_and_column(index)
             return self._table_data[row][column]
 
     def setData(self, index, value, role):
-        if role != Qt.EditRole:
+        if role != Qt.ItemDataRole.EditRole:
             return False
 
         row, column = self._get_row_and_column(index)
@@ -116,12 +116,15 @@ class TableModel(QAbstractTableModel):
         return len(self._headings) if self._transposed else len(self._raw_data)
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | \
+            Qt.ItemFlag.ItemIsEditable
 
     def headerData(self, section, orientation, role):
-        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+        if role == Qt.ItemDataRole.DisplayRole and \
+           orientation == Qt.Orientation.Horizontal:
             return section + 1 if self._transposed else self._headings[section]
-        if role == Qt.DisplayRole and orientation == Qt.Vertical:
+        if role == Qt.ItemDataRole.DisplayRole and \
+           orientation == Qt.Orientation.Vertical:
             return self._headings[section] if self._transposed else section + 1
 
     def _empty_table(self, columns, rows):

@@ -80,7 +80,7 @@ class CommandsPanel(Panel):
                 return
             toolbtn = QToolButton(self)
             toolbtn.setText(category)
-            toolbtn.setPopupMode(QToolButton.InstantPopup)
+            toolbtn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
             menu = QMenu(self)
             menu.addActions(self.mapping[category])
             toolbtn.setMenu(menu)

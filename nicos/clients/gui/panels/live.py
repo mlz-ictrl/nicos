@@ -61,10 +61,10 @@ except ImportError:
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
 
-FILENAME = Qt.UserRole
-FILETYPE = Qt.UserRole + 1
-FILETAG = Qt.UserRole + 2
-FILEUID = Qt.UserRole + 3
+FILENAME = Qt.ItemDataRole.UserRole
+FILETYPE = Qt.ItemDataRole.UserRole + 1
+FILETAG = Qt.ItemDataRole.UserRole + 2
+FILEUID = Qt.ItemDataRole.UserRole + 3
 
 DEFAULTS = dict(
     marks='omark',
@@ -203,7 +203,7 @@ class LiveDataPanel(Panel):
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
-        policy.setVerticalPolicy(QSizePolicy.Fixed)
+        policy.setVerticalPolicy(QSizePolicy.Policy.Fixed)
         self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
@@ -244,7 +244,7 @@ class LiveDataPanel(Panel):
             self.pastFilesWidget.hide()
             self.statusBar.hide()
             # disable interactions with the plot
-            self.setAttribute(Qt.WA_TransparentForMouseEvents)
+            self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
 
         self.liveitems = []
         self.setLiveItems(1)
@@ -489,7 +489,7 @@ class LiveDataPanel(Panel):
             safeName('data_' + self.fileList.currentItem().data(FILEUID)
                      + suffix))
         ret = newdlg.exec()
-        if ret != QDialog.Accepted:
+        if ret != QDialog.DialogCode.Accepted:
             return
         descr = newdlg.description.text()
         fname = newdlg.filename.text()
@@ -1033,7 +1033,7 @@ class LiveDataPanel(Panel):
                                    ";;".join(ftypes.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
-        if fdialog.exec() != QDialog.Accepted:
+        if fdialog.exec() != QDialog.DialogCode.Accepted:
             return
         files = fdialog.selectedFiles()
         if not files:

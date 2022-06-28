@@ -42,7 +42,7 @@ def iterChecked(listwidget):
     """Yield checked items in a QListWidget"""
     for i in range(listwidget.count()):
         item = listwidget.item(i)
-        if item.checkState() == Qt.Checked:
+        if item.checkState() == Qt.CheckState.Checked:
             yield item
 
 
@@ -80,9 +80,9 @@ def splitUsers(users_str):
 class ProposalDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
-        html = index.data(Qt.UserRole + 1)
+        html = index.data(Qt.ItemDataRole.UserRole + 1)
         if html is None:
-            prop = index.data(Qt.UserRole)
+            prop = index.data(Qt.ItemDataRole.UserRole)
             if 'startdate' in prop and 'enddate' in prop:
                 startdate = prop['startdate'].strftime('%Y-%m-%d')
                 enddate = prop['enddate'].strftime('%Y-%m-%d')
@@ -93,11 +93,11 @@ class ProposalDelegate(QStyledItemDelegate):
             <big><b>{prop['proposal']}</b></big> - {prop['title']}<br>
             {prop['users'][0]['name']}{dates}
             '''
-            index.model().setData(index, html, Qt.UserRole + 1)
+            index.model().setData(index, html, Qt.ItemDataRole.UserRole + 1)
         palette = self.parent().palette()
         document = QTextDocument()
         document.setDefaultFont(option.font)
-        if option.state & QStyle.State_Selected:
+        if option.state & QStyle.StateFlag.State_Selected:
             document.setHtml("<font color=%s>%s</font>" %
                              (palette.highlightedText().color().name(), html))
             color = palette.highlight().color()
@@ -111,7 +111,7 @@ class ProposalDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option, index):
-        html = index.data(Qt.UserRole + 1)
+        html = index.data(Qt.ItemDataRole.UserRole + 1)
         document = QTextDocument()
         document.setDefaultFont(option.font)
         document.setHtml(html)
@@ -204,11 +204,11 @@ class ExpPanel(Panel):
             self.propLabel.setText('Enter a proposal number or name:')
         if self.client.viewonly:
             self.finishButton.setVisible(False)
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         else:
             self.finishButton.setVisible(True)
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
-                                              QDialogButtonBox.Close)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
+                                              QDialogButtonBox.StandardButton.Close)
 
     def on_client_disconnected(self):
         self.setViewOnly(True)
@@ -311,7 +311,7 @@ class ExpPanel(Panel):
         dlg.list.setItemDelegate(ProposalDelegate(dlg))
         for prop in proposals:
             item = QListWidgetItem('', dlg.list)
-            item.setData(Qt.UserRole, prop)
+            item.setData(Qt.ItemDataRole.UserRole, prop)
         if not dlg.exec():
             return
         sel = dlg.list.currentRow()
@@ -319,9 +319,9 @@ class ExpPanel(Panel):
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ApplyRole:
+        if role == QDialogButtonBox.ButtonRole.ApplyRole:
             self.applyChanges()
-        elif role == QDialogButtonBox.RejectRole:
+        elif role == QDialogButtonBox.ButtonRole.RejectRole:
             self.closeWindow()
 
     def applyChanges(self):
@@ -475,8 +475,11 @@ class SetupsPanel(Panel):
         self.basicSetup.clear()
         self.optSetups.clear()
         self.errorLabel.hide()
-        default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
-            Qt.ItemIsEnabled
+        default_flags = (
+            Qt.ItemFlag.ItemIsUserCheckable |
+            Qt.ItemFlag.ItemIsSelectable |
+            Qt.ItemFlag.ItemIsEnabled
+        )
         keep = QListWidgetItem('<keep current>', self.basicSetup)
         if self._setupinfo is not None:
             for name, info in sorted(self._setupinfo.items()):
@@ -491,21 +494,23 @@ class SetupsPanel(Panel):
                 elif info['group'] == 'optional':
                     item = QListWidgetItem(name, self.optSetups)
                     item.setFlags(default_flags)
-                    item.setData(Qt.UserRole, 0)
+                    item.setData(Qt.ItemDataRole.UserRole, 0)
                     if name in all_loaded:
                         self._loaded.add(name)
-                    item.setCheckState(Qt.Checked if name in all_loaded
-                                       else Qt.Unchecked)
+                    item.setCheckState(
+                        Qt.CheckState.Checked if name in all_loaded
+                        else Qt.CheckState.Unchecked)
                 elif info['group'] == 'plugplay':
                     item = QListWidgetItem(name, self.optSetups)
                     item.setFlags(default_flags)
-                    item.setData(Qt.UserRole, 1)
+                    item.setData(Qt.ItemDataRole.UserRole, 1)
                     if name in all_loaded:
                         self._loaded.add(name)
                     elif not self.showPnpBox.isChecked():
                         item.setHidden(True)
-                    item.setCheckState(Qt.Checked if name in all_loaded
-                                       else Qt.Unchecked)
+                    item.setCheckState(
+                        Qt.CheckState.Checked if name in all_loaded
+                        else Qt.CheckState.Unchecked)
         self.basicSetup.setCurrentItem(keep)
         self._prev_alias_config = self._alias_config
         self.setViewOnly(self.client.viewonly)
@@ -517,13 +522,13 @@ class SetupsPanel(Panel):
 
     def setViewOnly(self, viewonly):
         if viewonly:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
             self.buttonBox.removeButton(self._reload_btn)
         else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
-                                              QDialogButtonBox.Close)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
+                                              QDialogButtonBox.StandardButton.Close)
             self.buttonBox.addButton(self._reload_btn,
-                                     QDialogButtonBox.ResetRole)
+                                     QDialogButtonBox.ButtonRole.ResetRole)
 
     def on_basicSetup_currentItemChanged(self, item, old):
         if item and item.text() != '<keep current>':
@@ -546,17 +551,17 @@ class SetupsPanel(Panel):
     def on_showPnpBox_stateChanged(self, state):
         for i in range(self.optSetups.count()):
             item = self.optSetups.item(i)
-            if item.data(Qt.UserRole) == 1:
-                item.setHidden(item.checkState() == Qt.Unchecked and
+            if item.data(Qt.ItemDataRole.UserRole) == 1:
+                item.setHidden(item.checkState() == Qt.CheckState.Unchecked and
                                not self.showPnpBox.isChecked())
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ApplyRole:
+        if role == QDialogButtonBox.ButtonRole.ApplyRole:
             self.applyChanges()
-        elif role == QDialogButtonBox.RejectRole:
+        elif role == QDialogButtonBox.ButtonRole.RejectRole:
             self.closeWindow()
-        elif role == QDialogButtonBox.ResetRole:
+        elif role == QDialogButtonBox.ButtonRole.ResetRole:
             if self.client.run('NewSetup()', noqueue=True) is None:
                 self.showError('Could not reload setups, a script is running.')
             else:
@@ -705,8 +710,11 @@ class DetEnvPanel(Panel):
         self.detectors.clear()
         self.sampleenv.clear()
 
-        default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
-            Qt.ItemIsEnabled
+        default_flags = (
+            Qt.ItemFlag.ItemIsUserCheckable |
+            Qt.ItemFlag.ItemIsSelectable |
+            Qt.ItemFlag.ItemIsEnabled
+        )
 
         # fill detectors
         detectors = self.client.getDeviceList(
@@ -716,8 +724,9 @@ class DetEnvPanel(Panel):
         for detname in detectors:
             item = QListWidgetItem(detname, self.detectors)
             item.setFlags(default_flags)
-            item.setCheckState(Qt.Checked if detname in self._orig_detlist
-                               else Qt.Unchecked)
+            item.setCheckState(
+                Qt.CheckState.Checked if detname in self._orig_detlist
+                else Qt.CheckState.Unchecked)
 
         # fill environment
         envdevs = self.client.getDeviceList(
@@ -727,13 +736,14 @@ class DetEnvPanel(Panel):
         for devname in envdevs:
             item = QListWidgetItem(devname, self.sampleenv)
             item.setFlags(default_flags)
-            item.setCheckState(Qt.Checked if devname in self._orig_envlist
-                               else Qt.Unchecked)
+            item.setCheckState(
+                Qt.CheckState.Checked if devname in self._orig_envlist
+                else Qt.CheckState.Unchecked)
         if self.client.viewonly:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
-                                              QDialogButtonBox.Close)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
+                                              QDialogButtonBox.StandardButton.Close)
 
     @pyqtSlot()
     def on_envHelpBtn_clicked(self):
@@ -748,9 +758,9 @@ sample environment is placed.''')
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ApplyRole:
+        if role == QDialogButtonBox.ButtonRole.ApplyRole:
             self.applyChanges()
-        elif role == QDialogButtonBox.RejectRole:
+        elif role == QDialogButtonBox.ButtonRole.RejectRole:
             self.closeWindow()
 
     def applyChanges(self):
@@ -786,16 +796,16 @@ class GenericSamplePanel(Panel):
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)
         if self.client.viewonly:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
-                                              QDialogButtonBox.Close)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
+                                              QDialogButtonBox.StandardButton.Close)
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ApplyRole:
+        if role == QDialogButtonBox.ButtonRole.ApplyRole:
             self.applyChanges()
-        elif role == QDialogButtonBox.RejectRole:
+        elif role == QDialogButtonBox.ButtonRole.RejectRole:
             self.closeWindow()
 
     def getEditBoxes(self):

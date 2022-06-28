@@ -77,7 +77,7 @@ class TableHelper:
 
     def clear_selected(self):
         for index in self.table_view.selectedIndexes():
-            self.model.setData(index, '', Qt.EditRole)
+            self.model.setData(index, '', Qt.ItemDataRole.EditRole)
 
     def cut_selected_to_clipboard(self):
         self.copy_selected_to_clipboard()
@@ -94,7 +94,8 @@ class TableHelper:
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
             # Only one value, so put it in all selected cells
             for index in self.table_view.selectedIndexes():
-                self.model.setData(index, copied_table[0][0], Qt.EditRole)
+                self.model.setData(index, copied_table[0][0],
+                                   Qt.ItemDataRole.EditRole)
             return
 
         # Copied data is tabular so insert at top-left most position
@@ -112,4 +113,4 @@ class TableHelper:
 
             for col_index, value in zip(column_indexes, row_data):
                 self.model.setData(self.model.index(current_row, col_index),
-                                   value, Qt.EditRole)
+                                   value, Qt.ItemDataRole.EditRole)

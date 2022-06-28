@@ -58,7 +58,7 @@ class ScansPanel(FlowUIScansPanel):
                                    ";;".join(ffilters.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
-        if fdialog.exec() != QDialog.Accepted:
+        if fdialog.exec() != QDialog.DialogCode.Accepted:
             return
         files = fdialog.selectedFiles()
         if not files:

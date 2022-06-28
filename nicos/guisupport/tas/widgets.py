@@ -43,7 +43,7 @@ class TasView(QGraphicsView):
     def __init__(self, parent=None, designMode=False):
         self.scene = QGraphicsScene(parent)
         QGraphicsView.__init__(self, self.scene, parent)
-        self.setRenderHints(QPainter.Antialiasing)
+        self.setRenderHints(QPainter.RenderHint.Antialiasing)
 
         # default values (used when no such devices are configured)
         self.values = {

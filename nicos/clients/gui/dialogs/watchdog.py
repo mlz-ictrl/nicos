@@ -43,7 +43,8 @@ class WatchdogDialog(QDialog):
         self.frame.layout().addStretch()
 
         def btn(button):
-            if self.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
+            if self.buttonBox.buttonRole(button) \
+                    == QDialogButtonBox.ButtonRole.ResetRole:
                 for w in self.frame.children():
                     if isinstance(w, QWidget):
                         w.hide()

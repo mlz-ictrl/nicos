@@ -88,11 +88,11 @@ class PlotWidget(QWidget):
         self.plot = MiniPlot(xlabel, ylabel, ncurves, self, color1=COLOR_BLUE,
                              color2=COLOR_RED, **kwds)
         titleLabel = QLabel(title)
-        titleLabel.setAlignment(Qt.AlignCenter)
+        titleLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         titleLabel.setStyleSheet('QLabel {font-weight: 600}')
         parent.layout().insertWidget(0, titleLabel)
-        self.plot.setSizePolicy(QSizePolicy.MinimumExpanding,
-                                QSizePolicy.MinimumExpanding)
+        self.plot.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
+                                QSizePolicy.Policy.MinimumExpanding)
         parent.layout().insertWidget(1, self.plot)
 
     def setData(self, x, y1, y2=None):
@@ -203,7 +203,7 @@ class ResolutionPanel(NicosWidget, Panel):
                                 'The following devices are not available:<br>'
                                 "'%s'" % ', '.join(missed_devices))
             self.buttonBox.removeButton(
-                self.buttonBox.button(QDialogButtonBox.Apply))
+                self.buttonBox.button(QDialogButtonBox.StandardButton.Apply))
 
     def _update_key(self, key, value):
         if key in ['chSpeed/value', 'ch/speed']:
@@ -226,7 +226,8 @@ class ResolutionPanel(NicosWidget, Panel):
 
     @pyqtSlot('QAbstractButton *')
     def createScript(self, button):
-        if self.buttonBox.standardButton(button) == QDialogButtonBox.Apply:
+        if self.buttonBox.standardButton(button) \
+                == QDialogButtonBox.StandardButton.Apply:
             maw = ['chWL, %.2f' % self.waveLength.value()]
             maw.append('chRatio, %d' % self.ratio.value())
             maw.append('chSpeed, %d' % self.speed.value())

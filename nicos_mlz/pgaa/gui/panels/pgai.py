@@ -89,7 +89,7 @@ class GLWidget(QGLWidget):
         self.offsets = [0., -1., 0]
 
     def initializeGL(self):
-        self.qglClearColor(Qt.white)
+        self.qglClearColor(Qt.GlobalColor.white)
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_RGB, GLUT_DOUBLE, GLUT_DEPTH)
         glEnable(GL_DEPTH_TEST)
@@ -306,7 +306,7 @@ class PGAIWidget(QWidget):
         self.gridLayout.addWidget(self.widget, 0, 0, 1, 1)
 
         self.verticalScrollBar = QScrollBar(self)
-        self.verticalScrollBar.setOrientation(Qt.Vertical)
+        self.verticalScrollBar.setOrientation(Qt.Orientation.Vertical)
         self.verticalScrollBar.setMinimum(-self.maxrot)
         self.verticalScrollBar.setMaximum(self.maxrot)
         self.verticalScrollBar.setValue(0)
@@ -314,7 +314,7 @@ class PGAIWidget(QWidget):
         self.gridLayout.addWidget(self.verticalScrollBar, 0, 1, 1, 1)
 
         self.horizontalScrollBar = QScrollBar(self)
-        self.horizontalScrollBar.setOrientation(Qt.Horizontal)
+        self.horizontalScrollBar.setOrientation(Qt.Orientation.Horizontal)
         self.horizontalScrollBar.setMinimum(-self.maxrot)
         self.horizontalScrollBar.setMaximum(self.maxrot)
 
@@ -358,13 +358,13 @@ class PositionDelegate(QStyledItemDelegate):
         return w
 
     def setEditorData(self, editor, index):
-        value = float(index.model().data(index, Qt.EditRole))
+        value = float(index.model().data(index, Qt.ItemDataRole.EditRole))
         editor.setValue(value)
 
     def setModelData(self, editor, model, index):
         editor.interpretText()
         value = editor.value()
-        model.setData(index, value, Qt.EditRole)
+        model.setData(index, value, Qt.ItemDataRole.EditRole)
 
 
 class PositionTable(QTableWidget):
@@ -380,12 +380,13 @@ class PositionTable(QTableWidget):
         QTableWidget.__init__(self, parent)
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.RightButton:
+        if event.button() == Qt.MouseButton.RightButton:
             item = self.itemAt(event.pos())
             if item:
-                if QMessageBox.question(self, 'Remove data point', 'Do you '
-                                        'really want to remove this data '
-                                        'point?') == QMessageBox.Yes:
+                if QMessageBox.question(
+                        self, 'Remove data point', 'Do you really '
+                        'want to remove this data point?'
+                ) == QMessageBox.StandardButton.Yes:
                     event.accept()
                     r = item.row()
                     self.removeRow(r)
@@ -426,7 +427,8 @@ class PGAIPanel(Panel):
         self.pointTable.verticalHeader().sectionClicked.connect(
             lambda row: w.positionActivated(row, 0))
         self.newPointButton.clicked.connect(self.newPoint)
-        self.buttonBox.button(QDialogButtonBox.SaveAll).setText('Run')
+        self.buttonBox.button(
+            QDialogButtonBox.StandardButton.SaveAll).setText('Run')
         self.pointTable.itemChanged.connect(self.modifyPoint)
         self.pointModified.connect(w.pointModified)
         self.pointTable.setItemDelegate(PositionDelegate())
@@ -531,17 +533,17 @@ class PGAIPanel(Panel):
         self.pointTable.setRowCount(row + 1)
 
         item = self._create_table_widget(x)
-        item.setBackground(Qt.blue)
-        item.setForeground(Qt.white)
+        item.setBackground(Qt.GlobalColor.blue)
+        item.setForeground(Qt.GlobalColor.white)
         self.pointTable.setItem(row, 0, item)
 
         item = self._create_table_widget(y)
-        item.setBackground(Qt.green)
+        item.setBackground(Qt.GlobalColor.green)
         self.pointTable.setItem(row, 1, item)
 
         item = self._create_table_widget(z)
-        item.setBackground(Qt.red)
-        item.setForeground(Qt.white)
+        item.setBackground(Qt.GlobalColor.red)
+        item.setForeground(Qt.GlobalColor.white)
         self.pointTable.setItem(row, 2, item)
 
         self.pointAdded.emit(x, y, z)

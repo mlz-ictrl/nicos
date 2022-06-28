@@ -116,7 +116,7 @@ class EntryWidget(base_class, ui_class):
             self.widgetValue = ReadOnlyCheckBox()
             self.layoutWidget.insertWidget(4, self.widgetValue)
             self.layoutWidget.insertSpacerItem(
-                5, QSpacerItem(56, 20, QSizePolicy.Expanding))
+                5, QSpacerItem(56, 20, QSizePolicy.Policy.Expanding))
         else:
             self.widgetValue = QLineEdit()
             self.layoutWidget.insertWidget(4, self.widgetValue)
@@ -158,15 +158,14 @@ class EntryWidget(base_class, ui_class):
         dlg.fillEntry(self.entry)
         dlg.valueTime.setText('')  # we want current timestamp by default
         dlg.valueKey.setReadOnly(True)
-        if dlg.exec() != QDialog.Accepted:
+        if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         entry = dlg.getEntry()
         self.client.put(entry.key, entry)
 
     def delKey(self):
-        if QMessageBox.question(
-                self, 'Delete', 'Really delete?',
-                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+        if QMessageBox.question(self, 'Delete', 'Really delete?') == \
+           QMessageBox.StandardButton.No:
             return
         self.client.delete(self.entry.key)
 

@@ -33,16 +33,17 @@ class CommandOutput(Panel):
         self.setLayout(QHBoxLayout())
         scroll = QScrollArea()
         self.setMaximumHeight(55)
-        scroll.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        scroll.setSizePolicy(QSizePolicy.Policy.Expanding,
+                             QSizePolicy.Policy.Minimum)
         scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setMaximumHeight(40)
 
         self.outputMessage = QLabel()
         self.outputMessage.setMaximumHeight(30)
-        self.outputMessage.setSizePolicy(QSizePolicy.Expanding,
-                                         QSizePolicy.Minimum)
+        self.outputMessage.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                         QSizePolicy.Policy.Minimum)
         scroll.setWidget(self.outputMessage)
         self.layout().addWidget(scroll)
         client.message.connect(self.on_client_message)

@@ -103,7 +103,7 @@ class Tube2(NicosWidget, QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setBrush(QBrush(self.color))
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         fontscale = float(self._scale)
         h = self.props['height'] * fontscale
@@ -113,7 +113,8 @@ class Tube2(NicosWidget, QWidget):
         if self.props['name']:
             painter.setFont(self.font())
             painter.drawText(QRectF(5, 0, w, fontscale * 2.5),
-                             self.props['name'], QTextOption(Qt.AlignCenter))
+                             self.props['name'],
+                             QTextOption(Qt.AlignmentFlag.AlignCenter))
             yoff = fontscale * 2.5
         else:
             yoff = 0
@@ -162,14 +163,14 @@ class Tube2(NicosWidget, QWidget):
             painter.drawText(QRectF(60 + pos_val * posscale - 10.5 * fontscale,
                                     -5 + yoff + h - fontscale,  # + (shift_val - 4) * posscale,
                                     9.5 * fontscale, 2 * fontscale),
-                             tilt_str, QTextOption(Qt.AlignRight))
+                             tilt_str, QTextOption(Qt.AlignmentFlag.AlignRight))
             painter.drawText(QRectF(60 + pos_val * posscale - 6.5 * fontscale,
                                     yoff + fontscale,  # + (shift_val - 4) * posscale,
                                     9.5 * fontscale, 2 * fontscale),
-                             shift_str, QTextOption(Qt.AlignLeft))
+                             shift_str, QTextOption(Qt.AlignmentFlag.AlignLeft))
             minx = max(minx, 60 + pos_val * posscale + 5 - 4 * fontscale)
             painter.drawText(QRectF(minx, h + 10 + yoff, 8 * fontscale, 30),
-                             pos_str, QTextOption(Qt.AlignCenter))
+                             pos_str, QTextOption(Qt.AlignmentFlag.AlignCenter))
             minx = minx + 8 * fontscale
 
 #        # draw Detector 2
@@ -184,7 +185,7 @@ class Tube2(NicosWidget, QWidget):
 #            painter.setFont(self.valueFont)
 #            minx = max(minx, 65 + pos_val * posscale - 4 * fontscale)
 #            painter.drawText(minx, h + 10 + yoff,
-#                             8 * fontscale, 30, Qt.AlignCenter, pos_str)
+#                             8 * fontscale, 30, Qt.AlignmentFlag.AlignCenter, pos_str)
 #            minx = minx + 8 * fontscale
 
 
@@ -228,7 +229,7 @@ class BeamOption(NicosWidget, QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setBrush(_magenta)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         w = self.props['width'] * self._scale
         h = self.props['height'] * self._scale
@@ -236,7 +237,8 @@ class BeamOption(NicosWidget, QWidget):
         if self.props['name']:
             painter.setFont(self.font())
             painter.drawText(QRectF(0, 0, w, self._scale * 2.5),
-                             self.props['name'], QTextOption(Qt.AlignCenter))
+                             self.props['name'],
+                             QTextOption(Qt.AlignmentFlag.AlignCenter))
             yoff = self._scale * 2.5
         else:
             yoff = 0
@@ -244,7 +246,7 @@ class BeamOption(NicosWidget, QWidget):
         painter.drawRect(QRectF(2, 2 + yoff, w - 4, h - 4))
         painter.setFont(self.valueFont)
         painter.drawText(QRectF(2, 2 + yoff, w - 4, h - 4),
-                         self._curstr, QTextOption(Qt.AlignCenter))
+                         self._curstr, QTextOption(Qt.AlignmentFlag.AlignCenter))
 
 
 class CollimatorTable(NicosWidget, QWidget):
@@ -307,7 +309,7 @@ class CollimatorTable(NicosWidget, QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         h = self._scale * 2.5 * self.props['height']
         w = self._scale * self.props['width']
@@ -325,7 +327,8 @@ class CollimatorTable(NicosWidget, QWidget):
             else:
                 painter.setPen(QPen(_black.color()))
             painter.drawText(QRectF(0, 0, w, self._scale * 2.5),
-                             self.props['name'], QTextOption(Qt.AlignCenter))
+                             self.props['name'],
+                             QTextOption(Qt.AlignmentFlag.AlignCenter))
             painter.setPen(pen)
             yoff = self._scale * 2.5
         else:
@@ -360,4 +363,4 @@ class CollimatorTable(NicosWidget, QWidget):
                 painter.setBrush(_grey if b == statusbrush[OK] else b)
             painter.drawRect(QRectF(5, y + 2, w - 10, h0 - 4))
             painter.drawText(QRectF(5, y + 2, w - 10, h0 - 4),
-                             t, QTextOption(Qt.AlignCenter))
+                             t, QTextOption(Qt.AlignmentFlag.AlignCenter))

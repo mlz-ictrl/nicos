@@ -77,7 +77,8 @@ class BaseDeviceParamTree(QTreeWidget):
             item = QTreeWidgetItem([devname])
             # allow expanding interactively, even if we haven't populated
             # the parameter children yet
-            item.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
+            item.setChildIndicatorPolicy(
+                QTreeWidgetItem.ChildIndicatorPolicy.ShowIndicator)
             if not self.item_callback(item):
                 continue
             self.addTopLevelItem(item)

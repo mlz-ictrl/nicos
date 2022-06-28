@@ -71,7 +71,7 @@ def loadBasicWindowSettings(window, settings):
 
 def loadUserStyle(window, settings):
     window.user_font = settings.value('font', QFont('Monospace'), QFont)
-    window.user_color = settings.value('color', QColor(Qt.white), QColor)
+    window.user_color = settings.value('color', QColor(Qt.GlobalColor.white), QColor)
 
 
 def enumerateWithProgress(seq, text, every=1, parent=None, total=None,
@@ -97,7 +97,7 @@ def enumerateWithProgress(seq, text, every=1, parent=None, total=None,
 def showToolText(toolbar, action):
     widget = toolbar.widgetForAction(action)
     if isinstance(widget, QToolButton):
-        widget.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        widget.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
 
 
 def modePrompt(mode):
@@ -118,10 +118,11 @@ class DlgUtils:
         QMessageBox.information(self, self._dlgutils_title, text)
 
     def askQuestion(self, text, select_no=False):
-        defbutton = select_no and QMessageBox.No or QMessageBox.Yes
-        buttons = QMessageBox.Yes | QMessageBox.No
-        return QMessageBox.question(self, self._dlgutils_title, text,
-                                    buttons, defbutton) == QMessageBox.Yes
+        defbutton = select_no and QMessageBox.StandardButton.No or \
+                    QMessageBox.StandardButton.Yes
+        buttons = QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        return QMessageBox.question(self, self._dlgutils_title, text, buttons,
+                                    defbutton) == QMessageBox.StandardButton.Yes
 
     def selectInputFile(self, ctl, text='Choose an input file'):
         previous = ctl.text()
@@ -200,15 +201,19 @@ class ScriptExecQuestion(QMessageBox):
     """Special QMessageBox for asking what to do when a script is running."""
 
     def __init__(self):
-        QMessageBox.__init__(self, QMessageBox.Information, 'Error',
-                             'A script is currently running.  What do you want to do?',
-                             QMessageBox.NoButton)
-        self.b0 = self.addButton('Cancel', QMessageBox.RejectRole)
-        self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
-        self.b1 = self.addButton('Queue script', QMessageBox.YesRole)
-        self.b1.setIcon(self.style().standardIcon(QStyle.SP_DialogOkButton))
-        self.b2 = self.addButton('Execute now!', QMessageBox.ApplyRole)
-        self.b2.setIcon(self.style().standardIcon(QStyle.SP_MessageBoxWarning))
+        QMessageBox.__init__(
+            self, QMessageBox.Icon.Information, 'Error',
+            'A script is currently running.  What do you want to do?',
+            QMessageBox.StandardButton.NoButton)
+        self.b0 = self.addButton('Cancel', QMessageBox.ButtonRole.RejectRole)
+        self.b0.setIcon(self.style().standardIcon(QStyle.StandardPixmap
+                                                  .SP_DialogCancelButton))
+        self.b1 = self.addButton('Queue script', QMessageBox.ButtonRole.YesRole)
+        self.b1.setIcon(self.style().standardIcon(QStyle.StandardPixmap
+                                                  .SP_DialogOkButton))
+        self.b2 = self.addButton('Execute now!', QMessageBox.ButtonRole.ApplyRole)
+        self.b2.setIcon(self.style().standardIcon(QStyle.StandardPixmap
+                                                  .SP_MessageBoxWarning))
 
     def exec(self):
         # According to the docs, exec() returns an "opaque value" if using
@@ -217,10 +222,10 @@ class ScriptExecQuestion(QMessageBox):
         QMessageBox.exec(self)
         btn = self.clickedButton()
         if btn == self.b2:
-            return QMessageBox.Apply  # Execute now
+            return QMessageBox.StandardButton.Apply  # Execute now
         elif btn == self.b1:
-            return QMessageBox.Yes    # Queue
-        return QMessageBox.Cancel     # Cancel
+            return QMessageBox.StandardButton.Yes    # Queue
+        return QMessageBox.StandardButton.Cancel     # Cancel
 
 
 class DlgPresets:
@@ -261,7 +266,7 @@ class DlgPresets:
         ctl.setSelected(ctl.findItem(val), 1)
 
     def set_QListWidget(self, ctl, val):
-        ctl.setCurrentItem(ctl.findItems(val, Qt.MatchExactly)[0])
+        ctl.setCurrentItem(ctl.findItems(val, Qt.MatchFlag.MatchExactly)[0])
 
     def set_QComboBox(self, ctl, val):
         if ctl.isEditable():
@@ -336,7 +341,7 @@ class DebugHandler(logging.Handler):
 @contextmanager
 def waitCursor():
     try:
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         yield
     finally:
         QApplication.restoreOverrideCursor()

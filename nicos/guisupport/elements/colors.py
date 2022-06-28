@@ -31,7 +31,7 @@ statuscolor = {
     status.WARN: QColor('#FF9900'),
     status.NOTREACHED: QColor('#FF3333'),
     status.DISABLED: QColor('white'),
-    status.OK: Qt.transparent,  # make it completely transparent
+    status.OK: Qt.GlobalColor.transparent,  # make it completely transparent
 }
 
 __all__ = ['statuscolor']

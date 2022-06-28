@@ -34,11 +34,11 @@ from nicos_ess.loki.gui.table_delegates import LimitsDelegate, ReadOnlyDelegate
 
 HEADERS = ['position', 'sample', 'duration']
 COLUMNS = OrderedDict({
-    'position': Column('position', False, QHeaderView.ResizeToContents, False,
+    'position': Column('position', False, QHeaderView.ResizeMode.ResizeToContents, False,
                        None),
-    'sample': Column('sample', False, QHeaderView.ResizeToContents, False,
+    'sample': Column('sample', False, QHeaderView.ResizeMode.ResizeToContents, False,
                      ReadOnlyDelegate()),
-    'duration': Column('duration', False, QHeaderView.ResizeToContents, False,
+    'duration': Column('duration', False, QHeaderView.ResizeMode.ResizeToContents, False,
                        LimitsDelegate((0, 10), 1))})
 
 
@@ -110,7 +110,7 @@ class TestScriptBuilderModel:
         ]
         model = create_loki_script_model(len(data), deepcopy(data))
 
-        model.setData(model.index(0, 1), '999', Qt.EditRole)
+        model.setData(model.index(0, 1), '999', Qt.ItemDataRole.EditRole)
 
         assert model.raw_data[0]['sample'] == 2
 
@@ -120,7 +120,7 @@ class TestScriptBuilderModel:
         ]
         model = create_loki_script_model(len(data), deepcopy(data))
 
-        model.setData(model.index(0, 2), 'hello', Qt.EditRole)
+        model.setData(model.index(0, 2), 'hello', Qt.ItemDataRole.EditRole)
 
         assert model.raw_data[0]['duration'] == ''  # pylint: disable=compare-to-empty-string
 
@@ -130,7 +130,7 @@ class TestScriptBuilderModel:
         ]
         model = create_loki_script_model(len(data), deepcopy(data))
 
-        model.setData(model.index(0, 2), '5', Qt.EditRole)
+        model.setData(model.index(0, 2), '5', Qt.ItemDataRole.EditRole)
 
         assert model.raw_data[0]['duration'] == 5
 
@@ -140,7 +140,7 @@ class TestScriptBuilderModel:
         ]
         model = create_loki_script_model(len(data), deepcopy(data))
 
-        model.setData(model.index(0, 2), '-1', Qt.EditRole)
+        model.setData(model.index(0, 2), '-1', Qt.ItemDataRole.EditRole)
 
         assert model.raw_data[0]['duration'] == ''  # pylint: disable=compare-to-empty-string
 
@@ -150,7 +150,7 @@ class TestScriptBuilderModel:
         ]
         model = create_loki_script_model(len(data), deepcopy(data))
 
-        model.setData(model.index(0, 2), '12345', Qt.EditRole)
+        model.setData(model.index(0, 2), '12345', Qt.ItemDataRole.EditRole)
 
         assert model.raw_data[0]['duration'] == ''  # pylint: disable=compare-to-empty-string
 
@@ -165,6 +165,6 @@ class TestScriptBuilderModel:
             'T21': {'name': 'sample 3'},
         }
 
-        model.setData(model.index(0, 0), 'T21', Qt.EditRole)
+        model.setData(model.index(0, 0), 'T21', Qt.ItemDataRole.EditRole)
 
         assert model.raw_data[0]['sample'] == {'name': 'sample 3'}

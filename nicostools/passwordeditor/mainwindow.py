@@ -179,9 +179,10 @@ class MainWindow(QMainWindow):
                        'passwords again.')
         msgBox.setInformativeText('Do you still want to change the hashing?\n'
                                   'WARNING: THIS WILL CLEAR ALL PASSWORDS.')
-        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        msgBox.setDefaultButton(QMessageBox.Cancel)
-        return msgBox.exec() == QMessageBox.Ok
+        msgBox.setStandardButtons(QMessageBox.StandardButton.Ok |
+                                  QMessageBox.StandardButton.Cancel)
+        msgBox.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        return msgBox.exec() == QMessageBox.StandardButton.Ok
 
     def setConfig(self):
         # method called when clicking save button in config widget.

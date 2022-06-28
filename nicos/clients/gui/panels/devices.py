@@ -42,18 +42,18 @@ from nicos.utils import AttrDict
 
 foregroundBrush = {
     OK:         QBrush(QColor('#00aa00')),
-    WARN:       QBrush(Qt.black),
-    BUSY:       QBrush(Qt.black),
-    NOTREACHED: QBrush(Qt.black),
-    DISABLED:   QBrush(Qt.black),
-    ERROR:      QBrush(Qt.black),
+    WARN:       QBrush(Qt.GlobalColor.black),
+    BUSY:       QBrush(Qt.GlobalColor.black),
+    NOTREACHED: QBrush(Qt.GlobalColor.black),
+    DISABLED:   QBrush(Qt.GlobalColor.black),
+    ERROR:      QBrush(Qt.GlobalColor.black),
     UNKNOWN:    QBrush(QColor('#cccccc')),
 }
 
 backgroundBrush = {
     OK:         QBrush(),
     WARN:       QBrush(QColor('#ffa500')),
-    BUSY:       QBrush(Qt.yellow),
+    BUSY:       QBrush(Qt.GlobalColor.yellow),
     NOTREACHED: QBrush(QColor('#ff6655')),
     DISABLED:   QBrush(QColor('#bbbbbb')),
     ERROR:      QBrush(QColor('#ff6655')),
@@ -63,13 +63,13 @@ backgroundBrush = {
 # keys: (expired, fixed)
 valueBrush = {
     (False, False):  QBrush(),
-    (False, True):   QBrush(Qt.blue),
+    (False, True):   QBrush(Qt.GlobalColor.blue),
     (True, False):   QBrush(QColor('#aaaaaa')),
     (True, True):    QBrush(QColor('#aaaaaa')),
 }
 
 lowlevelBrush = {
-    False:      QBrush(Qt.black),
+    False:      QBrush(Qt.GlobalColor.black),
     True:       QBrush(QColor('#666666')),
 }
 
@@ -79,22 +79,22 @@ lowlevelFont = {
 }
 
 # QTreeWidgetItem types
-SETUP_TYPE = QTreeWidgetItem.UserType
+SETUP_TYPE = QTreeWidgetItem.ItemType.UserType
 DEVICE_TYPE = SETUP_TYPE + 1
 PARAM_TYPE = SETUP_TYPE + 2
 
 
 def setBackgroundBrush(widget, color):
     palette = widget.palette()
-    palette.setBrush(QPalette.Window, color)
-    widget.setBackgroundRole(QPalette.Window)
+    palette.setBrush(QPalette.ColorRole.Window, color)
+    widget.setBackgroundRole(QPalette.ColorRole.Window)
     widget.setPalette(palette)
 
 
 def setForegroundBrush(widget, color):
     palette = widget.palette()
-    palette.setBrush(QPalette.WindowText, color)
-    widget.setForegroundRole(QPalette.WindowText)
+    palette.setBrush(QPalette.ColorRole.WindowText, color)
+    widget.setForegroundRole(QPalette.ColorRole.WindowText)
     widget.setPalette(palette)
 
 
@@ -354,7 +354,7 @@ class DevicesPanel(Panel):
             self.tree.addTopLevelItem(citem)
         for devitem in self._devitems.values():
             devitem.setExpanded(True)
-        self.tree.sortItems(0, Qt.AscendingOrder)
+        self.tree.sortItems(0, Qt.SortOrder.AscendingOrder)
         self._update_view()
 
     def on_client_disconnected(self):
@@ -479,12 +479,12 @@ class DevicesPanel(Panel):
         if action == 'create':
             for devname in devlist:
                 self._create_device_item(devname, add_cat=True)
-            self.tree.sortItems(0, Qt.AscendingOrder)
+            self.tree.sortItems(0, Qt.SortOrder.AscendingOrder)
             self._update_view()
         elif action == 'failed':
             for (devname, error) in devlist.items():
                 self._create_device_item(devname, add_cat=True, failure=error)
-            self.tree.sortItems(0, Qt.AscendingOrder)
+            self.tree.sortItems(0, Qt.SortOrder.AscendingOrder)
             self._update_view()
         elif action == 'destroy':
             self._store_view()
@@ -800,9 +800,9 @@ class DevicesPanel(Panel):
         if ask_queue and not immediate and self._current_status != 'idle':
             qwindow = ScriptExecQuestion()
             result = qwindow.exec()
-            if result == QMessageBox.Cancel:
+            if result == QMessageBox.StandardButton.Cancel:
                 return
-            elif result == QMessageBox.Apply:
+            elif result == QMessageBox.StandardButton.Apply:
                 immediate = True
         if immediate:
             self.client.tell('exec', command)
@@ -859,7 +859,8 @@ class ControlDialog(QDialog):
         self.deviceName.setText('Device: %s' % self.devname)
         self.setWindowTitle('Control %s' % self.devname)
 
-        self.settingsBtn = self.buttonBox.button(QDialogButtonBox.RestoreDefaults)
+        self.settingsBtn = self.buttonBox.button(
+            QDialogButtonBox.StandardButton.RestoreDefaults)
         self.settingsBtn.clicked.connect(self.on_settingsBtn_clicked)
 
         # trigger parameter poll
@@ -919,7 +920,7 @@ class ControlDialog(QDialog):
         else:
             self.aliasGroup.setVisible(False)
 
-        historyBtn = self.buttonBox.button(QDialogButtonBox.Reset)
+        historyBtn = self.buttonBox.button(QDialogButtonBox.StandardButton.Reset)
         # show current value/status if it is readable
         if 'nicos.core.device.Readable' not in classes:
             self.valueFrame.setVisible(False)
@@ -965,7 +966,8 @@ class ControlDialog(QDialog):
         if not menu.isEmpty():
             menuBtn = QPushButton('More', self)
             menuBtn.setMenu(menu)
-            self.moveBtns.addButton(menuBtn, QDialogButtonBox.ResetRole)
+            self.moveBtns.addButton(menuBtn,
+                                    QDialogButtonBox.ButtonRole.ResetRole)
 
         def reset(checked):
             self.device_panel.exec_command('reset(%s)' % self.devrepr)
@@ -974,13 +976,13 @@ class ControlDialog(QDialog):
             self.device_panel.exec_command('stop(%s)' % self.devrepr,
                                            immediate=True)
 
-        self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)\
-                     .clicked.connect(reset)
+        self.moveBtns.addButton(
+            'Reset', QDialogButtonBox.ButtonRole.ResetRole).clicked.connect(reset)
 
         if 'nicos.core.device.Moveable' in classes or \
            'nicos.core.device.Measurable' in classes:
-            self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)\
-                         .clicked.connect(stop)
+            self.moveBtns.addButton(
+                'Stop', QDialogButtonBox.ButtonRole.ResetRole).clicked.connect(stop)
 
         # show target and limits if the device is Moveable
         if 'nicos.core.device.Moveable' not in classes:
@@ -1016,7 +1018,7 @@ class ControlDialog(QDialog):
 
             if self.target.getValue() is not Ellipsis:  # (button widget)
                 self.moveBtn = self.moveBtns.addButton(
-                    'Move', QDialogButtonBox.AcceptRole)
+                    'Move', QDialogButtonBox.ButtonRole.AcceptRole)
                 self.moveBtn.clicked.connect(move)
             else:
                 self.moveBtn = None
@@ -1076,7 +1078,7 @@ class ControlDialog(QDialog):
         target = DeviceParamEdit(dlg, dev=self.devname, param='userlimits')
         target.setClient(self.client)
         btn = dlg.buttonBox.addButton('Reset to maximum range',
-                                      QDialogButtonBox.ResetRole)
+                                      QDialogButtonBox.ButtonRole.ResetRole)
 
         def callback():
             self.device_panel.exec_command('resetlimits(%s)' % self.devrepr)
@@ -1084,7 +1086,7 @@ class ControlDialog(QDialog):
         btn.clicked.connect(callback)
         dlg.targetLayout.addWidget(target)
         res = dlg.exec()
-        if res != QDialog.Accepted:
+        if res != QDialog.DialogCode.Accepted:
             return
         newlimits = target.getValue()
         if newlimits[0] < abslimits[0] or newlimits[1] > abslimits[1]:
@@ -1106,7 +1108,7 @@ class ControlDialog(QDialog):
         dlg.targetLayout.addWidget(target)
         target.setFocus()
         res = dlg.exec()
-        if res != QDialog.Accepted:
+        if res != QDialog.DialogCode.Accepted:
             return None
         return target.getValue()
 
@@ -1193,7 +1195,7 @@ class ControlDialog(QDialog):
         dlg.targetLayout.addWidget(dlg.target)
         dlg.resize(dlg.sizeHint())
         dlg.target.setFocus()
-        if dlg.exec() != QDialog.Accepted:
+        if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         try:
             new_value = dlg.target.getValue()

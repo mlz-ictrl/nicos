@@ -44,7 +44,7 @@ class ConnectionDialog(QDialog):
                           tunnel=''):
         self = cls(parent, connpresets, lastpreset, lastdata, tunnel)
         ret = self.exec()
-        if ret != QDialog.Accepted:
+        if ret != QDialog.DialogCode.Accepted:
             return None, None, None, tunnel
         new_addr = self.presetOrAddr.currentText()
         new_name = preset_name = ''
@@ -83,7 +83,8 @@ class ConnectionDialog(QDialog):
         self.connpresets = OrderedDict(sorted(connpresets.items()))
 
         pal = self.quickList.palette()
-        pal.setColor(QPalette.Window, pal.color(QPalette.Base))
+        pal.setColor(QPalette.ColorRole.Window,
+                     pal.color(QPalette.ColorRole.Base))
         self.quickList.setPalette(pal)
 
         if len(self.connpresets) < 3:

@@ -41,8 +41,8 @@ def runTool(window, tconfig):
             window.showError('Could not import class %r.' % tconfig.clsname)
         else:
             dialog = toolclass(window, window.client, **tconfig.options)
-            dialog.setWindowModality(Qt.NonModal)
-            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+            dialog.setWindowModality(Qt.WindowModality.NonModal)
+            dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
             dialog.show()
     elif isinstance(tconfig, cmdtool):
         try:

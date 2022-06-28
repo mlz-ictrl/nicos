@@ -243,7 +243,7 @@ class LokiSampleHolderPanel(PanelBase):
         self.sampleTable.setSelectionMode(QTableView.ContiguousSelection)
         self.sampleTable.horizontalHeader().setStretchLastSection(True)
         self.sampleTable.verticalHeader().setSectionResizeMode(
-            QHeaderView.Fixed)
+            QHeaderView.ResizeMode.Fixed)
         self._create_keyboard_shortcuts()
         self._init_right_click_context_menu()
 
@@ -425,7 +425,8 @@ class LokiSampleHolderPanel(PanelBase):
         self._read_mode()
 
     def _init_right_click_context_menu(self):
-        self.sampleTable.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.sampleTable.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu)
         self.sampleTable.customContextMenuRequested.connect(
             self._show_context_menu)
 
@@ -467,7 +468,7 @@ class LokiSampleHolderPanel(PanelBase):
     def _create_shortcut_key(self, shortcut_keys, to_call):
         shortcut = QShortcut(shortcut_keys, self.sampleTable)
         shortcut.activated.connect(to_call)
-        shortcut.setContext(Qt.WidgetShortcut)
+        shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
 
     def _on_paste(self):
         if self._in_edit_mode:

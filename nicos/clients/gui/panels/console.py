@@ -80,7 +80,7 @@ class ConsolePanel(Panel):
         client.mode.connect(self.on_client_mode)
         client.experiment.connect(self.on_client_experiment)
 
-        self.outView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.outView.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
         self.menu = QMenu('&Output', self)
         self.menu.addAction(self.actionCopy)
@@ -202,8 +202,8 @@ class ConsolePanel(Panel):
     def on_actionPrint_triggered(self):
         printer = QPrinter()
         printdlg = QPrintDialog(printer, self)
-        printdlg.setOption(QAbstractPrintDialog.PrintSelection)
-        if printdlg.exec() == QDialog.Accepted:
+        printdlg.setOption(QAbstractPrintDialog.PrintDialogOption.PrintSelection)
+        if printdlg.exec() == QDialog.DialogCode.Accepted:
             self.outView.print_(printer)
 
     @pyqtSlot()
@@ -258,9 +258,9 @@ class ConsolePanel(Panel):
     def on_actionAllowLineWrap_triggered(self, checked):
         self.mainwindow.allowoutputlinewrap = checked
         if self.mainwindow.allowoutputlinewrap:
-            self.outView.setLineWrapMode(QTextEdit.WidgetWidth)
+            self.outView.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         else:
-            self.outView.setLineWrapMode(QTextEdit.NoWrap)
+            self.outView.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
     def on_commandInput_execRequested(self, script, action):
         if action == 'queue':

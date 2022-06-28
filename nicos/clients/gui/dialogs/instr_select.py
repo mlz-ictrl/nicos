@@ -48,7 +48,8 @@ class InstrSelectDialog(QDialog):
 
         self.confTree.itemDoubleClicked.connect(self.handleDoubleClick)
         self.confTree.currentItemChanged.connect(self.handleSelection)
-        self.buttonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+        self.buttonBox.button(
+            QDialogButtonBox.StandardButton.Ok).setDisabled(True)
         tree = {}
 
         for entry in sorted(Path(config.nicos_root).rglob('guiconfig.py')):
@@ -64,7 +65,8 @@ class InstrSelectDialog(QDialog):
             for k, v in tree.items():
                 item = QTreeWidgetItem(pitem, [k])
                 if 'config' in v:
-                    item.setData(0, QTreeWidgetItem.UserType, v['config'])
+                    item.setData(0, QTreeWidgetItem.ItemType.UserType,
+                                 v['config'])
                 else:
                     add_subitems(item, v)
 
@@ -72,15 +74,16 @@ class InstrSelectDialog(QDialog):
             pkgitem = QTreeWidgetItem(self.confTree, [k])
             pkgitem.setIcon(0, icon)
             if 'config' in v:
-                pkgitem.setData(0, QTreeWidgetItem.UserType, v.pop('config'))
+                pkgitem.setData(0, QTreeWidgetItem.ItemType.UserType,
+                                v.pop('config'))
             add_subitems(pkgitem, v)
 
     def handleSelection(self, cur, _prev):
-        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(
-            cur.data(0, QTreeWidgetItem.UserType) is not None)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setEnabled(
+            cur.data(0, QTreeWidgetItem.ItemType.UserType) is not None)
 
     def handleDoubleClick(self, item, _col):
-        if item.data(0, QTreeWidgetItem.UserType):
+        if item.data(0, QTreeWidgetItem.ItemType.UserType):
             self.accept()
 
     @classmethod
@@ -95,7 +98,8 @@ class InstrSelectDialog(QDialog):
                     return None
                 items = dlg.confTree.selectedItems()
                 if items:
-                    configfile = items[0].data(0, QTreeWidgetItem.UserType)
+                    configfile = items[0].data(
+                        0, QTreeWidgetItem.ItemType.UserType)
                     if force or dlg.saveBox.isChecked():
                         settings.setValue('guiconfig', configfile)
             return configfile

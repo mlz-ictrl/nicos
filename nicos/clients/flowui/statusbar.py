@@ -170,7 +170,8 @@ class TranslucentWidget(QWidget):
 
         layout.addWidget(self.widgets)
 
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,
+                           QSizePolicy.Policy.Expanding)
 
         if toolbar:
             self.resize(parent.size() - toolbar.size())
@@ -178,8 +179,8 @@ class TranslucentWidget(QWidget):
             self.resize(parent.size())
 
         # make the window frameless
-        self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.fillColor = QColor(30, 30, 30, 120)
         self.penColor = QColor("#333333")
@@ -195,10 +196,11 @@ class TranslucentWidget(QWidget):
         s = self.parent().size()
         qp = QPainter()
         qp.begin(self)
-        qp.setRenderHint(QPainter.Antialiasing, True)
+        qp.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         qp.setPen(self.penColor)
         qp.setBrush(self.fillColor)
         qp.drawRect(0, 0, s.width(), s.height())
+        qp.end()
 
     def setLiveViewWidget(self):
         print(self.widgets.currentWidget().panelName)

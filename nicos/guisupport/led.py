@@ -70,10 +70,11 @@ class BaseLed(QLabel, NicosWidget):
             status = not status
         status = status and "on" or "off"
         ledName = self._ledPatternName.format(color=color, status=status)
-        pixmap = QPixmap(ledName).scaled(self.size(), Qt.KeepAspectRatio,
-                                         Qt.SmoothTransformation)
+        pixmap = QPixmap(ledName).scaled(self.size(),
+                                         Qt.AspectRatioMode.KeepAspectRatio,
+                                         Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(pixmap)
-        self.setAlignment(Qt.AlignCenter)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def resizeEvent(self, event):
         self._refresh()
@@ -189,7 +190,7 @@ class ClickableOutputLed(ValueLed):
                 self._stateActive = ast.literal_eval(value) if value else 1
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.ledColor = 'orange'
             if self.current == self._stateActive:
                 self._client.run('move(%s, %r)' % (self.dev, self._stateInactive))

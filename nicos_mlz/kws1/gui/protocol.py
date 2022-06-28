@@ -103,5 +103,5 @@ class ProtocolPanel(Panel):
         font = self.outText.font()
         font.setPointSize(self.fontBox.value())
         doc.setDefaultFont(font)
-        printer.setPageMargins(10, 15, 10, 20, QPrinter.Millimeter)
+        printer.setPageMargins(10, 15, 10, 20, QPrinter.Unit.Millimeter)
         doc.print_(printer)

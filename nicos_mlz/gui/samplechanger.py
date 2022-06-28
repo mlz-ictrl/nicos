@@ -45,7 +45,7 @@ class TableWidget(QTableWidget):
         self._cornerButton = self.findChildren(QAbstractButton)[0]
         self._cornerButton.installEventFilter(self)
 
-        self.setSelectionMode(QAbstractItemView.NoSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
 
     def setCornerLabel(self, text):
         self._cornerText = text
@@ -53,11 +53,12 @@ class TableWidget(QTableWidget):
         opt = QStyleOptionHeader()
         opt.text = text
         size = self._cornerButton.style().sizeFromContents(
-            QStyle.CT_HeaderSection, opt, QSize(), self._cornerButton)
+            QStyle.ContentsType.CT_HeaderSection, opt, QSize(),
+            self._cornerButton)
         self.verticalHeader().setMinimumWidth(size.width())
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.Paint and obj == self._cornerButton:
+        if event.type() == QEvent.Type.Paint and obj == self._cornerButton:
             opt = QStyleOptionHeader()
             opt.initFrom(obj)
 
@@ -65,7 +66,7 @@ class TableWidget(QTableWidget):
             opt.rect = self._cornerButton.rect()
 
             painter = QStylePainter(obj)
-            painter.drawControl(QStyle.CE_Header, opt)
+            painter.drawControl(QStyle.ControlElement.CE_Header, opt)
             return True
         return False
 
@@ -76,7 +77,8 @@ class CustomButtonPanel(Panel):
     with a QDialogButtonBox at the lower right and some glue magic for
     fancy stuff...
     """
-    buttons = QDialogButtonBox.Close | QDialogButtonBox.Apply
+    buttons = (QDialogButtonBox.StandardButton.Close |
+               QDialogButtonBox.StandardButton.Apply)
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
@@ -95,7 +97,8 @@ class CustomButtonPanel(Panel):
                      'RestoreDefaults Help SaveAll Yes YesToAll No NoToAll '\
                      'Abort Retry Ignore'.split()
         for btn_name in allButtons:
-            btn = self.buttonBox.button(getattr(QDialogButtonBox, btn_name))
+            btn = self.buttonBox.button(getattr(QDialogButtonBox.StandardButton,
+                                                btn_name))
             if btn:
                 handler = getattr(self, 'on_buttonBox_%s_clicked' % btn_name,
                                   None)
@@ -136,7 +139,9 @@ class SamplechangerSetupPanel(CustomButtonPanel):
     """
     # this needs to be unique!
     panelName = 'Samplechanger setup'
-    buttons = (QDialogButtonBox.Close | QDialogButtonBox.Apply | QDialogButtonBox.Ok)
+    buttons = (QDialogButtonBox.StandardButton.Close |
+               QDialogButtonBox.StandardButton.Apply |
+               QDialogButtonBox.StandardButton.Ok)
 
     _numSamples = 0
 
@@ -148,7 +153,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         self._tableWidget.setColumnCount(1)
         self._tableWidget.setHorizontalHeaderLabels(['Sample name'])
         self._tableWidget.horizontalHeaderItem(0).setTextAlignment(
-            Qt.AlignLeft | Qt.AlignVCenter)
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self._tableWidget.setSortingEnabled(False)
         self._tableWidget.setCornerLabel('Position')
 
@@ -163,7 +168,8 @@ class SamplechangerSetupPanel(CustomButtonPanel):
             l = QLabel(self)
             l.setText(image)
             # insert above scrollArea
-            self.vBoxLayout.insertWidget(0, l, alignment=Qt.AlignHCenter)
+            self.vBoxLayout.insertWidget(
+                0, l, alignment=Qt.AlignmentFlag.AlignHCenter)
             p = QPixmap()
             if p.load(findResource(image)):
                 l.setPixmap(p)

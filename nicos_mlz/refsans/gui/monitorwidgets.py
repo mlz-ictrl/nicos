@@ -50,7 +50,7 @@ samplepen.setWidth(2)
 samplebrush = QBrush(QColor('#006600'))
 samplecoordpen = QPen(QColor('#666666'))
 targetpen = QPen(QColor('black'))
-targetpen.setStyle(Qt.DashLine)
+targetpen.setStyle(Qt.PenStyle.DashLine)
 
 monotablebrush = QBrush(QColor('#6666ff'))
 sampletablebrush = QBrush(QColor('#66ff66'))
@@ -154,7 +154,7 @@ class VRefsans(NicosWidget, QWidget):
     def paintEvent(self, event):
         w, h = self.width * self._scale, self.height * self._scale
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         painter.setPen(QColor('black'))
         painter.setBrush(_white)

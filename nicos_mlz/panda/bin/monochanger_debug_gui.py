@@ -476,7 +476,7 @@ class MainWindow(QMainWindow):
         l = QFrame()
         l.setLineWidth(1)
         # l.setMidLineWidth(4)
-        l.setFrameShape(QFrame.HLine)
+        l.setFrameShape(QFrame.Shape.HLine)
         l.setContentsMargins(10, 0, 10, 0)
         self.scrollLayout.addRow(l)
 

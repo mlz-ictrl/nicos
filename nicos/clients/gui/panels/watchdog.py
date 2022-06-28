@@ -56,7 +56,7 @@ class WatchdogPanel(Panel):
                 'Precondition cooldown',
                 'OK message', 'Script action', 'Warn action', 'OK action'
             ])
-            tree.header().setSectionResizeMode(QHeaderView.Interactive)
+            tree.header().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
 
         self.preconfTree.header().restoreState(self._preconf_headerstate)
         self.userTree.header().restoreState(self._user_headerstate)
@@ -109,8 +109,8 @@ class WatchdogPanel(Panel):
                 entry['okmessage'], entry['scriptaction'], entry['action'],
                 entry['okaction']
             ])
-            item.setCheckState(0, Qt.Checked if entry['enabled']
-                               else Qt.Unchecked)
+            item.setCheckState(0, Qt.CheckState.Checked if entry['enabled']
+                               else Qt.CheckState.Unchecked)
             self._preconf_enable[eid] = entry['enabled']
             self._preconf_entries[eid] = entry
             item.setData(0, 32, eid)
@@ -118,11 +118,12 @@ class WatchdogPanel(Panel):
     def on_preconfTree_itemChanged(self, item, col):
         eid = item.data(0, 32)
         if col == 0 and eid is not None:
-            self._preconf_enable[eid] = item.checkState(0) == Qt.Checked
+            self._preconf_enable[eid] = \
+                item.checkState(0) == Qt.CheckState.Checked
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ApplyRole:
+        if role == QDialogButtonBox.ButtonRole.ApplyRole:
             updates = []
             for (eid, enabled) in self._preconf_enable.items():
                 if enabled != self._preconf_entries[eid]['enabled']:
@@ -134,5 +135,5 @@ class WatchdogPanel(Panel):
                     'session.cache.put_raw("watchdog/enable", %r)' % msg)
                 self.showInfo('Updates applied.')
                 self._update()
-        elif role == QDialogButtonBox.ResetRole:
+        elif role == QDialogButtonBox.ButtonRole.ResetRole:
             self._update()

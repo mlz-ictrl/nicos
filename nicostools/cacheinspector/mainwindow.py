@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
         self.actionWatcher.triggered.connect(self.showWatcher)
         self.valueFilter.textChanged.connect(self.updateTree)
         self.treeCache.itemClicked.connect(self.updateView)
-        self.treeCache.sortByColumn(0, Qt.AscendingOrder)
+        self.treeCache.sortByColumn(0, Qt.SortOrder.AscendingOrder)
         self.client.signals.connected.connect(self.refreshAll)
         self.client.signals.disconnected.connect(self.refreshAll)
 
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         dlg.valueServerAddress.setText(self.ipAddress)
         dlg.valuePort.setText(str(self.port))
         dlg.valueServerAddress.setFocus()
-        if dlg.exec() != QDialog.Accepted:
+        if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         self.ipAddress = dlg.valueServerAddress.text()
         self.port = int(dlg.valuePort.text())
@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
     def addNewKey(self):
         """Adds a key using the data given via the add key window."""
         dlg = EntryEditDialog(self)
-        if dlg.exec() != QDialog.Accepted:
+        if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         entry = dlg.getEntry()
         self.client.put(entry.key, entry)

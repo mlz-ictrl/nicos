@@ -47,7 +47,7 @@ class ErrorPanel(Panel):
         loadUi(self, self.ui)
         self.outView.setFullTimestamps(True)
 
-        self.buttonBox.addButton('Clear', QDialogButtonBox.ResetRole)
+        self.buttonBox.addButton('Clear', QDialogButtonBox.ButtonRole.ResetRole)
 
         if client.isconnected:
             self.on_client_connected()
@@ -82,7 +82,7 @@ class ErrorPanel(Panel):
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ResetRole:
+        if role == QDialogButtonBox.ButtonRole.ResetRole:
             self.outView.clear()
-        elif role == QDialogButtonBox.RejectRole:
+        elif role == QDialogButtonBox.ButtonRole.RejectRole:
             self.closeWindow()
