@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file alias="hamburger">icons/hamburger-icon.png</file>
     <file alias="finishearly">icons/media-playback-finish.png</file>
     <file alias="viewonly">icons/emblem-readonly.png</file>
     <file alias="appicon-48">icons/48x48/nicos.png</file>

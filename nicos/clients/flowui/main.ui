@@ -173,7 +173,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/connect</normaloff>
      <normalon>:/disconnect</normalon>:/connect</iconset>
    </property>
@@ -195,7 +195,7 @@
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset>
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/quit</normaloff>:/quit</iconset>
    </property>
    <property name="text">
@@ -262,7 +262,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/viewonly</normaloff>:/viewonly</iconset>
    </property>
    <property name="text">
@@ -277,8 +277,8 @@
   </action>
   <action name="actionUser">
    <property name="icon">
-    <iconset>
-     <normaloff>../../resources/icons/hamburger-icon.png</normaloff>../../resources/icons/hamburger-icon.png</iconset>
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/hamburger</normaloff>:/hamburger</iconset>
    </property>
    <property name="text">
     <string/>
@@ -289,8 +289,8 @@
   </action>
   <action name="actionEmergencyStop">
    <property name="icon">
-    <iconset>
-     <normaloff>../../resources/icons/process-stop.png</normaloff>../../resources/icons/process-stop.png</iconset>
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/emergency</normaloff>:/emergency</iconset>
    </property>
    <property name="text">
     <string> &amp;emergencyStop</string>
@@ -300,7 +300,9 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../resources/nicos-gui.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionExit</sender>
