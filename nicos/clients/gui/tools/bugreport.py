@@ -122,7 +122,7 @@ class BugreportTool(DlgUtils, QDialog):
         buttonbox.rejected.connect(dlg.reject)
         layout.addWidget(buttonbox)
         dlg.setLayout(layout)
-        if dlg.exec_() == QDialog.Accepted:
+        if dlg.exec() == QDialog.Accepted:
             rm = redminelib.Redmine(TRACKER_URL, username=userBox.text(),
                                     password=passwdBox.text())
             try:

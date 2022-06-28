@@ -158,7 +158,7 @@ class EntryWidget(base_class, ui_class):
         dlg.fillEntry(self.entry)
         dlg.valueTime.setText('')  # we want current timestamp by default
         dlg.valueKey.setReadOnly(True)
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return
         entry = dlg.getEntry()
         self.client.put(entry.key, entry)

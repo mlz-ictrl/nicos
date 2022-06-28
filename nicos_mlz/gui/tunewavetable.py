@@ -523,7 +523,7 @@ class TunewaveTablePanel(Panel):
         dlg = PreviewDialog(self.measurement_mode, self.wavelength,
                             self._header_labels,
                             self._get_current_table_data(), self.client, self)
-        if dlg.exec_():
+        if dlg.exec():
             self._save_current_table(dlg.table)
 
     @pyqtSlot()
@@ -555,7 +555,7 @@ class TunewaveTablePanel(Panel):
         if hasattr(sender, 'viewport'):
             sender = sender.viewport()
 
-        action = menu.exec_(sender.mapToGlobal(point))
+        action = menu.exec(sender.mapToGlobal(point))
 
         if action == add:
             self._add_row(row)

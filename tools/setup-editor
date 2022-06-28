@@ -74,7 +74,7 @@ def main(argv=None):
     app = QApplication(argv)
     window = MainWindow(facility.lower(), instrument.lower())
     window.show()
-    return app.exec_()
+    return app.exec()
 
 
 if __name__ == '__main__':

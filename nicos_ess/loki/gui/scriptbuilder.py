@@ -240,7 +240,7 @@ class LokiScriptBuilderPanel(PanelBase):
         menu.addAction(self.paste_action)
         menu.addSeparator()
         menu.addAction(self.delete_row_action)
-        menu.exec_(QCursor.pos())
+        menu.exec(QCursor.pos())
 
     def _create_keyboard_shortcuts(self):
         for key, to_call in [

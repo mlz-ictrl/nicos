@@ -140,7 +140,7 @@ class AmorControlPanel(GenericPanel):
     def exec_command(self, command, ask_queue=True, immediate=False):
         if ask_queue and not immediate and self._current_status != 'idle':
             qwindow = ScriptExecQuestion()
-            result = qwindow.exec_()
+            result = qwindow.exec()
             if result == QMessageBox.Cancel:
                 return
             elif result == QMessageBox.Apply:

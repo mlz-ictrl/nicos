@@ -751,7 +751,7 @@ class BaseHistoryWindow:
         popMenu = QMenu(self)
         popMenu.addAction(self.actionEditView)
         popMenu.addAction(self.actionDeleteView)
-        popMenu.exec_(QCursor.pos())
+        popMenu.exec(QCursor.pos())
 
     def enableAutoScaleActions(self, on):
         for action in [self.actionAutoScale, self.actionScaleX,
@@ -890,7 +890,7 @@ class BaseHistoryWindow:
     def showNewDialog(self, devices=''):
         newdlg = NewViewDialog(self, client=self.client)
         newdlg.devices.setText(devices)
-        ret = newdlg.exec_()
+        ret = newdlg.exec()
         if ret != QDialog.Accepted:
             return
         info = newdlg.infoDict()
@@ -956,7 +956,7 @@ class BaseHistoryWindow:
         view = self.viewStack[-1]
         newdlg = NewViewDialog(self, view.dlginfo, client=self.client)
         newdlg.setWindowTitle('Edit history view')
-        ret = newdlg.exec_()
+        ret = newdlg.exec()
         if ret != QDialog.Accepted:
             return
         info = newdlg.infoDict()
@@ -1171,7 +1171,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         suffix = self.currentPlot.SAVE_EXT
         newdlg.filename.setText(
             safeName('history_%s' % self.currentPlot.view.name + suffix))
-        ret = newdlg.exec_()
+        ret = newdlg.exec()
         if ret != QDialog.Accepted:
             return
         descr = newdlg.description.text()
@@ -1242,7 +1242,7 @@ class StandaloneHistoryApp(CacheClient):
         # if no cache was given on the command line...
         if not self._config['cache']:
             dlg = SettingsDialog(self._window)
-            dlg.exec_()
+            dlg.exec()
             self._setROParam('cache', dlg.cacheBox.currentText())
             self._setROParam('prefix', dlg.prefixEdit.text())
         CacheClient.doInit(self, mode)
@@ -1272,7 +1272,7 @@ class StandaloneHistoryApp(CacheClient):
         self._window.openViews(self.views)
         self._window.show()
         try:
-            self._qtapp.exec_()
+            self._qtapp.exec()
         except KeyboardInterrupt:
             pass
         self._stoprequest = True

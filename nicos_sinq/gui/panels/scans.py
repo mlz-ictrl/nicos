@@ -28,7 +28,7 @@ from nicos.clients.flowui.panels import get_icon
 from nicos.clients.flowui.panels.scans import ScansPanel as FlowUIScansPanel
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
 from nicos.devices.datasinks.scan import AsciiScanfileReader
-from nicos.guisupport.qt import QToolBar, pyqtSlot
+from nicos.guisupport.qt import QDialog, QToolBar, pyqtSlot
 
 from nicos_sinq.devices.illasciisink import ILLAsciiScanfileReader
 
@@ -58,7 +58,7 @@ class ScansPanel(FlowUIScansPanel):
                                    ";;".join(ffilters.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
-        if fdialog.exec_() != fdialog.Accepted:
+        if fdialog.exec() != QDialog.Accepted:
             return
         files = fdialog.selectedFiles()
         if not files:

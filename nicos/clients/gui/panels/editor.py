@@ -402,7 +402,7 @@ class EditorPanel(Panel):
         if self.currentEditor:
             self.currentEditor.beginUndoAction()
             if self.currentEditor.text():
-                res = OverwriteQuestion().exec_()
+                res = OverwriteQuestion().exec()
                 if res == QMessageBox.Apply:
                     self.currentEditor.clear()
                 elif res == QMessageBox.Cancel:
@@ -553,7 +553,7 @@ class EditorPanel(Panel):
             printer.setOutputFileName('')
             printer.setDocName(self.filenames[self.currentEditor])
             # printer.setFullPage(True)
-            if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
+            if QPrintDialog(printer, self).exec() == QDialog.Accepted:
                 lexer = self.currentEditor.lexer()
                 bgcolor = lexer.paper(0)
                 # printer prints background color too, so set it to white
@@ -563,7 +563,7 @@ class EditorPanel(Panel):
         else:
             printer = QPrinter()
             printer.setOutputFileName('')
-            if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
+            if QPrintDialog(printer, self).exec() == QDialog.Accepted:
                 getattr(self.currentEditor, 'print')(printer)
 
     def validateScript(self):

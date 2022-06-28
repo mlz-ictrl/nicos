@@ -98,7 +98,7 @@ class TearOffTabBar(QTabBar):
             drag.setPixmap(pixmap)
             drag.setDragCursor(QPixmap(), Qt.LinkAction)
 
-            dragged = drag.exec_(Qt.MoveAction)
+            dragged = drag.exec(Qt.MoveAction)
             if dragged == Qt.IgnoreAction:
                 # moved outside of tab widget
                 event.accept()

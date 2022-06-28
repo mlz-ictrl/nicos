@@ -236,7 +236,7 @@ class CommandLineEdit(HistoryLineEdit):
         action = 'queue'
         if self.current_status != 'idle':
             qwindow = ScriptExecQuestion()
-            result = qwindow.exec_()
+            result = qwindow.exec()
             if result == QMessageBox.Cancel:
                 return
             elif result == QMessageBox.Apply:

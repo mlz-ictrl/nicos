@@ -170,7 +170,7 @@ class Monitor(BaseMonitor):
     _master = None
 
     def mainLoop(self):
-        self._qtapp.exec_()
+        self._qtapp.exec()
 
     def closeGui(self):
         if self._master:

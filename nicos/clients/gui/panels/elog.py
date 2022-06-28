@@ -255,7 +255,7 @@ class ELogPanel(Panel):
         f = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         f.setFixedPitch(True)
         dlg.editor.setFont(f)
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return
         text = dlg.editor.toPlainText()
         if not text:
@@ -271,7 +271,7 @@ class ELogPanel(Panel):
             self.selectInputFile(dlg.fileName, 'Choose a file to attach')
             dlg.fileRename.setFocus()
         dlg.fileSelect.clicked.connect(on_fileSelect_clicked)
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return
         fname = dlg.fileName.text()
         if not path.isfile(fname):
@@ -294,7 +294,7 @@ class ELogPanel(Panel):
         printer = QPrinter()
         dialog = QPrintDialog(printer)
 
-        if not dialog.exec_():
+        if not dialog.exec():
             return
 
         mainFrame = self.preview.page().mainFrame()

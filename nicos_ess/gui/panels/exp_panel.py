@@ -366,7 +366,7 @@ class ExpPanel(PanelBase):
             prop_copy['users'] = [{'name': combineUsers(prop['users'])}]
             item = QListWidgetItem('', dlg.list)
             item.setData(Qt.UserRole, prop_copy)
-        if not dlg.exec_():
+        if not dlg.exec():
             return
         sel = dlg.list.currentRow()
         return proposals[sel]

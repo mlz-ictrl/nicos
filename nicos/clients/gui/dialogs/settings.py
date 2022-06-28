@@ -105,7 +105,7 @@ class SettingsDialog(DlgUtils, QDialog):
     @pyqtSlot()
     def on_settingAdd_clicked(self):
         dlg = dialogFromUi(self, 'dialogs/settings_conn.ui')
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return
         if not dlg.name.text():
             return
@@ -141,7 +141,7 @@ class SettingsDialog(DlgUtils, QDialog):
         dlg.login.setText(cdata.user)
         dlg.viewonly.setChecked(cdata.viewonly)
         dlg.expertmode.setChecked(cdata.expertmode)
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return
         cdata.host = dlg.host.text()
         cdata.port = dlg.port.value()

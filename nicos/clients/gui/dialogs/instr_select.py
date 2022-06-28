@@ -90,7 +90,7 @@ class InstrSelectDialog(QDialog):
                 (settings.value('guiconfig') or None)
             while not (configfile and path.isfile(configfile)):
                 dlg = cls(reason)
-                result = dlg.exec_()
+                result = dlg.exec()
                 if not result:
                     return None
                 items = dlg.confTree.selectedItems()

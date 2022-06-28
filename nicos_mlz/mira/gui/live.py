@@ -294,7 +294,7 @@ class LiveDataPanel(Panel):
         printer.setColorMode(QPrinter.Color)
         printer.setPageOrientation(QPageLayout.Landscape)
         printer.setOutputFileName('')
-        if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
+        if QPrintDialog(printer, self).exec() == QDialog.Accepted:
             self.widget.GetPlot().print_(printer)
         self.statusBar.showMessage('Plot successfully printed to %s.' %
                                    str(printer.printerName()))

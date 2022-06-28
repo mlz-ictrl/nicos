@@ -528,7 +528,7 @@ class ScansPanel(Panel):
                                    ";;".join(ftypes.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
-        if fdialog.exec_() != fdialog.Accepted:
+        if fdialog.exec() != QDialog.Accepted:
             return
         files = fdialog.selectedFiles()
         if not files:
@@ -591,7 +591,7 @@ class ScansPanel(Panel):
         suffix = self.currentPlot.SAVE_EXT
         newdlg.filename.setText(
             safeName('data_%s' % self.currentPlot.dataset.name + suffix))
-        ret = newdlg.exec_()
+        ret = newdlg.exec()
         if ret != QDialog.Accepted:
             return
         descr = newdlg.description.text()
@@ -837,7 +837,7 @@ class ScansPanel(Panel):
                 # to be selected
                 newitem.setBackground(self.palette().brush(QPalette.Mid))
                 newitem.setFlags(Qt.NoItemFlags)
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return
         items = dlg.otherList.selectedItems()
         sets = [self.data.uid2set[current]]

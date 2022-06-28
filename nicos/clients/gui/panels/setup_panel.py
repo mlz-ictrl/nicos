@@ -250,7 +250,7 @@ class ExpPanel(Panel):
         if self._finish_exp_panel:
             dlg = PanelDialog(self, self.client, self._finish_exp_panel,
                               'Finish experiment')
-            dlg.exec_()
+            dlg.exec()
         if self.client.run('FinishExperiment()', noqueue=True) is None:
             self.showError('Could not finish experiment, a script '
                            'is still running.')
@@ -312,7 +312,7 @@ class ExpPanel(Panel):
         for prop in proposals:
             item = QListWidgetItem('', dlg.list)
             item.setData(Qt.UserRole, prop)
-        if not dlg.exec_():
+        if not dlg.exec():
             return
         sel = dlg.list.currentRow()
         return proposals[sel]
@@ -365,7 +365,7 @@ class ExpPanel(Panel):
             if self._new_exp_panel:
                 dlg = PanelDialog(self, self.client, self._new_exp_panel,
                                   'New experiment')
-                dlg.exec_()
+                dlg.exec()
         else:
             if title != self._orig_propinfo.get('title'):
                 self.client.run('Exp.update(title=%r)' % title)

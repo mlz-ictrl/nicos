@@ -379,7 +379,7 @@ class ArbitraryFitter(Fitter):
 
     def begin(self):
         dlg = ArbyFitDialog(self.plot)
-        ret = dlg.exec_()
+        ret = dlg.exec()
         if ret != QDialog.Accepted:
             return
 
@@ -622,7 +622,7 @@ class NicosPlot(DlgUtils):
             for _, descr in visible_curves:
                 QListWidgetItem(descr, dlg.list)
             dlg.list.setCurrentRow(0)
-            if dlg.exec_() != QDialog.Accepted:
+            if dlg.exec() != QDialog.Accepted:
                 return
             fitcurve = visible_curves[dlg.list.currentRow()][0]
         else:
@@ -690,7 +690,7 @@ class NicosPlot(DlgUtils):
                 dlg.operation.setFocus()
             else:
                 li.setCheckState(Qt.Unchecked)
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return
         # evaluate selection
         op = dlg.operation.text()
@@ -905,8 +905,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                 actionClipboard = QAction("Copy fit values to clipboard", menu)
                 menu.addAction(actionClipboard)
                 p0dc = event.getDC()
-                selectedItem = menu.exec_(self.mapToGlobal(QPoint(p0dc.x,
-                                                                  p0dc.y)))
+                selectedItem = menu.exec(
+                    self.mapToGlobal(QPoint(p0dc.x, p0dc.y)))
                 if selectedItem == actionClipboard:
                     res = event.roi.reference
                     text = '\n'.join(
@@ -1161,7 +1161,7 @@ class ViewPlot(NicosGrPlot):
         dlg = DataExportDialog(self, curvenames,
                                'Select curve(s), file name and format',
                                '', 'ASCII data files (*.dat)')
-        res = dlg.exec_()
+        res = dlg.exec()
         if res != QDialog.Accepted:
             return
         if not dlg.selectedFiles():

@@ -47,7 +47,7 @@ class DeviceWidget(QWidget):
     def addParameter(self):
         dlg = AddParameterDialog(self.myClass.parameters, self.parameters)
 
-        if dlg.exec_():
+        if dlg.exec():
             param = dlg.getValue()
             if not param:
                 QMessageBox.warning(self, 'Error',

@@ -127,7 +127,7 @@ class ExpInfoPanel(Panel):
         finishAndNewButton = QPushButton('Finish and start new experiment')
         dlg.addButton(contButton, QMessageBox.RejectRole)
         dlg.addButton(finishAndNewButton, QMessageBox.ActionRole)
-        dlg.exec_()
+        dlg.exec()
         if dlg.clickedButton() == finishAndNewButton:
             self.on_proposalBtn_clicked()
         elif dlg.clickedButton() == contButton:
@@ -138,24 +138,24 @@ class ExpInfoPanel(Panel):
         dlg = PanelDialog(self, self.client, ExpPanel, 'Proposal info',
                           new_exp_panel=self._new_exp_panel,
                           finish_exp_panel=self._finish_exp_panel)
-        dlg.exec_()
+        dlg.exec()
 
     @pyqtSlot()
     def on_setupBtn_clicked(self):
         dlg = PanelDialog(self, self.client, SetupsPanel, 'Setups')
-        dlg.exec_()
+        dlg.exec()
 
     @pyqtSlot()
     def on_sampleBtn_clicked(self):
         dlg = PanelDialog(self, self.client, self._sample_panel,
                           'Sample information')
-        dlg.exec_()
+        dlg.exec()
 
     @pyqtSlot()
     def on_detenvBtn_clicked(self):
         dlg = PanelDialog(self, self.client, DetEnvPanel,
                           'Detectors and environment')
-        dlg.exec_()
+        dlg.exec()
 
     @pyqtSlot()
     def on_remarkBtn_clicked(self):
@@ -169,6 +169,6 @@ class ExpInfoPanel(Panel):
         for ch in dlg.findChildren(NicosWidget):
             ch.setClient(self.client)
         dlg.remarkEdit.setFocus()
-        if not dlg.exec_():
+        if not dlg.exec():
             return
         self.client.run('Remark(%r)' % dlg.remarkEdit.getValue())

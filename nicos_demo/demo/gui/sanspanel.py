@@ -115,7 +115,7 @@ class SANSPanel(Panel):
                     result[0] = 2
                 qwindow.accept()
             qwindow.buttonBox.clicked.connect(pushed)
-            qwindow.exec_()
+            qwindow.exec()
             if result[0] == 0:
                 return
             elif result[0] == 2:

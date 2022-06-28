@@ -42,7 +42,7 @@ class ConnectionDialog(QDialog):
     def getConnectionData(cls, parent, connpresets, lastpreset, lastdata,
                           tunnel=''):
         self = cls(parent, connpresets, lastpreset, lastdata, tunnel)
-        ret = self.exec_()
+        ret = self.exec()
         if ret != QDialog.Accepted:
             return None, None, None, tunnel
         new_addr = self.presetOrAddr.currentText()

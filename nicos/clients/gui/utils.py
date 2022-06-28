@@ -214,11 +214,11 @@ class ScriptExecQuestion(QMessageBox):
         self.b2 = self.addButton('Execute now!', QMessageBox.ApplyRole)
         self.b2.setIcon(self.style().standardIcon(QStyle.SP_MessageBoxWarning))
 
-    def exec_(self):
-        # According to the docs, exec_() returns an "opaque value" if using
+    def exec(self):
+        # According to the docs, exec() returns an "opaque value" if using
         # non-standard buttons, so we have to check clickedButton(). Do that
         # here and return a valid QMessageBox button constant.
-        QMessageBox.exec_(self)
+        QMessageBox.exec(self)
         btn = self.clickedButton()
         if btn == self.b2:
             return QMessageBox.Apply  # Execute now

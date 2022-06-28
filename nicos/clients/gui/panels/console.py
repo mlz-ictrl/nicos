@@ -203,7 +203,7 @@ class ConsolePanel(Panel):
         printer = QPrinter()
         printdlg = QPrintDialog(printer, self)
         printdlg.setOption(QAbstractPrintDialog.PrintSelection)
-        if printdlg.exec_() == QDialog.Accepted:
+        if printdlg.exec() == QDialog.Accepted:
             self.outView.print_(printer)
 
     @pyqtSlot()

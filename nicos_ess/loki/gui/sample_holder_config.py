@@ -442,7 +442,7 @@ class LokiSampleHolderPanel(PanelBase):
         clear_action.setIcon(get_icon("remove-24px.svg"))
         menu.addAction(clear_action)
 
-        menu.exec_(QCursor.pos())
+        menu.exec(QCursor.pos())
 
     def _create_keyboard_shortcuts(self):
         for key, to_call in [

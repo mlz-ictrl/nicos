@@ -182,7 +182,7 @@ class ComparisonPanel(LiveDataPanel):
         delete_action.setIcon(get_icon('cut_24px.svg'))
         menu.addAction(delete_action)
 
-        menu.exec_(QCursor.pos())
+        menu.exec(QCursor.pos())
 
     def _on_norm_change(self, value):
         self._normaliser = NormaliserFactory.create(

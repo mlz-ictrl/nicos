@@ -497,7 +497,7 @@ def main():
     myWindow = MainWindow()
     myWindow.resize(800, 600)
     myWindow.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

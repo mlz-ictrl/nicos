@@ -172,4 +172,4 @@ def main(argv):
                 mainwindow.autoconnect = True
     mainwindow.startup()
 
-    return app.exec_()
+    return app.exec()

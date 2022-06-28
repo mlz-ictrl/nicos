@@ -799,7 +799,7 @@ class DevicesPanel(Panel):
     def exec_command(self, command, ask_queue=True, immediate=False):
         if ask_queue and not immediate and self._current_status != 'idle':
             qwindow = ScriptExecQuestion()
-            result = qwindow.exec_()
+            result = qwindow.exec()
             if result == QMessageBox.Cancel:
                 return
             elif result == QMessageBox.Apply:
@@ -1038,7 +1038,7 @@ class ControlDialog(QDialog):
         menu.addAction('Refresh all')
 
         # QCursor.pos is more reliable then the given pos
-        action = menu.exec_(QCursor.pos())
+        action = menu.exec(QCursor.pos())
 
         if action:
             cmd = 'session.getDevice(%r).pollParams(volatile_only=False%s)' \
@@ -1083,7 +1083,7 @@ class ControlDialog(QDialog):
             dlg.reject()
         btn.clicked.connect(callback)
         dlg.targetLayout.addWidget(target)
-        res = dlg.exec_()
+        res = dlg.exec()
         if res != QDialog.Accepted:
             return
         newlimits = target.getValue()
@@ -1105,7 +1105,7 @@ class ControlDialog(QDialog):
         target.setClient(self.client)
         dlg.targetLayout.addWidget(target)
         target.setFocus()
-        res = dlg.exec_()
+        res = dlg.exec()
         if res != QDialog.Accepted:
             return None
         return target.getValue()
@@ -1193,7 +1193,7 @@ class ControlDialog(QDialog):
         dlg.targetLayout.addWidget(dlg.target)
         dlg.resize(dlg.sizeHint())
         dlg.target.setFocus()
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return
         try:
             new_value = dlg.target.getValue()

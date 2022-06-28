@@ -58,7 +58,7 @@ class SysconfigWidget(TreeWidgetContextMenu):
 
     def addValue(self):
         dlg = NewValueDialog()
-        if dlg.exec_():
+        if dlg.exec():
             value = dlg.getValue()
             if not value:
                 QMessageBox.warning(self, 'Error', 'No value entered.')

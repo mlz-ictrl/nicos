@@ -91,7 +91,7 @@ class CacheInspector(CICacheClient):
         if self.cache:
             self.connect(self.cache)
         try:
-            self._qtapp.exec_()
+            self._qtapp.exec()
         except KeyboardInterrupt:
             pass
         self._stoprequest = True

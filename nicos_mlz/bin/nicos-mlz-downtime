@@ -77,4 +77,4 @@ dt = DownTimeTool(widget, None, receiver=args.receiver,
                   instrument=args.instrument[0], log=log)
 dt.show()
 
-sys.exit(app.exec_())
+sys.exit(app.exec())

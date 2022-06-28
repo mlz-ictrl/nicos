@@ -725,7 +725,7 @@ class MainWindow(DlgUtils, QMainWindow):
         dlg.customVersion.setText(dinfo.get('custom_version', ''))
         dlg.contributors.setPlainText(nicos.authors.authors_list)
         dlg.adjustSize()
-        dlg.exec_()
+        dlg.exec()
 
     @pyqtSlot(bool)
     def on_actionConnect_triggered(self, on):
@@ -784,7 +784,7 @@ class MainWindow(DlgUtils, QMainWindow):
     @pyqtSlot()
     def on_actionPreferences_triggered(self):
         dlg = SettingsDialog(self)
-        ret = dlg.exec_()
+        ret = dlg.exec()
         if ret == QDialog.Accepted:
             dlg.saveSettings()
 

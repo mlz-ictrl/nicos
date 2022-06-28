@@ -488,7 +488,7 @@ class LiveDataPanel(Panel):
         newdlg.filename.setText(
             safeName('data_' + self.fileList.currentItem().data(FILEUID)
                      + suffix))
-        ret = newdlg.exec_()
+        ret = newdlg.exec()
         if ret != QDialog.Accepted:
             return
         descr = newdlg.description.text()
@@ -1024,7 +1024,7 @@ class LiveDataPanel(Panel):
                                    ";;".join(ftypes.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
-        if fdialog.exec_() != fdialog.Accepted:
+        if fdialog.exec() != QDialog.Accepted:
             return
         files = fdialog.selectedFiles()
         if not files:

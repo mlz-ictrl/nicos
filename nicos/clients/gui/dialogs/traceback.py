@@ -110,5 +110,5 @@ class TracebackDialog(QDialog):
                                 for msg in self.view.getLatest())
         dlg = BugreportTool(self, self.client, traceback=self.tb,
                             log_excerpt=formatted_log)
-        dlg.exec_()
+        dlg.exec()
         self.reject()

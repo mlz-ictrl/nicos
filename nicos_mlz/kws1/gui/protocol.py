@@ -97,7 +97,7 @@ class ProtocolPanel(Panel):
         # Let the user select the desired printer via the system printer list
         printer = QPrinter()
         dialog = QPrintDialog(printer)
-        if not dialog.exec_():
+        if not dialog.exec():
             return
         doc = self.outText.document().clone()
         font = self.outText.font()

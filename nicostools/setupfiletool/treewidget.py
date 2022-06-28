@@ -259,7 +259,7 @@ class TreeWidget(TreeWidgetContextMenu):
         dlg = NewSetupDialog([item.text(0) for item in self.topLevelItems
                               if item.type() == ItemTypes.Directory],
                              instrument)
-        if dlg.exec_():
+        if dlg.exec():
             fileName = dlg.getValue()
             if not fileName:
                 QMessageBox.warning(self, 'Error', 'No setup name entered.')
@@ -316,7 +316,7 @@ class TreeWidget(TreeWidgetContextMenu):
             dlg = NewDeviceDialog(
                 classparser.getDeviceClasses('nicos_%s' % instrument), self)
 
-        if dlg.exec_():
+        if dlg.exec():
             if not dlg.labelSelectedClass.text():
                 QMessageBox.warning(self, 'Error', 'No class selected.')
                 return

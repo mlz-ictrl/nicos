@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
 
     def addUser(self):
         dlg = UserDialog()
-        if dlg.exec_():
+        if dlg.exec():
             username = str(dlg.lineEditUserName.text())
             if dlg.lineEditPassword.text().isEmpty():
                 password = ''
@@ -181,7 +181,7 @@ class MainWindow(QMainWindow):
                                   'WARNING: THIS WILL CLEAR ALL PASSWORDS.')
         msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msgBox.setDefaultButton(QMessageBox.Cancel)
-        return msgBox.exec_() == QMessageBox.Ok
+        return msgBox.exec() == QMessageBox.Ok
 
     def setConfig(self):
         # method called when clicking save button in config widget.

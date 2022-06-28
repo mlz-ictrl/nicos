@@ -132,8 +132,8 @@ class OverwriteQuestion(QMessageBox):
         self.b2 = self.addButton('Cancel', QMessageBox.RejectRole)
         self.b2.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
 
-    def exec_(self):
-        QMessageBox.exec_(self)
+    def exec(self):
+        QMessageBox.exec(self)
         btn = self.clickedButton()
         if btn == self.b0:
             return QMessageBox.Yes    # Append
