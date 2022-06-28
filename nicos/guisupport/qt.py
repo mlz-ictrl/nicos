@@ -27,7 +27,6 @@
 
 # pylint: disable=wildcard-import, unused-import, unused-wildcard-import
 
-import os
 import sys
 
 from PyQt5 import uic
@@ -68,12 +67,6 @@ try:
     from PyQt5.Qsci import QsciLexerPython, QsciPrinter, QsciScintilla
 except (ImportError, RuntimeError):
     QsciScintilla = QsciLexerPython = QsciPrinter = None
-
-
-class QPyNullVariant:
-    pass
-
-propertyMetaclass = type(QObject)
 
 
 QT_VER = int(QT_VERSION_STR.split('.', maxsplit=1)[0])

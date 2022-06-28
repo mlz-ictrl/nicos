@@ -29,7 +29,7 @@ from os import path
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, splitTunnelString
 from nicos.guisupport.qt import QDialog, QFontMetrics, QIcon, \
-    QListWidgetItem, QPalette, QPixmap, QPyNullVariant, QSize, pyqtSlot
+    QListWidgetItem, QPalette, QPixmap, QSize, pyqtSlot
 from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 
@@ -80,8 +80,6 @@ class ConnectionDialog(QDialog):
         if hasattr(parent, 'facility_logo'):
             self.logoLabel.setPixmap(QPixmap(parent.facility_logo))
         self.connpresets = connpresets
-        if isinstance(lastpreset, QPyNullVariant):
-            lastpreset = None
 
         pal = self.quickList.palette()
         pal.setColor(QPalette.Window, pal.color(QPalette.Base))
