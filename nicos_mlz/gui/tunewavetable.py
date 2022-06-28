@@ -316,8 +316,8 @@ class PreviewDialog(QDialog):
 
     def update_timeline(self):
         """Updates what time points shall be shown on the timeline."""
-        fromtime = self.fromDateTimeEdit.dateTime().toTime_t()
-        totime = self.toDateTimeEdit.dateTime().toTime_t()
+        fromtime = self.fromDateTimeEdit.dateTime().toSecsSinceEpoch()
+        totime = self.toDateTimeEdit.dateTime().toSecsSinceEpoch()
 
         result = self._client.ask('gethistory', 'echotime/tables',
                                   str(fromtime), str(totime))

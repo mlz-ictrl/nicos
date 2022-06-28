@@ -237,8 +237,10 @@ class NewViewDialog(DlgUtils, QDialog):
             self.extTime.setChecked(not info['simpleTime'])
             self.frombox.setChecked(info['frombox'])
             self.tobox.setChecked(info['tobox'])
-            self.fromdate.setDateTime(QDateTime.fromTime_t(info['fromdate']))
-            self.todate.setDateTime(QDateTime.fromTime_t(info['todate']))
+            self.fromdate.setDateTime(QDateTime
+                                      .fromSecsSinceEpoch(info['fromdate']))
+            self.todate.setDateTime(QDateTime
+                                    .fromSecsSinceEpoch(info['todate']))
             self.interval.setText(info['interval'])
             self.customY.setChecked(info['customY'])
             self.customYFrom.setText(info['customYFrom'])
@@ -426,8 +428,8 @@ class NewViewDialog(DlgUtils, QDialog):
             slidingWindow = self.slidingWindow.isChecked(),
             frombox = self.frombox.isChecked(),
             tobox = self.tobox.isChecked(),
-            fromdate = self.fromdate.dateTime().toTime_t(),
-            todate = self.todate.dateTime().toTime_t(),
+            fromdate = self.fromdate.dateTime().toSecsSinceEpoch(),
+            todate = self.todate.dateTime().toSecsSinceEpoch(),
             interval = self.interval.text(),
             customY = self.customY.isChecked(),
             customYFrom = self.customYFrom.text(),
