@@ -143,14 +143,6 @@
     <string>Select colormap</string>
    </property>
   </action>
-  <action name="actionROI">
-   <property name="text">
-    <string>&amp;Region Of Interest</string>
-   </property>
-   <property name="toolTip">
-    <string>Open region of interest in seperate window</string>
-   </property>
-  </action>
   <action name="actionMarkCenter">
    <property name="checkable">
     <bool>true</bool>

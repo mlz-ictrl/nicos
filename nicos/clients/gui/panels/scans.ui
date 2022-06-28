@@ -206,17 +206,6 @@
     <string>Close</string>
    </property>
   </action>
-  <action name="actionNormalized">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Normalized</string>
-   </property>
-   <property name="iconText">
-    <string>Normalized</string>
-   </property>
-  </action>
   <action name="actionFitPeak">
    <property name="checkable">
     <bool>true</bool>
@@ -330,11 +319,6 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;autoscale: growing window&lt;/p&gt;&lt;p&gt;The autoscale feature defines a growing window in x, y direction. If the drawn curve is within this window and does not cross the boundaries the next added point is taken into account on autoscaling.&lt;/p&gt;&lt;p&gt;If the curve already crosses boundaries the next point is not taken into account. This allows you to zoom into a region of interest without turning autoscale off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
-  <action name="actionXAxis">
-   <property name="text">
-    <string>&amp;X axis</string>
-   </property>
-  </action>
   <action name="actionScaleX">
    <property name="checkable">
     <bool>true</bool>
@@ -391,14 +375,6 @@
    </property>
    <property name="text">
     <string>Auto display new</string>
-   </property>
-  </action>
-  <action name="actionYAxis">
-   <property name="text">
-    <string>&amp;Y axis</string>
-   </property>
-   <property name="toolTip">
-    <string>Y axis</string>
    </property>
   </action>
   <action name="actionFitPeakGaussian">

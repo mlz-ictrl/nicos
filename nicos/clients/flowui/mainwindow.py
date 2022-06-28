@@ -73,7 +73,6 @@ class MainWindow(DefaultMainWindow):
         dropdown.addAction(self.actionExpert)
         dropdown.addSeparator()
         dropdown.addAction(self.actionExit)
-        self.actionUser.setMenu(dropdown)
         self.actionUser.setIconVisibleInMenu(True)
         self.dropdown = dropdown
         self.actionExpert.setEnabled(self.client.isconnected)

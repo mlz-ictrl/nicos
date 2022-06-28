@@ -208,6 +208,18 @@ class LiveDataPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
+        self.menuROI = QMenu(self)
+        self.actionROI = self.menuROI.menuAction()
+        self.actionROI.setText('&Region Of Interest')
+        self.actionROI.setToolTip('Open region of interest in seperate window')
+        self.actionROI.triggered.connect(self.on_actionROI_triggered)
+
+        self.menuColormap = QMenu(self)
+        self.actionColormap = self.menuColormap.menuAction()
+        self.actionColormap.setText('&Colormap')
+        self.actionColormap.setToolTip('Select colormap')
+        self.actionColormap.triggered.connect(self.on_actionColormap_triggered)
+
         self.toolbar = QToolBar('Live data')
         self.toolbar.addAction(self.actionOpen)
         self.toolbar.addAction(self.actionPrint)
@@ -325,7 +337,6 @@ class LiveDataPanel(Panel):
         self.actionOpen.setEnabled(True)  # File Open action always available
 
     def _initColormapMenu(self):
-        self.menuColormap = QMenu(self)
         self.actionsColormap = QActionGroup(self)
         activeMap = self.widget.getColormap()
         activeCaption = None
@@ -352,8 +363,6 @@ class LiveDataPanel(Panel):
         action.setStatusTip('Open new colormap')
         action.triggered.connect(from_file)
         self.actionsColormap.addAction(action)
-
-        self.actionColormap.setMenu(self.menuColormap)
         return activeCaption
 
     def initLiveWidget(self, widgetcls):
@@ -542,7 +551,6 @@ class LiveDataPanel(Panel):
     def _register_rois(self, detectors):
         self.rois.clear()
         self.actionROI.setVisible(False)
-        self.menuROI = QMenu(self)
         self.actionsROI = QActionGroup(self)
         self.actionsROI.setExclusive(False)
         for detname in detectors:
@@ -561,7 +569,6 @@ class LiveDataPanel(Panel):
                     action.setCheckable(True)
                     self.actionsROI.addAction(action)
                     action.triggered.connect(self.on_roi_triggered)
-                    self.actionROI.setMenu(self.menuROI)
                     self.actionROI.setVisible(True)
 
     def on_actionROI_triggered(self):

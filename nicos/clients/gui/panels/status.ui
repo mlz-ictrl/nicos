@@ -293,30 +293,6 @@
     <string>Pause during count, or after current scan point in script</string>
    </property>
   </action>
-  <action name="actionBreak2">
-   <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
-     <normaloff>:/break</normaloff>:/break</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Pause after current scan point</string>
-   </property>
-   <property name="toolTip">
-    <string>Pause the script</string>
-   </property>
-  </action>
-  <action name="actionStop2">
-   <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
-     <normaloff>:/stop</normaloff>:/stop</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Stop after current scan point</string>
-   </property>
-   <property name="toolTip">
-    <string>Stop after current scan, scan point, or command</string>
-   </property>
-  </action>
   <action name="actionFinishEarly">
    <property name="icon">
     <iconset resource="../../../../resources/nicos-gui.qrc">

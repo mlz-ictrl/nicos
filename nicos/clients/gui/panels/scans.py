@@ -108,17 +108,25 @@ class ScansPanel(Panel):
 
         self.x_menu = QMenu(self)
         self.x_menu.aboutToShow.connect(self.on_x_menu_aboutToShow)
-        self.actionXAxis.setMenu(self.x_menu)
+        self.actionXAxis = self.x_menu.menuAction()
+        self.actionXAxis.setText('&X axis')
+        self.actionXAxis.triggered.connect(self.on_actionXAxis_triggered)
 
         self.y_menu = QMenu(self)
         self.y_menu.aboutToShow.connect(self.on_y_menu_aboutToShow)
-        self.actionYAxis.setMenu(self.y_menu)
+        self.actionYAxis = self.y_menu.menuAction()
+        self.actionYAxis.setText('&Y axis')
+        self.actionYAxis.triggered.connect(self.on_actionYAxis_triggered)
 
         self.actionAutoDisplay.setChecked(True)
 
         self.norm_menu = QMenu(self)
         self.norm_menu.aboutToShow.connect(self.on_norm_menu_aboutToShow)
-        self.actionNormalized.setMenu(self.norm_menu)
+        self.actionNormalized = self.norm_menu.menuAction()
+        self.actionNormalized.setText('&Normalized')
+        self.actionNormalized.setCheckable(True)
+        self.actionNormalized.triggered.connect(
+            self.on_actionNormalized_triggered)
 
         quickfit = QShortcut(QKeySequence("G"), self)
         quickfit.activated.connect(self.on_quickfit)
@@ -645,7 +653,6 @@ class ScansPanel(Panel):
         self.currentPlot.updateDisplay()
         self.on_actionUnzoom_triggered()
 
-    @pyqtSlot()
     def on_actionXAxis_triggered(self):
         self.bars[0].widgetForAction(self.actionXAxis).showMenu()
 
@@ -673,11 +680,9 @@ class ScansPanel(Panel):
         self.currentPlot.updateDisplay()
         self.on_actionUnzoom_triggered()
 
-    @pyqtSlot()
     def on_actionYAxis_triggered(self):
         self.bars[0].widgetForAction(self.actionYAxis).showMenu()
 
-    @pyqtSlot()
     def on_actionNormalized_triggered(self):
         if not self.currentPlot:
             return
