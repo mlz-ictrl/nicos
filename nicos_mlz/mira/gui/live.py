@@ -30,8 +30,8 @@ from os import path
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QByteArray, QDialog, QDoubleSpinBox, \
-    QFileDialog, QLabel, QListWidgetItem, QMenu, QPrintDialog, QPrinter, \
-    QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
+    QFileDialog, QLabel, QListWidgetItem, QMenu, QPageLayout, QPrintDialog, \
+    QPrinter, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.utils import findResource
 
 try:
@@ -292,7 +292,7 @@ class LiveDataPanel(Panel):
     def on_actionPrint_triggered(self):
         printer = QPrinter(QPrinter.HighResolution)
         printer.setColorMode(QPrinter.Color)
-        printer.setOrientation(QPrinter.Landscape)
+        printer.setPageOrientation(QPageLayout.Landscape)
         printer.setOutputFileName('')
         if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
             self.widget.GetPlot().print_(printer)
