@@ -2,8 +2,7 @@
 -r requirements-epics.txt
 pyserial>=2.5
 astropy>=3.0
-# quickyaml build against correct numpy version
-nicos-quickyaml>=1.2.1
+nicos-quickyaml>=1.2.1;sys_platform!='darwin'
 docutils>=0.12
 redbaron>=0.6.3
 keyring>=10.6
@@ -12,7 +11,7 @@ pycryptodomex>=3.4.7
 slackclient>=2.3.1
 sshtunnel>=0.4.0
 requests>=2.26.0
-PyTango>=9.0.0;sys_platform!='win32'
+PyTango>=9.0.0;sys_platform!='win32' and sys_platform!='darwin'
 Pillow>=4.0.0
 Markdown>=2.6.9
 pamela>=0.3.0

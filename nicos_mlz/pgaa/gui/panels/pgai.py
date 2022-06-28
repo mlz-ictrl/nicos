@@ -46,16 +46,24 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QDialogButtonBox, QDoubleSpinBox, \
     QFileDialog, QGridLayout, QMessageBox, QScrollBar, QStyledItemDelegate, \
-    Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, pyqtSlot
+    Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, pyqtSlot, QT_VER
 from nicos.utils import findResource
 
 from nicos_mlz.pgaa.gui.panels.collision import cuboid_values, \
     cylinder_values, sphere_values
 
-try:
-    from PyQt5.QtOpenGL import QGLWidget
-except ImportError:
-    QGLWidget = QWidget
+if QT_VER == 6:
+    # pylint: disable=import-error
+    try:
+        from PyQt6.QtOpenGL import QGLWidget
+    except ImportError:
+        QGLWidget = QWidget
+else:
+    try:
+        from PyQt5.QtOpenGL import QGLWidget
+    except ImportError:
+        QGLWidget = QWidget
+
 
 
 class GLWidget(QGLWidget):

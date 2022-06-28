@@ -27,51 +27,97 @@
 
 # pylint: disable=wildcard-import, unused-import, unused-wildcard-import
 
+import os
 import sys
 
-from PyQt5 import uic
-from PyQt5.QtCore import *
-from PyQt5.QtCore import QObject
-from PyQt5.QtDesigner import *
-from PyQt5.QtGui import *
-from PyQt5.QtPrintSupport import *
-from PyQt5.QtWidgets import *
+NICOS_QT = os.environ.get('NICOS_QT')
 
-import nicos.guisupport.gui_rc_qt5
+if NICOS_QT == '6':
+    # pylint: disable=import-error
 
-# compat for Qt < 5.11
-if not hasattr(QFontMetrics, 'horizontalAdvance'):
-    QFontMetrics.horizontalAdvance = \
-        lambda self, *args, **kwargs: self.width(*args, **kwargs)
+    from PyQt6 import uic
+    from PyQt6.QtCore import *
+    from PyQt6.QtCore import QObject
+    from PyQt6.QtDesigner import *
+    from PyQt6.QtGui import *
+    from PyQt6.QtPrintSupport import *
+    from PyQt6.QtWidgets import *
 
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
+    import nicos.guisupport.gui_rc_qt6
 
-try:
-    from PyQt5 import QtWebEngineWidgets
-except (ImportError, RuntimeError):
     try:
-        from PyQt5 import QtWebKitWidgets
+        from PyQt6 import QtWebEngineWidgets, QtWebEngineCore
+        from PyQt6.QtWebEngineWidgets import QWebEngineView as QWebView
+        from PyQt6.QtWebEngineCore import QWebEnginePage as QWebPage
     except (ImportError, RuntimeError):
         QWebView = QWebPage = None
-    else:
-        QWebView = QtWebKitWidgets.QWebView
-        QWebPage = QtWebKitWidgets.QWebPage
+
+    try:
+        from PyQt6 import sip
+    except ImportError:
+        import sip
+
+    try:
+        from PyQt6 import QtDBus
+    except (ImportError, RuntimeError):
+        QtDBus = None
+
+    try:
+        from PyQt6.Qsci import QsciLexerPython, QsciPrinter, QsciScintilla
+    except (ImportError, RuntimeError):
+        QsciScintilla = QsciLexerPython = QsciPrinter = None
+
+    # add missing enum mapping for QAction shortcut context
+    from PyQt6.uic.enum_map import EnumMap
+    EnumMap['Qt::WidgetShortcut'] = 'Qt::ShortcutContext::WidgetShortcut'
+    EnumMap['Qt::WidgetWithChildrenShortcut'] = 'Qt::ShortcutContext::WidgetWithChildrenShortcut'
+    EnumMap['Qt::WindowShortcut'] = 'Qt::ShortcutContext::WindowShortcut'
+    EnumMap['Qt::ApplicationShortcut'] = 'Qt::ShortcutContext::ApplicationShortcut'
+
 else:
-    QWebView = QtWebEngineWidgets.QWebEngineView
-    QWebPage = QtWebEngineWidgets.QWebEnginePage
+    from PyQt5 import uic
+    from PyQt5.QtCore import *
+    from PyQt5.QtCore import QObject
+    from PyQt5.QtDesigner import *
+    from PyQt5.QtGui import *
+    from PyQt5.QtPrintSupport import *
+    from PyQt5.QtWidgets import *
 
-try:
-    from PyQt5 import QtDBus
-except (ImportError, RuntimeError):
-    QtDBus = None
+    import nicos.guisupport.gui_rc_qt5
 
-try:
-    from PyQt5.Qsci import QsciLexerPython, QsciPrinter, QsciScintilla
-except (ImportError, RuntimeError):
-    QsciScintilla = QsciLexerPython = QsciPrinter = None
+    # compat for Qt < 5.11
+    if not hasattr(QFontMetrics, 'horizontalAdvance'):
+        QFontMetrics.horizontalAdvance = \
+            lambda self, *args, **kwargs: self.width(*args, **kwargs)
+
+    try:
+        from PyQt5 import sip
+    except ImportError:
+        import sip
+
+    try:
+        from PyQt5 import QtWebEngineWidgets
+    except (ImportError, RuntimeError):
+        try:
+            from PyQt5 import QtWebKitWidgets
+        except (ImportError, RuntimeError):
+            QWebView = QWebPage = None
+        else:
+            QWebView = QtWebKitWidgets.QWebView
+            QWebPage = QtWebKitWidgets.QWebPage
+    else:
+        QWebView = QtWebEngineWidgets.QWebEngineView
+        QWebPage = QtWebEngineWidgets.QWebEnginePage
+
+    try:
+        from PyQt5 import QtDBus
+    except (ImportError, RuntimeError):
+        QtDBus = None
+
+    try:
+        from PyQt5.Qsci import QsciLexerPython, QsciPrinter, QsciScintilla
+    except (ImportError, RuntimeError):
+        QsciScintilla = QsciLexerPython = QsciPrinter = None
 
 
 QT_VER = int(QT_VERSION_STR.split('.', maxsplit=1)[0])

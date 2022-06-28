@@ -52,7 +52,8 @@ If not mentioned otherwise, Python packages are available from PyPI
 
 * For the GUI and status monitor:
 
-  - PyQt5
+  - PyQt5 (^5.13) or PyQt6 (^6.3.1)
+  - PyQtWebEngine (^5.13) or PyQt6-WebEngine (^6.3.1)
   - gr (optional, for plots, see: http://gr-framework.org/c.html#linux-packages)
   - QScintilla-python (optional, for the script editor component)
     (not installable with pip)
