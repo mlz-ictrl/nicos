@@ -139,7 +139,7 @@ class Ui_Form:
 class Element(QGroupBox):
 
     def __init__(self, parent, main):
-        super(Element, self).__init__(parent)
+        QGroupBox.__init__(self, parent)
         self.main = main
 
     def setStyleSheet(self, style):
@@ -306,7 +306,7 @@ class QRangeSlider(QWidget, Ui_Form):
             :return: New QRangeSlider instance.
 
         """
-        super(QRangeSlider, self).__init__(parent)
+        QWidget.__init__(self, parent)
         self.setupUi(self)
         self.setMouseTracking(False)
 
