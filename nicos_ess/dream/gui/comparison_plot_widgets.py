@@ -32,6 +32,7 @@ from nicos_mlz.toftof.gui.resolutionpanel import COLOR_GREEN, PlotWidget
 
 
 class PlotWidget1D(PlotWidget):
+    # pylint: disable=arguments-renamed
     def setData(self, x1, y1, x2=None, y2=None, difference=False):
         """
         Widget has 3 MaskedPlotCurves. The first two curves are used to plot
