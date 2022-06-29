@@ -1,31 +1,29 @@
-description = 'The motion stages for alignment in the YMIR cave'
+description = 'The motors for alignment in the YMIR cave'
 
+pv_root = 'SES-SCAN:MC-MCU-001:'
 devices = dict(
-    mX=device(
-        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
+    mX=device('nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description='Single axis positioner',
-        motorpv='SES-SCAN:MC-MCU-001:m1',
-        errormsgpv='SES-SCAN:MC-MCU-001:m1-MsgTxt',
-        errorbitpv='SES-SCAN:MC-MCU-001:m1-Err',
-        reseterrorpv='SES-SCAN:MC-MCU-001:m1-ErrRst',
+        motorpv=f'{pv_root}m1',
+        errormsgpv=f'{pv_root}m1-MsgTxt',
+        errorbitpv=f'{pv_root}m1-Err',
+        reseterrorpv=f'{pv_root}m1-ErrRst',
         monitor=True,
     ),
-    mY=device(
-        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
+    mY=device('nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description='Single axis positioner',
-        motorpv='SES-SCAN:MC-MCU-001:m2',
-        errormsgpv='SES-SCAN:MC-MCU-001:m2-MsgTxt',
-        errorbitpv='SES-SCAN:MC-MCU-001:m2-Err',
-        reseterrorpv='SES-SCAN:MC-MCU-001:m2-ErrRst',
+        motorpv=f'{pv_root}m2',
+        errormsgpv=f'{pv_root}m2-MsgTxt',
+        errorbitpv=f'{pv_root}m2-Err',
+        reseterrorpv=f'{pv_root}m2-ErrRst',
         monitor=True,
     ),
-    mZ=device(
-        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
+    mZ=device('nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description='Single axis positioner',
-        motorpv='SES-SCAN:MC-MCU-001:m3',
-        errormsgpv='SES-SCAN:MC-MCU-001:m3-MsgTxt',
-        errorbitpv='SES-SCAN:MC-MCU-001:m3-Err',
-        reseterrorpv='SES-SCAN:MC-MCU-001:m3-ErrRst',
+        motorpv=f'{pv_root}m3',
+        errormsgpv=f'{pv_root}m3-MsgTxt',
+        errorbitpv=f'{pv_root}m3-Err',
+        reseterrorpv=f'{pv_root}m3-ErrRst',
         monitor=True,
     ),
 )
