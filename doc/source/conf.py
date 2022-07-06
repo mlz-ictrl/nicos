@@ -112,7 +112,8 @@ language = 'en'
 if not tags.has('customdoc'):
     exclude_patterns = ['nicos_*/**/setups/**.rst',
                         'nicos_*/**/setups.rst',
-                        'instrumentsetups/*.rst']
+                        'instrumentsetups/*.rst',
+                        'nicos_*/**/commands.rst']
 
 
 # The reST default role (used for this markup: `text`) to use for all
