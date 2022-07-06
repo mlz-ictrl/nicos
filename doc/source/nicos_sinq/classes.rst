@@ -129,7 +129,7 @@ SINQ classes
 .. autoclass:: HistogramConfElement
 .. autoclass:: HistogramConfArray
 .. autoclass:: HistogramConfTofArray
-.. .. autoclass:: HistogramConfAxis
+.. autoclass:: HistogramConfAxis
 .. autoclass:: HistogramConfBank
 .. autoclass:: ConfiguratorBase
 
