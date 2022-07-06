@@ -1,37 +1,9 @@
 `AMOR <https://www.psi.ch/sinq/amor/>`_
 =======================================
 
-.. module:: nicos_ess.devices.epics.detector
-.. autoclass:: EpicsPassiveChannel()
-.. autoclass:: EpicsActiveChannel()
-.. autoclass:: EpicsCounterPassiveChannel()
-.. autoclass:: EpicsCounterActiveChannel()
-.. autoclass:: EpicsTimerPassiveChannel()
-.. autoclass:: EpicsTimerActiveChannel()
-.. autoclass:: EpicsDetector()
-
-.. module:: nicos_sinq.devices.epics.area_detector
-.. autoclass:: EpicsAreaDetectorTimerPassiveChannel()
-.. autoclass:: EpicsAreaDetector()
-.. autoclass:: ADKafkaPlugin()
-
-.. module:: nicos_sinq.devices.kafka.area_detector
-.. autoclass:: ADKafkaImageDetector()
-.. autoclass:: HistogramFlatbuffersDeserializer()
-
-.. module:: nicos_sinq.devices.epics.scaler_record
-.. autoclass:: EpicsScalerRecord()
-
 .. module:: nicos_sinq.amor.devices.epics_amor_magnet
 .. autoclass:: EpicsAmorMagnet()
 .. autoclass:: EpicsAmorMagnetSwitch()
-
-.. module:: nicos_sinq.devices.epics.astrium_chopper
-.. autoclass:: EpicsChopperSpeed()
-.. this class leads to a crash of sphinx:
-   AttributeError: 'str' object has no attribute 'ptype'
-.. .. autoclass:: EpicsChopperDisc()
-.. autoclass:: EpicsAstriumChopper()
 
 .. module:: nicos_sinq.amor.devices.chopper
 .. autoclass:: AmorChopper()
