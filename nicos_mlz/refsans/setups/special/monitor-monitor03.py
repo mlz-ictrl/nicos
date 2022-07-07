@@ -8,7 +8,7 @@
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
 
-description = 'Scattering Geometry, Experiment and Detector [Monitor 13]'
+description = 'Scattering Geometry, Experiment and Detector [Monitor 03]'
 group = 'special'
 
 _NLHcol = Column(
