@@ -38,7 +38,7 @@ from nicos.core.errors import NicosError
 from nicos.core.sessions.utils import SimClock
 from nicos.utils import KEYEXPR_NS, TB_CAUSE_MSG, Repeater, allDays, \
     bitDescription, checkSetupSpec, chunks, closeSocket, comparestrings, \
-    formatDuration, formatExtendedFrame, formatExtendedStack, \
+    expandTemplate, formatDuration, formatExtendedFrame, formatExtendedStack, \
     formatExtendedTraceback, lazy_property, moveOutOfWay, num_sort, \
     parseConnectionString, parseDuration, parseKeyExpression, \
     readFileCounter, readonlydict, readonlylist, safeName, safeWriteFile, \
@@ -570,3 +570,44 @@ def test_simclock():
 
     clock.reset()
     assert clock.time == 0
+
+
+@pytest.mark.parametrize(
+    "expr, expected, defaulted_keys, missing_keys", [
+    ('literal', 'literal', [], []),
+    ('a{{b}}c', 'axc', [], []),
+    ('a{{key}}b', 'ab', [], ['key']),
+    ('a{{key!replace}}b', 'ab', [], ['key']),
+    ('a{{key:default}}b', 'adefaultb', ['key'], []),
+    ('a{{key!replace:default}}b', 'adefaultb', ['key'], []),
+    ('a{{quo}}b', 'aqb', [], []),
+    ('a{{quo!replace}}b', 'areplaceb', [], []),
+    ('a{{quo:default}}b', 'aqb', [], []),
+    ('a{{quo!replace:default}}b', 'areplaceb', [], []),
+    ('a{{c!r}}c', 'arc', [], []),
+    ('a{{{{c:b}}r}}c', 'arc', [], []),
+    ('{{a{{{{c:b}}r}}c}}', 'True', [], []),
+    ('{{q!}}', '', [], ['q']),
+    ('{{b!}}', '', [], []),
+    ],
+)
+def test_expandTemplate(expr, expected, defaulted_keys, missing_keys):
+    kwds = dict(b='x', c='c!', arc=True, quo='q')
+    res, defaulted, missing = expandTemplate(expr, kwds)
+    assert expected == res
+    assert [e['key'] for e in defaulted] == defaulted_keys
+    assert [e['key'] for e in missing] == missing_keys
+
+
+@pytest.mark.parametrize(
+    "expr, expected, defaulted_keys, missing_keys", [
+    ('{{key1}}', '{{key1}}', [], []),
+    ('{{{{key1!key1}}}}', '{{key1}}', [], []),
+    ],
+)
+def test_expandTemplateRecursion(expr, expected, defaulted_keys, missing_keys):
+    kwds = dict(key1='{{key1}}')
+    res, defaulted, missing = expandTemplate(expr, kwds)
+    assert expected == res
+    assert [e['key'] for e in defaulted] == defaulted_keys
+    assert [e['key'] for e in missing] == missing_keys

@@ -840,41 +840,84 @@ def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
     # maybe logging is better done in the caller of enableDirectory
 
 
-field_re = re.compile('{{(?P<key>[^:#}]+)(?::(?P<default>[^#}]*))?'
-                      '(?:#(?P<description>[^}]+))?}}')
+# template handling
+T_BEGIN = '{{'
+T_END = '}}'
+T_SPLITTER = f'({T_BEGIN}|{T_END})'
+T_expr_re = re.compile('(?P<key>[^!:#]+)(?:!(?P<replace>[^:#]*))?(?::(?P<default>[^#]*))?'
+                      '(?:#(?P<description>.*))?')
+
+def _evaluate_template_expression(expr, keywords, expr_re=T_expr_re):
+    """evaluate a single template expression match
+
+    Syntax is key[!replace][:default][#description] where all fields except
+    key are optional. If the key exists within the given keywords dictionary,
+    the whole string is replaced by the value of either replace (if given)
+    or the given dictionary item with the requested key. If the key does not exist,
+    default is used instead (or '' if there is no default).
+
+    Returns a tuple (result, how, groupdict) where
+    result is the result of the expression,
+    how is one of 'replaced', 'resolved', 'defaulted' or 'missing'
+    and groupdict contains the matched fields of the expression.
+    """
+    g = expr_re.match(expr).groupdict()
+    key = g['key'].strip()
+    if key in keywords:
+        if g['replace'] is not None:
+            return g['replace'], 'replaced', g
+        return str(keywords[key]), 'resolved', g
+    if g['default'] is not None:
+        return g['default'], 'defaulted', g
+    return '', 'missing', g
 
 
-def expandTemplate(template, keywords, field_re=field_re):
+def expandTemplate(template, keywords):
     """Simple template field replacement engine.
 
-    Syntax is {{key:default#description}} where default and description
-    are optional. The whole string is replaced by the value of the given
-    dictionary item with the requested key. If this does not exist,
-    default is used instead.
+    Syntax is {{expression}} where all expressions are handled by
+    `_evaluate_template_expression` and (sub)expressions can be nested.
+    The {{expression}} is then replaced by the result of the evaluation
+    and the evaluation of the whole template continues, until all
+    (sub)expressions are resolved.
+
+    note: if the result of an evaluation contains {{something}},
+    this is not re-evaluated to avoid endless loops, i.e. evaluation
+    pattern is statically given by the template.
 
     Returns a ``tuple(<replaced string>, [missed keys where default was used],
     [list of missing keys without default])``.
-    Each list item is a dictionary with three keys:
-    key, default and description.
+    Each list item is a dictionary with the matched fields of the expression
+    (key, replace, default and description).
     """
-    result = []
-    current = 0
-    missing = []
-    defaulted = []
-    for field in field_re.finditer(template):
-        result.append(template[current:field.start()])
-        replacement = keywords.get(field.group('key'))
-        if replacement is None:
-            replacement = field.group('default')
-            if replacement is None:
-                missing.append(field.groupdict())
-                replacement = ''
-            else:
-                defaulted.append(field.groupdict())
-        result.append(str(replacement))
-        current = field.end()
-    result.append(template[current:])
-    return ''.join(result), defaulted, missing
+    stats = dict(
+        missing = [],   # key not in keywords, no default given -> resolved to ''
+        defaulted = [], # key not in keywords, literal default value used
+        replaced = [],  # key in keywords, literal replacement value used
+        resolved = [],  # key in keywords, value from keywords used
+    )
+
+    tokens = re.split(T_SPLITTER, template)
+    found = True
+    while found:
+        found = False
+        for i in range(0, len(tokens)-4, 2):
+            # collate a literal/T_BEGIN/literal/T_END/literal quintuple into a single literal
+            if tokens[i+1] == T_BEGIN and tokens[i+3] == T_END:
+                res, how, gd = _evaluate_template_expression(tokens[i+2], keywords)
+                stats[how].append(gd)
+
+                replacement = ''.join([tokens[i], res, tokens[i+4]])
+                del tokens[i+1:i+5]
+                tokens[i] = replacement
+                found = True
+                break
+    if len(tokens) > 1:
+        # malformed template (number of T_BEGIN != T_END)
+        # XXX: improve error msg!
+        raise ValueError('malformed template! resolving of %r stopped at position %d'%
+                         (''.join(tokens), len(tokens[0])))
+    return tokens[0], stats['defaulted'], stats['missing']
 
 
 # daemonizing processes
