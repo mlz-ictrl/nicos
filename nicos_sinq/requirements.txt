@@ -5,3 +5,4 @@ polarTransform>=2.0.0
 python-logstash-async
 ess-streaming-data-types>=0.16.0
 confluent_kafka
+py-elog

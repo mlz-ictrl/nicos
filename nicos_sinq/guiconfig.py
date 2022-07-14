@@ -83,6 +83,13 @@ main_window = docked(
                     'nicos.clients.gui.panels.logviewer.LogViewerPanel')),
             ),
          ),
+        (
+            'Elog',
+            panel('nicos_sinq.gui.panels.elog.ElogPanel',
+                  types=['Routine', 'General', 'Detail', 'Serious', 'Other'],
+                  categories=['Cryostat', 'Beamline', 'Vacuum', 'Settings', 'Detectors', 'Electronics', 'DAQ', 'Computer', 'Network', 'Software',
+'Other']),
+        ),
 
 
         ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
