@@ -2,14 +2,8 @@
 
 main_window = docked(
     tabbed(
-        ('Setup',
-         tabbed(
-             ('Experiment',
-              panel('nicos.clients.flowui.panels.setup_panel.ExpPanel')),
-             ('Instrument',
-              panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
-         ),
-        ),
+        ('Experiment', panel('nicos_ess.gui.panels.exp_panel.ExpPanel')),
+        ('Setup', panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
         ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
         ('Instrument interaction',
          hsplit(
@@ -47,8 +41,6 @@ main_window = docked(
                       tools=None),
             ), # vsplit
         ),
-        ('Detector Image',
-         panel('nicos.clients.flowui.panels.live.MultiLiveDataPanel')),
         (
             'History',
             panel('nicos.clients.flowui.panels.history.HistoryPanel'),
@@ -60,19 +52,11 @@ main_window = docked(
                     'nicos.clients.gui.panels.logviewer.LogViewerPanel')),
             ),
          ),
-
-
-        ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
-
-        ('Finish Experiment',
-         panel('nicos.clients.flowui.panels.setup_panel.FinishPanel')),
-
         position='left',
     ), # tabbed
+    ) # docked
 
-    ) #docked
-
-windows = [ ]
+windows = []
 
 tools = [
     tool('Report NICOS bug or request enhancement',

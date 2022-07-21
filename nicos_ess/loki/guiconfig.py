@@ -91,10 +91,9 @@ main_window = docked(
          ),
         position='left',
     ),  # tabbed
-
     )  # docked
 
-windows = [ ]
+windows = []
 
 tools = [
     tool('Report NICOS bug or request enhancement',
