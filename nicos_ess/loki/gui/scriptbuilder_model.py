@@ -30,17 +30,19 @@ import re
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import Qt
 from nicos.guisupport.tablemodel import TableModel
+from nicos_ess.loki.gui.table_delegates import LimitsDelegate, ReadOnlyDelegate
 
 SAMPLE_INFO_INDEX = 1   # The column where the sample info is displayed
 
 
 class LokiScriptModel(TableModel):
-    def __init__(self, headings, mappings=None, num_rows=25):
+    def __init__(self, headings, columns, mappings=None, num_rows=25):
         TableModel.__init__(self, headings, mappings)
         self._default_num_rows = num_rows
         self._raw_data = [{} for _ in range(num_rows)]
         self._table_data = self._empty_table(len(headings), num_rows)
         self.samples = {}
+        self._columns = columns
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
@@ -66,20 +68,31 @@ class LokiScriptModel(TableModel):
             return False
 
         row, column = self._get_row_and_column(index)
-        if column == SAMPLE_INFO_INDEX:
-            # Sample information is auto-filled
-            return
-        value = value.strip() if isinstance(value, str) else value
         mapping = self._mappings.get(self._headings[column],
                                      self._headings[column])
+        delegate = self._columns[mapping].delegate
+        if isinstance(delegate, ReadOnlyDelegate):
+            return False
+        value = self._parse_value(delegate, str(value).strip())
         self._table_data[row][column] = value
         self._raw_data[row][mapping] = value
         self._update_sample_info(column, row, value)
         self._emit_update()
         return True
 
+    def _parse_value(self, delegate, value):
+        if isinstance(delegate, LimitsDelegate):
+            try:
+                value = float(value)
+                if value < delegate.limits[0] or value > delegate.limits[1]:
+                    return ''
+            except ValueError:
+                # If cast fails then return blank value
+                return ''
+        return value
+
     def _update_sample_info(self, column, row, value):
-        if column == 0 and value:
+        if column == 0 and value in self.samples:
             mapping = self._mappings.get(self._headings[SAMPLE_INFO_INDEX],
                                          self._headings[SAMPLE_INFO_INDEX])
             as_str = re.sub(r'[{}]', '', str(self.samples[value]))

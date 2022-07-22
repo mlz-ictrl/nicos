@@ -192,7 +192,7 @@ class LokiScriptBuilderPanel(PanelBase):
             mappings[f'TRANS Duration\n({option})'] = 'trans_duration'
             mappings[f'SANS Duration\n({option})'] = 'sans_duration'
 
-        self.model = LokiScriptModel(headers, mappings)
+        self.model = LokiScriptModel(headers, self.columns, mappings)
         self.tableView.setModel(self.model)
         self.tableView.setSelectionMode(QTableView.ContiguousSelection)
         self.table_helper = TableHelper(self.tableView, self.model, Clipboard())
@@ -494,7 +494,7 @@ class LokiScriptBuilderPanel(PanelBase):
         invalid_rows = []
         for row_num, entry in zip(row_numbers, script_data):
             for col in columns:
-                if not entry.get(col, '').strip():
+                if entry.get(col, '') == '':  # pylint: disable=compare-to-empty-string
                     invalid_rows.append(str(row_num + 1))
                     break
         if invalid_rows:

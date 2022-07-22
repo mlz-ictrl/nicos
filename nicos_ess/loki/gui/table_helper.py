@@ -62,7 +62,7 @@ class TableHelper:
                 selected_data.append(row_data)
                 row_data = []
             curr_row = row
-            row_data.append(self.model.table_data[row][column])
+            row_data.append(str(self.model.table_data[row][column]))
 
         if row_data:
             selected_data.append(row_data)
