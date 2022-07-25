@@ -43,9 +43,8 @@ from nicos_ess.loki.gui.script_generator import ScriptFactory, TransOrder
 from nicos_ess.loki.gui.scriptbuilder_model import LokiScriptModel
 from nicos_ess.loki.gui.table_delegates import ComboBoxDelegate, LimitsDelegate
 from nicos_ess.loki.gui.table_helper import Clipboard, TableHelper
-from nicos_ess.utilities.csv_utils import export_table_to_csv, \
-    import_table_from_csv
-
+from nicos_ess.utilities.csv_utils import export_table_to_csv_stream, \
+    import_table_from_csv_stream
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -264,20 +263,28 @@ class LokiScriptBuilderPanel(PanelBase):
                 'Open table',
                 osp.expanduser('~') if self.last_save_location is None
                 else self.last_save_location,
-                'Table Files (*.txt *.csv)')[0]
+                'Table Files (*.txt)')[0]
 
             if not filename:
                 return
 
-            headers_from_file, data = import_table_from_csv(filename)
+            with open(filename, 'r', encoding='utf-8') as file:
+                trans_type = file.readline().strip()
+                sans_type = file.readline().strip()
+                headers, data = import_table_from_csv_stream(file)
 
-            if not set(headers_from_file).issubset(set(self.columns_headers)):
+            self.comboTransDurationType.setCurrentIndex(
+                self.duration_options.index(trans_type))
+            self.comboSansDurationType.setCurrentIndex(
+                self.duration_options.index(sans_type))
+
+            if not set(headers).issubset(set(self.columns_headers)):
                 raise AttributeError('incorrect headers in file')
             # Clear existing table before populating from file
             self.model.clear()
-            self._fill_table(headers_from_file, data)
+            self._fill_table(headers, data)
 
-            for name in headers_from_file:
+            for name in headers:
                 if name in self.columns and self.columns[name].optional:
                     self.optional_columns_to_checkbox[name].setChecked(True)
         except Exception as error:
@@ -313,19 +320,23 @@ class LokiScriptBuilderPanel(PanelBase):
             'Save table',
             osp.expanduser('~') if self.last_save_location is None
             else self.last_save_location,
-            'Table files (*.txt *.csv)',
-            initialFilter='*.txt;;*.csv')[0]
+            'Table files (*.txt)',
+            initialFilter='*.txt')[0]
 
         if not filename:
             return
-        if not filename.endswith(('.txt', '.csv')):
-            filename = filename + '.csv'
+        if not filename.endswith('.txt'):
+            filename = filename + '.txt'
 
         self.last_save_location = osp.dirname(filename)
         try:
             headers = self._extract_headers_from_table()
             data = self._extract_data_from_table()
-            export_table_to_csv(data, filename, headers)
+            with open(filename, 'w', encoding='utf-8') as file:
+                # Record the duration types in the file before the csv block
+                file.write(f'{self.comboTransDurationType.currentText()}\n')
+                file.write(f'{self.comboSansDurationType.currentText()}\n')
+                export_table_to_csv_stream(file, data, headers)
         except Exception as ex:
             self.showError(f'Cannot write table contents to {filename}:\n{ex}')
 

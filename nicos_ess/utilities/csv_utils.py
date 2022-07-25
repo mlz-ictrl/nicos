@@ -26,31 +26,57 @@
 import csv
 
 
-def export_table_to_csv(data, filename, headers=None):
-    """Export 2D data list to a text file.
+def export_table_to_csv_file(filename, data, headers=None):
+    """Export 2D data to a csv text file.
 
-    :param data: 2D data list
     :param filename: file to save as
-    :param headers: List of column names.
+    :param data: 2D data list
+    :param headers: list of column names
     """
     with open(filename, 'w', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        if headers:
-            writer.writerow(headers)
-        writer.writerows(data)
+        export_table_to_csv_stream(file, data, headers)
 
 
-def import_table_from_csv(filename):
+def export_table_to_csv_stream(stream, data, headers=None):
+    """Export 2D data to a csv stream.
+
+    Typically, used with an open file-like object where any preceding non-csv
+    data has already been written.
+
+    :param stream: the open stream
+    :param data: 2D data list
+    :param headers: list of column names
+    """
+    writer = csv.writer(stream)
+    if headers:
+        writer.writerow(headers)
+    writer.writerows(data)
+
+
+def import_table_from_csv_file(filename):
     """Import tabular data from a csv file.
 
     :param filename: path to csv file
     :return: tuple of headers (empty if no headers) and rows
     """
     with open(filename, 'r', encoding='utf-8') as file:
-        sniffer = csv.Sniffer()
-        has_header = sniffer.has_header(file.read(2048))
-        file.seek(0)
-        rows = list(csv.reader(file))
-        if has_header:
-            return rows[0], rows[1:]
-        return [], rows
+        return import_table_from_csv_stream(file)
+
+
+def import_table_from_csv_stream(stream):
+    """Import tabular data from a csv containing stream.
+
+    Typically, used from an open file-like object where any preceding non-csv
+    data has already been consumed.
+
+    :param stream: the open stream
+    :return: tuple of headers (empty if no headers) and rows
+    """
+    offset = stream.tell()
+    sniffer = csv.Sniffer()
+    has_header = sniffer.has_header(stream.read(2048))
+    stream.seek(offset)
+    rows = list(csv.reader(stream))
+    if has_header:
+        return rows[0], rows[1:]
+    return [], rows
