@@ -30,6 +30,7 @@ devices = dict(
         command_topic='hist_commands',
         response_topic='response_topic',
         images=['det_image1', 'det_image2'],
+        hist_schema='hs01',
     ),
 )
 

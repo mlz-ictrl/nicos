@@ -31,6 +31,7 @@ devices = dict(
         command_topic='cspec_jbi_commands',
         response_topic='cspec_jbi_responses',
         images=['det_image1', 'det_image2'],
+        hist_schema='hs01',
     ),
 )
 
