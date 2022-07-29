@@ -602,7 +602,7 @@ class QAIScan(QScan):
 
     def _addVisPoint(self, locs, counts, ellipses):
         for loc, count in zip(locs, counts):
-            z = (count[0] or 1) / count[1]
+            z = 1 if not count[1] else (count[0] or 1) / count[1]
             session.clientExec(update_map, (loc[0], loc[1], z))
 
 
