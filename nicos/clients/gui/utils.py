@@ -70,12 +70,8 @@ def loadBasicWindowSettings(window, settings):
 
 
 def loadUserStyle(window, settings):
-    window.user_font = QFont(settings.value('font', QFont('Monospace')))
-    color = QColor(settings.value('color'))
-    if color.isValid():
-        window.user_color = color
-    else:
-        window.user_color = QColor(Qt.white)
+    window.user_font = settings.value('font', QFont('Monospace'), QFont)
+    window.user_color = settings.value('color', QColor(Qt.white), QColor)
 
 
 def enumerateWithProgress(seq, text, every=1, parent=None, total=None,
