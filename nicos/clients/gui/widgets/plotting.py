@@ -955,9 +955,10 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             if existing_curve not in self.plotcurves:
                 self.plotcurves.append(existing_curve)
         elif plotcurve.x.size:  # this should imply 'and plotcurve.y.size'
-            color = self._color.getNextColorIndex()
-            plotcurve.linecolor = color
-            plotcurve.markercolor = color
+            if not plotcurve.linecolor:
+                color = self._color.getNextColorIndex()
+                plotcurve.linecolor = color
+                plotcurve.markercolor = color
             plotcurve.markertype = self._markertype if self.hasSymbols \
                 else gr.MARKERTYPE_DOT
             if plotcurve.errorBar1:
