@@ -28,11 +28,15 @@ import pickle
 
 import pytest
 
+session_setup = 'secop'
+
 pytest.importorskip('secop')
 
 from nicos.core.params import dictwith, floatrange, intrange, listof, \
     nonemptystring, oneofdict, string, tupleof
 from nicos.devices.secop import get_validator
+from nicos.protocols.cache import cache_dump
+from secop.datatypes import get_datatype
 
 from test.utils import raises
 
@@ -157,9 +161,67 @@ def test_comparable():
     all_types = simple_types + special_types + complex_types
     for i, args in enumerate(all_types):
         d = args[0]
-        val = get_validator(d)
-        assert val == get_validator(d)
-        # check it is picklable
-        assert pickle.loads(pickle.dumps(val)) == val
-        for args in all_types[i+1:]:
-            assert get_validator(d) != get_validator(args[0])
+        typ = get_validator(d)
+        assert typ == get_validator(d)
+        # check it is picklable (not needed any more ...)
+        assert pickle.loads(pickle.dumps(typ)) == typ
+        for args2 in all_types[i+1:]:
+            assert get_validator(d) != get_validator(args2[0])
+        # check cache_dump of default value does not need pickle
+        assert 'cache_unpickle' not in cache_dump(typ())
+
+
+def desc(type_, **kwds):
+    kwds['type'] = type_
+    return {'description': 'x', 'datainfo': kwds,
+            # check that datatype will be filtered away in createDevices:
+            'datatype': get_datatype(kwds)}
+
+
+class TestPickleNotNeeded:
+    funny_desc = desc('struct', members={
+            'f': {'type': 'double', 'min': 0, 'max': 1},
+            'a': {'type': 'array', 'members': {'type': 'string'}, 'maxlen': 10},
+            't': {'type': 'tuple', 'members': [
+                {'type': 'scaled', 'scale': 10, 'min': 0, 'max': 1},
+                {'type': 'blob', 'maxbytes': 999},
+            ]},
+        })
+    on_off = desc('enum', members={'off': 0, 'on': 1})
+    modules = {
+        'mod1': {
+            'description': 'a test drivable',
+            'parameters': {
+                'value:': on_off,
+                'target': on_off,
+                'funny_param': funny_desc,
+            },
+            'commands': {
+                'communicate': desc('command',
+                                    argument={'type': 'string'},
+                                    result={'type': 'string'},
+                )
+            }
+        }
+    }
+    nodename = 'dummy'
+
+    def disconnect(self):
+        pass
+
+    @pytest.fixture(autouse=True)
+    def initialize_devices(self, session):
+        self.session = session
+        self.secnode = session.getDevice('secnode')
+        # yield "resource"
+
+    def test_no_pickle_needed(self):
+        # we use self as SecNode connection
+        # createDevices needs only the attributes: modules, nodename, disconnect
+        self.secnode._secnode = self
+        self.secnode.createDevices()
+        assert 'cache_unpickle("' not in cache_dump(self.secnode.setup_info)
+
+    def test_datatype_needs_pickle(self):
+        # this was one of the bad contents of setup_info:
+        assert 'cache_unpickle("' in cache_dump(desc('double'))
