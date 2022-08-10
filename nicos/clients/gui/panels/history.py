@@ -438,12 +438,12 @@ class NewViewDialog(DlgUtils, QDialog):
 
 
 class BaseHistoryWindow:
-
+    ui = os.path.join('panels', 'history.ui')
     client = None
     presetdict = None
 
     def __init__(self):
-        loadUi(self, 'panels/history.ui')
+        loadUi(self, self.ui)
 
         self.user_color = Qt.white
         self.user_font = QFont('Monospace')
