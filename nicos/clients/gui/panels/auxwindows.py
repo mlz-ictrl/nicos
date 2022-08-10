@@ -143,7 +143,7 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
 
 
 class AuxiliarySubWindow(QMainWindow):
-    def __init__(self, item, window, menuwindow, parent):
+    def __init__(self, item, window, menuwindow, parent, margins):
         from nicos.clients.gui.panels.utils import createWindowItem
         QMainWindow.__init__(self, parent)
         self.user_color = window.user_color
@@ -157,8 +157,7 @@ class AuxiliarySubWindow(QMainWindow):
         # around the central widget
         central = QWidget(self)
         layout = QVBoxLayout()
-        # only keep margin at the top (below the tabs)
-        layout.setContentsMargins(0, 6, 0, 0)
+        layout.setContentsMargins(*margins)
         if len(item) == 1:
             (subitem, setupSpec) = item + (None,)
         else:

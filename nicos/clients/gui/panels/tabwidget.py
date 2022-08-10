@@ -151,9 +151,18 @@ class LeftTabBar(TearOffTabBar):
 
 
 class TearOffTabWidget(QTabWidget):
+    """Tab widget with detachable tabs.
+
+    Detached tabs will reattach when closed.
+
+    Options:
+
+    * ``position`` (default top) -- sets the position of the tab selector.
+      Choices are top or left.
+    * ``margins`` (default (0, 6, 0, 0)) -- sets the margin around the tab item.
+    """
 
     class TabWidgetStorage:
-
         def __init__(self, index, widget, title, visible=True):
             self.index = index
             self.widget = widget
@@ -187,10 +196,12 @@ class TearOffTabWidget(QTabWidget):
         self.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;'
                            'margin:0;padding:0;border:none}')
         self.setDocumentMode(True)
+        # default: only keep margin at the top (below the tabs)
+        margins = item.options.get('margins', (0, 6, 0, 0))
         for entry in item.children:
             self.addPanel(
-                AuxiliarySubWindow(entry[1:], window, menuwindow, self),
-                entry[0])
+                AuxiliarySubWindow(entry[1:], window, menuwindow, self,
+                                   margins), entry[0])
 
     def moveTab(self, fromInd, toInd):
         w = self.widget(fromInd)
