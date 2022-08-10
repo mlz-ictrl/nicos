@@ -42,11 +42,10 @@ main_window = docked(
              ),
          ),  # hsplit
          ),
-        ('Batch file generation',
-            vsplit(
-                panel('nicos.clients.flowui.panels.editor.EditorPanel',
-                      tools=None),
-            ), # vsplit
+        (
+            'Batch file generation',
+            panel('nicos.clients.flowui.panels.editor.EditorPanel',
+                  tools=None),
         ),
         ('Detector Image', panel('nicos.clients.flowui.panels.live.MultiLiveDataPanel')),
         ('History',

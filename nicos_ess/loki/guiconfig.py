@@ -30,9 +30,7 @@ main_window = docked(
                              hide_sample=True)),
         ('Setup', panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
         ('Cell-holder Configuration',
-            vsplit(
-                (panel('nicos_ess.loki.gui.sample_holder_config.LokiSampleHolderPanel'))
-            ),  # vsplit
+            panel('nicos_ess.loki.gui.sample_holder_config.LokiSampleHolderPanel')
         ),
         ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
         ('Instrument interaction',
@@ -66,17 +64,13 @@ main_window = docked(
          ),
         (
             'Script Builder',
-            vsplit(
-                panel('nicos_ess.loki.gui.scriptbuilder.LokiScriptBuilderPanel',
-                      tools=None),
-            ),  # vsplit
+            panel('nicos_ess.loki.gui.scriptbuilder.LokiScriptBuilderPanel',
+                  tools=None),
         ),
         (
-            'Script Editor',
-            vsplit(
-                panel('nicos.clients.flowui.panels.editor.EditorPanel',
-                      tools=None),
-            ),  # vsplit
+            'Batch file generation',
+            panel('nicos.clients.flowui.panels.editor.EditorPanel',
+                  tools=None),
         ),
         (
             'History',

@@ -36,10 +36,8 @@ main_window = docked(
          ),
         (
             'Batch file generation',
-            vsplit(
-                panel('nicos.clients.flowui.panels.editor.EditorPanel',
-                      tools=None),
-            ), # vsplit
+            panel('nicos.clients.flowui.panels.editor.EditorPanel',
+                  tools=None),
         ),
         (
             'History',
