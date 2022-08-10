@@ -357,7 +357,7 @@ class AbsoluteEpicsMotor(EpicsMotor):
 
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):
     def doStart(self, target):
-        self._put_pv('writepv', target)
+        self._put_pv_blocking('writepv', target, timeout=5)
         if target != self.doRead():
             self._wait_for_start()
 
