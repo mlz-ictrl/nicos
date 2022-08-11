@@ -57,8 +57,9 @@ class ScichatBot(Device):
             raise RuntimeError(f'could not send message: {err}') from None
 
     def _post(self, url, data=None):
+        proxy = os.environ.get('https_proxy', None)
         response = requests.post(url, headers={
             "Authorization": f"Bearer {os.environ.get('SCICHAT_TOKEN')}"},
-            json=data)
+            json=data, proxies={'https': proxy} if proxy else None)
         if response.status_code != 200:
             raise RuntimeError(f'{response.reason} ({response.status_code})')
