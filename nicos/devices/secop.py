@@ -105,37 +105,14 @@ def clean_identifier(anystring):
     return str(re.sub(r'\W+|^(?=\d)', '_', anystring))
 
 
-# we extend the NICOS types which are not bare types or functions
-# and make them comparable for equality
-
-class ComparableType:
-    _compare_key = None
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return False
-        return self._compare_key == other._compare_key
-
-
-class SecopDouble(ComparableType, floatrange):
-    # pylint: disable=redefined-builtin
-    def __init__(self, min, max):
-        floatrange.__init__(self, "float('-inf')" if min is None else min, max)
-        self._compare_key = min, max
-
+# map SECoP types to NICOS types:
+# all types must either be vanilla NICOS types or inherit from them
 
 # pylint: disable=redefined-builtin
 def Secop_double(min=None, max=None, **kwds):
     if min is None and max is None:
         return float
-    return SecopDouble(min, max)
-
-
-class SecopInt(ComparableType, intrange):
-    # pylint: disable=redefined-builtin
-    def __init__(self, min, max):
-        intrange.__init__(self, min, max)
-        self._compare_key = min, max
+    return floatrange("float('-inf')" if min is None else min, max)
 
 
 # pylint: disable=redefined-builtin
@@ -147,7 +124,7 @@ def Secop_int(min=None, max=None, **kwds):
     # be tolerant with missing min / max here (future spec change?)
     if min <= -9999 and max >= 9999:
         return int
-    return SecopInt(min, max)
+    return intrange(min, max)
 
 
 def Secop_bool(**kwds):
@@ -155,7 +132,8 @@ def Secop_bool(**kwds):
 
 
 def Secop_string(minchars=0, **kwds):
-    # ignore maxchars and minchars > 1
+    # unfortunately, 'string' is not a class, so we can not inherit from it
+    # therefore ignore maxchars and minchars > 1
     return nonemptystring if minchars else string
 
 
@@ -164,7 +142,7 @@ def Secop_blob(minbytes=0, **kwds):
     return nonemptystring if minbytes else string
 
 
-class Secop_enum(ComparableType, oneofdict):
+class Secop_enum(oneofdict):
     def __init__(self, members, **kwds):
         # Do not use oneof here, as in general numbers are relevant for the
         # specs. Unfortunately, ComboBox will sort items by name, and not by
@@ -176,7 +154,6 @@ class Secop_enum(ComparableType, oneofdict):
             self, OrderedDict(sorted(((v, k) for k, v in members.items()))))
         self.__doc__ = 'one of ' + ', '.join('%s, %d' % kv
                                              for kv in members.items())
-        self._compare_key = self.vals
 
     def __call__(self, val=None):
         if val is None:
@@ -184,43 +161,33 @@ class Secop_enum(ComparableType, oneofdict):
         return oneofdict.__call__(self, val)
 
 
-class Secop_array(ComparableType, listof):
+class Secop_array(listof):
     def __init__(self, members, minlen=0, maxlen=None, **kwds):
-        conv = get_validator(members)
-        listof.__init__(self, conv)
-        self._compare_key = conv, minlen, maxlen
+        self.minlen = minlen
+        self.maxlen = maxlen
+        listof.__init__(self, get_validator(members))
 
     def __call__(self, val=None):
-        conv, minlen, maxlen = self._compare_key
         if val is None:
-            val = [conv()] * minlen
+            val = [self.conv()] * self.minlen
         result = listof.__call__(self, val)
-        if len(result) < minlen:
-            raise ValueError('value needs a length >= %d' % minlen)
-        if maxlen is not None and len(result) > maxlen:
-            raise ValueError('value needs a length <= %d' % maxlen)
+        if len(result) < self.minlen:
+            raise ValueError('value needs a length >= %d' % self.minlen)
+        if self.maxlen is not None and len(result) > self.maxlen:
+            raise ValueError('value needs a length <= %d' % self.maxlen)
         return result
 
 
-class Secop_tuple(ComparableType, tupleof):
-    def __init__(self, members, **kwds):
-        self._compare_key = tuple(get_validator(m) for m in members)
-        tupleof.__init__(self, *self._compare_key)
+def Secop_tuple(members, **kwds):
+    return tupleof(*tuple(get_validator(m) for m in members))
 
 
-class NoneOr(ComparableType, none_or):
-    def __init__(self, conv):
-        self._compare_key = conv
-        none_or.__init__(self, conv)
-
-
-class Secop_struct(ComparableType, dictwith):
+class Secop_struct(dictwith):
     def __init__(self, members, optional=(), **kwds):
         convs = {k: get_validator(m) for k, m in members.items()}
         for key in optional:
             # missing optional items are indicated with a None value
-            convs[key] = NoneOr(convs[key])
-        self._compare_key = optional, convs
+            convs[key] = none_or(convs[key])
         self.optional = optional
         self.mandatorykeys = set(convs) - set(optional)
         dictwith.__init__(self, **convs)
@@ -546,8 +513,8 @@ class SecNodeDevice(Readable):
                 'secop_properties': module_properties,
             }
             # convert parameters and command description to the needed items,
-            # especially avoid datatype or a nicos type here
-            # as this would need pickle to put into the cache
+            # especially avoid datatype or a nicos type here,
+            # as this would need pickle to put into the cache.
             # datainfo is no problem
             params_cfg = {}
             for pname, props in mod_desc['parameters'].items():
@@ -595,7 +562,7 @@ class SecNodeDevice(Readable):
                         params_cfg=params_cfg,
                         commands_cfg=commands_cfg,
                         **kwds)
-            # the pickle test be removed later, when no bugs appear ...
+            # the following test may be removed later, when no bugs appear ...
             if 'cache_unpickle("' in cache_dump(desc):
                 self.log.error('module %r skipped - setup info needs pickle', module)
             else:

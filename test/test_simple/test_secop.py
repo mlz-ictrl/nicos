@@ -24,8 +24,6 @@
 
 """SECoP client test suite."""
 
-import pickle
-
 import pytest
 
 session_setup = 'secop'
@@ -157,17 +155,11 @@ def test_complex_types(datainfo, validator, default, valid, invalid):
         assert raises(ValueError, v, value)
 
 
-def test_comparable():
+def test_no_pickle_for_values():
     all_types = simple_types + special_types + complex_types
-    for i, args in enumerate(all_types):
-        d = args[0]
-        typ = get_validator(d)
-        assert typ == get_validator(d)
-        # check it is picklable (not needed any more ...)
-        assert pickle.loads(pickle.dumps(typ)) == typ
-        for args2 in all_types[i+1:]:
-            assert get_validator(d) != get_validator(args2[0])
-        # check cache_dump of default value does not need pickle
+    for args in all_types:
+        typ = get_validator(args[0])
+        # check that cache_dump of default value does not need pickle
         assert 'cache_unpickle' not in cache_dump(typ())
 
 
@@ -223,5 +215,5 @@ class TestPickleNotNeeded:
         assert 'cache_unpickle("' not in cache_dump(self.secnode.setup_info)
 
     def test_datatype_needs_pickle(self):
-        # this was one of the bad contents of setup_info:
+        # test above test: this was one of the bad contents of setup_info
         assert 'cache_unpickle("' in cache_dump(desc('double'))
