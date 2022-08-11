@@ -129,6 +129,9 @@ class TearOffTabBar(QTabBar):
 
 
 class LeftTabBar(TearOffTabBar):
+    def __init__(self, parent, text_padding):
+        TearOffTabBar.__init__(self, parent)
+        self.text_padding = text_padding
 
     def paintEvent(self, event):
         painter = QStylePainter(self)
@@ -146,7 +149,7 @@ class LeftTabBar(TearOffTabBar):
     def tabSizeHint(self, index):
         fm = self.fontMetrics()
         tabSize = fm.boundingRect(
-            self.tabText(index) or 'Ag').size() + QSize(20, 10)
+            self.tabText(index) or 'Ag').size() + QSize(*self.text_padding)
         return tabSize
 
 
@@ -160,6 +163,8 @@ class TearOffTabWidget(QTabWidget):
     * ``position`` (default top) -- sets the position of the tab selector.
       Choices are top or left.
     * ``margins`` (default (0, 6, 0, 0)) -- sets the margin around the tab item.
+    * ``textpadding`` (default (20, 10)) -- sets the right padding and vertical
+      padding for the text in the tab label.
     """
 
     class TabWidgetStorage:
@@ -181,11 +186,14 @@ class TearOffTabWidget(QTabWidget):
     def __init__(self, item, window, menuwindow, parent=None):
         QTabWidget.__init__(self, parent)
         self.menuwindow = menuwindow
-        tb_pos = item.options.get('position', 'top')
-        tabBar = LeftTabBar(self) if tb_pos == 'left' else TearOffTabBar(self)
-        self.setTabBar(tabBar)
-        if tb_pos == 'left':
+        if item.options.get('position', 'top') == 'left':
+            tabBar = LeftTabBar(self, item.options.get('textpadding', (20, 10)))
+            self.setTabBar(tabBar)
             self.setTabPosition(QTabWidget.West)
+        else:
+            tabBar = TearOffTabBar(self)
+            self.setTabBar(tabBar)
+
         self.setMovable(False)
         self.previousTabIdx = 0
         tabBar.tabDetached.connect(self.detachTab)
