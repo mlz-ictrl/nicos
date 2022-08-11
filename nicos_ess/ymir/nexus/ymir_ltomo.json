@@ -1,242 +1,246 @@
 {
-    "children": [
+  "children": [
+    {
+      "name": "entry",
+      "type": "group",
+      "attributes": [
         {
-            "type": "group",
-            "name": "entry",
-            "children": [
-                {
-                  "module": "dataset",
-                  "config": {
-                    "name": "title",
-                    "values": "$TITLE$",
-                    "dtype": "string"
-                  }
-                },
-                {
-                  "module": "dataset",
-                  "config": {
-                    "name": "experiment_identifier",
-                    "values": "$EXP_ID$",
-                    "dtype": "string"
-                  }
-                },
-                "$USERS$",
-                {
-                    "type": "group",
-                    "name": "instrument",
-                    "children": [
-                        {
-                            "type": "group",
-                            "name": "source",
-                            "attributes": [
-                                {
-                                    "name": "NX_class",
-                                    "dtype": "string",
-                                    "values": "NXsource"
-                                }
-                            ],
-                            "children": [
-                                {
-                                    "module": "dataset",
-                                    "config": {
-                                        "dtype": "string",
-                                        "values": "visible light",
-                                        "name": "probe"
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "type": "group",
-                            "name": "detector",
-                            "attributes": [
-                                {
-                                    "name": "NX_class",
-                                    "dtype": "string",
-                                    "values": "NXdetector"
-                                }
-                            ],
-                            "children": [
-                                {
-                                    "type": "group",
-                                    "name": "data",
-                                    "children": [
-                                        {
-                                            "module": "ADAr",
-                                            "config": {
-                                                "source": "some_source",
-                                                "topic": "ymir_camera",
-                                                "dtype": "uint8",
-                                                "array_size": "$AREADET$"
-                                            }
-                                        }
-                                    ],
-                                    "attributes": [
-                                        {
-                                            "name": "NX_class",
-                                            "dtype": "string",
-                                            "values": "NXlog"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "group",
-                                    "name": "image_key",
-                                    "children": [
-                                        {
-                                            "module": "f142",
-                                            "config": {
-                                                "source": "image_key",
-                                                "topic": "ymir_camera",
-                                                "dtype": "int"
-                                            }
-                                        }
-                                    ],
-                                    "attributes": [
-                                        {
-                                            "name": "NX_class",
-                                            "dtype": "string",
-                                            "values": "NXlog"
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ],
-                    "attributes": [
-                        {
-                            "name": "NX_class",
-                            "dtype": "string",
-                            "values": "NXinstrument"
-                        }
-                    ]
-                },
-                {
-                    "type": "group",
-                    "name": "sample",
-                    "attributes": [
-                        {
-                            "name": "NX_class",
-                            "dtype": "string",
-                            "values": "NXsample"
-                        }
-                    ],
-                    "children": [
-                        {
-                            "type": "group",
-                            "name": "rotation_angle",
-                            "children": [
-                                {
-                                    "module": "f142",
-                                    "config": {
-                                        "source": "SES-SCAN:MC-MCU-001:m4.RBV",
-                                        "topic": "ymir_motion",
-                                        "dtype": "double"
-                                    }
-                                }
-                            ],
-                            "attributes": [
-                                {
-                                    "name": "NX_class",
-                                    "dtype": "string",
-                                    "values": "NXlog"
-                                }
-                            ]
-                        },
-                        {
-                            "module": "dataset",
-                            "config": {
-                                "dtype": "string",
-                                "values": "lego",
-                                "name": "name"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "group",
-                    "name": "control",
-                    "attributes": [
-                        {
-                            "name": "NX_class",
-                            "dtype": "string",
-                            "values": "NXmonitor"
-                        }
-                    ],
-                    "children": [
-                        {
-                            "type": "group",
-                            "name": "data",
-                            "children": [
-                                {
-                                    "module": "f142",
-                                    "config": {
-                                        "source": "other_source",
-                                        "topic": "ymir_camera",
-                                        "dtype": "int"
-                                    }
-                                }
-                            ],
-                            "attributes": [
-                                {
-                                    "name": "NX_class",
-                                    "dtype": "string",
-                                    "values": "NXlog"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "group",
-                    "name": "data",
-                    "children": [
-                        {
-                            "module": "link",
-                            "config": {
-                                "name": "data",
-                                "source": "/entry/instrument/detector/data"
-                            }
-                        },
-                        {
-                            "module": "link",
-                            "config": {
-                                "name": "rotation_angle",
-                                "source": "/entry/sample/rotation_angle"
-                            }
-                        },
-                        {
-                            "module": "link",
-                            "config": {
-                                "name": "image_key",
-                                "source": "/entry/instrument/detector/image_key"
-                            }
-                        }
-                    ],
-                    "attributes": [
-                        {
-                            "name": "NX_class",
-                            "dtype": "string",
-                            "values": "NXdata"
-                        }
-                    ]
-                },
-                {
-                    "module": "dataset",
-                    "config": {
-                        "dtype": "string",
-                        "values": "NXtomo",
-                        "name": "definition"
-                    }
-                }
-            ],
-            "attributes": [
-                {
-                    "name": "NX_class",
-                    "dtype": "string",
-                    "values": "NXentry"
-                }
-            ]
+          "name": "NX_class",
+          "dtype": "string",
+          "values": "NXentry"
         }
-    ]
+      ],
+      "children": [
+        {
+          "module": "dataset",
+          "config": {
+            "name": "title",
+            "values": "$TITLE$",
+            "type": "string"
+          }
+        },
+        {
+          "module": "dataset",
+          "config": {
+            "name": "experiment_identifier",
+            "values": "$EXP_ID$",
+            "type": "string"
+          }
+        },
+        {
+          "module": "dataset",
+          "config": {
+            "name": "definition",
+            "values": "NXtomo",
+            "type": "string"
+          }
+        },
+        {
+          "name": "instrument",
+          "type": "group",
+          "attributes": [
+            {
+              "name": "NX_class",
+              "dtype": "string",
+              "values": "NXinstrument"
+            }
+          ],
+          "children": [
+            {
+              "name": "source",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "NX_class",
+                  "dtype": "string",
+                  "values": "NXsource"
+                }
+              ],
+              "children": [
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "probe",
+                    "values": "visible light",
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "detector",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "NX_class",
+                  "dtype": "string",
+                  "values": "NXdetector"
+                }
+              ],
+              "children": [
+                {
+                  "name": "data",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "ADAr",
+                      "config": {
+                        "source": "some_source",
+                        "topic": "ymir_camera",
+                        "array_size": "$AREADET$"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "image_key",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "image_key",
+                        "topic": "ymir_camera"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "mini_chopper",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "NX_class",
+                  "dtype": "string",
+                  "values": "NXdisk_chopper"
+                }
+              ],
+              "children": [
+                {
+                  "name": "rotation_speed",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "YMIR-ChpSy1:Chop-MIC-101:Spd_Stat",
+                        "topic": "ymir_nicos_devices",
+                        "dtype": "double"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "1/s"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "sample",
+          "type": "group",
+          "attributes": [
+            {
+              "name": "NX_class",
+              "dtype": "string",
+              "values": "NXsample"
+            }
+          ],
+          "children": [
+            {
+              "name": "rotation_angle",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "NX_class",
+                  "dtype": "string",
+                  "values": "NXlog"
+                }
+              ],
+              "children": [
+                {
+                  "module": "f142",
+                  "config": {
+                    "source": "SES-SCAN:MC-MCU-001:m4.RBV",
+                    "topic": "ymir_motion"
+                  }
+                }
+              ]
+            },
+            {
+              "module": "dataset",
+              "config": {
+                "name": "name",
+                "values": "lego",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": "group",
+          "attributes": [
+            {
+              "name": "NX_class",
+              "dtype": "string",
+              "values": "NXdata"
+            }
+          ],
+          "children": [
+            {
+              "module": "link",
+              "config": {
+                "name": "data",
+                "source": "/entry/instrument/detector/data"
+              }
+            },
+            {
+              "module": "link",
+              "config": {
+                "name": "rotation_angle",
+                "source": "/entry/sample/rotation_angle"
+              }
+            },
+            {
+              "module": "link",
+              "config": {
+                "name": "image_key",
+                "source": "/entry/instrument/detector/image_key"
+              }
+            }
+          ]
+        },
+        "$USERS$"
+      ]
+    }
+  ]
 }
