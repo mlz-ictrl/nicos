@@ -208,7 +208,7 @@ Panel QToolBar > QComboBox::hover,
 Panel QToolBar > QLabel::hover,
 Panel QToolBar > QCheckBox::hover {
     border-width: 0px;
-    background: #d4d8dc;
+    background: #a9a9a9;
     color: black;
 }
 
@@ -222,7 +222,7 @@ Panel QToolBar > QToolButton::disabled,
 Panel QToolBar > QComboBox::disabled,
 Panel QToolBar > QCheckBox::disabled {
     background: transparent;
-    color: black;
+    color: gray;
 }
 
 Panel QToolBar > QToolButton::checked {
