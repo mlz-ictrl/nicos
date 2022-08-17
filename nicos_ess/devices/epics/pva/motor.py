@@ -247,24 +247,24 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
         if done_moving == 0 or moving != 0:
-            return status.BUSY, message or 'Motor is moving to target...'
+            return status.BUSY, message or f'moving to {self.target}'
 
         miss = self._get_pv('miss')
         if miss != 0:
             return (
-                status.NOTREACHED, message or 'Did not reach target position.')
+                status.NOTREACHED, message or 'did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
-            return status.WARN, message or 'At high limit switch.'
+            return status.WARN, message or 'at high limit switch.'
 
         low_limitswitch = self._get_pv('lowlimitswitch')
         if low_limitswitch != 0:
-            return status.WARN, message or 'At low limit switch.'
+            return status.WARN, message or 'at low limit switch.'
 
         limit_violation = self._get_pv('softlimit')
         if limit_violation != 0:
-            return status.WARN, message or 'Soft limit violation.'
+            return status.WARN, message or 'soft limit violation.'
 
         return status.OK, message
 

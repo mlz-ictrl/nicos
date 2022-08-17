@@ -403,7 +403,7 @@ class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
         at_target = HasPrecision.doIsAtTarget(self, self.doRead(),
                                               self.doReadTarget())
         if not at_target:
-            return status.BUSY, 'moving'
+            return status.BUSY, f'moving to {self.target}'
         return status.OK, msg
 
     def doReadAbslimits(self):
