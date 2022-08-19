@@ -35,7 +35,7 @@ from nicos.guisupport.qt import QDateTime, pyqtSlot
 
 class LogViewerPanel(Panel):
     """Provides a possibility to view various NICOS log files."""
-
+    ui = os.path.join('panels', 'logviewer.ui')
     panelName = 'Log viewer'
 
     def __init__(self, parent, client, options):
@@ -43,7 +43,7 @@ class LogViewerPanel(Panel):
 
         self._logPath = 'log'
 
-        loadUi(self, 'panels/logviewer.ui')
+        loadUi(self, self.ui)
 
         # initialize date/time range to display logs from yesterday
         # (same time) to now

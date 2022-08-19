@@ -45,9 +45,9 @@ main_window = docked(
         ),
         ('Logs',
             tabbed(
-                ('Errors', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+                ('Errors', panel('nicos.clients.flowui.panels.errors.ErrorPanel')),
                 ('Log files', panel(
-                    'nicos.clients.gui.panels.logviewer.LogViewerPanel')),
+                    'nicos.clients.flowui.panels.logviewer.LogViewerPanel')),
             ),
          ),
         position='left',

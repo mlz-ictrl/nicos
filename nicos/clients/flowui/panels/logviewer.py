@@ -26,6 +26,7 @@
 
 import os.path
 
+from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels.logviewer import \
     LogViewerPanel as DefaultLogViewerPanel
 from nicos.guisupport.qt import QDateTime
@@ -34,6 +35,7 @@ from nicos.guisupport.qt import QDateTime
 class LogViewerPanel(DefaultLogViewerPanel):
     """Provides a possibility to view various NICOS log files, but arranges
     logs in reverse order, i.e. latest on top """
+    ui = os.path.join(uipath, 'panels', 'ui_files', 'logviewer.ui')
 
     def _getFilteredLogs(self, filters):
         # local vars for readability

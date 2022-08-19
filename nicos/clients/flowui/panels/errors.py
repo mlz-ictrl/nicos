@@ -23,9 +23,10 @@
 # *****************************************************************************
 
 """NICOS GUI error and warning window."""
-
+import os
 from logging import WARNING
 
+from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels.errors import ErrorPanel as DefaultErrorPanel
 from nicos.guisupport.qt import QTextCursor
 
@@ -36,6 +37,7 @@ class ErrorPanel(DefaultErrorPanel):
     In comparison to the ConsolePanel it only displays messages with the
     WARNING and ERROR loglevel.
     """
+    ui = os.path.join(uipath, 'panels', 'ui_files', 'errpanel.ui')
 
     def __init__(self, parent, client, options):
         DefaultErrorPanel.__init__(self, parent, client, options)

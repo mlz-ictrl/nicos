@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 """NICOS GUI error and warning window."""
-
+import os
 from logging import WARNING
 
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
@@ -39,12 +39,12 @@ class ErrorPanel(Panel):
     In comparison to the ConsolePanel it only displays messages with the
     WARNING and ERROR loglevel.
     """
-
+    ui = os.path.join('panels', 'errpanel.ui')
     panelName = 'Error window'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'panels/errpanel.ui')
+        loadUi(self, self.ui)
         self.outView.setFullTimestamps(True)
 
         self.buttonBox.addButton('Clear', QDialogButtonBox.ResetRole)

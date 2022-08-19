@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LogViewerWindow</class>
+ <widget class="QWidget" name="LogViewerWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>603</width>
+    <height>637</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_6">
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout_4">
+     <item row="0" column="2">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="5">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="2">
+        <widget class="QCheckBox" name="levelInputCheckBox">
+         <property name="text">
+          <string>User input</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="levelWarningCheckBox">
+         <property name="text">
+          <string>Warning</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Log levels:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QCheckBox" name="levelDebugCheckBox">
+         <property name="text">
+          <string>Debug</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QCheckBox" name="levelInfoCheckBox">
+         <property name="text">
+          <string>Info</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="levelErrorCheckBox">
+         <property name="text">
+          <string>Error</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QPushButton" name="updateBtn">
+         <property name="text">
+          <string>Update</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Service:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="serviceComboBox">
+         <item>
+          <property name="text">
+           <string>Nicos</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cache</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Daemon</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Elog</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Poller</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Watchdog</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Monitor</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="1">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Time range:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string> - </string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="0">
+      <widget class="QDateTimeEdit" name="dateTimeEditFrom">
+       <property name="displayFormat">
+        <string>yyyy-MM-dd HH:mm</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QDateTimeEdit" name="dateTimeEditTo">
+       <property name="displayFormat">
+        <string>yyyy-MM-dd HH:mm</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <layout class="QGridLayout" name="gridLayout_5">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Find:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="findLineEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QTextEdit" name="logContent">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../../../resources/nicos-gui.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>serviceComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>52</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>132</x>
+     <y>88</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>levelDebugCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>478</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>481</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>levelErrorCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>208</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>levelInfoCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>414</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>42</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>levelInputCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>366</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>99</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>levelWarningCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>281</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>112</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateTimeEditTo</sender>
+   <signal>editingFinished()</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>298</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateTimeEditFrom</sender>
+   <signal>editingFinished()</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>73</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateTimeEditFrom</sender>
+   <signal>dateTimeChanged(QDateTime)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>141</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>530</x>
+     <y>4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateTimeEditTo</sender>
+   <signal>dateTimeChanged(QDateTime)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>298</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>500</x>
+     <y>8</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>findLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>findStr()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>484</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>findLineEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>findStr()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>265</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>updateBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>updateView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>521</x>
+     <y>38</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>598</x>
+     <y>73</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>updateView()</slot>
+  <slot>findStr()</slot>
+ </slots>
+</ui>
