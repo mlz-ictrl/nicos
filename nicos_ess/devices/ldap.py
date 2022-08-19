@@ -57,10 +57,7 @@ class Authenticator(LDAPAuthenticator):
     def _connect_to_server(self, username, password):
         error = None
         try:
-            server = ldap3.Server(self.uri, use_ssl=True)
-            if not server.check_availability():
-                raise AuthenticationError('LDAP server unavailable')
-            connection = ldap3.Connection(server, user=f'{username}@ESSS.SE',
+            connection = ldap3.Connection(self.uri, user=f'{username}@ESSS.SE',
                                           password=password, auto_bind=True,
                                           read_only=True)
         except ldap3.core.exceptions.LDAPException as err:
