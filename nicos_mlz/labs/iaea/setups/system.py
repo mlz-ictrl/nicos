@@ -42,7 +42,7 @@ devices = dict(
     IAEA = device('nicos.devices.instrument.Instrument',
         description = 'IAEA tomography and radiography demo station',
         instrument = 'IAEA',
-        responsible = 'Burkhardt Schillinger <burkhard.schillinger@frm2.tum.de>',
+        responsible = 'Burkhard Schillinger <burkhard.schillinger@frm2.tum.de>',
         operators = ['Technische Universität München (TUM)'],
         # website = 'http://www.mlz-garching.de/antares',
     ),

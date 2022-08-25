@@ -27,6 +27,6 @@ devices = dict(
     rot = device('nicos.devices.generic.Axis',
         description = 'Sample rotation',
         motor = 'rotm',
-        precision = 0.01,
+        precision = 0.05,
     ),
 )
