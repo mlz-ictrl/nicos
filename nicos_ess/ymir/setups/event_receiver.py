@@ -1,6 +1,6 @@
 description = 'Event Receiver setup.'
 
-pv_root = 'Utg-Ymir:TS-EVR-01:'
+pv_root = 'YMIR-TS:Ctrl-EVR-01:'
 
 devices = dict(
     EVR_time=device(
@@ -20,6 +20,6 @@ devices = dict(
         description='The difference between the Utgård EVR and the NTP client',
         monitor=True),
     EFU_stat=device('nicos_ess.devices.efu_status.EFUStatus',
-                    ipconfig='172.30.242.39:8011',
-                    description='EFU connection status'),
+        ipconfig='172.30.242.39:8011',
+        description='EFU connection status'),
 )
