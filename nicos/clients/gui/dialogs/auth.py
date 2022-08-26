@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 """Dialog for entering authentication data."""
+from collections import OrderedDict
 from os import path
 
 from nicos.clients.base import ConnectionData
@@ -79,13 +80,13 @@ class ConnectionDialog(QDialog):
         loadUi(self, self.ui)
         if hasattr(parent, 'facility_logo'):
             self.logoLabel.setPixmap(QPixmap(parent.facility_logo))
-        self.connpresets = connpresets
+        self.connpresets = OrderedDict(sorted(connpresets.items()))
 
         pal = self.quickList.palette()
         pal.setColor(QPalette.Window, pal.color(QPalette.Base))
         self.quickList.setPalette(pal)
 
-        if len(connpresets) < 3:
+        if len(self.connpresets) < 3:
             self.quickList.hide()
         else:
             self.quickList.setStyleSheet('padding: 10px 5px;')
@@ -93,7 +94,7 @@ class ConnectionDialog(QDialog):
             maxw = 64
             icon = QIcon(':/appicon')
             metric = QFontMetrics(self.quickList.font())
-            for preset in sorted(connpresets):
+            for preset in self.connpresets:
                 item = QListWidgetItem(preset, self.quickList)
                 item.setIcon(icon)
                 maxw = max(maxw, metric.horizontalAdvance(preset))
@@ -105,15 +106,16 @@ class ConnectionDialog(QDialog):
             self.quickList.setMinimumSize(hint)
             self.resize(self.sizeHint())
 
-        self.presetOrAddr.addItems(sorted(connpresets))
+        self.presetOrAddr.addItems(self.connpresets)
         if lastdata:
             self.presetOrAddr.setEditText(
                 '%s:%s' % (lastdata.host, lastdata.port))
             self.viewonly.setChecked(lastdata.viewonly)
             self.expertmode.setChecked(lastdata.expertmode)
             self.userName.setText(lastdata.user)
-        if lastpreset:  # prefer preset name
-            self.presetOrAddr.setEditText(lastpreset)
+        if lastpreset and lastpreset in self.connpresets:  # prefer preset name
+            index = list(self.connpresets).index(lastpreset)
+            self.presetOrAddr.setCurrentIndex(index)
         self.password.setFocus()
 
         self.viaFrame.setHidden(not tunnel)
