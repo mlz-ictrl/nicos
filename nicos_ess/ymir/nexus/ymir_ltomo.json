@@ -47,7 +47,7 @@
           ],
           "children": [
             {
-              "name": "source",
+              "name": "light_source",
               "type": "group",
               "attributes": [
                 {
@@ -68,7 +68,7 @@
               ]
             },
             {
-              "name": "detector",
+              "name": "flir_camera",
               "type": "group",
               "attributes": [
                 {
@@ -78,6 +78,27 @@
                 }
               ],
               "children": [
+                {
+                  "name": "image_key",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "image_key",
+                        "topic": "ymir_camera",
+                        "dtype": "uint"
+                      }
+                    }
+                  ]
+                },
                 {
                   "name": "data",
                   "type": "group",
@@ -98,26 +119,6 @@
                       }
                     }
                   ]
-                },
-                {
-                  "name": "image_key",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f142",
-                      "config": {
-                        "source": "image_key",
-                        "topic": "ymir_camera"
-                      }
-                    }
-                  ]
                 }
               ]
             },
@@ -132,6 +133,62 @@
                 }
               ],
               "children": [
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "slits",
+                    "values": 1,
+                    "type": "int64"
+                  }
+                },
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "slit_height",
+                    "values": 0.03,
+                    "type": "double"
+                  },
+                  "attributes": [
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": "m"
+                    }
+                  ]
+                },
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "radius",
+                    "values": 0.15,
+                    "type": "double"
+                  },
+                  "attributes": [
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": "m"
+                    }
+                  ]
+                },
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "slit_edges",
+                    "values": [
+                      0.0,
+                      15.0
+                    ],
+                    "type": "double"
+                  },
+                  "attributes": [
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": "deg"
+                    }
+                  ]
+                },
                 {
                   "name": "rotation_speed",
                   "type": "group",
@@ -159,6 +216,164 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "type": "group",
+                  "name": "transformations",
+                  "children": [
+                    {
+                      "module": "dataset",
+                      "config": {
+                        "name": "translation",
+                        "values": -5.0,
+                        "type": "double"
+                      },
+                      "attributes": [
+                        {
+                          "name": "transformation_type",
+                          "dtype": "string",
+                          "values": "translation"
+                        },
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "m"
+                        },
+                        {
+                          "name": "vector",
+                          "dtype": "string",
+                          "values": [
+                            0.0,
+                            0.0,
+                            1.0
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "values": "NXtransformations"
+                    }
+                  ]
+                },
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "depends_on",
+                    "dtype": "string",
+                    "values": "/entry/instrument/mini_chopper/transformations/translation"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "laser_monitor",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "NX_class",
+                  "dtype": "string",
+                  "values": "NXmonitor"
+                }
+              ],
+              "children": [
+                {
+                  "name": "data",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "plc-ts:PLC:value",
+                        "topic": "ymir_nicos_devices",
+                        "dtype": "double"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "laser_source",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "NX_class",
+                  "dtype": "string",
+                  "values": "NXsource"
+                }
+              ],
+              "children": [
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "probe",
+                    "values": "visible_light",
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "group",
+                  "name": "transformations",
+                  "children": [
+                    {
+                      "module": "dataset",
+                      "config": {
+                        "name": "translation",
+                        "values": -1.0,
+                        "type": "double"
+                      },
+                      "attributes": [
+                        {
+                          "name": "transformation_type",
+                          "dtype": "string",
+                          "values": "translation"
+                        },
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "m"
+                        },
+                        {
+                          "name": "vector",
+                          "dtype": "string",
+                          "values": [
+                            0.0,
+                            0.0,
+                            1.0
+                          ]
+                        },
+                        {
+                          "name": "depends_on",
+                          "values": "/entry/instrument/mini_chopper/transformations/translation",
+                          "dtype": "string"
+                        }
+                      ]
+                    }
+                  ],
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "values": "NXtransformations"
+                    }
+                  ]
+                },
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "depends_on",
+                    "dtype": "string",
+                    "values": "/entry/instrument/laser_source/transformations/translation"
+                  }
                 }
               ]
             }
@@ -176,31 +391,213 @@
           ],
           "children": [
             {
-              "name": "rotation_angle",
+              "module": "dataset",
+              "config": {
+                "name": "name",
+                "values": "lego",
+                "type": "string"
+              }
+            },
+            {
               "type": "group",
+              "name": "transformations",
+              "children": [
+                {
+                  "name": "rotation",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    },
+                    {
+                      "name": "transformation_type",
+                      "dtype": "string",
+                      "values": "rotation"
+                    },
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": "degrees"
+                    },
+                    {
+                      "name": "vector",
+                      "dtype": "string",
+                      "values": [
+                        0.0,
+                        1.0,
+                        0.0
+                      ]
+                    },
+                    {
+                      "name": "depends_on",
+                      "values": "/entry/sample/transformations/x_translation",
+                      "dtype": "string"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "SES-SCAN:MC-MCU-001:m4.RBV",
+                        "topic": "ymir_motion",
+                        "dtype": "double"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "degrees"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "x_translation",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    },
+                    {
+                      "name": "transformation_type",
+                      "dtype": "string",
+                      "values": "translation"
+                    },
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": "mm"
+                    },
+                    {
+                      "name": "vector",
+                      "dtype": "string",
+                      "values": [
+                        1.0,
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    {
+                      "name": "depends_on",
+                      "values": "/entry/sample/transformations/y_translation",
+                      "dtype": "string"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "YMIR-SpScn:MC-Y-01:m",
+                        "topic": "ymir_nicos_devices",
+                        "dtype": "double"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "y_translation",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    },
+                    {
+                      "name": "transformation_type",
+                      "dtype": "string",
+                      "values": "translation"
+                    },
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": "mm"
+                    },
+                    {
+                      "name": "vector",
+                      "dtype": "string",
+                      "values": [
+                        0.0,
+                        1.0,
+                        0.0
+                      ]
+                    },
+                    {
+                      "name": "depends_on",
+                      "values": "/entry/sample/transformations/z_translation",
+                      "dtype": "string"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "YMIR-SpScn:MC-Z-01:m",
+                        "topic": "ymir_nicos_devices",
+                        "dtype": "double"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "z_translation",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    },
+                    {
+                      "name": "transformation_type",
+                      "dtype": "string",
+                      "values": "translation"
+                    },
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": "mm"
+                    },
+                    {
+                      "name": "vector",
+                      "dtype": "string",
+                      "values": [
+                        0.0,
+                        0.0,
+                        1.0
+                      ]
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "YMIR-SpScn:MC-X-01:",
+                        "topic": "ymir_nicos_devices",
+                        "dtype": "double"
+                      }
+                    }
+                  ]
+                }
+              ],
               "attributes": [
                 {
                   "name": "NX_class",
-                  "dtype": "string",
-                  "values": "NXlog"
-                }
-              ],
-              "children": [
-                {
-                  "module": "f142",
-                  "config": {
-                    "source": "SES-SCAN:MC-MCU-001:m4.RBV",
-                    "topic": "ymir_motion"
-                  }
+                  "values": "NXtransformations"
                 }
               ]
             },
             {
               "module": "dataset",
               "config": {
-                "name": "name",
-                "values": "lego",
-                "type": "string"
+                "name": "depends_on",
+                "dtype": "string",
+                "values": "/entry/sample/transformations/rotation"
               }
             }
           ]
