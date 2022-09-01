@@ -21,9 +21,33 @@
 #   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
+from nicos import session
+from nicos.commands import usercommand
+from nicos_ess.devices.epics.area_detector import DARKFIELD,  FLATFIELD, \
+    ImageType, PROJECTION
 
 
-from nicos_ess.devices.epics.area_detector import ADKafkaPlugin, AreaDetector, \
-    AreaDetectorCollector, ImageType
-from nicos_ess.devices.epics.chopper import ChopperAlarms, EssChopperController
-from nicos_ess.devices.epics.motor import EpicsMotor
+def _find_imagetype_dev():
+    for dev in session.devices.values():
+        # Should only be one at most.
+        if isinstance(dev, ImageType):
+            return dev
+    raise RuntimeError("Could not find ImageKey device")
+
+
+@usercommand
+def switch_to_dark_field():
+    """Switch to dark field state."""
+    _find_imagetype_dev().move(DARKFIELD)
+
+
+@usercommand
+def switch_to_flat_field():
+    """Switch to flat field state."""
+    _find_imagetype_dev().move(FLATFIELD)
+
+
+@usercommand
+def switch_to_projection():
+    """Switch to projection state."""
+    _find_imagetype_dev().move(PROJECTION)

@@ -21,11 +21,45 @@
 #   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
-from nicos.core import status, Param, pvname, Attach, Measurable
-from nicos.devices.epics import STAT_TO_STATUS, SEVERITY_TO_STATUS, EpicsDevice
-from nicos.devices.generic import Detector, ImageChannelMixin
+from nicos.core import Attach, Measurable, Override, Param, \
+    pvname, status
+from nicos.devices.epics import STAT_TO_STATUS, SEVERITY_TO_STATUS
+from nicos.devices.epics.pva import EpicsDevice
+from nicos.devices.generic import Detector, ImageChannelMixin, ManualSwitch
 from nicos_sinq.devices.epics.area_detector import ADKafkaPlugin \
     as ADKafkaPluginBase
+
+PROJECTION, FLATFIELD, DARKFIELD, INVALID = 0, 1, 2, 3
+
+
+class ImageType(ManualSwitch):
+    """
+    Class that contains the image type for a tomography experiment using the
+    epics AreaDetector class.
+    """
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+        'states': Override(mandatory=False,
+                           default=list(range(PROJECTION, INVALID + 1))),
+        'maxage': Override(default=0)
+    }
+
+    hardware_access = False
+
+    _image_key_to_image_type = {
+        PROJECTION: 'Projection',
+        FLATFIELD: 'Flat field',
+        DARKFIELD: 'Dark field',
+        INVALID: 'Invalid'
+    }
+
+    def doStatus(self, maxage=0):
+        stat = status.OK
+        msg = self._image_key_to_image_type[self.target]
+        if self.target == INVALID:
+            stat = status.WARN
+            msg = 'State is invalid for the tomography experiment.'
+        return stat, msg
 
 
 class ADKafkaPlugin(ADKafkaPluginBase):
