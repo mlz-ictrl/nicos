@@ -2,8 +2,12 @@ description = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB = device('nicos.services.cache.server.FlatfileCacheDatabase',
-        storepath = '/data/cache',
+    DB = device('nicos.services.cache.database.influxdb.InfluxDBCacheDatabase',
+        url = 'http://localhost:8086',
+        keystoretoken = 'influxdb',
+        org = 'mlz',
+        bucket = 'nicos-cache',
+        # bucket_latest = 'nicos-latest',
         loglevel = 'info',
     ),
     Server = device('nicos.services.cache.server.CacheServer',

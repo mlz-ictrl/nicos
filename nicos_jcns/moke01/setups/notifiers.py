@@ -4,8 +4,9 @@ group = 'lowlevel'
 
 devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
-        sender = 'jcns@frm2.tum.de',
-        copies = [('g.brandl@fz-juelich.de', 'all')],
+        sender = 'moke@frm2.tum.de',
+        copies = [('s.puetter@fz-juelich.de', 'all'),
+                  ('k.kholostov@fz-juelich.de', 'all')],
         subject = 'MOKE',
     ),
     smser = device('nicos.devices.notifiers.SMSer',
