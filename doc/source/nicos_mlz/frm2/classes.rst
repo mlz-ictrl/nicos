@@ -51,3 +51,7 @@
 
 .. module:: nicos_mlz.devices.rabbit_sink
 .. autoclass:: RabbitSink()
+
+.. module:: nicos_mlz.devices.cetoni
+.. autoclass:: CetoniSensor()
+.. autoclass:: CetoniPump()
