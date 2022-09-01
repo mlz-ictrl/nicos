@@ -32,7 +32,6 @@ includes = [
     'shutter',
     'shutter_gamma',
     # 'vsd',
-
     #  'vacuum',
     #  'instrument_mode',
     'qmesydaq',

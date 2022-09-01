@@ -10,6 +10,6 @@ devices = dict(
     Poller = device('nicos.services.poller.Poller',
         alwayspoll = [],
         neverpoll = [],
-        blacklist = [],
+        blacklist = ['mcstas', 'image'],
     ),
 )
