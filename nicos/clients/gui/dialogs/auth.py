@@ -96,7 +96,7 @@ class ConnectionDialog(QDialog):
             for preset in sorted(connpresets):
                 item = QListWidgetItem(preset, self.quickList)
                 item.setIcon(icon)
-                maxw = max(maxw, metric.width(preset))
+                maxw = max(maxw, metric.horizontalAdvance(preset))
             self.quickList.setGridSize(QSize(maxw + 8, 72))
             # the automatic sizing still leads to a vertical scrollbar
             hint = self.quickList.sizeHint()
