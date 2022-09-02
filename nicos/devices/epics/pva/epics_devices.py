@@ -471,3 +471,7 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
         # may not be appropriate
         if not self.ignore_stop:
             EpicsMoveable.doStop(self)
+
+    def doStatus(self, maxage=0):
+        stat, msg = MappedMoveable.doStatus(self, maxage)
+        return stat, '' if stat == status.OK else msg
