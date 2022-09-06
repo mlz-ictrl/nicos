@@ -1,23 +1,29 @@
 description = 'The area detector for YMIR'
+pv_root = 'YMIR-CamSy1:FLIR-Cam:'
 
 devices = dict(
-    ad_kafka_plugin=device(
+    flir_kafka_plugin=device(
         'nicos_ess.devices.epics.ADKafkaPlugin',
-        description='The configuration of the area detector Kafka plugin',
+        description='The configuration of the Kafka plugin for the FLIR camera.',
         kafkapv='labs-utg-test:Kfk1:',
         brokerpv='KafkaBrokerAddress_RBV',
         topicpv='KafkaTopic_RBV',
         sourcepv='SourceName_RBV',
+        visibility=(),
     ),
-    area_detector=device(
+    flir_camera=device(
         'nicos_ess.devices.epics.AreaDetector',
         description='The light tomography FLIR camera.',
         pv_root='labs-utg-test:cam1:',
-        ad_kafka_plugin='ad_kafka_plugin',
+        ad_kafka_plugin='flir_kafka_plugin',
     ),
     area_detector_collector=device(
         'nicos_ess.devices.epics.AreaDetectorCollector',
         description='Area detector collector',
-        images=['area_detector']
-    )
+        images=['flir_camera']
+    ),
+    flir_image_type=device(
+        'nicos_ess.devices.epics.ImageType',
+        description="Image type for the tomography setup.",
+    ),
 )

@@ -92,9 +92,9 @@
                     {
                       "module": "f142",
                       "config": {
-                        "source": "image_key",
-                        "topic": "ymir_camera",
-                        "dtype": "uint"
+                        "source": "flir_image_type",
+                        "topic": "ymir_nicos_devices",
+                        "dtype": "int16"
                       }
                     }
                   ]
@@ -203,8 +203,8 @@
                     {
                       "module": "f142",
                       "config": {
-                        "source": "YMIR-ChpSy1:Chop-MIC-101:Spd_Stat",
-                        "topic": "ymir_nicos_devices",
+                        "source": "YMIR-ChpSy1:Chop-MIC-101:Spd_SP",
+                        "topic": "ymir_motion",
                         "dtype": "double"
                       },
                       "attributes": [
@@ -291,10 +291,10 @@
                   ],
                   "children": [
                     {
-                      "module": "f142",
+                      "module": "senv",
                       "config": {
                         "source": "plc-ts:PLC:value",
-                        "topic": "ymir_nicos_devices",
+                        "topic": "ymir_motion",
                         "dtype": "double"
                       }
                     }
@@ -440,7 +440,7 @@
                     {
                       "module": "f142",
                       "config": {
-                        "source": "SES-SCAN:MC-MCU-001:m4.RBV",
+                        "source": "YMIR-SpRot:MC-Rz-01:m.RBV",
                         "topic": "ymir_motion",
                         "dtype": "double"
                       },
@@ -492,10 +492,17 @@
                     {
                       "module": "f142",
                       "config": {
-                        "source": "YMIR-SpScn:MC-Y-01:m",
-                        "topic": "ymir_nicos_devices",
+                        "source": "YMIR-SpScn:MC-Y-01:m.RBV",
+                        "topic": "ymir_motion",
                         "dtype": "double"
-                      }
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "mm"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -537,10 +544,17 @@
                     {
                       "module": "f142",
                       "config": {
-                        "source": "YMIR-SpScn:MC-Z-01:m",
-                        "topic": "ymir_nicos_devices",
+                        "source": "YMIR-SpScn:MC-Z-01:m.RBV",
+                        "topic": "ymir_motion",
                         "dtype": "double"
-                      }
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "mm"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -577,10 +591,17 @@
                     {
                       "module": "f142",
                       "config": {
-                        "source": "YMIR-SpScn:MC-X-01:",
-                        "topic": "ymir_nicos_devices",
+                        "source": "YMIR-SpScn:MC-X-01:m.RBV",
+                        "topic": "ymir_motion",
                         "dtype": "double"
-                      }
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "mm"
+                        }
+                      ]
                     }
                   ]
                 }
