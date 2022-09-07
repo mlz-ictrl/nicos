@@ -51,6 +51,5 @@ class ErrorPanel(DefaultErrorPanel):
         self.outView.scrollToBottom()
 
     def on_client_message(self, message):
-        print(message)
         if message[2] >= WARNING:  # show if level is warning or higher
             self.outView.addMessage(message)
