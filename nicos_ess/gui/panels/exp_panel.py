@@ -32,6 +32,7 @@ from copy import deepcopy
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
     combineUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
+from nicos.core import ADMIN
 from nicos.guisupport.qt import QDialogButtonBox, QHeaderView, QIntValidator, \
     QListWidgetItem, Qt, pyqtSlot
 from nicos.guisupport.tablemodel import TableModel
@@ -104,8 +105,7 @@ class ExpPanel(PanelBase):
 
         self.proposalNum.setValidator(QIntValidator(0, 999999999))
 
-        self._text_controls = (self.propTitle, self.proposalNum,
-                               self.proposalQuery)
+        self._text_controls = (self.propTitle, self.proposalNum)
         self._tables = (self.sampleTable, self.contactsTable, self.userTable)
 
         self.hide_samples = options.get('hide_sample', False)
@@ -207,7 +207,7 @@ class ExpPanel(PanelBase):
     def _is_proposal_system_available(self):
         available = self.client.eval('session.experiment._canQueryProposals()',
                                      False)
-        self.findProposalBox.setVisible(available)
+        self.queryDBButton.setEnabled(available)
         self.proposalNum.setReadOnly(available)
         self.propTitle.setReadOnly(available)
         self.userTable.setEnabled(not available)
@@ -239,6 +239,7 @@ class ExpPanel(PanelBase):
         self.errorAbortBox.setEnabled(not viewonly)
         self.queryDBButton.setEnabled(not viewonly)
         self.addUserButton.setEnabled(not viewonly)
+        self.queryDBButton.setEnabled(not viewonly)
         self.deleteUserButton.setEnabled(not viewonly)
         self.addSampleButton.setEnabled(not viewonly)
         self.deleteSampleButton.setEnabled(not viewonly)
@@ -319,12 +320,15 @@ class ExpPanel(PanelBase):
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
         try:
-            proposal = self.proposalQuery.text()
+            kwds = {
+                'fed_id': self.parentwindow.client.login,
+                'admin': self.parentwindow.client.user_level == ADMIN,
+            }
             result = self.client.eval(
-                'session.experiment._queryProposals(%r, {})' % proposal)
+                f'session.experiment._queryProposals(kwds={kwds})')
 
             if result:
-                if len(result) != 1:
+                if len(result) > 1:
                     result = self.choose_proposal(result)
                     if not result:
                         return
@@ -339,7 +343,7 @@ class ExpPanel(PanelBase):
                     self.showError('Proposal might have problems:\n\n' +
                                    '\n'.join(result['warnings']))
                 # now transfer it into gui
-                self.proposalNum.setText(result.get('proposal', proposal))
+                self.proposalNum.setText(result.get('proposal', ''))
                 self.propTitle.setText(result.get('title', ''))
                 self._update_users_model(result.get('users', []))
                 self._update_contacts_model(result.get('localcontacts', []))
@@ -347,7 +351,7 @@ class ExpPanel(PanelBase):
                 self._format_user_table()
                 self._format_sample_table()
             else:
-                self.showError('Querying proposal management system failed')
+                self.showError('No proposals found')
         except Exception as e:
             self.log.warning('error in proposal query', exc=1)
             self.showError(f'Querying proposal management system failed: {e}')
@@ -413,11 +417,6 @@ class ExpPanel(PanelBase):
     def on_experiment_finished(self):
         self._update_proposal_info()
         self._check_for_changes()
-        self.proposalQuery.setText('')
-
-    @pyqtSlot()
-    def on_proposalQuery_returnPressed(self):
-        self.on_queryDBButton_clicked()
 
     @pyqtSlot()
     def on_addSampleButton_clicked(self):

@@ -153,17 +153,13 @@ class EssExperiment(Experiment):
             time.sleep(self.update_interval * 3600)
 
     def _queryProposals(self, proposal=None, kwds=None):
-        if not proposal:
-            raise RuntimeError('Please enter a valid proposal ID or federal ID')
-
-        if proposal[0].isdigit():
-            results = self._query_by_id(proposal)
+        if not kwds:
+            return []
+        if kwds.get('admin', False):
+            results = self._get_all_proposals()
         else:
-            results = self._query_by_fed_id(proposal)
+            results = self._query_by_fed_id(kwds.get('fed_id', ''))
 
-        if not results:
-            raise RuntimeError(f'could not find corresponding proposal(s) for '
-                               f'{proposal}')
         return [{
             'proposal': str(prop.id),
             'title': prop.title,
@@ -176,17 +172,16 @@ class EssExperiment(Experiment):
             'warnings': [],
         } for prop in results]
 
-    def _query_by_id(self, proposal):
+    def _query_by_fed_id(self, name):
         try:
-            result = self._client.proposal_by_id(proposal)
-            return [result] if result else []
+            return self._client.proposals_for_user(name)
         except BaseYuosException as error:
             self.log.error('%s', error)
             raise
 
-    def _query_by_fed_id(self, name):
+    def _get_all_proposals(self):
         try:
-            return self._client.proposals_for_user(name)
+            return self._client.all_proposals()
         except BaseYuosException as error:
             self.log.error('%s', error)
             raise
