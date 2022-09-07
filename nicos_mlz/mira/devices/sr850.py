@@ -84,6 +84,7 @@ class Amplifier(PyTangoDevice, Measurable):
 
     def doSetPreset(self, **preset):
         self._delay = preset.get('delay', 0)
+        self._lastpreset = preset
 
     def doStart(self):
         self._started = time()

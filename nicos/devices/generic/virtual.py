@@ -876,16 +876,15 @@ class VirtualScanningDetector(SubscanMeasurable):
 
     def doInit(self, mode):
         self._last = [0, '']
-        self._preset = None
 
     def doSetPreset(self, **preset):
-        self._preset = preset
+        self._lastpreset = preset
 
     def doStart(self):
         positions = [[p] for p in self.positions]
         dataset = Scan([self._adevs['scandev']], positions, positions,
-                       detlist=[self._adevs['detector']], preset=self._preset,
-                       subscan=True).run()
+                       detlist=[self._adevs['detector']],
+                       preset=self._lastpreset, subscan=True).run()
         # process the values...
         yvalues = [subset.detvaluelist[0] for subset in dataset.subsets]
         self._last = [sum(yvalues) / float(len(yvalues)), dataset.filenames[0]]

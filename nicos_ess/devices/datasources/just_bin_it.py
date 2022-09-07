@@ -415,7 +415,6 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
             Override(default='', mandatory=False),
     }
     _last_live = 0
-    _presets = {}
     _presetkeys = {'t'}
     _ack_thread = None
     _conditions_thread = None
@@ -464,11 +463,11 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         self._conditions = {}
 
         for image_channel in self._attached_images:
-            val = self._presets.get(image_channel.name, 0)
+            val = self._lastpreset.get(image_channel.name, 0)
             if val:
                 self._conditions[image_channel] = val
 
-        count_interval = self._presets.get('t', None)
+        count_interval = self._lastpreset.get('t', None)
         config = self._create_config(count_interval, unique_id)
 
         if count_interval:
@@ -596,7 +595,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
             raise InvalidValueError(
                 self, 'Cannot set number of detector counts'
                 ' and a time interval together')
-        self._presets = preset.copy()
+        self._lastpreset = preset.copy()
 
     def doStop(self):
         self._do_stop()

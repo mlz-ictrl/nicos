@@ -52,7 +52,6 @@ class LaserDetector(Measurable):
         'laser': Attach('the underlying laser device', Readable),
     }
 
-    _presets = {}
     _stoprequest = False
     _counting_worker = None
 
@@ -62,10 +61,9 @@ class LaserDetector(Measurable):
     def doStart(self):
         self._stoprequest = False
         self.curstatus = status.BUSY, "Counting"
-        self._counting_worker = createThread('start_counting',
-                                             self._start_counting,
-                                             args=(self._presets.get(
-                                                 't', None), ))
+        self._counting_worker = createThread(
+            'start_counting', self._start_counting,
+            args=(self._lastpreset.get('t', None), ))
 
     def _start_counting(self, duration=None):
         max_pow = 0
@@ -93,7 +91,7 @@ class LaserDetector(Measurable):
 
     def doSetPreset(self, **preset):
         self.curstatus = status.BUSY, "Preparing"
-        self._presets = preset
+        self._lastpreset = preset
 
     def doStop(self):
         self._stoprequest = True

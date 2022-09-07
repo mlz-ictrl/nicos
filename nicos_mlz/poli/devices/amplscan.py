@@ -40,18 +40,18 @@ class ScanningDetector(SubscanMeasurable):
     fitcls = CosineFit
 
     def doInit(self, mode):
-        self._preset = None
+        self._lastpreset = {}
         self._nparams = len(self.fitcls.fit_params)
 
     def doSetPreset(self, **preset):
-        self._preset = preset
+        self._lastpreset = preset
 
     def doStart(self):
         positions = [[p] for p in self.positions]
         ds = Scan(
             [session.getDevice(self.scandev)],
             positions, None, detlist=[self._attached_detector],
-            preset=self._preset, subscan=True
+            preset=self._lastpreset, subscan=True
         ).run()
         xs, ys, dys, _, ds = _getData()
         fit = self.fitcls()

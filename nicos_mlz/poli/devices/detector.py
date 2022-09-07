@@ -102,6 +102,7 @@ class AsymDetector(MeasureSequencer):
                 self._up_preset[v] = preset[v + '_up']
             if v + '_dn' in preset:
                 self._dn_preset[v] = preset[v + '_dn']
+        self._lastpreset = preset
 
     def doStart(self):
         self._results[:3] = [0.0, 0.0, 0.0]

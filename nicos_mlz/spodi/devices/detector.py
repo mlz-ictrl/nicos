@@ -136,6 +136,7 @@ class Detector(MeasureSequencer):
             if 'tths' in preset:
                 self._tths = float(preset.pop('tths'))
         self._attached_detector.doSetPreset(**preset)
+        self._lastpreset = self._attached_detector.preset()
 
     def _read_value(self):
         ret = self._attached_detector.read()

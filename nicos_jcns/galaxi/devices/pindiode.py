@@ -60,6 +60,7 @@ class SingleDetectors(Measurable):
         self.log.debug('Integral set preset')
         if 't' in presets:
             self._preset = presets['t']
+        self._lastpreset = presets
 
     def valueInfo(self):
         return tuple(Value(

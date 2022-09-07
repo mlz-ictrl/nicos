@@ -103,6 +103,8 @@ class SinqDetector(EpicsScalerRecord):
                            preset[countpreset.pop()])
             self.log.debug('Also updating the time preset to 0')
 
+        self._lastpreset = preset.copy()
+
         # Let the parent handle the rest
         EpicsScalerRecord.doSetPreset(self, **preset)
 

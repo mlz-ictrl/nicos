@@ -139,6 +139,7 @@ class DLSDetector(Measurable):
     def doSetPreset(self, **preset):
         if 't' in preset:
             self._ntotal = int(preset['t'] / self.duration) or 1
+        self._lastpreset = preset
 
     def presetInfo(self):
         return ('t',)

@@ -125,6 +125,12 @@ def _count(*detlist, **preset):
         if not detectors:
             session.log.warning('counting without detector, use SetDetectors()'
                                 ' to select which detector(s) you want to use')
+    if preset is None:
+        preset = {}
+    if not preset:
+        for det in detectors:
+            preset.update(det.preset())
+
     # check preset names for validity
     names = set(preset)
     for det in detectors:

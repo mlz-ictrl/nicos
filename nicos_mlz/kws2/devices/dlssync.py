@@ -48,6 +48,7 @@ class DLSSync(PyTangoDevice, Measurable):
 
     def doSetPreset(self, **preset):
         self._meastime = preset.get('t')
+        self._lastpreset = preset
 
     def doStart(self):
         try:

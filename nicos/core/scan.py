@@ -78,6 +78,11 @@ class Scan:
                                     'any of the detectors: %s -- detectors are'
                                     ' %s', ', '.join(names),
                                     ', '.join(map(str, detlist)))
+        if preset is None:
+            preset = {}
+        if not preset:
+            for det in detlist:
+                preset.update(det.preset())
         if envlist == []:
             # special value [] to suppress all envlist devices
             allenvlist = []

@@ -199,6 +199,7 @@ class AndorHFRCamera(PyTangoDevice, UsesFastshutter, ImageChannelMixin,
             self._write_presets(preset, val)
         self._write_presets('spoolfile', presets.get(
             'spoolfile', session.experiment.sample.samplename))
+        self._lastpreset = presets
 
     def presetInfo(self):
         return ['exptime', 'number', 'cycletime', 'spoolfile']

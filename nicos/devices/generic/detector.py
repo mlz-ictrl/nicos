@@ -459,7 +459,6 @@ class Detector(Measurable):
     _last_live = 0
     _last_save = 0
     _last_save_index = 0
-    _last_preset = None
     _user_comment = ''
 
     def doInit(self, _mode):
@@ -540,11 +539,11 @@ class Detector(Measurable):
 
     def _getPreset(self, preset):
         """Returns previous preset if no preset has been set."""
-        if not preset and self._last_preset:
-            return self._last_preset
+        if not preset and self._lastpreset:
+            return self._lastpreset
         if 'live' not in preset:
             # do not store live as previous preset
-            self._last_preset = preset
+            self._lastpreset = preset
         return preset
 
     def doSetPreset(self, **preset):
@@ -839,18 +838,15 @@ class ScanningDetector(SubscanMeasurable):
                             settable=True, internal=True),
     }
 
-    def doInit(self, mode):
-        self._preset = None
-
     def doSetPreset(self, **preset):
-        self._preset = preset
+        self._lastpreset = preset
 
     def doStart(self):
         positions = [[p] for p in self.positions]
         self.readresult = self._processDataset(Scan(
             [self._attached_scandev],
             positions, None, detlist=[self._attached_detector],
-            preset=self._preset, subscan=True).run())
+            preset=self._lastpreset, subscan=True).run())
 
     def valueInfo(self):
         if self.readresult:

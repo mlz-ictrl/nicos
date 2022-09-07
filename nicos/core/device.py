@@ -1845,6 +1845,11 @@ class Measurable(Waitable):
         'unit': Override(description='(not used)', mandatory=False),
     }
 
+    parameters = {
+        '_lastpreset': Param('The latest used preset', internal=True,
+                             type=dict, settable=True),
+    }
+
     errorstates = {status.ERROR: NicosError}
 
     def _setMode(self, mode):
@@ -1878,6 +1883,13 @@ class Measurable(Waitable):
             self._sim_preset = preset
             return
         self.doSetPreset(**preset)
+
+    @usermethod
+    def preset(self):
+        """Query the current presets for this detector."""
+        if self._sim_intercept:
+            return self._sim_preset
+        return self._lastpreset
 
     @usermethod
     def start(self, **preset):

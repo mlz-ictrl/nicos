@@ -63,6 +63,7 @@ class FTIRSpectro(Measurable):
     def doSetPreset(self, **preset):
         if 't' in preset:
             self._presettime = preset['t']
+        self._lastpreset = preset
 
     def presetInfo(self):
         return ('t',)

@@ -117,7 +117,7 @@ class DSPec(PyTangoDevice, Measurable):
         self._comment = ''
         self._name_ = ''
         self._stop = None
-        self._preset = {}
+        self._lastpreset = {}
         self._dont_stop_flag = False
         self._read_cache = None
 
@@ -173,7 +173,7 @@ class DSPec(PyTangoDevice, Measurable):
         elif 'counts' in preset:
             pass
 
-        self._preset = preset
+        self._lastpreset = preset
 
     def doTime(self, preset):
         if 'TrueTime' in preset:
@@ -188,12 +188,12 @@ class DSPec(PyTangoDevice, Measurable):
 
     def doEstimateTime(self, elapsed):
         if self.doStatus()[0] == status.BUSY:
-            if 'TrueTime' in self._preset:
-                return self._preset['TrueTime'] - elapsed
-            elif 'LiveTime' in self._preset:
-                return self._preset['LiveTime'] - elapsed
-            elif 'ClockTime' in self._preset:
-                return abs(float(self._preset['ClockTime']) - currenttime())
+            if 'TrueTime' in self._lastpreset:
+                return self._lastpreset['TrueTime'] - elapsed
+            elif 'LiveTime' in self._lastpreset:
+                return self._lastpreset['LiveTime'] - elapsed
+            elif 'ClockTime' in self._lastpreset:
+                return abs(float(self._lastpreset['ClockTime']) - currenttime())
         return None
 
     def doStart(self):
@@ -264,18 +264,18 @@ class DSPec(PyTangoDevice, Measurable):
         if self._started is None:
             return True
         if self._dont_stop_flag is True:
-            return (currenttime() - self._started) >= self._preset['value']
+            return (currenttime() - self._started) >= self._lastpreset['value']
 
         if self._stop is not None:
             if currenttime() >= self._stop:
                 return True
 
-        if 'TrueTime' in self._preset:
-            return self._dev.TrueTime >= self._preset['TrueTime']
-        elif 'LiveTime' in self._preset:
-            return self._dev.LiveTime >= self._preset['LiveTime']
-        elif 'counts' in self._preset:
-            return self.doRead(0)[2] >= self._preset['counts']
+        if 'TrueTime' in self._lastpreset:
+            return self._dev.TrueTime >= self._lastpreset['TrueTime']
+        elif 'LiveTime' in self._lastpreset:
+            return self._dev.LiveTime >= self._lastpreset['LiveTime']
+        elif 'counts' in self._lastpreset:
+            return self.doRead(0)[2] >= self._lastpreset['counts']
         try:
             # self.log.warning('poll')
             stop = self.poll[0]
