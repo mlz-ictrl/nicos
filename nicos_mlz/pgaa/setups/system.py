@@ -30,7 +30,7 @@ devices = dict(
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'The currently running experiment',
-        dataroot = '/localdata/',
+        dataroot = '/data/',
         sample = 'Sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
@@ -43,7 +43,7 @@ devices = dict(
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing log files',
-        path = '/pgaacontrol/log',
+        path = '/control/log',
         minfree = 5,
     ),
 )

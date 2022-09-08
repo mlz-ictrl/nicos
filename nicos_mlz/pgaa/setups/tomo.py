@@ -23,7 +23,7 @@ includes = [
 devices = dict(
     Exp = device('nicos_mlz.devices.experiment.ImagingExperiment',
         description = 'The currently running experiment',
-        dataroot = '/localdata/',
+        dataroot = '/data/',
         sample = 'Sample',
     ),
     FITSFileSaver = device('nicos.devices.datasinks.FITSImageSink',
