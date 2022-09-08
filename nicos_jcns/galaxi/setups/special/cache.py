@@ -1,9 +1,9 @@
-description = 'setup for the cache server'
+description = 'Setup for the GALAXI cache server'
 group = 'special'
 
 devices = dict(
     DB = device('nicos.services.cache.server.FlatfileCacheDatabase',
-        storepath = '/home/jcns/data/cache',
+        storepath = '/data/cache',
         loglevel = 'info',
     ),
     Server = device('nicos.services.cache.server.CacheServer',

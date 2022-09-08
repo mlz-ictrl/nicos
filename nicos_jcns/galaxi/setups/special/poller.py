@@ -1,4 +1,4 @@
-description = 'setup for the poller'
+description = 'Setup for the GALAXI poller'
 group = 'special'
 
 sysconfig = dict(

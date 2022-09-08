@@ -1,7 +1,4 @@
-# If you want to use the electronic logbook, make sure the "system" setup has
-# also a cache configured.
-
-description = 'setup for the electronic logbook'
+description = 'Setup for the GALAXI electronic logbook.'
 group = 'special'
 
 devices = dict(

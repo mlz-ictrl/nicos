@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
 
-description = 'system setup of the GALAXI diffractometer'
-
+description = 'GALAXI system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
     instrument = 'galaxi',
     experiment = 'Exp',
-    datasinks = [
-        'conssink', 'daemonsink', 'filesink', 'liveviewsink', 'sampledbsink',
-    ],
+    datasinks = ['conssink', 'daemonsink', 'filesink', 'liveviewsink',
+                 'sampledbsink'],
     notifiers = ['email'],
 )
 
@@ -26,11 +23,19 @@ devices = dict(
     Exp = device('nicos_jcns.devices.experiment.Experiment',
         description = 'GALAXI experiment supporting storage of scan metadata '
         'in the IFF sample database.',
-        dataroot = '/home/jcns/data',
+        dataroot = '/data',
         sample = 'Sample',
         serviceexp = 'service',
         sendmail = False,
         zipdata = False,
+        managerights = dict(
+            enableDirMode = 0o775,
+            enableFileMode = 0o664,
+            disableDirMode = 0o775,
+            disableFileMode = 0o664,
+            owner = 'jcns',
+            group = 'jcns',
+        ),
     ),
     galaxi = device('nicos.devices.instrument.Instrument',
         description = 'GALAXI high resolution diffractometer.',
@@ -38,7 +43,7 @@ devices = dict(
         facility = 'Forschungszentrum Juelich',
         responsible = 'Ulrich Ruecker <u.ruecker@fz-juelich.de>',
         doi = 'http://dx.doi.org/10.17815/jlsrf-2-109',
-        operators = ['Jülich Centre for Neutron Science (JCNS)'],
+        operators = ['Juelich Centre for Neutron Science (JCNS)'],
     ),
     sampledbsink = device('nicos_jcns.devices.sampledbsink.DataSink',
         description = 'Device storing scan metadata in the IFF sample '
@@ -63,8 +68,8 @@ devices = dict(
         description = 'Device showing live data during measurements.',
     ),
     Space = device('nicos.devices.generic.FreeSpace',
-        description = 'The amount of free space for storing data',
-        path = None,
+        description = 'The amount of free space for storing data.',
+        path = '/data',
         minfree = 5,
     ),
 )
