@@ -24,38 +24,13 @@
 
 """Beamstop handling for SANS1"""
 
-import numpy as np
-
 from nicos import session
 from nicos.core import ADMIN, SIMULATION, SLAVE, Attach, Moveable, Override, \
-    Param, PositionError, UsageError, dictof, floatrange, intrange, limits, \
-    oneof, requires, status, tupleof
-from nicos.devices.entangle import Sensor
+    Param, UsageError, dictof, floatrange, intrange, limits, oneof, requires, \
+    status, tupleof
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqCall, SeqDev as NicosSeqDev, \
     SequencerMixin
-
-
-class FunnySensor(Sensor):
-    """Sensor which sometimes returns senseless values"""
-    parameters = {
-        'limits': Param('range of sensible values',
-                        type=limits, settable=True),
-    }
-
-    def doRead(self, maxage=0):
-        for _ in range(10):
-            # try to filter out 'half-broken' values
-            value = np.median([Sensor.doRead(self, maxage) for _ in range(3)])
-            # avoid fully broken values
-            if self.limits[0] <= value <= self.limits[1]:
-                return value
-            # at least warn (every retry!)
-            self.log.warning('Sensor value %s outside sensible range [%s..%s]',
-                             value, self.limits[0], self.limits[1])
-        # 10 times no good value -> error
-        raise PositionError('Sensor value %s outside sensible range [%s..%s]' %
-                            (value, self.limits[0], self.limits[1]))
 
 
 class BeamStopAxis(Axis):
