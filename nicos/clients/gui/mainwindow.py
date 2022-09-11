@@ -113,13 +113,6 @@ class MainWindow(DlgUtils, QMainWindow):
         icon.addFile(':/appicon-48')
         self.setWindowIcon(icon)
 
-        if tunnel and SSHTunnelForwarder is None:
-            self.showError('You want to establish a connection to NICOS via '
-                           "a SSH tunnel, but the 'sshtunnel' module is not "
-                           'installed. The tunneling feature will disabled.')
-        self.tunnel = tunnel if SSHTunnelForwarder is not None else ''
-        self.tunnelServer = None
-
         # hide admin label until we are connected as admin
         self.adminLabel.hide()
 
@@ -192,6 +185,14 @@ class MainWindow(DlgUtils, QMainWindow):
         self.instrument = self.gui_conf.name
 
         self.createWindowContent()
+
+        if tunnel and SSHTunnelForwarder is None:
+            self.showError('You want to establish a connection to NICOS via '
+                           "a SSH tunnel, but the 'sshtunnel' module is not "
+                           'installed. The tunneling feature will disabled.')
+        if tunnel:
+            self.tunnel = tunnel if SSHTunnelForwarder is not None else ''
+        self.tunnelServer = None
 
         # timer for reconnecting
         self.reconnectTimer = QTimer(singleShot=True, timeout=self._reconnect)
@@ -397,6 +398,7 @@ class MainWindow(DlgUtils, QMainWindow):
         self.autoreconnect = settings.value('autoreconnect', True, bool)
         self.autosavelayout = settings.value('autosavelayout', True, bool)
         self.allowoutputlinewrap = settings.value('allowoutputlinewrap', False, bool)
+        self.tunnel = settings.value('tunnel', '')
 
         self.update()
 
@@ -426,6 +428,7 @@ class MainWindow(DlgUtils, QMainWindow):
         settings.setValue('lastpreset', self.lastpreset)
         settings.setValue('font', self.user_font)
         settings.setValue('color', self.user_color)
+        settings.setValue('tunnel', self.tunnel)
 
     def closeEvent(self, event):
         if self.confirmexit and QMessageBox.question(
