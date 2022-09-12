@@ -61,7 +61,7 @@ devices = dict(
     ),
     hv_mon_current = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'Monitor high voltage current',
-        device = 'hv_det',
+        device = 'hv_mon',
         parameter = 'current',
     ),
     histogram = device('nicos_mlz.devices.qmesydaqsinks.HistogramSink',
