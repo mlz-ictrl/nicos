@@ -589,6 +589,7 @@ class SetOfWidget(QWidget):
             checkbox.stateChanged.connect(self.on_checkbox_stateChanged)
             layout.addWidget(checkbox)
             self.checkboxes.append(checkbox)
+            self.values.append(value)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
