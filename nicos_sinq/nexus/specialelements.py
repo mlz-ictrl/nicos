@@ -33,7 +33,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core.device import Readable
-from nicos.core.errors import ConfigurationError, NicosError
+from nicos.core.errors import ConfigurationError
 from nicos.nexus.elements import DeviceDataset, NexusElementBase, \
     NexusSampleEnv, NXAttribute
 
@@ -267,10 +267,10 @@ class EnvDeviceDataset(DeviceDataset):
             # can happen, when we cannot find the device on creation
             return
         dset = h5parent[name]
-        for dev in sinkhandler.dataset.devices + \
-                sinkhandler.dataset.environment:
+        dataset = sinkhandler.dataset
+        for dev, value in zip(dataset.devices + dataset.environment,
+                              dataset.devvaluelist + dataset.envvaluelist):
             if dev.name == self.device:
-                value = dev.read()
                 if self.doAppend:
                     self.resize_dataset(dset)
                     dset[self.np] = value
@@ -301,7 +301,7 @@ class OutSampleEnv(NexusSampleEnv):
 
     def updatelog(self, h5parent, dataset):
         current_time = time.time()
-        for devidx, dev in enumerate(dataset.environment):
+        for dev, val in zip(dataset.environment, dataset.envvaluelist):
             if not isinstance(dev, Readable) or not self.isValidDevice(dev):
                 continue
             logname = dev.name
@@ -309,7 +309,6 @@ class OutSampleEnv(NexusSampleEnv):
                 logname += self._postfix
             loggroup = h5parent[logname]
             dset = loggroup['value']
-            val = dataset.envvaluelist[devidx]
             if val is None:
                 return
             idx = len(dset)
@@ -424,22 +423,19 @@ class ScanSampleEnv(NexusElementBase):
         NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
-        for dev in sinkhandler.dataset.environment:
+        for dev, inf in zip(sinkhandler.dataset.environment,
+                            sinkhandler.dataset.envvalueinfo):
             # Prevent duplicate creations
             if dev.name not in h5parent:
                 dset = h5parent.create_dataset(dev.name, (1,),
                                                maxshape=(None,), dtype=float)
-                try:
-                    inf = session.getDevice(dev.name).info()
-                    dset.attrs['units'] = np.string_(inf[0][3])
-                except NicosError:
-                    pass
+                dset.attrs['units'] = np.string_(inf.unit)
                 self._managed_devices.append(dev.name)
 
     def results(self, name, h5parent, sinkhandler, results):
-        for dev in sinkhandler.dataset.environment:
+        for dev, value in zip(sinkhandler.dataset.environment,
+                              sinkhandler.dataset.envvaluelist):
             if dev.name in self._managed_devices:
                 dset = h5parent[dev.name]
-                value = dev.read()
                 self.resize_dataset(dset)
                 dset[self.np] = value
