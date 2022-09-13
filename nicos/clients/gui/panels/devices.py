@@ -691,7 +691,7 @@ class DevicesPanel(Panel):
             all_children_hidden = True
             for j in range(setupitem.childCount()):
                 devitem = setupitem.child(j)
-                if rx.match(devitem.text(0)).hasMatch():
+                if not rx.match(devitem.text(0)).hasMatch():
                     devitem.setHidden(True)
                 else:
                     devitem.setHidden(False)
