@@ -31,10 +31,10 @@ import numpy as np
 
 try:
     from scipy import constants
-    h = constants.value('Planck constant')
-    mn = constants.value('neutron mass')
-    e = constants.value('elementary charge')
-    hbar = constants.value('Planck constant over 2 pi')
+    h = constants.Planck
+    mn = constants.neutron_mass
+    e = constants.elementary_charge
+    hbar = constants.hbar
 except ImportError:
     h = 6.62606896e-34                  # Planck constant [Js]
     mn = 1.674927211e-27                # Neutron mass [kg]
