@@ -191,7 +191,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
                 if not isinstance(value, str):
                     # Policy decision: don't send strings via f142
                     buffer = to_f142(name, value, status, timestamp)
-                    self._send_to_kafka(buffer)
+                    self._send_to_kafka(buffer, name)
             except Exception as error:
                 self.log.error('Could not forward data: %s', error)
             self._queue.task_done()
@@ -199,6 +199,6 @@ class CacheKafkaForwarder(ForwarderBase, Device):
     def doShutdown(self):
         self._producer.close()
 
-    def _send_to_kafka(self, buffer):
-        self._producer.send(self.output_topic, buffer)
+    def _send_to_kafka(self, buffer, name):
+        self._producer.send(self.output_topic, buffer, key=name.encode('utf-8'))
         self._producer.flush(timeout=3)
