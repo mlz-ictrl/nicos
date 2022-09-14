@@ -51,7 +51,10 @@ session = Session()
 
 
 def get_custom_version():
-    return get_git_version(cwd=config.setup_package_path)
+    try:
+        return get_git_version(cwd=config.setup_package_path)
+    except RuntimeError:
+        return None
 
 
 try:
