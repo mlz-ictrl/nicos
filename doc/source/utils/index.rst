@@ -1,9 +1,18 @@
-Utility functions
+Generic Utilities
 =================
 
 .. currentmodule:: nicos.utils
 
-The :mod:`nicos.utils` contains a collection of general use utility classes:
+
+.. warning::
+   When adding new functions or classes to :mod:`nicos.utils`, be aware that this
+   module shall be kept independent from the  rest of nicos to allow early importing.
+   This specifcally means that you can not use NICS exceptions( :mod:`nicos.core.exceptions`),
+   the NICOS session (`nicos.session`) or NICOS logging functions. If you require such
+   functionality :mod:`nicos.core.utils` is the appropriate place.
+
+Utility classes in :mod:`nicos.utils`
+-------------------------------------
 
 .. autoclass:: AutoDefaultODict
 
@@ -29,7 +38,8 @@ The :mod:`nicos.utils` contains a collection of general use utility classes:
 
 .. autoclass:: readonlylist
 
-The :mod:`nicos.utils` contains a collection of general use utility functions:
+Generic utility function in :mod:`nicos.utils`
+----------------------------------------------
 
 .. autofunction:: allDays
 
@@ -159,8 +169,3 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 
 
-When adding new functions or classes to :mod:`nicos.utils`, be aware that this
-module shall be kept independent from the  rest of nicos to allow early importing.
-This specifcally means that you can not use NICS exceptions( :mod:`nicos.core.exceptions`),
-the NICOS session (`nicos.session`) or NICOS logging functions. If you require such
-functionality :mod:`nicos.core.utils` is the appropriate place.
