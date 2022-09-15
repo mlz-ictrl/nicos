@@ -130,9 +130,10 @@ class TransformedReadable(Readable):
     """Base class for all read-only value-transformed devices.
 
     Subclasses need to define their attached devices and implement a
-    `_readRaw()` method, returning (raw) device values.
-    The transformation should be done in the `_mapReadValue()` function that is
-    required to be implemented.
+    :meth:`._readRaw()` method, returning (raw) device
+    values.
+    The transformation should be done in the :meth:`._mapReadValue()`
+    function that is required to be implemented.
 
     .. automethod:: _readRaw
 
@@ -145,7 +146,7 @@ class TransformedReadable(Readable):
     def _mapReadValue(self, value):
         """Hook for integration of transformed devices.
 
-        This method is called with the value returned by `._readRaw()` and
+        This method is called with the value returned by :meth:`._readRaw()` and
         should map the raw value to the transformed value.
         """
         raise ProgrammingError(self, 'Somebody please implement a proper '
@@ -163,10 +164,13 @@ class TransformedReadable(Readable):
 class TransformedMoveable(TransformedReadable, Moveable):
     """Base class for all moveable value-transformed devices
 
-    Subclasses need to define their attached devices and implement `._readRaw()`
-    and `._startRaw()`, operating on raw values.
-    The `_mapTargetValue()` is needed and should do the equivalent of the inverse
-    `_mapReadValue()` function (or whatever is appropriate for the device).
+    Subclasses need to define their attached devices and implement
+    :meth:`._readRaw() <TransformedReadable._readRaw()>`
+    and :meth:`._startRaw()`, operating on raw values.
+    The :meth:`._mapTargetValue()` is needed and should do the
+    equivalent of the inverse
+    :meth:`._mapReadValue() <TransformedReadable._mapReadValue()>`
+    function (or whatever is appropriate for the device).
 
     .. automethod:: _startRaw
 
@@ -179,7 +183,7 @@ class TransformedMoveable(TransformedReadable, Moveable):
     def _mapTargetValue(self, target):
         """Hook for integration of transformed devices.
 
-        This method is called to get a value to pass to `._startRaw()` and
+        This method is called to get a value to pass to :meth:`.startRaw()` and
         should map the target value to a raw value.
         """
         raise ProgrammingError(self, 'Somebody please implement a proper '
@@ -203,9 +207,10 @@ class MappedReadable(HasMapping, TransformedReadable):
     (also called selector or multiplexer/mux).
 
     Subclasses need to define their attached devices and implement a
-    `_readRaw()` method, returning (raw) device values.  Subclasses should also
-    implement a `.doStatus()`.  Subclasses reimplementing `.doInit()` need to
-    call this class' `.doInit()`.
+    :meth:`._readRaw() <MappedReadable._readRaw()>` method, returning (raw) device values.
+    Subclasses should also implement a :meth:`.doStatus()`.
+    Subclasses reimplementing :meth:`.doInit()` need to
+    call this class' :meth:`.doInit() <MappedReadable.doInit()>`.
 
     .. automethod:: _readRaw
 
@@ -257,10 +262,12 @@ class MappedReadable(HasMapping, TransformedReadable):
 class MappedMoveable(MappedReadable, TransformedMoveable):
     """Base class for all moveable (discrete) value-mapped devices
 
-    Subclasses need to define their attached devices and implement `._readRaw()`
-    and `._startRaw()`, operating on raw values.  Subclasses should also
-    implement a `.doStatus()`.  Subclasses reimplementing `.doInit()` need to
-    call this class' `.doInit()`.
+    Subclasses need to define their attached devices and implement
+    :meth:`.readRaw() <MappedReadable._readRaw()>`
+    and :meth:`.startRaw() <MappedMoveable._startRaw()>`, operating on raw values.
+    Subclasses should also implement a :meth:`.doStatus()`.
+    Subclasses reimplementing :meth:`.doInit()` need to    call this class'
+    :meth:`.doInit() <MappedMoveable.doInit()>`.
 
     .. automethod:: _startRaw
 

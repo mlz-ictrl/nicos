@@ -1732,7 +1732,7 @@ class Moveable(Waitable):
            :meth:`stop` will try to stop all attached_devices, if any.
            Otherwise this is a no-op.
 
-        The `stop` method will return the device status after stopping.
+        The :meth:`stop` method will return the device status after stopping.
         """
         if self._mode == SLAVE:
             raise ModeError(self, 'stop not possible in slave mode')
@@ -1871,7 +1871,7 @@ class Measurable(Waitable):
            If the dictionary is empty the detector should use its previous
            preset.
 
-           The `presetInfo` method is called to determine the presets that the
+           The :meth:`presetInfo` method is called to determine the presets that the
            class supports.
         """
         if self._sim_intercept:
@@ -1912,8 +1912,10 @@ class Measurable(Waitable):
         """Hook called during measurement.
 
         This can be overridden in subclasses to perform some periodic action
-        while measuring.  The hook is called by `.count` for every detector in
-        a loop.  The *elapsed* argument is the time elapsed since the detector
+        while measuring.  The hook is called by
+        :meth:`nicos.commands.measure.count` for every detector in a loop.
+
+        The *elapsed* argument is the time elapsed since the detector
         was started.
 
         If the hook returns a data quality value from ``nicos.core.data``,
@@ -1995,8 +1997,9 @@ class Measurable(Waitable):
 
         This operation is forbidden in slave mode.
 
-        Called by `.count` if an exception occurs, or if the user calls the
-        `stop()` command (possibly by using the immediate stop button).
+        Called by :meth:`nicos.command.measure.count` if an exception occurs,
+        or if the user calls the :meth:`stop()` command (possibly by using the
+        immediate stop button).
 
         .. method:: doStop()
 
