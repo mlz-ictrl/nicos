@@ -32,14 +32,14 @@ from os import path
 from nicos import session
 from nicos.commands import basic, device, helparglist, measure, usercommand
 from nicos.core.constants import SCAN
+from nicos.devices.datasinks.tiff import TIFFImageSink
 
-from nicos_jcns.devices.pilatus_det import Detector as PilatusDetector, \
-    TIFFImageSink as PilatusSink
-from nicos_jcns.galaxi.devices.mythen_det import ImageSink as MythenSink
+from nicos_jcns.devices.dectris import Detector2D as DECTRIS2DDetector, \
+    FileSink as DECTRIS2DFileSink, MYTHENImageSink
 
 
 @usercommand
-@helparglist('proposal, title, localcontact, ...')
+@helparglist('proposal, [title, localcontact, user, ...]')
 def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
     """Start a new experiment with the given proposal number and title.
 
@@ -50,6 +50,8 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
 
     When configured, proposal information will be automatically filled in from
     the proposal database.
+
+    see also: `FinishExperiment`
     """
     if user:
         voice_output = session.getDevice('voice_output')
@@ -61,8 +63,8 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
 @usercommand
 @helparglist('num_counts, [detectors], [presets]')
 def count(n, *detlist, **presets):
-    """Perform **n** counts while the TIFF image filename of the DECTRIS
-    Pilatus detector will be set to a temporary value that remains unchanged
+    """Perform **n** counts while the image filename of the currently active
+    DECTRIS detectors will be set to a temporary value that remains unchanged
     during execution of this command.
 
     With preset arguments, this preset is used instead of the default preset.
@@ -75,8 +77,8 @@ def count(n, *detlist, **presets):
     >>> # count 100 times without changing presets
     >>> count(100)
     >>>
-    >>> # count 10 times and set the temporary filename to 'tmp.tif'
-    >>> count(10, filename='tmp.tif')
+    >>> # count 10 times and set the temporary filename to 'tmp'
+    >>> count(10, filename='tmp')
     >>>
     >>> # count once with time preset of 10 seconds
     >>> count(1, t=10)
@@ -84,19 +86,19 @@ def count(n, *detlist, **presets):
     Within a manual scan, this command is also used to perform the count as one
     point of the manual scan.
     """
-    filename = presets.pop('filename', 'tmpcount.tif')
+    filename = presets.pop('filename', 'tmpcount')
     galaxi_sinks = {sink: sink.settypes for sink in session.datasinks
-                    if isinstance(sink, (MythenSink, PilatusSink))}
+                    if isinstance(sink, (MYTHENImageSink, DECTRIS2DFileSink,
+                                         TIFFImageSink))}
     try:
         for sink in galaxi_sinks:
-            # deactivate during count
-            sink._setROParam('settypes', [SCAN])
+            sink._setROParam('settypes', [SCAN])  # deactivate during count
         for _ in range(n):
             for det in session.experiment.detectors:
-                if isinstance(det, PilatusDetector):
-                    det.imagedir = path.join(str(datetime.now().year),
-                                             session.experiment.proposal)
-                    det.nextfilename = filename
+                if isinstance(det, DECTRIS2DDetector):
+                    det.nextimagepath = path.join(str(datetime.now().year),
+                                                  session.experiment.proposal,
+                                                  filename)
             measure.count(*detlist, **presets)
             session.breakpoint(2)  # allow daemon to stop here
     finally:
@@ -105,16 +107,16 @@ def count(n, *detlist, **presets):
 
 
 @usercommand
-@helparglist('radiation | (xray, threshold), [wait]')
-def SetDetectorEnergy(radiation=None, **value):
-    """For all default detectors set with `SetDetectors()` either load the
-    predefined settings for that are suitable for usage with silver, chromium,
-    copper, iron or molybdenum radiation or set the x-ray and threshold energy
-    to any other appropriate values.
+@helparglist('element | (photon_energy, threshold_energy), [wait]')
+def SetDetectorEnergy(element=None, **value):
+    """For all default detectors in ``session.experiment.detectors`` either set
+    the energy parameters to the K-alpha fluorescence radiation energy of an
+    element or set the photon and threshold energy to any other appropriate
+    values.
 
     The following keyword arguments are accepted:
 
-      * *xray* -- x-ray energy in kilo electron volt
+      * *photon* -- photon energy in kilo electron volt
       * *threshold* -- threshold energy in kilo electron volt
       * *wait* -- whether the command should wait until all detectors
         completed the parameter update (defaults to `True`)
@@ -125,19 +127,19 @@ def SetDetectorEnergy(radiation=None, **value):
     >>> SetDetectorEnergy('Cu')
     >>>
     >>> # set energy values explicitly
-    >>> SetDetectorEnergy(xray= 9.243, threshold= 8.0)
+    >>> SetDetectorEnergy(photon=9.243, threshold=8.0)
     >>>
     >>> # load predefined settings for silver radiation and return immediately
     >>> SetDetectorEnergy('Ag', wait=False)
     """
     wait = value.pop('wait', True)
     configured = []
-    for det in session.experiment.detectors:
-        if hasattr(det, '_channels'):
-            for ch in det._channels:
-                if hasattr(ch, 'setEnergy'):
-                    configured.append(det)
-                    ch.setEnergy(radiation, **value)
-                    break  # maximum one channel per detector can set energy
+    for det_name in session.experiment.detectors:
+        det = session.getDevice(det_name)
+        if hasattr(det, 'setEnergy'):
+            det.setEnergy(element, **value)
+            configured.append(det)
     if wait:
         device.wait(*configured)
+        for det in configured:
+            det.poll()  # show updated energy value

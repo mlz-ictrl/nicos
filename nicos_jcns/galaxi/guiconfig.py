@@ -26,8 +26,11 @@ main_window = tabbed(
         ('NICOS devices', panel(
             'nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
             dockpos='right', param_display={
-                'pilatus': ['diskspace', 'filename', 'imagedir'],
-                'pilatus_config': 'energy',
+                'pilatus': ['diskspace', 'energy', 'filename', 'humidity',
+                          'imagedir', 'temperature'],
+                'eiger': ['diskspace', 'energy', 'filename', 'humidity',
+                          'imagedir', 'temperature'],
+                'mythen': 'energy',
             },
         )),
     )),

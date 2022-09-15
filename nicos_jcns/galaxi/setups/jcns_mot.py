@@ -6,7 +6,7 @@ s7_motor = tango_base + 's7_motor/'
 
 devices = dict(
     detz = device('nicos.devices.entangle.MotorAxis',
-        description = 'Pilatus detector Z axis.',
+        description = 'PILATUS detector Z axis.',
         tangodevice = s7_motor + 'detz',
         precision = 0.01,
     ),
