@@ -157,9 +157,7 @@ class LiveViewSinkHandler(DataSinkHandler):
         return 1
 
     def putResults(self, quality, results):
-        if self.detector.name not in results:
-            return
-        result = results[self.detector.name]
+        result = results.get(self.detector.name)
         if result is None:
             return
 
