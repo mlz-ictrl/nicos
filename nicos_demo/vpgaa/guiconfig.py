@@ -55,7 +55,7 @@ windows = [
                  filetypes=['fits'],),
            setups='tomo'),
     window('Live data', 'live',
-           panel('nicos_mlz.pgaa.gui.panels.live.LiveDataPanel',
+           panel('nicos_mlz.pgaa.gui.panels.live.LiveDataPanel'),
            setups='not tomo'),
 ]
 
