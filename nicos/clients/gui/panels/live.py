@@ -751,6 +751,7 @@ class LiveDataPanel(Panel):
                 and params['det'] not in self._allowed_detectors:
             return
 
+        self._applyPlotSettings(params)
         if params['tag'] == LIVE:
             datacount = len(params['datadescs'])
             self.setLiveItems(datacount)
@@ -764,7 +765,6 @@ class LiveDataPanel(Panel):
                 self._process_livedata(params, [], 0)
         elif params['tag'] == FILE:
             self._process_filenames(params)
-        self._applyPlotSettings(params)
 
     def getDefaultLabels(self, size):
         return numpy.arange(size)
@@ -962,8 +962,8 @@ class LiveDataPanel(Panel):
 
         # if multiple datasets have to be displayed in one widget, they have
         # the same dimensions, so we only need the dimensions of one set
-        self.setData(arrays, labels, titles)
         self._applyPlotSettings(params)
+        self.setData(arrays, labels, titles)
 
     def remove_obsolete_cached_files(self):
         """Remove or flag items which are no longer cached.
