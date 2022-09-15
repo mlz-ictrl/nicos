@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Classes to simulate the DSpec detector."""
 
-from nicos.core import Override, Param, intrange, status, tupleof
+from nicos.core import ArrayDesc, Override, Param, intrange, status, tupleof
 from nicos.devices.generic.detector import GatedDetector
 from nicos.devices.generic.virtual import VirtualImage
 
@@ -44,6 +44,9 @@ class Spectrum(VirtualImage):
     # set to True to get a simplified doEstimateTime
     is_timer = False
 
+    def doInit(self, mode):
+        self.arraydesc = ArrayDesc(self.name, self.size[::-2], '<u4')
+
     def doEstimateTime(self, elapsed):
         if not self.iscontroller or self.doStatus()[0] != status.BUSY:
             return None
@@ -57,7 +60,9 @@ class Spectrum(VirtualImage):
                     return (self.preselection - counted) * elapsed / counted
 
     def doReadArray(self, _quality):
-        return self._buf[0]
+        if self._buf is not None:
+            return self._buf[0]
+        return self._buf
 
 
 class DSPec(GatedDetector):
@@ -81,63 +86,26 @@ class DSPec(GatedDetector):
 
     def _presetiter(self):
         for k in ('info', 'Filename'):
-            yield k, None
+            yield k, None, None
         for dev in self._attached_timers:
             if dev.name == 'truetim':
-                yield 'TrueTime', dev
+                yield 'TrueTime', dev, 'time'
             elif dev.name == 'livetim':
-                yield 'LiveTime', dev
+                yield 'LiveTime', dev, 'time'
             elif dev.name == 'clocktim':
-                yield 'ClockTime', dev
+                yield 'ClockTime', dev, 'time'
         for dev in self._attached_images:
-            yield 'counts', dev
-
-    def _clear(self):
-        self._started = None
-        self._stop = None
-        self._preset = {}
-        self._lastread = None
-        self._read_cache = None
-        self._dont_stop_flag = False
-        self._comment = ''
-        self._name_ = ''
-
-    def doReset(self):
-        self._clear()
-        GatedDetector.doReset(self)
-
-    def doPreinit(self, mode):
-        GatedDetector.doPreinit(self, mode)
-        self._clear()
-
-    def doSetPreset(self, **preset):
-        self._clear()
-        for master in self._masters:
-            master.iscontroller = False
-        if 'TrueTime' in preset:
-            for d in self._attached_timers:
-                if d.name == 'truetim':
-                    d.iscontroller = True
-                    d.preselection = preset['TrueTime'] * 1
-        elif 'LiveTime' in preset:
-            for d in self._attached_timers:
-                if d.name == 'livetim':
-                    d.iscontroller = True
-                    d.preselection = preset['LiveTime'] * 1
-        elif 'ClockTime' in preset:
-            self._stop = preset['ClockTime']
-        elif 'counts' in preset:
-            for d in self._attached_images:
-                d.iscontroller = True
-                d.preselection = preset['counts']
-
-        self._preset = preset
-        for k in ('Filename',
-                  'LiveTime', 'TrueTime', 'ClockTime', 'counts'):
-            preset.pop(k, '')
-        self.log.debug('Preset keys: %r', self._presetkeys)
-        GatedDetector.doSetPreset(self, **preset)
+            yield 'counts', dev, 'counts'
 
     def presetInfo(self):
-        return {'info', 'Filename',
-                'TrueTime', 'LiveTime', 'ClockTime', 'counts'}
+        pinfo = {'info', 'Filename'}
+        for dev in self._attached_timers:
+            if dev.name == 'truetim':
+                pinfo = pinfo.union({'TrueTime'})
+            elif dev.name == 'livetim':
+                pinfo = pinfo.union({'LiveTime'})
+            elif dev.name == 'clocktim':
+                pinfo = pinfo.union({'ClockTime'})
+        if self._attached_images:
+            pinfo = pinfo.union({'counts'})
+        return pinfo
