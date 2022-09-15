@@ -5,7 +5,7 @@ sysconfig = dict(
     cache = 'tequila.pgaa.frm2',
     instrument = 'PGAA',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
     notifiers = ['email', 'smser'],
 )
 

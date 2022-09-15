@@ -20,3 +20,8 @@ devices = dict(
         unit = '',
     ),
 )
+
+startupcode = """
+if ellcol.read() is None:
+    ellcol.move('Col')
+"""
