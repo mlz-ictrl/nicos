@@ -147,14 +147,4 @@ tools = [
     tool('Emergency stop button',
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
-    tool('Maintenance commands',
-         'nicos.clients.gui.tools.commands.CommandsTool',
-         commands=[
-             ('TACO server control panel (beta)',
-              'SSH_ASKPASS=/usr/bin/ssh-askpass setsid /usr/bin/ssh -XY '
-              'maint@sans1hw.sans1.frm2 "source /etc/tacoenv.sh && '
-              'sudo /usr/bin/python /opt/tacocp/tacocp.py '
-              'sans1srv.sans1.frm2" && exit',
-             ),
-         ]),
 ]
