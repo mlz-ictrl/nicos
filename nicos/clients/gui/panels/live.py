@@ -796,6 +796,11 @@ class LiveDataPanel(Panel):
                 self._datacache[uid] = {}
             self._datacache[uid]['dataarrays'] = arrays
         if display:
+            if uid:
+                if titles is None:
+                    titles = self._datacache[uid].get('titles')
+                if labels is None:
+                    labels = self._datacache[uid].get('labels')
             self._initLiveWidget(arrays[0])
             for widget in self._get_all_widgets():
                 widget.setData(arrays, labels)
