@@ -128,6 +128,7 @@ def SetDetectorEnergy(element=None, **value):
     >>>
     >>> # set energy values explicitly
     >>> SetDetectorEnergy(photon=9.243, threshold=8.0)
+    >>> SetDetectorEnergy(photon=9.243, threshold=[8.0, 10.0])
     >>>
     >>> # load predefined settings for silver radiation and return immediately
     >>> SetDetectorEnergy('Ag', wait=False)

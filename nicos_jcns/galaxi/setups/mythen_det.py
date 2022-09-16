@@ -14,6 +14,11 @@ sysconfig = dict(datasinks = ['mythen_imagesink'])
 energy = dict(photon = 9.243, threshold = 8.0)
 
 devices = dict(
+    mythen_config = device('nicos_jcns.devices.dectris.ConfigurationChannel',
+        description = 'Configuration channel of the DECTRIS MYTHEN R 1K '
+        'detector.',
+        tangodevice = tango_base + 'configuration_channel',
+    ),
     mythen_image = device('nicos.devices.entangle.ImageChannel',
         description = 'Image channel of the DECTRIS MYTHEN R 1K detector.',
         tangodevice = tango_base + 'image_channel',
@@ -27,6 +32,7 @@ devices = dict(
         'diffractometer.',
         images = ['mythen_image'],
         timers = ['mythen_timer'],
+        others = ['mythen_config'],
     ),
     mythen_imagesink = device('nicos_jcns.devices.dectris.MYTHENImageSink',
         description = 'Saves image data of the MYTHEN detector in a text '

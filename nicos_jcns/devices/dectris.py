@@ -22,9 +22,10 @@
 #
 # *****************************************************************************
 
-from numpy import delete
 from os import path
 from time import time
+
+from numpy import delete
 
 from nicos import session
 from nicos.core.constants import FINAL
@@ -33,10 +34,10 @@ from nicos.core.device import Readable, requires
 from nicos.core.errors import InvalidValueError
 from nicos.core.mixins import DeviceMixinBase
 from nicos.core.params import Attach, Override, Param, anytype, dictof, \
-    dictwith, listof, oneof, none_or
+    dictwith, listof, none_or, oneof
 from nicos.core.status import BUSY, OK
 from nicos.core.utils import USER, usermethod
-from nicos.devices.datasinks import FileSink as BaseFileSink
+from nicos.devices.datasinks.file import FileSink as BaseFileSink
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.devices.generic.detector import Detector as GenericDetector, \
     PassiveChannel
@@ -134,26 +135,26 @@ class HasEnergy(DeviceMixinBase):
             self.energy = value
 
 
-class SupportsGatedMode(DeviceMixinBase):
-    """Mixin for DECTRIS detectors that can start measurements with a gate
-    signal.
+class Detector(GenericDetector):
+    """DECTRIS detector device.
+
+    Sets the configuration channel to allow access to various parameters and
+    determines the master detector during preparation for the next measurement.
     """
 
-    def doPrepare(self):
-        is_master = not ('pilatus' in session.devices and session.getDevice(
-            'pilatus') in session.experiment.detectors)
-        for dev in self._attached_timers:
-            dev.iscontroller = is_master
-        super().doPrepare()
-
-
-class Detector(GenericDetector):
-    """Detector that sets the configuration channel to allow access to
-    various parameters."""
+    has_gate = True
 
     def doPreinit(self, mode):
         super().doPreinit(mode)
         self._cfg_channel = self._attached_others[0]._dev
+
+    def doPrepare(self):
+        # first detector in detector list is master
+        first_det = session.experiment.detectors[0]
+        is_master = not first_det.has_gate or self.name == first_det.name
+        for dev in self._attached_timers:
+            dev.doWriteIsmaster(is_master)
+        super().doPrepare()
 
 
 class Detector2D(Detector):
@@ -237,8 +238,6 @@ class Detector2D(Detector):
         return self._cfg_channel.temperature
 
 
-# TODO: test gated mode with pilatus detector as master
-# class EIGERDetector(HasEnergy, SupportsGatedMode, ImageDetector):
 class EIGERDetector(HasEnergy, Detector2D):
     """Generic detector that provides access to the image directory and
     filename as well as the disk space attributes of a `DECTRIS EIGER detector
@@ -278,15 +277,17 @@ class EIGERDetector(HasEnergy, Detector2D):
         :param dict[str, float or list[float]] value: {'photon': x,
           'threshold': y} or {'photon': x, 'threshold': [y, z]}
         """
-        if 'threshold' in value and isinstance(value['threshold'], float):
+        if 'threshold' in value and not isinstance(value['threshold'], list):
             value['threshold'] = [value['threshold']]
         super().setEnergy(element, **value)
 
 
-class MYTHENDetector(HasEnergy, SupportsGatedMode, Detector):
+class MYTHENDetector(HasEnergy, Detector):
     """Detector that allows to configure the energy parameters of the DECTRIS
     MYTHEN detector and start measurements with an external gate signal.
     """
+
+    has_gate = False
 
 
 # available crystallographic parameters and their conversion function

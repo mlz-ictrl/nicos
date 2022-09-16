@@ -8,7 +8,7 @@ display_order = 10
 
 includes = ['absorber', 'jcns_io', 'jcns_mot', 'pindiodes']
 
-tango_base = 'tango://phys.galaxi.jcns.fz-juelich.de:10000/galaxi/'
+tango_base = 'tango://phys.galaxi.jcns.fz-juelich.de:10000/galaxi/pilatus_det/'
 
 sysconfig = dict(datasinks = ['pilatus_filesink'])
 
@@ -19,15 +19,15 @@ devices = dict(
     pilatus_config = device('nicos_jcns.devices.dectris.ConfigurationChannel',
         description = 'Configuration channel of the DECTRIS PILATUS2 R 1M '
         'detector.',
-        tangodevice = tango_base + 'pilatus_det/configuration',
+        tangodevice = tango_base + 'configuration_channel',
     ),
     pilatus_image = device('nicos.devices.entangle.ImageChannel',
         description = 'Image channel of the DECTRIS PILATUS2 R 1M detector.',
-        tangodevice = tango_base + 'pilatus_det/image_channel',
+        tangodevice = tango_base + 'image_channel',
     ),
     pilatus_timer = device('nicos.devices.entangle.TimerChannel',
         description = 'Timer channel of the DECTRIS PILATUS2 R 1M detector.',
-        tangodevice = tango_base + 'pilatus_det/timer_channel',
+        tangodevice = tango_base + 'timer_channel',
     ),
     pilatus = device('nicos_jcns.devices.dectris.PILATUSDetector',
         description = 'DECTRIS PILATUS2 R 1M detector at the GALAXI '
