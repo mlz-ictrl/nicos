@@ -56,8 +56,13 @@ windows = [
            setups='tomo'),
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                 xscale='decimal',),
-           setups='not tomo'),
+                 xscale='decimal'),
+           setups='not (tomo or pgaa)'),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                 xscale='decimal',
+                 filetypes=['chn'],),
+           setups='pgaa'),
 ]
 
 tools = [
@@ -78,3 +83,7 @@ tools = [
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
 ]
+
+options = {
+    'reader_classes': ['nicos_mlz.pgaa.devices.datasinks.CHNFileReader'],
+}

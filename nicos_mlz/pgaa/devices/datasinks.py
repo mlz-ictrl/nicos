@@ -24,11 +24,14 @@
 
 """PGAA specific data sink(s)."""
 
+import struct
 from array import array
 from csv import DictWriter
 from datetime import datetime
 from io import FileIO, TextIOWrapper
 from os import path
+
+import numpy as np
 
 from nicos import session
 from nicos.core import Override, Param
@@ -36,6 +39,7 @@ from nicos.core.constants import FINAL, POINT
 from nicos.core.data.sink import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
+from nicos.devices.datasinks.image import ImageFileReader
 from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
 from nicos.utils import enableDisableFileItem
@@ -240,6 +244,31 @@ class CHNSinkHandler(SinkHandler):
                     data.tofile(f)
         except OSError:
             pass
+
+
+class CHNFileReader(ImageFileReader):
+
+    filetypes = [('chn', 'ORTEC CHN Integer Data File (*.chn)')]
+
+    @classmethod
+    def fromfile(cls, filename):
+        with open(filename, 'rb') as f:
+            # pylint: disable=unused-variable
+            version = struct.unpack('h', f.read(2))[0]
+            detnumber = struct.unpack('h', f.read(2))[0]
+            segmentnumber = struct.unpack('h', f.read(2))[0]
+            seconds = f.read(2).decode()
+            truetime = struct.unpack('I', f.read(4))[0]
+            livetime = struct.unpack('I', f.read(4))[0]
+            startdate = f.read(8).decode()
+            starttime = f.read(4).decode()
+            channeloffset = struct.unpack('h', f.read(2))[0]
+            # pylint: enable=unused-variable
+            numchannels = struct.unpack('h', f.read(2))[0]
+            spectrum = np.zeros(numchannels, '<i4')
+            for i in range(numchannels):
+                spectrum[i] = struct.unpack('I', f.read(4))[0]
+        return spectrum
 
 
 class Sink(FileSink):

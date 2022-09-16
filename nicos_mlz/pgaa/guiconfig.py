@@ -58,9 +58,14 @@ windows = [
                  filetypes=['fits'],),
            setups='tomo'),
     window('Live data', 'live',
-           panel('nicos.clients.gui.panels.live.LiveDataPanel'
-                 xscale='decimal',),
-           setups='not tomo'),
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                 xscale='decimal',
+                 filetypes=['chn'],),
+           setups='pgaa'),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                 xscale='decimal'),
+           setups='not (tomo or pgaa)'),
 ]
 
 tools = [
