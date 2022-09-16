@@ -35,11 +35,11 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Override, Param
-from nicos.core.constants import FINAL, POINT
+from nicos.core.constants import POINT
 from nicos.core.data.sink import DataSinkHandler
-from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
-from nicos.devices.datasinks.image import ImageFileReader
+from nicos.devices.datasinks.image import ImageFileReader, \
+    SingleFileSinkHandler
 from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
 from nicos.utils import enableDisableFileItem
@@ -47,7 +47,7 @@ from nicos.utils import enableDisableFileItem
 __all__ = ('MCASink', 'CHNSink', 'CSVDataSink', 'LiveViewSink')
 
 
-class SinkHandler(DataSinkHandler):
+class SinkHandler(SingleFileSinkHandler):
     """Base data sink handler for the PGAA files."""
 
     atts = {
@@ -61,76 +61,62 @@ class SinkHandler(DataSinkHandler):
         1.6: ('in', 'in', 'in'),
     }
 
+    defer_file_creation = True
+
+    accecpt_final_images_only = True
+
     def __init__(self, sink, dataset, detector):
-        DataSinkHandler.__init__(self, sink, dataset, detector)
-        self._counters = {}
-        self._template = sink.filenametemplate
+        SingleFileSinkHandler.__init__(self, sink, dataset, detector)
 
-    def prepare(self):
-        self.manager.assignCounter(self.dataset)
-        # save the counters since the counters are lost in 'end' but needed for
-        # filename creation
-        self._counters = self.manager.getCounters()
+    def _createFile(self, **kwargs):
+        if self._file is None:
+            self.manager.assignCounter(self.dataset)
+            addinfo = self._addinfo.copy()
+            addinfo.update(self.manager.getCounters())
+            templates = [t + '%s%s' % (path.extsep, self.filetype)
+                         for t in self.sink.filenametemplate]
+            self._file = self.manager.createDataFile(
+                self.dataset, templates, self.sink.subdir,
+                fileclass=self.fileclass, filemode=self.sink.filemode,
+                logger=self.sink.log, additionalinfo=addinfo)
+        return self._file
 
-    def _createFile(self, ext, **kwargs):
-        templates = [t + '%s%s' % (path.extsep, ext) for t in self._template]
-        _file = self.manager.createDataFile(
-            self.dataset, templates, self.sink.subdir,
-            additionalinfo=kwargs)
-        return _file
+    def putMetainfo(self, metainfo):
 
-    def putResults(self, quality, results):
-        if quality == FINAL:
-            self.log.debug('results: %r', results)
-            if self.detector.name in results:
-                self.results = results[self.detector.name]
+        def _value(dev):
+            return metainfo[dev, 'value'][0]
 
-    def _value(self, dev):
-        return self.dataset.metainfo[dev, 'value'][0]
-
-    def end(self):
-        if not self.sink.isActive(self.dataset):
-            return
-
-        self.log.debug('device value list: %r', self.dataset.devvaluelist)
-        self.log.debug('%r', self.dataset.envvaluelist)
-        self.log.debug('%r', self.dataset.detvaluelist)
-        self.log.debug('%r', self.dataset.detvalueinfo)
-        self.log.debug('type: %r', self.dataset.settype)
-
-        try:
-            spectrum = self.results[1][0].tolist()
-            for i, vi in enumerate(self.detector.valueInfo()):
-                if vi.name == 'truetim':
-                    truetime = self.results[0][i]
-                elif vi.name == 'livetim':
-                    livetime = self.results[0][i]
-            ecalintercept = float(self.detector.ecalintercept)
-            ecalslope = float(self.detector.ecalslope)
-        except NicosError:
-            self.log.warning('error saving spectrum data ')
-            return
-
-        addinfo = self._counters.copy()
-        addinfo.update(self.dataset.preset)
+        self._addinfo = self.dataset.preset.copy()
         code = ''
-        for i, item in enumerate(self.atts[self._value('att')]):
+        for i, item in enumerate(self.atts[_value('att')]):
             code += '%d' % (i + 1) if item == 'in' else ''
-        addinfo['Attenuator'] = code
-        addinfo['ElCol'] = self._value('ellcol')[:1]
-        addinfo['Beam'] = 'O' if self.dataset.metainfo[
-            self.detector.name, 'enablevalues'][0][0] == 'closed' else ''
-        addinfo['Vacuum'] = 'V' if self._value('chamber_pressure') < 10. else ''
-        addinfo['Prefix'] = self.detector.prefix
-        addinfo['Pos'] = self.dataset.metainfo.get(('sc', 'value'), [0])[0]
-        addinfo['Name'] = self.dataset.metainfo['Sample', 'samplename'][0]
-        if 'Comment' not in addinfo:
-            addinfo['Comment'] = self.dataset.preset.get('info', '')
+        self._addinfo['Attenuator'] = code
+        self._addinfo['ElCol'] = _value('ellcol')[:1]
+        self._addinfo['Beam'] = 'O' if metainfo[
+                self.detector.name, 'enablevalues'][0][0] == 'closed' else ''
+        self._addinfo['Vacuum'] = \
+            'V' if _value('chamber_pressure') < 10. else ''
+        self._addinfo['Prefix'] = self.detector.prefix
+        self._addinfo['Pos'] = metainfo.get(('sc', 'value'), [0])[0]
+        self._addinfo['Name'] = metainfo['Sample', 'samplename'][0]
+        if 'Comment' not in self._addinfo:
+            self._addinfo['Comment'] = self.dataset.preset.get('info', '')
 
-        self._write_file(addinfo, livetime, truetime, spectrum, ecalslope,
-                         ecalintercept)
+    def writeData(self, fp, image):
+        spectrum = image.tolist()
+        for i, vi in enumerate(self.detector.valueInfo()):
+            if vi.name == 'truetim':
+                truetime = self.dataset.detvaluelist[i]
+            elif vi.name == 'livetim':
+                livetime = self.dataset.detvaluelist[i]
 
-    def _write_file(self, addinfo, livetime, truetime, spectrum, ecalslope,
+        ecalintercept = float(self.detector.ecalintercept)
+        ecalslope = float(self.detector.ecalslope)
+
+        self._write_file(self._file, self._addinfo, livetime, truetime,
+                         spectrum, ecalslope, ecalintercept)
+
+    def _write_file(self, fp, addinfo, livetime, truetime, spectrum, ecalslope,
                     ecalintercept):
         raise NotImplementedError('Implement "_write_file" in subclasses.')
 
@@ -138,7 +124,9 @@ class SinkHandler(DataSinkHandler):
 class MCASinkHandler(SinkHandler):
     """Data sink handler for the Ortec MCA files."""
 
-    def _write_file(self, addinfo, livetime, truetime, spectrum, ecalslope,
+    filetype = 'mca'
+
+    def _write_file(self, fp, addinfo, livetime, truetime, spectrum, ecalslope,
                     ecalintercept):
         tb_time = array('i', [int(self.dataset.started)])
         tb_fill = array('h', [0, 0, 0])  # millitm, timezone, dstflag
@@ -165,7 +153,7 @@ class MCASinkHandler(SinkHandler):
             'b', '{:<26}'.format(addinfo.get('Name', '')[:26]).encode())
         mc_fill3 = array('h', [0])  # acq mode
         filler = array('h', [0 for _i in range(19)])  # filler
-        nchans = array('h', [16384])  # number of channels
+        nchans = array('h', [len(spectrum)])  # number of channels
         filedata = [mc_fill, mc_fill2, spectr_name, mc_fill3]
         filedata.extend(timeb)
         filedata.extend(elap)
@@ -175,22 +163,20 @@ class MCASinkHandler(SinkHandler):
         if spectrum:
             filedata.append(array('i', spectrum))
 
-        try:
-            with self._createFile('mca', **addinfo) as f:
-                self.log.debug('write mca file: %s', f.name)
-                for data in filedata:
-                    data.tofile(f)
-        except OSError:
-            pass
+        self.log.debug('write mca file: %s', fp.name)
+        for data in filedata:
+            data.tofile(fp)
 
 
 class CHNSinkHandler(SinkHandler):
     """Data sink handler for the channel data files."""
 
-    def _write_file(self, addinfo, livetime, truetime, spectrum, ecalslope,
+    filetype = 'chn'
+
+    def _write_file(self, fp, addinfo, livetime, truetime, spectrum, ecalslope,
                     ecalintercept):
         # header
-        mustbe = array('h', [-1])
+        version = array('h', [-1])
         detnumber = array('h', [1 if addinfo['Prefix'] == 'P' else 3])
         segmentnumber = array('h', [0])
         s = '{:2}'.format(
@@ -208,8 +194,8 @@ class CHNSinkHandler(SinkHandler):
         starttime = array('b', s.encode())
 
         channeloffset = array('h', [0])
-        numchannels = array('h', [16384])
-        filedata = [mustbe, detnumber, segmentnumber, seconds, truetime,
+        numchannels = array('h', [len(spectrum)])
+        filedata = [version, detnumber, segmentnumber, seconds, truetime,
                     livetime, startdate, starttime, channeloffset,
                     numchannels]
 
@@ -237,13 +223,9 @@ class CHNSinkHandler(SinkHandler):
                      reserved, detdesclen, detdesc, sampledesclen, sampledesc,
                      res2]
 
-        try:
-            with self._createFile('chn', **addinfo) as f:
-                self.log.debug('write chn file: %s', f.name)
-                for data in filedata:
-                    data.tofile(f)
-        except OSError:
-            pass
+        self.log.debug('write chn file: %s', fp.name)
+        for data in filedata:
+            data.tofile(fp)
 
 
 class CHNFileReader(ImageFileReader):
@@ -329,30 +311,29 @@ class CSVSinkHandler(DataSinkHandler):
 
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
-        self._counters = {}
+        self._metainfo = {}
         self._template = sink.filenametemplate
 
-    def prepare(self):
-        self.manager.assignCounter(self.dataset)
-        # save the counters since the counters are lost in 'end' but needed for
-        # filename creation
-        self._counters = self.manager.getCounters()
+    def putMetainfo(self, metainfo):
+        self._metainfo = metainfo.copy()
 
     def _value(self, dev):
-        return self.dataset.metainfo[dev, 'value'][0]
+        return self._metainfo[dev, 'value'][0]
 
     def end(self):
-        if self.sink.wasUsed(self.dataset):
+        if not self._metainfo or self.sink.wasUsed(self.dataset):
             return
 
-        self.sink._setROParam('filecount', self._counters.get('pointcounter',
-                                                              0))
-        addinfo = self._counters.copy()
+        self.manager.assignCounter(self.dataset)
+        counters = self.manager.getCounters()
+
+        self.sink._setROParam('filecount', counters.get('pointcounter', 0))
+        addinfo = counters.copy()
         addinfo.update(self.dataset.preset)
         addinfo['Attenuator'] = self._value('att')
         addinfo['ElCol'] = self._value('ellcol')
-        addinfo['Beam'] = self.dataset.metainfo[self.detector.name,
-                                                'enablevalues'][0][0]
+        addinfo['Beam'] = self._metainfo[self.detector.name,
+                                         'enablevalues'][0][0]
 
         for cond in ['LiveTime', 'TrueTime', 'ClockTime', 'counts']:
             if cond in self.dataset.preset:
@@ -366,8 +347,8 @@ class CSVSinkHandler(DataSinkHandler):
             self.dataset.started).strftime('%Y-%m-%d %H:%M:%S')
         addinfo['stopped'] = datetime.fromtimestamp(
             self.dataset.finished).strftime('%Y-%m-%d %H:%M:%S')
-        addinfo['Pos'] = self.dataset.metainfo.get(('sc', 'value'), [0])[0]
-        addinfo['Name'] = self.dataset.metainfo['Sample', 'samplename'][0]
+        addinfo['Pos'] = self._metainfo.get(('sc', 'value'), [0])[0]
+        addinfo['Name'] = self._metainfo['Sample', 'samplename'][0]
         if 'Comment' not in addinfo:
             addinfo['Comment'] = self.dataset.preset.get('info', '')
 
