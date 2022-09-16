@@ -114,7 +114,7 @@ _conditioncolumn = Column(
 
 _cores_array = []
 for index in range(1,5+1):
-    ele = 'core%d' % index
+    ele = 'chopper%d_temp' % index
     _r=[
         Field(name=ele, dev=ele, width=10),
         Field(name='pi', key='%s/pollinterval' % ele, width=6)
@@ -122,7 +122,7 @@ for index in range(1,5+1):
     _cores_array.append(BlockRow(*_r))
 
 _corescolumn = Column(
-    Block('cores',
+    Block('chopper motor core temp',
         _cores_array
     ),
 )
