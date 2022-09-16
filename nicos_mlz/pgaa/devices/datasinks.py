@@ -36,9 +36,11 @@ from nicos.core.constants import FINAL, POINT
 from nicos.core.data.sink import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
+from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
+    LiveViewSinkHandler as BaseLiveViewSinkHandler
 from nicos.utils import enableDisableFileItem
 
-__all__ = ('MCASink', 'CHNSink', 'CSVDataSink')
+__all__ = ('MCASink', 'CHNSink', 'CSVDataSink', 'LiveViewSink')
 
 
 class SinkHandler(DataSinkHandler):
@@ -415,3 +417,18 @@ class CSVDataSink(FileSink):
             return True
         self._setROParam('lastuid', str(dataset.uid))
         return False
+
+
+class LiveViewSinkHandler(BaseLiveViewSinkHandler):
+
+    def getLabelDescs(self, result):
+        return {
+            'x': {'define': 'classic', 'title': 'channel'},
+            'y': {'define': 'classic', 'title': 'counts'},
+        }
+
+
+class LiveViewSink(BaseLiveViewSink):
+    """A data sink that sends images to attached clients for live preview."""
+
+    handlerclass = LiveViewSinkHandler
