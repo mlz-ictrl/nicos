@@ -33,11 +33,11 @@ class DetectorDistance(Readable):
     """Calculate detector distance based on the detector tubes position"""
 
     attached_devices = {
-        'detectubes': Attach('Pilatus detector tubes', Readable, multiple=4)
+        'detectubes': Attach('PILATUS detector tubes', Readable, multiple=4)
     }
 
     parameters = {
-        'offset': Param('Minimum distance between Pilatus and sample',
+        'offset': Param('Minimum distance between PILATUS and sample',
                         type=int, settable=True),
         'tubelength': Param('List of tube length',
                             type=listof(int), settable=False,
