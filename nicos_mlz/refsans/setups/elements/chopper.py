@@ -47,7 +47,7 @@ devices = dict(
         chopper = 2,
         gear = 1,
         edge = 'closed',
-        reference = -18.05,
+        reference = 5.27,  # 2026-04-09 2023-04-06 5.27
     ),
     disc2_pos = device(code_base_chopper + 'ChopperDiscTranslation',
         description = 'position of chopper disc 2',
@@ -77,7 +77,7 @@ devices = dict(
         chopper = 3,
         gear = 1,
         edge = 'open',
-        reference = 23.85,
+        reference = 154.65,  # 2026-04-09 2023-02-28 10:26:01 23.85
     ),
     chopper4 = device(code_base_chopper + 'ChopperDisc',
         description = 'chopper4',
@@ -88,7 +88,7 @@ devices = dict(
         chopper = 4,
         gear = 1,
         edge = 'closed',
-        reference = 29.2,
+        reference = 136.51,  # 2026-04-09 2023-02-28 10:26:59 29.2
     ),
     chopper5 = device(code_base_chopper + 'ChopperDisc',
         description = 'chopper5',
@@ -99,7 +99,7 @@ devices = dict(
         chopper = 5,
         gear = 2,
         edge = 'open',
-        reference = 220.19,
+        reference = 105.43,  # 2026-04-09 2023-02-28 10:27:35 220.19
     ),
     chopper6 = device(code_base_chopper + 'ChopperDisc',
         description = 'chopper6',
@@ -110,6 +110,6 @@ devices = dict(
         chopper = 6,
         gear = 2,
         edge = 'closed',
-        reference = 129.7, #2021-04-23 07:06:24 Encoder homeRun 129.7,
+        reference = 14.94,  # 2026-04-09 2023-02-28 10:28:24 129.7
     ),
 )
