@@ -44,7 +44,8 @@ from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
 from nicos.utils import enableDisableFileItem
 
-__all__ = ('MCASink', 'CHNSink', 'CSVDataSink', 'LiveViewSink')
+__all__ = ('MCASink', 'MCAFileReader', 'CHNSink', 'CHNFileReader',
+           'CSVDataSink', 'LiveViewSink')
 
 
 class SinkHandler(SingleFileSinkHandler):
@@ -168,6 +169,21 @@ class MCASinkHandler(SinkHandler):
             data.tofile(fp)
 
 
+class MCAFileReader(ImageFileReader):
+
+    filetypes = [('mca', 'ORTEC MCA Data File (*.mca)')]
+
+    @classmethod
+    def fromfile(cls, filename):
+        with open(filename, 'rb') as f:
+            f.seek(126)
+            numchannels = struct.unpack('h', f.read(2))[0]
+            spectrum = np.zeros(numchannels, '<i4')
+            for i in range(numchannels):
+                spectrum[i] = struct.unpack('I', f.read(4))[0]
+            return spectrum
+
+
 class CHNSinkHandler(SinkHandler):
     """Data sink handler for the channel data files."""
 
@@ -235,22 +251,12 @@ class CHNFileReader(ImageFileReader):
     @classmethod
     def fromfile(cls, filename):
         with open(filename, 'rb') as f:
-            # pylint: disable=unused-variable
-            version = struct.unpack('h', f.read(2))[0]
-            detnumber = struct.unpack('h', f.read(2))[0]
-            segmentnumber = struct.unpack('h', f.read(2))[0]
-            seconds = f.read(2).decode()
-            truetime = struct.unpack('I', f.read(4))[0]
-            livetime = struct.unpack('I', f.read(4))[0]
-            startdate = f.read(8).decode()
-            starttime = f.read(4).decode()
-            channeloffset = struct.unpack('h', f.read(2))[0]
-            # pylint: enable=unused-variable
+            f.seek(30)
             numchannels = struct.unpack('h', f.read(2))[0]
             spectrum = np.zeros(numchannels, '<i4')
             for i in range(numchannels):
                 spectrum[i] = struct.unpack('I', f.read(4))[0]
-        return spectrum
+            return spectrum
 
 
 class Sink(FileSink):
