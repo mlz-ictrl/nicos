@@ -86,7 +86,7 @@ class DSPec(GatedDetector):
 
     def _presetiter(self):
         for k in ('info', 'Filename'):
-            yield k, None, None
+            yield k, None, 'other'
         for dev in self._attached_timers:
             if dev.name == 'truetim':
                 yield 'TrueTime', dev, 'time'

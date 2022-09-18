@@ -514,7 +514,7 @@ class Detector(Measurable):
         for dev in self._attached_images + self._attached_others:
             for preset in dev.presetInfo():
                 yield (preset, dev, 'counts')
-        yield ('live', None, None)
+        yield ('live', None, 'other')
 
     def doPreinit(self, mode):
         presetkeys = {}
@@ -557,8 +557,10 @@ class Detector(Measurable):
             controller.iscontroller = False
         self._channel_presets = {}
         for (name, value) in preset.items():
-            if name in self._presetkeys and name != 'live':
+            if name in self._presetkeys:
                 dev = self._presetkeys[name][0]
+                if dev is None:
+                    continue
                 dev.setChannelPreset(name, value)
                 self._channel_presets.setdefault(dev, []).append((name, value))
         self._collectControllers()
