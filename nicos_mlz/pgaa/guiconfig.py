@@ -60,7 +60,7 @@ windows = [
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  xscale='decimal',
-                 filetypes=['chn'],),
+                 filetypes=['chn', 'mca'],),
            setups='pgaa'),
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
@@ -86,3 +86,10 @@ tools = [
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
 ]
+
+options = {
+    'reader_classes': [
+        'nicos_mlz.pgaa.devices.datasinks.CHNFileReader',
+        'nicos_mlz.pgaa.devices.datasinks.MCAFileReader',
+    ],
+}
