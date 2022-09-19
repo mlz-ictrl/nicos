@@ -1359,7 +1359,6 @@ class ImagingLiveDataPanel(LiveDataPanel):
             self.initLiveWidget(IntegralLiveWidget)
         else:
             self.initLiveWidget(ImagingLiveWidget)
-            # self.initLiveWidget(LiveWidget)
         # Set the grayscale as default
         for action in self.actionsColormap.actions():
             if action.data().upper() == 'GRAYSCALE':
