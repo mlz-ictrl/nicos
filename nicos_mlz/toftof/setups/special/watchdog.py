@@ -17,46 +17,55 @@ watch_conditions = [
          message = 'Disk space for log files becomes too low.',
          type = 'critical',
          gracetime = 30,
+         setup = 'system',
     ),
     dict(
         condition = '(sixfold_value == "closed" or nl2a_value == "closed") '
         'and reactorpower_value > 19.1',
         message = 'NL2a or sixfold shutter closed',
         type = 'critical',
+        setup = 'nl2a',
     ),
     dict(
         condition = 'ch_value < 140',
         message = 'Choppers are down! DO SOMETHING!',
+        setup = 'chopper',
     ),
     dict(
         condition = 'flow_in_ch_cooling_value < 10',
         message = 'Cooling water flow is less than 10 l/min',
         priority = 1,
+        setup = 'choppermemograph',
     ),
     dict(
         condition = 't_in_ch_cooling_value > 25',
         message = 'Cooling water temperature greater than 25 C',
         priority = 2,
+        setup = 'choppermemograph',
     ),
     dict(
         condition = 'leak_ch_cooling_value > 3',
         message = 'There is a leak in the chopper cooling system',
         priority = 2,
+        setup = 'choppermemograph',
     ),
     dict(
         condition = 'flow_in_chopper_value < 15',
         message = 'The flow in the chopper cooling system is too low',
         # priority = 1,
+        setup = 'choppermemograph',
     ),
     dict(
         condition = 't_in_chopper_value > 30',
         message = 'The temperature in the chopper cooling system is too high',
         # priority = 1,
+        setup = 'choppermemograph',
     ),
     dict(
         condition = "water_level_chopper_value != 'OK'",
         message = 'The water level in the chopper cooling level is too low',
         # priority = 1,
+        setup = 'choppermemograph',
     ),
 ]
 

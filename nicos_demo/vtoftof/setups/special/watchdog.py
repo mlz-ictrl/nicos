@@ -27,16 +27,19 @@ watch_conditions = [
          message = 'Disk space for log files becomes too low.',
          type = 'critical',
          gracetime = 30,
+         setup = 'system',
     ),
     dict(
         condition = '(sixfold_value == "closed" or nl2a_value == "closed") '
         'and reactorpower_value > 19.1',
         message = 'NL2a or sixfold shutter closed',
         type = 'critical',
+        setup = 'nl2a',
     ),
     dict(
         condition = 'ch_value < 140',
         message = 'Choppers are down! DO SOMETHING!',
+        setup = 'chopper',
     ),
     # dict(
     #      condition = 'flow_in_ch_cooling_value < 10',
