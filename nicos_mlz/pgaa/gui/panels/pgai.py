@@ -26,6 +26,8 @@
 
 import sys
 
+# gr3 module has to be imported before any of the OpenGL module(s)
+import gr3  # pylint: disable=unused-import
 import numpy as np
 from OpenGL.GL import GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, \
     GL_DEPTH_TEST, GL_LINES, GL_MODELVIEW, GL_PROJECTION, GL_SMOOTH, glBegin, \
