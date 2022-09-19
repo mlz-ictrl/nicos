@@ -132,6 +132,7 @@ class Field:
                 desc['name'] = dev
             key, expr, _ = parseKeyExpression(
                 dev, False, normalize=lambda s: s.lower())
+            dev = dev.lower()
             desc['expr'] = expr
             desc['key'] = prefix + dev + '/value'
             desc['statuskey'] = prefix + dev + '/status'
