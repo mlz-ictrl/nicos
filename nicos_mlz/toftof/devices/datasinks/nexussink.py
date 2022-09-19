@@ -248,7 +248,7 @@ class NexusSink(FileSink):
     }
 
     parameter_overrides = {
-        'settypes': Override(type=setof(*(POINT,))),
+        'settypes': Override(type=setof(*(POINT,)), default={POINT}),
     }
 
     handlerclass = NexusSinkHandler
