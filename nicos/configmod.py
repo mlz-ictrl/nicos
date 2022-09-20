@@ -186,11 +186,12 @@ def readConfig():
 
     # Now read the whole configuration from both locations, where the
     # local config overrides the instrument specific config.
-    values = {'instrument': instr}
+    values = {}
     environment = {}
     for cfg in (instr_cfg, global_cfg):
         values.update(cfg.get('nicos', {}))
         environment.update(cfg.get('environment', {}))
+    values.update({'instrument': instr})
 
     values['nicos_root'] = nicos_root
     values['setup_package'] = setup_package
