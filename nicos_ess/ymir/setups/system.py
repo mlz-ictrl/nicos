@@ -9,8 +9,8 @@ sysconfig = dict(
     datasinks=['conssink', 'daemonsink', 'liveview', 'FileWriterControl'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.epics',
-           'nicos_ess.commands.filewriter', 'nicos_ess.ymir.commands.tomography']
+modules = ['nicos.commands.standard', 'nicos_ess.commands',
+           'nicos_ess.ymir.commands.tomography']
 
 devices = dict(
     YMIR=device(

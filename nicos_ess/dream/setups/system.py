@@ -9,7 +9,7 @@ sysconfig = dict(
     datasinks=['conssink', 'daemonsink', 'liveview', 'FileWriterControl'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
+modules = ['nicos.commands.standard', 'nicos_ess.commands']
 
 devices = dict(
     DREAM=device(

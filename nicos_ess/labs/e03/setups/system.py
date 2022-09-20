@@ -9,7 +9,7 @@ sysconfig = dict(
     datasinks=['conssink', 'daemonsink'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
+modules = ['nicos.commands.standard', 'nicos_ess.commands']
 
 devices = dict(
     E03=device(

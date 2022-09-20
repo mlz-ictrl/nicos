@@ -9,7 +9,7 @@ sysconfig = dict(
     datasinks=['conssink', 'liveview', 'daemonsink'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'nicos_ess.commands']
 
 devices = dict(
     LoKI=device(
