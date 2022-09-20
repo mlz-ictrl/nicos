@@ -433,7 +433,7 @@ class TimeScan(PresetHelper, Cmdlet):
         npoints = -1 if values['countinf'] else values['scanpoints']
         if mode == 'simple':
             return f'timescan {npoints} {preset}'
-        return 'timescan({npoints}, {preset})'
+        return f'timescan({npoints}, {preset})'
 
 
 class ContScan(Cmdlet):
