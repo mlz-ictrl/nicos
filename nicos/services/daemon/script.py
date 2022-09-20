@@ -42,15 +42,12 @@ from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
     STATUS_STOPPING
 from nicos.services.daemon.debugger import Rpdb
+from nicos.services.daemon.errors import ScriptError, RequestError
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.utils import ScriptQueue, formatScript, \
     parseScript, splitBlocks, updateLinecache
 from nicos.utils import createThread, fixupScript
 from nicos.utils.loggers import INPUT
-
-
-class RequestError(Exception):
-    """Exception raised if a request cannot be queued."""
 
 
 class Request:
@@ -76,10 +73,6 @@ class Request:
 
 class EmergencyStopRequest(Request):
     """An immediate stop request (while no script is running)."""
-
-
-class ScriptError(Exception):
-    """Exception raised if a script operation cannot be executed."""
 
 
 class ScriptRequest(Request):

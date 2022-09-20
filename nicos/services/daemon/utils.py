@@ -34,6 +34,7 @@ import time
 from threading import Event, Lock
 
 from nicos import session
+from nicos.services.daemon.errors import ScriptError
 from nicos.utils import fixupScript
 from nicos.utils.loggers import ACTION, recordToMessage
 
@@ -71,17 +72,36 @@ def formatScript(script, prompt='>>>'):
 
 # pylint: disable=redefined-builtin
 def parseScript(script, name=None, format=None, compilecode=True):
+
+    def find_function(code, func, mod=''):
+        if not isinstance(code, ast.Module):
+            code = ast.parse(code)
+        for e in ast.walk(code):
+            if not isinstance(e, ast.Call):
+                continue
+            f = e.func
+            if isinstance(f, ast.Attribute):
+                if f.attr == func and f.value.id == mod:
+                    return True
+            elif not mod and isinstance(f, ast.Name):
+                if f.id == func:
+                    return True
+        return False
+
     if compilecode:
         def compiler(src):
             return compile(src + '\n', '<script>', 'single')
     else:
         compiler = lambda src: src
+    time_sleep = False
     if '\n' not in script:
         # if the script is a single line, compile it like a line
         # in the interactive interpreter, so that expression
         # results are shown
         code = [session.commandHandler(script, compiler)]
         blocks = None
+        if format == 'py':
+            time_sleep = find_function(script, 'sleep', 'time')
     else:
         pycode = script
         # check for SPM scripts
@@ -97,6 +117,10 @@ def parseScript(script, name=None, format=None, compilecode=True):
         else:
             # long script: split into blocks
             code, blocks = splitBlocks(pycode)
+        time_sleep = find_function(pycode, 'sleep', 'time')
+    if time_sleep:
+        raise ScriptError("Please use the NICOS command 'sleep' instead of "
+                          "'time.sleep'!")
 
     return code, blocks
 
