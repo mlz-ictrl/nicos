@@ -44,7 +44,7 @@ class SafetyInputs(Readable):
 
     parameter_overrides = {
         'unit':   Override(mandatory=False),
-        'fmtstr': Override(default='%d'),
+        'fmtstr': Override(default='0x%012x'),
         'maxage': Override(default=0),
     }
 
@@ -58,7 +58,7 @@ class SafetyInputs(Readable):
         state = self._readHWState(maxage)
         self.log.info('val description')
         for i, bit in enumerate(bin(state)[2:][::-1]):
-            self.log.info('%s   %s', bit, bit_description[i])
+            self.log.debug('%s   %s', bit, bit_description[i])
         return state
 
     def doStatus(self, maxage=0):
