@@ -547,7 +547,7 @@ class Gap(HasAutoDevices, CanReference, Moveable):
 
     def valueInfo(self):
         if self.opmode == 'centered':
-            return Value('%s.width' % self, unit=self.unit, fmtstr='%.2f')
+            return Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'),
         elif self.opmode == 'offcentered':
             return Value('%s.center' % self, unit=self.unit, fmtstr='%.2f'), \
                 Value('%s.width' % self, unit=self.unit, fmtstr='%.2f')
