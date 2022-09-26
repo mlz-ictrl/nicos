@@ -83,7 +83,7 @@ class CacheInspector(CICacheClient):
         self._qtapp.setOrganizationName('nicos')
         self._qtapp.setApplicationName('cacheinspector')
         self._window = MainWindow(self)
-        self._window.setWindowIcon(QIcon(':/inspector'))
+        QApplication.setWindowIcon(QIcon(':/inspector'))
         session._qthandler.setStatusbar(self._window.statusBar())
 
     def start(self):

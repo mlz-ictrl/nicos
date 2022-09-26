@@ -63,7 +63,7 @@ class MonitorWindow(QMainWindow):
         icon.addFile(':/appicon')
         icon.addFile(':/appicon-16')
         icon.addFile(':/appicon-48')
-        self.setWindowIcon(icon)
+        QApplication.setWindowIcon(icon)
 
         self.keyChange.connect(lambda obj, args: obj.on_keyChange(*args))
         self.reconfigure.connect(self.do_reconfigure)

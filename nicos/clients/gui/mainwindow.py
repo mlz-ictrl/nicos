@@ -111,7 +111,7 @@ class MainWindow(DlgUtils, QMainWindow):
         icon.addFile(':/appicon')
         icon.addFile(':/appicon-16')
         icon.addFile(':/appicon-48')
-        self.setWindowIcon(icon)
+        QApplication.setWindowIcon(icon)
 
         # hide admin label until we are connected as admin
         self.adminLabel.hide()
