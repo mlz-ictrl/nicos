@@ -703,6 +703,8 @@ def fix(dev, reason=''):
 
     >>> fix(phi, 'will drive into the wall')
     """
+    if isinstance(reason, Device):
+        raise UsageError('only one device can be given to fix()')
     dev = session.getDevice(dev, Moveable)
     if dev.fix(reason):
         dev.log.info(reason and 'now fixed: ' + reason or 'now fixed')

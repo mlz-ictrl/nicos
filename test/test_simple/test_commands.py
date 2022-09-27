@@ -472,6 +472,7 @@ class TestDevice:
         assert raises(UsageError, release)
         assert raises(UsageError, release, ())
         assert raises(UsageError, unfix, ())
+        assert raises(UsageError, fix, (motor, motor))
 
     def test_disable_and_enable(self, session, log):
         """Check disable() and enable() commands."""
