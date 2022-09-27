@@ -53,6 +53,7 @@ class MainWindow(DefaultMainWindow):
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         DefaultMainWindow.__init__(self, log, gui_conf, viewonly, tunnel)
+        self.client.experiment.connect(self._update_toolbar_info)
         self.add_logo()
         self.set_icons()
         self.style_file = gui_conf.stylefile
@@ -95,26 +96,28 @@ class MainWindow(DefaultMainWindow):
     def _init_experiment_name(self):
         self.experiment_label = QLabel()
         self.experiment_label.setSizePolicy(QSizePolicy.Expanding,
-                                           QSizePolicy.Preferred)
-        self.experiment_label.setStyleSheet('font-size: 17pt; font-weight: bold')
+                                            QSizePolicy.Preferred)
+        self.experiment_label.setStyleSheet('font-size: 17pt; '
+                                            'font-weight: bold')
         self.toolBarMain.addWidget(self.experiment_label)
 
         self.experiment_text = QLabel()
         self.experiment_text.setSizePolicy(QSizePolicy.Expanding,
-                                            QSizePolicy.Preferred)
+                                           QSizePolicy.Preferred)
         self.experiment_text.setStyleSheet('font-size: 17pt')
         self.toolBarMain.addWidget(self.experiment_text)
 
     def _init_instrument_name(self):
         self.instrument_label = QLabel()
         self.instrument_label.setSizePolicy(QSizePolicy.Expanding,
-                                           QSizePolicy.Preferred)
-        self.instrument_label.setStyleSheet('font-size: 17pt; font-weight: bold')
+                                            QSizePolicy.Preferred)
+        self.instrument_label.setStyleSheet('font-size: 17pt; '
+                                            'font-weight: bold')
         self.toolBarMain.addWidget(self.instrument_label)
 
         self.instrument_text = QLabel()
         self.instrument_text.setSizePolicy(QSizePolicy.Expanding,
-                                            QSizePolicy.Preferred)
+                                           QSizePolicy.Preferred)
         self.instrument_text.setStyleSheet('font-size: 17pt')
         self.toolBarMain.addWidget(self.instrument_text)
 
@@ -200,7 +203,8 @@ class MainWindow(DefaultMainWindow):
             self.trayIcon.showMessage(self.instrument, msg)
             self.client.last_action_at = 0
         self.current_status = status
-        self._update_toolbar_info(status)
+        self._update_toolbar_info()
+        self._update_status_text()
         # new status icon
         pixmap = QPixmap(':/' + status + ('exc' if exception else ''))
         new_icon = QIcon()
@@ -218,22 +222,21 @@ class MainWindow(DefaultMainWindow):
             for panel in window.panels:
                 panel.updateStatus(status, exception)
 
-    def _update_toolbar_info(self, status):
-        if status != 'disconnected':
+    def _update_toolbar_info(self):
+        if self.current_status != 'disconnected':
             self.update_instrument_text()
             self.update_experiment_text()
         else:
             self.clear_experiment_text()
             self.clear_instrument_text()
-        self._update_status_text(status)
 
-    def _update_status_text(self, status):
-        if status == 'disconnected':
-            self.status_label.setText(status.upper())
+    def _update_status_text(self):
+        if self.current_status == 'disconnected':
+            self.status_label.setText(self.current_status.upper())
             self.status_text.setText('')
         else:
             self.status_label.setText('     Status: ')
-            self.status_text.setText(status.upper())
+            self.status_text.setText(self.current_status.upper())
 
     def clear_instrument_text(self):
         self.instrument_label.clear()
