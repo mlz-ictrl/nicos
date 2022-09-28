@@ -47,8 +47,9 @@ class SINQAsciiSinkHandler(DataSinkHandler):
 
     def prepare(self):
         self.manager.assignCounter(self.dataset)
-        self.manager.getFilenames(self.dataset, self.sink.filenametemplate,
-                                  self.sink.subdir)
+        _, filepaths = self.manager.getFilenames(
+            self.dataset, self.sink.filenametemplate, self.sink.subdir)
+        self.filename = filepaths[0]
 
     def _findValue(self, dev, par):
         if (dev, par) in self.dataset.metainfo:
@@ -61,7 +62,7 @@ class SINQAsciiSinkHandler(DataSinkHandler):
         with open(self.sink.templatefile, 'r', encoding='utf-8') as fin:
             template = fin.read()
 
-        template = template.replace('!!FILE!!', self.dataset.filepaths[0])
+        template = template.replace('!!FILE!!', self.filename)
 
         time_str = time.strftime('%Y-%m-%d %H:%M:%S',
                                  time.localtime(time.time()))
@@ -134,7 +135,7 @@ class SINQAsciiSinkHandler(DataSinkHandler):
                                     'data', det)
 
     def end(self):
-        with open(self.dataset.filepaths[0], 'w', encoding='utf-8') as out:
+        with open(self.filename, 'w', encoding='utf-8') as out:
             out.write(self.header)
 
             # Do the scan variable and steps line
