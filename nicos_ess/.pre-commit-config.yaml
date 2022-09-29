@@ -1,0 +1,11 @@
+files: ^nicos_ess/
+repos:
+-   repo: https://github.com/pre-commit/mirrors-yapf
+    rev: v0.32.0
+    hooks:
+    - id: yapf
+      args: ['--style', '{based_on_style: pep8, indent_dictionary_value: True}', '-i']
+-   repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+    - id: isort
