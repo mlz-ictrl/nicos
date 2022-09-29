@@ -2,8 +2,6 @@ description = 'Resonance flippers'
 group = 'lowlevel'
 display_order = 24
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
-
 devices = dict(
     hrf_0a = device('nicos.devices.generic.ManualMove',
         description = 'Helmholtz coils for resonant flippers arm 0 - A',
