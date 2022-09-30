@@ -535,7 +535,9 @@ class Monitor(BaseMonitor):
         elif key == field.formatkey:
             if value is not None:
                 field.format = value
-                self.signalKeyChange(field, field.key, field.value, 0, False)
+                self.signalKeyChange(field, field.key, field.value,
+                                     currenttime(),
+                                     field._valuelabel.back == self._gray)
 
     def _labelunittext(self, text, unit, fixed):
         return html.escape(text) + ' <span class="unit">%s</span><span ' \
