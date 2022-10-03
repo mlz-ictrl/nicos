@@ -242,15 +242,3 @@ class ImagingExperiment(Experiment, BaseImagingExperiment):
         return path.join(self.proposalpath, '..',
                          safeName('%s-%s-%s-%s' %
                                   (date, user, self.proposal, self.title)))
-
-    def newSample(self, parameters):
-        name = parameters['name']
-        self.sampledir = safeName(name)
-
-        Experiment.newSample(self, parameters)
-
-        self.log.debug('new sample path: %s', self.samplepath)
-        self.log.debug('new data path: %s', self.datapath)
-        self.log.debug('new dark image path: %s', self.darkimagedir)
-        self.log.debug('new open beam image path: %s', self.openbeamdir)
-        self.log.debug('new measurement image path: %s', self.photodir)

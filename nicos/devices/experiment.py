@@ -45,7 +45,7 @@ from nicos.core.params import expanded_path, nonemptystring, subdir
 from nicos.devices.sample import Sample
 from nicos.utils import DEFAULT_FILE_MODE, createThread, disableDirectory, \
     enableDirectory, ensureDirectory, expandTemplate, grp, lazy_property, \
-    printTable, pwd
+    printTable, pwd, safeName
 from nicos.utils.compression import zipFiles
 from nicos.utils.emails import sendMail
 from nicos.utils.ftp import ftpUpload
@@ -1297,6 +1297,16 @@ class ImagingExperiment(Experiment):
     def new(self, *args, **kwargs):  # pylint: disable=signature-differs
         Experiment.new(self, *args, **kwargs)
         self._clearImgPaths()
+
+    def newSample(self, parameters):
+        self.sampledir = safeName(parameters.get('name', ''))
+        Experiment.newSample(self, parameters)
+
+        self.log.debug('new sample path: %s', self.samplepath)
+        self.log.debug('new data path: %s', self.datapath)
+        self.log.debug('new dark image path: %s', self.darkimagedir)
+        self.log.debug('new open beam image path: %s', self.openbeamdir)
+        self.log.debug('new measurement image path: %s', self.photodir)
 
 
 class SXTalExperiment(Experiment):
