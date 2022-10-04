@@ -25,6 +25,7 @@
 """The NICOS electronic logbook."""
 
 import sys
+from os import unlink
 from time import time as currenttime
 
 from nicos.core import CacheLockError, Override, Param, oneof, listof
@@ -108,6 +109,9 @@ class Logbook(BaseCacheClient):
             except Exception:
                 self.log.exception('Error in %s for: %s=%r',
                                    handler.__class__.__name__, key, value)
+        if key == 'attachment':
+            for fn in value[1]:
+                unlink(fn)
 
     def _wait_data(self):
         if self._islocked:

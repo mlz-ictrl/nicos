@@ -26,7 +26,7 @@
 
 from html import escape
 from logging import ERROR
-from os import path, unlink
+from os import path
 from shutil import copyfile
 from time import localtime, strftime
 
@@ -421,10 +421,9 @@ class Handler(BaseHandler):
                 i += 1
                 name = oname + str(i)
                 fullname = path.join(self.logdir, name)
-            # using copyfile-unlink instead of shutil.move since we do not
+            # using copyfile instead of shutil.move since we do not
             # want to keep a restrictive file mode set by the daemon
             copyfile(fpath, fullname)
-            unlink(fpath)
             links.append('<a href="%s">%s</a>' % (name, escape(oname)))
         text = '<b>%s:</b> %s' % (escape(description) or 'Attachment',
                                   ' '.join(links))
