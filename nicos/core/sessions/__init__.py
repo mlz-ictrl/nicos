@@ -712,8 +712,11 @@ class Session:
             for devname, (_, devconfig) in sorted(devlist.items()):
                 try:
                     explicit = 'namespace' in devconfig.get('visibility',
-                                                            ('namespace',))
-                    self.createDevice(devname, explicit=explicit)
+                                                            set())
+                    dev = self.createDevice(devname, explicit=explicit)
+                    if not explicit and ('namespace' in dev.visibility):
+                        self.explicit_devices.add(devname)
+                        self.export(devname, dev)
                 except Exception:
                     if raise_failed:
                         raise
