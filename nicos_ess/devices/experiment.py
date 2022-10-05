@@ -115,6 +115,7 @@ class EssExperiment(Experiment):
     def update(self, title=None, users=None, localcontacts=None):
         self._check_users(users)
         self._check_local_contacts(localcontacts)
+        title = str(title) if title else ''
         Experiment.update(self, title, users, localcontacts)
 
     def _check_users(self, users):
