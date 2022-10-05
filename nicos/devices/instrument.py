@@ -24,7 +24,7 @@
 
 """NICOS Instrument device."""
 
-from nicos.core import Device, Param, listof, mailaddress
+from nicos.core import Device, Override, Param, listof, mailaddress
 
 
 class Instrument(Device):
@@ -53,4 +53,8 @@ class Instrument(Device):
                          settable=False, default='http://www.mlz-garching.de'),
         'operators': Param('Instrument operators', type=listof(str),
                            category='instrument', settable=False),
+    }
+
+    parameter_overrides = {
+        'visibility': Override(default={'metadata'}),
     }

@@ -61,6 +61,7 @@ class SXTalBase(Instrument, Moveable):
         'fmtstr':     Override(default='[%6.4f, %6.4f, %6.4f]'),
         'unit':       Override(default='rlu', mandatory=False,
                                settable=True),
+        'visibility': Override(default={'metadata', 'namespace', 'devlist'}),
     }
 
     valuetype = tupleof(float, float, float)
