@@ -1386,6 +1386,7 @@ class ImagingLiveDataPanel(LiveDataPanel):
         last_item.setData(FILENAME, item.data(FILENAME))
         last_item.setData(FILETYPE, item.data(FILETYPE))
         last_item.setData(FILETAG, item.data(FILETAG))
+        self._show()
 
     def add_to_flist(self, filename, filetype, tag, uid=None, scroll=True):
         item = LiveDataPanel.add_to_flist(
