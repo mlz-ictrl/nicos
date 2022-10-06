@@ -286,7 +286,7 @@ class Device(metaclass=DeviceMeta):
         'classes':     Param('Names of device class and all its base classes',
                              type=listof(str), settable=False, userparam=False),
         'description': Param('A description of the device', type=str,
-                             settable=True),
+                             settable=False),
         'visibility':  Param('Selects in which context the device should be '
                              'shown/included',
                              type=setof('metadata', 'namespace', 'devlist'),

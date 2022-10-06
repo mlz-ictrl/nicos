@@ -423,7 +423,7 @@ class TestDevice:
         AddSetup('device')
         pdev = session.getDevice('privdev')
         with session.withUserLevel(GUEST):
-            assert raises(AccessError, set, pdev, 'description', 'foo')
+            assert raises(AccessError, set, pdev, 'unit', 'foo')
 
     def test_privileged_disable(self, session, log):
         AddSetup('device')
@@ -555,10 +555,10 @@ class TestDevice:
         axis = session.getDevice('axis')
 
         # create a description with more than 40 chars
-        motor.description = 'Blaahh ' * 10
+        motor._setROParam('description', 'Blaahh ' * 10)
         with log.assert_msg_matches([r'\.{3}']):
             ListParams(motor)
-        motor.description = ''
+        motor._setROParam('description', '')
         # ListParams of the 'aliased' device
         with log.assert_msg_matches(r'\.alias\s*->'):
             ListParams(alias)
