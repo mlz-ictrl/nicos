@@ -32,7 +32,7 @@ import time
 from os import path
 
 from nicos import session
-from nicos.core import NicosError, Override, Param, UsageError, oneof
+from nicos.core import NicosError, Override, Param, UsageError
 from nicos.devices.experiment import Experiment as BaseExperiment, \
     ImagingExperiment as BaseImagingExperiment
 from nicos.utils import expandTemplate, safeName
@@ -200,19 +200,14 @@ class Experiment(BaseExperiment):
 
 
 class ImagingExperiment(Experiment, BaseImagingExperiment):
-    """FRM II specific imaging experiment which provides all imaging experiment
-    functionalities plus all the FRM II specific features.
+    """FRM II specific imaging experiment.
+
+    Provides all imaging experiment functionalities plus all the FRM II
+    specific features.
     """
 
-    parameters = {
-        'curimgtype': Param('Type of current/next image',
-                            type=oneof('dark', 'openbeam', 'standard'),
-                            mandatory=False, default='standard',
-                            settable=True),
-    }
-
     parameter_overrides = {
-        'dataroot':      Override(default='/data/FRM-II'),
+        'dataroot': Override(default='/data/FRM-II'),
     }
 
     @property
