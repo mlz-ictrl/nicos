@@ -38,7 +38,6 @@ devices = dict(
         writepv='{}ChopDly-S'.format(pv_root),
         abslimits=(0.0, 71428571.0),
         monitor=True,
-        has_unit=False,
     ),
     mini_chopper=device(
         'nicos_ess.devices.epics.chopper.EssChopperController',
