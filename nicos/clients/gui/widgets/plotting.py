@@ -1290,7 +1290,7 @@ class DataSetPlot(NicosGrPlot):
             return
         if not curve.datay:
             return
-        plotcurve = NicosPlotCurve([], [], filly=0.1)
+        plotcurve = NicosPlotCurve([], [], filly=0.1, linecolor=0)
         plotcurve._parent = curve
         self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
