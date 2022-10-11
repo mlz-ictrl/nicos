@@ -203,7 +203,7 @@
                     {
                       "module": "f142",
                       "config": {
-                        "source": "YMIR-ChpSy1:Chop-MIC-101:Spd_SP",
+                        "source": "YMIR-ChpSy1:Chop-MIC-101:Spd_Stat",
                         "topic": "ymir_motion",
                         "dtype": "double"
                       },
