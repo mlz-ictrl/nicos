@@ -25,8 +25,10 @@
 
 from nicos.core import Attach, Override, Readable
 from nicos.devices.generic import Slit
-from nicos.devices.mcstas import McStasSimulation as BaseSimulation
+from nicos.devices.mcstas import McStasSimulation as BaseSimulation, \
+    DetectorMixin
 
+from nicos_mlz.maria.devices.detector import MariaDetector
 from nicos_mlz.treff.devices import MirrorSample
 
 
@@ -86,3 +88,7 @@ class McStasSimulation(BaseSimulation):
         else:
             params.append('rflfile=0')
         return params
+
+
+class Detector(DetectorMixin, MariaDetector):
+    pass

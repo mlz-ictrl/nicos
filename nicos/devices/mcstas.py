@@ -40,7 +40,7 @@ from nicos.core import MASTER, ArrayDesc, Attach, Override, Param, Readable, \
     Value, Waitable, floatrange, intrange, oneof, status, tupleof
 from nicos.core.constants import FINAL, LIVE
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin, \
-    PassiveChannel
+    PassiveChannel, Detector as BaseDetector
 from nicos.utils import createThread
 
 # Minimum time to let McStas run before attempting to save data
@@ -246,6 +246,30 @@ class McStasSimulation(Readable):
         self._started = False
 
 
+class DetectorMixin:
+    """Detector mixin for McStas simulations.
+
+    In order to read out McStas intermediate data, it needs to be triggered
+    to write data (by a signal).
+    """
+
+    attached_devices = {
+        'mcstas': Attach('McStasSimulation device', McStasSimulation),
+    }
+
+    def duringMeasureHook(self, elapsed):
+        quality = super().duringMeasureHook(self, elapsed)
+        if quality == LIVE:
+            self._attached_mcstas._saveIntermediate()
+        return quality
+
+
+class Detector(DetectorMixin, BaseDetector):
+    """Detector subclass for McStas simulations that don't require a custom
+    Detector class.
+    """
+
+
 class McStasImage(ImageChannelMixin, PassiveChannel):
     """Image channel based on McStas simulation.
 
@@ -276,9 +300,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
 
     def doReadArray(self, quality):
         self.log.debug('quality: %s', quality)
-        if quality == LIVE:
-            self._attached_mcstas._saveIntermediate()
-        elif quality == FINAL:
+        if quality == FINAL:
             self._attached_mcstas._joinProcess()
         self._readpsd(quality)
         return self._buf
