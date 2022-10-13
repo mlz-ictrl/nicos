@@ -39,7 +39,7 @@ from psutil import AccessDenied, NoSuchProcess, Popen
 from nicos import session
 from nicos.core import MASTER, ArrayDesc, Attach, Override, Param, Readable, \
     Value, Waitable, dictof, floatrange, intrange, nonemptystring, oneof, \
-    status, tupleof
+    status, tupleof, SLAVE
 from nicos.core.constants import FINAL, LIVE
 from nicos.devices.generic import ActiveChannel, Detector as BaseDetector, \
     ImageChannelMixin, PassiveChannel
@@ -401,7 +401,8 @@ class McStasTimer(ActiveChannel, Waitable):
         return Waitable.doStatus(self, maxage)
 
     def doRead(self, maxage=0):
-        self.curvalue = self._attached_mcstas._getTime()
+        if self._mode != SLAVE:
+            self.curvalue = self._attached_mcstas._getTime()
         return self.curvalue
 
     def doFinish(self):
@@ -452,6 +453,8 @@ class McStasCounter(PassiveChannel, Waitable):
         return Waitable.doStatus(self, maxage)
 
     def doRead(self, maxage=0):
+        if self._mode == SLAVE:
+            return self.curvalue
         try:
             with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
                 for line in f:
