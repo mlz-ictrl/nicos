@@ -2,10 +2,11 @@ description = 'ASTOR setup'
 
 group = 'basic'
 
-modules = ['nicos.commands.imaging']
-
-includes = ['shutters', 'collimator', 'filter', 'beam_limiter', 'sampletable', 'detector']
+includes = ['shutters', 'collimator', 'small_beam_limiter', 'filter', 'detector_translation']
 
 startupcode = '''
-printinfo("Welcome to ASTOR.")
+read()
+printinfo("================")
+printinfo("Welcome to ASTOR")
+printinfo("================")
 '''

@@ -18,7 +18,7 @@ devices = dict(
         # Binding the cache to the 'localhost' leads to trouble if
         # some other NICOS services are running on different
         # machines
-        server = '',
+        server = 'localhost',
         loglevel = 'info',
     ),
 )

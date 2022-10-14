@@ -2,29 +2,26 @@ description = 'filter selector setup'
 
 group = 'lowlevel'
 
+tango_base = 'tango://lahn:10000/astor/'
+
 devices = dict(
-    crystal_m = device('nicos.devices.generic.Axis',
-        description = 'filter changer rotation',
-        motor = device('nicos.devices.generic.VirtualMotor',
-            abslimits = (0, 360),
-            unit = 'deg',
-        ),
-        precision = 0.01,
-        visibility = (),
-    ),
-    crystal = device('nicos.devices.generic.Switcher',
-        description = 'filter changer',
-        moveable = 'crystal_m',
-        mapping = {
-            'c1': 0,
-            'c2': 60,
-            'c3': 120,
-            'c4': 180,
-            'c5': 240,
-            'c6': 300,
-            'xx': 360,
-        },
-        precision = 0.01,
-        unit = '',
-    ),
+    crystal_m=device('nicos.devices.entangle.Motor',
+                     description='filter changer rotation',
+                     tangodevice=tango_base + 'filter/crystal',
+                     visibility=(),
+                     ),
+    crystal=device('nicos.devices.generic.Switcher',
+                   description='filter changer',
+                   moveable='crystal_m',
+                   mapping={
+                       'empty': 0,
+                       'Beryl': 60,
+                       'Cd': 120,
+                       'Sapphire': 180,
+                       'Single Crystal Bi': 240,
+                       'Polycrystaline Bi': 300,
+                   },
+                   precision=0,
+                   requires={'level': 'admin'},
+                   ),
 )

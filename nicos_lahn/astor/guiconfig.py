@@ -1,10 +1,23 @@
 """NICOS GUI default configuration."""
 
 main_window = docked(
-    vsplit(
-        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-        panel('nicos.clients.gui.panels.console.ConsolePanel'),
+    tabbed(
+        ('Command Line',
+            vsplit(
+                panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+                    modules=['nicos.clients.gui.cmdlets'],
+                ),
+                panel('nicos.clients.gui.panels.status.ScriptStatusPanel', eta=True),
+                panel('nicos.clients.gui.panels.console.ConsolePanel',
+                    hasinput=False),
+            ),
+        ),
+        ('Instrument',
+            panel('nicos_lahn.astor.gui.astorpanel.ASTORPanel',
+                setups='astor'),
+        ),
     ),
+
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
            dockpos='right'),
@@ -16,33 +29,31 @@ main_window = docked(
 
 windows = [
     window('Editor', 'editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel')),
+        vsplit(
+            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+            panel('nicos.clients.gui.panels.editor.EditorPanel',
+              tools = [
+                  tool('Scan Generator',
+                       'nicos.clients.gui.tools.scan.ScanTool')
+              ]))),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
            panel('nicos.clients.gui.panels.history.HistoryPanel')),
     window('Live data', 'live',
-           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+           panel('nicos.clients.gui.panels.live.ImagingLiveDataPanel',
+                 filetypes=['fits'],)),
     window('Logbook', 'table',
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('Log files', 'table',
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+    window('Watchdog', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [
-#    tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
-#         # If you are not at the FRM II facility you have to change this
-#         # reporting address
-#         # receiver='useroffice@mlz-garching.de',
-#         # If you are not at FRM II facility you have to change your mail
-#         # server
-#         # mailserver='smtp.frm2.tum.de',
-#         # Please change the sender address to a valid, instrument specific
-#         # address
-#         sender='demo@frm2.tum.de',
-#        ),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
     tool('Neutron cross-sections',
          'nicos.clients.gui.tools.website.WebsiteTool',
