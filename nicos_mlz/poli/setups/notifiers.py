@@ -9,7 +9,6 @@ devices = dict(
         sender = 'poli@frm2.tum.de',
         copies = [
             ('jianhui.xu@frm2.tum.de', 'all'),
-            ('h.thoma@fz-juelich.de', 'all'),
             ('g.brandl@fz-juelich.de', 'all'),
         ],
         subject = 'POLI NICOS',
