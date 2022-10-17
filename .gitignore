@@ -54,3 +54,6 @@ mprofile_*.dat
 
 #PyCharm
 .idea/
+
+#MacOS
+.DS_Store
