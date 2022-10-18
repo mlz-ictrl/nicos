@@ -25,6 +25,7 @@ import os
 import requests
 
 from nicos.core import Device, Param, usermethod
+from nicos.core.constants import SIMULATION
 
 
 class ScichatBot(Device):
@@ -36,6 +37,8 @@ class ScichatBot(Device):
     }
 
     def doInit(self, mode):
+        if mode == SIMULATION:
+            return
         if not self.url.startswith("https:"):
             raise ConnectionError("server URL must be https")
         self._join_room()
