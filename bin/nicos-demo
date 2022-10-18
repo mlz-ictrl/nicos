@@ -138,7 +138,7 @@ services = parser.add_argument_group(
     'service selection',
     description='''without options, the following services are started:
 
-    cache, poller, daemon, monitor''')
+    cache, watchdog, elog, poller, monitor, daemon''')
 # These services are opt-out.
 services.add_argument('--noelog', '-E', action='store_true',
                       help='disable the electronic logbook')
