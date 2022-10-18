@@ -526,7 +526,6 @@ class FileWriterControlSink(FileSink):
         """Start a new file-writing job."""
         self.check_okay_to_start()
         self._manual_start = False
-
         # Begin a point but remove it from the stack immediately to avoid an
         # orphaned point.
         # File-writing won't stop though.

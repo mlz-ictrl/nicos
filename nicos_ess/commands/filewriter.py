@@ -40,8 +40,11 @@ def _find_filewriter_dev():
 
 
 @usercommand
-def start_job():
+@helparglist('experiment_title')
+def start_job(experiment_title=None):
     """Start a file-writing job."""
+    if experiment_title is not None:
+        session.experiment.update(title=experiment_title)
     _find_filewriter_dev().start_job()
 
 

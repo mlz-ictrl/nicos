@@ -58,6 +58,7 @@ class EssExperiment(Experiment):
         'zipdata': Override(default=False),
         'users': Override(default=[], type=listof(dict)),
         'localcontact': Override(default=[], type=listof(dict)),
+        'title': Override(settable=True)
     }
 
     def doInit(self, mode):
