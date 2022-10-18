@@ -76,6 +76,7 @@ class TestFileWriterControl(TestCase):
     @pytest.fixture(autouse=True)
     def prepare(self, session, log):
         self.session = session
+        self.session.experiment.propinfo['proposal'] = '123456'
         self.log = log
         self.mock_dependencies()
         self.filewriter_control = self.get_filewriter_control_device()
