@@ -563,11 +563,12 @@ class FileWriterControlSink(FileSink):
 
     def check_okay_to_start(self):
         if not session.experiment.propinfo.get('proposal'):
-            raise Exception('cannot start writing as proposal number not set')
+            raise RuntimeError('cannot start writing as proposal number not '
+                               'set')
         active_jobs = self.get_active_jobs()
         if active_jobs:
-            raise Exception('cannot start writing as writing already in '
-                            'progress')
+            raise RuntimeError('cannot start writing as writing already in '
+                               'progress')
 
     def get_active_jobs(self):
         jobs = self._attached_status.jobs_in_progress
