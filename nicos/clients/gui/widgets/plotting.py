@@ -1110,13 +1110,13 @@ class ViewPlot(NicosGrPlot):
         self.window.statusBar.showMessage(msg)
 
     def addAllCurves(self):
-        for i, series in enumerate(self.view.series.values()):
-            self.addCurve(i, series)
+        for series in self.view.series.values():
+            self.addCurve(series)
         visiblePlotCurves = self._axes.getVisibleCurves()
         if visiblePlotCurves:
             self._axes.curveDataChanged(visiblePlotCurves[-1])
 
-    def addCurve(self, i, series, replot=False):
+    def addCurve(self, series, replot=False):
         plotcurve = None
         n = series.n
         if n > 0:
@@ -1278,13 +1278,13 @@ class DataSetPlot(NicosGrPlot):
         return ''
 
     def addAllCurves(self):
-        for i, curve in enumerate(self.dataset.curves):
-            self.addCurve(i, curve)
+        for curve in self.dataset.curves:
+            self.addCurve(curve)
         visiblePlotCurves = self._axes.getVisibleCurves()
         if visiblePlotCurves:
             self._axes.curveDataChanged(visiblePlotCurves[-1])
 
-    def addCurve(self, i, curve, replot=False):
+    def addCurve(self, curve, replot=False):
         if self.current_xname != 'Default' and \
            self.current_xname not in curve.datax:
             return
