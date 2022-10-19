@@ -59,8 +59,9 @@ class NXAttribute(NexusElementBase):
         if isinstance(self.value, PlaceholderBase):
             info = self.value.fetch_info(metainfo)
             if not info:
-                session.log.warning('Unable to fetch info for placeholder'
-                                    ' %s', self.value)
+                session.log.warning(
+                    'Unable to fetch info for placeholder'
+                    ' %s', self.value)
                 return {}
             self.value = info[0]
 
@@ -91,8 +92,9 @@ class NXDataset(NexusElementBase):
         if isinstance(self.value, PlaceholderBase):
             info = self.value.fetch_info(metainfo)
             if not info:
-                session.log.warning('Unable to fetch info for placeholder'
-                                    ' %s', self.value)
+                session.log.warning(
+                    'Unable to fetch info for placeholder'
+                    ' %s', self.value)
                 return {}
 
             # Set the value and the unit from the info string
@@ -204,11 +206,7 @@ class NXLink(NexusElementBase):
         self.target = target
 
     def structure(self, name, metainfo):
-        return [{
-            'type': 'link',
-            'name': name,
-            'target': self.target
-        }]
+        return [{'type': 'link', 'name': name, 'target': self.target}]
 
 
 class KafkaStream(NexusElementBase):
@@ -227,8 +225,10 @@ class KafkaStream(NexusElementBase):
     * chunk_size:  chunk size in nr of elements
     """
 
-    stream_keys = ['broker', 'topic', 'source', 'writer_module', 'type',
-                   'array_size', 'store_latest_into', 'chunk_size']
+    stream_keys = [
+        'broker', 'topic', 'source', 'writer_module', 'type', 'array_size',
+        'store_latest_into', 'chunk_size'
+    ]
 
     def __init__(self, **attr):
         self.stream = {}
@@ -256,7 +256,8 @@ class KafkaStream(NexusElementBase):
     def structure(self, name, metainfo):
         stream_dict = {
             "type": "stream",
-            "stream": {k: v for k, v in self.stream.items() if v}
+            "stream": {k: v
+                       for k, v in self.stream.items() if v}
         }
 
         self._add_attributes(metainfo, stream_dict)
@@ -277,8 +278,12 @@ class KafkaStream(NexusElementBase):
 class CacheStream(DeviceValuePlaceholder, KafkaStream):
     """Streams NICOS cache data"""
 
-    def __init__(self, device, dtype, separate_log=False,
-                 parameter='value', **attr):
+    def __init__(self,
+                 device,
+                 dtype,
+                 separate_log=False,
+                 parameter='value',
+                 **attr):
         KafkaStream.__init__(self, **attr)
         DeviceValuePlaceholder.__init__(self, device, parameter)
         self.set('type', dtype)
@@ -289,8 +294,9 @@ class CacheStream(DeviceValuePlaceholder, KafkaStream):
         try:
             nx = session.getDevice('NexusDataSink')
         except ConfigurationError:
-            session.log.warning("NexusDataSink not found!! Can't track device "
-                                "%s..", self.device)
+            session.log.warning(
+                "NexusDataSink not found!! Can't track device "
+                "%s..", self.device)
             return
         self.set('broker', nx.brokers[0])
         self.set('topic', nx.cachetopic)
@@ -328,8 +334,14 @@ class CacheStream(DeviceValuePlaceholder, KafkaStream):
 class EventStream(KafkaStream):
     """ Stream that provides event data from Kafka
     """
-    def __init__(self, topic, source, mod='ev42', dtype='uint64',
-                 chunk_size=None, **attr):
+
+    def __init__(self,
+                 topic,
+                 source,
+                 mod='ev42',
+                 dtype='uint64',
+                 chunk_size=None,
+                 **attr):
         KafkaStream.__init__(self, **attr)
         self.set('topic', topic)
         self.set('source', source)
@@ -373,7 +385,11 @@ class DeviceDataset(NXDataset):
     associated to this dataset can also be added.
     """
 
-    def __init__(self, device, parameter='value', dtype=None, defaultval=None,
+    def __init__(self,
+                 device,
+                 parameter='value',
+                 dtype=None,
+                 defaultval=None,
                  **attr):
         val = DeviceValuePlaceholder(device, parameter, defaultval)
         NXDataset.__init__(self, val, dtype, **attr)

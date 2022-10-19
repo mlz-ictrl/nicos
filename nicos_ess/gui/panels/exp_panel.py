@@ -25,12 +25,10 @@
 #   AÜC Hardal <umit.hardal@ess.eu>
 #
 # *****************************************************************************
-
 """NICOS GUI experiment setup window."""
 from copy import deepcopy
 
-from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
-    combineUsers
+from nicos.clients.gui.panels.setup_panel import ProposalDelegate, combineUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core import ADMIN
 from nicos.guisupport.qt import QDialogButtonBox, QHeaderView, QIntValidator, \
@@ -42,8 +40,14 @@ from nicos_ess.gui.panels.panel import PanelBase
 
 
 class ProposalSettings:
-    def __init__(self, proposal_id='', title='', users=None,
-                 local_contacts=None, abort_on_error='', notifications=None,
+
+    def __init__(self,
+                 proposal_id='',
+                 title='',
+                 users=None,
+                 local_contacts=None,
+                 abort_on_error='',
+                 notifications=None,
                  samples=None):
         self.proposal_id = proposal_id
         self.title = title
@@ -73,7 +77,8 @@ class ExpPanel(PanelBase):
 
     def __init__(self, parent, client, options):
         PanelBase.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_ess/gui/panels/ui_files/exp_panel.ui'))
+        loadUi(self,
+               findResource('nicos_ess/gui/panels/ui_files/exp_panel.ui'))
 
         self.old_settings = ProposalSettings()
         self.new_settings = ProposalSettings()
@@ -93,11 +98,13 @@ class ExpPanel(PanelBase):
         self.contactsTable.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
 
-        self.samples_model = TableModel(['name', 'formula', 'number of',
-                                         'mass/volume', 'density'],
-                                        mappings={'number of': 'number_of',
-                                                  'mass/volume': 'mass_volume'},
-                                        transposed=True)
+        self.samples_model = TableModel(
+            ['name', 'formula', 'number of', 'mass/volume', 'density'],
+            mappings={
+                'number of': 'number_of',
+                'mass/volume': 'mass_volume'
+            },
+            transposed=True)
         self.samples_model.data_updated.connect(self._check_for_changes)
         self.sampleTable.setModel(self.samples_model)
         self.sampleTable.horizontalHeader().setSectionResizeMode(
@@ -155,11 +162,12 @@ class ExpPanel(PanelBase):
             self._update_proposal_info()
 
     def _update_proposal_info(self):
-        values = self.client.eval('session.experiment.proposal, '
-                                  'session.experiment.title, '
-                                  'session.experiment.users, '
-                                  'session.experiment.localcontact, '
-                                  'session.experiment.errorbehavior', None)
+        values = self.client.eval(
+            'session.experiment.proposal, '
+            'session.experiment.title, '
+            'session.experiment.users, '
+            'session.experiment.localcontact, '
+            'session.experiment.errorbehavior', None)
         notif_emails = self.client.eval(
             'session.experiment.propinfo["notif_emails"]', [])
 
@@ -179,8 +187,8 @@ class ExpPanel(PanelBase):
         self.proposalNum.setText(self.old_settings.proposal_id)
         self.propTitle.setText(self.old_settings.title)
         self.errorAbortBox.setChecked(self.old_settings.abort_on_error)
-        self.notifEmails.setPlainText(
-            '\n'.join(self.old_settings.notifications))
+        self.notifEmails.setPlainText('\n'.join(
+            self.old_settings.notifications))
         self._update_samples_model(self.old_settings.samples)
         self._update_users_model(self.old_settings.users)
         self._update_contacts_model(self.old_settings.local_contacts)
@@ -264,15 +272,21 @@ class ExpPanel(PanelBase):
             self.showError(str(error))
 
     def _set_experiment(self):
-        local_contacts = [contact for contact in self.contacts_model.raw_data
-                          if contact.get('name', None)]
+        local_contacts = [
+            contact for contact in self.contacts_model.raw_data
+            if contact.get('name', None)
+        ]
 
-        users = [user for user in self.users_model.raw_data
-                 if any((user.get(field) for field in self._user_fields))]
+        users = [
+            user for user in self.users_model.raw_data
+            if any((user.get(field) for field in self._user_fields))
+        ]
 
-        exp_args = {'title': self.new_settings.title,
-                    'localcontacts': local_contacts,
-                    'users': users}
+        exp_args = {
+            'title': self.new_settings.title,
+            'localcontacts': local_contacts,
+            'users': users
+        }
 
         if self.new_settings.proposal_id != self.old_settings.proposal_id:
             exp_args['proposal'] = self.new_settings.proposal_id
@@ -311,10 +325,11 @@ class ExpPanel(PanelBase):
 
     @pyqtSlot()
     def on_deleteUserButton_clicked(self):
-        to_remove = {index.row()
-                     for index in self.userTable.selectedIndexes()
-                     if index.isValid() and
-                     index.row() < self.users_model.num_entries}
+        to_remove = {
+            index.row()
+            for index in self.userTable.selectedIndexes()
+            if index.isValid() and index.row() < self.users_model.num_entries
+        }
         self.users_model.remove_rows(to_remove)
 
     @pyqtSlot()
@@ -425,9 +440,10 @@ class ExpPanel(PanelBase):
 
     @pyqtSlot()
     def on_deleteSampleButton_clicked(self):
-        to_remove = {index.column()
-                     for index in self.sampleTable.selectedIndexes()
-                     if index.isValid() and
-                     index.column() < self.samples_model.num_entries}
+        to_remove = {
+            index.column()
+            for index in self.sampleTable.selectedIndexes() if index.isValid()
+            and index.column() < self.samples_model.num_entries
+        }
         self.samples_model.remove_rows(to_remove)
         self._format_sample_table()

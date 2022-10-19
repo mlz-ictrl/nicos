@@ -23,8 +23,9 @@
 # *****************************************************************************
 from nicos import session
 from nicos.commands import usercommand
-from nicos_ess.devices.epics.area_detector import DARKFIELD,  FLATFIELD, \
-    ImageType, PROJECTION
+
+from nicos_ess.devices.epics.area_detector import DARKFIELD, FLATFIELD, \
+    PROJECTION, ImageType
 
 
 def _find_imagetype_dev():

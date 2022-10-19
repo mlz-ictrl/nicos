@@ -3,13 +3,15 @@ description = 'Beamstop related devices'
 group = 'optional'
 
 devices = dict(
-    beamstop_mon=device('nicos.devices.generic.VirtualCounter',
+    beamstop_mon=device(
+        'nicos.devices.generic.VirtualCounter',
         description='Beam monitor 5',
         fmtstr='%d',
         type='monitor',
         countrate=300,
     ),
-    beamstop_motor=device('nicos.devices.generic.virtual.VirtualMotor',
+    beamstop_motor=device(
+        'nicos.devices.generic.virtual.VirtualMotor',
         description='Motor for changing beamstop',
         fmtstr="%7.2f",
         userlimits=(0, 70),
@@ -19,7 +21,8 @@ devices = dict(
         speed=10.,
         visibility=(),
     ),
-    beamstop_size=device('nicos.devices.generic.Switcher',
+    beamstop_size=device(
+        'nicos.devices.generic.Switcher',
         description='The current beamstop',
         moveable='beamstop_motor',
         mapping={

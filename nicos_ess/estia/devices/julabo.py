@@ -21,7 +21,6 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-
 """
 This module contains a device for reading the Julabo temperature
 controller using EPICS.
@@ -34,7 +33,8 @@ from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 from nicos_ess.devices.epics.extensions import HasDisablePv
 
 
-class TemperatureController(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
+class TemperatureController(HasDisablePv, HasPrecision,
+                            EpicsAnalogMoveableEss):
     """
     Julabo devices with status and power switch.
 
@@ -48,30 +48,69 @@ class TemperatureController(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
     """
 
     parameters = {
-        'statuscodepv': Param('PV name for integer status code', type=pvname,
-                              mandatory=False),
-        'statusmsgpv': Param('PV name for status message', type=pvname,
-                             mandatory=False),
-        'pvprefix': Param('PV prefix for the device', type=str),
-        'power': Param('Output power being used', type=float, settable=False,
-                       category='general', unit='%'),
-        't_external': Param('External PT100 sensor', type=float,
-                            settable=False, category='general', unit='C'),
-        't_safety': Param('Temperature reported by safety sensor',
-                          type=float, settable=False, category='general',
-                          chatty=True, unit='C'),
-        'p_internal': Param('Proportional control parameter', settable=True,
-                            type=float, category='general', chatty=True),
-        'i_internal': Param('Integral control parameter', settable=True,
-                            type=float, category='general', chatty=True),
-        'd_internal': Param('Derivative control parameter', settable=True,
-                            type=float, category='general', chatty=True),
-        'p_external': Param('Proportional control parameter', settable=True,
-                            type=float, category='general', chatty=True),
-        'i_external': Param('Integral control parameter', settable=True,
-                            type=float, category='general', chatty=True),
-        'd_external': Param('Derivative control parameter', settable=True,
-                            type=float, category='general', chatty=True),
+        'statuscodepv':
+            Param('PV name for integer status code',
+                  type=pvname,
+                  mandatory=False),
+        'statusmsgpv':
+            Param('PV name for status message', type=pvname, mandatory=False),
+        'pvprefix':
+            Param('PV prefix for the device', type=str),
+        'power':
+            Param('Output power being used',
+                  type=float,
+                  settable=False,
+                  category='general',
+                  unit='%'),
+        't_external':
+            Param('External PT100 sensor',
+                  type=float,
+                  settable=False,
+                  category='general',
+                  unit='C'),
+        't_safety':
+            Param('Temperature reported by safety sensor',
+                  type=float,
+                  settable=False,
+                  category='general',
+                  chatty=True,
+                  unit='C'),
+        'p_internal':
+            Param('Proportional control parameter',
+                  settable=True,
+                  type=float,
+                  category='general',
+                  chatty=True),
+        'i_internal':
+            Param('Integral control parameter',
+                  settable=True,
+                  type=float,
+                  category='general',
+                  chatty=True),
+        'd_internal':
+            Param('Derivative control parameter',
+                  settable=True,
+                  type=float,
+                  category='general',
+                  chatty=True),
+        'p_external':
+            Param('Proportional control parameter',
+                  settable=True,
+                  type=float,
+                  category='general',
+                  chatty=True),
+        'i_external':
+            Param('Integral control parameter',
+                  settable=True,
+                  type=float,
+                  category='general',
+                  chatty=True),
+        'd_external':
+            Param('Derivative control parameter',
+                  settable=True,
+                  type=float,
+                  category='general',
+                  chatty=True),
     }
 
     parameter_overrides = {

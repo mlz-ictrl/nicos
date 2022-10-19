@@ -23,15 +23,16 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """Helpers for working with tables."""
+
+from nicos.guisupport.qt import QApplication, Qt
 
 from nicos_ess.utilities.table_utils import convert_table_to_clipboard_text, \
     extract_table_from_clipboard_text
-from nicos.guisupport.qt import QApplication, Qt
 
 
 class Clipboard:
+
     def __init__(self):
         self.clipboard = QApplication.instance().clipboard()
 
@@ -46,6 +47,7 @@ class Clipboard:
 
 
 class TableHelper:
+
     def __init__(self, table_view, model, clipboard):
         self.table_view = table_view
         self.model = model
@@ -97,9 +99,10 @@ class TableHelper:
 
         # Copied data is tabular so insert at top-left most position
         top_left = self.table_view.selectedIndexes()[0]
-        column_indexes = [i for i, _ in enumerate(self.model._headings)
-                          if not self.table_view.isColumnHidden(i)
-                          and i >= top_left.column()]
+        column_indexes = [
+            i for i, _ in enumerate(self.model._headings) if
+            not self.table_view.isColumnHidden(i) and i >= top_left.column()
+        ]
         for row_index, row_data in enumerate(copied_table):
             current_row = top_left.row() + row_index
             if current_row == self.model.num_entries:

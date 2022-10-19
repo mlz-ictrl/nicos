@@ -55,19 +55,37 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     valuetype = float
 
     parameters = {
-        'motorpv': Param('Name of the motor record PV.', type=pvname,
-                         mandatory=True, settable=False, userparam=False),
-        'errormsgpv': Param('Optional PV with error message.', type=pvname,
-                            mandatory=False, settable=False, userparam=False),
-        'errorbitpv': Param('Optional PV with error bit.', type=pvname,
-                            mandatory=False, settable=False, userparam=False),
-        'reseterrorpv': Param('Optional PV with error reset switch.',
-                              type=pvname, mandatory=False, settable=False,
-                              userparam=False),
-        'reference_direction': Param('Reference run direction.',
-                                     type=oneof('forward', 'reverse'),
-                                     default='forward', settable=False,
-                                     userparam=False, mandatory=False),
+        'motorpv':
+            Param('Name of the motor record PV.',
+                  type=pvname,
+                  mandatory=True,
+                  settable=False,
+                  userparam=False),
+        'errormsgpv':
+            Param('Optional PV with error message.',
+                  type=pvname,
+                  mandatory=False,
+                  settable=False,
+                  userparam=False),
+        'errorbitpv':
+            Param('Optional PV with error bit.',
+                  type=pvname,
+                  mandatory=False,
+                  settable=False,
+                  userparam=False),
+        'reseterrorpv':
+            Param('Optional PV with error reset switch.',
+                  type=pvname,
+                  mandatory=False,
+                  settable=False,
+                  userparam=False),
+        'reference_direction':
+            Param('Reference run direction.',
+                  type=oneof('forward', 'reverse'),
+                  default='forward',
+                  settable=False,
+                  userparam=False,
+                  mandatory=False),
     }
 
     parameter_overrides = {
@@ -182,8 +200,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         speed = self._get_valid_speed(value)
 
         if speed != value:
-            self.log.warning('Selected speed %s is outside the parameter '
-                             'limits, using %s instead.', value, speed)
+            self.log.warning(
+                'Selected speed %s is outside the parameter '
+                'limits, using %s instead.', value, speed)
 
         self._put_pv('speed', speed)
 
@@ -251,8 +270,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         miss = self._get_pv('miss')
         if miss != 0:
-            return (
-                status.NOTREACHED, message or 'did not reach target position.')
+            return (status.NOTREACHED, message
+                    or 'did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:

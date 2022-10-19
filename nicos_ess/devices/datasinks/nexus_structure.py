@@ -44,8 +44,12 @@ class NexusStructureProvider(Device):
 
 class NexusStructureJsonFile(NexusStructureProvider):
     parameters = {
-        'nexus_config_path': Param('NeXus configuration filepath',
-            type=relative_path, mandatory=True, userparam=True, settable=True),
+        'nexus_config_path':
+            Param('NeXus configuration filepath',
+                  type=relative_path,
+                  mandatory=True,
+                  userparam=True,
+                  settable=True),
     }
 
     def get_structure(self, dataset, start_time):
@@ -61,7 +65,11 @@ class NexusStructureJsonFile(NexusStructureProvider):
         structure = self._insert_samples(structure, metainfo)
         return structure
 
-    def _generate_nxclass_template(self, nx_class, prefix, entities, skip_keys=None):
+    def _generate_nxclass_template(self,
+                                   nx_class,
+                                   prefix,
+                                   entities,
+                                   skip_keys=None):
         temp = []
         for entity in entities:
             entity_name = entity.get('name', '').replace(' ', '')
@@ -71,22 +79,22 @@ class NexusStructureJsonFile(NexusStructureProvider):
             result = {
                 'type': 'group',
                 'name': f'{prefix}_{entity_name}',
-                'attributes': {'NX_class': nx_class},
+                'attributes': {
+                    'NX_class': nx_class
+                },
                 'children': [],
             }
             for n, v in entity.items():
                 if skip_keys and n in skip_keys:
                     continue
-                result['children'].append(
-                    {
-                        'module': 'dataset',
-                        'config': {
-                            'name': n,
-                            'values': v,
-                            'dtype': 'string'
-                        }
+                result['children'].append({
+                    'module': 'dataset',
+                    'config': {
+                        'name': n,
+                        'values': v,
+                        'dtype': 'string'
                     }
-                )
+                })
             temp.append(json.dumps(result))
         return ','.join(temp) if temp else ''
 
@@ -95,15 +103,16 @@ class NexusStructureJsonFile(NexusStructureProvider):
             'NXsample',
             'sample',
             metainfo[('Sample', 'samples')][0].values(),
-            skip_keys=['number_of']
-        )
+            skip_keys=['number_of'])
         if samples_str:
             structure = structure.replace('"$SAMPLES$"', samples_str)
         return structure
 
     def _insert_users(self, structure, metainfo):
         users_str = self._generate_nxclass_template(
-            'NXuser', 'user', metainfo[('Exp', 'users')][0],
+            'NXuser',
+            'user',
+            metainfo[('Exp', 'users')][0],
         )
         if users_str:
             structure = structure.replace('"$USERS$"', users_str)
@@ -116,13 +125,17 @@ class NexusStructureAreaDetector(NexusStructureJsonFile):
     area detectors with changing image size (e.g. neutron or light tomography).
     """
     parameters = {
-        'area_det_collector_device': Param('Area collector device name',
-            type=str, mandatory=True, userparam=True, settable=True),
+        'area_det_collector_device':
+            Param('Area collector device name',
+                  type=str,
+                  mandatory=True,
+                  userparam=True,
+                  settable=True),
     }
 
     def get_structure(self, dataset, start_time):
-        structure = NexusStructureJsonFile.get_structure(self, dataset,
-                                                         start_time)
+        structure = NexusStructureJsonFile.get_structure(
+            self, dataset, start_time)
         return self._add_area_detector_array_size(structure)
 
     def _add_area_detector_array_size(self, structure):
@@ -135,7 +148,8 @@ class NexusStructureAreaDetector(NexusStructureJsonFile):
             if 'config' in item and 'array_size' in item['config']:
                 if item['config']['array_size'] == '$AREADET$':
                     item['config']['array_size'] = []
-                    for val in self._get_detector_device_array_size(item['config']):
+                    for val in self._get_detector_device_array_size(
+                            item['config']):
                         item['config']['array_size'].append(val)
             if 'children' in item:
                 self._replace_area_detector_placeholder(item)
@@ -149,11 +163,14 @@ class NexusStructureAreaDetector(NexusStructureJsonFile):
 
 class NexusStructureTemplate(NexusStructureProvider):
     parameters = {
-        'templatesmodule': Param(
-            'Python module containing NeXus nexus_templates',
-            type=str, mandatory=True),
-        'templatename': Param('Template name from the nexus_templates module',
-            type=str, mandatory=True),
+        'templatesmodule':
+            Param('Python module containing NeXus nexus_templates',
+                  type=str,
+                  mandatory=True),
+        'templatename':
+            Param('Template name from the nexus_templates module',
+                  type=str,
+                  mandatory=True),
     }
 
     _templates = []
@@ -161,9 +178,8 @@ class NexusStructureTemplate(NexusStructureProvider):
 
     def doInit(self, mode):
         self.log.info(self.templatesmodule)
-        self._templates = __import__(
-            self.templatesmodule, fromlist=[self.templatename]
-        )
+        self._templates = __import__(self.templatesmodule,
+                                     fromlist=[self.templatename])
         self.log.info('Finished importing nexus_templates')
         self.set_template(self.templatename)
 
@@ -175,10 +191,8 @@ class NexusStructureTemplate(NexusStructureProvider):
         :param val: template name
         """
         if not hasattr(self._templates, val):
-            raise NicosError(
-                'Template %s not found in module %s'
-                % (val, self.templatesmodule)
-            )
+            raise NicosError('Template %s not found in module %s' %
+                             (val, self.templatesmodule))
 
         self._template = getattr(self._templates, val)
 
@@ -189,9 +203,9 @@ class NexusStructureTemplate(NexusStructureProvider):
         if ('dataset', 'starttime') not in dataset.metainfo:
             start_time = time.strftime('%Y-%m-%d %H:%M:%S',
                                        time.localtime(dataset.started))
-            dataset.metainfo[('dataset', 'starttime')] = (start_time,
-                                                          start_time,
-                                                          '', 'general')
+            dataset.metainfo[('dataset',
+                              'starttime')] = (start_time, start_time, '',
+                                               'general')
 
     def get_structure(self, dataset, start_time):
         template = copy.deepcopy(self._template)

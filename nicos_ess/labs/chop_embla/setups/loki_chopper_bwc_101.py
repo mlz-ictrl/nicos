@@ -10,10 +10,11 @@ devices = dict(
         writepv='{}C_Execute'.format(pv_root),
         requires={'level': 'admin'},
         visibility=(),
-        mapping={'Start chopper': 6,
-                 'Stop chopper': 3,
-                 'Reset chopper': 1,
-                 'Clear chopper': 8,
+        mapping={
+            'Start chopper': 6,
+            'Stop chopper': 3,
+            'Reset chopper': 1,
+            'Clear chopper': 8,
         },
     ),
     chopper_speed_bwc1=device(

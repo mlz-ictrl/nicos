@@ -3,7 +3,8 @@ description = 'Chopper 2'
 group = 'optional'
 
 devices = dict(
-    ch2_speed=device('nicos.devices.generic.virtual.VirtualMotor',
+    ch2_speed=device(
+        'nicos.devices.generic.virtual.VirtualMotor',
         description='Rotation speed',
         abslimits=(0, 300),
         userlimits=(0, 300),
@@ -11,7 +12,8 @@ devices = dict(
         unit='Hz',
         speed=5,
     ),
-    ch2_phase=device('nicos.devices.generic.virtual.VirtualMotor',
+    ch2_phase=device(
+        'nicos.devices.generic.virtual.VirtualMotor',
         description='Phase angle',
         abslimits=(-180, 180),
         userlimits=(-180, 180),

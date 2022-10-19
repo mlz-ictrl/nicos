@@ -21,7 +21,6 @@
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
-
 """
 This module contains ESS specific Base classes for EPICS.
 """
@@ -42,9 +41,7 @@ class EpicsReadableEss(EpicsReadable):
 
 
 class EpicsStringReadableEss(EpicsStringReadable):
-    parameter_overrides = {
-        'readpv': Override(userparam=False)
-    }
+    parameter_overrides = {'readpv': Override(userparam=False)}
 
 
 class EpicsMoveableEss(EpicsMoveable):

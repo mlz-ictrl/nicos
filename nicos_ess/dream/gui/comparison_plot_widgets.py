@@ -62,11 +62,18 @@ class PlotWidget1D(PlotWidget):
 
 
 class ComparisonPlot1D(PlotWidget1D):
+
     def __init__(self, title, x_label, y_label, n_curves, parent=None):
-        PlotWidget1D.__init__(self, title, x_label, y_label, n_curves, parent=parent)
-        curve = MaskedPlotCurve(
-            [0], [1], linewidth=2, legend='Difference', linecolor=COLOR_GREEN
-        )
+        PlotWidget1D.__init__(self,
+                              title,
+                              x_label,
+                              y_label,
+                              n_curves,
+                              parent=parent)
+        curve = MaskedPlotCurve([0], [1],
+                                linewidth=2,
+                                legend='Difference',
+                                linecolor=COLOR_GREEN)
         self.plot.axes.addCurves(curve)
         self.plot._curves.append(curve)
         self.plot._curves[0].legend = 'Current'
@@ -74,6 +81,7 @@ class ComparisonPlot1D(PlotWidget1D):
 
 
 class ComparisonPlot2D(QWidget):
+
     def __init__(self, title, parent=None):
         QWidget.__init__(self, parent)
         parent.setLayout(QVBoxLayout())
@@ -82,9 +90,8 @@ class ComparisonPlot2D(QWidget):
         titleLabel.setAlignment(Qt.AlignCenter)
         titleLabel.setStyleSheet('QLabel {font-weight: 600}')
         parent.layout().insertWidget(0, titleLabel)
-        self.plot.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
-        )
+        self.plot.setSizePolicy(QSizePolicy.MinimumExpanding,
+                                QSizePolicy.MinimumExpanding)
         parent.layout().insertWidget(1, self.plot)
 
     def setData(self, array, labels=None):

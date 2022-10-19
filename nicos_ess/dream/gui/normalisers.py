@@ -33,11 +33,13 @@ class NormaliserType(Enum):
 
 
 class NoNormaliser:
+
     def normalise(self, y, x):
         return y
 
 
 class IntegralNormaliser:
+
     def normalise(self, y, x):
         if not np.any(y):
             # if all entries are zero return the original array

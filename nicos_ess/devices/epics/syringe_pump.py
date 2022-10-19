@@ -32,22 +32,41 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
     A device for controlling the NE1002 and NE1600 syringe pumps.
     """
     parameters = {
-        'start_pv': Param('PV for starting the device', type=pvname,
-                          mandatory=True, userparam=False),
-        'stop_pv': Param('PV for stopping the device', type=pvname,
-                         mandatory=True, userparam=False),
-        'purge_pv': Param('PV for purging the device', type=pvname,
-                          mandatory=True, userparam=False),
-        'pause_pv': Param('PV for pausing and resuming the device', type=pvname,
-                          mandatory=True, userparam=False),
-        'message_pv': Param('PV for reading error messages from the device',
-                            type=pvname, mandatory=True, userparam=False),
+        'start_pv':
+            Param('PV for starting the device',
+                  type=pvname,
+                  mandatory=True,
+                  userparam=False),
+        'stop_pv':
+            Param('PV for stopping the device',
+                  type=pvname,
+                  mandatory=True,
+                  userparam=False),
+        'purge_pv':
+            Param('PV for purging the device',
+                  type=pvname,
+                  mandatory=True,
+                  userparam=False),
+        'pause_pv':
+            Param('PV for pausing and resuming the device',
+                  type=pvname,
+                  mandatory=True,
+                  userparam=False),
+        'message_pv':
+            Param('PV for reading error messages from the device',
+                  type=pvname,
+                  mandatory=True,
+                  userparam=False),
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False, settable=False, userparam=False),
-        'mapping': Override(mandatory=False, settable=False, userparam=False,
-                            volatile=True),
+        'unit':
+            Override(mandatory=False, settable=False, userparam=False),
+        'mapping':
+            Override(mandatory=False,
+                     settable=False,
+                     userparam=False,
+                     volatile=True),
     }
 
     attached_devices = {
@@ -57,9 +76,13 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
     _commands = {}
 
     def doInit(self, mode):
-        self._commands = {'start': self.start_pump, 'stop': self.stop_pump,
-                          'purge': self.purge, 'pause': self.pause_pump,
-                          'resume': self.resume_pump}
+        self._commands = {
+            'start': self.start_pump,
+            'stop': self.stop_pump,
+            'purge': self.purge,
+            'pause': self.pause_pump,
+            'resume': self.resume_pump
+        }
         MappedMoveable.doInit(self, mode)
 
     def _get_pv_parameters(self):

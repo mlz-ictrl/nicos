@@ -17,22 +17,19 @@ devices = dict(
         description='instrument object',
         instrument='DREAM',
         responsible='Ebad Kamil <ebad.kamil@ess.eu>',
-        website='https://europeanspallationsource.se/instruments/dream'
-    ),
+        website='https://europeanspallationsource.se/instruments/dream'),
     Sample=device(
         'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
-    Exp=device(
-        'nicos_ess.devices.experiment.EssExperiment',
-        description='experiment object',
-        dataroot='/opt/nicos-data/dream',
-        sample='Sample',
-        cache_filepath='/opt/nicos-data/dream/cached_proposals.json'
-    ),
-    conssink=device('nicos.devices.datasinks.ConsoleScanSink',),
-    daemonsink=device('nicos.devices.datasinks.DaemonSink',),
-    liveview=device('nicos.devices.datasinks.LiveViewSink',),
+    Exp=device('nicos_ess.devices.experiment.EssExperiment',
+               description='experiment object',
+               dataroot='/opt/nicos-data/dream',
+               sample='Sample',
+               cache_filepath='/opt/nicos-data/dream/cached_proposals.json'),
+    conssink=device('nicos.devices.datasinks.ConsoleScanSink', ),
+    daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
+    liveview=device('nicos.devices.datasinks.LiveViewSink', ),
     Space=device(
         'nicos.devices.generic.FreeSpace',
         description='The amount of free space for storing data',

@@ -32,10 +32,17 @@ class EpicsCounter(CounterChannelMixin, EpicsReadable, PassiveChannel):
     """Counter channel that sums the values of a PV as it changes."""
 
     parameters = {
-        'total': Param('The total amount summed so far', type=float,
-                       settable=True, internal=True),
-        'started': Param('Whether a collection is in progress', type=bool,
-                         settable=True, default=False, internal=True),
+        'total':
+            Param('The total amount summed so far',
+                  type=float,
+                  settable=True,
+                  internal=True),
+        'started':
+            Param('Whether a collection is in progress',
+                  type=bool,
+                  settable=True,
+                  default=False,
+                  internal=True),
     }
 
     parameter_overrides = {

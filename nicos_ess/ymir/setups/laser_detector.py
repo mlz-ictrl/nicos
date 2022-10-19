@@ -8,7 +8,6 @@ devices = dict(
         visibility=(),
     ),
     laser=device('nicos_ess.ymir.devices.laser_detector.LaserDetector',
-        description='Laser detector in YMIR cave',
-        laser='laser_pv'
-    ),
+                 description='Laser detector in YMIR cave',
+                 laser='laser_pv'),
 )

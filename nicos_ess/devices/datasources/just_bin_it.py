@@ -45,11 +45,12 @@ class Hist1dTof:
 
     @classmethod
     def get_array_description(cls, name, num_bins, **ignored):
-        return ArrayDesc(name, shape=(num_bins,), dtype=np.float64)
+        return ArrayDesc(name, shape=(num_bins, ), dtype=np.float64)
 
     @classmethod
     def get_zeroes(cls, num_bins, **ignored):
-        return cls.transform_data(np.zeros(shape=(num_bins,), dtype=np.float64))
+        return cls.transform_data(
+            np.zeros(shape=(num_bins, ), dtype=np.float64))
 
     @classmethod
     def transform_data(cls, data, rotation=None):
@@ -69,20 +70,20 @@ class Hist2dTof:
 
     @classmethod
     def get_zeroes(cls, num_bins, **ignored):
-        return cls.transform_data(np.zeros(shape=(num_bins, num_bins),
-                                           dtype=np.float64))
+        return cls.transform_data(
+            np.zeros(shape=(num_bins, num_bins), dtype=np.float64))
 
     @classmethod
     def transform_data(cls, data, rotation=None):
         # For the ESS detector orientation, pixel 0 is at top-left
         if rotation:
-            return np.rot90(data, k=rotation//90)
+            return np.rot90(data, k=rotation // 90)
         return data
 
     @classmethod
     def get_info(cls, name, num_bins, **ignored):
-        return [(f'{name} bins', (num_bins, num_bins),
-                 str((num_bins, num_bins)), '', 'general')]
+        return [(f'{name} bins', (num_bins, num_bins), str(
+            (num_bins, num_bins)), '', 'general')]
 
 
 class Hist2dDet:
@@ -90,19 +91,18 @@ class Hist2dDet:
 
     @classmethod
     def get_array_description(cls, name, det_width, det_height, **ignored):
-        return ArrayDesc(name, shape=(det_width, det_height),
-                         dtype=np.float64)
+        return ArrayDesc(name, shape=(det_width, det_height), dtype=np.float64)
 
     @classmethod
     def get_zeroes(cls, det_width, det_height, **ignored):
-        return cls.transform_data(np.zeros(shape=(det_width, det_height),
-                                           dtype=np.float64))
+        return cls.transform_data(
+            np.zeros(shape=(det_width, det_height), dtype=np.float64))
 
     @classmethod
     def transform_data(cls, data, rotation=None):
         # For the ESS detector orientation, pixel 0 is at top-left
         if rotation:
-            return np.rot90(data, k=rotation//90)
+            return np.rot90(data, k=rotation // 90)
         return data
 
     @classmethod
@@ -116,19 +116,18 @@ class Hist2dRoi:
 
     @classmethod
     def get_array_description(cls, name, det_width, left_edges, **ignored):
-        return ArrayDesc(name, shape=(det_width, left_edges),
-                         dtype=np.float64)
+        return ArrayDesc(name, shape=(det_width, left_edges), dtype=np.float64)
 
     @classmethod
     def get_zeroes(cls, det_width, left_edges, **ignored):
-        return cls.transform_data(np.zeros(shape=(det_width, left_edges),
-                                           dtype=np.float64))
+        return cls.transform_data(
+            np.zeros(shape=(det_width, left_edges), dtype=np.float64))
 
     @classmethod
     def transform_data(cls, data, rotation=None):
         # For the ESS detector orientation, pixel 0 is at top-left
         if rotation:
-            return np.rot90(data, k=rotation//90)
+            return np.rot90(data, k=rotation // 90)
         return data
 
     @classmethod
@@ -145,7 +144,6 @@ hist_type_by_name = {
     '2-D ROI': Hist2dRoi,
 }
 
-
 deserialiser_by_schema = {
     'hs00': deserialise_hs00,
     'hs01': deserialise_hs01,
@@ -154,52 +152,97 @@ deserialiser_by_schema = {
 
 class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     parameters = {
-        'hist_topic': Param('The topic to listen on for the histogram data',
-                            type=str, userparam=False, settable=False,
-                            mandatory=True,
-                            ),
-        'data_topic': Param('The topic to listen on for the event data',
-                            type=str, userparam=False, settable=False,
-                            mandatory=True,
-                            ),
-        'hist_type': Param('The number of dimensions to histogram in',
-                           type=oneof(*hist_type_by_name.keys()),
-                           default='1-D TOF', userparam=True, settable=True
-                           ),
-        'tof_range': Param('The time-of-flight range to histogram',
-                           type=tupleof(int, int), default=(0, 100000000),
-                           userparam=True, settable=True,
-                           ),
-        'det_range': Param('The detector range to histogram over',
-                           type=tupleof(int, int), default=(0, 100),
-                           userparam=True, settable=True,
-                           ),
-        'det_width': Param('The width in pixels of the detector', type=int,
-                           default=10, userparam=True, settable=True
-                           ),
-        'det_height': Param('The height in pixels of the detector', type=int,
-                            default=10, userparam=True, settable=True
-                            ),
-        'num_bins': Param('The number of bins to histogram into', type=int,
-                          default=50, userparam=True, settable=True,
-                          ),
-        'left_edges': Param('The left edges for a ROI histogram',
-                            type=listof(int), default=[],
-                            userparam=True, settable=True,
-                            ),
-        'source': Param('Identifier source on multiplexed topics', type=str,
-                        default='', userparam=True, settable=True,
-                        ),
-        'rotation': Param('Rotation angle to apply to the image',
-                          type=oneof(0, 90, 180, 270),
-                          default=90, userparam=True, settable=True,
-                          ),
+        'hist_topic':
+            Param(
+                'The topic to listen on for the histogram data',
+                type=str,
+                userparam=False,
+                settable=False,
+                mandatory=True,
+            ),
+        'data_topic':
+            Param(
+                'The topic to listen on for the event data',
+                type=str,
+                userparam=False,
+                settable=False,
+                mandatory=True,
+            ),
+        'hist_type':
+            Param('The number of dimensions to histogram in',
+                  type=oneof(*hist_type_by_name.keys()),
+                  default='1-D TOF',
+                  userparam=True,
+                  settable=True),
+        'tof_range':
+            Param(
+                'The time-of-flight range to histogram',
+                type=tupleof(int, int),
+                default=(0, 100000000),
+                userparam=True,
+                settable=True,
+            ),
+        'det_range':
+            Param(
+                'The detector range to histogram over',
+                type=tupleof(int, int),
+                default=(0, 100),
+                userparam=True,
+                settable=True,
+            ),
+        'det_width':
+            Param('The width in pixels of the detector',
+                  type=int,
+                  default=10,
+                  userparam=True,
+                  settable=True),
+        'det_height':
+            Param('The height in pixels of the detector',
+                  type=int,
+                  default=10,
+                  userparam=True,
+                  settable=True),
+        'num_bins':
+            Param(
+                'The number of bins to histogram into',
+                type=int,
+                default=50,
+                userparam=True,
+                settable=True,
+            ),
+        'left_edges':
+            Param(
+                'The left edges for a ROI histogram',
+                type=listof(int),
+                default=[],
+                userparam=True,
+                settable=True,
+            ),
+        'source':
+            Param(
+                'Identifier source on multiplexed topics',
+                type=str,
+                default='',
+                userparam=True,
+                settable=True,
+            ),
+        'rotation':
+            Param(
+                'Rotation angle to apply to the image',
+                type=oneof(0, 90, 180, 270),
+                default=90,
+                userparam=True,
+                settable=True,
+            ),
     }
 
     parameter_overrides = {
-        'unit': Override(default='events', settable=False, mandatory=False),
-        'fmtstr': Override(default='%d'),
-        'pollinterval': Override(default=None, userparam=False, settable=False),
+        'unit':
+            Override(default='events', settable=False, mandatory=False),
+        'fmtstr':
+            Override(default='%d'),
+        'pollinterval':
+            Override(default=None, userparam=False, settable=False),
     }
 
     def doPreinit(self, mode):
@@ -258,14 +301,14 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
                 break
 
             self._hist_data = hist_type_by_name[self.hist_type].transform_data(
-                    hist['data'], rotation=self.rotation
-            )
+                hist['data'], rotation=self.rotation)
             self._hist_sum = self._hist_data.sum()
             self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
 
     def _update_status(self, new_status, message):
         self._current_status = new_status, message
-        self._cache.put(self._name, 'status', self._current_status, time.time())
+        self._cache.put(self._name, 'status', self._current_status,
+                        time.time())
 
     def doRead(self, maxage=0):
         return [self._hist_sum]
@@ -274,7 +317,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         return self._hist_data
 
     def valueInfo(self):
-        return (Value(self.name, fmtstr='%d'),)
+        return (Value(self.name, fmtstr='%d'), )
 
     def doStart(self):
         self._update_status(status.BUSY, 'Waiting to start...')
@@ -313,8 +356,8 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     def doInfo(self):
         result = [(f'{self.name} histogram type', self.hist_type,
                    self.hist_type, '', 'general')]
-        result.extend(hist_type_by_name[self.hist_type].get_info(
-            **self._params))
+        result.extend(
+            hist_type_by_name[self.hist_type].get_info(**self._params))
         return result
 
 
@@ -324,29 +367,52 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
     Note: it only uses image channels.
     """
     parameters = {
-        'command_topic': Param('The topic to send just-bin-it commands to',
-                               type=str, userparam=False, settable=False,
-                               mandatory=True,
-                               ),
-        'response_topic': Param('The topic where just-bin-it responses appear',
-                               type=str, userparam=False, settable=False,
-                               mandatory=True,
-                               ),
-        'ack_timeout': Param('How long to wait for timeout on acknowledgement',
-                             type=int, default=5, unit='s',
-                             userparam=False, settable=False,
-                             ),
-        'hist_schema': Param('Which schema to use for histograms',
-                             type=oneof(*deserialiser_by_schema.keys()),
-                             default='hs00', userparam=False, settable=True,),
+        'command_topic':
+            Param(
+                'The topic to send just-bin-it commands to',
+                type=str,
+                userparam=False,
+                settable=False,
+                mandatory=True,
+            ),
+        'response_topic':
+            Param(
+                'The topic where just-bin-it responses appear',
+                type=str,
+                userparam=False,
+                settable=False,
+                mandatory=True,
+            ),
+        'ack_timeout':
+            Param(
+                'How long to wait for timeout on acknowledgement',
+                type=int,
+                default=5,
+                unit='s',
+                userparam=False,
+                settable=False,
+            ),
+        'hist_schema':
+            Param(
+                'Which schema to use for histograms',
+                type=oneof(*deserialiser_by_schema.keys()),
+                default='hs00',
+                userparam=False,
+                settable=True,
+            ),
     }
 
     parameter_overrides = {
-        'unit': Override(default='events', settable=False, mandatory=False),
-        'fmtstr': Override(default='%d'),
-        'liveinterval': Override(type=floatrange(0.5), default=1),
-        'pollinterval': Override(default=None, userparam=False, settable=False),
-        'statustopic': Override(default='', mandatory=False),
+        'unit':
+            Override(default='events', settable=False, mandatory=False),
+        'fmtstr':
+            Override(default='%d'),
+        'liveinterval':
+            Override(type=floatrange(0.5), default=1),
+        'pollinterval':
+            Override(default=None, userparam=False, settable=False),
+        'statustopic':
+            Override(default='', mandatory=False),
     }
     _last_live = 0
     _presets = {}
@@ -450,7 +516,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         if self._conditions:
             self._conditions_thread = createThread('jbi-conditions',
                                                    self._check_conditions,
-                                                   (self._conditions.copy(),))
+                                                   (self._conditions.copy(), ))
 
     def _check_conditions(self, conditions):
         while not self._exit_thread:
@@ -462,14 +528,14 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
 
     def _handle_message(self, msg):
         if 'response' in msg and msg['response'] == 'ACK':
-            self.log.debug(
-                'Counting request acknowledged by just-bin-it')
+            self.log.debug('Counting request acknowledged by just-bin-it')
             return True
         elif 'response' in msg and msg['response'] == 'ERR':
             self.log.error('just-bin-it could not start counting: %s',
                            msg['message'])
         else:
-            self.log.error('Unknown response message received from just-bin-it')
+            self.log.error(
+                'Unknown response message received from just-bin-it')
         return False
 
     def _send_command(self, topic, message):
@@ -498,11 +564,13 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
 
     def valueInfo(self):
         return tuple(info for channel in self._attached_images
-                          for info in channel.valueInfo())
+                     for info in channel.valueInfo())
 
     def doRead(self, maxage=0):
-        return [data for channel in self._attached_images
-                     for data in channel.read(maxage)]
+        return [
+            data for channel in self._attached_images
+            for data in channel.read(maxage)
+        ]
 
     def doReadArrays(self, quality):
         return [image.doReadArray(quality) for image in self._attached_images]
@@ -520,12 +588,14 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         for i in preset:
             if i not in self._presetkeys:
                 valid_keys = ', '.join(self._presetkeys)
-                raise InvalidValueError(self, f'unrecognised preset {i}, should'
-                                              f' one of {valid_keys}')
+                raise InvalidValueError(
+                    self, f'unrecognised preset {i}, should'
+                    f' one of {valid_keys}')
         if 't' in preset and \
                 len(self._presetkeys.intersection(preset.keys())) > 1:
-            raise InvalidValueError(self, 'Cannot set number of detector counts'
-                                          ' and a time interval together')
+            raise InvalidValueError(
+                self, 'Cannot set number of detector counts'
+                ' and a time interval together')
         self._presets = preset.copy()
 
     def doStop(self):
@@ -568,8 +638,10 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         pass
 
     def doInfo(self):
-        return [data for channel in self._attached_images
-                     for data in channel.doInfo()]
+        return [
+            data for channel in self._attached_images
+            for data in channel.doInfo()
+        ]
 
     def duringMeasureHook(self, elapsed):
         if self.liveinterval is not None:

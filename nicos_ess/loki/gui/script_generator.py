@@ -23,7 +23,6 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """LoKI Script Generator."""
 
 from enum import Enum
@@ -38,6 +37,7 @@ class TransOrder(Enum):
 
 
 class Script:
+
     def _get_temperature(self, temperature):
         if not temperature:
             return ''
@@ -70,6 +70,7 @@ class Script:
 
 
 class TransFirst(Script):
+
     def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
@@ -90,6 +91,7 @@ class TransFirst(Script):
 
 
 class SansFirst(Script):
+
     def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
@@ -110,6 +112,7 @@ class SansFirst(Script):
 
 
 class TransThenSans(Script):
+
     def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
@@ -127,6 +130,7 @@ class TransThenSans(Script):
 
 
 class SansThenTrans(Script):
+
     def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
@@ -144,6 +148,7 @@ class SansThenTrans(Script):
 
 
 class Simultaneous(Script):
+
     def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
@@ -170,4 +175,5 @@ class ScriptFactory:
         if trans_order in cls._scripts_by_trans_order:
             return cls._scripts_by_trans_order[trans_order]()
 
-        raise NotImplementedError(f'Unspecified trans order {trans_order.name}')
+        raise NotImplementedError(
+            f'Unspecified trans order {trans_order.name}')

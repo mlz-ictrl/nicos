@@ -1,7 +1,7 @@
 import time
 
 from nicos import session
-from nicos.commands import usercommand, helparglist
+from nicos.commands import helparglist, usercommand
 from nicos.core import SIMULATION
 
 
@@ -34,16 +34,18 @@ def waitfor_stable(device, target, accuracy, time_stable, timeout=3600):
         curr_time = int(time.monotonic())
 
         if curr_time > start_time + timeout:
-            session.log.warning('stablilisation timed out - %s might not be '
-                                'stable', device)
+            session.log.warning(
+                'stablilisation timed out - %s might not be '
+                'stable', device)
             break
 
         if abs(target - curr_pos) <= accuracy:
             if not in_range:
                 in_range = True
                 start_in_range = curr_time
-                session.log.warning('%s is within range, waiting %s seconds '
-                                    'for it to stabilise', device, time_stable)
+                session.log.warning(
+                    '%s is within range, waiting %s seconds '
+                    'for it to stabilise', device, time_stable)
         else:
             if in_range:
                 session.log.warning('%s is no longer in range', device)

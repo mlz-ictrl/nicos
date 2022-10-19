@@ -32,13 +32,14 @@ class EssSample(Sample):
     """
 
     parameters = {
-        'formula': Param('formula', type=str, settable=True,
-                         category='sample'),
-        'number_of': Param('number_of', type=int, settable=True,
-                           category='sample'),
-        'mass_volume': Param('mass/volume', type=str, settable=True,
-                             category='sample'),
-        'density': Param('density', type=str, settable=True, category='sample'),
+        'formula':
+            Param('formula', type=str, settable=True, category='sample'),
+        'number_of':
+            Param('number_of', type=int, settable=True, category='sample'),
+        'mass_volume':
+            Param('mass/volume', type=str, settable=True, category='sample'),
+        'density':
+            Param('density', type=str, settable=True, category='sample'),
     }
 
     parameter_overrides = {

@@ -53,19 +53,37 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
     doStatus uses it for some of the status messages.
     """
     parameters = {
-        'motorpv': Param('Name of the motor record PV.', type=pvname,
-                         mandatory=True, settable=False, userparam=False),
-        'errormsgpv': Param('Optional PV with error message.', type=pvname,
-                            mandatory=False, settable=False, userparam=False),
-        'errorbitpv': Param('Optional PV with error bit.', type=pvname,
-                            mandatory=False, settable=False, userparam=False),
-        'reseterrorpv': Param('Optional PV with error reset switch.',
-                              type=pvname, mandatory=False, settable=False,
-                              userparam=False),
-        'reference_direction': Param('Reference run direction.',
-                                     type=oneof('forward', 'reverse'),
-                                     default='forward', settable=False,
-                                     userparam=False, mandatory=False)
+        'motorpv':
+            Param('Name of the motor record PV.',
+                  type=pvname,
+                  mandatory=True,
+                  settable=False,
+                  userparam=False),
+        'errormsgpv':
+            Param('Optional PV with error message.',
+                  type=pvname,
+                  mandatory=False,
+                  settable=False,
+                  userparam=False),
+        'errorbitpv':
+            Param('Optional PV with error bit.',
+                  type=pvname,
+                  mandatory=False,
+                  settable=False,
+                  userparam=False),
+        'reseterrorpv':
+            Param('Optional PV with error reset switch.',
+                  type=pvname,
+                  mandatory=False,
+                  settable=False,
+                  userparam=False),
+        'reference_direction':
+            Param('Reference run direction.',
+                  type=oneof('forward', 'reverse'),
+                  default='forward',
+                  settable=False,
+                  userparam=False,
+                  mandatory=False)
     }
 
     parameter_overrides = {
@@ -152,8 +170,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         speed = self._get_valid_speed(newValue)
 
         if speed != newValue:
-            self.log.warning('Selected speed %s is outside the parameter '
-                             'limits, using %s instead.', newValue, speed)
+            self.log.warning(
+                'Selected speed %s is outside the parameter '
+                'limits, using %s instead.', newValue, speed)
 
         self._put_pv('speed', speed)
 
@@ -236,8 +255,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
         miss = self._get_pv('miss')
         if miss != 0:
-            return (
-                status.NOTREACHED, message or 'Did not reach target position.')
+            return (status.NOTREACHED, message
+                    or 'Did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
@@ -350,12 +369,14 @@ class AbsoluteEpicsMotor(EpicsMotor):
     """
     The instances of this class cannot be homed.
     """
+
     def doReference(self):
         self.log.warning('This motor does not require '
                          'homing - command ignored')
 
 
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):
+
     def doStart(self, target):
         self._put_pv_blocking('writepv', target, timeout=5)
         if target != self.doRead():

@@ -26,42 +26,48 @@
 
 main_window = docked(
     tabbed(
-        ('Experiment', panel('nicos_ess.gui.panels.exp_panel.ExpPanel',
-                             hide_sample=True)),
-        ('Setup', panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
+        ('Experiment',
+         panel('nicos_ess.gui.panels.exp_panel.ExpPanel', hide_sample=True)),
+        ('Setup',
+         panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
         ('Cell-holder Configuration',
-            panel('nicos_ess.loki.gui.sample_holder_config.LokiSampleHolderPanel')
-        ),
-        ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
-        ('Instrument interaction',
-         hsplit(
-             vbox(
-                 panel(
-                     'nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
-                      modules=['nicos.clients.gui.cmdlets'],
-                    ),
-                 tabbed(
-                     ('Output',
-                      panel('nicos.clients.flowui.panels.console.ConsolePanel',
-                            hasinput=False)),
-                     ('Scan Plot',
-                      panel('nicos.clients.flowui.panels.scans.ScansPanel')),
-                     ('Detector Image',
-                      panel('nicos.clients.flowui.panels.live.MultiLiveDataPanel')),
-                     ('Script Status',
-                      panel('nicos.clients.flowui.panels.status.ScriptStatusPanel',
-                            eta=True)),
-                 ),
-
-             ), # vsplit
-             panel(
-                 'nicos.clients.flowui.panels.devices.DevicesPanel',
-                 dockpos='right',
-                 param_display={'Exp': ['lastpoint', 'lastscan']},
-                 filters=[],
-             ),
-         ),  # hsplit
+         panel('nicos_ess.loki.gui.sample_holder_config.LokiSampleHolderPanel')
          ),
+        ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
+        (
+            'Instrument interaction',
+            hsplit(
+                vbox(
+                    panel(
+                        'nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
+                        modules=['nicos.clients.gui.cmdlets'],
+                    ),
+                    tabbed(
+                        ('Output',
+                         panel(
+                             'nicos.clients.flowui.panels.console.ConsolePanel',
+                             hasinput=False)),
+                        ('Scan Plot',
+                         panel('nicos.clients.flowui.panels.scans.ScansPanel')
+                         ),
+                        ('Detector Image',
+                         panel(
+                             'nicos.clients.flowui.panels.live.MultiLiveDataPanel'
+                         )),
+                        ('Script Status',
+                         panel(
+                             'nicos.clients.flowui.panels.status.ScriptStatusPanel',
+                             eta=True)),
+                    ),
+                ),  # vsplit
+                panel(
+                    'nicos.clients.flowui.panels.devices.DevicesPanel',
+                    dockpos='right',
+                    param_display={'Exp': ['lastpoint', 'lastscan']},
+                    filters=[],
+                ),
+            ),  # hsplit
+        ),
         (
             'Script Builder',
             panel('nicos_ess.loki.gui.scriptbuilder.LokiScriptBuilderPanel',
@@ -76,16 +82,18 @@ main_window = docked(
             'History',
             panel('nicos.clients.flowui.panels.history.HistoryPanel'),
         ),
-        ('Logs',
+        (
+            'Logs',
             tabbed(
-                ('Errors', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-                ('Log files', panel(
-                    'nicos.clients.gui.panels.logviewer.LogViewerPanel')),
+                ('Errors',
+                 panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+                ('Log files',
+                 panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
             ),
-         ),
+        ),
         position='left',
     ),  # tabbed
-    )  # docked
+)  # docked
 
 windows = []
 

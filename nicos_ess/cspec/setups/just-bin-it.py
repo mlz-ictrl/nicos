@@ -12,7 +12,7 @@ devices = dict(
         det_width=32,
         det_height=192,
         det_range=(1, 6144),
-        ),
+    ),
     det_image2=device(
         'nicos_ess.devices.datasources.just_bin_it.JustBinItImage',
         description='A just-bin-it image channel',
@@ -24,7 +24,8 @@ devices = dict(
         det_width=32,
         det_height=192,
     ),
-    det=device('nicos_ess.devices.datasources.just_bin_it.JustBinItDetector',
+    det=device(
+        'nicos_ess.devices.datasources.just_bin_it.JustBinItDetector',
         description='The just-bin-it histogrammer',
         brokers=['172.30.242.20:9092'],
         unit='',

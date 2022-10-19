@@ -11,8 +11,13 @@ ymir_default = {
             "name": DeviceDataset('Exp', 'users'),
         },
         "motion:NXentry": {
-            "motor": EventStream("Ymir_motion", "SES-SCAN:MC-MCU-001:m1.RBV",
-                                 mod="f142", dtype="double",),
+            "motor":
+                EventStream(
+                    "Ymir_motion",
+                    "SES-SCAN:MC-MCU-001:m1.RBV",
+                    mod="f142",
+                    dtype="double",
+                ),
         }
     }
 }

@@ -22,7 +22,6 @@
 #   Artur Glavic <artur.glavic@psi.ch>
 #
 # *****************************************************************************
-
 """
 This module contains a device for reading the Pfeiffer TPG 261
 vacuum gauge controller using a Moxa terminal server.
@@ -37,8 +36,11 @@ class PfeifferTPG261(MoxaCommunicator, Readable):
     a Moxa terminal server.
     """
     parameter_overrides = {
-        'unit': Override(default='mbar', mandatory=False, settable=False,
-                         userparam=False),
+        'unit':
+            Override(default='mbar',
+                     mandatory=False,
+                     settable=False,
+                     userparam=False),
     }
 
     valuetype = float

@@ -6,9 +6,9 @@ devices = dict(
         dev_ignore=['space', 'sample'],
         brokers=configdata('config.KAFKA_BROKERS'),
         output_topic="nicos_cache",
-        update_interval=10.
-    ),
-    Collector=device('nicos.services.collector.Collector',
+        update_interval=10.),
+    Collector=device(
+        'nicos.services.collector.Collector',
         cache='localhost:14869',
         forwarders=['CacheKafka'],
     ),

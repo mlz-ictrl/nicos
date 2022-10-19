@@ -21,7 +21,6 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-
 """
 Status code definitions for EPICS ESS devices
 """

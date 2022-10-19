@@ -34,14 +34,18 @@ from nicos.utils import createThread
 
 class LaserDetector(Measurable):
     parameters = {
-        'answer': Param('Store the iterative average of the attached device value',
-                        internal=True, type=float,
-                        default=0,
-                        settable=True),
-        'curstatus': Param('Store the current device status',
-                           internal=True, type=tupleof(int, str),
-                           default=(status.OK, "idle"),
-                           settable=True)
+        'answer':
+            Param('Store the iterative average of the attached device value',
+                  internal=True,
+                  type=float,
+                  default=0,
+                  settable=True),
+        'curstatus':
+            Param('Store the current device status',
+                  internal=True,
+                  type=tupleof(int, str),
+                  default=(status.OK, "idle"),
+                  settable=True)
     }
 
     attached_devices = {
@@ -58,8 +62,10 @@ class LaserDetector(Measurable):
     def doStart(self):
         self._stoprequest = False
         self.curstatus = status.BUSY, "Counting"
-        self._counting_worker = createThread(
-            'start_counting', self._start_counting, args=(self._presets.get('t', None),))
+        self._counting_worker = createThread('start_counting',
+                                             self._start_counting,
+                                             args=(self._presets.get(
+                                                 't', None), ))
 
     def _start_counting(self, duration=None):
         max_pow = 0
@@ -74,7 +80,7 @@ class LaserDetector(Measurable):
             max_pow = max(self._attached_laser.doRead(), max_pow)
             counter += 1
             value += max_pow
-            self.answer = value / counter # iterative average
+            self.answer = value / counter  # iterative average
             if count_until and time.monotonic() > count_until:
                 break
         self.curstatus = status.OK, "idle"

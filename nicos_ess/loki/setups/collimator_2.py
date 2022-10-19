@@ -3,7 +3,8 @@ description = 'Collimator selector unit 2'
 group = 'optional'
 
 devices = dict(
-    csu_2_motor=device('nicos.devices.generic.virtual.VirtualMotor',
+    csu_2_motor=device(
+        'nicos.devices.generic.virtual.VirtualMotor',
         description='Motor changing guide position',
         fmtstr="%7.2f",
         userlimits=(-131.4, 0.),
@@ -13,7 +14,8 @@ devices = dict(
         speed=5.,
         visibility=(),
     ),
-    coll_2_pos=device('nicos.devices.generic.Switcher',
+    coll_2_pos=device(
+        'nicos.devices.generic.Switcher',
         description='The collimator',
         moveable='csu_2_motor',
         mapping={

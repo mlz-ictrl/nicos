@@ -39,17 +39,34 @@ class IsegNHQChannel(EpicsAnalogMoveableEss):
     """
 
     parameters = {
-        'ramp': Param('Ramp speed when changing voltage (120 to 15300)',
-                      type=floatrange(120, 15300), unit='V/min',
-                      settable=True, volatile=True),
-        'trip': Param('Max current before tripping emergency off (0 for off)',
-                      type=float, unit='mA', settable=True, volatile=True),
-        'current': Param('Measured output current (mA)',
-                         type=float, unit='mA', settable=False, volatile=True),
-        'pvprefix': Param('Prefix to use for EPICS PVs', type=pvname,
-                          mandatory=True, settable=False),
-        'channel': Param('Which channel to use (eg: 1 or 2)', type=int,
-                         mandatory=True, settable=False),
+        'ramp':
+            Param('Ramp speed when changing voltage (120 to 15300)',
+                  type=floatrange(120, 15300),
+                  unit='V/min',
+                  settable=True,
+                  volatile=True),
+        'trip':
+            Param('Max current before tripping emergency off (0 for off)',
+                  type=float,
+                  unit='mA',
+                  settable=True,
+                  volatile=True),
+        'current':
+            Param('Measured output current (mA)',
+                  type=float,
+                  unit='mA',
+                  settable=False,
+                  volatile=True),
+        'pvprefix':
+            Param('Prefix to use for EPICS PVs',
+                  type=pvname,
+                  mandatory=True,
+                  settable=False),
+        'channel':
+            Param('Which channel to use (eg: 1 or 2)',
+                  type=int,
+                  mandatory=True,
+                  settable=False),
     }
 
     parameter_overrides = {
@@ -72,16 +89,13 @@ class IsegNHQChannel(EpicsAnalogMoveableEss):
         'writepv': 'SetVolt{}',
         'targetpv': 'SetVolt{}_rbv',
         'startpv': 'StartVolt{}',
-
         'vmax': 'VMax',
         'error': 'Error',
-
         'setramp': 'RampSpeed{}',
         'getramp': 'RampSpeed{}_rbv',
         'getcurr': 'Curr{}_rbv',
         'settrip': 'CurrTrip{}',
         'gettrip': 'CurrTrip{}_rbv',
-
         'status': 'Status{}_rbv',
         'modstat': 'ModStatus{}_rbv'
     }
@@ -90,7 +104,8 @@ class IsegNHQChannel(EpicsAnalogMoveableEss):
         return set(self._record_fields)
 
     def _get_pv_name(self, pvparam):
-        return self.pvprefix + self._record_fields[pvparam].format(self.channel)
+        return self.pvprefix + self._record_fields[pvparam].format(
+            self.channel)
 
     def doInit(self, mode):
         self._started = False
@@ -127,7 +142,8 @@ class IsegNHQChannel(EpicsAnalogMoveableEss):
             'LAS': (status.WARN, 'Look at Status (only after G-command)'),
             'TRP': (status.ERROR, 'Current trip has been activated!'),
             'KIL': (status.ERROR, 'Kill switch enabled!'),
-            'WAIT': (status.BUSY, 'Start command issued, waiting for response'),
+            'WAIT':
+                (status.BUSY, 'Start command issued, waiting for response'),
         }.get(stat, (status.UNKNOWN, 'Unknown Status: "%s"' % stat))
 
     def doRead(self, maxage=0):

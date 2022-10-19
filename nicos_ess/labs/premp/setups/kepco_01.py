@@ -20,13 +20,19 @@ devices = dict(
         description='Setting remote mode on/off',
         readpv='{}Remote_rbv'.format(pv_root),
         writepv='{}Remote'.format(pv_root),
-        mapping={'OFF': 0, 'ON': 1},
+        mapping={
+            'OFF': 0,
+            'ON': 1
+        },
     ),
     Output_kepco=device(
         'nicos.devices.epics.pva.EpicsMappedMoveable',
         description='Setting output on/off',
         readpv='{}Output_rbv'.format(pv_root),
         writepv='{}Output'.format(pv_root),
-        mapping={'OFF': 0, 'ON': 1},
+        mapping={
+            'OFF': 0,
+            'ON': 1
+        },
     ),
 )

@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+
 class PlaceholderBase:
     """ Base class for a placeholder in NeXus template. Children should
     implement the method *fetch_info* which returns the info of the value

@@ -42,7 +42,6 @@ except ImportError:
     DimensionMetaData = None
 
 
-
 class HistogramFlatbuffersSerializer:
     """
     Encode the histogram using the flatbuffers schema hs00
@@ -98,8 +97,8 @@ class HistogramFlatbuffersSerializer:
         l_bytes = l_elements * self.uint32_bytes  # Number of bytes in hist
 
         # Recalculate the head position of the buffer
-        head = flatbuffers.number_types.UOffsetTFlags.py_type(
-            builder.Head() - l_bytes)
+        head = flatbuffers.number_types.UOffsetTFlags.py_type(builder.Head() -
+                                                              l_bytes)
         builder.head = head
 
         # Copy the bytes from histogram bytearray
@@ -110,7 +109,12 @@ class HistogramFlatbuffersSerializer:
         ArrayUInt.ArrayUIntAddValue(builder, pos_val)
         return ArrayUInt.ArrayUIntEnd(builder)
 
-    def encode(self, timestamp_ns, arraydesc, array, source, metadata_ts=0,
+    def encode(self,
+               timestamp_ns,
+               arraydesc,
+               array,
+               source,
+               metadata_ts=0,
                infostr=''):
         """Serialize using provided argument
         :param timestamp_ns: timestamp in ns
@@ -152,8 +156,8 @@ class HistogramFlatbuffersSerializer:
         EventHistogram.EventHistogramAddTimestamp(builder, timestamp_ns)
         if pos_metadata:
             EventHistogram.EventHistogramAddDimMetadata(builder, pos_metadata)
-        EventHistogram.EventHistogramAddLastMetadataTimestamp(builder,
-                                                              metadata_ts)
+        EventHistogram.EventHistogramAddLastMetadataTimestamp(
+            builder, metadata_ts)
         EventHistogram.EventHistogramAddCurrentShape(builder, pos_shape)
         EventHistogram.EventHistogramAddData(builder, pos_data)
         EventHistogram.EventHistogramAddDataType(builder,

@@ -93,11 +93,15 @@ class ImageKafkaDataSink(ProducesKafkaMessages, DataSink):
     """
 
     parameters = {
-        'maximagesize': Param('Expected max array size of the image',
-                              type=int, default=5e7),
-        'channeltostream': Param(
-            'Dict of image channel name(to be forwarded) -> (topic, source)',
-            type=dictof(str, tupleof(str, str)), mandatory=True),
+        'maximagesize':
+            Param('Expected max array size of the image',
+                  type=int,
+                  default=5e7),
+        'channeltostream':
+            Param(
+                'Dict of image channel name(to be forwarded) -> (topic, source)',
+                type=dictof(str, tupleof(str, str)),
+                mandatory=True),
     }
 
     parameter_overrides = {

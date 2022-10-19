@@ -17,8 +17,7 @@ devices = dict(
         description='instrument object',
         instrument='MIRACLES',
         responsible='A Person <a.person@ess.eu>',
-        website='https://europeanspallationsource.se/instruments/miracles'
-    ),
+        website='https://europeanspallationsource.se/instruments/miracles'),
     Sample=device(
         'nicos.devices.sample.Sample',
         description='The currently used sample',
@@ -28,10 +27,9 @@ devices = dict(
         description='experiment object',
         dataroot='/opt/nicos-data/miracles',
         sample='Sample',
-        cache_filepath='/opt/nicos-data/miracles/cached_proposals.json'
-    ),
-    conssink=device('nicos.devices.datasinks.ConsoleScanSink',),
-    daemonsink=device('nicos.devices.datasinks.DaemonSink',),
+        cache_filepath='/opt/nicos-data/miracles/cached_proposals.json'),
+    conssink=device('nicos.devices.datasinks.ConsoleScanSink', ),
+    daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
     Space=device(
         'nicos.devices.generic.FreeSpace',

@@ -39,9 +39,12 @@ class KafkaSubscriber(DeviceMixinBase):
     """
 
     parameters = {
-        'brokers': Param('List of kafka hosts to be connected',
-                         type=listof(host(defaultport=9092)),
-                         mandatory=True, preinit=True, userparam=False)
+        'brokers':
+            Param('List of kafka hosts to be connected',
+                  type=listof(host(defaultport=9092)),
+                  mandatory=True,
+                  preinit=True,
+                  userparam=False)
     }
 
     def doPreinit(self, mode):
@@ -77,15 +80,16 @@ class KafkaSubscriber(DeviceMixinBase):
 
         topics = self._consumer.topics()
         if topic not in topics:
-            raise ConfigurationError('Provided topic %s does not exist' % topic)
+            raise ConfigurationError('Provided topic %s does not exist' %
+                                     topic)
 
         # Assign the partitions
         partitions = self._consumer.partitions_for_topic(topic)
         if not partitions:
             raise ConfigurationError('Cannot query partitions for %s' % topic)
 
-        self._consumer.assign([kafka.TopicPartition(topic, p)
-                               for p in partitions])
+        self._consumer.assign(
+            [kafka.TopicPartition(topic, p) for p in partitions])
         self._stoprequest = False
         self._updater_thread = createThread('updater_' + topic,
                                             self._get_new_messages)

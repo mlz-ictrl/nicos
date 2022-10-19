@@ -21,7 +21,6 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """ESS Experiment device."""
 
 import time
@@ -30,7 +29,7 @@ from yuos_query.exceptions import BaseYuosException
 from yuos_query.yuos_client import YuosCacheClient
 
 from nicos import session
-from nicos.core import Override, Param, SIMULATION, UsageError, listof, \
+from nicos.core import SIMULATION, Override, Param, UsageError, listof, \
     mailaddress
 from nicos.devices.experiment import Experiment
 from nicos.utils import createThread
@@ -38,11 +37,17 @@ from nicos.utils import createThread
 
 class EssExperiment(Experiment):
     parameters = {
-        'cache_filepath': Param('Path to the proposal cache',
-                                type=str, category='experiment',
-                                mandatory=True, userparam=False),
-        'update_interval': Param('Time interval (in hrs.) for cache updates',
-                                 default=1.0, type=float, userparam=False)
+        'cache_filepath':
+            Param('Path to the proposal cache',
+                  type=str,
+                  category='experiment',
+                  mandatory=True,
+                  userparam=False),
+        'update_interval':
+            Param('Time interval (in hrs.) for cache updates',
+                  default=1.0,
+                  type=float,
+                  userparam=False)
     }
 
     parameter_overrides = {
@@ -58,8 +63,9 @@ class EssExperiment(Experiment):
     def doInit(self, mode):
         Experiment.doInit(self, mode)
         self._client = None
-        self._update_cache_worker = createThread(
-            'update_cache', self._update_cache, start=False)
+        self._update_cache_worker = createThread('update_cache',
+                                                 self._update_cache,
+                                                 start=False)
         try:
             self._client = YuosCacheClient.create(self.cache_filepath)
             self._update_cache_worker.start()
@@ -190,7 +196,8 @@ class EssExperiment(Experiment):
     def _extract_samples(self, query_result):
         samples = []
         for sample in query_result.samples:
-            mass = f'{sample.mass_or_volume[0]} {sample.mass_or_volume[1]}'.strip()
+            mass = f'{sample.mass_or_volume[0]} {sample.mass_or_volume[1]}'.strip(
+            )
             density = f'{sample.density[0]} {sample.density[1]}'.strip()
             samples.append({
                 'name': sample.name,

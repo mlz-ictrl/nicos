@@ -36,29 +36,34 @@ class ChopperAlarms(EpicsDevice, Readable):
     This device handles chopper alarms.
     """
     parameters = {
-        'pv_root': Param('PV root for device', type=str, mandatory=True,
-                         userparam=False),
+        'pv_root':
+            Param('PV root for device',
+                  type=str,
+                  mandatory=True,
+                  userparam=False),
     }
     parameter_overrides = {
         'unit': Override(mandatory=False, settable=False, volatile=False),
     }
 
     _alarm_state = {}
-    _chopper_alarm_names = {'Comm_Alrm', 'HW_Alrm', 'IntLock_Alrm', 'Lvl_Alrm',
-                            'Pos_Alrm', 'Pwr_Alrm', 'Ref_Alrm', 'SW_Alrm',
-                            'Volt_Alrm'}
+    _chopper_alarm_names = {
+        'Comm_Alrm', 'HW_Alrm', 'IntLock_Alrm', 'Lvl_Alrm', 'Pos_Alrm',
+        'Pwr_Alrm', 'Ref_Alrm', 'SW_Alrm', 'Volt_Alrm'
+    }
     _record_fields = {}
     _cache_relations = {}
 
     def doPreinit(self, mode):
         self._alarm_state = {
             name: (status.OK, '')
-            for name in self._chopper_alarm_names}
+            for name in self._chopper_alarm_names
+        }
 
         for pv in self._chopper_alarm_names:
             for pv_field in ['', '.STAT', '.SEVR']:
-                self._record_fields[
-                    pv + pv_field] = self.pv_root + pv + pv_field
+                self._record_fields[pv +
+                                    pv_field] = self.pv_root + pv + pv_field
         EpicsDevice.doPreinit(self, mode)
 
     def _get_pv_parameters(self):
@@ -119,10 +124,15 @@ class EssChopperController(MappedMoveable):
     }
 
     parameter_overrides = {
-        'fmtstr': Override(default='%s'),
-        'unit': Override(mandatory=False),
-        'mapping': Override(mandatory=False, settable=False, userparam=False,
-                            volatile=True)
+        'fmtstr':
+            Override(default='%s'),
+        'unit':
+            Override(mandatory=False),
+        'mapping':
+            Override(mandatory=False,
+                     settable=False,
+                     userparam=False,
+                     volatile=True)
     }
 
     hardware_access = False

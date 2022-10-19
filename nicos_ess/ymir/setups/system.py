@@ -9,8 +9,10 @@ sysconfig = dict(
     datasinks=['conssink', 'daemonsink', 'liveview', 'FileWriterControl'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands',
-           'nicos_ess.ymir.commands.tomography']
+modules = [
+    'nicos.commands.standard', 'nicos_ess.commands',
+    'nicos_ess.ymir.commands.tomography'
+]
 
 devices = dict(
     YMIR=device(
@@ -23,22 +25,20 @@ devices = dict(
         'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
-    Exp=device(
-        'nicos_ess.devices.experiment.EssExperiment',
-        description='experiment object',
-        dataroot='/opt/nicos-data/ymir',
-        sample='Sample',
-        cache_filepath='/opt/nicos-data/ymir/cached_proposals.json'
-    ),
-    conssink=device('nicos.devices.datasinks.ConsoleScanSink',),
-    daemonsink=device('nicos.devices.datasinks.DaemonSink',),
+    Exp=device('nicos_ess.devices.experiment.EssExperiment',
+               description='experiment object',
+               dataroot='/opt/nicos-data/ymir',
+               sample='Sample',
+               cache_filepath='/opt/nicos-data/ymir/cached_proposals.json'),
+    conssink=device('nicos.devices.datasinks.ConsoleScanSink', ),
+    daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
     Space=device(
         'nicos.devices.generic.FreeSpace',
         description='The amount of free space for storing data',
         path=None,
         minfree=5,
     ),
-    liveview=device('nicos.devices.datasinks.LiveViewSink',),
+    liveview=device('nicos.devices.datasinks.LiveViewSink', ),
     NexusStructure_Basic=device(
         'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
         description='Provides the NeXus structure',
@@ -55,7 +55,8 @@ devices = dict(
     NexusStructure=device(
         'nicos.devices.generic.DeviceAlias',
         alias='NexusStructure_AreaDetector',
-        devclass='nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
+        devclass=
+        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
     ),
     FileWriterStatus=device(
         'nicos_ess.devices.datasinks.file_writer.FileWriterStatus',

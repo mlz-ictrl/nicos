@@ -23,7 +23,6 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-
 """
 This module contains the NICOS integration of the Attocube IDS 3010
 interferometer.
@@ -46,26 +45,39 @@ class IDS3010Axis(EpicsReadable):
     """
 
     parameters = {
-        'axis': Param('Index of the axis to be read', default=1, type=int,
-                      userparam=False),
-        'pvprefix': Param('Prefix for the axis PV', type=str, mandatory=True),
-        'absolute': Param('Absolute position value', type=float,
-                          category='general', unit='um', settable=False),
-        'mode': Param('Current mode', type=str, category='general',
-                      settable=False),
-
+        'axis':
+            Param('Index of the axis to be read',
+                  default=1,
+                  type=int,
+                  userparam=False),
+        'pvprefix':
+            Param('Prefix for the axis PV', type=str, mandatory=True),
+        'absolute':
+            Param('Absolute position value',
+                  type=float,
+                  category='general',
+                  unit='um',
+                  settable=False),
+        'mode':
+            Param('Current mode', type=str, category='general',
+                  settable=False),
     }
 
     parameter_overrides = {
-        'unit': Override(default='um', mandatory=False, settable=False,
-                         userparam=False),
+        'unit':
+            Override(default='um',
+                     mandatory=False,
+                     settable=False,
+                     userparam=False),
     }
 
     valuetype = float
 
     def _get_pv_parameters(self):
-        return {'readpv', 'absolute_position', 'current_mode', 'reset_axis',
-                'reset_error'}
+        return {
+            'readpv', 'absolute_position', 'current_mode', 'reset_axis',
+            'reset_error'
+        }
 
     def _get_pv_name(self, pvparam):
 
@@ -120,28 +132,61 @@ class IDS3010Control(EpicsMoveableEss):
     }
 
     parameters = {
-        'pilot': Param('Pilot laser for alignment', type=oneof('on', 'off'),
-                       settable=True, category='general', chatty=True, ),
-        'align': Param('Measure in alignment mode', type=oneof('on', 'off'),
-                       settable=True, category='general', chatty=True, ),
-        'contrast1': Param('Contrast axis 1', type=float,
-                           settable=False, category='general', chatty=True,
-                           unit='%'),
-        'contrast2': Param('Contrast axis 2', type=float,
-                           settable=False, category='general', chatty=True,
-                           unit='%'),
-        'contrast3': Param('Contrast axis 3', type=float,
-                           settable=False, category='general', chatty=True,
-                           unit='%'),
-        'pvprefix': Param('Name of the record PV.', type=pvname,
-                          mandatory=True, settable=False, userparam=False),
+        'pilot':
+            Param(
+                'Pilot laser for alignment',
+                type=oneof('on', 'off'),
+                settable=True,
+                category='general',
+                chatty=True,
+            ),
+        'align':
+            Param(
+                'Measure in alignment mode',
+                type=oneof('on', 'off'),
+                settable=True,
+                category='general',
+                chatty=True,
+            ),
+        'contrast1':
+            Param('Contrast axis 1',
+                  type=float,
+                  settable=False,
+                  category='general',
+                  chatty=True,
+                  unit='%'),
+        'contrast2':
+            Param('Contrast axis 2',
+                  type=float,
+                  settable=False,
+                  category='general',
+                  chatty=True,
+                  unit='%'),
+        'contrast3':
+            Param('Contrast axis 3',
+                  type=float,
+                  settable=False,
+                  category='general',
+                  chatty=True,
+                  unit='%'),
+        'pvprefix':
+            Param('Name of the record PV.',
+                  type=pvname,
+                  mandatory=True,
+                  settable=False,
+                  userparam=False),
     }
 
     parameter_overrides = {
-        'unit': Override(default='', mandatory=False, settable=False,
-                         userparam=False),
-        'target': Override(userparam=False),
-        'statuspv': Override(mandatory=False),
+        'unit':
+            Override(default='',
+                     mandatory=False,
+                     settable=False,
+                     userparam=False),
+        'target':
+            Override(userparam=False),
+        'statuspv':
+            Override(mandatory=False),
     }
 
     valuetype = int
@@ -218,7 +263,7 @@ class IDS3010Control(EpicsMoveableEss):
 
     def doPoll(self, n, maxage=0):
         # poll contrast values when in alignment mode
-        if self.align=='on':
+        if self.align == 'on':
             self._pollParam('contrast1')
             self._pollParam('contrast2')
             self._pollParam('contrast3')
@@ -230,16 +275,26 @@ class MirrorDistance(Measurable):
     """
 
     parameters = {
-        'angle': Param('Index of the axis to be read', default=5.0, type=float,
-                       settable=True),
-        'offset': Param('Offset of device zero to hardware zero', unit='main',
-                        settable=True, category='offsets', chatty=True,
-                        fmtstr='main'),
+        'angle':
+            Param('Index of the axis to be read',
+                  default=5.0,
+                  type=float,
+                  settable=True),
+        'offset':
+            Param('Offset of device zero to hardware zero',
+                  unit='main',
+                  settable=True,
+                  category='offsets',
+                  chatty=True,
+                  fmtstr='main'),
     }
 
     parameter_overrides = {
-        'unit': Override(default='um', mandatory=False, settable=False,
-                         userparam=False),
+        'unit':
+            Override(default='um',
+                     mandatory=False,
+                     settable=False,
+                     userparam=False),
     }
 
     attached_devices = {
@@ -310,7 +365,7 @@ class MirrorDistance(Measurable):
         # Since offset changes directly change the device value, refresh
         # the cache instantly here
         if self._cache:
-            self._cache.put(self, 'value', self.doRead(0) - diff,
-                            currenttime(), self.maxage)
+            self._cache.put(self, 'value',
+                            self.doRead(0) - diff, currenttime(), self.maxage)
 
         session.elogEvent('offset', (str(self), old_offset, value))

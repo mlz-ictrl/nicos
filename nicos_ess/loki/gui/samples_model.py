@@ -22,7 +22,6 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """LoKI Samples Model."""
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import Qt
@@ -30,6 +29,7 @@ from nicos.guisupport.tablemodel import TableModel
 
 
 class SamplesTableModel(TableModel):
+
     def __init__(self, columns):
         TableModel.__init__(self, list(columns.keys()), None)
         self._raw_data = []
@@ -68,19 +68,22 @@ class SamplesTableModel(TableModel):
     def extract_samples(self):
         samples = []
         sample_names = {}
-        for index, (pos, sample) in enumerate(
-                zip(self.positions, self.raw_data)):
+        for index, (pos,
+                    sample) in enumerate(zip(self.positions, self.raw_data)):
             if self._is_sample_defined(sample):
                 name = sample.get('Name', '').strip()
                 if not name:
-                    raise ConfigurationError(f'Position {pos} requires a name.')
+                    raise ConfigurationError(
+                        f'Position {pos} requires a name.')
                 if name in sample_names:
                     raise ConfigurationError('Sample names must be unique: '
                                              f'"{name}" is already used for '
                                              f'{sample_names[name]}')
                 sample_names[name] = pos
-                details = {self.columns.get(k, k): v
-                           for k, v in sample.items()}
+                details = {
+                    self.columns.get(k, k): v
+                    for k, v in sample.items()
+                }
                 details['position'] = pos
                 samples.append((index, details))
         return samples
@@ -91,8 +94,10 @@ class SamplesTableModel(TableModel):
     def set_samples(self, samples):
         raw_data = [{} for _ in self.positions]
         for sample in samples:
-            data = {k: sample[v] for k, v in self.columns.items()
-                    if v in sample}
+            data = {
+                k: sample[v]
+                for k, v in self.columns.items() if v in sample
+            }
             if data and sample['position'] in self.positions:
                 raw_data[self.positions.index(sample['position'])] = data
         while len(raw_data) < len(self.positions):

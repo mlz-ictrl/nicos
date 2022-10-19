@@ -57,8 +57,10 @@ class Authenticator(LDAPAuthenticator):
     def _connect_to_server(self, username, password):
         error = None
         try:
-            connection = ldap3.Connection(self.uri, user=f'{username}@ESSS.SE',
-                                          password=password, auto_bind=True,
+            connection = ldap3.Connection(self.uri,
+                                          user=f'{username}@ESSS.SE',
+                                          password=password,
+                                          auto_bind=True,
                                           read_only=True)
         except ldap3.core.exceptions.LDAPException as err:
             # this avoids leaking credential details via tracebacks

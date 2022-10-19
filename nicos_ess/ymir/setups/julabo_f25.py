@@ -15,7 +15,10 @@ devices = dict(
         description='The status',
         readpv='{}MODE'.format(pv_root),
         writepv='{}MODE:SP'.format(pv_root),
-        mapping={'OFF': 0, 'ON': 1},
+        mapping={
+            'OFF': 0,
+            'ON': 1
+        },
     ),
     T_julabo_external=device(
         'nicos.devices.epics.pva.EpicsReadable',

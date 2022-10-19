@@ -21,13 +21,13 @@
 #   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
-from nicos.core import Attach, Measurable, Override, Param, \
-    pvname, status
-from nicos.devices.epics import STAT_TO_STATUS, SEVERITY_TO_STATUS
+from nicos.core import Attach, Measurable, Override, Param, pvname, status
+from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.epics.pva import EpicsDevice
 from nicos.devices.generic import Detector, ImageChannelMixin, ManualSwitch
-from nicos_sinq.devices.epics.area_detector import ADKafkaPlugin \
-    as ADKafkaPluginBase
+
+from nicos_sinq.devices.epics.area_detector import \
+    ADKafkaPlugin as ADKafkaPluginBase
 
 PROJECTION, FLATFIELD, DARKFIELD, INVALID = 0, 1, 2, 3
 
@@ -38,10 +38,13 @@ class ImageType(ManualSwitch):
     epics AreaDetector class.
     """
     parameter_overrides = {
-        'fmtstr': Override(default='%d'),
-        'states': Override(mandatory=False,
-                           default=list(range(PROJECTION, INVALID + 1))),
-        'maxage': Override(default=0)
+        'fmtstr':
+            Override(default='%d'),
+        'states':
+            Override(mandatory=False,
+                     default=list(range(PROJECTION, INVALID + 1))),
+        'maxage':
+            Override(default=0)
     }
 
     hardware_access = False
@@ -67,8 +70,8 @@ class ADKafkaPlugin(ADKafkaPluginBase):
     Class that contains the configuration of the area detector Kafka plugin.
     """
     parameters = {
-        'sourcepv': Param('PV with the Kafka source', type=pvname,
-                          mandatory=True),
+        'sourcepv':
+            Param('PV with the Kafka source', type=pvname, mandatory=True),
     }
 
     def _get_pv_parameters(self):
@@ -96,10 +99,13 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
     the Kafka plugin for area detectors.
     """
     parameters = {
-        'pv_root': Param('Area detector EPICS prefix', type=pvname,
-                         mandatory=True),
-        'iscontroller': Param('If this channel is an active controller',
-                              type=bool, settable=True, default=True),
+        'pv_root':
+            Param('Area detector EPICS prefix', type=pvname, mandatory=True),
+        'iscontroller':
+            Param('If this channel is an active controller',
+                  type=bool,
+                  settable=True,
+                  default=True),
     }
 
     _control_pvs = {
@@ -109,7 +115,7 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
         'bin_y': 'BinY',
         'acquire_time': 'AcquireTime',
         'acquire_period': 'AcquirePeriod',
-        'frame_rate':  'FrameRate',
+        'frame_rate': 'FrameRate',
         'num_images': 'NumImages',
         'num_exposures': 'NumExposures',
         'pixel_format': 'PixelFormat',
@@ -118,14 +124,16 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
     _record_fields = {}
 
     attached_devices = {
-        'ad_kafka_plugin': Attach('Area detector Kafka plugin', ADKafkaPlugin,
-                                  optional=False),
+        'ad_kafka_plugin':
+            Attach('Area detector Kafka plugin', ADKafkaPlugin,
+                   optional=False),
     }
 
     def doPreinit(self, mode):
-        self._record_fields = {key + '_rbv': value + '_RBV'
-                               for key, value in
-                               self._control_pvs.items()}
+        self._record_fields = {
+            key + '_rbv': value + '_RBV'
+            for key, value in self._control_pvs.items()
+        }
         self._record_fields.update(self._control_pvs)
         self._set_custom_record_fields()
         EpicsDevice.doPreinit(self, mode)
@@ -173,8 +181,8 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
         detector_state = self._get_pv('detector_state', True)
         alarm_status = STAT_TO_STATUS.get(self._get_pv('detector_state.STAT'),
                                           status.UNKNOWN)
-        alarm_severity = SEVERITY_TO_STATUS.get(self._get_pv('detector_state.SEVR'),
-                                                status.UNKNOWN)
+        alarm_severity = SEVERITY_TO_STATUS.get(
+            self._get_pv('detector_state.SEVR'), status.UNKNOWN)
         self._write_alarm_to_log(detector_state, alarm_severity, alarm_status)
         return alarm_severity, detector_state
 
@@ -240,8 +248,10 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
         self._put_pv('num_exposures', value)
 
     def get_array_size(self):
-        array_size = [self._get_pv('size_x_rbv'),
-                      self._get_pv('size_y_rbv'), ]
+        array_size = [
+            self._get_pv('size_x_rbv'),
+            self._get_pv('size_y_rbv'),
+        ]
         if self._get_pv('pixel_format_rbv', True) in ['BayerRG8', 'BayerRG16']:
             array_size.append(3)
         return array_size
@@ -260,6 +270,7 @@ class AreaDetectorCollector(Detector):
         for area_detector in self._attached_images:
             if (topic, source) == area_detector.get_topic_and_source():
                 return area_detector.get_array_size()
-        self.log.error('No array size was found for area detector '
-                       'with topic %s and source %s.', topic, source)
+        self.log.error(
+            'No array size was found for area detector '
+            'with topic %s and source %s.', topic, source)
         return []

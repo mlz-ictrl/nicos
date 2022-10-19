@@ -23,7 +23,6 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """LoKI Script Builder Panel."""
 import copy
 import os.path as osp
@@ -48,8 +47,8 @@ from nicos_ess.utilities.csv_utils import export_table_to_csv_stream, \
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
-Column = namedtuple('Column', ['header', 'optional', 'style',
-                               'can_bulk_update', 'delegate'])
+Column = namedtuple(
+    'Column', ['header', 'optional', 'style', 'can_bulk_update', 'delegate'])
 
 
 class LokiScriptBuilderPanel(PanelBase):
@@ -64,31 +63,34 @@ class LokiScriptBuilderPanel(PanelBase):
     def __init__(self, parent, client, options):
         PanelBase.__init__(self, parent, client, options)
         loadUi(self,
-               findResource('nicos_ess/loki/gui/ui_files/scriptbuilder.ui')
-               )
+               findResource('nicos_ess/loki/gui/ui_files/scriptbuilder.ui'))
 
         self.window = parent
         self.combo_delegate = ComboBoxDelegate()
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
         self.columns = OrderedDict({
-            'position': Column('Position', False, QHeaderView.ResizeToContents,
-                               False, ComboBoxDelegate()),
-            'sample': Column('Sample Details', False, QHeaderView.Stretch,
-                             False, ReadOnlyDelegate()),
-            'trans_duration': Column('TRANS Duration', False,
-                                     QHeaderView.ResizeToContents, True,
-                                     LimitsDelegate((0, 1e308), 1)),
-            'sans_duration': Column('SANS Duration', False,
-                                    QHeaderView.ResizeToContents, True,
-                                    LimitsDelegate((0, 1e308), 1)),
-            'temperature': Column('Temperature', True,
-                                  QHeaderView.ResizeToContents, True,
-                                  LimitsDelegate((0, 1e308))),
-            'pre-command': Column('Pre-command', True,
-                                  QHeaderView.ResizeToContents, True, None),
-            'post-command': Column('Post-command', True,
-                                   QHeaderView.ResizeToContents, True, None),
+            'position':
+                Column('Position', False, QHeaderView.ResizeToContents, False,
+                       ComboBoxDelegate()),
+            'sample':
+                Column('Sample Details', False, QHeaderView.Stretch, False,
+                       ReadOnlyDelegate()),
+            'trans_duration':
+                Column('TRANS Duration', False, QHeaderView.ResizeToContents,
+                       True, LimitsDelegate((0, 1e308), 1)),
+            'sans_duration':
+                Column('SANS Duration', False, QHeaderView.ResizeToContents,
+                       True, LimitsDelegate((0, 1e308), 1)),
+            'temperature':
+                Column('Temperature', True, QHeaderView.ResizeToContents, True,
+                       LimitsDelegate((0, 1e308))),
+            'pre-command':
+                Column('Pre-command', True, QHeaderView.ResizeToContents, True,
+                       None),
+            'post-command':
+                Column('Post-command', True, QHeaderView.ResizeToContents,
+                       True, None),
         })
         self.columns_headers = list(self.columns.keys())
 
@@ -117,8 +119,10 @@ class LokiScriptBuilderPanel(PanelBase):
             for sample in samples.values():
                 positions.append(sample['position'])
                 samples_by_position[sample['position']] = {
-                    k: v for k, v in sample.items()
-                    if k not in ['position', 'notes']}
+                    k: v
+                    for k, v in sample.items()
+                    if k not in ['position', 'notes']
+                }
             self.columns['position'].delegate.items = positions
             self.model.samples = samples_by_position
             self.model.update_all_samples(raise_error=False)
@@ -195,7 +199,8 @@ class LokiScriptBuilderPanel(PanelBase):
         self.model = LokiScriptModel(headers, self.columns, mappings)
         self.tableView.setModel(self.model)
         self.tableView.setSelectionMode(QTableView.ContiguousSelection)
-        self.table_helper = TableHelper(self.tableView, self.model, Clipboard())
+        self.table_helper = TableHelper(self.tableView, self.model,
+                                        Clipboard())
 
         for i, column in enumerate(self.columns.values()):
             if column.delegate:
@@ -220,12 +225,14 @@ class LokiScriptBuilderPanel(PanelBase):
         self._create_keyboard_shortcuts()
 
     def setViewOnly(self, viewonly):
-        for control in [self.comboTransOrder, self.sbSansTimes,
-                        self.sbTransTimes, self.comboTransDurationType,
-                        self.comboSansDurationType, self.chkShowTempColumn,
-                        self.chkShowPreCommand, self.chkShowPostCommand,
-                        self.generateScriptButton, self.tableView,
-                        self.txtValue, self.bulkUpdateButton, self.toolbar]:
+        for control in [
+                self.comboTransOrder, self.sbSansTimes, self.sbTransTimes,
+                self.comboTransDurationType, self.comboSansDurationType,
+                self.chkShowTempColumn, self.chkShowPreCommand,
+                self.chkShowPostCommand, self.generateScriptButton,
+                self.tableView, self.txtValue, self.bulkUpdateButton,
+                self.toolbar
+        ]:
             control.setEnabled(not viewonly)
 
     def _init_right_click_context_menu(self):
@@ -259,11 +266,9 @@ class LokiScriptBuilderPanel(PanelBase):
     def _open_file(self):
         try:
             filename = QFileDialog.getOpenFileName(
-                self,
-                'Open table',
-                osp.expanduser('~') if self.last_save_location is None
-                else self.last_save_location,
-                'Table Files (*.txt)')[0]
+                self, 'Open table',
+                osp.expanduser('~') if self.last_save_location is None else
+                self.last_save_location, 'Table Files (*.txt)')[0]
 
             if not filename:
                 return
@@ -311,15 +316,16 @@ class LokiScriptBuilderPanel(PanelBase):
 
     def _save_table(self):
         if self.is_data_in_hidden_columns():
-            self.showError('Cannot save because there is data in a non-visible '
-                           'optional column(s).')
+            self.showError(
+                'Cannot save because there is data in a non-visible '
+                'optional column(s).')
             return
 
         filename = QFileDialog.getSaveFileName(
             self,
             'Save table',
-            osp.expanduser('~') if self.last_save_location is None
-            else self.last_save_location,
+            osp.expanduser('~')
+            if self.last_save_location is None else self.last_save_location,
             'Table files (*.txt)',
             initialFilter='*.txt')[0]
 
@@ -341,19 +347,20 @@ class LokiScriptBuilderPanel(PanelBase):
             self.showError(f'Cannot write table contents to {filename}:\n{ex}')
 
     def is_data_in_hidden_columns(self):
-        optional_indices = [index for index, element in
-                            enumerate(self.columns.values())
-                            if element.optional]
+        optional_indices = [
+            index for index, element in enumerate(self.columns.values())
+            if element.optional
+        ]
         # Transform table_data to allow easy access to columns like data[0]
         data = list(zip(*self.model.table_data))
-        return any(
-            (any(data[column])
-             for column in optional_indices
-             if self.tableView.isColumnHidden(column)))
+        return any((any(data[column]) for column in optional_indices
+                    if self.tableView.isColumnHidden(column)))
 
     def _extract_headers_from_table(self):
-        headers = [column for idx, column in enumerate(self.columns_headers)
-                   if not self.tableView.isColumnHidden(idx)]
+        headers = [
+            column for idx, column in enumerate(self.columns_headers)
+            if not self.tableView.isColumnHidden(idx)
+        ]
         return headers
 
     def _extract_data_from_table(self):
@@ -375,10 +382,11 @@ class LokiScriptBuilderPanel(PanelBase):
         return data
 
     def _delete_rows(self):
-        to_remove = {index.row()
-                     for index in self.tableView.selectedIndexes()
-                     if index.isValid() and
-                     index.row() < self.model.num_entries}
+        to_remove = {
+            index.row()
+            for index in self.tableView.selectedIndexes()
+            if index.isValid() and index.row() < self.model.num_entries
+        }
         self.tableView.model().remove_rows(to_remove)
 
     def _insert_row_above(self):
@@ -413,8 +421,10 @@ class LokiScriptBuilderPanel(PanelBase):
         return lowest, highest
 
     def _get_hidden_column_names(self):
-        return [name for idx, name in enumerate(self.columns_headers)
-                if self.tableView.isColumnHidden(idx)]
+        return [
+            name for idx, name in enumerate(self.columns_headers)
+            if self.tableView.isColumnHidden(idx)
+        ]
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
@@ -448,8 +458,9 @@ class LokiScriptBuilderPanel(PanelBase):
         try:
             self.tableView.setFocus(False)
             if self.is_data_in_hidden_columns():
-                self.showError('There is data in unselected optional column(s) '
-                               'which will not appear in the script.')
+                self.showError(
+                    'There is data in unselected optional column(s) '
+                    'which will not appear in the script.')
 
             trans_setting = self._available_trans_options[
                 self.comboTransOrder.currentText()]
@@ -462,8 +473,7 @@ class LokiScriptBuilderPanel(PanelBase):
                         for row in table_data)):
                     self.showError('TRANS duration is ignored in SIMULTANEOUS '
                                    'mode. SANS duration will be used in the '
-                                   'script.'
-                                   )
+                                   'script.')
 
             template = ScriptFactory.from_trans_order(trans_setting). \
                 generate_script(table_data,
@@ -517,9 +527,9 @@ class LokiScriptBuilderPanel(PanelBase):
 
     def _on_duration_type_changed(self, column_name, value):
         column_number = self.columns_headers.index(column_name)
-        self._set_column_title(column_number,
-                               f'{self.columns[column_name].header}'
-                               f'\n({value})')
+        self._set_column_title(
+            column_number, f'{self.columns[column_name].header}'
+            f'\n({value})')
 
     def _set_column_title(self, index, title):
         self.model.setHeaderData(index, Qt.Horizontal, title)

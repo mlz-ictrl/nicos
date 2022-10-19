@@ -6,8 +6,9 @@ devices = dict()
 
 desc = [f'sensor {s}' for s in range(6, 14)]
 for sensor in range(6, 14):
-    devices[f't_{sensor}'] = device('nicos.devices.epics.EpicsReadable',
-        description = desc[sensor - 6],
-        readpv = f'{pvprefix}m{sensor}-Temp',
-        unit = 'C',
+    devices[f't_{sensor}'] = device(
+        'nicos.devices.epics.EpicsReadable',
+        description=desc[sensor - 6],
+        readpv=f'{pvprefix}m{sensor}-Temp',
+        unit='C',
     )

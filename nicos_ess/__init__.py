@@ -22,7 +22,6 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-
 """ESS specific NICOS package."""
 
 from nicos_ess.devices.loggers import create_graylog_handler, \
@@ -42,7 +41,9 @@ def get_log_handlers(config):
         - GELFTCPHandler if 'graylog' in options
         or [] if none is present
     """
-    handlers = [create_graylog_handler(config),
-                create_kafka_logging_handler(config)]
+    handlers = [
+        create_graylog_handler(config),
+        create_kafka_logging_handler(config)
+    ]
 
     return [h for h in handlers if h is not None]

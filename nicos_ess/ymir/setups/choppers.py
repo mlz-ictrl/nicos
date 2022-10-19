@@ -7,7 +7,7 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsStringReadable',
         description='The chopper status.',
         readpv='{}Chop_Stat'.format(pv_root),
-        visibility = (),
+        visibility=(),
     ),
     mini_chopper_control=device(
         'nicos.devices.epics.pva.EpicsMappedMoveable',
@@ -16,10 +16,11 @@ devices = dict(
         writepv='{}Cmd'.format(pv_root),
         requires={'level': 'admin'},
         visibility=set(),
-        mapping={'Start chopper': 6,
-                 'Stop chopper': 3,
-                 'Reset chopper': 1,
-                 'Clear chopper': 8,
+        mapping={
+            'Start chopper': 6,
+            'Stop chopper': 3,
+            'Reset chopper': 1,
+            'Clear chopper': 8,
         },
     ),
     mini_chopper_speed=device(

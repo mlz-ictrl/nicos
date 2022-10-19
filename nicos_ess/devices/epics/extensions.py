@@ -23,7 +23,6 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-
 """
 This module contains ESS specific EPICS developments.
 """
@@ -44,9 +43,11 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
     """
 
     parameters = {
-        'ignore_stop': Param(
-            'Whether to do anything when stop is called',
-            type=bool, default=False, userparam=False),
+        'ignore_stop':
+            Param('Whether to do anything when stop is called',
+                  type=bool,
+                  default=False,
+                  userparam=False),
     }
 
     def doInit(self, mode):
@@ -107,11 +108,12 @@ class EpicsAnalogMoveableWithUnitsSelector(EpicsAnalogMoveableEss):
         try:
             self._attached_units.doStart(value)
         except InvalidValueError as error:
-            positions = ', '.join(repr(pos)
-                                  for pos in self._attached_units.mapping)
-            raise InvalidValueError(self, f'{value} is an invalid unit choice '
-                                          f'for this device; valid choices are '
-                                          f'{positions}') from error
+            positions = ', '.join(
+                repr(pos) for pos in self._attached_units.mapping)
+            raise InvalidValueError(
+                self, f'{value} is an invalid unit choice '
+                f'for this device; valid choices are '
+                f'{positions}') from error
 
 
 class HasDisablePv(CanDisable):
@@ -217,12 +219,18 @@ class EpicsCommandReply(EpicsDevice, Device):
     """
 
     parameters = {
-        'commandpv': Param('PV to issue commands to the asyn controller',
-                           type=pvname, mandatory=True, settable=False,
-                           userparam=False),
-        'replypv': Param('PV that stores the reply generated from execution',
-                         type=pvname, mandatory=False, settable=False,
-                         userparam=False),
+        'commandpv':
+            Param('PV to issue commands to the asyn controller',
+                  type=pvname,
+                  mandatory=True,
+                  settable=False,
+                  userparam=False),
+        'replypv':
+            Param('PV that stores the reply generated from execution',
+                  type=pvname,
+                  mandatory=False,
+                  settable=False,
+                  userparam=False),
     }
 
     def _get_pv_parameters(self):

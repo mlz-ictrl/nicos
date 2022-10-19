@@ -30,10 +30,18 @@ from nicos.core.constants import SIMULATION
 
 class ScichatBot(Device):
     parameters = {
-        'url': Param('SciChat server address', type=str, settable=False,
-                     mandatory=True, userparam=False),
-        'room_id': Param('SciChat room identification', type=str,
-                         settable=False, mandatory=True, userparam=False)
+        'url':
+            Param('SciChat server address',
+                  type=str,
+                  settable=False,
+                  mandatory=True,
+                  userparam=False),
+        'room_id':
+            Param('SciChat room identification',
+                  type=str,
+                  settable=False,
+                  mandatory=True,
+                  userparam=False)
     }
 
     def doInit(self, mode):
@@ -61,8 +69,12 @@ class ScichatBot(Device):
 
     def _post(self, url, data=None):
         proxy = os.environ.get('https_proxy', None)
-        response = requests.post(url, headers={
-            "Authorization": f"Bearer {os.environ.get('SCICHAT_TOKEN')}"},
-            json=data, proxies={'https': proxy} if proxy else None)
+        response = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {os.environ.get('SCICHAT_TOKEN')}"
+            },
+            json=data,
+            proxies={'https': proxy} if proxy else None)
         if response.status_code != 200:
             raise RuntimeError(f'{response.reason} ({response.status_code})')

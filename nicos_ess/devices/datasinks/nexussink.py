@@ -57,11 +57,12 @@ class NexusFileWriterStatus(KafkaStatusHandler):
     """
 
     parameters = {
-        'timeout': Param(
-            'Maximum waiting time for a job to start/close (sec)',
-            type=int,
-            default=30,
-        ),
+        'timeout':
+            Param(
+                'Maximum waiting time for a job to start/close (sec)',
+                type=int,
+                default=30,
+            ),
     }
 
     def doInit(self, mode):
@@ -163,11 +164,8 @@ class NexusFileWriterStatus(KafkaStatusHandler):
         def get_latest_message(message_list):
             message_list_sorted = sorted(message_list.items(), reverse=True)
             # makes sure that the message comes from the filewriter
-            gen = (
-                msg
-                for _, msg in message_list_sorted
-                if 'file_being_written' in msg
-            )
+            gen = (msg for _, msg in message_list_sorted
+                   if 'file_being_written' in msg)
             return next(gen, None)
 
         message = get_latest_message(messages)
@@ -178,9 +176,8 @@ class NexusFileWriterStatus(KafkaStatusHandler):
         self._job_in_progress = message.get('job_id', '')
         file_name = message.get('file_being_written', '')
         if file_name:
-            self._setROParam(
-                'curstatus', (status.BUSY, 'Writing %s' % file_name)
-            )
+            self._setROParam('curstatus',
+                             (status.BUSY, 'Writing %s' % file_name))
             return
         self._setROParam('curstatus', (status.OK, 'Idle'))
 
@@ -203,9 +200,8 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
 
         # Generate the filenames, only if not set
         if not self.dataset.filepaths:
-            self.manager.getFilenames(
-                self.dataset, self.sink.filenametemplate, self.sink.subdir
-            )
+            self.manager.getFilenames(self.dataset, self.sink.filenametemplate,
+                                      self.sink.subdir)
 
         # Update meta information of devices, only if not present
         if not self.dataset.metainfo:
@@ -227,9 +223,9 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
         metainfo = self.dataset.metainfo
         # Put the start time in the metainfo
         if ('dataset', 'starttime') not in metainfo:
-            metainfo[('dataset', 'starttime')] = (start_time_str,
-                                                  start_time_str,
-                                                  '', 'general')
+            metainfo[('dataset',
+                      'starttime')] = (start_time_str, start_time_str, '',
+                                       'general')
 
         structure = self._converter.convert(self.template,
                                             self.dataset.metainfo)
@@ -245,7 +241,8 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
             stop_time = int(self.dataset.finished * 1000)
             self.rewriting = True
 
-        start_message = serialise_pl72(job_id=job_id, filename=filename,
+        start_message = serialise_pl72(job_id=job_id,
+                                       filename=filename,
                                        start_time=start_time,
                                        stop_time=stop_time,
                                        nexus_structure=json.dumps(structure),
@@ -314,39 +311,61 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
     """
 
     parameters = {
-        'cmdtopic': Param('Kafka topic where status commands are written',
-            type=str, settable=False, preinit=True, mandatory=True),
-        'templatesmodule': Param(
-            'Python module containing NeXus nexus_templates',
-            type=str, mandatory=True),
-        'templatename': Param('Template name from the nexus_templates module',
-            type=str, mandatory=True),
-        'lastsinked': Param(
-            'Saves the counter, start and end time of sinks',
-            type=tupleof(int, float, float, dictof(tuple, tuple)),
-            settable=True, internal=True),
-        'useswmr': Param('Use SWMR feature when writing HDF files', type=bool,
-            settable=False, userparam=False, default=True),
-        'file_output_dir': Param('The directory where data files are written',
-            type=str, settable=False, default=None, userparam=False),
-        'title': Param('Title to set in NeXus file', type=str,
-            settable=True, userparam=True, default=''),
-        'cachetopic': Param('Kafka topic for cache messages', type=str),
+        'cmdtopic':
+            Param('Kafka topic where status commands are written',
+                  type=str,
+                  settable=False,
+                  preinit=True,
+                  mandatory=True),
+        'templatesmodule':
+            Param('Python module containing NeXus nexus_templates',
+                  type=str,
+                  mandatory=True),
+        'templatename':
+            Param('Template name from the nexus_templates module',
+                  type=str,
+                  mandatory=True),
+        'lastsinked':
+            Param('Saves the counter, start and end time of sinks',
+                  type=tupleof(int, float, float, dictof(tuple, tuple)),
+                  settable=True,
+                  internal=True),
+        'useswmr':
+            Param('Use SWMR feature when writing HDF files',
+                  type=bool,
+                  settable=False,
+                  userparam=False,
+                  default=True),
+        'file_output_dir':
+            Param('The directory where data files are written',
+                  type=str,
+                  settable=False,
+                  default=None,
+                  userparam=False),
+        'title':
+            Param('Title to set in NeXus file',
+                  type=str,
+                  settable=True,
+                  userparam=True,
+                  default=''),
+        'cachetopic':
+            Param('Kafka topic for cache messages', type=str),
     }
 
     parameter_overrides = {
-        'settypes': Override(default=[POINT]),
-        'filenametemplate': Override(
-            default=['%(proposal)s_%(pointcounter)08d.hdf']
-        ),
+        'settypes':
+            Override(default=[POINT]),
+        'filenametemplate':
+            Override(default=['%(proposal)s_%(pointcounter)08d.hdf']),
     }
 
     attached_devices = {
-        'status_provider': Attach(
-            'Device that provides file writing status',
-            NexusFileWriterStatus,
-            optional=True,
-        ),
+        'status_provider':
+            Attach(
+                'Device that provides file writing status',
+                NexusFileWriterStatus,
+                optional=True,
+            ),
     }
 
     handlerclass = NexusFileWriterSinkHandler
@@ -354,9 +373,8 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
 
     def doInit(self, mode):
         self.log.info(self.templatesmodule)
-        self._templates = __import__(
-            self.templatesmodule, fromlist=[self.templatename]
-        )
+        self._templates = __import__(self.templatesmodule,
+                                     fromlist=[self.templatename])
         self.log.info('Finished importing nexus_templates')
         self.set_template(self.templatename)
 
@@ -368,10 +386,8 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         :param val: template name
         """
         if not hasattr(self._templates, val):
-            raise NicosError(
-                'Template %s not found in module %s'
-                % (val, self.templatesmodule)
-            )
+            raise NicosError('Template %s not found in module %s' %
+                             (val, self.templatesmodule))
 
         self.template = getattr(self._templates, val)
 

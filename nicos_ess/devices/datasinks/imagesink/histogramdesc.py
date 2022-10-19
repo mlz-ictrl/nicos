@@ -21,7 +21,6 @@
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
-
 """ Extend the array description and support additional data for histograms
 """
 

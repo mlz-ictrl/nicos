@@ -23,19 +23,20 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """LoKI Script Model."""
 import re
 
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import Qt
 from nicos.guisupport.tablemodel import TableModel
+
 from nicos_ess.loki.gui.table_delegates import LimitsDelegate, ReadOnlyDelegate
 
-SAMPLE_INFO_INDEX = 1   # The column where the sample info is displayed
+SAMPLE_INFO_INDEX = 1  # The column where the sample info is displayed
 
 
 class LokiScriptModel(TableModel):
+
     def __init__(self, headings, columns, mappings=None, num_rows=25):
         TableModel.__init__(self, headings, mappings)
         self._default_num_rows = num_rows

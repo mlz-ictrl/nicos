@@ -22,7 +22,6 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """LoKI thermostated cell-holder device."""
 from nicos import session
 from nicos.core import POLLER, Attach, LimitError, Moveable, Override, Param, \
@@ -34,50 +33,74 @@ from nicos.devices.generic import MultiSwitcher
 class ThermoStatedCellHolder(MultiSwitcher):
     """The thermostated cell-holder device."""
     parameters = {
-        'cartridges': Param('Cartridge configurations '
-                            '(top-left to bottom-right)',
-                            type=listof(dictof(str, anytype)),
-                            userparam=False, settable=True,
-                            default=[{}, {}, {}, {}, {}, {}]),
-        'cell_spacings': Param('The horizontal distance between cell centres',
-                               type=dictof(str, int), userparam=False,
-                               unit='mm', default={'narrow': 20,
-                                                   'wide': 10,
-                                                   'rotation': 40,
-                                                   }),
-        'number_cells': Param('The number of cells for the cartridge type',
-                              type=dictof(str, int), userparam=False,
-                              default={'narrow': 8,
-                                       'wide': 4,
-                                       'rotation': 6,
-                                       }),
-        'xlimits': Param('The limits of the x-axis motor',
-                         type=tupleof(float, float), volatile=True,
-                         userparam=False, settable=False),
-        'ylimits': Param('The limits of the y-axis motor',
-                         type=tupleof(float, float), volatile=True,
-                         userparam=False, settable=False)
+        'cartridges':
+            Param('Cartridge configurations '
+                  '(top-left to bottom-right)',
+                  type=listof(dictof(str, anytype)),
+                  userparam=False,
+                  settable=True,
+                  default=[{}, {}, {}, {}, {}, {}]),
+        'cell_spacings':
+            Param('The horizontal distance between cell centres',
+                  type=dictof(str, int),
+                  userparam=False,
+                  unit='mm',
+                  default={
+                      'narrow': 20,
+                      'wide': 10,
+                      'rotation': 40,
+                  }),
+        'number_cells':
+            Param('The number of cells for the cartridge type',
+                  type=dictof(str, int),
+                  userparam=False,
+                  default={
+                      'narrow': 8,
+                      'wide': 4,
+                      'rotation': 6,
+                  }),
+        'xlimits':
+            Param('The limits of the x-axis motor',
+                  type=tupleof(float, float),
+                  volatile=True,
+                  userparam=False,
+                  settable=False),
+        'ylimits':
+            Param('The limits of the y-axis motor',
+                  type=tupleof(float, float),
+                  volatile=True,
+                  userparam=False,
+                  settable=False)
     }
 
     parameter_overrides = {
-        'mapping': Override(description='Cell position to motor positions',
-                            mandatory=False, userparam=False, settable=True,
-                            type=dictof(str, tupleof(float, float))),
+        'mapping':
+            Override(description='Cell position to motor positions',
+                     mandatory=False,
+                     userparam=False,
+                     settable=True,
+                     type=dictof(str, tupleof(float, float))),
     }
 
     attached_devices = {
-        'moveables': Attach('The motors for positioning the cells', Moveable,
-                            multiple=2, optional=True),
-        'ymotor': Attach('The vertical positioning motor', Moveable),
-        'xmotor': Attach('The horizontal positioning motor', Moveable),
+        'moveables':
+            Attach('The motors for positioning the cells',
+                   Moveable,
+                   multiple=2,
+                   optional=True),
+        'ymotor':
+            Attach('The vertical positioning motor', Moveable),
+        'xmotor':
+            Attach('The horizontal positioning motor', Moveable),
     }
 
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)
         if session.sessiontype != POLLER:
             self._generate_mapping(self.cartridges)
-        self._attached_moveables = [self._attached_xmotor,
-                                    self._attached_ymotor]
+        self._attached_moveables = [
+            self._attached_xmotor, self._attached_ymotor
+        ]
 
     def doReadXlimits(self):
         return self._attached_xmotor.userlimits
@@ -106,10 +129,12 @@ class ThermoStatedCellHolder(MultiSwitcher):
         x, y = position
         xlimits = self._attached_xmotor.userlimits
         if x < xlimits[0] or x > xlimits[1]:
-            raise LimitError(f'cartridge x position ({x}) outside motor limits '
-                             f'({xlimits})')
+            raise LimitError(
+                f'cartridge x position ({x}) outside motor limits '
+                f'({xlimits})')
 
         ylimits = self._attached_ymotor.userlimits
         if y < ylimits[0] or y > ylimits[1]:
-            raise LimitError(f'cartridge y position ({y}) outside motor limits '
-                             f'({ylimits})')
+            raise LimitError(
+                f'cartridge y position ({y}) outside motor limits '
+                f'({ylimits})')

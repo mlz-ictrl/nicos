@@ -16,7 +16,10 @@ devices = dict(
         description='The status',
         readpv='{}MODE'.format(pv_root),
         writepv='{}MODE:SP'.format(pv_root),
-        mapping={'OFF': 0, 'ON': 1},
+        mapping={
+            'OFF': 0,
+            'ON': 1
+        },
     ),
     T_julabo_external_001=device(
         'nicos.devices.epics.pva.EpicsReadable',
@@ -28,7 +31,10 @@ devices = dict(
         description='Use external or internal sensor',
         readpv='{}EXTSENS'.format(pv_root),
         writepv='{}EXTSENS:SP'.format(pv_root),
-        mapping={'Internal': 0, 'External': 1},
+        mapping={
+            'Internal': 0,
+            'External': 1
+        },
     ),
     julabo_internal_P_001=device(
         'nicos.devices.epics.pva.EpicsAnalogMoveable',

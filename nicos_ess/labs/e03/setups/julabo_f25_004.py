@@ -18,7 +18,10 @@ devices = dict(
         description='The status',
         readpv='{}Mode-R'.format(pv_root),
         writepv='{}Mode-S'.format(pv_root),
-        mapping={'OFF': 0, 'ON': 1},
+        mapping={
+            'OFF': 0,
+            'ON': 1
+        },
         pva=True,
         monitor=True,
     ),
@@ -34,7 +37,10 @@ devices = dict(
         description='Use external or internal sensor',
         readpv='{}ExternalSensor-R'.format(pv_root),
         writepv='{}ExternalSensor-S'.format(pv_root),
-        mapping={'Internal': 0, 'External': 1},
+        mapping={
+            'Internal': 0,
+            'External': 1
+        },
         pva=True,
         monitor=True,
     ),

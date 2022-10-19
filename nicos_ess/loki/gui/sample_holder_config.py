@@ -22,7 +22,6 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """LoKI Experiment Configuration dialog."""
 from functools import partial
 
@@ -30,7 +29,8 @@ from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import QAction, QCursor, QHeaderView, QItemDelegate, \
-    QKeySequence, QMenu, QShortcut, Qt, QTableView, QTableWidgetItem, pyqtSlot
+    QKeySequence, QMenu, QShortcut, Qt, QTableView, QTableWidgetItem, \
+    pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.gui.panels.panel import PanelBase
@@ -49,20 +49,25 @@ class LokiSampleHolderPanel(PanelBase):
         self._in_edit_mode = False
         self._dev_name = None
         self._dev_name_old = None
-        loadUi(self, findResource(
-            'nicos_ess/loki/gui/ui_files/sample_holder_config.ui'))
-        self.cartridge_tables = [self.tableTopFirst, self.tableTopSecond,
-                                 self.tableTopThird, self.tableBottomFirst,
-                                 self.tableBottomSecond, self.tableBottomThird]
-        self.cartridge_combos = [self.comboTopFirst, self.comboTopSecond,
-                                 self.comboTopThird, self.comboBottomFirst,
-                                 self.comboBottomSecond, self.comboBottomThird]
-        self.calculate_buttons = [self.calculateTopFirstButton,
-                                  self.calculateTopSecondButton,
-                                  self.calculateTopThirdButton,
-                                  self.calculateBottomFirstButton,
-                                  self.calculateBottomSecondButton,
-                                  self.calculateBottomThirdButton]
+        loadUi(
+            self,
+            findResource(
+                'nicos_ess/loki/gui/ui_files/sample_holder_config.ui'))
+        self.cartridge_tables = [
+            self.tableTopFirst, self.tableTopSecond, self.tableTopThird,
+            self.tableBottomFirst, self.tableBottomSecond,
+            self.tableBottomThird
+        ]
+        self.cartridge_combos = [
+            self.comboTopFirst, self.comboTopSecond, self.comboTopThird,
+            self.comboBottomFirst, self.comboBottomSecond,
+            self.comboBottomThird
+        ]
+        self.calculate_buttons = [
+            self.calculateTopFirstButton, self.calculateTopSecondButton,
+            self.calculateTopThirdButton, self.calculateBottomFirstButton,
+            self.calculateBottomSecondButton, self.calculateBottomThirdButton
+        ]
         self.cell_spacings = {}
         self.number_cells = {}
         self.cartridges = {}
@@ -176,8 +181,7 @@ class LokiSampleHolderPanel(PanelBase):
                 'QTableView {background: gainsboro;}')
         else:
             self.sampleTable.setItemDelegate(QItemDelegate())
-            self.sampleTable.setStyleSheet(
-                'QTableView {background: white;}')
+            self.sampleTable.setStyleSheet('QTableView {background: white;}')
 
     def _read_mode(self):
         for combo in self.cartridge_combos:
@@ -216,9 +220,13 @@ class LokiSampleHolderPanel(PanelBase):
         self.comboBottomFirst.addItems(['rotation'])
 
     def _configure_sample_table(self):
-        columns = {'Name': 'name', 'Formula': 'formula',
-                   'Concentration': 'concentration', 'Thickness': 'thickness',
-                   'Notes': 'notes'}
+        columns = {
+            'Name': 'name',
+            'Formula': 'formula',
+            'Concentration': 'concentration',
+            'Thickness': 'thickness',
+            'Notes': 'notes'
+        }
         self.samples_model = SamplesTableModel(columns)
         self.sampleTable.setModel(self.samples_model)
         self.table_helper = TableHelper(self.sampleTable, self.samples_model,
@@ -248,10 +256,10 @@ class LokiSampleHolderPanel(PanelBase):
         for combo, table, button in zip(self.cartridge_combos,
                                         self.cartridge_tables,
                                         self.calculate_buttons):
-            combo.currentTextChanged.connect(partial(self.on_cartridge_changed,
-                                                     table, button))
-            button.clicked.connect(partial(self.on_calculate_clicked,
-                                           combo, table))
+            combo.currentTextChanged.connect(
+                partial(self.on_cartridge_changed, table, button))
+            button.clicked.connect(
+                partial(self.on_calculate_clicked, combo, table))
 
     def _update_cartridges(self):
         if self._in_edit_mode or not self._dev_name:
@@ -305,9 +313,9 @@ class LokiSampleHolderPanel(PanelBase):
 
     def set_enabled_controls(self):
         is_rotation = False
-        for i, (combo, table, button) in enumerate(zip(self.cartridge_combos,
-                                                       self.cartridge_tables,
-                                                       self.calculate_buttons)):
+        for i, (combo, table, button) in enumerate(
+                zip(self.cartridge_combos, self.cartridge_tables,
+                    self.calculate_buttons)):
             if i % 3 == 0:
                 current_text = combo.currentText()
                 is_rotation = current_text == 'rotation'
@@ -366,11 +374,7 @@ class LokiSampleHolderPanel(PanelBase):
         cartridges = []
         i = 0
         for combo, table in zip(self.cartridge_combos, self.cartridge_tables):
-            data = {
-                'type': combo.currentText(),
-                'positions': [],
-                'labels': []
-            }
+            data = {'type': combo.currentText(), 'positions': [], 'labels': []}
             for r in range(table.rowCount()):
                 if not table.item(r, 0) or not table.item(r, 0).text() \
                         or not table.item(r, 1) or not table.item(r, 1).text():

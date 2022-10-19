@@ -21,5 +21,4 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """EPICS p4p/caproto device package."""

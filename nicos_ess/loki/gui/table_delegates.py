@@ -23,13 +23,13 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-
 """Useful delegates for tables."""
 from nicos.guisupport.qt import QAbstractSpinBox, QComboBox, QDoubleSpinBox, \
     QItemDelegate
 
 
 class LimitsDelegate(QItemDelegate):
+
     def __init__(self, limits=(0, 0), precision=3):
         QItemDelegate.__init__(self)
         self.limits = limits
@@ -48,11 +48,13 @@ class LimitsDelegate(QItemDelegate):
 
 
 class ReadOnlyDelegate(QItemDelegate):
+
     def createEditor(self, parent, option, index):
         return None
 
 
 class ComboBoxDelegate(QItemDelegate):
+
     def __init__(self):
         QItemDelegate.__init__(self)
         self.items = []

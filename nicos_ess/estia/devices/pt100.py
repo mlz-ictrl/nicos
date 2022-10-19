@@ -65,8 +65,8 @@ class EpicsPT100Temperature(EpicsReadableEss):
     """
 
     parameters = {
-        'statuspv': Param('PV name for status code', type=pvname,
-                          mandatory=False),
+        'statuspv':
+            Param('PV name for status code', type=pvname, mandatory=False),
     }
 
     def _get_pv_parameters(self):

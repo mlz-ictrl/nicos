@@ -8,7 +8,8 @@ devices = dict(
         brokers=['10.100.1.19:9092'],
         output_topic='ymir_nicos_devices',
     ),
-    Collector=device('nicos.services.collector.Collector',
+    Collector=device(
+        'nicos.services.collector.Collector',
         cache='localhost:14869',
         forwarders=['CacheKafka'],
     ),

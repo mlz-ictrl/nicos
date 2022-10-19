@@ -36,14 +36,27 @@ class ADSServer(HasCommunication, Readable):
     """
 
     parameters = {
-        'ip': Param('IP address of Beckhoff terminal', type=ipv4,
-                    preinit=True, mandatory=True),
-        'amsnetid': Param('ID of Beckhoff terminal', type=str, preinit=True,
-                          mandatory=True),
-        'port': Param('ADS port of PLC terminal', type=int, preinit=True,
-                      mandatory=True),
-        'timeout': Param('Communication timeout for pyads', type=float,
-                         prefercache=False, preinit=True, default=5.0),
+        'ip':
+            Param('IP address of Beckhoff terminal',
+                  type=ipv4,
+                  preinit=True,
+                  mandatory=True),
+        'amsnetid':
+            Param('ID of Beckhoff terminal',
+                  type=str,
+                  preinit=True,
+                  mandatory=True),
+        'port':
+            Param('ADS port of PLC terminal',
+                  type=int,
+                  preinit=True,
+                  mandatory=True),
+        'timeout':
+            Param('Communication timeout for pyads',
+                  type=float,
+                  prefercache=False,
+                  preinit=True,
+                  default=5.0),
     }
 
     parameter_overrides = {
@@ -89,13 +102,20 @@ class PT100(Readable):
     """
 
     parameters = {
-        'attribute': Param('Index of the axis to be read', type=str,
-                           default='nTempM1', ),
+        'attribute':
+            Param(
+                'Index of the axis to be read',
+                type=str,
+                default='nTempM1',
+            ),
     }
 
     parameter_overrides = {
-        'unit': Override(default='C', mandatory=False, settable=False,
-                         userparam=False),
+        'unit':
+            Override(default='C',
+                     mandatory=False,
+                     settable=False,
+                     userparam=False),
     }
 
     attached_devices = {

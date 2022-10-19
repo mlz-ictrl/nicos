@@ -3,7 +3,7 @@ group = 'special'
 
 devices = dict(
     Auth=device(
-     	'nicos.services.daemon.auth.list.Authenticator',
+        'nicos.services.daemon.auth.list.Authenticator',
         hashing='md5',
         passwd=[
             ('guest', '', 'guest'),

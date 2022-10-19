@@ -84,5 +84,4 @@ devices = dict(
         pause_pv='{}PAUSE'.format(pv_root),
         message_pv='{}MESSAGE'.format(pv_root),
         status='pump_status_1002',
-    )
-)
+    ))

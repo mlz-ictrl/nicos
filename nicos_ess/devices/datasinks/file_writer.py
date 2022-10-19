@@ -140,14 +140,17 @@ class JobRecord:
 class FileWriterStatus(KafkaStatusHandler):
     """Monitors Kafka for the status of any file-writing jobs."""
     parameters = {
-        'job_history': Param(
-            description='stores the most recent jobs in the cache',
-            type=listof(anytype),
-            internal=True, settable=True),
-        'job_history_limit': Param(
-            description='maximum number of jobs to store in the cache',
-            type=int, default=10,
-            internal=True, settable=True),
+        'job_history':
+            Param(description='stores the most recent jobs in the cache',
+                  type=listof(anytype),
+                  internal=True,
+                  settable=True),
+        'job_history_limit':
+            Param(description='maximum number of jobs to store in the cache',
+                  type=int,
+                  default=10,
+                  internal=True,
+                  settable=True),
     }
 
     def doPreinit(self, mode):
@@ -176,8 +179,10 @@ class FileWriterStatus(KafkaStatusHandler):
                 self._jobs[job.job_id] = job
 
     def _update_cached_jobs(self):
-        self.job_history = [self._jobs_in_order[k].as_dict()
-            for k in list(self._jobs_in_order.keys())[-self.job_history_limit:]]
+        self.job_history = [
+            self._jobs_in_order[k].as_dict()
+            for k in list(self._jobs_in_order.keys())[-self.job_history_limit:]
+        ]
 
     def new_messages_callback(self, messages):
         for _, msg in sorted(messages, key=lambda x: x[0]):
@@ -196,9 +201,10 @@ class FileWriterStatus(KafkaStatusHandler):
 
     def _job_stopped(self, job_id):
         if self._jobs[job_id].error_msg:
-            session.log.error('Job #%s failed to write successfully, '
-                              'run `list_jobs` for more details',
-                              self._jobs[job_id].job_number)
+            session.log.error(
+                'Job #%s failed to write successfully, '
+                'run `list_jobs` for more details',
+                self._jobs[job_id].job_number)
         del self._jobs[job_id]
 
     def _on_stopped_message(self, message):
@@ -258,8 +264,10 @@ class FileWriterStatus(KafkaStatusHandler):
             self._update_status()
 
     def _check_for_lost_jobs(self):
-        overdue_jobs = [k for k, v in self._jobs.items()
-                        if v.is_overdue(self.timeoutinterval)]
+        overdue_jobs = [
+            k for k, v in self._jobs.items()
+            if v.is_overdue(self.timeoutinterval)
+        ]
         for overdue in overdue_jobs:
             self._jobs[overdue].on_lost('lost connection to job')
             if self._jobs[overdue].stop_time:
@@ -285,7 +293,8 @@ class FileWriterStatus(KafkaStatusHandler):
         if self._mode == MASTER:
             self._setROParam('curstatus', new_status)
             if self._cache:
-                self._cache.put(self._name, 'status', new_status, currenttime())
+                self._cache.put(self._name, 'status', new_status,
+                                currenttime())
 
     @property
     def jobs_in_progress(self):
@@ -333,9 +342,8 @@ class FileWriterSinkHandler(DataSinkHandler):
 
         # Generate the filenames, only if not set
         if not self.dataset.filepaths:
-            self.manager.getFilenames(
-                self.dataset, self.sink.filenametemplate, self.sink.subdir
-            )
+            self.manager.getFilenames(self.dataset, self.sink.filenametemplate,
+                                      self.sink.subdir)
 
         # Update meta information of devices, only if not present
         if not self.dataset.metainfo:
@@ -361,8 +369,8 @@ class FileWriterSinkHandler(DataSinkHandler):
             return
 
         datetime_now = datetime.now()
-        structure = self.sink._attached_nexus.get_structure(self.dataset,
-                                                            datetime_now)
+        structure = self.sink._attached_nexus.get_structure(
+            self.dataset, datetime_now)
         self.sink._start_job(self.dataset.filenames[0], self.dataset.counter,
                              structure, datetime_now)
         self._current_file = self.dataset.filenames[0]
@@ -457,35 +465,52 @@ class FileWriterControlSink(FileSink):
     """Sink for the NeXus file-writer"""
 
     parameters = {
-        'brokers': Param('List of kafka hosts to be connected',
-                         type=listof(host(defaultport=9092)),
-                         mandatory=True, preinit=True, userparam=False),
-        'pool_topic': Param(
-            'Kafka topic where start messages are sent',
-            type=str, settable=False, preinit=True, mandatory=True,
-            userparam=False,
-        ),
-        'timeoutinterval': Param(
-            'Time to wait (secs) before communication is considered failed',
-            type=int, default=5, settable=True, userparam=False,
-        ),
-        'one_file_per_scan': Param(
-            'Whether to write all scan points to one file or a file per point',
-            type=bool, default=True, settable=True, userparam=False,
-        ),
+        'brokers':
+            Param('List of kafka hosts to be connected',
+                  type=listof(host(defaultport=9092)),
+                  mandatory=True,
+                  preinit=True,
+                  userparam=False),
+        'pool_topic':
+            Param(
+                'Kafka topic where start messages are sent',
+                type=str,
+                settable=False,
+                preinit=True,
+                mandatory=True,
+                userparam=False,
+            ),
+        'timeoutinterval':
+            Param(
+                'Time to wait (secs) before communication is considered failed',
+                type=int,
+                default=5,
+                settable=True,
+                userparam=False,
+            ),
+        'one_file_per_scan':
+            Param(
+                'Whether to write all scan points to one file or a file per point',
+                type=bool,
+                default=True,
+                settable=True,
+                userparam=False,
+            ),
     }
 
     parameter_overrides = {
-        'settypes': Override(default=[POINT]),
-        'filenametemplate': Override(
-            default=['%(proposal)s_%(pointcounter)08d.hdf']
-        ),
+        'settypes':
+            Override(default=[POINT]),
+        'filenametemplate':
+            Override(default=['%(proposal)s_%(pointcounter)08d.hdf']),
     }
 
     attached_devices = {
-        'status': Attach('The file-writer status device', FileWriterStatus),
-        'nexus': Attach('Supplies the NeXus file structure',
-                        NexusStructureProvider),
+        'status':
+            Attach('The file-writer status device', FileWriterStatus),
+        'nexus':
+            Attach('Supplies the NeXus file structure',
+                   NexusStructureProvider),
     }
 
     handlerclass = FileWriterSinkHandler
@@ -493,8 +518,9 @@ class FileWriterControlSink(FileSink):
     def doInit(self, mode):
         self._manual_start = False
         self._handler = None
-        self._controller = FileWriterController(self.brokers, self.pool_topic,
-            self._attached_status.statustopic, self.timeoutinterval)
+        self._controller = FileWriterController(
+            self.brokers, self.pool_topic, self._attached_status.statustopic,
+            self.timeoutinterval)
 
     def start_job(self):
         """Start a new file-writing job."""
@@ -508,12 +534,17 @@ class FileWriterControlSink(FileSink):
         self._manual_start = True
         session.experiment.data.finishPoint()
 
-    def _start_job(self, filename, counter, structure, start_time=None,
-                   stop_time=None, replay_of=None):
+    def _start_job(self,
+                   filename,
+                   counter,
+                   structure,
+                   start_time=None,
+                   stop_time=None,
+                   replay_of=None):
         self.check_okay_to_start()
         start_time = start_time if start_time else datetime.now()
-        job_id, commit = self._controller.request_start(filename, structure,
-                                                        start_time, stop_time)
+        job_id, commit = self._controller.request_start(
+            filename, structure, start_time, stop_time)
         job = JobRecord(job_id, counter, start_time, commit)
         job.replay_of = replay_of
         job.stop_time = stop_time
@@ -552,8 +583,9 @@ class FileWriterControlSink(FileSink):
         if len(active_jobs) == 1:
             job_id = list(active_jobs)[0]
         elif len(active_jobs) > 1 and not job_id:
-            self.log.error('more than one job being written, rerun the command '
-                           'with the job ID specified in quotes')
+            self.log.error(
+                'more than one job being written, rerun the command '
+                'with the job ID specified in quotes')
             return
 
         stop_time = datetime.now()
@@ -588,15 +620,18 @@ class FileWriterControlSink(FileSink):
 
     def list_jobs(self):
         dt_format = '%Y-%m-%d %H:%M:%S'
-        headers = ['job', 'status', 'start time', 'stop time', 'replay of',
-                   'error']
-        funcs = [lambda job: str(job.job_number),
-                 lambda job: job.get_state_string(),
-                 lambda job: job.start_time.strftime(dt_format),
-                 lambda job: job.stop_time.strftime(dt_format)
-                 if job.stop_time else '',
-                 lambda job: str(job.replay_of) if job.replay_of else '',
-                 lambda job: job.error_msg if job.error_msg else '']
+        headers = [
+            'job', 'status', 'start time', 'stop time', 'replay of', 'error'
+        ]
+        funcs = [
+            lambda job: str(job.job_number),
+            lambda job: job.get_state_string(),
+            lambda job: job.start_time.strftime(dt_format),
+            lambda job: job.stop_time.strftime(dt_format)
+            if job.stop_time else '', lambda job: str(job.replay_of)
+            if job.replay_of else '', lambda job: job.error_msg
+            if job.error_msg else ''
+        ]
         if session.daemon_device.current_script().user.level == ADMIN:
             headers.insert(1, 'job  GUID')
             funcs.insert(1, lambda job: job.job_id)
@@ -627,8 +662,9 @@ class FileWriterControlSink(FileSink):
         consumer.seek(topic, job_to_replay.kafka_offset)
         data = consumer.poll(timeout_ms=5000, max_records=1)
         if not data:
-            raise RuntimeError('Could not replay job as could not retrieve job '
-                               'information from Kafka')
+            raise RuntimeError(
+                'Could not replay job as could not retrieve job '
+                'information from Kafka')
 
         message = deserialise_pl72(data[topic][0].value)
 

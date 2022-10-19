@@ -71,21 +71,32 @@ def to_f142(dev_name, dev_value, dev_severity, timestamp_ns):
 
 class CacheKafkaForwarder(ForwarderBase, Device):
     parameters = {
-        'brokers': Param('List of kafka hosts to be connected',
-                         type=listof(host(defaultport=9092)),
-                         mandatory=True, preinit=True, userparam=False
-                         ),
-        'output_topic': Param('The topic to send data to',
-                              type=str, userparam=False, settable=False,
-                              mandatory=True,
-                              ),
-        'dev_ignore': Param('Devices to ignore; if empty, all devices are '
-                            'accepted', default=[],
-                            type=listof(str),
-                            ),
-        'update_interval': Param('Time interval (in secs.) to send regular updates',
-                                 default=10.0, type=float, settable=False)
-
+        'brokers':
+            Param('List of kafka hosts to be connected',
+                  type=listof(host(defaultport=9092)),
+                  mandatory=True,
+                  preinit=True,
+                  userparam=False),
+        'output_topic':
+            Param(
+                'The topic to send data to',
+                type=str,
+                userparam=False,
+                settable=False,
+                mandatory=True,
+            ),
+        'dev_ignore':
+            Param(
+                'Devices to ignore; if empty, all devices are '
+                'accepted',
+                default=[],
+                type=listof(str),
+            ),
+        'update_interval':
+            Param('Time interval (in secs.) to send regular updates',
+                  default=10.0,
+                  type=float,
+                  settable=False)
     }
     parameter_overrides = {
         # Key filters are irrelevant for this collector
@@ -101,10 +112,12 @@ class CacheKafkaForwarder(ForwarderBase, Device):
 
         self._initFilters()
         self._queue = queue.Queue(1000)
-        self._worker = createThread('cache_to_kafka', self._processQueue,
+        self._worker = createThread('cache_to_kafka',
+                                    self._processQueue,
                                     start=False)
-        self._regular_update_worker = createThread(
-            'send_regular_updates', self._poll_updates, start=False)
+        self._regular_update_worker = createThread('send_regular_updates',
+                                                   self._poll_updates,
+                                                   start=False)
         while not self._producer:
             try:
                 self._producer = \
@@ -127,8 +140,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
                         self._dev_to_status_cache.keys()):
                     if self._relevant_properties_available(dev_name):
                         self._push_to_queue(
-                            dev_name,
-                            self._dev_to_value_cache[dev_name],
+                            dev_name, self._dev_to_value_cache[dev_name],
                             self._dev_to_status_cache[dev_name],
                             self._dev_to_timestamp_cache[dev_name])
 
@@ -158,7 +170,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
             else:
                 self._dev_to_status_cache[dev_name] = convert_status(value)
 
-            timestamp_ns = int(float(timestamp) * 10 ** 9)
+            timestamp_ns = int(float(timestamp) * 10**9)
             self._dev_to_timestamp_cache[dev_name] = timestamp_ns
             # Don't send until have at least one reading for both value and status
             if self._relevant_properties_available(dev_name):
@@ -166,7 +178,8 @@ class CacheKafkaForwarder(ForwarderBase, Device):
                     dev_name,
                     self._dev_to_value_cache[dev_name],
                     self._dev_to_status_cache[dev_name],
-                    timestamp_ns,)
+                    timestamp_ns,
+                )
 
     def _relevant_properties_available(self, dev_name):
         return dev_name in self._dev_to_value_cache \
@@ -200,5 +213,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
         self._producer.close()
 
     def _send_to_kafka(self, buffer, name):
-        self._producer.send(self.output_topic, buffer, key=name.encode('utf-8'))
+        self._producer.send(self.output_topic,
+                            buffer,
+                            key=name.encode('utf-8'))
         self._producer.flush(timeout=3)

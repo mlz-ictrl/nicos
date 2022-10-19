@@ -21,7 +21,6 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-
 """Graylog log handler"""
 
 import logging
@@ -31,8 +30,8 @@ import urllib
 try:
     from graypy import GELFTCPHandler
 
-
     class ESSGELFTCPHandler(GELFTCPHandler):
+
         @staticmethod
         def _add_full_message(gelf_dict, record):
             full_message = None
