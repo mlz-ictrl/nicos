@@ -62,9 +62,11 @@ Detector
 Data formats
 ------------
 
-.. module:: nicos_mlz.toftof.devices.datasinks
+.. module:: nicos_mlz.toftof.datasinks
 
 .. autoclass:: TofImageSink()
+.. autoclass:: LiveViewSink()
+.. autoclass:: NexusSink()
 
 Experiment
 ----------

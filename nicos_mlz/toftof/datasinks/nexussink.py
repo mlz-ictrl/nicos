@@ -36,7 +36,7 @@ from nicos.nexus.elements import NexusElementBase, NXAttribute, NXScanLink, \
     NXTime
 from nicos.nexus.nexussink import copy_nexus_template
 
-from nicos_mlz.toftof.devices.datasinks.elements import SampleEnvironment
+from nicos_mlz.toftof.datasinks.elements import SampleEnvironment
 
 
 class NexusSinkHandler(DataSinkHandler):

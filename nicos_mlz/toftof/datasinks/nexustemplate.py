@@ -29,7 +29,7 @@ from nicos.nexus.elements import ConstDataset, DeviceAttribute, \
     DeviceDataset, EndTime, NXAttribute, StartTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_mlz.toftof.devices.datasinks.elements import ChannelList, DetInfo, \
+from nicos_mlz.toftof.datasinks.elements import ChannelList, DetInfo, \
     Duration, ElasticPeakGuess, EntryIdentifier, ExperimentTitle, FileName, \
     GonioDataset, HVDataset, LVDataset, Mode, MonitorData, MonitorRate, \
     MonitorTof, MonitorValue, SampleCountRate, SampleCounts, Status, \
