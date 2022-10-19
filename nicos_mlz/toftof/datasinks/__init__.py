@@ -21,7 +21,6 @@
 #
 # *****************************************************************************
 
-from nicos_mlz.toftof.datasinks.legacy import TofImageSink
+from nicos_mlz.toftof.datasinks.legacy import TofImageFileReader, TofImageSink
 from nicos_mlz.toftof.datasinks.live import LiveViewSink
 from nicos_mlz.toftof.datasinks.nexussink import NexusSink
-from nicos_mlz.toftof.datasinks.legacy import TofImageFileReader
