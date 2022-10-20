@@ -64,6 +64,18 @@ class ImageType(ManualSwitch):
             msg = 'State is invalid for the tomography experiment.'
         return stat, msg
 
+    def set_to_projection(self):
+        self.move(PROJECTION)
+
+    def set_to_flat_field(self):
+        self.move(FLATFIELD)
+
+    def set_to_dark_field(self):
+        self.move(DARKFIELD)
+
+    def set_to_invalid(self):
+        self.move(INVALID)
+
 
 class ADKafkaPlugin(ADKafkaPluginBase):
     """
