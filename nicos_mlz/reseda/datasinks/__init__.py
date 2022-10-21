@@ -18,17 +18,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
-from nicos_mlz.reseda.devices.armcontrol import ArmController
-from nicos_mlz.reseda.devices.astrium import SelectorLambda, \
-    SelectorLambdaSpread
-from nicos_mlz.reseda.devices.cbox import CBoxResonanceFrequency
-from nicos_mlz.reseda.devices.experiment import Experiment
-from nicos_mlz.reseda.devices.regulator import Regulator
-from nicos_mlz.reseda.devices.rte1104 import RTE1104, \
-    RTE1104TimescaleSetting, RTE1104YScaleSetting
-from nicos_mlz.reseda.devices.scandet import ScanningDetector
-from nicos_mlz.reseda.devices.tuning import EchoTime
+from nicos_mlz.reseda.datasinks.hdf5 import HDF5Sink
