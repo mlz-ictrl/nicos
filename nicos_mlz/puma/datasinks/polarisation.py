@@ -27,14 +27,9 @@
 from io import TextIOWrapper
 
 from nicos.core import INFO_CATEGORIES
-from nicos.core.constants import POINT
 from nicos.core.errors import ConfigurationError
-from nicos.core.params import Attach, Override, Param
-from nicos.devices.datasinks.file import FileSink
+from nicos.core.params import Override, Param
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.devices.vendor.qmesydaq import Image
-
-from nicos_mlz.devices.qmesydaqsinks import ListmodeSinkHandler
 
 
 class PolarizationFileSinkHandler(SingleFileSinkHandler):
@@ -94,19 +89,3 @@ class PolarizationFileSink(ImageSink):
         if len(value) > 1:
             raise ConfigurationError('comment character should only be one '
                                      'character')
-
-
-class ListmodeSink(FileSink):
-    """Writer for the list mode files via QMesyDAQ itself."""
-
-    attached_devices = {
-        'image': Attach('Image device to set the file name', Image),
-    }
-
-    parameter_overrides = {
-        'settypes': Override(default=[POINT]),
-        'filenametemplate': Override(mandatory=False, userparam=False,
-                                     default=['D%(pointcounter)07d.mdat']),
-    }
-
-    handlerclass = ListmodeSinkHandler

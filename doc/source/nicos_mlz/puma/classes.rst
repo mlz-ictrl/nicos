@@ -82,5 +82,5 @@
 
 Data sinks
 ----------
-.. module:: nicos_mlz.puma.devices.datasinks
+.. module:: nicos_mlz.puma.datasinks
 .. autoclass:: PolarizationFileSink()

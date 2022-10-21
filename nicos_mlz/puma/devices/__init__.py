@@ -26,7 +26,6 @@ from nicos_mlz.puma.devices.attenuator import Attenuator
 from nicos_mlz.puma.devices.collimator import Collimator
 from nicos_mlz.puma.devices.comb_ax import CombAxis
 from nicos_mlz.puma.devices.coupledaxis import CoupledAxis
-from nicos_mlz.puma.devices.datasinks import PolarizationFileSink
 from nicos_mlz.puma.devices.deflector import Deflector
 from nicos_mlz.puma.devices.filter import Filter
 from nicos_mlz.puma.devices.focus import FocusAxis

@@ -39,7 +39,7 @@ devices = dict(
             ('peak3', 'image'),
         ],
     ),
-    polsink = device('nicos_mlz.puma.devices.PolarizationFileSink',
+    polsink = device('nicos_mlz.puma.datasinks.PolarizationFileSink',
         description = 'writes the files for polarisation analysis',
     ),
 )

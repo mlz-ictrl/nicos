@@ -15,7 +15,7 @@ sysconfig = {
 tango_base = 'tango://mesydaq.puma.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
-    Listmode = device('nicos_mlz.puma.devices.datasinks.ListmodeSink',
+    Listmode = device('nicos_mlz.puma.datasinks.ListmodeSink',
         description = 'Listmode data written via QMesyDAQ',
         image = 'image',
         subdir = 'list',
