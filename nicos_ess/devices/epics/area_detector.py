@@ -21,7 +21,8 @@
 #   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
-from nicos.core import Attach, Measurable, Override, Param, pvname, status
+from nicos.core import Attach, Measurable, Override, Param, pvname, status, \
+    usermethod
 from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.epics.pva import EpicsDevice
 from nicos.devices.generic import Detector, ImageChannelMixin, ManualSwitch
@@ -64,15 +65,19 @@ class ImageType(ManualSwitch):
             msg = 'State is invalid for the tomography experiment.'
         return stat, msg
 
+    @usermethod
     def set_to_projection(self):
         self.move(PROJECTION)
 
+    @usermethod
     def set_to_flat_field(self):
         self.move(FLATFIELD)
 
+    @usermethod
     def set_to_dark_field(self):
         self.move(DARKFIELD)
 
+    @usermethod
     def set_to_invalid(self):
         self.move(INVALID)
 

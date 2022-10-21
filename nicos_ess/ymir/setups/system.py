@@ -10,8 +10,7 @@ sysconfig = dict(
 )
 
 modules = [
-    'nicos.commands.standard', 'nicos_ess.commands',
-    'nicos_ess.ymir.commands.tomography'
+    'nicos.commands.standard', 'nicos_ess.commands'
 ]
 
 devices = dict(
