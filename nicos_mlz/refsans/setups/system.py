@@ -43,7 +43,7 @@ devices = dict(
         description = 'Device outputting logmessages to the console',
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
-    configsink = device(code_base + 'datasinks.ConfigObjDatafileSink'),
+    configsink = device('nicos_mlz.refsans.datasinks.ConfigObjDatafileSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

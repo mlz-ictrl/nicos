@@ -211,7 +211,7 @@ devices = dict(
          abslimits = (0, 10),
          unit = 'mm'
     ),
-    configsink = device('nicos_mlz.refsans.devices.datasinks.ConfigObjDatafileSink',
+    configsink = device('nicos_mlz.refsans.datasinks.ConfigObjDatafileSink',
     ),
     vacuum_CB = device('nicos.devices.generic.ManualMove',
         default = 3.5e-6,

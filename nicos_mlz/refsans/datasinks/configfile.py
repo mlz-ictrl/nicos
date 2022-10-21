@@ -33,34 +33,35 @@ from nicos.utils import AutoDefaultODict
 
 # if these labels apear as part of a key, they are "known"
 element_part = [
-#     'cooling_memograph',
-#     'FAK40_Cap',
-#     'FAK40_Press',
-#     'flow_memograph_in',
-#     'flow_memograph_out',
-#     'leak_memograph',
-#     'NL2b', 'Space', 'timer', 'Sample', 'mon1', 'mon2',
-#     # 'optic',
-#     'p_memograph_in',
-#     'p_memograph_out',
-#     'REFSANS', 'Crane', 'det', 'Sixfold', 'ReactorPower', 'Exp', 'image',
-#     # 'shutter',
-#     # 'shutter_gamma',
-#     't_memograph_in',
-#     't_memograph_out',
-#     'triangle',
-#     'triangle_phi',
-#     'triangle_theta',
-#     'vacuum_CB',
-#     'vacuum_SFK',
-#     'vacuum_SR',
-#     'wegbox_A_1ref',
-#     'wegbox_A_2ref',
-#     'wegbox_B_1ref',
-#     'wegbox_B_2ref',
-#     'wegbox_C_1ref',
-#     'wegbox_C_2ref',
+    # 'cooling_memograph',
+    # 'FAK40_Cap',
+    # 'FAK40_Press',
+    # 'flow_memograph_in',
+    # 'flow_memograph_out',
+    # 'leak_memograph',
+    # 'NL2b', 'Space', 'timer', 'Sample', 'mon1', 'mon2',
+    # # 'optic',
+    # 'p_memograph_in',
+    # 'p_memograph_out',
+    # 'REFSANS', 'Crane', 'det', 'Sixfold', 'ReactorPower', 'Exp', 'image',
+    # # 'shutter',
+    # # 'shutter_gamma',
+    # 't_memograph_in',
+    # 't_memograph_out',
+    # 'triangle',
+    # 'triangle_phi',
+    # 'triangle_theta',
+    # 'vacuum_CB',
+    # 'vacuum_SFK',
+    # 'vacuum_SR',
+    # 'wegbox_A_1ref',
+    # 'wegbox_A_2ref',
+    # 'wegbox_B_1ref',
+    # 'wegbox_B_2ref',
+    # 'wegbox_C_1ref',
+    # 'wegbox_C_2ref',
 ]
+
 chopper = [
     'chopper2_pos',
     'chopper',
@@ -143,6 +144,7 @@ det_pos = [
 PlanB = [
     'det_table',
 ]
+
 PlanB_label = [
     '_motor',
 ]
@@ -151,6 +153,7 @@ ana4gpio = [
     'ana4gpio01',
     'ana4gpio02',
 ]
+
 ana4gpio_label = [
     '_ch1',
     '_ch2',
@@ -561,7 +564,8 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
                         self._data['chopper_config'][key] = \
                             metainfo[devname, 'value'][0][key]
                 else:
-                    self._data['Chopper'][devname] = metainfo[devname, 'value'][0]
+                    self._data['Chopper'][devname] = metainfo[devname,
+                                                              'value'][0]
             else:
                 key = tuple(devname.split('/'))
                 if key in metainfo:

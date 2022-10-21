@@ -72,7 +72,7 @@
 Data Sinks
 ----------
 
-.. module:: nicos_mlz.refsans.devices.datasinks
+.. module:: nicos_mlz.refsans.datasinks
 .. autoclass:: ConfigObjDatafileSink()
 
 .. currentmodule:: nicos_mlz.refsans.devices.detector
