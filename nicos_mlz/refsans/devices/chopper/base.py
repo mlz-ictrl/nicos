@@ -178,8 +178,7 @@ class ChopperMaster(CanReference, BaseSequencer):
     def doReadResolution(self):
         if self.mode == 'normal_mode':
             return self._attached_chopper2.pos
-        else:
-            return 6
+        return 6
 
     def doReadSpeed(self):
         return self._attached_chopper1.read(0)
