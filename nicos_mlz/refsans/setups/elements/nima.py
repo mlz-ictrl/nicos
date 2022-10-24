@@ -17,7 +17,7 @@ devices = dict(
         fmtstr = '%.6f',
         unit = 'mm',
     ),
-    nima_acc = device(code_base + 'analog.Accuracy',
+    nima_acc = device(code_base + 'accuracy.Accuracy',
         description = 'calc error Motor and heigt',
         motor = 'gonio_z',
         analog = 'height',

@@ -64,7 +64,7 @@ devices = dict(
         unit = 'mm',
         visibility = (),
     ),
-    zb3r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
+    zb3r_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          motor = 'zb3r_motor',
          analog = 'zb3r_analog',
@@ -86,7 +86,7 @@ devices = dict(
         scale = -1,  # mounted from top
         visibility = (),
     ),
-    zb3s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
+    zb3s_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          motor = 'zb3s_motor',
          analog = 'zb3s_analog',

@@ -50,7 +50,7 @@ devices = dict(
     #     poly =  [-283.16351478707793, 0.015860537603265893],
     #     visibility = () or showcase_values['hide_poti'],
     # ),
-    # zb1_acc = device(code_base + 'nok_support.MotorEncoderDifference',
+    # zb1_acc = device(code_base + 'accuracy.Accuracy',
     #      description = 'calc error Motor and poti',
     #      motor = 'zb1_motor',
     #      analog = 'zb1_analog',

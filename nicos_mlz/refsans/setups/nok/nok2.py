@@ -71,7 +71,7 @@ devices = dict(
         scale = 1,   # mounted from bottom
         visibility = (),
     ),
-    nok2r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
+    nok2r_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          motor = 'nok2r_motor',
          analog = 'nok2r_analog',
@@ -102,7 +102,7 @@ devices = dict(
          scale = 1,   # mounted from bottom
          visibility = (),
     ),
-    nok2s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
+    nok2s_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          motor = 'nok2s_motor',
          analog = 'nok2s_analog',

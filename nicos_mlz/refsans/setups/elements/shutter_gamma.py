@@ -49,7 +49,7 @@ devices = dict(
         scale = 1,   # mounted from bottom
         visibility = showcase_values['hide_poti'],
     ),
-    shutter_gamma_acc = device(code_base + 'nok_support.MotorEncoderDifference',
+    shutter_gamma_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          motor = 'shutter_gamma_motor',
          analog = 'shutter_gamma_analog',

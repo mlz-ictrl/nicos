@@ -43,7 +43,7 @@ devices = dict(
         length = 500.0,
         visibility = showcase_values['hide_poti'],
     ),
-    zb2_acc = device(code_base + 'nok_support.MotorEncoderDifference',
+    zb2_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          motor = 'zb2_motor',
          analog = 'zb2_analog',
