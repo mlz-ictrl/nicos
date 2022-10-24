@@ -30,37 +30,55 @@ import numpy as np
 from nicos.core import Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import Attach
+from nicos.devices.abstract import TransformedMoveable, TransformedReadable
 
 from nicos_mlz.refsans.devices.mixins import PolynomFit
 
 
-class AnalogEncoder(PolynomFit, Readable):
+class AnalogEncoder(PolynomFit, TransformedReadable):
 
     attached_devices = {
         'device': Attach('Sensing device (poti etc)', Readable),
     }
 
-    def doRead(self, maxage=0):
+    def _readRaw(self, maxage=0):
+        return self._attached_device.read(maxage)
+
+    def _mapReadValue(self, value):
         """Return a read analogue signal corrected by a polynom.
 
         A correcting polynom of at least first order is used.
         Result is then offset + mul * <previously calculated value>
         """
-        return self._fit(self._attached_device.read(maxage))
+        return self._fit(value)
 
 
-class AnalogMove(AnalogEncoder, Moveable):
-    """does only work for polynomial order of 1
+class AnalogMove(PolynomFit, TransformedMoveable):
+    """Does only work for polynomial order of 1
     a reverse polynomial can only be done for a order of 1
     """
 
-    def doStart(self, target):
+    attached_devices = {
+        'device': Attach('Acting device (motor etc)', Moveable),
+    }
+
+    def _mapReadValue(self, value):
+        return self._fit(value)
+
+    def _mapTargetValue(self, target):
         self.log.debug('uncorrected value: %f', target)
         result = (target - self.poly[0]) / self.poly[1]
         self.log.debug('final result: %f', result)
-        return self._attached_device.move(result)
+        return result
 
-    def doWritePoly(self, poly):
+    def _readRaw(self, maxage=0):
+        return self._attached_device.read(maxage)
+
+    def _startRaw(self, target):
+        return self._attached_device.move(target)
+
+    def doUpdatePoly(self, poly):
         if len(poly) != 2:
+            self._fitter = None
             raise ConfigurationError('Only a linear correction is allowed')
         self._fitter = np.polynomial.Polynomial(poly)

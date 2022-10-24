@@ -27,7 +27,7 @@
 import pytest
 
 from nicos.core import status
-from nicos.core.errors import LimitError
+from nicos.core.errors import ConfigurationError, LimitError
 
 from test.utils import approx, raises
 
@@ -150,6 +150,16 @@ class TestDevices:
         raw.maw(-1)
         assert dev.read(0) == -1
         assert identity.read(0) == raw.read(0)
+
+    def test_analog_move(self, session):
+        raw = session.getDevice('h2_ctrl_l')
+        dev = session.getDevice('h2_motor_l')
+        assert raw.read(0) == 0
+        assert dev.read(0) == 61.6156
+
+        dev.maw(50)
+
+        assert raises(ConfigurationError, session.getDevice, 'h2_motor_r')
 
 
 class TestChopper:
