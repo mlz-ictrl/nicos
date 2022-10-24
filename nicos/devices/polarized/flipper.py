@@ -80,7 +80,7 @@ class MezeiFlipper(BaseFlipper):
 
 class KFlipper(BaseFlipper):
     """
-    Class for an momentum dependent type flipper consisting of flipper and correction field.
+    Class for a momentum dependent type flipper consisting of flipper and correction field.
 
     So far only used at PANDA, but would work on other TAS-like instruments.
     For the state "on" the two power supplies are moved to the values calculated
