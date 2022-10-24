@@ -41,7 +41,7 @@ class SkewRead(Readable):
     }
 
     def _read_devices(self, maxage=0):
-        return [d.read(maxage) for d in self._adevs.values()]
+        return self._attached_one.read(maxage), self._attached_two.read(maxage)
 
     def doRead(self, maxage=0):
         return sum(self._read_devices(maxage)) / 2.
@@ -63,12 +63,6 @@ class SkewMotor(HasOffset, SkewRead, Motor):
                       '"two"',
                       type=float, default=0., settable=True, unit='main'),
     }
-
-    def _read_devices(self, maxage=0):
-        return self._attached_one.read(maxage), self._attached_two.read(maxage)
-
-    def doRead(self, maxage=0):
-        return sum(self._read_devices(maxage)) / 2.
 
     def doIsAtTarget(self, pos, target):
         if target is None:
