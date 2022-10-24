@@ -211,10 +211,8 @@ class FlatfileCacheDatabase(CacheDatabase):
             fd = self._create_fd(category)
             for subkey, entry in db.items():
                 if entry.value:
-                    fd.write('%s\t%s\t%s\t%s\n' % (
-                        subkey, entry.time,
-                        (entry.ttl or entry.expired) and '-' or '+',
-                        entry.value))
+                    ttl = (entry.ttl or entry.expired) and '-' or '+'
+                    fd.write(f'{subkey}\t{entry.time}\t{ttl}\t{entry.value}\n')
             # don't keep fds open for *all* files with keys, rather reopen
             # those that are necessary when new updates come in
             fd.close()
@@ -265,27 +263,26 @@ class FlatfileCacheDatabase(CacheDatabase):
             subkey = key
         with self._cat_lock:
             if category not in self._cat:
-                return [key + OP_TELLOLD + '\n']
+                return [f'{key}{OP_TELLOLD}\n']
             _, lock, db = self._cat[category]
         with lock:
             if subkey not in db:
-                return [key + OP_TELLOLD + '\n']
+                return [f'{key}{OP_TELLOLD}\n']
             entry = db[subkey]
         # check for expired keys
         if entry.value is None:
-            return [key + OP_TELLOLD + '\n']
+            return [f'{key}{OP_TELLOLD}\n']
         # check for expired keys
         op = entry.expired and OP_TELLOLD or OP_TELL
         if entry.ttl:
             if ts:
-                return ['%r+%s@%s%s%s\n' % (entry.time, entry.ttl,
-                                            key, op, entry.value)]
+                return [f'{entry.time!r}+{entry.ttl}@{key}{op}{entry.value}\n']
             else:
-                return [key + op + entry.value + '\n']
+                return [f'{key}{op}{entry.value}\n']
         if ts:
-            return ['%r@%s%s%s\n' % (entry.time, key, op, entry.value)]
+            return [f'{entry.time!r}@{key}{op}{entry.value}\n']
         else:
-            return [key + op + entry.value + '\n']
+            return [f'{key}{op}{entry.value}\n']
 
     def ask_wc(self, key, ts):
         ret = set()
@@ -303,16 +300,15 @@ class FlatfileCacheDatabase(CacheDatabase):
                     op = entry.expired and OP_TELLOLD or OP_TELL
                     if entry.ttl:
                         if ts:
-                            ret.add('%r+%s@%s%s%s\n' %
-                                    (entry.time, entry.ttl, prefix+subkey,
-                                     op, entry.value))
+                            ret.add(f'{entry.time!r}+{entry.ttl}@{prefix}'
+                                    f'{subkey}{op}{entry.value}\n')
                         else:
-                            ret.add(prefix+subkey + op + entry.value + '\n')
+                            ret.add(f'{prefix}{subkey}{op}{entry.value}\n')
                     elif ts:
-                        ret.add('%r@%s%s%s\n' % (entry.time, prefix+subkey,
-                                                 op, entry.value))
+                        ret.add(f'{entry.time!r}@{prefix}{subkey}'
+                                f'{op}{entry.value}\n')
                     else:
-                        ret.add(prefix+subkey + op + entry.value + '\n')
+                        ret.add(f'{prefix}{subkey}{op}{entry.value}\n')
         return [''.join(ret)]
 
     def _read_one_histfile(self, year, monthday, category, subkey):
@@ -362,14 +358,14 @@ class FlatfileCacheDatabase(CacheDatabase):
                     if fromtime <= time <= totime:
                         if not inrange and lastvalue:
                             temp.append(lastvalue)
-                        temp.append('%r@%s=%s\n' % (time, key, value))
+                        temp.append(f'{time!r}@{key}={value}\n')
                         inrange = True
                         if len(temp) > 100:
                             # bunch up 100 entries at a time
                             yield ''.join(temp)
                             temp = []
                     elif not inrange and value and time < fromtime:
-                        lastvalue = '%r@%s=%s\n' % (time, key, value)
+                        lastvalue = f'{time!r}@{key}={value}\n'
             except Exception:
                 self.log.exception('error reading store file for history query')
         # return at least the last value, if none match the range
@@ -389,13 +385,13 @@ class FlatfileCacheDatabase(CacheDatabase):
                             if entry.ttl and (entry.time + entry.ttl < time):
                                 entry.expired = True
                                 for client in self._server._connected.values():
-                                    client.update(cat + '/' + subkey,
+                                    client.update(f'{cat}/{subkey}',
                                                   OP_TELLOLD, entry.value,
                                                   time, None)
                                 if fd is None:
                                     fd = self._create_fd(cat)
                                     self._cat[cat][0] = fd  # pylint: disable=unnecessary-dict-index-lookup
-                                fd.write('%s\t%s\t-\t-\n' % (subkey, time))
+                                fd.write(f'{subkey}\t{time}\t-\t-\n')
                                 fd.flush()
         while not self._stoprequest:
             sleep(self._long_loop_delay)
@@ -449,13 +445,11 @@ class FlatfileCacheDatabase(CacheDatabase):
                         if fd is None:
                             fd = self._create_fd(newcat)
                             self._cat[newcat][0] = fd
-                        fd.write('%s\t%s\t%s\t%s\n' % (
-                            subkey, time,
-                            ttl and '-' or (value and '+' or '-'),
-                            value or '-'))
+                        ttlcol = ttl and '-' or (value and '+' or '-')
+                        fd.write(f'{subkey}\t{time}\t{ttlcol}\t{value or "-"}\n')
                         fd.flush()
             if update and (not ttl or time + ttl > now):
-                key = newcat + '/' + subkey
+                key = f'{newcat}/{subkey}'
                 for client in self._server._connected.values():
                     if client is not from_client:
                         client.update(key, OP_TELL, value or '', time, ttl)

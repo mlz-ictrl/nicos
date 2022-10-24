@@ -255,9 +255,9 @@ class CacheWorker:
                     time = currenttime()
                 # self.log.debug('sending update of %s to %s', key, value)
                 if ttl is not None:
-                    msg = '%r+%s@%s%s%s\n' % (time, ttl, key, op, value)
+                    msg = f'{time!r}+{ttl}@{key}{op}{value}\n'
                 else:
-                    msg = '%r@%s%s%s\n' % (time, key, op, value)
+                    msg = f'{time!r}@{key}{op}{value}\n'
                 self.send_queue.put(msg)
                 return  # send at most one update
         # same for requested updates without timestamp

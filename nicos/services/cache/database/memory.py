@@ -44,25 +44,24 @@ class MemoryCacheDatabase(CacheDatabase):
         dbkey = key if '/' in key else 'nocat/' + key
         with self._db_lock:
             if dbkey not in self._db:
-                return [key + OP_TELLOLD + '\n']
+                return [f'{key}{OP_TELLOLD}\n']
             lastent = self._db[dbkey][-1]
         # check for already removed keys
         if lastent.value is None:
-            return [key + OP_TELLOLD + '\n']
+            return [f'{key}{OP_TELLOLD}\n']
         # check for expired keys
         if lastent.ttl:
             remaining = lastent.time + lastent.ttl - currenttime()
             op = remaining > 0 and OP_TELL or OP_TELLOLD
             if ts:
-                return ['%r+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
-                                            key, op, lastent.value)]
+                return [f'{lastent.time!r}+{lastent.ttl}@{key}{op}'
+                        f'{lastent.value}\n']
             else:
-                return [key + op + lastent.value + '\n']
+                return [f'{key}{op}{lastent.value}\n']
         if ts:
-            return [
-                '%r@%s%s%s\n' % (lastent.time, key, OP_TELL, lastent.value)]
+            return [f'{lastent.time!r}@{key}{OP_TELL}{lastent.value}\n']
         else:
-            return [key + OP_TELL + lastent.value + '\n']
+            return [f'{key}{OP_TELL}{lastent.value}\n']
 
     def ask_wc(self, key, ts):
         ret = set()
@@ -82,15 +81,14 @@ class MemoryCacheDatabase(CacheDatabase):
                     remaining = lastent.time + lastent.ttl - currenttime()
                     op = remaining > 0 and OP_TELL or OP_TELLOLD
                     if ts:
-                        ret.add('%r+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
-                                                    dbkey, op, lastent.value))
+                        ret.add(f'{lastent.time!r}+{lastent.ttl}@{dbkey}'
+                                f'{op}{lastent.value}\n')
                     else:
-                        ret.add(dbkey + op + lastent.value + '\n')
+                        ret.add(f'{dbkey}{op}{lastent.value}\n')
                 elif ts:
-                    ret.add('%r@%s%s%s\n' % (lastent.time, dbkey,
-                                             OP_TELL, lastent.value))
+                    ret.add(f'{lastent.time!r}@{dbkey}{OP_TELL}{lastent.value}\n')
                 else:
-                    ret.add(dbkey + OP_TELL + lastent.value + '\n')
+                    ret.add(f'{dbkey}{OP_TELL}{lastent.value}\n')
         return ret
 
     def ask_hist(self, key, fromtime, totime):
@@ -115,7 +113,7 @@ class MemoryCacheDatabase(CacheDatabase):
         if category in self._rewrites:
             newcats.extend(self._rewrites[category])
         for newcat in newcats:
-            key = newcat + '/' + subkey
+            key = f'{newcat}/{subkey}'
             with self._db_lock:
                 entries = self._db.setdefault(key, [])
                 if entries:
@@ -153,10 +151,10 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
             entries = self._db[key]
             for entry in entries:
                 if fromtime <= entry.time <= totime:
-                    ret.append('%r@%s=%s\n' % (entry.time, key, entry.value))
+                    ret.append(f'{entry.time!r}@{key}{OP_TELL}{entry.value}\n')
                     inrange = True
                 elif not inrange and entry.value and entry.time < fromtime:
-                    ret = ['%r@%s=%s\n' % (entry.time, key, entry.value)]
+                    ret = [f'{entry.time!r}@{key}{OP_TELL}{entry.value}\n']
         except Exception:
             self.log.exception('error reading store for history query')
         if not inrange:
@@ -182,7 +180,7 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
         if category in self._rewrites:
             newcats.extend(self._rewrites[category])
         for newcat in newcats:
-            key = newcat + '/' + subkey
+            key = f'{newcat}/{subkey}'
             with self._db_lock:
                 queue = deque([CacheEntry(None, None, None)], self.maxentries)
                 entries = self._db.setdefault(key, queue)
