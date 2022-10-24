@@ -40,7 +40,7 @@ class MemoryCacheDatabase(CacheDatabase):
         self._db_lock = threading.Lock()
         CacheDatabase.doInit(self, mode)
 
-    def ask(self, key, ts, time, ttl):
+    def ask(self, key, ts):
         dbkey = key if '/' in key else 'nocat/' + key
         with self._db_lock:
             if dbkey not in self._db:
@@ -64,7 +64,7 @@ class MemoryCacheDatabase(CacheDatabase):
         else:
             return [key + OP_TELL + lastent.value + '\n']
 
-    def ask_wc(self, key, ts, time, ttl):
+    def ask_wc(self, key, ts):
         ret = set()
         with self._db_lock:
             # look for matching keys

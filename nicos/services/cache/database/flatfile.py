@@ -257,7 +257,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                 self.log.exception('linking %s -> %s', linkname, filename)
         return fd
 
-    def ask(self, key, ts, time, ttl):
+    def ask(self, key, ts):
         try:
             category, subkey = key.rsplit('/', 1)
         except ValueError:
@@ -287,7 +287,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         else:
             return [key + op + entry.value + '\n']
 
-    def ask_wc(self, key, ts, time, ttl):
+    def ask_wc(self, key, ts):
         ret = set()
         # look for matching keys
         for cat, (_, lock, db) in list(self._cat.items()):

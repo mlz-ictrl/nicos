@@ -221,11 +221,9 @@ class CacheWorker:
             if ttl is not None:
                 return self.db.ask_hist(key, time, time + ttl)
             else:
-                # although passed, time and ttl are ignored here
-                return self.db.ask(key, tsop, time, ttl)
+                return self.db.ask(key, tsop)
         elif op == OP_WILDCARD:
-            # time and ttl are currently ignored for wildcard requests
-            return self.db.ask_wc(key, tsop, time, ttl)
+            return self.db.ask_wc(key, tsop)
         elif op == OP_SUBSCRIBE:
             # both time and ttl are ignored for subscription requests,
             # but the return format changes when the @ is included

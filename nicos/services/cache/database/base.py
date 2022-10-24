@@ -43,12 +43,50 @@ class CacheDatabase(Device):
         # map new prefix -> incoming prefix
         self._inv_rewrites = {}
 
+    # to override in concrete implementations, if needed:
+
     def initDatabase(self):
         """Initialize the database from persistent store, if present."""
 
     def clearDatabase(self):
         """Clear the database also from persistent store, if present."""
         self.log.info('clearing database')
+
+    # to override in concrete implementations:
+
+    def tell(self, key, value, time, ttl, from_client):
+        """Update the backend with a new value for a key.
+
+        Needs to take rewrites into account.
+
+        Needs to notify other clients about the update.  *from_client* is the
+        client the update comes from, which should therefore not be notified.
+        """
+
+    def ask(self, key, ts):
+        """Query the current value for a single key.
+
+        If *ts* is true, include a timestamp in the reply.
+
+        Returns an iterable of cache messages.
+        """
+
+    def ask_wc(self, key, ts):
+        """Query the current values for all keys matching the wildcard.
+
+        If *ts* is true, include a timestamp in the reply.
+
+        Returns an iterable of cache messages.
+        """
+
+    def ask_hist(self, key, fromtime, totime):
+        """Query the historical values for a single key between two
+        timestamps.
+
+        Returns an iterable (usually as a generator) of cache messages.
+        """
+
+    # not needed to override:
 
     def rewrite(self, key, value):
         """Rewrite handling."""
