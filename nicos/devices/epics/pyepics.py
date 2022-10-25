@@ -229,7 +229,10 @@ class EpicsDevice(DeviceMixinBase):
             if epics.ca.current_context() is None:
                 epics.ca.use_initial_context()
 
-            self._pvctrls[pvparam] = self._pvs[pvparam].get_ctrlvars()
+            try:
+                self._pvctrls[pvparam] = self._pvs[pvparam].get_ctrlvars()
+            except Exception as _:
+                self._pvctrls[pvparam] = {}
 
         result = self._pvctrls[pvparam]
         if result is None:
