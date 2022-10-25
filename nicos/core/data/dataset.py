@@ -412,6 +412,8 @@ class ScanData:
             if dataset.subsets:
                 for (devname, key), (_, val, unit, category) in \
                         dataset.metainfo.items():
+                    if len(val) > 100:  # omit large values
+                        continue
                     catlist = self.headerinfo.setdefault(category, [])
                     catlist.append((devname, key, (val + ' ' + unit).strip()))
 
