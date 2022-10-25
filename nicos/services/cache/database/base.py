@@ -26,11 +26,17 @@ import threading
 from time import time as currenttime
 
 from nicos.core import ConfigurationError, Device
-from nicos.protocols.cache import OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK
+from nicos.protocols.cache import FLAG_NO_STORE, OP_LOCK, OP_LOCK_LOCK, \
+    OP_LOCK_UNLOCK, OP_TELL, OP_TELLOLD
 from nicos.services.cache.entry import CacheEntry
 
 
 class CacheDatabase(Device):
+    """Represents a backend for the NICOS cache.
+
+    For new subclasses, implement the methods indicated below.
+    """
+
     def doInit(self, mode):
         if self.__class__ is CacheDatabase:
             raise ConfigurationError(
@@ -52,7 +58,116 @@ class CacheDatabase(Device):
         """Clear the database also from persistent store, if present."""
         self.log.info('clearing database')
 
-    # to override in concrete implementations:
+    # to implement in concrete implementations:
+
+    def getEntry(self, dbkey):
+        """Return the current Entry for the given (category, subkey)."""
+        raise NotImplementedError
+
+    def iterEntries(self):
+        """Yield all current ((category, subkey), Entry) pairs."""
+        raise NotImplementedError
+
+    def updateEntries(self, categories, subkey, no_store, entry):
+        """Update an entry which is in the given categories (can be multiple
+        due to rewrites).
+
+        If *no_store* is true, the no-store flag has been sent by the client.
+
+        Should return True if it is a "real" update, i.e. other clients should
+        be notified.
+        """
+        raise NotImplementedError
+
+    def queryHistory(self, dbkey, fromtime, totime):
+        """Yield CacheEntry objects from history for the given timespan.
+
+        Should also include the last entry *before* the fromtime, so that the
+        history during the span is not incomplete (i.e. for keys that change
+        rarely).
+        """
+        raise NotImplementedError
+
+    # not needed to override:
+
+    def ask(self, key, ts):
+        """Query the current value for a single key.
+
+        If *ts* is true, include a timestamp in the reply.
+        """
+        try:
+            category, subkey = key.rsplit('/', 1)
+        except ValueError:
+            category = 'nocat'
+            subkey = key
+        entry = self.getEntry((category, subkey))
+
+        # check for nonexisting or deleted keys
+        if entry is None or entry.value is None:
+            return [f'{key}{OP_TELLOLD}\n']
+
+        # handle expired keys with different operator
+        op = entry.expired and OP_TELLOLD or OP_TELL
+
+        if entry.ttl:
+            if ts:
+                return [f'{entry.time!r}+{entry.ttl}@{key}{op}{entry.value}\n']
+            else:
+                return [f'{key}{op}{entry.value}\n']
+        if ts:
+            return [f'{entry.time!r}@{key}{op}{entry.value}\n']
+        else:
+            return [f'{key}{op}{entry.value}\n']
+
+    def ask_wc(self, substring, ts):
+        """Query the current values for all keys matching the wildcard.
+
+        If *ts* is true, include a timestamp in the reply.
+        """
+        ret = set()
+        for (dbkey, entry) in self.iterEntries():
+            key = dbkey[1] if dbkey[0] == 'nocat' else f'{dbkey[0]}/{dbkey[1]}'
+            if substring not in key:
+                continue
+            # check for removed keys
+            if entry.value is None:
+                continue
+            # check for expired keys
+            op = entry.expired and OP_TELLOLD or OP_TELL
+            if entry.ttl:
+                if ts:
+                    ret.add(f'{entry.time!r}+{entry.ttl}@{key}'
+                            f'{op}{entry.value}\n')
+                else:
+                    ret.add(f'{key}{op}{entry.value}\n')
+            elif ts:
+                ret.add(f'{entry.time!r}@{key}{op}{entry.value}\n')
+            else:
+                ret.add(f'{key}{op}{entry.value}\n')
+        return [''.join(ret)]
+
+    def ask_hist(self, key, fromtime, totime):
+        """Query the historical values for a single key between two
+        timestamps.
+
+        Returns a generator of cache message bunches.
+        """
+        if fromtime > totime:
+            return
+        try:
+            category, subkey = key.rsplit('/', 1)
+        except ValueError:
+            category = 'nocat'
+            subkey = key
+
+        # bunch up 100 entries at a time
+        bunch = []
+        for entry in self.queryHistory((category, subkey), fromtime, totime):
+            bunch.append(f'{entry.time!r}@{key}={entry.value}\n')
+            if len(bunch) > 100:
+                yield ''.join(bunch)
+                bunch = []
+        yield ''.join(bunch)
 
     def tell(self, key, value, time, ttl, from_client):
         """Update the backend with a new value for a key.
@@ -62,31 +177,43 @@ class CacheDatabase(Device):
         Needs to notify other clients about the update.  *from_client* is the
         client the update comes from, which should therefore not be notified.
         """
+        try:
+            category, subkey = key.rsplit('/', 1)
+        except ValueError:
+            category = 'nocat'
+            subkey = key
 
-    def ask(self, key, ts):
-        """Query the current value for a single key.
+        # deletes cannot have a TTL
+        if value is None:
+            ttl = None
 
-        If *ts* is true, include a timestamp in the reply.
+        # add timestamp if not given by client
+        if time is None:
+            time = currenttime()
 
-        Returns an iterable of cache messages.
-        """
+        # handle the no-store flag
+        no_store = key.endswith(FLAG_NO_STORE)
+        if no_store:
+            key = key[:-len(FLAG_NO_STORE)]
 
-    def ask_wc(self, key, ts):
-        """Query the current values for all keys matching the wildcard.
+        # apply rewrite mechanism: a single update might be mapped to updates
+        # of multiple keys with different categories
+        newcats = [category]
+        if category in self._rewrites:
+            newcats.extend(self._rewrites[category])
 
-        If *ts* is true, include a timestamp in the reply.
+        # during updates, if we find out the new value is already the current
+        # value (without TTL), we don't need to update other clients
+        real_update = self.updateEntries(newcats, subkey, no_store,
+                                         CacheEntry(time, ttl, value))
 
-        Returns an iterable of cache messages.
-        """
-
-    def ask_hist(self, key, fromtime, totime):
-        """Query the historical values for a single key between two
-        timestamps.
-
-        Returns an iterable (usually as a generator) of cache messages.
-        """
-
-    # not needed to override:
+        # if no_store flag is set, always send an update
+        if real_update or no_store:
+            for client in self._server._connected.values():
+                if client is not from_client:
+                    for cat in newcats:
+                        client.update(f'{cat}/{subkey}', OP_TELL,
+                                      value or '', time, ttl)
 
     def rewrite(self, key, value):
         """Rewrite handling."""

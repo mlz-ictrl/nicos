@@ -24,10 +24,8 @@
 
 import threading
 from collections import deque
-from time import time as currenttime
 
 from nicos.core import Param, intrange
-from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
 
@@ -40,93 +38,33 @@ class MemoryCacheDatabase(CacheDatabase):
         self._db_lock = threading.Lock()
         CacheDatabase.doInit(self, mode)
 
-    def ask(self, key, ts):
-        dbkey = key if '/' in key else 'nocat/' + key
+    def getEntry(self, dbkey):
         with self._db_lock:
             if dbkey not in self._db:
-                return [f'{key}{OP_TELLOLD}\n']
-            lastent = self._db[dbkey][-1]
-        # check for already removed keys
-        if lastent.value is None:
-            return [f'{key}{OP_TELLOLD}\n']
-        # check for expired keys
-        if lastent.ttl:
-            remaining = lastent.time + lastent.ttl - currenttime()
-            op = remaining > 0 and OP_TELL or OP_TELLOLD
-            if ts:
-                return [f'{lastent.time!r}+{lastent.ttl}@{key}{op}'
-                        f'{lastent.value}\n']
-            else:
-                return [f'{key}{op}{lastent.value}\n']
-        if ts:
-            return [f'{lastent.time!r}@{key}{OP_TELL}{lastent.value}\n']
-        else:
-            return [f'{key}{OP_TELL}{lastent.value}\n']
+                return None
+            return self._db[dbkey][-1]
 
-    def ask_wc(self, key, ts):
-        ret = set()
+    def iterEntries(self):
         with self._db_lock:
-            # look for matching keys
             for dbkey, entries in self._db.items():
-                if key not in dbkey:
-                    continue
-                lastent = entries[-1]
-                # check for removed keys
-                if lastent.value is None:
-                    continue
-                if dbkey.startswith('nocat/'):
-                    dbkey = dbkey[6:]
-                # check for expired keys
-                if lastent.ttl:
-                    remaining = lastent.time + lastent.ttl - currenttime()
-                    op = remaining > 0 and OP_TELL or OP_TELLOLD
-                    if ts:
-                        ret.add(f'{lastent.time!r}+{lastent.ttl}@{dbkey}'
-                                f'{op}{lastent.value}\n')
-                    else:
-                        ret.add(f'{dbkey}{op}{lastent.value}\n')
-                elif ts:
-                    ret.add(f'{lastent.time!r}@{dbkey}{OP_TELL}{lastent.value}\n')
-                else:
-                    ret.add(f'{dbkey}{OP_TELL}{lastent.value}\n')
-        return ret
+                yield dbkey, entries[-1]
 
-    def ask_hist(self, key, fromtime, totime):
-        return []
-
-    def tell(self, key, value, time, ttl, from_client):
-        if value is None:
-            # deletes cannot have a TTL
-            ttl = None
-        send_update = True
-        always_send_update = False
-        # remove no-store flag
-        if key.endswith(FLAG_NO_STORE):
-            key = key[:-len(FLAG_NO_STORE)]
-            always_send_update = True
-        try:
-            category, subkey = key.rsplit('/', 1)
-        except ValueError:
-            category = 'nocat'
-            subkey = key
-        newcats = [category]
-        if category in self._rewrites:
-            newcats.extend(self._rewrites[category])
-        for newcat in newcats:
-            key = f'{newcat}/{subkey}'
-            with self._db_lock:
-                entries = self._db.setdefault(key, [])
+    def updateEntries(self, categories, subkey, no_store, entry):
+        real_update = True
+        with self._db_lock:
+            for cat in categories:
+                entries = self._db.setdefault((cat, subkey), [])
                 if entries:
                     lastent = entries[-1]
-                    if lastent.value == value and not lastent.ttl:
+                    if lastent.value == entry.value and not lastent.ttl:
                         # not a real update
-                        send_update = False
-                # never cache more than a single entry, memory fills up too fast
-                entries[:] = [CacheEntry(time, ttl, value)]
-            if send_update or always_send_update:
-                for client in self._server._connected.values():
-                    if client is not from_client and client.is_active():
-                        client.update(key, OP_TELL, value or '', time, ttl)
+                        real_update = False
+                # never cache more than a single entry
+                entries[:] = [entry]
+        return real_update
+
+    def queryHistory(self, dbkey, fromtime, totime):
+        return []
 
 
 class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
@@ -141,55 +79,32 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
                             type=intrange(0, 100), default=10, settable=False),
     }
 
-    def ask_hist(self, key, fromtime, totime):
-        if fromtime > totime:
-            return []
-        ret = []
-        # return the first value before the range too
+    def updateEntries(self, categories, subkey, no_store, entry):
+        real_update = True
+        with self._db_lock:
+            for cat in categories:
+                queue = deque([CacheEntry(None, None, None)], self.maxentries)
+                entries = self._db.setdefault((cat, subkey), queue)
+                lastent = entries[-1]
+                if lastent.value == entry.value and not lastent.ttl:
+                    # not a real update
+                    real_update = False
+                entries.append(entry)
+        return real_update
+
+    def queryHistory(self, dbkey, fromtime, totime):
         inrange = False
+        # return the first value before the range too
+        last_before = None
         try:
-            entries = self._db[key]
+            entries = self._db[dbkey]
             for entry in entries:
                 if fromtime <= entry.time <= totime:
-                    ret.append(f'{entry.time!r}@{key}{OP_TELL}{entry.value}\n')
+                    if not inrange and last_before:
+                        yield last_before
+                    yield entry
                     inrange = True
                 elif not inrange and entry.value and entry.time < fromtime:
-                    ret = [f'{entry.time!r}@{key}{OP_TELL}{entry.value}\n']
+                    last_before = entry
         except Exception:
             self.log.exception('error reading store for history query')
-        if not inrange:
-            return []
-        return [''.join(ret)]
-
-    def tell(self, key, value, time, ttl, from_client):
-        if value is None:
-            # deletes cannot have a TTL
-            ttl = None
-        send_update = True
-        always_send_update = False
-        # remove no-store flag
-        if key.endswith(FLAG_NO_STORE):
-            key = key[:-len(FLAG_NO_STORE)]
-            always_send_update = True
-        try:
-            category, subkey = key.rsplit('/', 1)
-        except ValueError:
-            category = 'nocat'
-            subkey = key
-        newcats = [category]
-        if category in self._rewrites:
-            newcats.extend(self._rewrites[category])
-        for newcat in newcats:
-            key = f'{newcat}/{subkey}'
-            with self._db_lock:
-                queue = deque([CacheEntry(None, None, None)], self.maxentries)
-                entries = self._db.setdefault(key, queue)
-                lastent = entries[-1]
-                if lastent.value == value and not lastent.ttl:
-                    # not a real update
-                    send_update = False
-                entries.append(CacheEntry(time, ttl, value))
-            if send_update or always_send_update:
-                for client in self._server._connected.values():
-                    if client is not from_client and client.is_active():
-                        client.update(key, OP_TELL, value or '', time, ttl)

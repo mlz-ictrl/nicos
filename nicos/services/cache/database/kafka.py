@@ -28,9 +28,8 @@ from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 
 from nicos.core import Attach, Param, host, listof
 from nicos.core.errors import ConfigurationError
-from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
+from nicos.protocols.cache import OP_TELLOLD
 from nicos.services.cache.database.memory import MemoryCacheDatabase
-from nicos.services.cache.entry import CacheEntry
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
 from nicos.utils import createThread
 
@@ -180,41 +179,20 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         # clear all local buffers and produce pending messages
         self._producer.flush()
 
-    def tell(self, key, value, time, ttl, from_client):
-        if value is None:
-            # deletes cannot have a TTL
-            ttl = None
-        send_update = True
-        always_send_update = False
-        # remove no-store flag
-        if key.endswith(FLAG_NO_STORE):
-            key = key[:-len(FLAG_NO_STORE)]
-            always_send_update = True
-        try:
-            category, subkey = key.rsplit('/', 1)
-        except ValueError:
-            category = 'nocat'
-            subkey = key
-        newcats = [category]
-        if category in self._rewrites:
-            newcats.extend(self._rewrites[category])
-        for newcat in newcats:
-            key = newcat + '/' + subkey
+    def updateEntries(self, categories, subkey, no_store, entry):
+        real_update = True
+        for cat in categories:
             with self._db_lock:
-                entries = self._db.setdefault(key, [])
+                entries = self._db.setdefault((cat, subkey), [])
                 if entries:
                     lastent = entries[-1]
-                    if lastent.value == value and not lastent.expired:
+                    if lastent.value == entry.value and not lastent.expired:
                         # not a real update
-                        send_update = False
-                thisent = CacheEntry(time, ttl, value)
-                entries[:] = [thisent]
-                if send_update:
-                    self._update_topic(key, thisent)
-            if send_update or always_send_update:
-                for client in self._server._connected.values():
-                    if client is not from_client and client.is_active():
-                        client.update(key, OP_TELL, value or '', time, ttl)
+                        real_update = False
+                entries[:] = [entry]
+                if real_update:
+                    self._update_topic(f'{cat}/{subkey}', entry)
+        return real_update
 
 
 class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
@@ -261,8 +239,9 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         self._history_consumer.close()
         KafkaCacheDatabase.doShutdown(self)
 
-    def ask_hist(self, key, fromtime, totime):
-        self.log.debug('hist for %s in (%s, %s)' % (key, fromtime, totime))
+    def queryHistory(self, dbkey, fromtime, totime):
+        key = f'{dbkey[0]}/{dbkey[1]}'
+        self.log.debug('hist for %s in (%s, %s)', dbkey, fromtime, totime)
         buffer_time = 10
 
         # Get the assignment
@@ -281,7 +260,8 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         found_some = False
         for partition in assignment:
             while self._history_consumer.position(partition) < end[partition]:
-                msg = next(self._history_consumer)  # pylint: disable=stop-iteration-return
+                # pylint: disable=stop-iteration-return
+                msg = next(self._history_consumer)
                 time = msg.timestamp
 
                 # As the messages are not strictly arranged in the order of
@@ -298,13 +278,13 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
                             entry.value is not None):
                         self.log.info("%s -> %s" % (msgkey, entry))
                         found_some = True
-                        yield f'{entry.time!r}@{key}{OP_TELL}{entry.value}\n'
+                        yield entry
 
         # Return at least the last value, if none match the range
-        if not found_some and key in self._db:
-            entry = self._db[key][-1]
-            self.log.debug("not found in provided range, fetching current")
-            yield f'{entry.time!r}@{key}{OP_TELL}{entry.value}\n'
+        if not found_some and dbkey in self._db:
+            entry = self._db[dbkey][-1]
+            self.log.debug('not found in provided range, fetching current')
+            yield entry
 
     def _update_topic(self, key, entry):
         KafkaCacheDatabase._update_topic(self, key, entry)
