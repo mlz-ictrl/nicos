@@ -24,6 +24,7 @@
 
 """CARESS histogram file format."""
 
+import re
 from time import strftime, time as currenttime
 
 import dataparser as DataParser
@@ -159,6 +160,7 @@ class CaressHistogramReader(ImageFileReader):
         corrData = DataParser.ReadCorrectionFile(
             findResource(cls.correctionfile))
         with open(filename, 'r', encoding='utf-8') as f:
+            regex = re.compile(r'\w+ = ')
             if not f.readline().startswith('QMesyDAQ CARESS Histogram File'):
                 raise NicosError('File is not a CARESS histogram file.')
             for line in f:
@@ -167,10 +169,9 @@ class CaressHistogramReader(ImageFileReader):
                 elif line.startswith('2Theta start'):
                     startpos = float(line.split()[2])
                 elif line.startswith('Comment'):
-                    for p in line.replace(' = ', '=').replace(' x ', 'x'
-                                                              ).split()[1:]:
-                        k, v = p.split('=')
-                        if k == 'detsampledist':
+                    s = line.split(':')[-1].strip()
+                    for k, v in zip(regex.findall(s), regex.split(s)[1:]):
+                        if k.split(' = ')[0] == 'detsampledist':
                             detsampledist = float(v)
             thetaRaw = DataParser.ThetaInitial(startpos, resosteps, ndet)
             thetaCorr = DataParser.ThetaModified(
