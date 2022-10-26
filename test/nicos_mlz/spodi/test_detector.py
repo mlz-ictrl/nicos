@@ -38,6 +38,8 @@ def adet(session):
     pytest.importorskip('dataparser')
     # Check correct detector configuration
     basedet = session.getDevice('basedet')
+    # device is needed for the caress histogram datasink
+    session.getDevice('detsampledist')
     assert len(basedet._attached_timers) == 1
     assert len(basedet._attached_counters) == 0
     assert len(basedet._attached_monitors) == 1

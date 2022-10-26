@@ -29,6 +29,7 @@ from os import path
 import pytest
 
 from nicos.commands.measure import count
+from nicos_mlz.spodi.datasinks import CaressHistogramReader
 
 session_setup = 'spodi'
 exp_dataroot = 'spodidata'
@@ -42,7 +43,7 @@ class TestSinks:
         pytest.importorskip('dataparser')
         session.experiment.setDetectors(['adet'])
         # Create devices needed in data sinks
-        for dev in ['omgs', 'tths']:
+        for dev in ['omgs', 'tths', 'detsampledist']:
             session.getDevice(dev)
         count(resosteps=1, t=0.01)
         count(resosteps=1, mon1=100)
@@ -51,3 +52,5 @@ class TestSinks:
     def test_caress_sink(self, session):
         caressfile = path.join(session.experiment.datapath, 'm100000043.ctxt')
         assert path.isfile(caressfile)
+
+        CaressHistogramReader.fromfile(caressfile)
