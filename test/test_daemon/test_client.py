@@ -173,7 +173,7 @@ def test_get_device_list(client):
     # expected:
     # l1: ['dax', 'dm1', 'dm2', 'Exp', 'Instr', 'Sample', 'testnotifier']
     # l2: ['dax', 'dm1', 'dm2', 'Sample']
-    assert 'Instr' in l1
+    assert 'Exp' in l1
     assert l1 != l2
     assert all(item in l1 for item in l2)
     assert 'Exp' not in l2
