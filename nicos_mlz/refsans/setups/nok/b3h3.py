@@ -8,7 +8,7 @@ tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 
 devices = dict(
-    b3g = device('nicos_mlz.refsans.devices.slits.Gap',
+    b3g = device('nicos.devices.generic.slit.HorizontalGap',
         description = 'slit system',
         left = 'b3s_motor',
         right = 'b3r_motor',
@@ -73,7 +73,7 @@ devices = dict(
         ruler = 103.365400,
         visibility = (),
     ),
-    h3g = device('nicos_mlz.refsans.devices.slits.Gap',
+    h3g = device('nicos.devices.generic.slit.HorizontalGap',
         description = 'Horizontal slit system',
         left = 'h3s_motor',
         right = 'h3r_motor',

@@ -15,7 +15,7 @@ devices = dict(
         unit = 'mm',
         visibility = (),
     ),
-    h2 = device('nicos_mlz.refsans.devices.slits.Gap',
+    h2 = device('nicos.devices.generic.slit.HorizontalGap',
         description = 'Horizontal slit system',
         left = 'h2l',
         right = 'h2r',

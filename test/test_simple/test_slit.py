@@ -59,6 +59,36 @@ def test_slit(session):
     assert slit.doStatus()[0] == status.OK
 
 
+def test_hgap(session):
+    hgap = session.getDevice('hgap')
+    motor_right = session.getDevice('m_right')
+    motor_left = session.getDevice('m_left')
+    hgap.opmode = '2blades'
+    hgap.maw([1, 2])
+    print([motor_right.doRead(), motor_left.doRead()])
+    assert motor_left.doRead() == 1
+    assert motor_right.doRead() == 2
+    assert hgap.doRead() == [motor_left.doRead(), motor_right.doRead()]
+    hgap.reset()
+    hgap.stop()
+    assert hgap.doStatus()[0] == status.OK
+
+
+def test_vgap(session):
+    vgap = session.getDevice('vgap')
+    motor_bottom = session.getDevice('m_bottom')
+    motor_top = session.getDevice('m_top')
+    vgap.opmode = '2blades'
+    vgap.maw([3, 4])
+    print([motor_bottom.doRead(), motor_top.doRead()])
+    assert motor_bottom.doRead() == 3
+    assert motor_top.doRead() == 4
+    assert vgap.doRead() == [motor_bottom.doRead(), motor_top.doRead()]
+    vgap.reset()
+    vgap.stop()
+    assert vgap.doStatus()[0] == status.OK
+
+
 def test_slit_opposite(session):
     s2 = session.getDevice('slit2')
     motor_right = session.getDevice('m_right')
@@ -95,6 +125,58 @@ def test_slit_opposite(session):
     assert motor_top.doRead() == 5
 
     assert raises(LimitError, s2.start, [1, 2, -1, 0])
+
+
+def test_hgap_opposite(session):
+    sw2 = session.getDevice('hgap2')
+    motor_right = session.getDevice('m_right')
+    motor_left = session.getDevice('m_left')
+
+    sw2.opmode = '2blades_opposite'
+    sw2.maw([6, 7])
+    assert motor_left.doRead() == 6
+    assert motor_right.doRead() == 7
+    assert sw2.width.doRead() == 13
+    assert sw2.doRead() == [6, 7]
+
+    sw2.opmode = 'centered'
+    sw2.maw([10])
+    assert motor_left.doRead() == 5
+    assert motor_right.doRead() == 5
+
+    sw2.opmode = 'offcentered'
+    sw2.maw([2, 1])
+    assert motor_left.doRead() == -1.5
+    assert motor_right.doRead() == 2.5
+
+    assert raises(LimitError, sw2.start, [1, -1])
+
+
+def test_vgap_opposite(session):
+    sh2 = session.getDevice('vgap2')
+    motor_bottom = session.getDevice('m_bottom')
+    motor_top = session.getDevice('m_top')
+
+    sh2.opmode = '2blades_opposite'
+    sh2.maw([8, 9])
+    assert motor_bottom.doRead() == 8
+    assert motor_top.doRead() == 9
+    assert sh2.height.doRead() == 17
+    assert sh2.doRead() == [8, 9]
+
+    sh2.maw([-5, 5])
+    assert sh2.height.doRead() == 0
+
+    sh2.opmode = 'centered'
+    sh2.maw([10])
+    assert motor_bottom.doRead() == 5
+    assert motor_top.doRead() == 5
+
+    sh2.opmode = 'offcentered'
+    sh2.maw([6, 4])
+    assert motor_bottom.doRead() == -4
+    assert motor_top.doRead() == 8
+    assert raises(LimitError, sh2.start, [2, -2])
 
 
 def test_slit_opmodes(session, log):
@@ -137,6 +219,84 @@ def test_slit_opmodes(session, log):
     assert slit.read() == [3, 7, -1, 3]
 
 
+def test_hgap_opmodes(session, log):
+    hgap = session.getDevice('hgap')
+
+    hgap.opmode = '2blades'
+    hgap.maw([8, 9])
+    assert hgap.read() == [8, 9]
+    assert raises(InvalidValueError, hgap._getPositions, [1, 2, 4])
+    assert raises(InvalidValueError, hgap.start, [1, 2, 3])
+    assert raises(InvalidValueError, hgap.start, [800])
+    assert raises(LimitError, hgap.start, [8, 8000])
+    assert len(hgap.valueInfo()) == 2
+
+    hgap.maw([8, 10])
+    assert hgap.read() == [8, 10]
+
+    hgap.opmode = 'centered'
+    with log.assert_warns():
+        hgap.read()
+    hgap.maw([0])
+    assert raises(InvalidValueError, hgap._getPositions, [1, 2, 4])
+    assert raises(InvalidValueError, hgap.doStart, [800, 0])
+    assert raises(LimitError, hgap.start, [-2])
+    hgap.maw([2])
+    assert len(hgap.valueInfo()) == 1
+
+    hgap.opmode = 'offcentered'
+    assert hgap.read() == [0, 2]
+    assert raises(InvalidValueError, hgap._getPositions, [1, 2, 4])
+    assert raises(InvalidValueError, hgap.start, [1, 2, 3])
+    assert raises(InvalidValueError, hgap.start, [800])
+    assert raises(LimitError, hgap.start, [-1, 1000])
+    hgap.maw([5, 4])
+    assert hgap.read() == [5, 4]
+    assert len(hgap.valueInfo()) == 2
+
+    hgap.opmode = '2blades'
+    assert hgap.read() == [3, 7]
+
+
+def test_vgap_opmodes(session, log):
+    vgap = session.getDevice('vgap')
+
+    vgap.opmode = '2blades'
+    vgap.maw([4, 5])
+    assert vgap.read() == [4, 5]
+    assert raises(InvalidValueError, vgap._getPositions, [1, 2, 4])
+    assert raises(InvalidValueError, vgap.start, [1, 2, 3])
+    assert raises(InvalidValueError, vgap.start, [800])
+    assert raises(LimitError, vgap.start, [8, 8000])
+    assert len(vgap.valueInfo()) == 2
+
+    vgap.maw([4, 7])
+    assert vgap.read() == [4, 7]
+
+    vgap.opmode = 'centered'
+    with log.assert_warns():
+        vgap.read()
+    vgap.maw([0])
+    assert raises(InvalidValueError, vgap._getPositions, [1, 2, 4])
+    assert raises(InvalidValueError, vgap.doStart, [800, 0, 0, 0])
+    assert raises(LimitError, vgap.start, [-2])
+    vgap.maw([3])
+    assert len(vgap.valueInfo()) == 1
+
+    vgap.opmode = 'offcentered'
+    assert vgap.read() == [0, 3]
+    assert raises(InvalidValueError, vgap._getPositions, [1, 2, 4])
+    assert raises(InvalidValueError, vgap.start, [1, 2, 3])
+    assert raises(InvalidValueError, vgap.start, [800])
+    assert raises(LimitError, vgap.start, [-1, 1000])
+    vgap.maw([1, 4])
+    assert vgap.read() == [1, 4]
+    assert len(vgap.valueInfo()) == 2
+
+    vgap.opmode = '2blades'
+    assert vgap.read() == [-1, 3]
+
+
 def test_slit_subaxes(session):
     slit = session.getDevice('slit')
 
@@ -172,6 +332,52 @@ def test_slit_subaxes(session):
     assert slit.read(0) == [0, 0, 6, 6]
 
 
+def test_hgap_subaxes(session, log):
+    hgap = session.getDevice('hgap')
+
+    hgap.opmode = 'offcentered'
+    hgap.maw([5, 4])
+    assert hgap.read() == [5, 4]
+
+    assert hgap.center() == 5
+    assert hgap.width() == 4
+    assert hgap.left() == 3
+    assert hgap.right() == 7
+
+    hgap.center.maw(0)
+    assert hgap.read() == [0, 4]
+    hgap.width.maw(2)
+    assert hgap.read() == [0, 2]
+
+    hgap.left.maw(-3)
+    assert hgap.read(0) == [-1, 4]
+    hgap.right.maw(3)
+    assert hgap.read(0) == [0, 6]
+
+
+def test_vgap_subaxes(session):
+    vgap = session.getDevice('vgap')
+
+    vgap.opmode = 'offcentered'
+    vgap.maw([1, 4])
+    assert vgap.read() == [1, 4]
+
+    assert vgap.center() == 1
+    assert vgap.height() == 4
+    assert vgap.bottom() == -1
+    assert vgap.top() == 3
+
+    vgap.center.maw(0)
+    assert vgap.read() == [0, 4]
+    vgap.height.maw(2)
+    assert vgap.read() == [0, 2]
+
+    vgap.bottom.maw(-3)
+    assert vgap.read(0) == [-1, 4]
+    vgap.top.maw(3)
+    assert vgap.read(0) == [0, 6]
+
+
 def test_slit_reference(session, log):
     slit = session.getDevice('slit')
     slit.opmode = '4blades'
@@ -193,6 +399,34 @@ def test_slit_reference(session, log):
         assert raises(MoveError, slit3.reference)
 
 
+def test_gap_reference(session, log):
+    for dev in ('hgap', 'vgap'):
+        gap = session.getDevice(dev)
+        gap.opmode = '2blades'
+        gap.maw([10, 10])
+        if dev == 'vgap':
+            with log.assert_warns('m_top cannot be referenced'):
+                gap.reference()
+            assert gap.read(0) == [10, 10]
+        else:
+            gap.reference()
+            assert gap.read(0) == [0, 0]
+
+        # this one references in parallel
+        gap3 = session.getDevice(dev + '3')
+        gap3.opmode = '2blades'
+        gap3.maw([10, 10])
+        gap3.reference()
+
+        if dev == 'hgap':
+            assert gap3.read(0) == [0, 0]
+            gap3.left._ref_error = InvalidValueError('invalid')
+            with log.assert_errors('invalid'):
+                assert raises(MoveError, gap3.reference)
+        else:
+            assert gap3.read(0) == [10, 10]
+
+
 def test_slit_fmtstr(session):
     slit = session.getDevice('slit3')
     assert slit.opmode == 'centered'
@@ -205,3 +439,18 @@ def test_slit_fmtstr(session):
     assert slit.fmtstr != '%.3f x %.3f'
     slit.opmode = 'centered'
     assert slit.fmtstr == '%.3f x %.3f'
+
+
+def test_gap_fmtstr(session):
+    for dev in ('hgap3', 'vgap3'):
+        gap = session.getDevice(dev)
+        assert gap.opmode == 'centered'
+        assert gap.fmtstr == '%.2f'
+
+        # Test the save of the manual changed format
+        gap.fmtstr = '%.3f'
+        assert gap.fmtstr == '%.3f'
+        gap.opmode = '2blades'
+        assert gap.fmtstr != '%.3f'
+        gap.opmode = 'centered'
+        assert gap.fmtstr == '%.3f'

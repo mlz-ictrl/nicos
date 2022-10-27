@@ -15,7 +15,7 @@ devices = dict(
                       tangodevice=tango_base + 'sw/right',
                       visibility=(),
                       ),
-    sw=device('nicos_mlz.refsans.devices.slits.Gap',
+    sw=device('nicos.devices.generic.slit.HorizontalGap',
               description='slit width',
               left='slit_left',
               right='slit_right',

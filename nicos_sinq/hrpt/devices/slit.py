@@ -26,23 +26,22 @@
 
 from nicos.core import Param
 
-from nicos_mlz.refsans.devices.slits import CenterGapAxis, Gap as DefaultGap, \
-    GapAxis
+from nicos.devices.generic.slit import CenterGapAxis, HorizontalGap, SlitAxis
 
 
-class WidthGapAxis(GapAxis):
+class WidthGapAxis(SlitAxis):
 
     def _convertRead(self, positions):
         return (positions[1] - positions[0]) / \
-               self._attached_gap.conversion_factor
+               self._attached_slit.conversion_factor
 
     def _convertStart(self, target, current):
         center = (current[0] + current[1]) / 2.
-        return (center - target / 2 * self._attached_gap.conversion_factor,
-                center + target / 2 * self._attached_gap.conversion_factor)
+        return (center - target / 2 * self._attached_slit.conversion_factor,
+                center + target / 2 * self._attached_slit.conversion_factor)
 
 
-class Gap(DefaultGap):
+class Gap(HorizontalGap):
 
     parameters = {
         'conversion_factor': Param('Conversion between motor '
@@ -50,14 +49,6 @@ class Gap(DefaultGap):
                                    type=float, default=22.66, userparam=False)
     }
 
-    def doInit(self, mode):
-        self._axes = [self._attached_left, self._attached_right]
-        self._axnames = ['left', 'right']
-
-        for name in self._axnames:
-            self.__dict__[name] = self._adevs[name]
-
-        for name, cls in [('center', CenterGapAxis),
-                          ('width', WidthGapAxis), ]:
-            self.__dict__[name] = cls('%s.%s' % (self.name, name), gap=self,
-                                      unit=self.unit, visibility=())
+    def _init_adevs(self):
+        HorizontalGap._init_adevs(self)
+        self._autodevs = [('center', CenterGapAxis), ('width', WidthGapAxis)]

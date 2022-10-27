@@ -33,7 +33,7 @@ devices = dict(
         poly = [60.3869,  -1], #2021-07-23 MP von LH
         visibility = (),
     ),
-    h2 = device('nicos_mlz.refsans.devices.slits.Gap',
+    h2 = device('nicos.devices.generic.slit.HorizontalGap',
         description = 'Horizontal slit system',
         left = 'h2_motor1',
         right = 'h2_motor2',
