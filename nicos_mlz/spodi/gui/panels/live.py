@@ -34,9 +34,6 @@ class FullScreen1DWidget(LiveWidget1D):
     def __init__(self, parent, **kwargs):
         LiveWidget1D.__init__(self, parent, **kwargs)
         self.plot.viewport = [0.05, .98, 0.1, .98]
-        self.axes.xtick = 5
-        self.axes.majorx = 10
-        self.axes.ticksize = 0.005
         self.gr.update()
         self._zoomed = False
 
