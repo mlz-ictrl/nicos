@@ -131,8 +131,8 @@ class Wavelength(HasLimits, Moveable):
             raise ConfigurationError(self, 'No valid mono configuration')
         tthm = asin(target / (2 * self._d())) / pi * 360.
         omgm = tthm / 2.0 + plane[1] + plane[2]
-        self.log.debug(self._attached_base, 'will be moved to %.3f' % tthm)
-        self.log.debug(self._attached_omgm, 'will be moved to %.3f' % omgm)
+        self.log.debug('%s will be moved to %.3f', self._attached_base, tthm)
+        self.log.debug('%s will be moved to %.3f', self._attached_omgm, omgm)
         if self._attached_base.isAllowed(tthm) and \
            self._attached_omgm.isAllowed(omgm):
             self._attached_base.start(tthm)
