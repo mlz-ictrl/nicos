@@ -63,7 +63,7 @@ class Slacker(Notifier):
         message = html.escape('*%s*\n\n```%s```' % (subject, body), False)
 
         for entry in self._getAllRecipients(important):
-            self.log.debug(f'sending slack message to {entry}')
+            self.log.debug('sending slack message to %s', entry)
             try:
                 response = self._slack.chat_postMessage(channel=entry,
                                                         text=message)
@@ -72,4 +72,4 @@ class Slacker(Notifier):
             except SlackApiError as e:
                 error = e.response['error']
 
-            self.log.warning(f'Could not send slack message to {entry}: {error}')
+            self.log.warning('Could not send slack message to %s: %s', entry, error)
