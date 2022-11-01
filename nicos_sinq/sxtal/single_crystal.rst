@@ -367,7 +367,7 @@ of a peak in the scan.
 
     ScanOmega((h, k, l), **preset)
 
-performs a omega scan of the reflection (h, k, l)
+performs an omega scan of the reflection (h, k, l)
 
     ScanT2T((h, k, l), **preset)
 
