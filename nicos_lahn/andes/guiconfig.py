@@ -12,6 +12,10 @@ main_window = docked(
                     hasinput=False),
             ),
         ),
+        ('Instrument',
+            panel('nicos_lahn.andes.gui.andespanel.ANDESPanel',
+                setups='half_resolution or high_intensity_* or tension_scanner'),
+        ),
     ),
 
     ('NICOS devices',

@@ -17,14 +17,14 @@ _expcolumn = Column(
 
 _andesblock = Block('Instrument', [
     BlockRow(
-        Field(widget='nicos_lahn.andes.gui.InstrumentWidget',
+        Field(widget='nicos_lahn.andes.gui.ANDES',
               width=40, height=30,
               mthdev='omgm',
               mttdev='mtt',
               sthdev='phi',
               sttdev='stt',
               Lmsdev='Lms',
-              Lsddev='Lsd',),
+              LtoDdev='Lsd',),
     ),
     ],
 )
