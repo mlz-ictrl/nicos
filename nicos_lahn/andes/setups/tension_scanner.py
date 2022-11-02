@@ -3,8 +3,8 @@ description = 'ANDES setup'
 group = 'basic'
 
 includes = ['shutters', 'horizontal_beam_delimiter', 'collimator_2',
-            'monochromator', 'monochromator_exchange', 'connecting_arms',
-            'sampletable', 'detector']
+            'monochromator', 'exchange', 'connecting_arms',
+            'detector']
 
 startupcode = '''
 read()
