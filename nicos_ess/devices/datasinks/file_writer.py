@@ -46,7 +46,7 @@ from streaming_data_types.fbschemas.action_response_answ.ActionType import \
 from nicos import session
 from nicos.core import ADMIN, MASTER, Attach, Param, ScanDataset, host, \
     listof, status
-from nicos.core.constants import INTERRUPTED, POINT
+from nicos.core.constants import INTERRUPTED, POINT, SIMULATION
 from nicos.core.data.sink import DataSinkHandler
 from nicos.core.params import Override, anytype
 from nicos.devices.datasinks.file import FileSink
@@ -532,6 +532,7 @@ class FileWriterControlSink(FileSink):
     def doInit(self, mode):
         self._manual_start = False
         self._handler = None
+        self._active_sim_job = False
         self._controller = FileWriterController(
             self.brokers, self.pool_topic, self._attached_status.statustopic,
             self.timeoutinterval)
@@ -540,12 +541,16 @@ class FileWriterControlSink(FileSink):
         """Start a new file-writing job."""
         self.check_okay_to_start()
         self._manual_start = False
-        # Begin a point but remove it from the stack immediately to avoid an
-        # orphaned point.
-        # File-writing won't stop though.
-        session.experiment.data.beginPoint()
-        self._manual_start = True
-        session.experiment.data.finishPoint()
+        if session.mode == SIMULATION:
+            self._active_sim_job = True
+        else:
+            # Begin a point but remove it from the stack immediately to avoid an
+            # orphaned point.
+            # File-writing won't stop though.
+            session.experiment.data.beginPoint()
+            self._manual_start = True
+            session.experiment.data.finishPoint()
+        self.log.info('Filewriting started')
 
     def _start_job(self,
                    filename,
@@ -569,9 +574,13 @@ class FileWriterControlSink(FileSink):
         :param job_number: the particular job to stop. Only required if there is
             more than one job running.
         """
-        self._stop_job(job_number)
-        self._handler = None
-        self._manual_start = False
+        if session.mode == SIMULATION:
+            self._active_sim_job = False
+        else:
+            self._stop_job(job_number)
+            self._handler = None
+            self._manual_start = False
+        self.log.info('Filewriting stopped')
 
     def _stop_job(self, job_number=None):
         job_id = ''
@@ -608,14 +617,23 @@ class FileWriterControlSink(FileSink):
 
     def check_okay_to_start(self):
         if not session.experiment.propinfo.get('proposal'):
-            raise RuntimeError('cannot start writing as proposal number not '
-                               'set')
+            if session.mode == SIMULATION:
+                self.log.warning('no proposal number has been set. '
+                                 'When performing the real run a proposal '
+                                 'number is required to start writing.')
+            else:
+                raise RuntimeError('cannot start writing as proposal number not '
+                                   'set')
         active_jobs = self.get_active_jobs()
         if active_jobs:
             raise RuntimeError('cannot start writing as writing already in '
                                'progress')
 
     def get_active_jobs(self):
+        if session.mode == SIMULATION:
+            if self._active_sim_job:
+                return ['abcd1234-abcd-1234-abcd-abcdef123456']
+            return []
         jobs = self._attached_status.jobs_in_progress
         active_jobs = \
             self._attached_status.marked_for_stop.symmetric_difference(jobs)
