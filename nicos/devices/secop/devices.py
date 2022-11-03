@@ -48,7 +48,6 @@ SecopMoveable, and the following parameters:
 
 import re
 import time
-from collections import OrderedDict
 from math import floor, log10
 from threading import Event
 
@@ -61,10 +60,10 @@ from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, \
     HasOffset, HasLimits, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
-from nicos.core.params import anytype, dictwith, floatrange, intrange, \
-    listof, none_or, nonemptystring, oneofdict, string, tupleof
+from nicos.core.params import anytype, floatrange, intrange
 from nicos.core.utils import formatStatus
-from nicos.utils import printTable, readonlydict
+from nicos.devices.secop.validators import get_validator, Secop_struct
+from nicos.utils import printTable
 from nicos.protocols.cache import cache_dump
 
 SECOP_ERROR = 400
@@ -103,127 +102,6 @@ class DefunctDevice(Exception):
 
 def clean_identifier(anystring):
     return str(re.sub(r'\W+|^(?=\d)', '_', anystring))
-
-
-# map SECoP types to NICOS types:
-# all types must either be vanilla NICOS types or inherit from them
-
-# pylint: disable=redefined-builtin
-def Secop_double(min=None, max=None, **kwds):
-    if min is None and max is None:
-        return float
-    return floatrange("float('-inf')" if min is None else min, max)
-
-
-# pylint: disable=redefined-builtin
-def Secop_int(min=None, max=None, **kwds):
-    # by the spec, min and max are mandatory in SECoP
-    # an integer without limits is therefore indicated by big limits
-    # 9999 is apparently big value, but not bigger than 2 ** 15
-    # which might be a natural limit if the server side uses 16bit ints.
-    # be tolerant with missing min / max here (future spec change?)
-    if min <= -9999 and max >= 9999:
-        return int
-    return intrange(min, max)
-
-
-def Secop_bool(**kwds):
-    return bool
-
-
-def Secop_string(minchars=0, **kwds):
-    # unfortunately, 'string' is not a class, so we can not inherit from it
-    # therefore ignore maxchars and minchars > 1
-    return nonemptystring if minchars else string
-
-
-def Secop_blob(minbytes=0, **kwds):
-    # ignore maxbytes and minbytes > 1
-    return nonemptystring if minbytes else string
-
-
-class Secop_enum(oneofdict):
-    def __init__(self, members, **kwds):
-        # Do not use oneof here, as in general numbers are relevant for the
-        # specs. Unfortunately, ComboBox will sort items by name, and not by
-        # values, which IMO would be preferrable.
-        # Eventually nicos.guisupport.typedvalue.ComboWidget should be changed
-        # to keep the given order instead or sorting by name, at least when
-        # vals is an OrderedDict ...
-        oneofdict.__init__(
-            self, OrderedDict(sorted(((v, k) for k, v in members.items()))))
-        self.__doc__ = 'one of ' + ', '.join('%s, %d' % kv
-                                             for kv in members.items())
-
-    def __call__(self, val=None):
-        if val is None:
-            return next(iter(self.vals))
-        return oneofdict.__call__(self, val)
-
-
-class Secop_array(listof):
-    def __init__(self, members, minlen=0, maxlen=None, **kwds):
-        self.minlen = minlen
-        self.maxlen = maxlen
-        listof.__init__(self, get_validator(members))
-
-    def __call__(self, val=None):
-        if val is None:
-            val = [self.conv()] * self.minlen
-        result = listof.__call__(self, val)
-        if len(result) < self.minlen:
-            raise ValueError('value needs a length >= %d' % self.minlen)
-        if self.maxlen is not None and len(result) > self.maxlen:
-            raise ValueError('value needs a length <= %d' % self.maxlen)
-        return result
-
-
-def Secop_tuple(members, **kwds):
-    return tupleof(*tuple(get_validator(m) for m in members))
-
-
-class Secop_struct(dictwith):
-    def __init__(self, members, optional=(), **kwds):
-        convs = {k: get_validator(m) for k, m in members.items()}
-        for key in optional:
-            # missing optional items are indicated with a None value
-            convs[key] = none_or(convs[key])
-        self.optional = optional
-        self.mandatorykeys = set(convs) - set(optional)
-        dictwith.__init__(self, **convs)
-
-    def __call__(self, val=None):
-        if val is None:
-            return {k: conv() for k, conv in self.convs.items()
-                    if k in self.mandatorykeys}
-        if not isinstance(val, dict):
-            raise ValueError('value needs to be a dict')
-        vkeys = set(val)
-        msgs = []
-        if vkeys - self.keys:
-            msgs.append('unknown keys: %s' % ', '.join((vkeys - self.keys)))
-        if self.mandatorykeys - vkeys:
-            msgs.append('missing keys: %s' % ', '.join(self.mandatorykeys - vkeys))
-        if msgs:
-            raise ValueError('Key mismatch in dictionary: ' + ', '.join(msgs))
-        ret = {}
-        for k, conv in self.convs.items():
-            ret[k] = conv(val.get(k))
-        return readonlydict(ret)
-
-    def write_validator(self, val=None):
-        """special validator for writing"""
-        val = self(val)
-        if self.optional:
-            # remove optional values which are None
-            val = {k: v for k, v in val.items() if v is not None}
-        return val
-
-
-def get_validator(datainfo):
-    if datainfo is None:
-        return anytype
-    return globals()['Secop_%s' % datainfo['type']](**datainfo)
 
 
 def type_name(typ):
@@ -567,7 +445,7 @@ class SecNodeDevice(Readable):
                 self.log.error('module %r skipped - setup info needs pickle', module)
             else:
                 setup_info[prefix + module] = (
-                    'nicos.devices.secop.%s' % cls.__name__, desc)
+                    'nicos.devices.secop.devices.%s' % cls.__name__, desc)
         if not setup_info:
             self.log.info('creating devices for %s skipped', self.name)
             return

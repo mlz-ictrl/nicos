@@ -32,7 +32,7 @@ pytest.importorskip('secop')
 
 from nicos.core.params import dictwith, floatrange, intrange, listof, \
     nonemptystring, oneofdict, string, tupleof
-from nicos.devices.secop import get_validator
+from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
 from secop.datatypes import get_datatype
 
