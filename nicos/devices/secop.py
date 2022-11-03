@@ -616,12 +616,12 @@ class SecNodeDevice(Readable):
                            dict(secnode=self.name, **dev._config))
             else:
                 prevcfg = None
+            session.configured_devices[devname] = devcfg
+            session.dynamic_devices[devname] = setupname
             if prevcfg == devcfg:
                 if dev._defunct:
                     dev.setAlive(self)
             else:
-                session.configured_devices[devname] = devcfg
-                session.dynamic_devices[devname] = setupname
                 if dev is None:
                     # add new device
                     session.createDevice(devname, recreate=True, explicit=True)
@@ -630,8 +630,6 @@ class SecNodeDevice(Readable):
                     # modify existing device
                     if dev._attached_secnode:
                         dev._attached_secnode.unregisterDevice(dev)
-                    session.configured_devices[devname] = devcfg
-                    session.dynamic_devices[devname] = setupname
                     try:
                         dev.replaceClass(devcfg[1])
                         dev.setAlive(self)
