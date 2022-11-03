@@ -20,16 +20,37 @@
 # Module authors:
 #   Matt Clarke <matt.clarke@ess.eu>
 #   Ebad Kamil <ebad.kamil@ess.eu>
+#   Jonas Petersson <jonas.petersson@ess.eu>
 #
 # *****************************************************************************
 import time
 
 from nicos import session
-from nicos.core import Param, Value, status, tupleof
+from nicos.core import Param, Value, multiStatus, status, tupleof
 from nicos.core.constants import LIVE
 from nicos.core.device import Measurable, Readable
 from nicos.core.params import Attach
+from nicos.devices.epics.pva import EpicsReadable
 from nicos.utils import createThread
+
+
+class TimingStatusDevice(EpicsReadable):
+    def doRead(self, maxage=0):
+        return ''
+
+    def doStatus(self, maxage=0):
+        try:
+            severity, msg = self.get_alarm_status('readpv')
+            # Check if there are issues with the device
+            if severity in [status.ERROR, status.WARN]:
+                return severity, f'PV alarm: {msg}'
+            # If the device is running, look for timestamp synch issues
+            if self._get_pv('readpv') == 0:
+                return status.WARN, ('Timing warning: the timestamps appear '
+                                     'to have lost synchronisation.')
+            return status.OK, 'the timestamps are synchronised.'
+        except TimeoutError:
+            return status.ERROR, 'timeout reading status'
 
 
 class LaserDetector(Measurable):
@@ -50,6 +71,8 @@ class LaserDetector(Measurable):
 
     attached_devices = {
         'laser': Attach('the underlying laser device', Readable),
+        'timingstatus': Attach('timestamp synchronisation status device',
+                               Readable),
     }
 
     _stoprequest = False
@@ -107,9 +130,9 @@ class LaserDetector(Measurable):
         self._counting_worker = None
 
     def doStatus(self, maxage=0):
-        laser_pv_status, msg = self._attached_laser.doStatus(maxage)
-        if laser_pv_status != status.OK:
-            return laser_pv_status, msg
+        highest_severity, msg = multiStatus(self._adevs, maxage)
+        if highest_severity != status.OK:
+            return highest_severity, msg
         return self.curstatus
 
     def duringMeasureHook(self, elapsed):
