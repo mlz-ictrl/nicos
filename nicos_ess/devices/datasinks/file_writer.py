@@ -340,11 +340,6 @@ class FileWriterSinkHandler(DataSinkHandler):
         # Assign the counter
         self.manager.assignCounter(self.dataset)
 
-        # Generate the filenames, only if not set
-        if not self.dataset.filepaths:
-            self.manager.getFilenames(self.dataset, self.sink.filenametemplate,
-                                      self.sink.subdir)
-
         # Update meta information of devices, only if not present
         if not self.dataset.metainfo:
             self.manager.updateMetainfo()
@@ -358,9 +353,13 @@ class FileWriterSinkHandler(DataSinkHandler):
             self.dataset.filenames = [self._current_file]
             return
 
+        filename, _ = self.manager.getFilenames(
+            self.dataset, self.sink.filenametemplate, self.sink.subdir
+        )
+
         if hasattr(self.dataset, 'replay_info'):
             # Replaying previous job
-            self.sink._start_job(self.dataset.filenames[0],
+            self.sink._start_job(filename,
                                  self.dataset.counter,
                                  self.dataset.replay_info['structure'],
                                  self.dataset.replay_info['start_time'],
@@ -371,9 +370,9 @@ class FileWriterSinkHandler(DataSinkHandler):
         datetime_now = datetime.now()
         structure = self.sink._attached_nexus.get_structure(
             self.dataset, datetime_now)
-        self.sink._start_job(self.dataset.filenames[0], self.dataset.counter,
+        self.sink._start_job(filename, self.dataset.counter,
                              structure, datetime_now)
-        self._current_file = self.dataset.filenames[0]
+        self._current_file = filename
 
     def end(self):
         if self.sink._manual_start:
