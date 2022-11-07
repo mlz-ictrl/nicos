@@ -2,7 +2,9 @@ description = 'Neutron counter box'
 
 group = 'lowlevel'
 
-excludes = ['embl', 'embl_config', 'andor', 'andorccd']
+excludes = [
+    'embl', 'embl_config', 'andor', 'andorccd', 'anodorccd-I', 'fastcomtec'
+]
 
 pvprefix = 'SQ:BOA:counter'
 

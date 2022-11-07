@@ -97,7 +97,7 @@ class BOATemplateProvider(NexusTemplateProvider):
                                       }, }
     _tables = ['Table2', 'Table3', 'Table4', 'Table5', 'Table6']
     _detectors = ['embl', 'andor', 'single_el737', 'ccdwww',
-                  'andorccd', 'camini']
+                  'andorccd', 'camini', 'andorccd-l', 'fastcomtec']
     _excluded_devices = ['slit1', 'slit2', 'dslit', 'ccdwww_connector',
                          'ccd_cooler']
     _detector = None
@@ -151,7 +151,7 @@ class BOATemplateProvider(NexusTemplateProvider):
         elif name == 'ccdwww':
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
-        elif name == 'andorccd':
+        elif name == 'andorccd' or name == 'andorccd-l':
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
             content['time_stamp'] = AbsoluteTime()
@@ -160,6 +160,9 @@ class BOATemplateProvider(NexusTemplateProvider):
                                            signal=NXAttribute(1, 'int32'))
         elif name == 'camini':
             content['data'] = CaminiFileList()
+        elif name == 'fastcomtec':
+            content['data'] = ImageDataset(0, 0,
+                                           signal=NXAttribute(1, 'int32'))
         return name, content
 
     def makeData(self, name):

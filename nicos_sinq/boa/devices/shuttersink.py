@@ -21,9 +21,8 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-from nicos import session
+from nicos.commands.device import maw
 from nicos.core import Attach, DataSink, DataSinkHandler, Moveable, Readable
-from nicos.core.utils import multiWait
 
 
 class BoaShutterHandler(DataSinkHandler):
@@ -32,9 +31,7 @@ class BoaShutterHandler(DataSinkHandler):
 
     def _moveShutter(self, target):
         if self.sink._attached_auto.read(0) == 'auto':
-            session.log.info('Moving shutter to %s', target)
-            self.sink._attached_shutter1.start(target)
-            multiWait([self.sink._attached_shutter1])
+            maw(self.sink._attached_shutter1, target)
 
     def prepare(self):
         DataSinkHandler.prepare(self)
@@ -45,7 +42,7 @@ class BoaShutterHandler(DataSinkHandler):
     def end(self):
         DataSinkHandler.end(self)
         if self.dataset == self._startDataset:
-            self._moveShutter('closed')
+            self._moveShutter('close')
             self._startDataset = None
 
 

@@ -1,4 +1,5 @@
-description = 'Setup for the ANDOR CCD camera at BOA using the CCDWWW server'
+description = 'Setup for the ANDOR CCD camera IKON-L at BOA ' \
+              'using the CCDWWW server'
 
 excludes = ['andor', 'embl', 'fastcomtec', 'camini']
 
@@ -40,17 +41,17 @@ devices = dict(
     ),
     ccdwww_connector = device('nicos_sinq.boa.devices.ccdwww.CCDWWWConnector',
         description = 'Connector for CCDWWW',
-        baseurl = 'http://boaccd:8080/ccd',
+        baseurl = 'http://pc15281:8080/ccd',
         base64auth = 'xxx',
         byteorder = 'big',
         comdelay = 1.,
         comtries = 5,
     ),
-    ccdwww = device('nicos_sinq.boa.devices.ccdwww.AndorCCD',
+    ccdwwwl = device('nicos_sinq.boa.devices.ccdwww.AndorCCD',
         description = 'CCDWWW image channel',
         iscontroller = True,
         connector = 'ccdwww_connector',
-        shape = (1024, 1024),
+        shape = (2048, 2048),
         pollinterval = 30,
         maxage = 30,
     ),
@@ -70,13 +71,13 @@ devices = dict(
     andorccd = device('nicos.devices.generic.detector.Detector',
         description = 'Dummy detector to encapsulate ccdwww',
         monitors = [
-            'ccdwww',
+            'ccdwwwl',
         ],
         timers = [
-            'ccdwww',
+            'ccdwwwl',
         ],
         images = [
-            'ccdwww',
+            'ccdwwwl',
         ],
         visibility = ()
     ),

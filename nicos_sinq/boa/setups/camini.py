@@ -2,12 +2,18 @@ description = 'Camini Camera Synchronisation Detector'
 
 pvprefix = 'SQ:ICON:CAMINI:'
 pvprefix_sumi = 'SQ:ICON:sumi:'
+motprefix = 'SQ:BOA:mcu1:DCCDATZ'
 
-excludes = ['andor', 'andorccd', 'embl']
+excludes = ['andor', 'andorccd', 'embl', 'fastcomtec']
 
 includes = ['single_el737']
 
 devices = dict(
+    dccdatz = device('nicos_ess.devices.epics.motor.EpicsMotor',
+        description = 'Andor focus motor',
+        motorpv = motprefix,
+        errormsgpv = motprefix + '-MsgTxt',
+    ),
     cam_shut = device('nicos.devices.epics.EpicsReadable',
         description = 'Camera shutter open',
         readpv = pvprefix + 'SHUTTER',

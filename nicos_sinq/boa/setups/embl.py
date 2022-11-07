@@ -3,6 +3,9 @@ description = 'Neutron counter box and HM at SINQ BO.'
 includes = ['embl_config']
 excludes = [
     'single_el737',
+    'andorccd',
+    'andorccd-I',
+    'fastcomtec',
 ]
 
 pvprefix = 'SQ:BOA:counter'

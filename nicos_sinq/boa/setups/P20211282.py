@@ -32,6 +32,6 @@ devices = dict(
         writepv = 'SQ:BOA:rnd320:CURR',
         readpv = 'SQ:BOA:rnd320:CURR_RBV',
         window = .1,
-        abslimits = (0, 1)
+        abslimits = (0, 10)
     ),
 )
