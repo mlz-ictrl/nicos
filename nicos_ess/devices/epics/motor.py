@@ -342,7 +342,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             else:
                 self._put_pv('reseterrorpv', 1)
 
-    def _enable(self, on):
+    def doEnable(self, on):
         what = 1 if on else 0
         self._put_pv('enable', what, False)
 

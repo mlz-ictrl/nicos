@@ -71,9 +71,9 @@ class EpicsMotor(EssEpicsMotor):
             pvs.add('enable_rbv')
         return pvs
 
-    def _enable(self, on):
+    def doEnable(self, on):
         if self.can_disable:
-            EssEpicsMotor._enable(self, on)
+            EssEpicsMotor.doEnable(self, on)
             self.status()
             self._cache.put(self, 'status', (status.BUSY,
                             f'{"En" if on else "Dis"}abling'))
