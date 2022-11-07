@@ -178,6 +178,11 @@ class HasDisablePv(CanDisable):
         return raw_value == self.switchstates['enable']
 
     def doEnable(self, on):
+        """Enable/disable the device depending on 'on'.
+
+        Writes the 'enable'/'disable' of switchstates map to the write-pv
+        specified in switchpvs.
+        """
         if on:
             if not self.isEnabled:
                 self._put_pv('switchpv:write', self.switchstates['enable'])
