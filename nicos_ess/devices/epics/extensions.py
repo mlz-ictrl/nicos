@@ -187,7 +187,7 @@ class HasDisablePv(CanDisable):
             if not self.isEnabled:
                 self._put_pv('switchpv:write', self.switchstates['enable'])
             else:
-                self.log.info('Device is already switched enabled')
+                self.log.info('Device is already enabled')
         else:
             if self.isEnabled:
                 self._put_pv('switchpv:write', self.switchstates['disable'])
