@@ -113,8 +113,9 @@ class EpicsScalerRecord(EpicsDetector):
 
     def doStatus(self, maxage=0):
         if self.errormsgpv:
+            to_ignore = ['OK', 'Par out of range']
             message_text = self._get_pv('errormsgpv').strip()
-            if message_text and message_text != 'OK':
+            if message_text and message_text not in to_ignore:
                 return status.ERROR, message_text
 
         cnt = int(self._get_pv('startpv'))

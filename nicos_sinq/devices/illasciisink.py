@@ -190,7 +190,7 @@ class ILLAsciiHandler(DataSinkHandler):
                         self._header += 'D%s= %8.4f ' % (name, n - s)
                     devidx += 1
                     continue
-                step = pnext - pnext
+                step = pnext - start
             else:
                 step = .0
             self._header += 'D%s= %8.4f ' % (dev.name.upper(), step)

@@ -22,9 +22,10 @@
 #
 # *****************************************************************************
 from nicos import session
-from nicos.core import MAIN, Param, pvname, status
+from nicos.core import MAIN, Param, pvname, status, usermethod
 
 from nicos_ess.devices.epics import EpicsMotor as EssEpicsMotor
+from nicos.devices.epics.pyepics import pvget
 
 
 class EpicsMotor(EssEpicsMotor):
@@ -57,7 +58,6 @@ class EpicsMotor(EssEpicsMotor):
     def doShutdown(self):
         if session.sessiontype == MAIN and self.auto_enable:
             self.disable()
-        EssEpicsMotor.doShutdown(self)
 
     def doStatus(self, maxage=0):
         if self.can_disable:
@@ -65,7 +65,7 @@ class EpicsMotor(EssEpicsMotor):
             if target != self._get_pv('enable_rbv'):
                 return status.BUSY, f'{"En" if target else "Dis"}abling motor'
             if not self._get_pv('enable_rbv'):
-                return status.WARN, 'Motor is disabled'
+                return status.DISABLED, 'Motor is disabled'
         return EssEpicsMotor.doStatus(self, maxage)
 
     def _get_pv_parameters(self):
@@ -81,3 +81,21 @@ class EpicsMotor(EssEpicsMotor):
             self.status()
             self._cache.put(self, 'status', (status.BUSY,
                             f'{"En" if on else "Dis"}abling'))
+
+    @usermethod
+    def isEnabled(self):
+        """Shows if the motor is enabled or not"""
+        if self.can_disable:
+            val = self._get_pv('enable_rbv')
+            return bool(val == 1)
+        return True
+
+    def doIsAllowed(self, target):
+        if self.can_disable:
+            # Normally I cannot read the PV in simulation mode. But there
+            # ought to be an error if I simulate driving a disabled motor.
+            # This is why I read the PV directly here
+            ename = self._get_pv_name('enable_rbv')
+            if not pvget(ename):
+                return False, ' Motor is disabled'
+        return True, ''

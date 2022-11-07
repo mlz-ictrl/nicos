@@ -142,12 +142,18 @@ class SINQAsciiSinkHandler(DataSinkHandler):
             steps = []
             out.write('Scanning Variables: ')
             for dev in self.dataset.devices:
-                out.write(dev.name + ',')
                 vals = self.scanvalues[dev.name]
+                if isinstance(dev, SXTalBase):
+                    out.write('h, k, l,')
+                else:
+                    out.write(dev.name + ',')
                 if len(vals) > 1:
                     if isinstance(vals[0], tuple):
-                        hklstep = [v1 - v2 for v1, v2 in zip(vals[1], vals[0])]
-                        steps.append(str(tuple(hklstep)))
+                        hklstep = [v1 - v2 for v1, v2 in
+                                   zip(self.dataset.startpositions[1][0],
+                                       self.dataset.startpositions[0][0])]
+                        for s in hklstep:
+                            steps.append('%.4f' % s)
                     else:
                         steps.append(str(vals[1] - vals[0]))
                 else:

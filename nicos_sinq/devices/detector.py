@@ -278,3 +278,9 @@ class ControlDetector(Detector):
         for det in self._attached_followers:
             res += det.doReadArrays(quality)
         return res
+
+    def doReset(self):
+        self._attached_trigger.reset()
+        for det in self._attached_slave_detectors:
+            det.reset()
+        return self.doStatus()

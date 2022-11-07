@@ -28,7 +28,7 @@ import time
 from os import path
 
 from nicos import session
-from nicos.core import Override, Param, absolute_path
+from nicos.core import MASTER, Override, Param, absolute_path
 from nicos.core.data import DataManager
 from nicos.devices.experiment import Experiment
 from nicos.utils import readFile, writeFile
@@ -161,4 +161,5 @@ class TomoSinqExperiment(SinqExperiment):
     }
 
     def doInit(self, mode):
-        self.tomo_params = {'status': 'reset'}
+        if mode == MASTER:
+            self.tomo_params = {'status': 'reset'}

@@ -24,8 +24,10 @@
 import epics
 
 from nicos.core import CommunicationError, Override, Param, status
-from nicos.core.mixins import HasLimits
+from nicos.core.mixins import HasLimits, HasPrecision
 from nicos.devices.epics import EpicsMoveable, EpicsReadable
+
+from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
 
 class WindowMoveable(HasLimits, EpicsMoveable):
@@ -82,3 +84,15 @@ class EpicsArrayReadable(EpicsReadable):
             raise CommunicationError(self, 'timed out getting PV %r from EPICS'
                                      % self._get_pv_name('readpv'))
         return result
+
+
+class EpicsAnalogMoveable(HasPrecision, EpicsAnalogMoveableEss):
+
+    def doStatus(self, maxage=0):
+        pos = self.doRead(0)
+        target = self.doReadTarget()
+
+        if not self.isAtTarget(pos, target):
+            return status.BUSY, 'Moving'
+
+        return status.OK, 'Done'

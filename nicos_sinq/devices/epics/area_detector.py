@@ -130,7 +130,7 @@ class EpicsAreaDetector(EpicsDetector):
         return self._mapped_state[state], state
 
     def arrayInfo(self):
-        return [ch.arraydesc for ch in self._attached_images]
+        return tuple(ch.arraydesc for ch in self._attached_images)
 
     def duringMeasureHook(self, elapsed):
         return LIVE

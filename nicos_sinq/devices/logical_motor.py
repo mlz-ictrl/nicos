@@ -111,12 +111,12 @@ class InterfaceLogicalMotorHandler(Moveable):
         # faults list with the motors that cannot be moved
         faults = []
         for motor, target in motor_targets:
-            allowed, _ = motor.isAllowed(target)
+            allowed, msg = motor.isAllowed(target)
             if not allowed:
                 faults.append(motor.name)
-                self.log.error('%s cant be moved to %s; limits are %s', motor,
-                               motor.format(target, motor.unit),
-                               motor.abslimits)
+                self.log.error('%s cannot be moved to %s, reason %s',
+                               motor.name,
+                               motor.format(target, motor.unit), msg)
 
         # Return false if some motors cannot reach their new target
         if faults:
