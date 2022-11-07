@@ -74,7 +74,7 @@ devices = dict(
         fmtstr = '%.2f',
         visibility = (),
     ),
-    slitm = device('nicos_mlz.stressi.devices.slit.Slit',
+    slitm = device('nicos.devices.generic.Slit',
         description = 'Monochromator slit 4 blades',
         left = 'slitm_l',
         right = 'slitm_r',

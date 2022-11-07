@@ -27,7 +27,7 @@ devices = dict(
         precision = 0.1,
         visibility = (),
     ),
-    slitm = device('nicos_mlz.stressi.devices.slit.TwoAxisSlit',
+    slitm = device('nicos.devices.generic.TwoAxisSlit',
         description = 'Monochromator entry slit',
         horizontal = 'slitm_w',
         vertical = 'slitm_h',

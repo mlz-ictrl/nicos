@@ -40,7 +40,7 @@ devices = dict(
         visibility=(),
     ),
     slits_2=device(
-        'nicos_mlz.stressi.devices.slit.Slit',
+        'nicos.devices.generic.Slit',
         description='Slit set with 4 blades',
         left='slits_2_l',
         right='slits_2_r',
