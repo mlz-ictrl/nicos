@@ -71,7 +71,7 @@ class BRSlit(IsController, Device):
         return status, reason
 
     def _stop(self):
-        for dev in self._adevs.items():
+        for dev in self._adevs.values():
             dev.stop()
 
     def _doIsAllowedPositions(self, positions):

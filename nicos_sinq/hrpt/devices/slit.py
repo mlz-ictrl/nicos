@@ -45,7 +45,8 @@ class WidthGapAxis(GapAxis):
 class Gap(DefaultGap):
 
     parameters = {
-        'conversion_factor': Param('Conversion between motor readout and width',
+        'conversion_factor': Param('Conversion between motor '
+                                   'readout and width',
                                    type=float, default=22.66, userparam=False)
     }
 
@@ -56,7 +57,7 @@ class Gap(DefaultGap):
         for name in self._axnames:
             self.__dict__[name] = self._adevs[name]
 
-        # TODO: needs to use HasAutoDevices?
-        for name, cls in [('center', CenterGapAxis), ('width', WidthGapAxis), ]:
+        for name, cls in [('center', CenterGapAxis),
+                          ('width', WidthGapAxis), ]:
             self.__dict__[name] = cls('%s.%s' % (self.name, name), gap=self,
                                       unit=self.unit, visibility=())

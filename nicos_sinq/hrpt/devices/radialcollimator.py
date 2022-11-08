@@ -63,7 +63,7 @@ class RadialCollimator(EpicsDevice, MappedMoveable):
                              default=False, userparam=True)}
 
     def _get_pv_parameters(self):
-        return ['target', 'readback']
+        return {'target', 'readback'}
 
     def _get_pv_name(self, pvparam):
         prefix = getattr(self, 'basepv')
