@@ -38,6 +38,7 @@ devices = dict(
         motorpv = motprefix + 'sth',
         errormsgpv = motprefix + 'sth-MsgTxt',
         precision = 0.02,
+        visibility = (),
     ),
     stt = device('nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout = 3.0,
@@ -45,6 +46,7 @@ devices = dict(
         motorpv = motprefix + 'stt',
         errormsgpv = motprefix + 'stt-MsgTxt',
         precision = 0.02,
+        visibility = (),
     ),
     stx = device('nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout = 3.0,
@@ -156,7 +158,16 @@ devices = dict(
         ],
         liveinterval = 7,
         saveintervals = [60]
-    )
+    ),
+    a3 = device('nicos.devices.generic.DeviceAlias', alias = 'sth'),
+    a4 = device('nicos.devices.generic.DeviceAlias', alias = 'stt'),
+    som = device('nicos.devices.generic.DeviceAlias', alias = 'sth'),
+    s2t = device('nicos.devices.generic.DeviceAlias', alias = 'stt'),
+    cter1_command = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+        description = 'Direct connection to counter box',
+        commandpv = 'SQ:MORPHEUS:cter1' + '.AOUT',
+        replypv = 'SQ:MORPHEUS:cter1' + '.AINP',
+    ),
 )
 startupcode = """
 SetDetectors(counter)

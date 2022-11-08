@@ -140,9 +140,9 @@ class AldiController(SequencerMixin, EpicsDevice, Moveable):
 
         seq.append(SeqSleep(10.))
 
-        seq.append(SeqMethod(self, '_refrun'))
+        # seq.append(SeqMethod(self, '_refrun'))
 
-        seq.append(SeqSleep(2.))
+        # seq.append(SeqSleep(2.))
 
         seq.append(SeqMethod(self, '_runToSaved'))
 

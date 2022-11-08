@@ -44,7 +44,9 @@ devices = dict(
         filenametemplate = ['morpheus%(year)sn%(scancounter)06d.dat'],
         templatefile = 'nicos_sinq/morpheus/morpheus.hdd',
         scaninfo = [
-            ('COUNTS', 'ctr1'), ('MONITOR1', 'mon1'), ('TIME', 'elapsedtime')
+            ('COUNTS', 'ctr1'),
+            ('MONITOR1', 'mon1'),
+            ('TIME', 'elapsedtime'),  #('SPIN', 'spin')
         ],
     ),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
@@ -57,7 +59,9 @@ devices = dict(
         templatefile = 'nicos_sinq/morpheus/mess.hdd',
         detector = 'ctr1',
         scaninfo = [
-            ('COUNTS', 'ctr1'), ('MONITOR1', 'mon1'), ('TIME', 'elapsedtime')
+            ('COUNTS', 'ctr1'),
+            ('MONITOR1', 'mon1'),
+            ('TIME', 'elapsedtime'),  #('SPIN', 'spin')
         ]
     ),
 )
