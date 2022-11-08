@@ -28,6 +28,8 @@ from os import path
 
 import pytest
 
+pytest.importorskip('dataparser')
+
 from nicos.commands.measure import count
 from nicos_mlz.spodi.datasinks import CaressHistogramReader
 
@@ -40,7 +42,6 @@ class TestSinks:
     def prepare(self, session, dataroot):
         """Prepare SPODI dataset"""
 
-        pytest.importorskip('dataparser')
         session.experiment.setDetectors(['adet'])
         # Create devices needed in data sinks
         for dev in ['omgs', 'tths', 'detsampledist']:

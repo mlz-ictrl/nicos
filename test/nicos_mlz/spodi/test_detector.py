@@ -62,7 +62,6 @@ def adet(session):
 def test_detector(adet):
     assert adet.liveinterval == 5
 
-
     adet.reset()
     assert adet.read() == [1, 0, 0, 0]
 
