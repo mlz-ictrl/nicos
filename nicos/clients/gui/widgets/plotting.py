@@ -1118,9 +1118,9 @@ class ViewPlot(NicosGrPlot):
         n = series.n
         if n > 0:
             color = self._color.getNextColorIndex()
-            nans = np.argwhere(np.isnan(series.y))
-            plotcurve = NicosPlotCurve(np.delete(series.x, nans),
-                                       np.delete(series.y, nans),
+            notfinites = np.argwhere(np.invert(np.isfinite(series.y)))
+            plotcurve = NicosPlotCurve(np.delete(series.x, notfinites),
+                                       np.delete(series.y, notfinites),
                                        legend=series.title,
                                        linecolor=color, markercolor=color)
             plotcurve._parent = series
@@ -1141,9 +1141,9 @@ class ViewPlot(NicosGrPlot):
 
     def pointsAdded(self, series):
         plotcurve = self.series2curve[series]
-        nans = np.argwhere(np.isnan(series.y))
-        plotcurve.x = np.delete(series.x, nans)
-        plotcurve.y = np.delete(series.y, nans)
+        notfinites = np.argwhere(np.invert(np.isfinite(series.y)))
+        plotcurve.x = np.delete(series.x, notfinites)
+        plotcurve.y = np.delete(series.y, notfinites)
         plotcurve.legend = series.title
         if plotcurve.x.size:  # this should imply 'and plotcurve.y.size'
             self._axes.addCurves(plotcurve)
