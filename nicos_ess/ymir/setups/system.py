@@ -76,8 +76,8 @@ devices = dict(
     ),
     SciChat=device(
         'nicos_ess.devices.scichat.ScichatBot',
-        description='Connects to SciChat as a write-only client',
-        url='https://server.scichat.esss.lu.se/_matrix/client/r0',
-        room_id='!gaEXiGVYXizrNgFExx:ess',
+        description='Sends messages to SciChat',
+        brokers=['10.100.1.19:9092'],
+        scichat_topic='scichat',
     ),
 )

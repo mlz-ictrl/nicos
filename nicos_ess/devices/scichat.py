@@ -19,62 +19,56 @@
 #
 # Module authors:
 #   AUC Hardal <umit.hardal@ess.eu>
+#   Matt Clarke <matt.clarke@ess.eu>
 # *****************************************************************************
-import os
+import json
 
-import requests
+from kafka import KafkaProducer
 
-from nicos.core import Device, Param, usermethod
+from nicos import session
+from nicos.core import Device, Param, host, listof, usermethod
 from nicos.core.constants import SIMULATION
 
 
 class ScichatBot(Device):
+    """A device for sending messages to SciChat via Kafka."""
     parameters = {
-        'url':
-            Param('SciChat server address',
-                  type=str,
-                  settable=False,
+        'brokers':
+            Param('List of kafka hosts to use',
+                  type=listof(host(defaultport=9092)),
                   mandatory=True,
+                  preinit=True,
                   userparam=False),
-        'room_id':
-            Param('SciChat room identification',
-                  type=str,
-                  settable=False,
-                  mandatory=True,
-                  userparam=False)
+        'scichat_topic':
+            Param(
+                'Kafka topic where Scichat messages are sent',
+                type=str,
+                settable=False,
+                preinit=True,
+                mandatory=True,
+                userparam=False,
+            ),
     }
+
+    _producer = None
 
     def doInit(self, mode):
         if mode == SIMULATION:
             return
-        if not self.url.startswith("https:"):
-            raise ConnectionError("server URL must be https")
-        self._join_room()
-
-    def _join_room(self):
-        url = f'{self.url}/join/{self.room_id}'
-        try:
-            self._post(url)
-        except Exception as err:
-            raise RuntimeError(f'could not join room: {err}') from None
+        self._producer = KafkaProducer(bootstrap_servers=self.brokers)
 
     @usermethod
     def send(self, message):
-        url = f'{self.url}/rooms/{self.room_id}/send/m.room.message'
-        data = {"msgtype": "m.text", "body": f'{message}'}
-        try:
-            self._post(url, data)
-        except Exception as err:
-            raise RuntimeError(f'could not send message: {err}') from None
+        if not self._producer:
+            return
+        self._producer.send(self.scichat_topic, self._create_message(message))
+        self._producer.flush()
 
-    def _post(self, url, data=None):
-        proxy = os.environ.get('https_proxy', None)
-        response = requests.post(
-            url,
-            headers={
-                "Authorization": f"Bearer {os.environ.get('SCICHAT_TOKEN')}"
-            },
-            json=data,
-            proxies={'https': proxy} if proxy else None)
-        if response.status_code != 200:
-            raise RuntimeError(f'{response.reason} ({response.status_code})')
+    def _create_message(self, message):
+        msg = {
+            'proposal': session.experiment.proposal,
+            'instrument': session.instrument.name,
+            'source': 'NICOS',
+            'message': message
+        }
+        return json.dumps(msg).encode()
