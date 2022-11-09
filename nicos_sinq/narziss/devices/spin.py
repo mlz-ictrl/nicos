@@ -45,10 +45,14 @@ class NarzissSpin(BaseSequencer):
             seq.append((SeqDev(self._attached_pom, 0.8),
                        SeqDev(self._attached_pmag, -2.5)))
             seq.append(SeqSleep(4.))
-            seq.append(SeqDev(self._attached_pmag, .15))
+            seq.append(SeqDev(self._attached_pmag, .4))
+            seq.append(SeqSleep(4.))
+            seq.append(SeqDev(self._attached_pmag, .4))
         elif target == '-':
             seq.append((SeqDev(self._attached_pom, 0.8),
                        SeqDev(self._attached_pmag, 2.5)))
+            seq.append(SeqSleep(4.))
+            seq.append(SeqDev(self._attached_pmag, 1.))
             seq.append(SeqSleep(4.))
             seq.append(SeqDev(self._attached_pmag, 1.))
         elif target == '0':
@@ -61,10 +65,10 @@ class NarzissSpin(BaseSequencer):
 
     def doRead(self, maxage=0):
         val = self._attached_pmag.read(maxage)
-        if abs(val - .15) < .02:
+        if abs(val - .4) < .02:
             return '+'
         if abs(val - 1.) < .05:
             return '-'
-        if abs(val - 0) < .05:
+        if abs(val) < .05:
             return '0'
         return 'undefined'
