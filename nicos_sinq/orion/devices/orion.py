@@ -47,7 +47,9 @@ class OrionSXTal(EulerSXTal):
         return chi, phi
 
     def _extractPos(self, pos):
-        om, chi, phi = z1ToBisecting(self._attached_mono.read(0),
+        # The conversion to float is required because the monochromator
+        # is a switcher which returns a string
+        om, chi, phi = z1ToBisecting(float(self._attached_mono.read(0)),
                                      pos)
         chi, phi = self._orionChiPhi(chi, phi)
 
