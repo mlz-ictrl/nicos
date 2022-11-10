@@ -131,14 +131,14 @@ devices = dict(
         description = 'Emmenegger time delay',
         readpv = 'SQ:FOCUS:EMMI:TD_RBV',
         writepv = 'SQ:FOCUS:EMMI:TD',
-        window = 10,
+        precision = 10,
         abslimits = (0, 100000)
     ),
     em_aw = device('nicos_sinq.devices.epics.generic.WindowMoveable',
         description = 'Emmenegger acceptance window',
         readpv = 'SQ:FOCUS:EMMI:AW_RBV',
         writepv = 'SQ:FOCUS:EMMI:AW',
-        window = 5,
+        precision = 5,
         abslimits = (0, 5000)
     ),
 )

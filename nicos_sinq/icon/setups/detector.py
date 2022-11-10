@@ -59,7 +59,7 @@ devices = dict(
         description = 'Exposure threshold',
         readpv = pvprefix_sumi + 'THRES',
         writepv = pvprefix_sumi + 'THRES',
-        window = 10,
+        precision = 10,
         abslimits = (-100, 2000),
     ),
     exp_ok = device('nicos_sinq.devices.epics.EpicsReadable',

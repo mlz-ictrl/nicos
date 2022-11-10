@@ -10,7 +10,7 @@ devices = dict(
         writepv = selprefix + 'Speed',
         readpv = selprefix + 'I_DREH_RBV',
         abslimits = (3000, 28800),
-        window = 20,
+        precision = 20,
         forbidden_regions = forbidden,
     ),
     vs_tilt = device('nicos_sinq.devices.velocity_selector.VSTiltMotor',

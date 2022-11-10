@@ -5,14 +5,14 @@ devices = dict(
         description = 'Voltage on Agilent E3648A',
         writepv = 'SQ:BOA:e3648a:VOLT',
         readpv = 'SQ:BOA:e3648a:VOLT_RBV',
-        window = .1,
+        precision = .1,
         abslimits = (0, 20)
     ),
     e3648a_curr = device('nicos_sinq.devices.epics.generic.WindowMoveable',
         description = 'Current on Agilent E3648A',
         writepv = 'SQ:BOA:e3648a:CURR',
         readpv = 'SQ:BOA:e3648a:CURR_RBV',
-        window = .1,
+        precision = .1,
         abslimits = (0, 5)
     ),
     e3648a_chan = device('nicos.devices.epics.EpicsDigitalMoveable',
@@ -24,14 +24,14 @@ devices = dict(
         description = 'Voltage on RND320',
         writepv = 'SQ:BOA:rnd320:VOLT',
         readpv = 'SQ:BOA:rnd320:VOLT_RBV',
-        window = .1,
+        precision = .1,
         abslimits = (0, 24)
     ),
     rnd_curr = device('nicos_sinq.devices.epics.generic.WindowMoveable',
         description = 'Current on RND320',
         writepv = 'SQ:BOA:rnd320:CURR',
         readpv = 'SQ:BOA:rnd320:CURR_RBV',
-        window = .1,
+        precision = .1,
         abslimits = (0, 10)
     ),
 )
