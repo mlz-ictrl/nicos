@@ -6,7 +6,6 @@ display_order = 20
 
 group = 'lowlevel'
 
-
 devices = dict(
     bl2left = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
         description = 'Beam Limiter 2 -X',

@@ -7,7 +7,7 @@ display_order = 99
 devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
         description = 'Email notifier',
-        mailserver='mailsend.psi.ch',
+        mailserver = 'mailsend.psi.ch',
         sender = 'neutra@psi.ch',
         copies = [
             ('pierre.boillat@psi.ch', 'important'),
@@ -16,7 +16,7 @@ devices = dict(
     ),
     warning = device('nicos.devices.notifiers.Mailer',
         description = 'Watchdog email notifier',
-        mailserver='mailsend.psi.ch',
+        mailserver = 'mailsend.psi.ch',
         sender = 'neutra@psi.ch',
         copies = [
             ('pierre.boillat@psi.ch', 'all'),

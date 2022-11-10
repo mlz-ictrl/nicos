@@ -8,7 +8,10 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'NEUTRA',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'livesink', 'asciisink', 'shuttersink'],
+    datasinks = [
+        'conssink', 'dmnsink', 'livesink', 'asciisink'
+        #, 'shuttersink'
+    ],
     notifiers = ['email'],
 )
 
@@ -17,7 +20,8 @@ requires = ['shutters']
 modules = [
     'nicos.commands.standard', 'nicos_sinq.commands.sics',
     'nicos.commands.imaging', 'nicos_sinq.commands.hmcommands',
-    'nicos_sinq.commands.epicscommands']
+    'nicos_sinq.commands.epicscommands'
+]
 
 includes = ['notifiers']
 

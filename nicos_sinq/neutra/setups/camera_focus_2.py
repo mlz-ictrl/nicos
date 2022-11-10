@@ -6,7 +6,6 @@ group = 'lowlevel'
 
 display_order = 40
 
-
 devices = dict(
     focus_midi_axis = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
         description = 'Axis Camera Positioning Midibox',

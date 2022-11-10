@@ -6,7 +6,6 @@ includes = ['camera_focus_2', 'beam_limiter_2', 'shutters', 'detector']
 
 display_order = 30
 
-
 devices = dict(
     sp2_tx = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
         description = 'Sample Position 2, Translation X',

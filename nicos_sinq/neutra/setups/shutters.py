@@ -3,7 +3,7 @@ description = 'NEUTRA shutters (HE, FS, Exp)'
 display_order = 10
 
 group = 'lowlevel'
-
+datasinks = ['shuttersink']
 
 devices = dict(
     # Main Shutter HE
@@ -147,10 +147,11 @@ devices = dict(
         readpv = 'SQ:NEUTRA:b4io2:EXPclosedRBV',
         visibility = set(),
     ),
-    ex_renabled = device('nicos.devices.epics.EpicsReadable',
-        description = 'EXP Shutter enabled bit',
-        #readpv='SQ:NEUTRA:b4io2:EXPenabledRBV',
-        readpv = 'SQ:NEUTRA:b5io2:EXPenabledRBV',
+    ex_renabled = device('nicos.devices.generic.ManualMove',
+        description = 'Exp Shutter enable bit',
+        default = 1,
+        abslimits = (0, 1),
+        unit = '',
         visibility = set(),
     ),
     ex_popen = device('nicos.devices.generic.Pulse',
