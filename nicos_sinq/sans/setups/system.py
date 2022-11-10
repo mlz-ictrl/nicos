@@ -12,7 +12,7 @@ sysconfig = dict(
 modules = [
     'nicos.commands.standard', 'nicos_sinq.commands.sics',
     'nicos_sinq.commands.hmcommands', 'nicos_sinq.commands.epicscommands',
-    'nicos_sinq.commands.tableexe',
+    'nicos_sinq.commands.tableexe', 'nicos_sinq.sans.commands.sanscommands'
 ]
 
 devices = dict(

@@ -29,7 +29,7 @@ main_window = docked(
         ('Setup',
          tabbed(
              ('Experiment',
-              panel('nicos.clients.flowui.panels.setup_panel.ExpPanel')),
+              panel('nicos_sinq.gui.panels.setup_panel.ExpPanel')),
              ('Instrument',
               panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
          ),
