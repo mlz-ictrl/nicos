@@ -26,7 +26,7 @@ devices = dict(
         writepv = pvprefix + 'TRIG',
         visibility = (),
     ),
-    cam_aux = device('nicos_sinq.devices.epics.EpicsDigitalMoveable',
+    cam_aux = device('nicos_ess.devices.epics.base.EpicsAnalogMoveableEss',
         description = 'Exposure valid signal',
         readpv = pvprefix + 'AUX',
         writepv = pvprefix + 'AUX',
