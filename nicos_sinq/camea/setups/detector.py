@@ -1,5 +1,7 @@
 description = 'Setup for the CAMEA detector'
 
+display_order = 50
+
 includes = [
     'hm_config',
 ]  # The real thing
@@ -10,12 +12,12 @@ excludes = ['andorccd']
 pvprefix = 'SQ:CAMEA:counter'
 
 devices = dict(
-    nxsink=device('nicos.nexus.nexussink.NexusSink',
-                  description='Sink for NeXus file writer',
-                  filenametemplate=['camea%(year)sn%(scancounter)06d.hdf'],
-                  templateclass='nicos_sinq.camea.nexus.nexus_templates'
-                                '.CameaTemplateProvider',
-                  ),
+    nxsink = device('nicos.nexus.nexussink.NexusSink',
+        description = 'Sink for NeXus file writer',
+        filenametemplate = ['camea%(year)sn%(scancounter)06d.hdf'],
+        templateclass = 'nicos_sinq.camea.nexus.nexus_templates'
+        '.CameaTemplateProvider',
+    ),
     timepreset = device('nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',
         unit = 'sec',
@@ -69,8 +71,8 @@ devices = dict(
         visibility = (),
         bank = 'hm_bank0',
         dimensions = {
-            'x': 104,
-            'y': 1024
+            'x': 1024,
+            'y': 104
         },
         connector = 'hm_connector',
     ),
@@ -103,7 +105,12 @@ devices = dict(
         others = ['histogrammer'],
         liveinterval = 20,
         saveintervals = [900]
-    )
+    ),
+    cter1 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+        description = 'Direct connection to counter box',
+        commandpv = 'SQ:CAMEA:cter1' + '.AOUT',
+        replypv = 'SQ:CAMEA:cter1' + '.AINP',
+    ),
 )
 startupcode = """
 SetDetectors(cameadet)

@@ -2,7 +2,9 @@ description = 'system setup'
 
 group = 'lowlevel'
 
-includes = ['cameabasic', 'detector', 'mono_slit']
+display_order = 10
+
+includes = ['cameabasic', 'mono_slit']
 
 sysconfig = dict(
     cache = 'localhost',
@@ -17,6 +19,7 @@ modules = [
     'nicos_sinq.commands.hmcommands',
     'nicos_sinq.commands.epicscommands',
     'nicos_sinq.camea.commands.camea',
+    'nicos.commands.tas',
     'nicos_sinq.sxtal.commands',
 ]
 
@@ -31,8 +34,8 @@ devices = dict(
         ana = 'ana',
         a3 = 'a3',
         a4 = 'a4',
-        sgl = 'gl',
-        sgu = 'gu',
+        sgl = 'sgl',
+        sgu = 'sgu',
         emode = 'FKE',
         mono = 'mono',
         ccl_file = False,

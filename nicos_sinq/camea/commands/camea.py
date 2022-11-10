@@ -51,10 +51,10 @@ def SelectDetectorAnalyser(detNo, anaNo):
     counts in scans.
     """
 
-    if detNo < 0 or detNo > 104:
+    if detNo < 0 or detNo > 103:
         session.log.error('detNo %d out of range 0 - 104', detNo)
         return
-    if anaNo < 0 or anaNo > 8:
+    if anaNo < 0 or anaNo > 7:
         session.log.error('anaNo %d out of range 0 - 8', anaNo)
         return
     try:
@@ -75,7 +75,7 @@ def SelectDetectorAnalyser(detNo, anaNo):
     anaMax = calib1.boundaries[idx*2 + 1]
     a4.a4offset = a4offset
     # This order is implied by RectROIChannel.getReadResult()
-    cts.roi = (anaMin, detNo, anaMax - anaMin, 1)
+    cts.roi = (detNo, anaMin, 1, anaMax - anaMin)
     dn.maw(detNo)
     an.maw(anaNo)
     session.log.info('Driving virtual ef to %f', ef)

@@ -19,7 +19,6 @@
 #
 # Module authors:
 #   Mark Koennecke <mark.koennecke@psi.ch>
-#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
@@ -34,7 +33,8 @@ from nicos.nexus.nexussink import NexusTemplateProvider
 from nicos_sinq.camea.nexus.camea_elements import BoundaryArrayParam, \
     CameaAzimuthalAngle
 from nicos_sinq.nexus.specialelements import AbsoluteTime, ArrayParam, \
-    EnvDeviceDataset, OutSampleEnv, Reflection, ScanCommand, ScanVars, CellArray
+    CellArray, EnvDeviceDataset, OptionalDeviceDataset, OutSampleEnv, \
+    Reflection, ScanCommand, ScanSampleEnv, ScanVars
 
 
 class CameaTemplateProvider(NexusTemplateProvider):
@@ -91,12 +91,12 @@ class CameaTemplateProvider(NexusTemplateProvider):
                         'en', 'ei', 'ef', 's2t', 'm2t', 'gl', 'gu', 'som',
                         'tl', 'tu', 'gm', 'mcv', 'omm', 'tlm', 'tum', 'mono',
                         'ana', 'msr', 'msl', 'msb', 'mst', 'mslit_height',
-                        'mslit_width']
+                        'mslit_width', 'h', 'k', 'l']
 
     _camea_sample = {
         "name": DeviceDataset(
             'Sample', 'samplename'),
-        "hugo": OutSampleEnv(blocklist=_camea_blocklist),
+        "hugo": OutSampleEnv(blocklist=_camea_blocklist, postfix='_log'),
         "azimuthal_angle": CameaAzimuthalAngle('CAMEA'),
         "orientation_matrix": ArrayParam('Sample', 'ubmatrix', 'float32',
                                          reshape=(3, 3)),
@@ -124,9 +124,9 @@ class CameaTemplateProvider(NexusTemplateProvider):
                                   dtype='float32',
                                   units=NXAttribute('degree',
                                                     'string')),
-        "x": EnvDeviceDataset('tu', dtype='float32', units=NXAttribute(
+        "x": OptionalDeviceDataset('tu', dtype='float32', units=NXAttribute(
             'mm', 'string')),
-        "y": EnvDeviceDataset('tl', dtype='float32', units=NXAttribute(
+        "y": OptionalDeviceDataset('tl', dtype='float32', units=NXAttribute(
             'mm', 'string')),
         "qh": EnvDeviceDataset('h', dtype='float32',
                                units=NXAttribute('rlu', 'string')),
@@ -135,6 +135,7 @@ class CameaTemplateProvider(NexusTemplateProvider):
         "ql": EnvDeviceDataset('l', dtype='float32',
                                units=NXAttribute('rlu', 'string')),
         "unit_cell": CellArray(),
+        "lieselotte": ScanSampleEnv(),
     }
 
     _camea_inst = {
@@ -383,7 +384,8 @@ class CameaCCDTemplateProvider(CameaTemplateProvider):
 
     def getTemplate(self):
         template = copy.deepcopy(self._default)
-        template['entry:NXentry']['sample:NXsample'] = copy.deepcopy(self._camea_sample)
+        template['entry:NXentry']['sample:NXsample'] = copy.deepcopy(
+            self._camea_sample)
         template['entry:NXentry']['CAMEA:NXinstrument'] = copy.deepcopy(
             self._camea_inst
         )
