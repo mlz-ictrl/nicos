@@ -41,16 +41,21 @@ devices = dict(
         errormsgpv = motaprefix + 'A2-MsgTxt',
         precision = 0.02,
     ),
-    a3 = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    a3_st = device('nicos_ess.devices.epics.motor.EpicsMotor',
         description = 'Sample rotation',
         motorpv = motaprefix + 'A3',
         errormsgpv = motaprefix + 'A3-MsgTxt',
         precision = 0.02,
     ),
+    a3 = device('nicos.core.device.DeviceAlias',
+        description = 'Alias for a3',
+        alias = 'a3_st',
+        devclass = 'nicos.core.device.Moveable'
+    ),
     a4 = device('nicos_ess.devices.epics.motor.EpicsMotor',
         description = 'Sample two theta',
-        motorpv = motaprefix + 'A1',
-        errormsgpv = motaprefix + 'A1-MsgTxt',
+        motorpv = motaprefix + 'A4',
+        errormsgpv = motaprefix + 'A4-MsgTxt',
         precision = 0.02,
     ),
     sro = device('nicos_ess.devices.epics.motor.EpicsMotor',
@@ -139,12 +144,12 @@ devices = dict(
     ctr1 = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'The real neutron counter',
         type = 'monitor',
-        readpv = cterprefix + '.S2',
+        readpv = cterprefix + '.S3',
     ),
     mon1 = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'First scalar counter channel',
         type = 'monitor',
-        readpv = cterprefix + '.S3',
+        readpv = cterprefix + '.S2',
     ),
     mon2 = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'Second scalar counter channel',
@@ -189,7 +194,7 @@ devices = dict(
         abslimits = [2.75, 20],
         focusv = 'mcv'
     ),
-    ana = device('nicos_sinq.devices.mono.SinqMonochromator',
+    ana = device('nicos_sinq.devices.mono.TasAnalyser',
         description = 'TASP analyser',
         theta = 'a5',
         twotheta = 'a6',
@@ -197,8 +202,8 @@ devices = dict(
         scatteringsense = -1,
         crystalside = -1,
         unit = 'meV',
-        focmode = 'vertical',
-        vfocuspars = [0.25, 4.01],
+        focmode = 'horizontal',
+        hfocuspars = [0.25, 4.01],
         abslimits = [2.75, 20],
         focusv = 'ach'
     ),
@@ -211,6 +216,7 @@ devices = dict(
         alias = 'ana',
     ),
 )
+alias_config = {'a3': {'a3_st': 10, 'se_om': 20}}
 startupcode = """
 SetDetectors(counter)
 """

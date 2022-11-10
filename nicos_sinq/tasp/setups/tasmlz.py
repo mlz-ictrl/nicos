@@ -6,7 +6,7 @@ requires = ['tasp']
 
 sysconfig = dict(instrument = 'TASP',)
 
-modules = ['nicos.commands.tas']
+modules = ['nicos.commands.tas', ]
 
 devices = dict(
     TASP = device('nicos_sinq.devices.tassinq.SinqTAS',
@@ -14,8 +14,8 @@ devices = dict(
         instrument = 'TASP',
         responsible = 'Alexandra Turrini <alexandra.turrini@psi.ch>',
         cell = 'Sample',
-        phi = 'a3',
-        psi = 'a4',
+        phi = 'a4',
+        psi = 'a3',
         mono = 'mono',
         ana = 'ana',
         alpha = None,
