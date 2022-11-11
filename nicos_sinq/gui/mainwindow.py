@@ -31,8 +31,8 @@ class MainWindowSINQ(MainWindowESS):
         MainWindowESS.__init__(self, log, gui_conf, viewonly=False, tunnel='')
         self.facility_logo = ':/psi-logo-auth'
 
-    def _update_status_text(self, status):
-        if status == 'disconnected':
+    def _update_status_text(self):
+        if self.current_status == 'disconnected':
             self.status_label.setText('Disconnected')
         else:
             self.status_label.setText('\u2713 Connected')
