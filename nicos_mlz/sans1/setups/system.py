@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'ctrl.sans1.frm2.tum.de',
     instrument = 'Instrument',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'nxsink'],
     notifiers = ['email'],
 )
 
@@ -51,6 +51,11 @@ devices = dict(
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
         description = 'daemonsink',
+    ),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass = 'nicos_mlz.sans1.nexus.nexus_templates.SANSTemplateProvider',
+        settypes = {'scan', 'point', 'subscan'},
+        filenametemplate = ['%(scancounter)07d.nxs'],
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

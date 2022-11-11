@@ -184,7 +184,7 @@ devices = dict(
         coder = 'bs1_xenc',
         precision = 0.1,
         fmtstr = '%.2f',
-        visibility = (),
+        visibility = {'metadata'},
     ),
     bs1_yax = device('nicos_mlz.sans1.devices.beamstop.BeamStopAxis',
         description = 'beamstop 1 y axis',
@@ -192,7 +192,7 @@ devices = dict(
         coder = 'bs1_yenc',
         precision = 0.1,
         fmtstr = '%.2f',
-        visibility = ()
+        visibility = {'metadata'},
     ),
     bs1 = device('nicos_mlz.sans1.devices.beamstop.BeamStop',
         description = 'selects the shape of the beamstop',
