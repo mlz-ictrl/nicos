@@ -2,7 +2,7 @@ NeXuS data files in NICOS
 =========================
 
 Writing a `NeXus <https://www.nexusformat.org/>`_ data file in NICOS is
-technically quite easy.  If a :class:`~nicos.nexus.nexussink.NexusSink` device
+technically quite easy.  If a :class:`~nicos.nexus.NexusSink` device
 is configured and added to the datasinks in the sysconfig dictionary, a valid
 NeXus file will be written.
 
@@ -14,7 +14,7 @@ Example::
 
       )
 
-      nxsink = device('nicos.nexus.nexussink.NexusSink',
+      nxsink = device('nicos.nexus.NexusSink',
          description = '...',
          templateclass = '...',
 
@@ -164,7 +164,7 @@ For more elaborate examples, search the ``nicos_sinq`` tree, for example
 NeXus data sink
 ---------------
 
-.. module:: nicos.nexus.nexussink
+.. module:: nicos.nexus
 .. autoclass:: NexusSink()
 
 NeXus template

@@ -21,3 +21,5 @@
 #   Mark Koennecke <Mark.Koennecke@psi.ch>
 #
 # *****************************************************************************
+
+from nicos.nexus.nexussink import NexusSink

@@ -43,7 +43,7 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
     #rawsink = device ('nicos.devices.datasinks.RawImageSink'),
-    nxsink = device('nicos.nexus.nexussink.NexusSink',
+    nxsink = device('nicos.nexus.NexusSink',
         templateclass = 'nicos_lahn.andes.nexus.nexus_templates.ANDESTemplateProvider',
         filenametemplate = ['%(proposal)s_%(scancounter)08d.hdf'],
     ),

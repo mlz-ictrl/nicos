@@ -12,7 +12,7 @@ excludes = ['andorccd']
 pvprefix = 'SQ:CAMEA:counter'
 
 devices = dict(
-    nxsink = device('nicos.nexus.nexussink.NexusSink',
+    nxsink = device('nicos.nexus.NexusSink',
         description = 'Sink for NeXus file writer',
         filenametemplate = ['camea%(year)sn%(scancounter)06d.hdf'],
         templateclass = 'nicos_sinq.camea.nexus.nexus_templates'

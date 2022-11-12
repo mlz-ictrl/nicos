@@ -67,7 +67,7 @@ devices = dict(
         liveinterval = 20,
         saveintervals = [60]
     ),
-    nxsink = device('nicos.nexus.nexussink.NexusSink',
+    nxsink = device('nicos.nexus.NexusSink',
         description = "Sink for NeXus file writer",
         filenametemplate = ['zebra%(year)sn%(scancounter)06d.hdf'],
         templateclass =

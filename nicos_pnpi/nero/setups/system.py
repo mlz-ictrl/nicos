@@ -43,7 +43,7 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
 
-    nxsink = device('nicos.nexus.nexussink.NexusSink',
+    nxsink = device('nicos.nexus.NexusSink',
                     templateclass = 'nicos_pnpi.nero.templates.'\
                                     'nxtemplate.NxTemplateCount',
                     filenametemplate = ['NERO%(scancounter)08d.hdf5'],
