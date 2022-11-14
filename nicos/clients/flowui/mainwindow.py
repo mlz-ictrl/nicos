@@ -50,6 +50,7 @@ class Spacer(QWidget):
 
 class MainWindow(DefaultMainWindow):
     ui = path.join(uipath, 'main.ui')
+    default_facility_logo = ':/ess-logo-auth'
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         DefaultMainWindow.__init__(self, log, gui_conf, viewonly, tunnel)
@@ -57,7 +58,6 @@ class MainWindow(DefaultMainWindow):
         self.add_logo()
         self.set_icons()
         self.style_file = gui_conf.stylefile
-        self.facility_logo = ':/ess-logo-auth'
 
         self.editor_wintype = self.gui_conf.find_panel(
             ('editor.EditorPanel',

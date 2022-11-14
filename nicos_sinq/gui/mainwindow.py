@@ -27,9 +27,10 @@ from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS
 
 class MainWindow(MainWindowESS):
 
+    default_facility_logo = ':/psi-logo-auth'
+
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         MainWindowESS.__init__(self, log, gui_conf, viewonly, tunnel)
-        self.facility_logo = ':/psi-logo-auth'
 
     def _update_status_text(self):
         if self.current_status == 'disconnected':

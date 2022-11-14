@@ -78,7 +78,7 @@ class ConnectionDialog(QDialog):
     def __init__(self, parent, connpresets, lastpreset, lastdata, tunnel=''):
         QDialog.__init__(self, parent)
         loadUi(self, self.ui)
-        if hasattr(parent, 'facility_logo'):
+        if hasattr(parent, 'facility_logo') and parent.facility_logo:
             self.logoLabel.setPixmap(QPixmap(parent.facility_logo))
         self.connpresets = OrderedDict(sorted(connpresets.items()))
 

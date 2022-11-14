@@ -100,6 +100,7 @@ class MainWindow(DlgUtils, QMainWindow):
     keepaliveInterval = 12*3600*1000
 
     ui = 'main.ui'
+    default_facility_logo = None
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         QMainWindow.__init__(self)
@@ -163,6 +164,8 @@ class MainWindow(DlgUtils, QMainWindow):
 
         # panel configuration
         self.gui_conf = gui_conf
+        self.facility_logo = gui_conf.options.get('facility_logo',
+                                                  self.default_facility_logo)
         self.initDataReaders()
         self.mainwindow = self
 
