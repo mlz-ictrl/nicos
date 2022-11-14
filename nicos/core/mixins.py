@@ -764,6 +764,12 @@ class CanDisable(DeviceMixinBase):
     """Mixin class for devices that can be disabled and enabled."""
 
     def _enable(self, on):
+        """
+        .. method:: doEnable(on)
+
+           This method must be present and is called to execute the action
+           with a True argument for `enable`, and False for `disable`.
+        """
         what = 'enable' if on else 'disable'
         if self._mode == SLAVE:
             raise ModeError(self, '%s not possible in slave mode' % what)
@@ -780,19 +786,26 @@ class CanDisable(DeviceMixinBase):
 
     @usermethod
     def enable(self):
-        """Enable this device.  This operation is forbidden in slave mode.
+        """Enable this device.
 
-        .. method:: doEnable(on)
-
-           This method must be present and is called to execute the action
-           with a True argument for `enable`, and False for `disable`.
+        This operation is forbidden in slave mode.
         """
         self._enable(True)
 
     @usermethod
     def disable(self):
-        """Disable this device.  This operation is forbidden in slave mode."""
+        """Disable this device.
+
+        This operation is forbidden in slave mode."""
         self._enable(False)
+
+    def doEnable(self, on):
+        """Execute the action to enable/disable.
+
+        This method must be present and is called to execute the action with a
+        `True` argument for `enable`, and `False` for `disable`.
+        """
+        raise NotImplementedError("Please implement the 'doEnable' method")
 
 
 class IsController(DeviceMixinBase):
