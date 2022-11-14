@@ -413,6 +413,8 @@ class ImageDataset(NexusElementBase):
         data = results.get(det.name)
         if data is not None:
             array = data[1][self.imageIDX]
+            if array is None:
+                return
             if self.doAppend:
                 idx = self.np + 1
                 if len(dset) < idx:
