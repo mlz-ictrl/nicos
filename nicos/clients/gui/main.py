@@ -34,18 +34,14 @@ from os import path
 
 from nicos import config
 from nicos.clients.base import ConnectionData
-from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS
 from nicos.clients.gui.config import processGuiConfig
 from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
-from nicos.clients.gui.mainwindow import MainWindow
 from nicos.clients.gui.utils import DebugHandler
 from nicos.guisupport.qt import QApplication
 from nicos.protocols.daemon.classic import DEFAULT_PORT
-from nicos.utils import parseConnectionString
+from nicos.utils import importString, parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
-
-from nicos_sinq.gui.mainwindow import MainWindowSINQ
 
 # Work around a crash on Py3/Bionic when readline is imported later in
 # a callback from unpickling server data.
@@ -55,12 +51,6 @@ except ImportError:
     pass
 
 log = None
-
-_mainwindow_cls = {
-    'default': MainWindow,
-    'ess': MainWindowESS,
-    'sinq': MainWindowSINQ,
-    }
 
 
 def parseargs():
@@ -151,8 +141,9 @@ def main(argv):
                 log.warning('Error setting user style sheet from %s',
                             stylefile, exc=1)
 
-    mainwindow_cls = _mainwindow_cls.get(gui_conf.options.get('facility',
-                                                              'default'))
+    mainwindow_cls = importString(
+        gui_conf.options.get('mainwindow_class',
+                             'nicos.clients.gui.mainwindow.MainWindow'))
     mainwindow = mainwindow_cls(log, gui_conf, opts.viewonly, opts.tunnel)
     log.addHandler(DebugHandler(mainwindow))
 

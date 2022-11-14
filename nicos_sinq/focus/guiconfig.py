@@ -91,5 +91,6 @@ tools = [
 ]
 
 options = {
-    'ess_gui' : True,
+    'facility': 'sinq',
+    'mainwindow_class': 'nicos.clients.flowui.mainwindow.MainWindow',
 }

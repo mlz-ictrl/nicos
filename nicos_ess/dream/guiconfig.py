@@ -87,4 +87,5 @@ options = {
         'nicos_ess.dream.devices.datasinks.numpy_reader'
     ],
     'facility': 'ess',
+    'mainwindow_class': 'nicos.client.flowui.MainWindow',
 }
