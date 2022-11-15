@@ -175,13 +175,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                                  ' intended, please check the cables and '
                                  'restart the camera and the lima server')
 
-            # set some dummy roi to avoid strange lima rotation behaviour
-            # (not at 0, 0 to avoid possible problems with strides)
-            self._writeRawRoi((8, 8, 8, 8))
-            # ensure NO rotation
-            self._dev.image_rotation = 'NONE'
-            # set full detector size as roi
-            self._writeRawRoi((0, 0, 0, 0))
+            self._specialInit()
             # cache full detector size
             self._width_height = (self.imagewidth, self.imageheight)
         else:
@@ -349,6 +343,9 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             self._shutter = LimaShutter(self._dev, self._hwDev)
         except NicosError:
             pass
+
+    def _specialInit(self):
+        pass
 
     def _getImageType(self):
         if self._mode == SIMULATION:
