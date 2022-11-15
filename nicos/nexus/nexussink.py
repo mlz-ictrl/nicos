@@ -24,6 +24,7 @@
 
 import numpy
 from h5py import File as H5File
+from h5py.version import hdf5_version
 
 from nicos import session
 from nicos.core.constants import LIVE, POINT, SCAN
@@ -43,6 +44,7 @@ class NexusFile(DataFileBase):
         DataFileBase.__init__(self, shortpath, filepath)
         with H5File(filepath, 'w') as h5file:
             h5file.attrs['file_name'] = numpy.string_(filepath)
+            h5file.attrs['HDF5_Version'] = numpy.string_(hdf5_version)
             tf = NXTime()
             h5file.attrs['file_time'] = numpy.string_(tf.formatTime())
 
