@@ -31,6 +31,7 @@ import uuid
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from enum import Enum
+from os import path
 from time import time as currenttime
 
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
@@ -356,10 +357,17 @@ class FileWriterSinkHandler(DataSinkHandler):
         filename, _ = self.manager.getFilenames(
             self.dataset, self.sink.filenametemplate, self.sink.subdir
         )
+        if self.sink.use_instrument_directory:
+            file_path = session.experiment.proposalpath_of(
+                session.experiment.propinfo.get('proposal')
+            )
+            file_path = path.join(file_path, filename)
+        else:
+            file_path = filename
 
         if hasattr(self.dataset, 'replay_info'):
             # Replaying previous job
-            self.sink._start_job(filename,
+            self.sink._start_job(file_path,
                                  self.dataset.counter,
                                  self.dataset.replay_info['structure'],
                                  self.dataset.replay_info['start_time'],
@@ -370,7 +378,7 @@ class FileWriterSinkHandler(DataSinkHandler):
         datetime_now = datetime.now()
         structure = self.sink._attached_nexus.get_structure(
             self.dataset, datetime_now)
-        self.sink._start_job(filename, self.dataset.counter,
+        self.sink._start_job(file_path, self.dataset.counter,
                              structure, datetime_now)
         self._current_file = filename
 
@@ -494,6 +502,13 @@ class FileWriterControlSink(FileSink):
                 default=True,
                 settable=True,
                 userparam=False,
+            ),
+        'use_instrument_directory': Param(
+            'Use the ESS instrument directory',
+            type=bool,
+            default=False,
+            settable=True,
+            userparam=False,
             ),
     }
 
