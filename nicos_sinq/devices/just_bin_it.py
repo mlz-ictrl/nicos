@@ -253,7 +253,6 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
                 self._status = status.BUSY, 'Counting'
 
             if info['state'] == 'FINISHED':
-                print(f'{info["state"]}\t{self._hist_id}')
                 self._status = status.OK, ''
 
     def _zero_data(self):

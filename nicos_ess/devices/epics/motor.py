@@ -378,7 +378,12 @@ class AbsoluteEpicsMotor(EpicsMotor):
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):
 
     def doStart(self, target):
-        self._put_pv_blocking('writepv', target, timeout=5)
+        try:
+            self._put_pv_blocking('writepv', target, timeout=5)
+        except Exception as e:
+            # Use a generic exception to handle any EPICS binding
+            self.log.warning(e)
+            return
         if target != self.doRead():
             self._wait_for_start()
 

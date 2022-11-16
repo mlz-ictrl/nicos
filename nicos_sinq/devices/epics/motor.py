@@ -23,9 +23,9 @@
 # *****************************************************************************
 from nicos import session
 from nicos.core import MAIN, Param, pvname, status, usermethod
+from nicos.devices.epics.pyepics import pvget
 
 from nicos_ess.devices.epics import EpicsMotor as EssEpicsMotor
-from nicos.devices.epics.pyepics import pvget
 
 
 class EpicsMotor(EssEpicsMotor):
@@ -54,10 +54,6 @@ class EpicsMotor(EssEpicsMotor):
         EssEpicsMotor.doInit(self, mode)
         if session.sessiontype == MAIN and self.auto_enable:
             self.enable()
-
-    def doShutdown(self):
-        if session.sessiontype == MAIN and self.auto_enable:
-            self.disable()
 
     def doStatus(self, maxage=0):
         if self.can_disable:

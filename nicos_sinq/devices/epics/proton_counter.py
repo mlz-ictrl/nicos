@@ -24,12 +24,13 @@
 
 from nicos.core import Param, Value, status
 from nicos.devices.epics import EpicsReadable
+from nicos.devices.epics.monitor import PyEpicsMonitor
 from nicos.devices.generic.detector import CounterChannelMixin
 
 from nicos_ess.devices.epics.detector import EpicsPassiveChannel
 
 
-class SINQProtonCurrent(EpicsReadable):
+class SINQProtonCurrent(PyEpicsMonitor, EpicsReadable):
     """
     The proton accelerator team provides a PV with the proton charge sent to SINQ. Unfortunately the
     PV causes a non-empty error message that is meaningful for us. This device handles it.
