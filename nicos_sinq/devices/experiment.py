@@ -40,6 +40,8 @@ class SinqDataManager(DataManager):
     numbering scheme
     """
 
+    _pointcounter = 1
+
     def incrementCounters(self, countertype):
         result = []
         exp = session.experiment
@@ -48,6 +50,11 @@ class SinqDataManager(DataManager):
             exp.updateSicsCounterFile(val+1)
             result.append((countertype, val))
             result.append(('counter', val))
+            self._pointcounter = 1
+        elif countertype == 'point':
+            result.append((countertype, self._pointcounter))
+            result.append(('counter', self._pointcounter))
+            self._pointcounter += 1
         return result
 
 

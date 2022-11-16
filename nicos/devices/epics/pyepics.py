@@ -212,13 +212,14 @@ class EpicsDevice(DeviceMixinBase):
             for key in self._pvs:
                 self._pvs[key] = HardwareStub(self)
 
-    def _get_pv(self, pvparam, as_string=False):
+    def _get_pv(self, pvparam, as_string=False, count=None):
         # since NICOS devices can be accessed from any thread, we have to
         # ensure that the same context is set on every thread
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
         result = self._pvs[pvparam].get(timeout=self.epicstimeout,
-                                        as_string=as_string)
+                                        as_string=as_string,
+                                        count=count)
         if result is None:  # timeout
             raise CommunicationError(self, 'timed out getting PV %r from EPICS'
                                      % self._get_pv_name(pvparam))

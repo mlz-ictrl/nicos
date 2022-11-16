@@ -28,11 +28,12 @@ This module implements the EPICS area detector integration.
 
 import numpy as np
 
-from nicos.core import LIVE, ArrayDesc, Param, Value, multiStatus, pvname, \
-    status
+from nicos import session
+from nicos.core import LIVE, ArrayDesc, AutoDevice, HasAutoDevices, \
+    Param, Value, listof, multiStatus, oneof, pvname, status, usermethod
 from nicos.core.device import Device
-from nicos.devices.epics import EpicsDevice
-from nicos.devices.generic import ImageChannelMixin
+from nicos.devices.epics import EpicsDevice, EpicsMoveable
+from nicos.devices.generic import Detector, ImageChannelMixin
 
 from nicos_ess.devices.epics.detector import EpicsDetector, \
     EpicsPassiveChannel, EpicsTimerPassiveChannel
@@ -62,7 +63,42 @@ class EpicsAreaDetectorTimerPassiveChannel(EpicsTimerPassiveChannel):
         return self._get_pv('readpv')
 
 
-class EpicsAreaDetector(EpicsDetector):
+class ADPar(AutoDevice, EpicsMoveable):
+
+    valuetype = float
+
+    def doStatus(self, maxage=0):
+        if abs(self._get_pv('readpv') - self._get_pv('writepv')) < .01:
+            return status.OK, 'Done'
+        return status.BUSY, 'Adjusting parameter'
+
+
+class ADEnumPar(AutoDevice, EpicsMoveable):
+    valuetype = int
+
+    parameters = {
+        'allowed': Param('List of allowed entries',
+                         type=listof(str), mandatory=True,
+                         userparam=False),
+    }
+
+    def doInit(self, mode):
+        EpicsMoveable.doInit(self, mode)
+        self.valuetype = oneof(self.allowed)
+
+    def doStart(self, target):
+        self._put_pv('writepv', target)
+
+    def doRead(self, maxage=0):
+        return self._get_pv('readpv', as_string=True)
+
+    def doStatus(self, maxage=0):
+        if self._get_pv('readpv') == self._get_pv('writepv'):
+            return status.OK, 'Done'
+        return status.BUSY, 'Adjusting parameter'
+
+
+class EpicsAreaDetector(HasAutoDevices, EpicsDetector):
     """
     Class that implements the basics elements of the EPICS areaDetector.
 
@@ -76,6 +112,8 @@ class EpicsAreaDetector(EpicsDetector):
         'errormsgpv': Param('Optional PV with error message.',
                             type=pvname or None, mandatory=False,
                             settable=False, userparam=False, default=None),
+        'basepv': Param('PV to use as base for parameter PVs',
+                        type=pvname, mandatory=True, userparam=False),
     }
 
     _mapped_state = {
@@ -83,6 +121,40 @@ class EpicsAreaDetector(EpicsDetector):
         'Idle': status.OK,
         'Readout': status.BUSY,
     }
+
+    def doInit(self, mode):
+        self.add_autodevice('opening_delay', ADPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'ShutterOpenDelay_RBV',
+                            writepv=self.basepv + 'ShutterOpenDelay',
+                            maxage=0)
+        self.add_autodevice('closing_delay', ADPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'ShutterCloseDelay_RBV',
+                            writepv=self.basepv + 'ShutterCloseDelay',
+                            maxage=0)
+        self.add_autodevice('gain', ADPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'Gain_RBV',
+                            writepv=self.basepv + 'Gain', maxage=0)
+        self.add_autodevice('image_mode', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'ImageMode_RBV',
+                            writepv=self.basepv + 'ImageMode',
+                            allowed=['Single', 'Continuous', 'Multiple'],
+                            maxage=0)
+        self.add_autodevice('trigger_mode', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'TriggerMode_RBV',
+                            writepv=self.basepv + 'TriggerMode',
+                            allowed=['Internal', 'External'], maxage=0)
+        self.add_autodevice('shutter_mode', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'ShutterMode_RBV',
+                            writepv=self.basepv + 'ShutterMode',
+                            allowed=['None', 'EPICS PV', 'Detector output'],
+                            maxage=0)
+        Detector.doInit(self, mode)
 
     def _get_pv_parameters(self):
         """
@@ -134,6 +206,91 @@ class EpicsAreaDetector(EpicsDetector):
 
     def duringMeasureHook(self, elapsed):
         return LIVE
+
+    @usermethod
+    def list_camera_param(self):
+        """
+        list the camera specific parameters
+        """
+        for p in self.autodevices:
+            session.log.info('%s.%s = %s', self.name, p,
+                             self.__dict__[p].read(0))
+
+
+class ADAndor(EpicsAreaDetector):
+    """
+    This only adds the Andor specific parameters to EpicsAreaDetector
+    I have to duplicate the default ones as I cannot reliably modify
+    existing parameters.
+    """
+    def doInit(self, mode):
+        self.add_autodevice('opening_delay', ADPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'ShutterOpenDelay_RBV',
+                            writepv=self.basepv + 'ShutterOpenDelay',
+                            maxage=0)
+        self.add_autodevice('closing_delay', ADPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'ShutterCloseDelay_RBV',
+                            writepv=self.basepv + 'ShutterCloseDelay',
+                            maxage=0)
+        self.add_autodevice('gain', ADPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'Gain_RBV',
+                            writepv=self.basepv + 'Gain',
+                            maxage=0)
+        self.add_autodevice('image_mode', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'ImageMode_RBV',
+                            writepv=self.basepv + 'ImageMode',
+                            allowed=['Single', 'Continuous', 'Multiple'],
+                            maxage=0)
+        self.add_autodevice('shutter_mode', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'ShutterMode_RBV',
+                            writepv=self.basepv + 'ShutterMode',
+                            allowed=['None', 'EPICS PV', 'Detector output'],
+                            maxage=0)
+        self.add_autodevice('temperature', ADPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'TemperatureActual',
+                            writepv=self.basepv + 'Temperature', maxage=0)
+        self.add_autodevice('cooler', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'AndorCooler_RBV',
+                            writepv=self.basepv + 'AndorCooler',
+                            allowed=['On', 'Off'],
+                            maxage=0)
+        self.add_autodevice('trigger_mode', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'TriggerMode_RBV',
+                            writepv=self.basepv + 'TriggerMode',
+                            allowed=['Internal', 'External', 'External Start',
+                                     'External Exposure', 'External FVP',
+                                     'Software'],
+                            maxage=0)
+        # The enum values may be camera dependent
+        self.add_autodevice('vs_period', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'AndorVSPeriod_RBV',
+                            writepv=self.basepv + 'AndorVSPeriod',
+                            allowed=['5.69 us', '11.29 us', '22.49 us',
+                                     '44.89', '67.28'],
+                            maxage=0)
+        self.add_autodevice('vs_amplitude', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'AndorVSAmplitude_RBV',
+                            writepv=self.basepv + 'AndorVSAmplitude',
+                            allowed=['Normal', '+1', '+2', '+3', '+4'],
+                            maxage=0)
+        self.add_autodevice('adc_speed', ADEnumPar,
+                            visibility=self.autodevice_visibility,
+                            readpv=self.basepv + 'AndorADCSpeed_RBV',
+                            writepv=self.basepv + 'AndorADCSpeed',
+                            allowed=['5.00 MHZ', '3.00 MHZ',
+                                     '1.00 MHZ', '0.05 MHZ'],
+                            maxage=0)
+        Detector.doInit(self, mode)
 
 
 class ADKafkaPlugin(EpicsDevice, Device):
@@ -295,7 +452,11 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
         return [self._get_pv('min_x'), self._get_pv('min_y')]
 
     def doReadArray(self, quality):
-        data = self._get_pv('readpv')
+        count = 1
+        for d in self.arraydesc.shape:
+            count *= d
+        data = self._get_pv('readpv', count=count)
+        self.readresult = [int(sum(data))]
         return np.rot90(data.reshape(self.arraydesc.shape))
 
     def valueInfo(self):
