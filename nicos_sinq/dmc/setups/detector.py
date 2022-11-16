@@ -1,14 +1,16 @@
-description = 'DMC Mesytech detector'
+description = 'Setup for the MesyDAQ detector'
 
-sysconfig = dict(datasinks = ['jbi_liveview'],)
+pvprefix = 'SQ:DMC:counter'
 
-excludes = ['adaptive_optics', 'andorccd']
+sysconfig = dict(datasinks = ['jbi_liveview'])
 
 devices = dict(
-    a4 = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    a4 = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Detector angle (s2t)',
-        motorpv = 'SQ:DMC:mcu2:S2T',
-        errormsgpv = 'SQ:DMC:mcu2:S2T-MsgTxt',
+        motorpv = 'SQ:DMC:mcu1:A4',
+        errormsgpv = 'SQ:DMC:mcu1:A4-MsgTxt',
+        can_disable = True,
+        auto_enable = True,
     ),
     det_timer = device('nicos.devices.generic.VirtualTimer',
         description = 'Detector timer',
@@ -27,19 +29,12 @@ devices = dict(
         source = 'monitor2',
         type = 'monitor',
     ),
-    proton_current = device('nicos.devices.epics.EpicsReadable',
+    proton_current = device('nicos_ess.devices.epics.base.EpicsReadable',
         description = 'Proton current monitor',
         readpv = 'MHC6:IST:2',
         unit = 'uA',
-        fmtstr = '%3.3f',
-    ),
-    proton_charge = device('nicos_sinq.devices.epics.proton_counter.SINQProtonCharge',
-        description = 'Proton charge monitor',
-        readpv = 'SQ:DMC:current:ACCINT',
-        pvprefix = 'SQ:DMC:current:',
-        unit = 'uC',
-        type = 'counter',
-        fmtstr = '%3.3f',
+        fmtstr = '%3.0f',
+        pollinterval = 2,
     ),
     det_image = device('nicos_sinq.devices.just_bin_it.JustBinItImage',
         description = 'Detector image channel',
@@ -58,13 +53,11 @@ devices = dict(
         unit = '',
         timers = ['det_timer'],
         images = ['det_image'],
-        counters = ['proton_charge'],
         monitors = ['m1', 'm2'],
     ),
-    jbi_liveview = device('nicos.devices.datasinks.LiveViewSink',
-    ),
+    jbi_liveview = device('nicos.devices.datasinks.LiveViewSink',),
 )
 
-start = """
+startupcode = '''
 SetDetectors(det)
-"""
+'''

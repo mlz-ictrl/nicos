@@ -6,13 +6,10 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'DMC',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'livesink', 'NexusDataSink',
-                 'quiecksink'],
+    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink', 'quiecksink'],
 )
 
-modules = [
-    'nicos.commands.standard', 'nicos_sinq.commands.sics'
-]
+modules = ['nicos.commands.standard', 'nicos_sinq.commands.sics']
 
 devices = dict(
     DMC = device('nicos.devices.instrument.Instrument',
@@ -43,29 +40,14 @@ devices = dict(
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sink for forwarding live data to the GUI',
     ),
-    KafkaForwarder = device('nicos_ess.devices.forwarder.EpicsKafkaForwarder',
-        description = 'Monitors and controls forward-epics-to-kafka',
-        statustopic = configdata('config.FORWARDER_STATUS_TOPIC'),
-        brokers = configdata('config.KAFKA_BROKERS'),
-    ),
-    NexusDataSink = device('nicos_sinq.devices.datasinks.SinqNexusFileSink',
-        description = 'Sink for NeXus file writer (kafka-to-nexus)',
-        brokers = configdata('config.KAFKA_BROKERS'),
-        filenametemplate = ['dmc%(year)sn%(pointcounter)06d.hdf'],
-        cmdtopic = 'DMC_filewriterCommands',
-        cachetopic = 'DMC_nicosCacheHistory',
-        useswmr = False,
-        status_provider = 'NexusFileWriter',
-        templatesmodule = 'nicos_sinq.dmc.nexus.nexus_templates',
-        templatename = 'dmc_default'
-    ),
-    NexusFileWriter = device('nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
-        description = 'Status for nexus file writing',
-        brokers = configdata('config.KAFKA_BROKERS'),
-        statustopic=configdata('config.FILEWRITER_STATUS_TOPIC'),
-    ),
     quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
         description = 'Sink for sending UDP datafile '
         'notifications'
+    ),
+    nxsink = device('nicos.nexus.nexussink.NexusSink',
+        description = "Sink for NeXus file writer",
+        filenametemplate = ['dmc%(year)sn%(scancounter)06d.hdf'],
+        templateclass =
+        'nicos_sinq.dmc.nexus.nexus_templates.DMCTemplateProvider',
     ),
 )

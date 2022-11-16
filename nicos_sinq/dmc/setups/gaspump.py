@@ -1,8 +1,15 @@
 description = 'Gas pump for the DMC detector.'
 
+group = 'lowlevel'
+
 prefix = 'SQ:DMC:gaspump'
 
 devices = dict(
+    ch1_active = device('nicos.devices.epics.EpicsStringReadable',
+        description = 'Amplitude of channel 1',
+        readpv = f'{prefix}:Ch1:Status_RBV',
+        visibility = ('namespace',),
+    ),
     ch1_amplitude = device('nicos.devices.epics.EpicsDigitalMoveable',
         description = 'Amplitude of channel 1',
         readpv = f'{prefix}:Ch1:Amplitude_RBV',
@@ -44,6 +51,11 @@ devices = dict(
         readpv = f'{prefix}:Ch1:Feedback_RBV',
         visibility = ('namespace',),
     ),
+    ch2_active=device('nicos.devices.epics.EpicsStringReadable',
+                      description='Amplitude of channel 2',
+                      readpv=f'{prefix}:Ch2:Status_RBV',
+        visibility = ('namespace',),
+                      ),
     ch2_amplitude = device('nicos.devices.epics.EpicsDigitalMoveable',
         description = 'Amplitude of channel 2',
         readpv = f'{prefix}:Ch2:Amplitude_RBV',

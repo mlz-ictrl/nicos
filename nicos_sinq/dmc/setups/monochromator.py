@@ -1,6 +1,6 @@
 description = 'Monochromator devices for SINQ DMC.'
 
-pvprefix = 'SQ:DMC:mcu1:'
+pvprefix = 'SQ:DMC:mota:'
 
 devices = dict(
     a1=device('nicos_ess.devices.epics.motor.EpicsMotor',
@@ -68,5 +68,8 @@ devices = dict(
         dvalue = 3.3537,
         scatteringsense = 1,
         crystalside=1,
+    ),
+    wavelength_refined = device('nicos_sinq.devices.virtual.VirtualMoveable',
+        unit = 'A',
     ),
 )
