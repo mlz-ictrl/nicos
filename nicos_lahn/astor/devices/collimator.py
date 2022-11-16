@@ -22,33 +22,22 @@
 #
 # *****************************************************************************
 
-from nicos.core.device import Readable
-from nicos.core.errors import ConfigurationError
-from nicos.core.params import Attach
+from nicos_mlz.antares.devices.collimator import \
+    CollimatorLoverD as BaseCollimatorLoverD
 
 
-class CollimatorLoverD(Readable):
-    attached_devices = {
-        'l': Attach('Distance device', Readable),
-        'd': Attach('Pinhole', Readable),
-    }
-
-    def doInit(self, mode):
-        if self._attached_l.unit != self._attached_d.unit:
-            raise ConfigurationError(self, 'different units for L and d (%s vs %s)' % (
-                self._attached_l.unit, self._attached_d.unit))
+class CollimatorLoverD(BaseCollimatorLoverD):
 
     def doRead(self, maxage=0):
+        l = int(self._attached_l.read(maxage))
+        Zpinhole = 4200
         try:
-            Zpinhole = 4200
-            v = int(self._attached_d.read(maxage))
-            h = int(self._attached_d.read(maxage))
-            if self._attached_d.read(maxage) == '62':
+            d = int(self._attached_d.read(maxage))
+            if d == 62:
                 Zpinhole = 2540
-            elif 'x' in self._attached_d.read(maxage):
-                v, h = self._attached_d.read(maxage).split('x')
-            ret = [(int(self._attached_l.read(maxage)) - Zpinhole) / int(v),
-                   (int(self._attached_l.read(maxage)) - Zpinhole) / int(h)]
+            return [ (l - Zpinhole) / d ] * 2
         except ValueError:
-            ret = [0, 0]
-        return ret
+            r = self._attached_d.read(maxage)
+            if 'x' in r:
+                return [ (l - Zpinhole) / int(x) for x in r.split('x') ]
+        return [ 0 ] * 2

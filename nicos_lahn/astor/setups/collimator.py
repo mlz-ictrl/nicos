@@ -23,7 +23,7 @@ devices = dict(
                       description='collimator ratio (L/D)',
                       l='L',
                       d='pinhole',
-                      unit='L/D (v x h)',
-                      fmtstr='%.1f x %.1f',
+                      unit='L/D',
+                      fmtstr='%.1f (v) x %.1f (h)',
                       ),
 )
