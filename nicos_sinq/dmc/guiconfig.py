@@ -49,7 +49,7 @@ main_window = docked(
                      ('Scan Plot',
                       panel('nicos.clients.flowui.panels.scans.ScansPanel')),
                      ('Detector Image',
-                      panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
+                      panel('nicos_sinq.gui.panels.live.LiveDataPanel')),
                      ('Script Status',
                       panel('nicos.clients.flowui.panels.status.ScriptStatusPanel',
                             eta=True)),
@@ -77,7 +77,7 @@ main_window = docked(
             ), # vsplit
         ),
         ('Detector Image',
-         panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
+         panel('nicos_sinq.gui.panels.live.LiveDataPanel')),
         (
             'History',
             panel('nicos.clients.flowui.panels.history.HistoryPanel'),

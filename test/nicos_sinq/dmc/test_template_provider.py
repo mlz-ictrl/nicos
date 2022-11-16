@@ -21,6 +21,7 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
+import re
 from collections.abc import MutableMapping
 
 import pytest
@@ -41,6 +42,10 @@ def flatten(d, parent_key='', sep='_'):
     return dict(items)
 
 
+def strip_nx_class(key):
+    return re.sub(':NX([a-zA-Z]*)_', '_', key)
+
+
 class TestTemplateProvider:
     prefix = 'entry:NXentry_DMC:NXinstrument'
 
@@ -50,17 +55,29 @@ class TestTemplateProvider:
 
     def test_camera(self):
         self.session.experiment.detlist = ['andorccd']
-        det = 'andorccd:NXdetector'
         template = flatten(DMCTemplateProvider().getTemplate())
-        assert f'{self.prefix}_{det}_data' in template
-        assert f'{self.prefix}_{det}_time_stamp' in template
+
+        # Make sure that the detector group is a NXdetector
+        assert any('detector:NXdetector' in key for key in template)
+
+        # Make sure that the expected fields are there
+        keys = {strip_nx_class(key) for key in template}
+        assert ['entry_DMC_detector_data' in keys]
+        assert ['entry_DMC_detector_summed_counts' in keys]
+        assert ['entry_DMC_detector_timestamp' in keys]
 
     def test_mesydaq(self):
-        self.session.experiment.detlist = ['detector']
-        det = 'detector:NXdetector'
+        self.session.experiment.detlist = ['det']
         template = flatten(DMCTemplateProvider().getTemplate())
-        assert f'{self.prefix}_{det}_counts' in template
-        assert f'{self.prefix}_{det}_detector_position' in template
+
+        # Make sure that the detector group is a NXdetector
+        assert any('detector:NXdetector' in key for key in template)
+
+        # Make sure that the expected fields are there
+        keys = {strip_nx_class(key) for key in template}
+        assert ['entry_DMC_detector_data' in keys]
+        assert ['entry_DMC_detector_summed_counts' in keys]
+        assert ['entry_DMC_detector_timestamp' in keys]
 
     def test_adaptive_optics(self):
         self.session.experiment.detlist = ['andorccd']
@@ -68,4 +85,18 @@ class TestTemplateProvider:
         loaded_setups |= {'adaptive_optics'}
         self.session.loaded_setups = loaded_setups
         template = flatten(DMCTemplateProvider().getTemplate())
-        assert f'{self.prefix}_adaptive_optics:NXGroup_taz' in template
+
+        # Make sure that the adaptive_optics group is a NXguide
+        assert any('adaptive_optics:NXguide' in key for key in template)
+
+        # Make sure that the elements of the adaptive optics are there
+        keys = {
+            strip_nx_class(':'.join(key.split(':')[:-1]))
+            for key in template
+        }
+        assert any('adaptive_optics_transformation_linear_stage' in key
+                   for key in keys)
+        assert any('adaptive_optics_transformation_rotational_stage' in key
+                   for key in keys)
+        assert any('adaptive_optics_transformation_z_stage' in key
+                   for key in keys)
