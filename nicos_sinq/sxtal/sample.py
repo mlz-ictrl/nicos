@@ -30,33 +30,18 @@ Single crystal sample device
 import numpy as np
 
 from nicos import session
-from nicos.core import Attach, Param, floatrange, listof, oneof
+from nicos.core import Attach, Param, listof, oneof
 from nicos.core.errors import InvalidValueError
-from nicos.devices.sample import Sample
 from nicos.devices.sxtal.xtal import symmetry
 
-from nicos_sinq.sxtal.cell import Cell, calculateBMatrix
+from nicos_sinq.devices.sample import CrystalSample
+from nicos_sinq.sxtal.cell import calculateBMatrix
 from nicos_sinq.sxtal.instrument import TASSXTal
 from nicos_sinq.sxtal.reflist import ReflexList
 
 
-class SXTalSample(Sample):
+class SXTalSample(CrystalSample):
     parameters = {
-        'a':         Param('a', type=float, category='sample',
-                           settable=True),
-        'b':         Param('b', type=float, category='sample',
-                           settable=True),
-        'c':         Param('c', type=float, category='sample',
-                           settable=True),
-        'alpha':     Param('alpha', type=floatrange(1., 179.),
-                           category='sample',
-                           settable=True),
-        'beta':      Param('beta', type=floatrange(1., 179.),
-                           category='sample',
-                           settable=True),
-        'gamma':     Param('gamma', type=floatrange(1., 179.),
-                           category='sample',
-                           settable=True),
         'ubmatrix':  Param('UB matrix', type=listof(float),
                            category='sample', settable=True,
                            userparam=True),
@@ -80,48 +65,16 @@ class SXTalSample(Sample):
 
     def clear(self):
         """Clear experiment-specific information."""
-        Sample.clear(self)
+        CrystalSample.clear(self)
         self.ubmatrix = None
         for rfl in self._attached_reflists:
             rfl.clear()
 
-    def new(self, parameters):
-        self.clear()
-        # pylint: disable=pointless-string-statement
-        """Accepts several ways to spell new cell params."""
-        lattice = parameters.pop('lattice', None)
-        if lattice is not None:
-            try:
-                parameters['a'], parameters['b'], parameters['c'] = lattice
-            except Exception:
-                self.log.warning('invalid lattice spec ignored, should be '
-                                 '[a, b, c]')
-        angles = parameters.pop('angles', None)
-        if angles is not None:
-            try:
-                parameters['alpha'], parameters['beta'], \
-                    parameters['gamma'] = angles
-            except Exception:
-                self.log.warning('invalid angles spec ignored, should be '
-                                 '[alpha, beta, gamma]')
-        aa = parameters.pop('a', None)
-        if aa is None:
-            if 'cell' not in parameters:
-                self.log.warning('using dummy lattice constant of 6.28 A')
-            self.a = 6.28
-        self.a = aa
-        self.b = parameters.pop('b', self.a)
-        self.c = parameters.pop('c', self.a)
-        self.alpha = parameters.pop('alpha', 90.0)
-        self.beta = parameters.pop('beta', 90.0)
-        self.gamma = parameters.pop('gamma', 90.0)
+    def _prepare_new(self, parameters):
+        CrystalSample._prepare_new(self, parameters)
         self.bravais = parameters.pop('bravais', 'P')
         self.laue = parameters.pop('laue', '1')
         self.ubmatrix = list(self.getUB().flatten())
-        Sample.new(self, parameters)
-
-    def _applyParams(self, number, parameters):
-        Sample._applyParams(self, number, parameters)
 
     def doWriteUbmatrix(self, ub):
         if not ub:
@@ -136,10 +89,6 @@ class SXTalSample(Sample):
             raise InvalidValueError('% is no known reflection list' % name)
         if not isinstance(self._adevs[name], ReflexList):
             raise InvalidValueError('%s is not a reflection list' % name)
-
-    def getCell(self):
-        return Cell(self.a, self.b, self.c,
-                    self.alpha, self.beta, self.gamma)
 
     def getUB(self):
         if self.ubmatrix:

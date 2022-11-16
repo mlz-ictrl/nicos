@@ -23,7 +23,7 @@ devices = dict(
         facility = 'SINQ, PSI',
         website = 'https://www.psi.ch/sinq/hrpt/',
     ),
-    Sample = device('nicos_sinq.devices.powdersample.PowderSample',
+    Sample = device('nicos_sinq.devices.sample.PowderSample',
         description = 'The currently used sample',
     ),
     Exp = device('nicos_sinq.devices.experiment.SinqExperiment',

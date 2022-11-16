@@ -38,7 +38,7 @@ from nicos.nexus.elements import DeviceDataset, NexusElementBase, \
     NexusSampleEnv, NXAttribute
 
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfArray
-from nicos_sinq.sxtal.sample import SXTalSample
+from nicos_sinq.devices.sample import CrystalSample
 
 
 class TwoThetaArray(NexusElementBase):
@@ -357,12 +357,12 @@ class OptionalDeviceDataset(DeviceDataset):
 class CellArray(NexusElementBase):
     """
     This little class stores the cell constants from
-    nicos_sinq.sxtal.SXTalsample as an array
+    nicos_sinq.devices.CrystalSample, nicos_sinq.sxtal.SXTalsample as an array
     """
     def create(self, name, h5parent, sinkhandler):
         sample = session.experiment.sample
-        if not isinstance(sample, SXTalSample):
-            session.log.error('Your sample is no SXTalSample')
+        if not isinstance(sample, CrystalSample):
+            session.log.error('Your sample is no CrystalSample or SXTalSample')
             return
         data = [sample.a, sample.b, sample.c,
                 sample.alpha, sample.beta, sample.gamma]
