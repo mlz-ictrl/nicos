@@ -13,6 +13,7 @@ includes = [
     # 'chopperphasentiming',
     'detector',
     # 'fak40',
+    #'expertvibro8',
     # 'gonio',
     # 'gonio_top',
     'guidehall',
