@@ -50,23 +50,23 @@ class KafkaChannel(ActiveChannel):
                          mandatory=True, preinit=True, userparam=False),
         'topic': Param('The topic to listen for monitor events',
                        type=str, userparam=False, settable=False,
-                       mandatory=True,
-                       ),
+                       mandatory=True,),
         'source': Param('Source name for the topic', type=str,
                         settable=False, default='', userparam=False),
-        'curvalue':  Param('Current value', settable=True, unit='main'),
+        'curvalue':  Param('Current value', settable=True, unit='main',
+                           internal=True),
         'curstatus': Param('Current status', type=tupleof(int, str),
                            settable=True, default=(status.OK, 'idle'),
-                           no_sim_restore=True),
+                           no_sim_restore=True, internal=True),
     }
 
     def doPreinit(self, mode):
         self._consumer = Consumer(
             {
-            "bootstrap.servers": self.brokers[0],
-            "group.id": uuid.uuid4(),
-            "auto.offset.reset": "latest",
-            "api.version.request": True,
+                "bootstrap.servers": self.brokers[0],
+                "group.id": uuid.uuid4(),
+                "auto.offset.reset": "latest",
+                "api.version.request": True,
             }
         )
         self._consumer.subscribe(topics=[self.topic])
@@ -74,7 +74,6 @@ class KafkaChannel(ActiveChannel):
                                     self._get_new_messages)
 
     def doInit(self, mode):
-        self._stopflag = False
         self._count = False
         if mode == MASTER:
             self.curvalue = 0
@@ -136,7 +135,7 @@ class KafkaCounter(KafkaChannel):
 
     parameters = {
         'type': Param('Type of channel: monitor or counter',
-                            type=oneof('monitor', 'counter'), mandatory=True),
+                      type=oneof('monitor', 'counter'), mandatory=True),
     }
 
     parameter_overrides = {
