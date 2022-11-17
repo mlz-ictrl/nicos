@@ -748,8 +748,9 @@ class SecopDevice(Device):
             raise ConfigurationError('device class mismatch')
         for dev, cls in get_aliases(self):
             if issubclass(newclass, cls):
-                self.log.warning('redirect alias %s to %s',
-                                 dev.name, self.name)
+                if dev.alias != self.name:
+                    self.log.warning('redirect alias %s to %s',
+                                     dev.name, self.name)
             else:
                 self.log.error('release alias %s from %s', dev.name, self.name)
                 dev.alias = ''
@@ -822,6 +823,10 @@ class SecopDevice(Device):
         if self._attached_secnode is not None:
             self._attached_secnode.unregisterDevice(self)
             # make defunct
+            secnode = self._adevs.pop('secnode', None)
+            if secnode:
+                secnode._sdevs.discard(self._name)
+            self._adevs = {}
             self._attached_secnode = None
             self.updateStatus()
             self._cache = None
@@ -831,6 +836,8 @@ class SecopDevice(Device):
         self._defunct = False
         self._cache = secnode._cache
         self._attached_secnode = secnode
+        self._adevs = {'secnode': secnode}
+        secnode._sdevs.add(self._name)
         secnode.registerDevice(self)
         # clear defunct status
         self.updateStatus()
