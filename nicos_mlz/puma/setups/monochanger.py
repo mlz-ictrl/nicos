@@ -62,10 +62,10 @@ devices = dict(
         readables = 'sw_lift',
         # distance between upper and lower limit switch is 498.2 !!
         mapping = dict(
-            top2   = (357.5, 1), #before 359.6
-            top1 = (355.3, 0), # 355.3
+            top2 = (358.1, 1),
+            top1 = (355.3, 0),
             ref = (0, 4),
-            bottom = (-138.04, 2),
+            bottom = (-139.35, 2),
         ),
         precision = [0.5, 0],
         blockingmove = True,
@@ -254,7 +254,7 @@ devices = dict(
             mtt = -36.5027,
             # nominal position is 16.14, but w/o coder we use a slightly
             # different value.
-            mty = 18.14,
+            mty = 17.08,
             mgx = 0,
             mgy = 0,
         ),

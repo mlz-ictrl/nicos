@@ -29,8 +29,8 @@ _axisblock = Block('Axes angles', [
     ),
     BlockRow(
         Field(name='Focus mono', key='mono/focmode'),
-        Field(dev='mfhcu'),
-        Field(dev='mfvcu'),
+        Field(dev='mfhpg'),
+        Field(dev='mfvpg'),
     ),
     BlockRow(
         Field(dev='psi'),
@@ -141,7 +141,7 @@ _rightcolumn = Column(_shutterblock,
         ),
         BlockRow(
             Field(name='Ts',dev='t_ls340_b'),
-            Field(name='Heater power', key='t_ls340/heaterpower'),
+            Field(name='Heater power', key='t_ls340/heateroutput'),
         ),
         # BlockRow(
         #     Field(dev='T', plot='T', plotwindow=1800, width=40),

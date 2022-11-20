@@ -165,6 +165,13 @@ class Motor1(Motor):
         return st, msg[2:]
 
 
+class Motor2(Motor1):
+
+    def doWriteSteps(self, value):
+        self.log.debug('set new steps value: %s', value)
+        self._attached_bus.send(self.addr, SET_CURR_POS, value, 6)
+
+
 class ReferenceMotor(CanReference, Motor1):
     """IPC stepper card motor with reference capability."""
 

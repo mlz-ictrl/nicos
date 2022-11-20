@@ -67,7 +67,7 @@ devices = dict(
     ),
 
     # Focusing horizontal for PG analyzer
-    st_afpg = device('nicos_mlz.puma.devices.Motor1',
+    st_afpg = device('nicos_mlz.puma.devices.ipc.Motor2',
         bus = 'motorbus6',
         addr = 68,
         slope = 380.5,

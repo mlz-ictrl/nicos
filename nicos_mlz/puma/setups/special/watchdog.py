@@ -24,6 +24,12 @@ watch_conditions = [
         # gracetime = 3,
         type = 'critical',
     ),
+    # dict(
+        # condition = 'ReactorPower_value > 0.5',
+        # message = "Reactor started?",
+        # # gracetime = 3,
+        # type = 'critical',
+    # ),
 ]
 
 includes = ['notifiers']
