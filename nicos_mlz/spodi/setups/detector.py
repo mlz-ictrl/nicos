@@ -7,14 +7,14 @@ detector_base = 'tango://mesydaq.spodi.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
     mon = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
-        description = 'HWB MON',
+        description = 'Monitor',
         tangodevice = detector_base + 'counter0',
         fmtstr = '%d',
         type = 'monitor',
         visibility = (),
     ),
     tim1 = device('nicos.devices.vendor.qmesydaq.tango.TimerChannel',
-        description = 'HWB TIM1',
+        description = 'Timer',
         tangodevice = detector_base + 'timer',
         fmtstr = '%.2f',
         unit = 's',

@@ -1,4 +1,4 @@
-description = 'Detector CARESS HWB Devices'
+description = 'Detector devices'
 
 group = 'lowlevel'
 
@@ -7,21 +7,21 @@ detector_base = 'tango://mesydaq.stressi.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
     mon = device('nicos.devices.entangle.CounterChannel',
-        description = 'HWB MON',
+        description = 'MON',
         tangodevice = detector_base + 'counter0',
         fmtstr = '%d',
         type = 'monitor',
         visibility = (),
     ),
     t_mon = device('nicos.devices.entangle.CounterChannel',
-        description = 'HWB MON Transmission Monitor',
+        description = 'Transmission monitor',
         tangodevice = detector_base + 'counter4',
         fmtstr = '%d',
         type = 'monitor',
         visibility = (),
     ),
     tim1 = device('nicos.devices.entangle.TimerChannel',
-        description = 'HWB TIM1',
+        description = 'Timer',
         tangodevice = detector_base + 'timer',
         fmtstr = '%.2f',
         unit = 's',

@@ -10,7 +10,7 @@ nameservice = 'spodisrv.spodi.frm2'
 
 devices = dict(
     chit = device('nicos.devices.vendor.caress.EKFMotor',
-        description = 'HWB CHIT',
+        description = 'CHIT',
         fmtstr = '%.2f',
         unit = 'deg',
         # coderoffset = -808.11,

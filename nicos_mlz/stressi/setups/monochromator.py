@@ -1,4 +1,4 @@
-description = 'Monochromator CARESS HWB Devices'
+description = 'Monochromator devices'
 
 group = 'lowlevel'
 
@@ -35,7 +35,7 @@ devices = dict(
         visibility = (),
     ),
     transm_a = device('nicos.devices.generic.Axis',
-        description = 'HWB TRANSM',
+        description = 'TRANSM',
         motor = 'transm_m',
         coder = 'transm_c',
         precision = 0.001,

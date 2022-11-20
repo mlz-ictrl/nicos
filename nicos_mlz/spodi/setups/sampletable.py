@@ -6,7 +6,7 @@ tango_base = 'tango://motorbox01.spodi.frm2.tum.de:10000/box/'
 
 devices = dict(
     tths = device('nicos.devices.generic.Axis',
-        description = 'HWB TTHS',
+        description = 'TTHS',
         motor = device('nicos.devices.entangle.Motor',
             fmtstr = '%.3f',
             tangodevice = tango_base + 'tths/motor',
@@ -20,7 +20,7 @@ devices = dict(
         backlash = 0.2,
     ),
     omgs = device('nicos.devices.generic.Axis',
-        description = 'HWB OMGS',
+        description = 'OMGS',
         motor = device('nicos.devices.entangle.Motor',
             fmtstr = '%.2f',
             tangodevice = tango_base + 'omgs/motor',

@@ -1,4 +1,4 @@
-description = 'Radialcollimator CARESS HWB xDevices'
+description = 'Radialcollimator devices'
 
 group = 'optional'
 
