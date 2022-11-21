@@ -61,7 +61,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
         # write full fits file
         hdu.writeto(fp)
 
-    def _buildHeader(self, info, hdu):
+    def _collectHeaderItems(self, info):
 
         finished = currenttime()
         header = {}
@@ -77,8 +77,11 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
               strftime('%Y-%m-%d %H:%M:%S', localtime(finished)))
              ] + sorted(header.items())
         )
+        return header
 
-        for key, value in header.items():
+    def _buildHeader(self, info, hdu):
+
+        for key, value in self._collectHeaderItems(info).items():
             # The FITS standard defines max 8 characters for a header key.
             # To make longer keys possible, we use the HIERARCH keyword
             # here (67 chars max).
