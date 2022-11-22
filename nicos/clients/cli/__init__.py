@@ -49,7 +49,7 @@ from nicos.clients.base import ConnectionData, NicosClient
 from nicos.clients.cli.txtplot import txtplot
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
-    SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
+    BREAK_NOW, SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
 from nicos.utils import LOCALE_ENCODING, colorize, formatDuration, \
     formatEndtime, parseConnectionString, terminalSize
@@ -833,6 +833,8 @@ class NicosCmdClient(NicosClient):
             self.tell('break', BREAK_AFTER_STEP)
         elif cmd in ('cont', 'continue'):
             self.tell('continue')
+        elif cmd in ('pause'):
+            self.tell('break', BREAK_NOW)
         elif cmd in ('s', 'stop'):
             if self.status == 'running':
                 self.stop_query('Stop request')
@@ -1052,6 +1054,7 @@ This client supports "meta-commands" beginning with a slash:
   /log (n)            -- print more past output, n lines or everything
   /break              -- pause script after next scan step or script command
   /cont(inue)         -- continue paused script
+  /pause              -- pause script immediately
   /s(top)             -- stop script (you will be prompted how abruptly)
   /fin(ish)           -- finish current measurement early
   /wait               -- wait until script is finished (for scripting)
