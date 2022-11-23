@@ -578,6 +578,7 @@ class Detector(Measurable):
         self.log.debug("  followers: %s", self._followchannels)
 
     def doPrepare(self):
+        self._collectControllers()
         for follower in self._followchannels:
             follower.prepare()
         for controller in self._controlchannels:

@@ -38,7 +38,8 @@ from nicos.core.constants import FINAL, INTERMEDIATE, SIMULATION, SLAVE
 from nicos.core.errors import LimitError, ModeError, NicosError, UsageError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
-from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait
+from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait, \
+    waitForCompletion
 from nicos.utils import Repeater, number_types
 
 
@@ -646,6 +647,10 @@ class ContinuousScan(Scan):
 
             self.preparePoint(None, None)
 
+            for det in detlist:
+                det.prepare()
+            for det in detlist:
+                waitForCompletion(det)
             for det in detlist:
                 det.start(t=preset)
             device.move(self._endpositions[0][0])
