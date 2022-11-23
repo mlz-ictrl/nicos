@@ -6,3 +6,4 @@ HOWTOs
 
    plugplay
    restrictaccess
+   influxdb

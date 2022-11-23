@@ -25,7 +25,7 @@
 """NICOS cache tests."""
 
 import os
-from time import sleep
+from time import sleep, time
 
 import pytest
 
@@ -43,6 +43,9 @@ def all_setups():
 
     if os.environ.get('KAFKA_URI', None):
         yield 'cache_kafka'
+
+    if os.environ.get('INFLUXDB_URI', None):
+        yield 'cache_influxdb'
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -100,3 +103,24 @@ def test_restart(session, setup):
         assert cachedval2[2] == testval
     finally:
         killSubprocess(cache)
+
+
+@pytest.mark.parametrize('setup', all_setups())
+def test_history(session, setup):
+    unsupported = ['cache_mem']
+    if setup not in unsupported:
+        cache = startCache(alt_cache_addr, setup)
+        cc = session.cache
+        time0 = time()
+        n = 50
+        for i in range(n):
+            # 50 is maxentries for cache_mem_hist
+            cc.put('history_test', 'value', i, time0 - (n - i) * 0.01)
+        sleep(1)
+        history = cc.history('history_test', 'value', time0 - (n + 1) * 0.01,
+                             time())
+        killSubprocess(cache)
+        values = []
+        for i, (_, value) in enumerate(history):
+            values.append(value)
+        assert values == list(range(50))
