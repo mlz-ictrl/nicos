@@ -312,18 +312,26 @@ node('dockerhost') {
     stage(name: 'checkout code: ' + GERRIT_PROJECT) {
         checkoutSource()
     }
-def u18 = null;
-def c8 = null;
+def buildimage_deb=null;
+   def c8 = null;
    stage('docker setup') {
    u18 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bionic')
    u18.pull()
+   d11 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye')
+   d11.pull()
+   if (GERRIT_BRANCH == 'master') {
+     buildimage_deb = d11
+   } else {
+     buildimage_deb = u18
+   }
+
 //c8 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:centos8')
 //c8.pull()
 }
     stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
                          string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
-           u18.inside(){
+           buildimage_deb.inside(){
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
@@ -339,20 +347,20 @@ try {
         stage(name: 'pylint') {
             ws {
                 checkoutSource()
-                u18.inside('-v /home/git:/home/git') {
+                buildimage_deb.inside('-v /home/git:/home/git') {
                     runPylint('py3')
                 }
             } //ws
         } // stage
     }, isort: {
         stage(name: 'isort') {
-            u18.inside('-v /home/git:/home/git') {
+            buildimage_deb.inside('-v /home/git:/home/git') {
                 runIsort()
             }
         } //stage
     }, setup_check: {
         stage(name: 'Nicos Setup check') {
-            u18.inside('-v /home/git:/home/git') {
+            buildimage_deb.inside('-v /home/git:/home/git') {
                 timeout(5) {
                     runSetupcheck()
                 }
@@ -388,7 +396,7 @@ try {
                             if (tries> 5) { error('could not start kafka') }
                         }
                     }
-                    u18.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 --link ${kafka.id}:kafka") {
+                    buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 --link ${kafka.id}:kafka") {
                     runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
                     } // image.inside
                 } // image.WithRun
