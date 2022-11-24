@@ -1,11 +1,9 @@
 name = 'SINQ SXTAL test devices'
-description ='Devices for testing SXTAL code'
+description = 'Devices for testing SXTAL code'
 
 includes = ['generic']
 
-sysconfig = dict(
-    instrument = 'EULER',
-)
+sysconfig = dict(instrument = 'EULER',)
 
 devices = dict(
     mono = device('nicos.devices.generic.mono.Monochromator',
@@ -56,28 +54,32 @@ devices = dict(
         abslimits = (-20, 20),
     ),
     mess = device('nicos_sinq.sxtal.reflist.ReflexList',
-                  description='Reflection list for measurements',
-                  reflection_list=[]),
+        description = 'Reflection list for measurements',
+        reflection_list = []
+    ),
     ublist = device('nicos_sinq.sxtal.reflist.ReflexList',
-                     description='Reflection list for '
-                                 'UB matrix refinement',
-                    reflection_list=[]),
+        description = 'Reflection list for '
+        'UB matrix refinement',
+        reflection_list = []
+    ),
     Sample = device('nicos_sinq.sxtal.sample.SXTalSample',
-                    description = 'SXTAL sample',
-                    reflists = ['ublist', 'mess'],
-                    reflist ='ublist',
-                    a=3.0,
-                    b=3.0,
-                    c=3.0,
-                    alpha=90.,
-                    beta=90.,
-                    gamma=90.),
-    gausscount=device('nicos.devices.generic.VirtualGauss',
-                      description='Virtual gauss peak generator',
-                      motors=['stt', 'om', 'chi', 'phi'],
-                      centers=[12.0, 3.0, 44.5, 122.33],
-                      stddev='2.3',
-                      rate=200),
+        description = 'SXTAL sample',
+        reflists = ['ublist', 'mess'],
+        reflist = 'ublist',
+        a = 3.0,
+        b = 3.0,
+        c = 3.0,
+        alpha = 90.,
+        beta = 90.,
+        gamma = 90.
+    ),
+    gausscount = device('nicos.devices.generic.VirtualGauss',
+        description = 'Virtual gauss peak generator',
+        motors = ['stt', 'om', 'chi', 'phi'],
+        centers = [12.0, 3.0, 44.5, 122.33],
+        stddev = 2.,
+        rate = 200
+    ),
     EULER = device('nicos_sinq.sxtal.instrument.EulerSXTal',
         description = 'instrument object',
         instrument = 'SINQ ORION',
@@ -90,8 +92,8 @@ devices = dict(
         chi = 'chi',
         phi = 'phi',
         mono = 'mono',
-        center_counter='gausscount',
-        center_maxpts=40,
+        center_counter = 'gausscount',
+        center_maxpts = 40,
     ),
     NB = device('nicos_sinq.sxtal.instrument.LiftingSXTal',
         description = 'instrument object',
@@ -104,7 +106,8 @@ devices = dict(
         omega = 'om',
         nu = 'nu',
         mono = 'mono',
-        center_counter='gausscount'),
+        center_counter = 'gausscount'
+    ),
     TAS = device('nicos_sinq.sxtal.instrument.TASSXTal',
         description = 'instrument object',
         instrument = 'SINQ ORION',
@@ -121,17 +124,18 @@ devices = dict(
         inelastic = True,
         out_of_plane = True,
         plane_normal = [0.015167, 0.005586, 0.999869],
-        center_counter='gausscount'),
-    timer=device('nicos.devices.generic.VirtualTimer',
-                 visibility=(),
-                 ),
-    det=device('nicos.devices.generic.Detector',
-               description='Test detector',
-               timers=['timer'],
-               monitors=[],
-               counters=['gausscount'],
-               images=[],
-               maxage=3,
-               pollinterval=0.5,
-               ),
+        center_counter = 'gausscount'
+    ),
+    timer = device('nicos.devices.generic.VirtualTimer',
+        visibility = (),
+    ),
+    det = device('nicos.devices.generic.Detector',
+        description = 'Test detector',
+        timers = ['timer'],
+        monitors = [],
+        counters = ['gausscount'],
+        images = [],
+        maxage = 3,
+        pollinterval = 0.5,
+    ),
 )

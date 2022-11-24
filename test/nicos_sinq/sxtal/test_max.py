@@ -28,17 +28,20 @@ from nicos.core.utils import multiWait
 
 from nicos_sinq.sxtal.commands import Center, Max
 
+from test.utils import approx
+
 session_setup = 'sinq_sxtal'
 
 
 @pytest.mark.parametrize('omstart', [
-  2.9,
-  1.,
-  4.,
-  0.,
-  5.,
+    2.9,
+    1.,
+    4.,
+    0.,
+    5.,
 ])
 def test_max(session, omstart):
+    session.getDevice('gausscount').rate = 10000
     om = session.getDevice('om')
     det = session.getDevice('det')
     session.experiment.setDetectors([det])
@@ -48,7 +51,7 @@ def test_max(session, omstart):
 
     Max(om, .2, t=.05)
 
-    assert(abs(om.read() - 3.0) < .05)
+    assert om.read() == approx(3, abs=0.05)
 
 
 def test_max_away(session, log):
@@ -72,8 +75,8 @@ def test_center(session):
     sample = session.getDevice('Sample')
     rfl = sample.getRefList()
     rfl.clear()
-    posoff = (positions[0]+1., positions[1]-1.,
-              positions[2]+1., positions[3]-1)
+    posoff = (positions[0] + 1., positions[1] - 1., positions[2] + 1.,
+              positions[3] - 1)
     rfl.append((1, 0, 1), posoff, ())
 
     devs = []
@@ -85,4 +88,4 @@ def test_center(session):
     for mot, pos in zip(devs, positions):
         # Virtual counters in NICOS have an enormous jitter, this explains
         # the large tolerance.
-        assert(abs(mot.read(0) - pos) < .3)
+        assert mot.read(0) == approx(pos, abs=0.3)
