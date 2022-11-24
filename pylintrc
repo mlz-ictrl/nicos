@@ -25,7 +25,9 @@ ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook= "
+init-hook="
+ import os, sys, pylint
+ sys.path.append(os.path.dirname(pylint.config.PYLINTRC))
  import numpy
  from nicos.utils.stubs import generate_stubs
  generate_stubs()"
