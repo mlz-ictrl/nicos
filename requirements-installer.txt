@@ -1,4 +1,3 @@
-PyCryptoDome
 -r requirements.txt
 -r requirements-opt.txt
 -r requirements-gui.txt

@@ -53,6 +53,7 @@ class NicosKeyRing(EncryptedKeyring):
     '''
 
     def __init__(self, storepath=""):
+        EncryptedKeyring.__init__(self)
         self.storepath = os.path.expanduser(storepath)
 
     @properties.NonDataProperty
