@@ -594,11 +594,11 @@ class DetectorChannel(PyTangoDevice, ActiveChannel):
         # no readresult by default
         return ()
 
-    def doReadIsmaster(self):
+    def doReadIscontroller(self):
         # if the channel is passive, it will always return False here
         return self._dev.active
 
-    def doWriteIsmaster(self, value):
+    def doWriteIscontroller(self, value):
         self._dev.active = value
 
     def doReadPreselection(self):

@@ -143,7 +143,7 @@ class SupportsGatedMode(DeviceMixinBase):
         is_master = not ('pilatus' in session.devices and session.getDevice(
             'pilatus') in session.experiment.detectors)
         for dev in self._attached_timers:
-            dev.doWriteIsmaster(is_master)
+            dev.iscontroller = is_master
         super().doPrepare()
 
 

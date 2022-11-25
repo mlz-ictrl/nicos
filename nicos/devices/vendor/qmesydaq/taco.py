@@ -46,7 +46,7 @@ class BaseChannel(TacoBaseChannel):
     def doResume(self):
         self._taco_guard(self._dev.start)
 
-    def doWriteIsmaster(self, value):
+    def doWriteIscontroller(self, value):
         self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.setMode,
                          IOCommon.MODE_PRESELECTION if value
@@ -118,7 +118,7 @@ class MultiCounter(BaseChannel, PassiveChannel):
                                     type='counter', fmtstr='%d'))
         return tuple(resultlist)
 
-    def doReadIsmaster(self):
+    def doReadIscontroller(self):
         return False
 
     def doReadFmtstr(self):
@@ -177,7 +177,7 @@ class Image(BaseChannel, QMesyDAQImage):
             data = np.flip(data, axis)
         return data
 
-    def doReadIsmaster(self):
+    def doReadIscontroller(self):
         return False
 
     def doWriteListmode(self, value):

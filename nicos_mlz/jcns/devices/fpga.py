@@ -38,8 +38,8 @@ from nicos.devices.generic import ActiveChannel, CounterChannelMixin, \
     TimerChannelMixin
 from nicos.devices.tango import PyTangoDevice
 
-# XXX: implement doReadIsmaster to determine which channel is actually the
-# current master.
+# XXX: implement doReadIscontroller to determine which channel is actually the
+# current controller.
 
 
 class FPGAChannelBase(PyTangoDevice, ActiveChannel):
