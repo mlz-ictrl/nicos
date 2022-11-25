@@ -6,7 +6,7 @@ group = 'lowlevel'
 tango_base = 'tango://phys.j-nse.frm2:10000/j-nse/'
 
 devices = dict(
-    timer = device('nicos_mlz.jcns.devices.fpga_new.FPGATimerChannel',
+    timer = device('nicos_mlz.jcns.devices.fpga.FPGATimerChannel',
         description = 'Counter card timer channel',
         tangodevice = tango_base + 'count/timer',
     ),

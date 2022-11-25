@@ -9,7 +9,7 @@ excludes = ['virtual_daq']
 tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 
 devices = dict(
-    timer = device('nicos_mlz.jcns.devices.fpga_new.FPGATimerChannel',
+    timer = device('nicos_mlz.jcns.devices.fpga.FPGATimerChannel',
         description = 'Measurement timer channel',
         tangodevice = tango_base + 'count/timer',
         fmtstr = '%.0f',

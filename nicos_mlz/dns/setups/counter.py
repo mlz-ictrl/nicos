@@ -6,7 +6,7 @@ group = 'optional'
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
-    timer = device('nicos_mlz.jcns.devices.fpga_new.FPGATimerChannel',
+    timer = device('nicos_mlz.jcns.devices.fpga.FPGATimerChannel',
         description = 'Acquisition time',
         tangodevice = tango_base + 'count/timer',
     ),

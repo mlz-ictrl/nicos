@@ -8,7 +8,7 @@ excludes = ["virtual_timer"]
 tango_base = "tango://phys.treff.frm2:10000/treff/count/"
 
 devices = dict(
-    timer = device("nicos_mlz.jcns.devices.fpga_new.FPGATimerChannel",
+    timer = device("nicos_mlz.jcns.devices.fpga.FPGATimerChannel",
         description = "ZEA-2 counter card timer channel",
         tangodevice = tango_base + "timer",
     ),

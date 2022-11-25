@@ -36,7 +36,7 @@ from nicos.devices.generic.virtual import VirtualImage
 from nicos.devices.tango import PyTangoDevice
 
 from nicos_mlz.jcns.devices.detector import calculateRate
-from nicos_mlz.jcns.devices.fpga_new import FPGATimerChannel
+from nicos_mlz.jcns.devices.fpga import FPGATimerChannel
 
 RTMODES = ('standard', 'tof', 'realtime', 'realtime_external')
 
