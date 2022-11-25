@@ -161,6 +161,8 @@ def test_tupleof():
     assert raises(ValueError, tupleof(int, str), ('a', 'b'))
     assert raises(ValueError, tupleof(int, str), ('a',))
     assert raises(ValueError, tupleof(int, str), 'x')
+    assert raises(ValueError, tupleof(float, float), (1,))
+    assert raises(ValueError, tupleof(float, float), (1, 2, 3))
     assert raises(ProgrammingError, tupleof,)
 
 
