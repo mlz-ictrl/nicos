@@ -35,10 +35,12 @@ from nicos_sinq.sxtal.instrument import SXTalBase
 class SINQAsciiSinkHandler(DataSinkHandler):
     """
     The implementation is as such:
-    - In appendResults() I collect all the scan data which is needed in the
-      scanvalues dictionary. At the first point, the header is generated.
+
+    - In `appendResults` I collect all the scan data which is needed in the
+      scanvalues dictionary.  At the first point, the header is generated.
       This is the first point where enough data is there to do this.
-    - In end(), the file is actually written
+    - In `end`, the file is actually written
+
     This has the disadvantage that no data is written when NICOS dies on the
     way. But it simplifies the implementation by a lot.
     """
@@ -209,27 +211,30 @@ class SINQAsciiSinkHandler(DataSinkHandler):
 class SINQAsciiSink(FileSink):
     """
     This is a filesink which writes scan data files in the SINQ ASCII format.
+
     The implementation strives to be as compatible as possible to the old
     format as written by SICS. SINQ ASCII files are constructed from a
-    template file. This template file contains ASCII text which is copied
-    verbatim to the output intermixed with place holder strings. These are
+    template file.  This template file contains ASCII text which is copied
+    verbatim to the output intermixed with place holder strings.  These are
     replaced with data from NICOS. In addition, the actual data from the
-    scan is collected and written too. The special placeholders recognized
+    scan is collected and written too.  The special placeholders recognized
     are:
+
     - !!VAR(dev,par)!! is replaced with the value of the parameter par of
-                        device dev. Par can be missing and is then value.
+      device dev. Par can be missing and is then value.
     - !!DRIV(dev)!! replaced by the value of dev
     - !!ZERO(dev)!! replaced by the offset of dev. Dev must be a motor
     - !!SCRIPT(txt)!! replaced by the output of running script txt
-    - !!DATE!!  replaced by the current date and time
+    - !!DATE!! replaced by the current date and time
     - !!FILE!! replaced by the original file path of the scan file
     - !!SCANZERO!! replaced by a list of zero points of the scanned devices
+
     There is some redundancy here but as the goal is to reuse the SICS template
     files as far as possible, this has to be accepted.
 
-    One file per scan is written. This format is designed with single
-    counters in mind, this is not for area detetcor data. Use the
-    NexusFileSink for such data.
+    One file per scan is written. This format is designed with single counters
+    in mind, this is not for area detetcor data.  Use the NexusFileSink for
+    such data.
 
     """
     parameters = {

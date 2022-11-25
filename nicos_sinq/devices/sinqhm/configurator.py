@@ -48,9 +48,10 @@ class HistogramConfArray(HistogramConfElement):
     specified in the array attribute of the axis tag.
 
     The array tags itself has the following attributes:
+
     - rank: The number of dimensions of the array.
-    - dim: A comma separated list of values describing the length
-        of each dimension.
+    - dim: A comma separated list of values describing the length of each
+      dimension.
 
     Between the closing and ending array tag is the array data. This is
     just numbers. C storage order is assumed.
@@ -311,9 +312,10 @@ class ConfiguratorBase(HistogramConfElement):
     XML file. The tag names must be those specified in the array attribute
     of the axis tag.
 
-    Example of the sample configuration file:
-    <?xml version="1.0" encoding="UTF-8"?>
-    <sinqhm filler="tof" hdr_daq_mask=’’0x000000’’ hdr_daq_active=’’0x000000’’>
+    Example of the sample configuration file::
+
+      <?xml version="1.0" encoding="UTF-8"?>
+      <sinqhm filler="tof" hdr_daq_mask=’’0x000000’’ hdr_daq_active=’’0x000000’’>
         <bank rank="2">
             <axis length="400" mapping="direct"/>
             <axis length="1000" mapping="boundary" array="tof"/>
@@ -323,7 +325,8 @@ class ConfiguratorBase(HistogramConfElement):
             10000 11000 12000 13000 14000 15000 16000 17000 18000 19000
             ............. many numbers cut here ....................
         </tof>
-    </sinqhm>
+      </sinqhm>
+
     """
     parameters = {
         'filler': Param('Filler algorithm to be used',

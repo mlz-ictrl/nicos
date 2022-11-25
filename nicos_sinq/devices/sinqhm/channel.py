@@ -186,16 +186,17 @@ class ReshapeHistogramImageChannel(HistogramImageChannel):
 class HistogramMemoryChannel(PassiveChannel):
     """ Channel which configures the histogram memory start and stop.
 
-    For staring and stopping data acquisition the following paths
-    are to be used:
-    startdaq.egi initializes the histogram memory data and
-        eventual counters to zero and starts data acquisition.
-    stopdaq.egi stops data acquisition.
-    pausedaq.egi pauses data acquisition. The data in the histogram
-        memory is not modified.
-    continuedaq.egi continues a paused data acquisition.
+    For starting and stopping data acquisition the following paths are to be
+    used:
 
-    The attached *connector* is used to talk to the server
+    - startdaq.egi initializes the histogram memory data and
+      eventual counters to zero and starts data acquisition.
+    - stopdaq.egi stops data acquisition.
+    - pausedaq.egi pauses data acquisition. The data in the histogram
+      memory is not modified.
+    - continuedaq.egi continues a paused data acquisition.
+
+    The attached `connector` is used to talk to the server
     """
     attached_devices = {
         'connector': Attach('HTTP Connector for Histogram Memory Server',
