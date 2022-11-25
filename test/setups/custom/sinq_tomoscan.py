@@ -37,7 +37,7 @@ devices = dict(
         description = 'Test motor',
         unit = 'deg',
         curvalue = 0,
-        abslimits = (0, 5),
+        abslimits = (0, 360),
     ),
     Exp = device('nicos_sinq.devices.experiment.TomoSinqExperiment',
         description = ' SINQ Tomo Experiment',

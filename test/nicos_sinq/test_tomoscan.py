@@ -25,25 +25,29 @@
 
 from nicos_sinq.icon.commands.iconcommands import tomo_run, tomo_setup
 
+from test.utils import approx
+
 session_setup = 'sinq_tomoscan'
 
 
 def test_tomoscan(session, log):
-    m = session.getDevice('motor')
-    session.experiment.setDetectors([session.getDevice('det')])
+    m = session.getDevice('motor2')
+    det = session.getDevice('det')
+    session.experiment.setDetectors([det])
     dataman = session.experiment.data
 
     # Simple test...
+    det.setPreset(t=0.01)  # take images in finite time
     tomo_setup(m, 10)
     tomo_run()
     dataset = dataman.getLastScans()[-1]
     assert dataset.devvaluelists[0] == [1.0, 0.0]
     assert dataset.devvaluelists[1] == [2.0, 36.0]
-    assert abs(m.read() - 36.) < .02
+    assert m.read() == approx(360, abs=0.02)
 
     # Run again
     tomo_run()
     dataset = dataman.getLastScans()[-1]
     assert dataset.devvaluelists[0] == [1.0, 0.0]
     assert dataset.devvaluelists[1] == [2.0, 36.0]
-    assert abs(m.read() - 36.) < .02
+    assert m.read() == approx(360, abs=0.02)
