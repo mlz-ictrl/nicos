@@ -239,7 +239,9 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         self._history_consumer.close()
         KafkaCacheDatabase.doShutdown(self)
 
-    def queryHistory(self, dbkey, fromtime, totime):
+    def queryHistory(self, dbkey, fromtime, totime, interval):
+        # TODO: implement cache queries with interval here if possible
+        _ = interval
         key = f'{dbkey[0]}/{dbkey[1]}'
         self.log.debug('hist for %s in (%s, %s)', dbkey, fromtime, totime)
         buffer_time = 10

@@ -787,14 +787,14 @@ class CacheClient(BaseCacheClient):
         with self._dblock:
             self._db.pop(dbkey, None)
 
-    def history(self, dev, key, fromtime, totime):
+    def history(self, dev, key, fromtime, totime, interval=None):
         """History query: opens a separate connection since it is otherwise not
         possible to determine which response lines belong to it.
         """
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
-        tosend = '%r-%r@%s%s%s\n###?\n' % (fromtime, totime,
-                                           self._prefix, key, OP_ASK)
+        tosend = '%r-%r@%s%s%s%s\n###?\n' % (fromtime, totime,
+                                           self._prefix, key, OP_ASK, interval)
         ret = []
         for msgmatch in self._single_request(tosend, b'###!\n', sync=False):
             # process data

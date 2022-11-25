@@ -342,7 +342,7 @@ def waitCursor():
         QApplication.restoreOverrideCursor()
 
 
-def split_query(fromtime, totime, func):
+def split_query(fromtime, totime, interval, func):
     # if requested period is longer than 1 day it will be sequenced
     maxquery = 3600 * 24
     history = []
@@ -350,6 +350,6 @@ def split_query(fromtime, totime, func):
         for sequence in range(int((totime - fromtime) // maxquery)):
             if sequence:
                 fromtime += maxquery
-            history.extend(func(fromtime, fromtime+maxquery))
-    history.extend(func(fromtime, totime))
+            history.extend(func(fromtime, fromtime+maxquery, interval))
+    history.extend(func(fromtime, totime, interval))
     return history

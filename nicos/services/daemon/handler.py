@@ -589,18 +589,19 @@ class ConnectionHandler:
         self.send_ok_reply(current_script and current_script.text or '')
 
     @command()
-    def gethistory(self, key, fromtime, totime):
+    def gethistory(self, key, fromtime, totime, interval=None):
         """Return history of a cache key, if available.
 
         :param key: cache key (without prefix) to query history
         :param fromtime: start time as Unix timestamp
         :param totime: end time as Unix timestamp
+        :param interval: minimum time between requested data points
         :returns: list of (time, value) tuples
         """
         if not session.cache:
             self.send_ok_reply([])
         history = session.cache.history('', key, float(fromtime),
-                                        float(totime))
+                                        float(totime), interval)
         self.send_ok_reply(history)
 
     @command()

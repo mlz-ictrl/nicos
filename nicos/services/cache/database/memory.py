@@ -63,7 +63,7 @@ class MemoryCacheDatabase(CacheDatabase):
                 entries[:] = [entry]
         return real_update
 
-    def queryHistory(self, dbkey, fromtime, totime):
+    def queryHistory(self, dbkey, fromtime, totime, interval):
         return []
 
 
@@ -92,7 +92,8 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
                 entries.append(entry)
         return real_update
 
-    def queryHistory(self, dbkey, fromtime, totime):
+    def queryHistory(self, dbkey, fromtime, totime, interval):
+        _ = interval
         inrange = False
         # return the first value before the range too
         last_before = None

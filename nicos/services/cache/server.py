@@ -219,7 +219,7 @@ class CacheWorker:
             self.db.tell(key, value, time, ttl, self)
         elif op == OP_ASK:
             if ttl is not None:
-                return self.db.ask_hist(key, time, time + ttl)
+                return self.db.ask_hist(key, time, time + ttl, interval=value)
             else:
                 return self.db.ask(key, tsop)
         elif op == OP_WILDCARD:

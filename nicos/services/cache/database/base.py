@@ -79,7 +79,7 @@ class CacheDatabase(Device):
         """
         raise NotImplementedError
 
-    def queryHistory(self, dbkey, fromtime, totime):
+    def queryHistory(self, dbkey, fromtime, totime, interval):
         """Yield CacheEntry objects from history for the given timespan.
 
         Should also include the last entry *before* the fromtime, so that the
@@ -146,9 +146,10 @@ class CacheDatabase(Device):
                 ret.add(f'{key}{op}{entry.value}\n')
         return [''.join(ret)]
 
-    def ask_hist(self, key, fromtime, totime):
+    def ask_hist(self, key, fromtime, totime, interval):
         """Query the historical values for a single key between two
-        timestamps.
+        timestamps. If interval is set, this will be a minimum time between
+        two adjacent values.
 
         Returns a generator of cache message bunches.
         """
@@ -162,7 +163,15 @@ class CacheDatabase(Device):
 
         # bunch up 100 entries at a time
         bunch = []
-        for entry in self.queryHistory((category, subkey), fromtime, totime):
+        if interval in [None, '', 'None', '0', '0.0']:
+            interval = None
+        else:
+            try:
+                interval = int(float(interval))
+            except ValueError as _:
+                interval = None
+        for entry in self.queryHistory((category, subkey), fromtime, totime,
+                                       interval):
             bunch.append(f'{entry.time!r}@{key}={entry.value}\n')
             if len(bunch) > 100:
                 yield ''.join(bunch)

@@ -750,7 +750,7 @@ class Device(metaclass=DeviceMeta):
             # and rely on saved _params and values
             self._cache = None
 
-    def history(self, name='value', fromtime=None, totime=None):
+    def history(self, name='value', fromtime=None, totime=None, interval=None):
         """Return a history of the parameter *name* (can also be ``'value'`` or
         ``'status'``).
 
@@ -780,7 +780,7 @@ class Device(metaclass=DeviceMeta):
                 totime = parseDateString(totime, enddate=True)
             elif totime < 0:
                 totime = currenttime() + totime * 3600
-            return self._cache.history(self, name, fromtime, totime)
+            return self._cache.history(self, name, fromtime, totime, interval)
 
     def info(self):
         """Return "device information" as an iterable of tuples ``(name,

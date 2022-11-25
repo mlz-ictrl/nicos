@@ -72,7 +72,8 @@ class InfluxDBWrapper:
                 bucket_name=bucket_name,
                 retention_rules=retention_rules, org=self._org)
 
-    def query(self, measurement=None, field=None, fromtime=None, totime=None):
+    def query(self, measurement=None, field=None, fromtime=None, totime=None,
+              interval=None):
         """Returns queried data as InfluxDB tables.
         If measurement is not set, returns as many tables as there are
         measurements available.
@@ -82,6 +83,8 @@ class InfluxDBWrapper:
         If totime is not set, will be used current time.
         In case both fromtime and totime are not set it implies last recorded
         value is required.
+        If interval is set, an aggregation filter will be applied. This will
+        return only the latest values for a time interval in seconds.
         """
 
         with self._update_lock:
@@ -109,6 +112,8 @@ class InfluxDBWrapper:
         if single_entry:
             msg += '|> filter(fn:(r) => r.expired == "False")'
             msg += '|> last(column: "_time")'
+        if interval:
+            msg += f'|> aggregateWindow(every: {interval}s, fn: last, createEmpty: false)'
         msg += '|> drop(columns: ["_start", "_stop"])'
         tables = self._client.query_api().query(msg)
         return tables
@@ -250,9 +255,10 @@ class InfluxDBCacheDatabase(CacheDatabase):
                                             entry.expired)
         return real_update
 
-    def queryHistory(self, dbkey, fromtime, totime):
+    def queryHistory(self, dbkey, fromtime, totime, interval):
         category, subkey = dbkey
-        tables = self._client.query(category, subkey, fromtime, totime)
+        tables = self._client.query(category, subkey, fromtime, totime,
+                                    interval)
         for table in tables:
             for record in table:
                 time = record['_time'].timestamp()

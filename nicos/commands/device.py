@@ -830,10 +830,10 @@ def version(*devlist):
 
 
 @usercommand
-@helparglist('dev[, key][, fromtime]')
+@helparglist('dev[, key][, fromtime][, totime][, interval]')
 @spmsyntax(AnyDev, String)
 @parallel_safe
-def history(dev, key='value', fromtime=None, totime=None):
+def history(dev, key='value', fromtime=None, totime=None, interval=None):
     """Print history of a device parameter.
 
     The optional argument *key* selects a parameter of the device.  "value" is
@@ -842,7 +842,11 @@ def history(dev, key='value', fromtime=None, totime=None):
     *fromtime* and *totime* are eithernumbers giving **hours** in the past, or
     otherwise strings with a time specification (see below).  The default is to
     list history of the last hour for "value" and "status", or from the last
-    day for other parameters.  For example:
+    day for other parameters.
+
+    *interval* specifies required minimum time between two adjacent data points.
+
+    For example:
 
     >>> history(mth)              # show value of mth in the last hour
     >>> history(mth, 48)          # show value of mth in the last two days
@@ -857,6 +861,12 @@ def history(dev, key='value', fromtime=None, totime=None):
     >>> history(mth, 'speed', '2012-05-04 14:00')  # from that date/time on
     >>> history(mth, 'speed', '14:00', '17:00')    # between 14h and 17h today
     >>> history(mth, 'speed', '2012-05-04', '2012-05-08')  # between two days
+
+    Example for interval specification. Setting 10 seconds as the minumum
+    interval between two adjacent data points:
+
+    >>> history(mth, 'speed', '2012-05-04', '2012-05-08', 10) # in [seconds]
+
     """
     # support calling history(dev, -3600)
     if isinstance(key, str):
@@ -877,7 +887,8 @@ def history(dev, key='value', fromtime=None, totime=None):
     if isinstance(totime, number_types) and 0 < totime < 10000:
         totime = -totime
     # history() already accepts strings as fromtime and totime arguments
-    hist = session.getDevice(dev, Device).history(key, fromtime, totime)
+    hist = session.getDevice(dev, Device).history(key, fromtime, totime,
+                                                  interval)
     entries = []
     ltime = time.localtime
     ftime = time.strftime

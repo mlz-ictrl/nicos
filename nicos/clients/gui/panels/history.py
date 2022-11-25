@@ -121,7 +121,8 @@ class View(QObject):
 
             if fromtime is not None:
                 if key not in hist_cache:
-                    history = query_func(key, self.fromtime, hist_totime)
+                    history = query_func(key, self.fromtime, hist_totime,
+                                         interval)
                     if not history:
                         from nicos.clients.gui.main import log
                         if log is None:
@@ -1144,10 +1145,10 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         self.client.cache.disconnect(self.newvalue_callback)
         return True
 
-    def gethistory_callback(self, key, fromtime, totime):
-        return split_query(fromtime, totime, lambda fr, to:
+    def gethistory_callback(self, key, fromtime, totime, interval):
+        return split_query(fromtime, totime, interval, lambda fr, to, interval:
                            self.client.ask('gethistory', key, str(fr), str(to),
-                                           default=[]))
+                                           interval, default=[]))
 
     def on_client_disconnected(self):
         self._disconnected_since = currenttime()
@@ -1218,9 +1219,9 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
         self.statusBar = QStatusBar(self)
         self.setStatusBar(self.statusBar)
 
-    def gethistory_callback(self, key, fromtime, totime):
-        return split_query(fromtime, totime, lambda fr, to:
-                           self.app.history(None, key, fr, to))
+    def gethistory_callback(self, key, fromtime, totime, interval):
+        return split_query(fromtime, totime, interval, lambda fr, to, interval:
+                           self.app.history(None, key, fr, to, interval))
 
     def closeEvent(self, event):
         self.saveSettings(self.settings)

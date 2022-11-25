@@ -28,6 +28,7 @@ import os
 from time import sleep, time
 
 import pytest
+import numpy
 
 from nicos.devices.cacheclient import CacheError
 from nicos.protocols.cache import FLAG_NO_STORE
@@ -124,3 +125,34 @@ def test_history(session, setup):
         for i, (_, value) in enumerate(history):
             values.append(value)
         assert values == list(range(50))
+
+
+@pytest.mark.parametrize('setup', all_setups())
+def test_history_interval(session, setup):
+    supported = ['cache_influxdb']
+    if setup in supported:
+        cache = startCache(alt_cache_addr, setup)
+        cc = session.cache
+        time0 = time()
+        n = 100
+        for i in range(n):
+            cc.put('history_interval_test', 'value', i, time0 - (n - i) * 0.1)
+        sleep(1)
+        intervals = [0, 1]
+        results = []
+        for interval in intervals:
+            history = cc.history('history_interval_test', 'value',
+                                 time0 - (n + 1) * 0.1, time(), interval)
+            ts0, ts1 = 0, 0
+            deltas = []
+            for i, (ts, _) in enumerate(history):
+                if i:
+                    ts0 = ts1
+                ts1 = ts
+                if ts0:
+                    deltas.append(ts1 - ts0)
+            results.append((interval, numpy.mean(deltas),
+                            interval <= numpy.mean(deltas)))
+        killSubprocess(cache)
+        for interval, mean, result in results:
+            assert result, f'interval of {interval}s resulted in {mean}s'

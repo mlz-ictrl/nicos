@@ -293,7 +293,9 @@ class FlatfileCacheDatabase(CacheDatabase):
                         value = ''
                     yield (time, value)
 
-    def queryHistory(self, dbkey, fromtime, totime):
+    def queryHistory(self, dbkey, fromtime, totime, interval):
+        # TODO: implement cache queries with interval here if possible
+        _ = interval
         category, subkey = dbkey[0].replace('/', '-'), dbkey[1]
         if fromtime >= self._midnight:
             days = [(self._year, self._currday)]

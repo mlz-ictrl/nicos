@@ -320,7 +320,7 @@ class PreviewDialog(QDialog):
         totime = self.toDateTimeEdit.dateTime().toSecsSinceEpoch()
 
         result = self._client.ask('gethistory', 'echotime/tables',
-                                  str(fromtime), str(totime))
+                                  str(fromtime), str(totime), None)
 
         # Store the history result in the format {datetime: table}
         self._history = {}  # timestamp : table
