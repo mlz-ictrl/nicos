@@ -24,7 +24,7 @@
 # *****************************************************************************
 
 import os
-from os.path import join
+from os import path
 
 from nicos import session
 from nicos.commands import helparglist, hiddenusercommand, usercommand
@@ -49,11 +49,12 @@ def openbeamimage(shutter=None, nimages=1, *detlist, **preset):
     exp = session.experiment
     _openbeamimage(shutter, nimages, *detlist, **preset)
 
-    src = join(exp.proposalpath, exp.lastopenbeamimage)
-    dst = join(exp.proposalpath, 'currentopenbeamimage.fits')
+    src = path.join(exp.proposalpath, exp.lastopenbeamimage)
+    dst = path.join(exp.proposalpath, 'currentopenbeamimage.fits')
 
     try:
-        os.remove(dst)
+        if path.islink(dst):
+            os.remove(dst)
     except OSError as e:
         session.log.warning('Could not remove symlink: %s', e)
 
@@ -74,11 +75,12 @@ def darkimage(shutter=None, nimages=1, *detlist, **preset):
     """
     exp = session.experiment
     _darkimage(shutter, nimages, *detlist, **preset)
-    src = join(exp.proposalpath, exp.lastdarkimage)
-    dst = join(exp.proposalpath, 'currentdarkimage.fits')
+    src = path.join(exp.proposalpath, exp.lastdarkimage)
+    dst = path.join(exp.proposalpath, 'currentdarkimage.fits')
 
     try:
-        os.remove(dst)
+        if path.islink(dst):
+            os.remove(dst)
     except OSError as e:
         session.log.warning('Could not remove symlink: %s', e)
 
