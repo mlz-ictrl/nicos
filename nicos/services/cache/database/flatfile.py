@@ -315,7 +315,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         fn = path.join(self._basepath, year, monthday, category)
         if not path.isfile(fn):
             return
-        with open(fn, 'U', encoding='utf-8') as fd:
+        with open(fn, 'r', encoding='utf-8') as fd:
             firstline = fd.readline()
             nsplit = 2
             if firstline.startswith('# NICOS cache store file v2'):

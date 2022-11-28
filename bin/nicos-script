@@ -53,7 +53,7 @@ elif len(opts.args) >= 2:
 
 setup = setup.split(',')
 if path.isfile(script):
-    with open(script, 'U', encoding=LOCALE_ENCODING) as f:
+    with open(script, 'r', encoding=LOCALE_ENCODING) as f:
         script_text = f.read()
 else:
     script_text = script
