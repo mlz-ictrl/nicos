@@ -32,7 +32,7 @@ import sys
 # long int match
 LIM = re.compile(b'([0-9]+)L')
 
-fixes = {b'-':b'-'}
+fixes = {b'-': b'-'}
 
 
 def fix_file(fn, make_backups=False, dryrun=True, verbose=False):
@@ -70,30 +70,32 @@ def fix_file(fn, make_backups=False, dryrun=True, verbose=False):
 
         # decompose line to get value
         if formatv2:
-            key, ts, marker, value = l.split(b'\t',3)
+            key, ts, marker, value = l.split(b'\t', 3)
         else:
-            key, ts, value = l.split(b'\t',2)
+            key, ts, value = l.split(b'\t', 2)
 
         if value in fixes:
             value = fixes[value]
         else:
             try:
-                eval(value, dict(cache_unpickle=lambda x:x, inf=0, nan=0))
+                eval(value, dict(cache_unpickle=lambda x: x, inf=0, nan=0))
                 # remembering values which need no fix save the cost of eval
                 fixes[value] = value
             except (SyntaxError, NameError):
                 if verbose:
                     print('- %s' % value.decode('latin-1'))
-                fixed_value = LIM.sub(b'\\1',value)
+                fixed_value = LIM.sub(b'\\1', value)
                 # sanity check: recheck value
                 try:
-                    eval(fixed_value, dict(cache_unpickle=lambda x:x, inf=0, nan=0))
+                    eval(fixed_value, dict(cache_unpickle=lambda x: x,
+                                           inf=0, nan=0))
                     if verbose:
                         print('+ %s' % fixed_value.decode('latin-1'))
                     fixes[value] = fixed_value
                     value = fixed_value
                 except (SyntaxError, NameError):
-                    print('[%r:%d] SyntaxError: Cannot convert value automatically' % (fn, idx), file=sys.stderr)
+                    print('[%r:%d] SyntaxError: Cannot convert value '
+                          'automatically' % (fn, idx), file=sys.stderr)
                     print('[%r:%d] %r\n' % (fn, idx, l), file=sys.stderr)
                     return False
 
@@ -107,18 +109,20 @@ def fix_file(fn, make_backups=False, dryrun=True, verbose=False):
             f.write(b'\n')
     return True
 
+
 verbose = False
 make_backups = False
 dryrun = True
 cache_root = '.'
 
 for arg in sys.argv:
-    if arg in ('-h','--help','help'):
+    if arg in ('-h', '--help', 'help'):
         print('usage: fix-long-ints [option] [cache_root]')
         print('Options are:')
         print('-h --help       : this usage information.')
         print('--apply-the-fix : change the files, create backups first')
-        print('-v              : be verbose, i.e. list all files needing the fix/which were fixed')
+        print('-v              : be verbose, i.e. list all files needing the '
+              'fix/which were fixed')
         print('all other options given are ignored.')
         print('if no options are given, do a dry run without changing files.')
         print('')
@@ -142,7 +146,8 @@ for root, dirs, files in os.walk(cache_root):
         if fn.endswith('.bak'):
             continue
         full_fn = os.path.join(root, fn)
-        if fix_file(full_fn, make_backups=make_backups, dryrun=dryrun, verbose=verbose):
+        if fix_file(full_fn, make_backups=make_backups, dryrun=dryrun,
+                    verbose=verbose):
             datafiles.add(full_fn)
 
 if datafiles:
@@ -152,5 +157,5 @@ if datafiles:
         print('%d files were changed' % len(datafiles))
     if make_backups:
         print('Wrote backups for changed file(s), please check '
-          'and remove them if not needed.')
+              'and remove them if not needed.')
         print('The find command is left as an exercise to the caller.')
