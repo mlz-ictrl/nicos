@@ -25,7 +25,9 @@ echo
 echo "==== CUSTOM dependencies ======"
 allcustreq=$(find . -mindepth 2 -maxdepth 4 -name requirements\*.txt | xargs)
 for custreq in $allcustreq ; do
-   pip install --upgrade --upgrade-strategy eager -r $custreq 2>&1 >> pip-custom-$venv-$pbranch.log
+   # use this line again if custom deps cause incompatible updates 
+   #pip install --upgrade --upgrade-strategy eager -r $custreq 2>&1 >> pip-custom-$venv-$pbranch.log
+   pip install  -r $custreq 2>&1 >> pip-custom-$venv-$pbranch.log
 done
 cat pip-custom-$venv-$pbranch.log
 echo "=========="
@@ -35,3 +37,6 @@ echo "==== Developer dependencies ======"
 pip install -r requirements-dev.txt 2>&1  > pip-dev-$venv-$pbranch.log
 cat pip-dev-$venv-$pbranch.log
 echo
+
+echo "**** freeze numpy version due to problems on numpy>1.22 on the jenkins machines"
+pip install "numpy<1.22"

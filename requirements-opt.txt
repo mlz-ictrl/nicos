@@ -2,7 +2,8 @@
 -r requirements-epics.txt
 pyserial>=2.5
 astropy>=3.0
-nicos-quickyaml>=1.1.0
+# quickyaml build against correct numpy version
+nicos-quickyaml>=1.2.1
 docutils>=0.12
 redbaron>=0.6.3
 keyring>=10.6
