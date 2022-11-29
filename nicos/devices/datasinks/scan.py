@@ -33,7 +33,7 @@ from time import localtime, mktime, strftime
 from nicos import session
 from nicos.core import INFO_CATEGORIES, ConfigurationError, DataSink, \
     DataSinkHandler, Override, Param, Value
-from nicos.core.constants import POINT, SCAN, SIMULATION, SUBSCAN
+from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data.dataset import PointDataset, ScanData, ScanDataset
 from nicos.devices.datasinks import FileSink
 from nicos.utils import LOCALE_ENCODING, tabulated
@@ -55,10 +55,6 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         self._indent = '' if self.dataset.settype != SUBSCAN else ' ' * 6
         self._colwidths = []
         self._rulerlen = 100
-
-    def prepare(self):
-        if session.mode != SIMULATION:
-            self.manager.assignCounter(self.dataset)
 
     def begin(self):
         ds = self.dataset
