@@ -51,9 +51,8 @@ import time
 from math import floor, log10
 from threading import Event
 
-# pylint: disable=import-error,no-name-in-module
-from secop.client import SecopClient
-from secop.errors import CommunicationFailedError
+from frappy.client import SecopClient
+from frappy.errors import CommunicationFailedError
 
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, \

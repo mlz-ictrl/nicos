@@ -94,7 +94,7 @@ Depends: ${misc:Depends},
  python3-h5py,
  python3-tz
 Recommends:
- secop-core,
+ frappy-core,
  python3-nicos-quickyaml,
  python3-pycryptodome (>= 3.4.7)
 Description: All NICOS instrument specific components
