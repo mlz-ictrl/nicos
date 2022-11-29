@@ -102,8 +102,8 @@ GR runtime packages (`gr` and `python-gr`) are available in the repositories
 linked at:
 https://software.opensuse.org/download.html?project=science:gr-framework&package=gr
 
-Debian/Ubuntu
-^^^^^^^^^^^^^
+Generic Debian/Ubuntu
+^^^^^^^^^^^^^^^^^^^^^
 
 The `nicos-pyctl` and `lttb` packages are available in the MLZ repositories
 linked at:
@@ -112,7 +112,7 @@ https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 * Basic system::
 
      apt-get install python3-{dev,zmq,numpy,scipy,psutil,rsa,systemd,toml} gnuplot
-     apt-get install python3-{keyring,keyrings.alt,crypto,html2text,lttb,nicos-pyctl}
+     apt-get install python3-{keyring,keyrings.alt,html2text,lttb,nicos-pyctl}
 
 * Optional components::
 
@@ -127,3 +127,14 @@ https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 
      apt-get install python3-{sip-dev,pytest,pytest-cov,mock,coverage,sphinx}
      apt-get install python3-pyqt5-{dev,dev-tools}
+
+
+Debian 11 (Bullseye)
+^^^^^^^^^^^^^^^^^^^^
+
+An additional plugin for pytest is required (which was formerly included).
+
+* Development and documentation build::
+
+     apt-get install python3-pytest-timeout
+
