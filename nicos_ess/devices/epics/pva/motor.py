@@ -266,6 +266,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
         if done_moving == 0 or moving != 0:
+            if self._get_pv('homeforward') or self._get_pv('homereverse'):
+                return status.BUSY, message or 'homing'
             return status.BUSY, message or f'moving to {self.target}'
 
         miss = self._get_pv('miss')
