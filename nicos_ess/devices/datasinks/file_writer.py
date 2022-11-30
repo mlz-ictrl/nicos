@@ -363,7 +363,7 @@ class FileWriterSinkHandler(DataSinkHandler):
             )
             file_path = path.join(file_path, filename)
         else:
-            file_path = filename
+            file_path = path.join(self.sink.subdir, filename)
 
         if hasattr(self.dataset, 'replay_info'):
             # Replaying previous job
