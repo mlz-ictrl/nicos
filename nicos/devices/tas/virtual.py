@@ -99,7 +99,7 @@ class VirtualTasDetector(Measurable):
 
     def doStatus(self, maxage=0):
         if 't' in self._lastpreset and self.realtime:
-            if not (currenttime() - self._counting_started >= self._lastpreset['t']):
+            if currenttime() - self._counting_started < self._lastpreset['t']:
                 return status.BUSY, 'counting'
         return status.OK, 'idle'
 
