@@ -6,6 +6,7 @@ instrument_values = configdata('instrument.values')
 
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base'] + 'beckhoff.vsd.'
+code_base_analog = instrument_values['code_base'] + 'analogencoder.AnalogEncoder'
 
 #lowlevel Flags
 undef = () #Labels witch are not jet defined or known
@@ -17,6 +18,7 @@ airpressure = ()
 chopper = ('metadata', 'devlist', 'namespace')
 chopper_unused = ()
 temperature = ()
+temperature_on = ('metadata', 'devlist', 'namespace')
 power = ()
 
 devices = dict(
@@ -101,13 +103,21 @@ devices = dict(
         iodev = '_vsdio',
         channel = 'Temperature1',
         unit = 'degC',
-        visibility = temperature,
+        visibility = temperature_on,
     ),
-    Temperature2 = device(code_base + 'AnalogValue',
-        description = 'VSD: Analog value of Temperature2 at RACK3 so NL-Halle',
+    Temperature2_raw = device(code_base + 'AnalogValue',
+        description = 'Temperature2 raw',
         iodev = '_vsdio',
         channel = 'Temperature2',
         unit = 'degC',
+        visibility = (),
+    ),
+    Temperature2 = device(code_base_analog,
+        description = 'VSD: Analog value of Temperature2 at RACK3 so NL-Halle',
+        device = 'Temperature2_raw',
+        poly = [-2.6, 1], #2022-11-30 09:21:36
+        unit = 'degC',
+        visibility = temperature_on,
     ),
     Temperature3 = device(code_base + 'AnalogValue',
         description = 'VSD: Analog value of Temperature7 Core of choppermotor 6',
