@@ -36,7 +36,7 @@ class SINQAsciiSinkHandler(DataSinkHandler):
     """
     The implementation is as such:
 
-    - In `appendResults` I collect all the scan data which is needed in the
+    - In `addSubset()` I collect all the scan data which is needed in the
       scanvalues dictionary.  At the first point, the header is generated.
       This is the first point where enough data is there to do this.
     - In `end`, the file is actually written
