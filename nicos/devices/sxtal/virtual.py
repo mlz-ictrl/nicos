@@ -25,7 +25,7 @@
 
 """Virtual SXTAL devices."""
 
-from time import time as currenttime
+from time import monotonic as currenttime
 
 import numpy as np
 

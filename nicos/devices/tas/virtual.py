@@ -24,7 +24,7 @@
 
 """Virtual TAS devices."""
 
-from time import time as currenttime
+from time import monotonic as currenttime
 
 from numpy import random
 
