@@ -396,11 +396,13 @@ class NamedDigitalInput(DigitalInput):
     }
 
     def doInit(self, mode):
-        if self.mapping:
+        if 'mapping' in self._config:
             self._reverse = {v: k for (k, v) in self.mapping.items()}
             return
         try:
             self._reverse = parse_mapping(self._getProperty('mapping'))[0]
+            self._setROParam('mapping',
+                             {k: v for (v, k) in self._reverse.items()})
         except Exception:
             self.log.warning('could not parse value mapping from Tango', exc=1)
             self._reverse = {}
@@ -463,7 +465,7 @@ class NamedDigitalOutput(DigitalOutput):
     }
 
     def doInit(self, mode):
-        if self.mapping:
+        if 'mapping' in self._config:
             self._reverse = {v: k for (k, v) in self.mapping.items()}
             # oneofdict: allows both types of values (string/int), but
             # normalizes them into the string form
@@ -473,13 +475,13 @@ class NamedDigitalOutput(DigitalOutput):
         try:
             self._reverse, self._forward = \
                 parse_mapping(self._getProperty('mapping'))
-            # we don't build the valuetype from self._reverse since it should
-            # only contain the write-able values
-            self.valuetype = oneofdict({v: k for (k, v)
-                                        in self._forward.items()})
+            self._setROParam('mapping', self._forward)
         except Exception:
             self.log.warning('could not parse value mapping from Tango', exc=1)
             self._reverse = self._forward = {}
+
+    def doUpdateMapping(self, mapping):
+        self.valuetype = oneofdict({v: k for (k, v) in mapping.items()})
 
     def doStart(self, target):
         self._dev.value = self._forward.get(target, target)
