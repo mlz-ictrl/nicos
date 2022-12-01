@@ -1,21 +1,24 @@
 CCL
 instrument             = ZEBRA
-title                  = !!VAR(Exp, title)!!
-sample                 = !!VAR(Sample, samplename)!!
-user                   = !!VAR(Exp, users)!!
-ProposalID             = !!VAR(Exp, proposal)!!
+title                  = !!VAR(Exp,title)!!
+comment                = !!VAR(Exp,remark)!!
+sample                 = !!VAR(Sample,samplename)!!
+user                   = !!VAR(Exp,users)!!
+ProposalID             = !!VAR(Exp,proposal)!!
 original_filename      = !!FILE!!
 date                   = !!DATE!!
-mf                     = !!DRIV(mf)
+mf                     = !!DRIV(magfield)!!
+zebra_mode              = !!VAR(zebramode)!!
 
 # Parameters
-!!VAR(Sample, ubmatrix)!!
-a                      = !!VAR(Sample, a)!!
-b                      = !!VAR(Sample, b)!!
-c                      = !!VAR(Sample, c)!!
-alpha                  = !!VAR(Sample, alpha)!!
-beta                   = !!VAR(Sample, beta)!!
-gamma                  = !!VAR(Sample, gamma)!!
+UB=!!VAR(Sample,ubmatrix)!!
+a                      = !!VAR(Sample,a)!!
+b                      = !!VAR(Sample,b)!!
+c                      = !!VAR(Sample,c)!!
+alpha                  = !!VAR(Sample,alpha)!!
+beta                   = !!VAR(Sample,beta)!!
+gamma                  = !!VAR(Sample,gamma)!!
+wavelength             = !!DRIV(wavelength)!!
 cex1                   = !!DRIV(cex1)!!
 cex2                   = !!DRIV(cex2)!!
 mexz                   = !!DRIV(mexz)!!

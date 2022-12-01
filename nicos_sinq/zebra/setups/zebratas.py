@@ -2,7 +2,7 @@ description = 'Installs the Triple Axis Calculations into ZEBRA '
 
 requires = ['monochromator', 'sample']
 
-excludes = ['zebraeuler', 'zebranb']
+excludes = ['zebraeuler', 'zebranb', 'zebrakappa']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 
@@ -14,7 +14,7 @@ devices = dict(
         operators = ['Paul-Scherrer-Institut (PSI)'],
         facility = 'SINQ, PSI',
         website = 'https://www.psi.ch/sinq/zebra/',
-        a3 = 'som',
+        a3 = 'om',
         a4 = 'stt',
         sgu = 'sgu',
         sgl = 'sgl',

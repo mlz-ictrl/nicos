@@ -1,5 +1,7 @@
 description = 'Devices for configuring the EMBL detectors Histogram Memory'
 
+group = 'lowlevel'
+
 devices = dict(
     hm_connector = device('nicos_sinq.devices.sinqhm.connector.HttpConnector',
         description = "Connector for Histogram Memory Server",
@@ -95,9 +97,7 @@ devices = dict(
         data = [0, 20000],
         tag = 'tof',
         formatter = '%9d',
-        dim = [
-            2,
-        ],
+        dim = [2],
         description = 'TOF Array',
         visibility = (),
     ),

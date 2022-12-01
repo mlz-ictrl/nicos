@@ -56,12 +56,15 @@ class ZebraWavelength(Monochromator):
     _wait_dev = []
 
     def doRead(self, maxage=0):
+        excluded = ['mcvl', 'mcvu']
         for key, data in self._wl_map.items():
             isValid = True
             for entry in data:
                 mot, val = entry
+                if mot in excluded:
+                    continue
                 if isinstance(val, float):
-                    if abs(self._adevs[mot].read(0) - val) > .1:
+                    if not self._adevs[mot].isAtTarget(target=val):
                         isValid = False
                         break
                 else:

@@ -11,7 +11,7 @@ sysconfig = dict(
 modules = [
     'nicos.commands.standard', 'nicos_sinq.commands.sics',
     'nicos_sinq.commands.hmcommands', 'nicos_sinq.commands.epicscommands',
-    'nicos_sinq.sxtal.commands'
+    'nicos_sinq.sxtal.commands', 'nicos_sinq.sxtal.orientation'
 ]
 
 devices = dict(
@@ -49,7 +49,7 @@ devices = dict(
     ),
     zebramode = device('nicos.devices.generic.ManualSwitch',
         description = 'Device holding the crystallographic operating mode',
-        states = ['bi', 'nb', 'tas']
+        states = ['bi', 'nb', 'tas', 'kappa']
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),

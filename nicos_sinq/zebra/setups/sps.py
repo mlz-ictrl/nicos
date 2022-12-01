@@ -86,11 +86,11 @@ devices = dict(
         moveable = 'pgbutton',
         onvalue = 1,
         offvalue = 0,
-        ontime = .1,
+        ontime = 1.1,
         visibility = hide
     ),
     pgfilter = device('nicos_sinq.devices.s7_switch.S7Switch',
-        description='Control for the PG filter',
+        description = 'Control for the PG filter',
         button = 'pgpulse',
         readpv = spsprefix + 'PGFILTER_RBV',
         timeout = 5,
@@ -109,7 +109,7 @@ devices = dict(
         moveable = 'colbutton',
         onvalue = 1,
         offvalue = 0,
-        ontime = .1,
+        ontime = 1.1,
         visibility = hide
     ),
     coll2d = device('nicos_sinq.devices.s7_switch.S7Switch',
@@ -132,7 +132,7 @@ devices = dict(
         moveable = 'shbutton',
         onvalue = 1,
         offvalue = 0,
-        ontime = .1,
+        ontime = 1.1,
         visibility = hide
     ),
     shutter = device('nicos_sinq.devices.s7_switch.S7Shutter',

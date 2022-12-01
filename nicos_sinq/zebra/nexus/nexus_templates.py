@@ -24,11 +24,12 @@
 import copy
 
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, ImageDataset, NexusSampleEnv, \
-    NXAttribute, NXLink, NXScanLink, NXTime
+    DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
+    NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_sinq.nexus.specialelements import ArrayParam, CellArray, FixedArray
+from nicos_sinq.nexus.specialelements import ArrayParam, CellArray, \
+    FixedArray, OutSampleEnv, ScanSampleEnv
 
 
 class ZEBRATemplateProvider(NexusTemplateProvider):
@@ -50,6 +51,9 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
                                              DeviceDataset('Exp',
                                                            'localcontact'),
                                          },
+                                         "comment":
+                                             DeviceDataset('Exp',
+                                                           'remark'),
                                          "control:NXmonitor": {
                                              "mode": DetectorDataset('mode',
                                                                      "string"),
@@ -84,9 +88,8 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
                                                  'area_detector2/data'),
                                              'None': NXScanLink(),
                                          },
-                                         }
+                                         },
                       }
-
     _zebra_instrument = {
         "SINQ:NXsource": {
             'name': ConstDataset('SINQ @ PSI', 'string'),
@@ -115,16 +118,16 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
             'bottom': DeviceDataset('s2vb'),
             'left': DeviceDataset('s2hl'),
             'right': DeviceDataset('s2hr'),
-            'y_gap': DeviceDataset('slit2_opening'),
-            'x_gap': DeviceDataset('slit2_width'),
+            'y_gap': DeviceDataset('s2v'),
+            'x_gap': DeviceDataset('s2h'),
         },
         'pre_sample:NXslit': {
             'top': DeviceDataset('s1vt'),
             'bottom': DeviceDataset('s1vb'),
             'left': DeviceDataset('s1hl'),
             'right': DeviceDataset('s1hr'),
-            'y_gap': DeviceDataset('slit1_opening'),
-            'x_gap': DeviceDataset('slit1_width'),
+            'y_gap': DeviceDataset('s1v'),
+            'x_gap': DeviceDataset('s1h'),
         },
         'nose:NXattenuator': {
             'horizontal_position': DeviceDataset('snhm'),
@@ -133,8 +136,8 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
         'area_detector2:NXdetector': {
             'name': ConstDataset('EMBL-PSD', 'string'),
             'distance': DeviceDataset('detdist'),
-            'polar_angle': DeviceDataset('stt'),
-            'tilt_angle': DeviceDataset('nu'),
+            'polar_angle': DeviceDataset('stt', dtype='float32'),
+            'tilt_angle': DeviceDataset('nu', dtype='float32'),
             'x_pixel_offset': ConstDataset(128, 'float'),
             'y_pixel_offset': ConstDataset(64, 'float'),
             'x_pixel_size': ConstDataset(0.734, 'float',
@@ -147,17 +150,20 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
         },
     }
 
+    _zebrablocklist = ['stt', 'om', 'chi', 'phi', 'nu', 'sgl', 'sgu']
+
     _zebra_sample = {
         'UB': ArrayParam('Sample', 'ubmatrix', 'float32'),
         'cell': CellArray(),
-        'chi': DeviceDataset('sch'),
-        'phi': DeviceDataset('sph'),
-        'rotation_angle': DeviceDataset('som'),
+        'chi': DeviceDataset('chi', dtype='float32'),
+        'phi': DeviceDataset('phi', dtype='float32'),
+        'rotation_angle': DeviceDataset('om', dtype='float32'),
         'h': DeviceDataset('h'),
         'k': DeviceDataset('k'),
         'l': DeviceDataset('l'),
         'name': DeviceDataset('Sample', 'samplename'),
-        "hugo": NexusSampleEnv(),
+        "hugo": OutSampleEnv(blocklist=_zebrablocklist, postfix='_log'),
+        "lieselotte": ScanSampleEnv(),
     }
 
     def getTemplate(self):

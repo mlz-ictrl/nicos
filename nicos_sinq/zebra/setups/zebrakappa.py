@@ -1,26 +1,28 @@
-description = 'Installs normal beam geometry into ZEBRA'
+description = 'Installs the Kappa goniometer into NICOS'
+
+excludes = ['zebratas', 'zebranb', 'zebraeuler']
 
 requires = ['monochromator', 'sample']
-
-excludes = ['zebraeuler', 'zebratas', 'zebrakappa']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 
 devices = dict(
-    ZEBRA = device('nicos_sinq.zebra.devices.sinqxtal.SinqNB',
+    ZEBRA = device('nicos_sinq.sxtal.instrument.KappaSXTal',
         description = 'instrument object',
         instrument = 'SINQ ZEBRA',
         responsible = 'Oksana Zaharko <oksana.zaharko@psi.ch>',
         operators = ['Paul-Scherrer-Institut (PSI)'],
         facility = 'SINQ, PSI',
         website = 'https://www.psi.ch/sinq/zebra/',
-        gamma = 'stt',
-        omega = 'om',
-        nu = 'nu',
+        stt = 'stt',
+        omega = 'som',
+        kappa = 'sch',
+        kphi = 'sph',
         mono = 'wavelength',
-        center_order = ['om', 'stt', 'nu'],
-        center_steps = [.1, .1, .1],
-        scan_polynom = [0.425, -1.34E-2, 3.44E-6, -3.10E-6, 1.33E-8, .1, 1],
+        center_counter = 'counts',
+        center_steps = [.1, .1, .2, .2],
+        kappa_angle = 54.,
+        right_hand = True,
     ),
     h = device('nicos.core.device.DeviceAlias',
         description = 'Alias for the h of hkl',
@@ -40,8 +42,8 @@ devices = dict(
 )
 
 startupcode = """
-maw(zebramode, 'nb')
-ublist.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'NU'),())
-messlist.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'NU'),())
-satref.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'NU'),())
+maw(zebramode, 'kappa')
+ublist.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'PHI'),())
+messlist.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'PHI'),())
+satref.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'PHI'),())
 """

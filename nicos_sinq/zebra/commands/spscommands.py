@@ -63,11 +63,11 @@ def zebraconf():
     to_add['w1'] = ['wagen1']
     to_remove['w1'] = ['wagen2']
 
-    to_add['w2'] = ['wagen2', 'single_detector']
+    to_add['w2'] = ['wagen2', 'detector_single']
     to_remove['w2'] = ['wagen1', 'detector_2d']
 
     to_add['twod'] = ['detector_2d']
-    to_remove['twod'] = ['single_detector']
+    to_remove['twod'] = ['detector_single']
 
     to_add['euler_present'] = ['zebraeuler']
     to_remove['euler_present'] = ['zebratas', 'zebranb']

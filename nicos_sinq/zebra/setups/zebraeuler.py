@@ -1,13 +1,13 @@
 description = 'Installs the Eulerian cradle into NICOS'
 
-excludes = ['zebratas', 'zebranb']
+excludes = ['zebratas', 'zebranb', 'zebrakappa']
 
 requires = ['monochromator', 'sample']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 
 devices = dict(
-    ZEBRA = device('nicos_sinq.sxtal.instrument.EulerSXTal',
+    ZEBRA = device('nicos_sinq.zebra.devices.sinqxtal.SinqEuler',
         description = 'instrument object',
         instrument = 'SINQ ZEBRA',
         responsible = 'Oksana Zaharko <oksana.zaharko@psi.ch>',
@@ -15,12 +15,14 @@ devices = dict(
         facility = 'SINQ, PSI',
         website = 'https://www.psi.ch/sinq/zebra/',
         ttheta = 'stt',
-        omega = 'som',
-        chi = 'sch',
-        phi = 'sph',
+        omega = 'om',
+        chi = 'chi',
+        phi = 'phi',
         mono = 'wavelength',
         center_counter = 'counts',
-        center_steps = [.1, .1, .2, .2]
+        center_order = ['om', 'stt', 'chi', 'phi'],
+        center_steps = [.1, .1, .2, .2],
+        scan_polynom = [0.425, -1.3E-2, 3.44E-4, -3.10E-6, 1.33E-8],
     ),
     h = device('nicos.core.device.DeviceAlias',
         description = 'Alias for the h of hkl',
@@ -41,4 +43,7 @@ devices = dict(
 
 startupcode = """
 maw(zebramode, 'bi')
+ublist.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'CHI', 'PHI'),()) 
+messlist.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'CHI', 'PHI'),()) 
+satref.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'CHI', 'PHI'),()) 
 """
