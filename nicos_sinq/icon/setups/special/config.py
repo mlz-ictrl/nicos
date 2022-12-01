@@ -1,4 +1,4 @@
-description = 'Generic configuration settings for BOA'
+description = 'Generic configuration settings for ICON'
 
 import os
 
