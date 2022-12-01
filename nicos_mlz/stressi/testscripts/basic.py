@@ -3,6 +3,7 @@
 # test: subdirs = frm2
 # test: setups = stressi
 # test: setupcode = SetDetectors(adet)
+# test: needs = PIL
 
 read()
 status()

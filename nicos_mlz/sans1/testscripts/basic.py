@@ -4,6 +4,7 @@
 # test: setups = sans1
 # test: setups = selector042
 # test: setupcode = SetDetectors(det1)
+# test: needs = PIL
 
 # test selector
 maw(selector_rpm, 21230)
