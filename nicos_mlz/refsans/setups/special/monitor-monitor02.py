@@ -1,13 +1,5 @@
 # coding: utf-8
 
-# created by Martin Haese, Tel FRM 10763
-# last version by Gaetano Mangiapia, Tel 54839 on Jan 09th 2020
-
-# to call it
-# ssh -X refsans@refsansctrl01 oder 02
-# cd /refsanscontrol/src/nicos-core
-# INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
-
 description = 'Optic Collimation and Slits [Monitor 02]'
 group = 'special'
 

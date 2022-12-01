@@ -1,13 +1,5 @@
 # coding: utf-8
 
-# created by Martin Haese, Tel FRM 10763
-# last version by Gaetano Mangiapia, Tel 54839 on Jan 10th 2020
-
-# to call it
-# ssh -X refsans@refsansctrl01 oder 02
-# cd /refsanscontrol/src/nicos-core
-# INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
-
 description = 'Sample Environment and Miscellaneous [Monitor 04]'
 group = 'special'
 
@@ -102,7 +94,7 @@ devices = dict(
         showwatchdog = False,
         title = description,
         loglevel = 'info',
-        cache = 'refsansctrl.refsans.frm2',
+        cache = 'refsansctrl.refsans.frm2.tum.de',
         prefix = 'nicos/',
         font = 'Luxi Sans',
         valuefont = 'Consolas',

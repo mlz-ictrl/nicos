@@ -1,9 +1,5 @@
 # coding: utf-8
 
-# created by Martin Haese, Tel FRM 10763
-# last version by Gaetano Mangiapia, Tel 54839 on Jan 09th 2020
-
-
 description = 'Chopper [Monitor 11]'
 group = 'special'
 
