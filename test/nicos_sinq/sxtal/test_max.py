@@ -24,8 +24,6 @@
 
 import pytest
 
-from nicos.core.utils import multiWait
-
 from nicos_sinq.sxtal.commands import Center, Max
 
 from test.utils import approx
@@ -46,12 +44,11 @@ def test_max(session, omstart):
     det = session.getDevice('det')
     session.experiment.setDetectors([det])
 
-    om.start(omstart)
-    multiWait([om])
+    om.maw(omstart)
 
     Max(om, .2, t=.05)
 
-    assert om.read() == approx(3, abs=0.05)
+    assert om.read(0) == approx(3, abs=0.05)
 
 
 def test_max_away(session, log):
@@ -59,8 +56,7 @@ def test_max_away(session, log):
     det = session.getDevice('det')
     session.experiment.setDetectors([det])
 
-    om.start(20.)
-    multiWait([om])
+    om.maw(20.)
 
     with log.assert_errors(r'Peak out of range'):
         Max(om, .2, t=.05)

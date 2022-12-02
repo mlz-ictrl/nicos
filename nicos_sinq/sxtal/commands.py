@@ -390,8 +390,7 @@ def Max(dev, step, counter=None, maxpts=None, **preset):
             if positions[idx] <= center < positions[idx+1]:
                 peakmax = counts[idx]
                 break
-        dev.start(center)
-        multiWait([dev])
+        dev.maw(center)
         session.log.info('Found peak at %f, counts = %ld', center, peakmax)
         return True
 
@@ -425,8 +424,7 @@ def Max(dev, step, counter=None, maxpts=None, **preset):
     while idx >= 0:
         i = half_point - idx
         target = positions[half_point] - i * step
-        dev.start(target)
-        multiWait([dev])
+        dev.maw(target)
         session.log.info('%s = %f', dev.name, dev.read())
         _count(*(), **preset)
         count = countdev.read()[0]
@@ -451,8 +449,7 @@ def Max(dev, step, counter=None, maxpts=None, **preset):
     while idx < maxpts:
         i = idx - half_point
         target = positions[half_point] + i * step
-        dev.start(target)
-        multiWait([dev])
+        dev.maw(target)
         session.log.info('%s = %f', dev.name, dev.read())
         _count(*(), **preset)
         count = countdev.read()[0]
@@ -492,8 +489,7 @@ def go_reflection(r, devs):
         multiWait(devs)
     else:
         inst = session.instrument
-        inst.start(r[0])
-        multiWait([inst])
+        inst.maw(r[0])
 
 
 def inner_center(r, **preset):
