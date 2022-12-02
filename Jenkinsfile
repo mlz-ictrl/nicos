@@ -320,11 +320,15 @@ node('dockerhost') {
     }
 
     def buildimage_deb = null;
+    def buildimage_debonly = null;
     def buildimage_rocky = null;
 
     stage('docker setup') {
         buildimage_deb = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye')
         buildimage_deb.pull()
+
+        buildimage_debonly = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye-debonly')
+        buildimage_debonly.pull()
 
         buildimage_rocky = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:rockylinux9')
         buildimage_rocky.pull()
@@ -369,7 +373,7 @@ try {
             }
         } //stage
     }, test_rocky: {
-        stage(name: 'Python3 RockyLinux tests') {
+        stage(name: 'Test on RockyLinux') {
             ws {
                 checkoutSource()
                 buildimage_rocky.inside('-v /home/git:/home/git') {
@@ -377,8 +381,17 @@ try {
                 } // image.inside
             } // ws
         } // stage
-    }, test_python3: {
-        stage(name: 'Python3 tests') {
+    }, test_debian: {
+        stage(name: 'Tests on Debian') {
+            ws {
+                checkoutSource()
+                buildimage_debonly.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3-debonly', false, true, true)
+                } // image.inside
+            } // ws
+        } // stage
+    }, test_all: {
+	stage(name: 'Tests on Debian, with all dependencies') {
             ws {
                 checkoutSource()
                 def kafkaversion="2.12-2.7.0"
