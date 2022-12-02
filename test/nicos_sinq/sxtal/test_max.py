@@ -48,7 +48,7 @@ def test_max(session, omstart):
 
     Max(om, .2, t=.05)
 
-    assert om.read(0) == approx(3, abs=0.05)
+    assert om.read(0) == approx(3, abs=0.06)
 
 
 def test_max_away(session, log):
