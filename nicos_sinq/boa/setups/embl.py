@@ -4,7 +4,7 @@ includes = ['embl_config']
 excludes = [
     'single_el737',
     'andorccd',
-    'andorccd-I',
+    'andorccd-l',
     'fastcomtec',
 ]
 
