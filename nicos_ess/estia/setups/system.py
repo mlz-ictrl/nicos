@@ -28,9 +28,10 @@ devices = dict(
     Exp=device('nicos_ess.devices.experiment.EssExperiment',
                description='experiment object',
                dataroot=configdata('config.ESTIA_DATA_ROOT'),
+               filewriter_root=configdata('config.ESTIA_FILEWRITER_ROOT'),
                sample='Sample',
-               cache_filepath=f'{configdata("config.ESTIA_DATA_ROOT")}/'
-               f'cached_proposals.json'),
+               cache_filepath=f'{configdata("config.ESTIA_DATA_ROOT")}'
+               f'/estia/cached_proposals.json'),
     conssink=device('nicos.devices.datasinks.ConsoleScanSink', ),
     daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
     Space=device(
