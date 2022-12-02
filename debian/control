@@ -74,7 +74,7 @@ Depends: ${misc:Depends},
  python3-systemd
 # nicos-sandbox-helper
 Recommends:
- python3-pytango (>= 9.3.0)
+ python3-tango (>= 9.3.0)
 Description: All NICOS services
  The NICOS system needs some services to work properly:
  daemon, poller, and cache. Some additional service provide a some
@@ -109,7 +109,7 @@ Architecture: all
 Depends: ${misc:Depends},
  ${python3:Depends},
  nicos,
- python3-redmine,
+ python3-redminelib,
  python3-pyqt5.qsci,
  python3-pyqt5.qtwebengine,
  python3-pyqt5.qtsvg,
