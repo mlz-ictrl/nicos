@@ -77,5 +77,6 @@ devices = dict(
                       maxage=5,
                       pollinterval=3,
                       visibility=(),
+                      precision=0,
                       ),
 )

@@ -15,10 +15,10 @@ devices = dict(
                  tangodevice=tango_base + 'lbl/v',
                  visibility=(),
                  ),
-    lbl=device('nicos.devices.generic.Slit',
+    lbl=device('nicos.devices.generic.TwoAxisSlit',
                description='beam limiter',
                horizontal='lbl_horizontal',
-               verticalt='lbl_vertical',
+               vertical='lbl_vertical',
                requires={'level': 'admin'},
                ),
 )

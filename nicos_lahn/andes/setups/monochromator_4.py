@@ -28,7 +28,7 @@ devices = dict(
                tangodevice=tango_base + 'monochromator/mtt',
                fmtstr='%.2f',
                requires={'level': 'admin'},
-               uselimits=(42, 42),
+               userlimits=(42, 42),
                ),
     wavelength=device('nicos_mlz.stressi.devices.wavelength.Wavelength',
                       description='the incoming wavelength',
