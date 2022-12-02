@@ -96,6 +96,8 @@ Depends: ${misc:Depends},
 Recommends:
  frappy-core,
  python3-nicos-quickyaml,
+ python3-lxml,
+ python3-yaml,
  python3-pycryptodome (>= 3.4.7)
 Description: All NICOS instrument specific components
  This package installs instrument specific packages used in NICOS.
