@@ -46,4 +46,4 @@ devices = dict(
         precision = .1,
         errormsgpv = motorpv + 'po2-MsgTxt',
     ),
-
+)
