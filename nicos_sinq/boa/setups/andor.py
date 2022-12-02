@@ -73,6 +73,7 @@ devices = dict(
     andor = device('nicos_sinq.devices.epics.SINQ_area_detector.AndorAreaDetector',
         description = 'Area detector instance for ANDOR CCD',
         unit = '',
+        basepv = '',
         statepv = pvprefix + detector_channel + 'DetectorState_RBV',
         startpv = pvprefix + detector_channel + 'Acquire',
         errormsgpv = pvprefix + detector_channel + 'StatusMessage_RBV',
