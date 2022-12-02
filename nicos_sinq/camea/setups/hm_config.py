@@ -1,6 +1,6 @@
 description = 'Histogram memory connector'
 
-display_order = 200
+display_order = 100
 
 excludes = ['hm_config_sim']
 
