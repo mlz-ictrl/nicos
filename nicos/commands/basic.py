@@ -852,7 +852,7 @@ def SetMailReceivers(*emails):
     """Set a list of email addresses for notifications.
 
     These addresses will be notified on unhandled errors, and when the
-    `Notify()` command is used.
+    `notify()` command is used.
 
     Example:
 
