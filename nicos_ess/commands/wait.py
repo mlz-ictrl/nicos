@@ -43,6 +43,10 @@ def waitfor_stable(device, target, accuracy, time_stable, timeout=3600):
     will wait until the device position is between 9 and 11 for a continous
     period of 30 seconds, but will exit after 10 minutes if
     stability is not reached.
+
+    .. note::
+
+       The default timeout is an hour (3600 s).
     """
     if session.mode == SIMULATION:
         session.clock.tick(time_stable)
