@@ -37,6 +37,7 @@ devices = dict(
         sendmail = True,
         serviceexp = 'service',
         sample = 'Sample',
+        forcescandata = True,
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),

@@ -21,6 +21,7 @@ devices = dict(
         sendmail = False,
         serviceexp = 'Service',
         sample = 'Sample',
+        forcescandata = True,
     ),
     Sample = device('nicos.devices.tas.TASSample',
         description = 'Sample under investigation',

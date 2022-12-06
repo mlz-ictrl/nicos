@@ -97,8 +97,8 @@ class NexusSinkHandler(DataSinkHandler):
     def prepare(self):
         if self.startdataset is None:
             self.startdataset = self.dataset
-            if self.startdataset.settype == POINT:
-                self.startdataset.countertype = SCAN
+            # if self.startdataset.settype == POINT:
+            #     self.startdataset.countertype = SCAN
             # Assign the counter
             self.manager.assignCounter(self.dataset)
 
@@ -215,6 +215,9 @@ class NexusSinkHandler(DataSinkHandler):
     def addSubset(self, subset):
         if self.startdataset.settype == SCAN:
             self.begin()
+            if self._filename is None:
+                self.log.info('skipping: %s', self.dataset.settype)
+                return
             try:
                 with H5File(self._filename, 'r+') as h5file:
                     h5obj = h5file['/']
@@ -257,15 +260,18 @@ class NexusSinkHandler(DataSinkHandler):
             on this one, this code will break.
         """
         if self.startdataset.finished is not None:
-            if self.startdataset.settype == SCAN:
-                with H5File(self._filename, 'r+') as h5file:
-                    h5obj = h5file['/']
-                    linkpath = self.find_scan_link(h5obj, self.template)
-                    if linkpath is not None:
-                        self.make_scan_links(h5obj, self.template, linkpath)
+            # if self.startdataset.settype == SCAN:
+            with H5File(self._filename, 'r+') as h5file:
+                h5obj = h5file['/']
+                linkpath = self.find_scan_link(h5obj, self.template)
+                if linkpath is not None:
+                    self.make_scan_links(h5obj, self.template, linkpath)
             self._filename = None
             self.sink.end()
             self.startdataset = None
+        else:
+            self.dataset = self.manager._current
+        self.log.debug('%s: # datasets %d', self, len(self.manager._stack))
 
 
 class NexusSink(FileSink):

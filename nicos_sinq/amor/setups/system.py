@@ -33,7 +33,8 @@ devices = dict(
     Exp = device('nicos_sinq.amor.devices.experiment.AmorExperiment',
         description = 'experiment object',
         dataroot = '/home/amor/',
-        sample = 'Sample'
+        sample = 'Sample',
+        forcescandata = True,
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

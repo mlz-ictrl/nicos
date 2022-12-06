@@ -61,6 +61,7 @@ class TestNexusSink:
             os.makedirs(dataroot)
 
         exp._setROParam('dataroot', dataroot)
+        exp._setROParam('forcescandata', True)
         exp.new(1234, user='testuser', localcontact=exp.localcontact)
         exp.sample.new({'name': 'GurkenOxid'})
         assert path.abspath(exp.datapath) == path.abspath(

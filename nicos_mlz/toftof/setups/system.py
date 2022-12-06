@@ -47,7 +47,7 @@ devices = dict(
         errorbehavior = 'abort',
         elog = True,
         counterfile = 'counter',
-        forcescandata = False,  # True,
+        forcescandata = True,
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
