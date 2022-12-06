@@ -2,7 +2,7 @@
 
 # test: subdirs = cspec
 # test: setups = cspec
-# test: needs = yuos_query.yous_client
+# test: needs = yuos_query
 
 read()
 status()

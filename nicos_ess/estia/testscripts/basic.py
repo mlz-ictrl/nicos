@@ -1,9 +1,9 @@
 # pylint: skip-file
 
-# test: subdirs = v20
+# test: subdirs = estia
 # test: setups = actuators
 # test: needs = streaming_data_types
-# test: needs = yous_query
+# test: needs = yuos_query
 
 read()
 status()
