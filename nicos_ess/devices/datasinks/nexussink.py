@@ -209,7 +209,7 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
 
     def begin(self):
         # A deep copy is ABSOLUTELY required here!
-        self.template = copy.deepcopy(self.sink.template)
+        self._template = copy.deepcopy(self.sink._template)
         self._remove_optional_components()
 
         # Get the start time
@@ -227,7 +227,7 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
                       'starttime')] = (start_time_str, start_time_str, '',
                                        'general')
 
-        structure = self._converter.convert(self.template,
+        structure = self._converter.convert(self._template,
                                             self.dataset.metainfo)
         job_id = str(self.dataset.uid)
 
@@ -369,7 +369,7 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
     }
 
     handlerclass = NexusFileWriterSinkHandler
-    template = None
+    _template = None
 
     def doInit(self, mode):
         self.log.info(self.templatesmodule)
@@ -389,7 +389,7 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
             raise NicosError('Template %s not found in module %s' %
                              (val, self.templatesmodule))
 
-        self.template = getattr(self._templates, val)
+        self._template = getattr(self._templates, val)
 
         if self.templatename != val:
             self._setROParam('templatename', val)
