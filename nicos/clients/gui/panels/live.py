@@ -988,6 +988,10 @@ class LiveDataPanel(Panel):
         # liveonly mode doesn't display a filelist
         if self._liveOnlyIndex is not None:
             return
+        # no duplicate filenames
+        if any(self.fileList.item(i).data(FILENAME) == filename
+               for i in range(self.fileList.count())):
+            return
 
         shortname = path.basename(filename)
         item = QListWidgetItem(shortname)
