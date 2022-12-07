@@ -81,6 +81,7 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
                                   encoding='utf-8')
             base = os.path.splitext(self.dataset.filepaths[0])[0]
             rflfile = base + '.rfl'
+            # pylint: disable=consider-using-with
             self._rfl_file = open(rflfile, 'w', encoding='utf-8')
             self._rfl_file.write('%s\n' % rflfile)
 
@@ -133,13 +134,11 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
         evvallist = self.dataset.envvaluelists[-1]
         temp = 0
         mf = 0
-        idx = 0
-        for ev in evlist:
-            if ev.name in ['t', 'temp', 'Ts', 'temperature']:
+        for idx, ev in enumerate(evlist):
+            if ev.name in ('Ts', 'temperature'):
                 temp = evvallist[idx]
-            if ev.name in ['mf', 'magfield', 'B']:
+            if ev.name in ('magfield', 'B'):
                 mf = evvallist[idx]
-            idx += 1
 
         modemap = {'omega': 'om', 't2t': 'o2t'}
         self._ccl_file.write('%3d %7.4f %9.0f %7.3f %12f %s %s %7.4f\n' %
@@ -184,8 +183,7 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
         self._rfl_file.write('user = %s\n' % session.experiment.users)
 
     def end(self):
-        if self.dataset.settype == 'subscan' and \
-                self.dataset.npoints == len(self.dataset.subsets):
+        if self.dataset.settype == 'subscan' and self.dataset.finished:
             # The observation is that end() is called two times
             # with a settype of subscan. This code is a hack to
             # ensure that we close the file on the second one.
@@ -193,14 +191,16 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
             # from the HKLScan. I debugged this to Dataset.dispatch().
             # Before getattr(method)(args) the settype is scan but
             # afterwards it is subscan. May be, the NICOS team has an
-            # opinion on why this happens. Anyway, ths now works.
+            # opinion on why this happens. Anyway, this now works.
             if self._lastsubscan == self.dataset:
+                session.log.info('Closing CCL file....')
                 self._ccl_file.close()
                 self._rfl_file.close()
                 self._ccl_file = None
                 self.sink.end()
                 return
             self._lastsubscan = self.dataset
+            session.log.info('Writing subscan....')
             if not self.headerWritten:
                 self.dataset.filepaths = self._scandataset.filepaths
                 self._initHeader()

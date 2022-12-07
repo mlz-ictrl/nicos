@@ -99,6 +99,7 @@ def calculateBMatrix(direct):
 
     #    bottom row
     B[2, 2] = 2 * np.pi / direct.c
+    # B[2, 2] = 1. / direct.c
 
     return B
 

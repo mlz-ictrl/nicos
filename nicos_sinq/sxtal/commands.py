@@ -36,7 +36,7 @@ from nicos.commands.analyze import COLHELP, _getData, findpeaks
 from nicos.commands.measure import _count
 from nicos.commands.scan import ADDSCANHELP2, _infostr, cscan, scan
 from nicos.core import FINAL, Measurable, Moveable, NicosError, Readable, Scan
-from nicos.core.errors import ConfigurationError, UsageError
+from nicos.core.errors import ConfigurationError, LimitError, UsageError
 from nicos.core.spm import Bare, spmsyntax
 from nicos.core.utils import multiWait
 from nicos.devices.generic.detector import DummyDetector
@@ -789,18 +789,23 @@ class HKLScan(Scan):
             else:
                 self.scanmode = 'omega'
                 inst.scanmode = 'omega'
-        _scanfuncs[self.scanmode](point.target[0], subscan=True,
-                                  **self._preset)
-        subscan = self.dataset.subsets[-1].subsets[-1]
-        # If NICOS crashes on this line then the center_counter
-        # for the instrument is set to a non existing value.
-        index = [i for (i, v) in enumerate(subscan.detvalueinfo)
-                 if v.name == session.instrument.center_counter][0]
-        vals = [x[index] for x in subscan.detvaluelists]
-        if vals:
-            _, _, intensity,  _ = window_integrate(vals)
-            session.experiment.data.putResults(FINAL,
-                                               {'intensity': [intensity]})
+        try:
+            _scanfuncs[self.scanmode](point.target[0], subscan=True,
+                                      **self._preset)
+
+            subscan = self.dataset.subsets[-1].subsets[-1]
+            # If NICOS crashes on this line then the center_counter
+            # for the instrument is set to a non existing value.
+            index = [i for (i, v) in enumerate(subscan.detvalueinfo)
+                     if v.name == session.instrument.center_counter][0]
+            vals = [x[index] for x in subscan.detvaluelists]
+            if vals:
+                _, _, intensity,  _ = window_integrate(vals)
+                session.experiment.data.putResults(FINAL,
+                                                   {'intensity': [intensity]})
+        except LimitError:
+            session.log.info('Skipping reflection %s after LimitError',
+                             str(point.target[0]))
 
 
 @usercommand
@@ -1123,6 +1128,7 @@ class SinqQScan(Scan):
         Scan.__init__(self, [inst], positions, [],
                       firstmoves, multistep, detlist, envlist, preset,
                       scaninfo, subscan)
+        # self._envlist[0:0] = inst.get_motors()
         if inst in self._envlist:
             self._envlist.remove(inst)
 
@@ -1203,8 +1209,14 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
         _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
-    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
-              for i in range(-numperside, numperside+1)]
+
+    if isinstance(session.instrument, TASSXTal):
+        values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
+                  for i in range(-numperside, numperside+1)]
+    else:
+        values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2])]
+                  for i in range(-numperside, numperside+1)]
+
     scan = SinqQScan(values, move, multistep, detlist, envlist, preset,
                      scaninfo)
     scan.run()

@@ -46,18 +46,17 @@ class ReflexList(Device):
                                 'reflection, grouped by data type',
                                 type=tupleof(tuple, tuple, tuple),
                                 default=(('H', 'K', 'L'),
-                                         ('STT', 'OM', 'CHI', 'PHI'), ('',))
+                                         ('STT', 'OM', 'CHI', 'PHI'), ('',)),
+                                settable=True,
                                 ),
     }
 
     hardware_access = False
     _hkl_len = 3
-    _angle_len = 4
     _ex_len = 0
 
     def doInit(self, mode):
         self._hkl_len = len(self.column_headers[0])
-        self._angle_len = len(self.column_headers[1])
         self._ex_len = len(self.column_headers[2])
 
     def clear(self):
@@ -73,12 +72,14 @@ class ReflexList(Device):
             raise InvalidValueError('Reciprocal coordinates mismatch, '
                                     'need %d, got %d'
                                     % (self._hkl_len, len(Qpos)))
+
+        angle_len = len(self.column_headers[1])
         if not angles:
-            angles = (0,)*self._angle_len
-        if len(angles) != self._angle_len:
+            angles = (0,)*angle_len
+        if len(angles) != angle_len:
             raise InvalidValueError('Angle settings mismatch, '
                                     'need %d, got %d'
-                                    % (self._angle_len, len(angles)))
+                                    % (angle_len, len(angles)))
         if not aux:
             aux = ()
         reflist = list(self.reflection_list)
@@ -86,7 +87,7 @@ class ReflexList(Device):
         self.reflection_list = reflist
 
     def get_reflection(self, idx):
-        if idx < 0 or idx > len(self.reflection_list):
+        if not 0 <= idx < len(self.reflection_list):
             raise InvalidValueError('NO reflection with '
                                     'index %d found' % idx)
         return self.reflection_list[idx]
