@@ -57,7 +57,7 @@ devices = dict(
         correctionfile='nicos_mlz/spodi/data/detcorrection.dat'
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass='nicos_mlz.nexus.nexus_templates.PowderTemplateProvider',
+        templateclass='nicos_mlz.spodi.nexus.SpodiTemplateProvider',
         settypes = {'point',},
         filenametemplate = ['m1%(pointcounter)08d.nxs'],
     ),
