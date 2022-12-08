@@ -50,7 +50,7 @@ devices = dict(
         },
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = 'sans1ctrl.sans1.frm2',
+        server = 'sans1hw02.sans1.frm2',
         authenticators = ['UserDBAuth', 'LDAPAuth', 'LDAPAuthBU',],
         loglevel = 'debug',
     ),
