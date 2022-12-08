@@ -33,7 +33,7 @@ from nicos.core import FINAL, INTERMEDIATE, LIVE, NicosError, Param, \
     UsageError, oneof, status
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach, Value, listof
-from nicos.devices.entangle import BaseImageChannel, NamedDigitalOutput
+from nicos.devices.entangle import ImageChannel, NamedDigitalOutput
 from nicos.devices.generic.detector import Detector
 
 from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC
@@ -68,7 +68,7 @@ ChopperHisto = namedtuple('ChopperHisto', 'angle '
                                           't_refl t_open')
 
 
-class SISChannel(BaseImageChannel):
+class SISChannel(ImageChannel):
     """
     Spheres SIS ImageChannel
     """

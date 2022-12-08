@@ -24,15 +24,17 @@
 
 """Support classes for neutron cameras at the FRM II."""
 
-from nicos.devices.entangle import BaseImageChannel
+from nicos.core.constants import FINAL, INTERRUPTED
+from nicos.devices.entangle import ImageChannel
 
 
-class CameraImage(BaseImageChannel):
+class CameraImage(ImageChannel):
     """Tango ImageChannel subclass that waits for the channel's status
     (for CCD readout) before reading the image.
     """
 
     def doReadArray(self, quality):
         # need to wait for readout of the CCD
-        self._hw_wait()
-        return BaseImageChannel.doReadArray(self, quality)
+        if quality not in (FINAL, INTERRUPTED):
+            return []
+        return ImageChannel.doReadArray(self, quality)

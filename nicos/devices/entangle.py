@@ -39,7 +39,7 @@ from nicos.core import SIMULATION, ArrayDesc, CanDisable, Device, HasLimits, \
     HasPrecision, HasTimeout, Moveable, NicosError, Override, Param, \
     Readable, Value, dictof, intrange, listof, nonemptylistof, oneof, \
     oneofdict, status, waitForCompletion
-from nicos.core.constants import FINAL, LIVE, SLAVE
+from nicos.core.constants import FINAL, INTERRUPTED, LIVE, SLAVE
 from nicos.core.mixins import HasOffset, HasWindowTimeout
 from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
 from nicos.devices.generic.detector import ActiveChannel, \
@@ -646,9 +646,10 @@ class CounterChannel(CounterChannelMixin, DetectorChannel):
         return self._dev.value
 
 
-class BaseImageChannel(ImageChannelMixin, DetectorChannel):
+class ImageChannel(ImageChannelMixin, DetectorChannel):
     """
-    Detector channel for delivering images.
+    Detector channel for delivering images that automatically returns the sum
+    of all counts.
     """
 
     parameters = {
@@ -670,6 +671,8 @@ class BaseImageChannel(ImageChannelMixin, DetectorChannel):
         else:
             shape = (256, 256)  # select some arbitrary shape
         self.arraydesc = ArrayDesc(self.name, shape=shape, dtype='<u4')
+        if mode != SLAVE:
+            self.readArray(LIVE)  # update readresult at startup
 
     @property
     def _shape(self):
@@ -700,24 +703,11 @@ class BaseImageChannel(ImageChannelMixin, DetectorChannel):
         return self._dev.zeroPoint.tolist()
 
     def doReadArray(self, quality):
-        self.arraydesc = ArrayDesc(
-            self.name, shape=self._shape, dtype='<u4')
-        return self._dev.value.reshape(self.arraydesc.shape)
-
-
-class ImageChannel(BaseImageChannel):
-    """Image channel that automatically returns the sum of all counts."""
-
-    def doInit(self, mode):
-        BaseImageChannel.doInit(self, mode)
-        if mode != SLAVE:
-            self.readArray(LIVE)  # update readresult at startup
-
-    def doReadArray(self, quality):
         # on quality FINAL wait for entangle ImageChannel finishing readout
-        if quality == FINAL:
+        if quality in (FINAL, INTERRUPTED):
             waitForCompletion(self)
-        narray = BaseImageChannel.doReadArray(self, quality)
+        self.arraydesc = ArrayDesc(self.name, shape=self._shape, dtype='<u4')
+        narray = self._dev.value.reshape(self.arraydesc.shape)
         self.readresult = [narray.sum()]
         return narray
 
@@ -726,7 +716,7 @@ class ImageChannel(BaseImageChannel):
                      errors='sqrt', unit='cts'),
 
 
-class TOFChannel(BaseImageChannel):
+class TOFChannel(ImageChannel):
     """
     Image channel with Time-of-flight related attributes.
     """
