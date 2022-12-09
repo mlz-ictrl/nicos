@@ -234,7 +234,7 @@ devices = dict(
 )
 
 # when se_om (the sample stick rotation) is present, use this for a3
-alias_config = {'a3': {'som': 10, 'se_om': 20}}
+alias_config = {'a3': {'som': 10}}  # , 'se_om': 20}}
 
 startupcode = """
 sgl.alias = 'gl_sim'

@@ -85,4 +85,4 @@ devices = dict(
         auto_enable = True,
     ),
 """
-alias_config = {'om': {'om_raw': 10, 'se_om': 20}}
+alias_config = {'om': {'om_raw': 10}}  # , 'se_om': 20}}

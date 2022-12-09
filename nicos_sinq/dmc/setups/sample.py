@@ -14,4 +14,4 @@ devices = dict(
               description='Alias for sample rotation',
               devclass='nicos.core.device.Moveable'),
 )
-alias_config = {'a3': {'a3s': 10, 'se_om': 20}}
+alias_config = {'a3': {'a3s': 10}}  # , 'se_om': 20}}
