@@ -1,6 +1,6 @@
 description = 'NE9000 peristaltic pump'
 
-pv_root = 'E04-SEE-FLUCO:NE9000-001:'
+pv_root = 'SE-SEE:SE:NE9000-001:'
 
 devices = dict(
     inside_diameter_9000=device(

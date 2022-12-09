@@ -1,6 +1,6 @@
 description = 'The Lakeshore 224 Temperature Monitor.'
 
-pv_root = 'E04-SEE-FLUC:Tmt-LS224-01:'
+pv_root = 'SE-SEE:SE-LS224-001:'
 
 devices = dict(
     T_ls224_A=device(

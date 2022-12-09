@@ -1,6 +1,6 @@
 description = 'Burster precision resistance decade 1427 (resistance bridge)'
 
-pv_root = 'E04-SEE-FLUCO:Rdec-Burster1427-01:'
+pv_root = 'SE-SEE:SE-BU1427-001:'
 
 devices = dict(
     burster_value=device(

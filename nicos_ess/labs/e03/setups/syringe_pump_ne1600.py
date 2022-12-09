@@ -1,6 +1,6 @@
 description = 'NE1600 syringe pump'
 
-pv_root = 'E04-SEE-FLUCO:NE1600-001:'
+pv_root = 'SE-SEE:SE-NE1600-001:'
 
 devices = dict(
     inside_diameter_1600=device(

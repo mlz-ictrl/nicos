@@ -1,6 +1,6 @@
 description = 'Julabo F25HL'
 
-pv_root = 'E04:JULABOF25HL-001:'
+pv_root = 'SE-SEE:SE-JULA25-001:'
 
 devices = dict(
     T_julabo_001=device(
