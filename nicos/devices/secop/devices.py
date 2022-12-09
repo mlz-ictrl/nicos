@@ -634,14 +634,17 @@ class SecopDevice(Device):
 
             def makecmd(cname, datainfo, description):
                 argument = datainfo.get('argument')
-                # we ignore the result type here (no need to check)
+
                 optional = datainfo.get('optional', ())
+
+                # Check the result type
+                check_result = get_validator(datainfo.get('result'))
 
                 if argument is None:
                     help_arglist = ''
 
                     def cmd(self):
-                        return self._call(cname, None)
+                        return check_result(self._call(cname, None))
 
                 elif argument['type'] == 'tuple':
                     # treat tuple elements as separate arguments
@@ -649,7 +652,7 @@ class SecopDevice(Device):
                                              for t in argument['members'])
 
                     def cmd(self, *args):
-                        return self._call(cname, args)
+                        return check_result(self._call(cname, args))
 
                 elif argument['type'] == 'struct':
                     # treat SECoP struct as keyworded arguments
@@ -674,7 +677,7 @@ class SecopDevice(Device):
                                     'got multiple values for argument %r'
                                     % key)
                             kwds[key] = arg
-                        return self._call(cname, kwds)
+                        return check_result(self._call(cname, kwds))
 
                 else:
                     argtype = get_validator(argument)
@@ -682,7 +685,7 @@ class SecopDevice(Device):
                                    else ''
 
                     def cmd(self, argument=None):
-                        return self._call(cname, argument)
+                        return check_result(self._call(cname, argument))
 
                 cmd.help_arglist = help_arglist
                 cmd.__doc__ = description
