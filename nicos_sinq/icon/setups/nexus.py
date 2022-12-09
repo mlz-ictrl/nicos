@@ -4,8 +4,6 @@ excludes = ['detector']
 
 sysconfig = dict(datasinks = ['nxsink', 'livesink', 'quiecksink', 'fits'],)
 
-modules = ['nicos_sinq.icon.commands.tablecommands']
-
 devices = dict(
     sample_pos1 = device('nicos_sinq.devices.componenttable.ComponentTable',
         description = 'Sample Position 1',
