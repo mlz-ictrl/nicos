@@ -74,5 +74,5 @@ tools = [
 
 options = {
     'facility': 'ess',
-    'mainwindow_class': 'nicos.client.flowui.MainWindow',
+    'mainwindow_class': 'nicos.clients.flowui.mainwindow.MainWindow',
 }
