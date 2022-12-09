@@ -134,7 +134,6 @@ devices = dict(
         raw_motor = 'a6_raw',
         wait_period = 7,
         precision = .02,
-        can_disable = True,
     ),
     ach = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Analyser horizontal curvature',
