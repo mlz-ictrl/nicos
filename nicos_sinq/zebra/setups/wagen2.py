@@ -11,7 +11,7 @@ devices = dict(
         motorpv = pvpref + 'NUAN',
         errormsgpv = pvpref + 'NUAN-MsgTxt',
         precision = 0.01,
-        units = 'degree',
+        unit = 'degree',
         can_disable = True,
         auto_enable = True,
     ),

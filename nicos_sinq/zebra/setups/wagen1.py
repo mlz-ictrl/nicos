@@ -10,7 +10,7 @@ devices = dict(
         motorpv = pvpref + 'A4T',
         errormsgpv = pvpref + 'A4T-MsgTxt',
         precision = 0.01,
-        units = 'degree',
+        unit = 'degree',
         can_disable = True,
         auto_enable = True,
     ),
