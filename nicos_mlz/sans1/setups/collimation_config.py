@@ -6,7 +6,7 @@ excludes = ['collimation']
 
 group = 'lowlevel'  # should not be visible to users
 
-tangohost = 'tango://sans1hw.sans1.frm2:10000'
+tangohost = 'tango://hw.sans1.frm2.tum.de:10000'
 
 devices = dict(
     col_2_m = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',

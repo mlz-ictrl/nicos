@@ -4,7 +4,7 @@ excludes = ['tisane_multifg']
 
 # group = 'lowlevel'
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/tisane'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1/tisane'
 
 devices = dict(
     tisane_fg1_sample = device('nicos_mlz.sans1.devices.tisane.Burst',

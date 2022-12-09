@@ -2,7 +2,7 @@ description = 'setup for the astrium chopper'
 
 group = 'optional'
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/chopper'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1/chopper'
 
 devices = dict(
     chopper_dru_rpm = device('nicos.devices.entangle.WindowTimeoutAO',

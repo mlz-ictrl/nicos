@@ -1,6 +1,6 @@
 description = 'instrument shutter control'
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/instrument_shutter/'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1/instrument_shutter/'
 
 devices = dict(
     #instrument_shutter = device('nicos.devices.generic.MultiSwitcher',

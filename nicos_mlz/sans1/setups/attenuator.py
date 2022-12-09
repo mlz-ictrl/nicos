@@ -7,7 +7,7 @@ description = 'attenuator'
 # included by sans1
 group = 'lowlevel'
 
-tangohost = 'tango://sans1hw.sans1.frm2:10000'
+tangohost = 'tango://hw.sans1.frm2.tum.de:10000'
 
 devices = dict(
     att = device('nicos_mlz.sans1.devices.collimotor.Switcher',

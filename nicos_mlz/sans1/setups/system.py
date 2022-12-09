@@ -4,7 +4,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'sans1hw02.sans1.frm2',
+    cache = 'ctrl.sans1.frm2.tum.de',
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],

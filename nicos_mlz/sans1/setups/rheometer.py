@@ -2,7 +2,7 @@ description = 'Rheoplus worksheet remote control'
 
 group = 'optional'
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/rheo/'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/rheo/'
 
 devices = dict(
     Rheo_WS = device('nicos.devices.entangle.DigitalOutput',

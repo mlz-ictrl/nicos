@@ -4,8 +4,8 @@ group = 'optional'
 
 modules = ['nicos_mlz.sans1.commands.spinflipper']
 
-tango_base = 'tango://spinflip.sans1.frm2:10000/box/'
-tango_base_truerms = 'tango://sans1hw.sans1.frm2:10000/sans1/'
+tango_base = 'tango://spinflip.sans1.frm2.tum.de:10000/box/'
+tango_base_truerms = 'tango://hw.sans1.frm2.tum.de:10000/sans1/'
 
 devices = dict(
     # AG1016 amplifier
@@ -67,7 +67,7 @@ devices = dict(
 
     # WUT Box 22.04.2021 check for bug; T = 212degC ?!?
     #T_spinflipper = device('nicos_mlz.sans1.devices.wut.WutValue',
-    #    hostname = 'sans1wut-temp-spinflip.sans1.frm2',
+    #    hostname = 'sans1wut-temp-spinflip.sans1.frm2.tum.de',
     #    port = '1',
     #    description = 'temperature of spinflipper',
     #    fmtstr = '%.2F',

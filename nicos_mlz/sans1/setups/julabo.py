@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['alias_T']
 
-tango_base = 'tango://julabo.sans1.frm2:10000/box/'
+tango_base = 'tango://julabo.sans1.frm2.tum.de:10000/box/'
 
 devices = dict(
     T_julabo_intern = device('nicos.devices.entangle.TemperatureController',

@@ -2,7 +2,7 @@ description = 'bottom sample table devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/table/'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1/table/'
 
 devices = dict(
     st1_omg = device('nicos.devices.generic.Axis',

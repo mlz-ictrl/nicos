@@ -3,7 +3,7 @@
 description = 'Multipurpose EA power supply'
 group = 'optional'
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/ea_ps'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1/ea_ps'
 
 devices = dict(
     ea_psi_curr = device('nicos.devices.entangle.PowerSupply',

@@ -7,7 +7,7 @@ excludes = ['collimation_config']
 # included by sans1
 group = 'lowlevel'
 
-tangohost = 'tango://sans1hw.sans1.frm2:10000'
+tangohost = 'tango://hw.sans1.frm2.tum.de:10000'
 
 devices = dict(
     col = device('nicos.devices.generic.LockedDevice',

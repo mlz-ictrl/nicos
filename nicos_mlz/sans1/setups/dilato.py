@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['alias_T']
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/dilato/'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1/dilato/'
 
 devices = {
     'Ts_dil': device('nicos.devices.entangle.Sensor',

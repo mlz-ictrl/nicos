@@ -3,7 +3,7 @@ description = 'detector related devices including beamstop'
 # included by sans1
 group = 'lowlevel'
 
-tangohost = 'tango://sans1hw.sans1.frm2:10000'
+tangohost = 'tango://hw.sans1.frm2.tum.de:10000'
 detector_base = 'tango://mesydaq.sans1.frm2.tum.de:10000/qm/qmesydaq/'
 
 BS1_X_OFS = -475.055  # from entangle

@@ -2,7 +2,7 @@ description = 'Vacuum sensors of detector and collimation tube'
 
 group = 'lowlevel'
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1'
 
 devices = dict(
     det_tube = device('nicos.devices.entangle.Sensor',

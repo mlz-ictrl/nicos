@@ -2,7 +2,7 @@ description = 'Selector Tower Movement'
 
 group = 'lowlevel'
 
-tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1/'
 
 devices = dict(
     selector_ng_ax = device('nicos.devices.generic.Axis',

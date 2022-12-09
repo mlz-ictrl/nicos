@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['sample_changer', 'sample_table_1']
 
-tango_host = 'tango://sans1hw.sans1.frm2:10000/sans1/sample_changer/'
+tango_host = 'tango://hw.sans1.frm2.tum.de:10000/sans1/sample_changer/'
 
 devices = dict(
     sc_t_y = device('nicos.devices.generic.Axis',
