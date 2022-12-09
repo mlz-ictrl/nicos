@@ -10,12 +10,7 @@ devices = dict(
         unlockvalue = 0,
         fmtstr = '0x%02x',
     ),
-    air = device('nicos.devices.generic.DeviceAlias'),
 )
-
-alias_config = {
-    'air': {'out_0': 100, },
-}
 
 # startupcode = '''
 # air.alias = 'out_0'

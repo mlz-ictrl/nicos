@@ -20,7 +20,12 @@ devices = dict(
         pollinterval = 2,
         visibility = (),
     ),
+    air = device('nicos.devices.generic.DeviceAlias'),
 )
+
+alias_config = {
+    'air': {'out_0': 100, },
+}
 
 for i in range(8):
     devices['in_%d' % i] = device('nicos.devices.entangle.DigitalInput',
