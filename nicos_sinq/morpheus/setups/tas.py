@@ -68,16 +68,6 @@ devices = dict(
         alias = 'MORPHEUS.en',
         devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
     ),
-    a3 = device('nicos.core.device.DeviceAlias',
-        description = 'Alias for omega',
-        alias = 'sth',
-        devclass = 'nicos.core.device.Moveable'
-    ),
-    a4 = device('nicos.core.device.DeviceAlias',
-        description = 'Alias for omega',
-        alias = 'stt',
-        devclass = 'nicos.core.device.Moveable'
-    ),
     sgu = device('nicos.core.device.DeviceAlias',
         description = 'Alias for omega',
         alias = 'sgx',
