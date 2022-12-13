@@ -78,6 +78,7 @@ devices = dict(
     ),
     pump_1600=device(
         'nicos_ess.devices.epics.syringe_pump.SyringePumpController',
+        description='The current operational state of the device',
         start_pv='{}RUN'.format(pv_root),
         stop_pv='{}STOP'.format(pv_root),
         purge_pv='{}PURGE'.format(pv_root),
