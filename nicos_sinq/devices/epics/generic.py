@@ -58,7 +58,7 @@ class WindowMoveable(HasLimits, HasPrecision, EpicsMoveable):
 
     def doStatus(self, maxage=0):
         if self._drive_target is not None:
-            if not self.isAtTarget(target=self._driveTarget):
+            if not self.isAtTarget(target=self._drive_target):
                 return status.BUSY, 'Moving'
             self._drive_target = None
         return status.OK, 'Done'
