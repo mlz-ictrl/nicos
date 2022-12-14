@@ -34,13 +34,13 @@ from nicos import session
 from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, HasPrecision, Moveable, Override, Param, \
     Readable, anytype, floatrange, none_or, pvname, status
-from nicos.devices.abstract import MappedMoveable
+from nicos.devices.abstract import MappedMoveable, MappedReadable
 from nicos.utils import HardwareStub
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
     'EpicsMoveable', 'EpicsStringMoveable', 'EpicsAnalogMoveable',
-    'EpicsDigitalMoveable', 'EpicsMappedMoveable'
+    'EpicsDigitalMoveable', 'EpicsMappedMoveable', 'EpicsMappedReadable'
 ]
 
 DEFAULT_EPICS_PROTOCOL = os.environ.get('DEFAULT_EPICS_PROTOCOL', 'ca')
@@ -421,6 +421,53 @@ class EpicsDigitalMoveable(EpicsAnalogMoveable):
     }
 
 
+class EpicsMappedReadable(MappedReadable, EpicsReadable):
+    valuetype = str
+
+    parameter_overrides = {
+        # MBBI, BI, etc. do not have units
+        'unit': Override(mandatory=False, settable=False, volatile=False),
+        # Mapping values are read from EPICS
+        'mapping': Override(mandatory=False, settable=False, userparam=False)
+    }
+
+    def _subscribe(self, change_callback, pvname, pvparam):
+        return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
+                                             self.connection_change_callback,
+                                             as_string=True)
+
+    def _get_pv_parameters(self):
+        return {'readpv'}
+
+    def doInit(self, mode):
+        if mode == SIMULATION:
+            return
+
+        EpicsDevice.doInit(self, mode)
+
+        if session.sessiontype != POLLER:
+            choices = self._epics_wrapper.get_value_choices(
+                self._get_pv_name('readpv'))
+            # Create mapping from EPICS information
+            new_mapping = {}
+            for i, choice in enumerate(choices):
+                new_mapping[choice] = i
+            self._setROParam('mapping', new_mapping)
+        MappedReadable.doInit(self, mode)
+
+    def doRead(self, maxage=0):
+        return self._get_pv('readpv', as_string=True)
+
+    def doStatus(self, maxage=0):
+        stat, msg = MappedReadable.doStatus(self, maxage)
+        return stat, '' if stat == status.OK else msg
+
+    def value_change_callback(self, name, param, value, units, severity,
+                              message, **kwargs):
+        EpicsDevice.value_change_callback(self, name, param, value, units,
+                                          severity, message, **kwargs)
+
+
 class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
     valuetype = str
 
@@ -433,7 +480,7 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
         # MBBI, BI, etc. do not have units
         'unit': Override(mandatory=False, settable=False, volatile=False),
         # Mapping values are read from EPICS
-        'mapping': Override(mandatory=False, settable=True, userparam=False)
+        'mapping': Override(mandatory=False, settable=False, userparam=False)
     }
 
     def _get_pv_parameters(self):
@@ -453,11 +500,11 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
         if session.sessiontype != POLLER:
             choices = self._epics_wrapper.get_value_choices(
                 self._get_pv_name('readpv'))
-            # Existing mapping is fixed, so must create and replace
+            # Create mapping from EPICS information
             new_mapping = {}
             for i, choice in enumerate(choices):
                 new_mapping[choice] = i
-            self.mapping = new_mapping
+            self._setROParam('mapping', new_mapping)
         MappedMoveable.doInit(self, mode)
 
     def doRead(self, maxage=0):
