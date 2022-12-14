@@ -2,7 +2,7 @@ description = 'Neutron counter box and HM at SINQ ZEBRA'
 
 includes = ['hm_config']
 excludes = [
-    'single_detector',
+    'detector_single',
 ]
 
 sysconfig = dict(datasinks = ['nxsink'])
