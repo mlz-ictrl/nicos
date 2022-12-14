@@ -413,7 +413,7 @@ class NicosCmdClient(NicosClient):
                     self.put_message(data)
             elif name == 'status':
                 status, line = data
-                if status == STATUS_IDLE or status == STATUS_IDLEEXC:
+                if status in (STATUS_IDLE, STATUS_IDLEEXC):
                     new_status = 'idle'
                     self.stop_pending = False
                 elif status != STATUS_INBREAK:
