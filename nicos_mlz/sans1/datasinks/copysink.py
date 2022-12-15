@@ -51,14 +51,11 @@ class CopySinkHandler(DataSinkHandler):
         if self._target is None:  # prepare() not called
             return
         image = self.detector._attached_images[0]
-        if not hasattr(image, '_taco_guard'):
-            return
         shutil.copy(path.join(self.sink.path, self._read_source(image)),
                     self._target)
 
     def _read_source(self, image):
-        return image._taco_guard(image._dev.deviceQueryResource,
-                                 self.sink.source)
+        return getattr(image, self.sink.source)
 
 
 class CopySink(QMesyDAQSink):
