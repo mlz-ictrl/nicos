@@ -6,4 +6,4 @@ Data formats
 
 .. module:: nicos_batan.dn3.devices.datasinks
 
-.. autoclass:: HrpdSink()
+.. autoclass:: DN3Sink()
