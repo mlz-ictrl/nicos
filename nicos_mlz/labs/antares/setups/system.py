@@ -25,7 +25,6 @@ devices = dict(
         mailsender = 'antares@frm2.tum.de',
         propprefix = 'p',
         serviceexp = 'service',
-        servicescript = '',
         templates = 'templates',
         sendmail = False,
         zipdata = False,

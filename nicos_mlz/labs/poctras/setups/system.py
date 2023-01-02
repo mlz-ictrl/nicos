@@ -27,7 +27,6 @@ devices = dict(
         mailsender = '',
         propprefix = 'p',
         serviceexp = 'service',
-        servicescript = '',
         templates = 'templates',
         sendmail = False,
         zipdata = False,
