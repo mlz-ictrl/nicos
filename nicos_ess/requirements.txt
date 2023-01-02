@@ -2,9 +2,9 @@
 -r ../requirements-gui.txt
 -r ../requirements-epics.txt
 
-ess-streaming-data-types>=0.18.0
+ess-streaming-data-types>=0.21.0
 file-writer-control>=1.1.5
-flatbuffers==1.12
+flatbuffers
 graypy
 h5py>=2.6
 kafka-logging-handler<=0.2.4
