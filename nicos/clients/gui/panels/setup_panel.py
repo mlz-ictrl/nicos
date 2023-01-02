@@ -196,7 +196,7 @@ class ExpPanel(Panel):
             self.newBox.setVisible(True)
             self.proposalNum.setText('')  # do not offer "service"
         # check for capability to ask proposal database
-        if self.client.eval('session.experiment._canQueryProposals()', None):
+        if self.client.eval('session.experiment._canQueryProposals()', False):
             self.propdbInfo.setVisible(True)
             self.queryDBButton.setVisible(True)
         else:

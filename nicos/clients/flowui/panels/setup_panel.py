@@ -64,7 +64,7 @@ class ExpPanel(DefaultExpPanel):
         self._update_proposal_info()
         self.newBox.setVisible(True)
         # check for capability to ask proposal database
-        if self.client.eval('session.experiment._canQueryProposals()', None):
+        if self.client.eval('session.experiment._canQueryProposals()', False):
             self.propdbInfo.setVisible(True)
             self.queryDBButton.setVisible(True)
         else:
