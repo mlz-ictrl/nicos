@@ -2,6 +2,8 @@
 
 description = 'system setup'
 
+group = 'lowlevel'
+
 sysconfig = dict(
     cache = 'antareshw.antares.frm2',
     instrument = 'ANTARES',
