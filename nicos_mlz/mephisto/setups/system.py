@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 description = 'system setup'
 
+group = 'lowlevel'
+
 sysconfig = dict(
     cache = None, # 'sans1ctrl.sans1.frm2',
     instrument = 'MEPHISTO',

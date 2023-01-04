@@ -1,6 +1,8 @@
 #  -*- coding: utf-8 -*-
 description = 'NICOS system setup'
 
+group = 'lowlevel'
+
 sysconfig = dict(
     cache = 'sehw.se.frm2',
     instrument = 'SE',

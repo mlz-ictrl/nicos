@@ -2,6 +2,8 @@
 
 description = 'system setup'
 
+group = 'lowlevel'
+
 sysconfig = dict(
     cache = 'localhost',
     instrument = 'PoCTRaS',
