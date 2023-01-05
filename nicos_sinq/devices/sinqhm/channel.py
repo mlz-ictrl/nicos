@@ -29,7 +29,7 @@ import numpy
 from nicos.core import Attach, Override, Param, Value, dictof, status
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 
-from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
+from nicos_sinq.devices.imagesink import \
     HistogramDesc, HistogramDimDesc
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfBank
 from nicos_sinq.devices.sinqhm.connector import HttpConnector

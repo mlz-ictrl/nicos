@@ -28,8 +28,9 @@ import numpy
 try:
     import flatbuffers
 
-    from nicos_ess.devices.fbschemas.hs00 import Array, ArrayFloat, \
-        ArrayUInt, DimensionMetaData, EventHistogram
+    from nicos_sinq.devices.fbschemas.hs00 import ArrayUInt, EventHistogram
+    from nicos_sinq.devices.fbschemas.hs00 import DimensionMetaData, ArrayFloat, \
+        Array
 
     uint32_bytes = flatbuffers.number_types.Uint32Flags.bytewidth
 except ImportError:

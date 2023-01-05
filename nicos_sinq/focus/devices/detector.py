@@ -29,7 +29,7 @@ from nicos.core import Attach, Device, Param, Value, listof
 from nicos.core.errors import ConfigurationError
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
-from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
+from nicos_sinq.devices.imagesink import \
     HistogramDesc, HistogramDimDesc
 from nicos_sinq.devices.detector import ControlDetector
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfArray

@@ -26,7 +26,7 @@ import time
 
 import numpy
 
-from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
+from nicos_sinq.devices.imagesink import \
     HistogramDimDesc
 from nicos_sinq.devices.sinqhm.channel import HistogramImageChannel
 

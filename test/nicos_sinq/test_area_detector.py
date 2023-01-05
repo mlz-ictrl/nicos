@@ -44,7 +44,7 @@ from nicos.core.constants import LIVE
 
 from nicos_ess.devices.epics.status import ADKafkaStatus
 
-from test.nicos_ess.test_devices.utils import create_hs00
+from test.nicos_sinq.utils import create_hs00
 
 
 session_setup = "sinq_area_detector"

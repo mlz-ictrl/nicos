@@ -24,7 +24,7 @@
 
 from nicos.core import Attach
 
-from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
+from nicos_sinq.devices.imagesink import \
     HistogramDimDesc
 from nicos_sinq.devices.sinqhm.channel import ReshapeHistogramImageChannel
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfAxis

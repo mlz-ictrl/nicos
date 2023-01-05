@@ -32,7 +32,7 @@ from nicos import session
 from nicos.core import FINAL, LIVE
 from nicos.utils import byteBuffer, safeName
 
-from nicos_ess.devices.datasinks.imagesink import ImageKafkaDataSink, \
+from nicos_sinq.devices.imagesink import ImageKafkaDataSink, \
     ImageKafkaDataSinkHandler
 from nicos_sinq.devices.datasinks import SinqNexusFileSink
 

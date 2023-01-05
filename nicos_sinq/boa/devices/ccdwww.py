@@ -32,7 +32,7 @@ from nicos.core.status import BUSY, ERROR, OK
 from nicos.core.utils import usermethod
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin
 
-from nicos_ess.devices.datasinks.imagesink.histogramdesc import\
+from nicos_sinq.devices.imagesink import\
                 HistogramDesc, HistogramDimDesc
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
