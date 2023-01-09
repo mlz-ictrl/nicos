@@ -58,10 +58,10 @@ class EpicsScalerRecord(EpicsDetector):
         'thresholdcounterpv': Param('Optional PV that sets threshold counter',
                                     type=pvname, userparam=False),
         'threshold': Param('Threshold for no beam detection', type=float,
-                           userparam=False, settable=True),
+                           userparam=True, settable=True),
         'thresholdcounter': Param('Threshold counter for no beam detection',
                                   type=float,
-                                  userparam=False, settable=True)
+                                  userparam=True, settable=True)
     }
 
     parameter_overrides = {

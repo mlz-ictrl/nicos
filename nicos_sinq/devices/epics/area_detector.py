@@ -84,7 +84,7 @@ class ADEnumPar(AutoDevice, EpicsMoveable):
 
     def doInit(self, mode):
         EpicsMoveable.doInit(self, mode)
-        self.valuetype = oneof(self.allowed)
+        self.valuetype = oneof(*self.allowed)
 
     def doStart(self, target):
         self._put_pv('writepv', target)

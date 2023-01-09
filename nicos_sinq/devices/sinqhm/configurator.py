@@ -119,6 +119,14 @@ class HistogramConfTofArray(HistogramConfArray):
     The data vector represents the time bins. This class provides
     a way to change the time bins.
     """
+
+    parameters = {
+        'start_delay':  Param('start delay for tof',
+                              type=int, settable=True,
+                              unit='us'),
+        'channel_width': Param('channel width', type=int,
+                               settable=True, unit='us')
+    }
     parameter_overrides = {
         'tag': Override(mandatory=False, default='tof'),
         'data': Override(type=listof(int)),
@@ -132,6 +140,8 @@ class HistogramConfTofArray(HistogramConfArray):
         """
         data = np.arange(tmin, tmin + tstep * channels, tstep)
         self.setData([channels], data)
+        self.start_delay = tmin
+        self.channel_width = tstep
 
 
 class HistogramConfAxis(HistogramConfElement):
@@ -315,7 +325,8 @@ class ConfiguratorBase(HistogramConfElement):
     Example of the sample configuration file::
 
       <?xml version="1.0" encoding="UTF-8"?>
-      <sinqhm filler="tof" hdr_daq_mask=’’0x000000’’ hdr_daq_active=’’0x000000’’>
+      <sinqhm filler="tof" hdr_daq_mask=’’0x000000’’
+                           hdr_daq_active=’’0x000000’’>
         <bank rank="2">
             <axis length="400" mapping="direct"/>
             <axis length="1000" mapping="boundary" array="tof"/>

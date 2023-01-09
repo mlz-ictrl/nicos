@@ -68,6 +68,7 @@ class SinqExperiment(Experiment):
         'zipdata': Override(default=False),
         'title': Override(settable=True, volatile=False),
         'users': Override(settable=True, volatile=False),
+        'elog': Override(default=False),
     }
 
     parameters = {

@@ -43,6 +43,7 @@ class BeamOracle(EpicsDevice, Detector):
     }
 
     _running = False
+    _channels = []
 
     def _get_pv_parameters(self):
         return set(['readpv', 'writepv', 'clearpv_int', 'clearpv_time'])
