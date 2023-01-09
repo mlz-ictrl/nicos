@@ -6,7 +6,7 @@ pvprefix_sumi = 'SQ:ICON:sumi:'
 pvprefix_ai = 'SQ:ICON:B5ADC:'
 
 includes = ['shutters']
-excludes = ['detector']
+excludes = ['detector', 'beam_monitor', 'andor']
 
 display_order = 90
 

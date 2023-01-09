@@ -7,7 +7,7 @@ pvprefix = 'sim:det:'
 
 detector_channel = 'cam1:'
 
-excludes = ['detector']
+excludes = ['detector', 'andor', 'detector_phys']
 includes = ['beam_monitor']
 
 # For the multiple detector NeXus file writing to work, the ADImageChannel must have

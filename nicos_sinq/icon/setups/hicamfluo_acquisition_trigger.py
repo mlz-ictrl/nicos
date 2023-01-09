@@ -3,7 +3,9 @@ group = 'optional'
 
 includes = []
 
-excludes = ['trigger', ]
+excludes = [
+    'trigger',
+]
 
 tango_base = 'tango://172.28.77.84:10000/antares/funcgen_burst/'
 

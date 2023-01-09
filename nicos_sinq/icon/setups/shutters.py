@@ -4,6 +4,10 @@ group = 'lowlevel'
 
 display_order = 10
 
+sysconfig = dict(datasinks = [
+    'shuttersink',
+])
+
 devices = dict(
     #Main Shutter HE
     he_sopen = device('nicos_sinq.devices.epics.EpicsDigitalMoveable',

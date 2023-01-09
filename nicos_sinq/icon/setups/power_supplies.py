@@ -2,7 +2,9 @@ description = 'Control of power supplies'
 
 display_order = 90
 
-excludes = ['e3648a',]
+excludes = [
+    'e3648a',
+]
 
 devices = dict(
     e3648a_volt = device('nicos_sinq.devices.epics.generic.WindowMoveable',
