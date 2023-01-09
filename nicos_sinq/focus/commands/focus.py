@@ -180,14 +180,54 @@ def chosta():
     ratio = session.getDevice('ch_ratio')
     session.log.info('FC speed: %d, DC speed %d, phase = %.2f, ratio = %d',
                      FCs.read(), DCs.read(), phase.read(), ratio.read())
-    if FCs.target-FCs.read() > FCs.window:
+    if not FCs.isAtTarget():
         session.log.info('FC speed target: %d', FCs.target)
 
 
 @usercommand
 @parallel_safe
-def setpar():
+def instpar():
     """
     Reports instrument setup.
     """
-    return chosta()
+    devs = ['mex', 'mtt', 'mth']
+    mex = session.getDevice('mex')
+    if mex.read(0) < 90:
+        devs += ['m1cv', 'm1ch']
+    else:
+        devs += ['m2cv', 'm2ch']
+
+    devs += ['wavelength', 'em_td', 'em_aw']
+    msg = '\n'
+    for d in devs:
+        msg += '%s = %f\n' % (d, session.getDevice(d).read(0))
+    FCs = session.getDevice('ch1_speed')
+    DCs = session.getDevice('ch2_speed')
+    phase = session.getDevice('ch_phase')
+    msg += 'fermispeed = %d set = %d\n' % (FCs.read(0), FCs.target)
+    msg += 'diskpeed = %d set = %d\n' % (DCs.read(0), DCs.target)
+    msg += 'phase = %f set = %f\n' % (phase.read(0), phase.target)
+    tof = session.getDevice('hm_tof_array')
+    msg += 'hm delay: %d musec, ch width: %d musec, number of channels: %d\n'\
+           % (tof.data[0], tof.data[1] - tof.data[0], len(tof.data))
+    session.log.info(msg)
+
+
+setpar = instpar
+
+
+@usercommand
+@parallel_safe
+def sampar():
+    """
+    Reports user parameters
+    """
+    msg = '\n'
+    msg += '%s:%s\n' % (session.experiment.users,
+                        session.experiment.sample.samplename)
+    msg += 'Runnumber: %d\n' % session.experiment.lastscan
+    det = session.getDevice('focusdet')
+    vals = det.read(0)
+    msg += 'Monitor: %d; Set: %d; Time: %f h\n' % \
+           (vals[1], vals[6], vals[0]/3600.)
+    session.log.info(msg)

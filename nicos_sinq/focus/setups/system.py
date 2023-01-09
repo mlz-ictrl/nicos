@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'FOCUS',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink', 'quiecksink'],
+    datasinks = ['conssink', 'dmnsink', 'livesink', 'quiecksink'],
 )
 
 modules = [
@@ -44,17 +44,6 @@ devices = dict(
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sink for forwarding live data to the GUI',
-    ),
-    nxfw = device('nicos.devices.generic.ManualSwitch',
-        description = 'Switch for enabling/disabling NeXus file writing',
-        states = ['on', 'off']
-    ),
-    nxsink = device('nicos_sinq.devices.datasinks.SwitchableNexusSink',
-        file_switch = 'nxfw',
-        description = 'Sink for NeXus file writer',
-        filenametemplate = ['focus%(year)sn%(scancounter)06d.hdf'],
-        templateclass =
-        'nicos_sinq.focus.nexus.nexus_templates.FOCUSTemplateProvider',
     ),
     quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
         description = 'Sink for sending UDP datafile '
