@@ -278,8 +278,12 @@ class DeviceDataset(NexusElementBase):
             if dev.name == self.device:
                 dset = h5parent[name]
                 parent = h5parent[linkroot]
-                parent[name] = dset
-                dset.attrs['target'] = np.string_(dset.name)
+                if name not in parent:
+                    parent[name] = dset
+                    dset.attrs['target'] = np.string_(dset.name)
+                else:
+                    session.log.warning('Trying to create %s a second time',
+                                        name)
 
 
 class DetectorDataset(NexusElementBase):
