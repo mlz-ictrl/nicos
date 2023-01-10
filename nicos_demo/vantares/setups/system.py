@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = configdata('config_data.cache_host'),
     instrument = 'ANTARES',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink',],
     notifiers = [],
 )
 
@@ -47,6 +47,7 @@ devices = dict(
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
+    livesink = device('nicos.devices.datasinks.LiveViewSink'),
     DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free Space on the DataStorage',
         path = configdata('config_data.dataroot'),
