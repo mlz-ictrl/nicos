@@ -39,7 +39,7 @@ from nicos.core import SIMULATION, ArrayDesc, CanDisable, Device, HasLimits, \
     HasPrecision, HasTimeout, Moveable, NicosError, Override, Param, \
     Readable, Value, dictof, intrange, listof, nonemptylistof, oneof, \
     oneofdict, status, waitForCompletion
-from nicos.core.constants import FINAL, SLAVE
+from nicos.core.constants import FINAL, LIVE, SLAVE
 from nicos.core.mixins import HasOffset, HasWindowTimeout
 from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
 from nicos.devices.generic.detector import ActiveChannel, \
@@ -711,7 +711,7 @@ class ImageChannel(BaseImageChannel):
     def doInit(self, mode):
         BaseImageChannel.doInit(self, mode)
         if mode != SLAVE:
-            self.readArray(FINAL)  # update readresult at startup
+            self.readArray(LIVE)  # update readresult at startup
 
     def doReadArray(self, quality):
         # on quality FINAL wait for entangle ImageChannel finishing readout
