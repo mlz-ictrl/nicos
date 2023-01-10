@@ -68,14 +68,6 @@ class CCRControl(HasLimits, Moveable):
         'abslimits': Override(mandatory=False),
     }
 
-    @property
-    def stick(self):
-        return self._attached_stick
-
-    @property
-    def tube(self):
-        return self._attached_tube
-
     def doInit(self, mode):
         if mode != SIMULATION:
             if self._attached_stick is None or self._attached_tube is None:
