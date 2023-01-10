@@ -1,3 +1,5 @@
+nicos/pushactutator/value=0
+nicos/sensort/value=1
 nicos/samplemotor/value=1
 nicos/samplemotor/abslimits=(1,15)
 nicos/samplemotor/userlimits=(1,15)

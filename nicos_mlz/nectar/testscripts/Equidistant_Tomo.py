@@ -1,4 +1,9 @@
 # pylint: skip-file
+
+# test: subdirs = frm2
+# test: setups = nectar, detector, servostar
+# test: setupcode = SetDetectors(det)
+
 """
 Created on Thu Oct 08 08:36:34 2015
 
