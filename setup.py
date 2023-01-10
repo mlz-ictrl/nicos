@@ -170,7 +170,7 @@ setup(
     maintainer = 'Jens Krüger',
     maintainer_email = 'jens.krueger@frm2.tum.de',
     description = 'The Networked Instrument Control System',
-    url = 'http://www.nicos-controls.org',
+    url = 'https://www.nicos-controls.org',
     cmdclass = {'install': nicosinstall},
     packages = packages,
     package_data = package_data,

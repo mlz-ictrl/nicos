@@ -19,7 +19,7 @@ devices = dict(
         description = 'instrument object',
         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
         instrument = 'SANS-V2',
-        website = 'http://www.nicos-controls.org',
+        website = 'https://www.nicos-controls.org',
         operators = ['NICOS developer team'],
         facility = 'NICOS demo instruments',
     ),

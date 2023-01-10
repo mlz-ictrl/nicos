@@ -17,7 +17,7 @@ devices = dict(
         description = 'battery test stand',
         instrument = 'Battery test lab',
         responsible = 'A. Senyshyn <Anatoliy.Senyshyn@frm2.tum.de>',
-        website = 'http://www.nicos-controls.org',
+        website = 'https://www.nicos-controls.org',
         operators = ['MLZ'],
     ),
     Sample = device('nicos.devices.sample.Sample',

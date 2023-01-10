@@ -20,7 +20,7 @@ devices = dict(
         description = 'Instrument object',
         instrument = 'TEST',
         responsible = 'g.brandl@fz-juelich.de',
-        website = 'http://www.nicos-controls.org',
+        website = 'https://www.nicos-controls.org',
         facility = 'Forschungszentrum Jülich',
     ),
     Sample = device('nicos.devices.sample.Sample',
