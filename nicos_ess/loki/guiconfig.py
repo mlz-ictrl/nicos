@@ -28,14 +28,14 @@ main_window = docked(
     tabbed(
         ('Experiment',
          panel('nicos_ess.gui.panels.exp_panel.ExpPanel', hide_sample=True)),
-        ('Setup',
+        ('Instrument Setup',
          panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
-        ('Cell-holder Configuration',
+        ('Sample Configuration',
          panel('nicos_ess.loki.gui.sample_holder_config.LokiSampleHolderPanel')
          ),
         ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
         (
-            'Instrument interaction',
+            'Instrument Interaction',
             hsplit(
                 vbox(
                     panel(
@@ -74,7 +74,7 @@ main_window = docked(
                   tools=None),
         ),
         (
-            'Batch file generation',
+            'Scripting',
             panel('nicos.clients.flowui.panels.editor.EditorPanel',
                   tools=None),
         ),
