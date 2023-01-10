@@ -1,6 +1,6 @@
 description = '8 channel digital I/O box'
 
-group = 'optional'
+group = 'plugplay'
 
 tango_base = 'tango://flipbox:10000/test/piface/'
 
