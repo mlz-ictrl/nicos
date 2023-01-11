@@ -25,6 +25,8 @@ from nicos import session
 from nicos.core import MAIN, Param, pvname, status, usermethod
 
 from nicos_ess.devices.epics import EpicsMotor as EssEpicsMotor
+from nicos.devices.epics.pyepics import pvget
+
 
 
 class EpicsMotor(EssEpicsMotor):
@@ -81,7 +83,11 @@ class EpicsMotor(EssEpicsMotor):
     def isEnabled(self):
         """Shows if the motor is enabled or not"""
         if self.can_disable:
-            val = self._get_pv('enable_rbv')
+            # I need to read this value also in simulation
+            # mode when the PV class has been replaced by a
+            # hardware stub. This is why I read directly here
+            ename = self._get_pv_name('enable_rbv')
+            val = pvget(ename)
             return bool(val == 1)
         return True
 
