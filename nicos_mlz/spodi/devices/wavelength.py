@@ -24,11 +24,12 @@
 
 """Wave length device for SPODI diffractometer."""
 
-from math import asin, pi, sin
+from math import asin, degrees, radians, sin
 
 from nicos.core import SIMULATION, Attach, HasLimits, Moveable, Override, \
-    Param, multiStop, status
+    Param, status
 from nicos.core.errors import ConfigurationError, PositionError
+from nicos.core.utils import multiStatus
 
 
 class Wavelength(HasLimits, Moveable):
@@ -65,25 +66,14 @@ class Wavelength(HasLimits, Moveable):
         },
     }
 
-    def _crystal(self, maxage):
-        try:
-            crystal = self._attached_crystal.read(maxage)
-            if crystal in self._lut:
-                return self._lut[crystal]
-        except PositionError:
-            pass
-        return None
+    def _crystal(self, maxage=0):
+        return self._lut.get(self._attached_crystal.read(maxage), {})
 
     def _d(self, maxage=0):
-        crystal = self._crystal(maxage)
-        if crystal:
-            p = crystal.get(self.plane, None)
-            if p:
-                return p[0]
+        p = self._crystal(maxage).get(self.plane, [])
+        if p:
+            return p[0]
         raise PositionError('No valid setup of the monochromator')
-
-    def _getWaiters(self):
-        return self._adevs
 
     def doInit(self, mode):
         crystal = self._crystal(0)
@@ -94,11 +84,9 @@ class Wavelength(HasLimits, Moveable):
                     self._cache.put(self, 'plane', p)
 
     def doStatus(self, maxage=0):
-        for dev in (self._attached_tthm, self._attached_omgm,
-                    self._attached_crystal):
-            state = dev.status(maxage)
-            if state[0] != status.OK:
-                return state
+        state = multiStatus(self._adevs, maxage)
+        if state[0] != status.OK:
+            return state
         try:
             self._d(maxage)
             return status.OK, 'idle'
@@ -106,20 +94,15 @@ class Wavelength(HasLimits, Moveable):
             return status.ERROR, str(e)
 
     def doRead(self, maxage=0):
-        try:
-            mono = self._attached_tthm.read(maxage)
-            return 2 * self._d(maxage) * sin(mono * pi / (2 * 180.))
-        except PositionError:
-            return None
+        mono = self._attached_tthm.read(maxage)
+        return 2 * self._d(maxage) * sin(radians(mono / 2))
 
     def doStart(self, target):
         crystal = self._crystal(0)
-        if not crystal:
-            raise PositionError(self, 'Not valid setup')
-        tthm = asin(target / (2 * self._d(0))) / pi * 360.
         plane = crystal.get(self.plane, None)
         if not plane:
             raise ConfigurationError(self, 'No valid mono configuration')
+        tthm = degrees(asin(target / (2 * self._d(0))))
         omgm = tthm / 2.0 + plane[1] + plane[2]
         self.log.debug('%s will be moved to %.3f', self._attached_tthm, tthm)
         self.log.debug('%s will be moved to %.3f', self._attached_omgm, omgm)
@@ -127,9 +110,6 @@ class Wavelength(HasLimits, Moveable):
            self._attached_omgm.isAllowed(omgm):
             self._attached_tthm.start(tthm)
             self._attached_omgm.start(omgm)
-
-    def doStop(self):
-        multiStop(self._adevs)
 
     def doReadUnit(self):
         return 'AA'
@@ -142,11 +122,8 @@ class Wavelength(HasLimits, Moveable):
 
     def doWritePlane(self, target):
         crystal = self._crystal(0)
-        if crystal:
-            if not crystal.get(target, None):
-                raise ValueError(
-                    'The "%s" plane is not allowed for "%s" crystal' % (
-                        target, crystal))
-        else:
-            raise PositionError('No valid setup of the monochromator')
+        if not crystal.get(target):
+            raise ValueError(
+                'The "%s" plane is not allowed for "%s" crystal' % (
+                    target, self.crystal))
         return target
