@@ -179,18 +179,7 @@ _atpolcolumn = Column(
 )
 
 _sanscolumn = Column(
-    Block('Collimation',[
-        BlockRow(
-            Field(dev='bg1', name='bg1', width=12),
-            Field(dev='bg2', name='bg2', width=12),
-            Field(dev='sa1', name='sa1', width=12),
-            Field(dev='sa2', name='sa2', width=12),
-        ),
-        BlockRow(
-            Field(dev='col', name='col', unit='m', format = '%.1f', width=12),
-        ),
-        ],
-    ),
+    SetupBlock('collimation', 'html'),
 )
 
 # _birmag = Column(
