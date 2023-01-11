@@ -141,7 +141,8 @@ class DummyDetector(PassiveChannel):
     }
 
     def valueInfo(self):
-        return Value(self.name, unit=self.unit, type='other', fmtstr=self.fmtstr),
+        return Value(
+            self.name, unit=self.unit, type='other', fmtstr=self.fmtstr),
 
 
 class ActiveChannel(PassiveChannel):
@@ -572,10 +573,10 @@ class Detector(Measurable):
                     'controller setting for devices %s ignored by detector',
                     ', '.join(set(self._channel_presets) -
                               set(self._controlchannels)))
-        self.log.debug("    presets: %s", preset)
-        self.log.debug(" presetkeys: %s", self._presetkeys)
-        self.log.debug("controllers: %s", self._controlchannels)
-        self.log.debug("  followers: %s", self._followchannels)
+        self.log.debug('    presets: %s', preset)
+        self.log.debug(' presetkeys: %s', self._presetkeys)
+        self.log.debug('controllers: %s', self._controlchannels)
+        self.log.debug('  followers: %s', self._followchannels)
 
     def doPrepare(self):
         self._collectControllers()
