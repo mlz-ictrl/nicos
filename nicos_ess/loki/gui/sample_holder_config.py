@@ -84,6 +84,13 @@ class LokiSampleHolderPanel(PanelBase):
                                      'QTabWidget::pane {'
                                      'border: 1px solid darkgray; '
                                      'border-radius: 5px}')
+        self._style_scroll_area_contents(self.scrollAreaWidgetContents)
+
+    def _style_scroll_area_contents(self, widget):
+        # A workaround to get the formatting correct for the main widget
+        # without breaking other widgets in the scroll area.
+        widget.setStyleSheet(f'QWidget#{widget.objectName()}'
+                             '{background: white}')
 
     def initialise_connection_status_listeners(self):
         PanelBase.initialise_connection_status_listeners(self)

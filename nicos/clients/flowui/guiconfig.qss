@@ -366,12 +366,6 @@ QTabBar {
     qproperty-drawBase:0;
 }
 
-/* -------------------- QScrollArea ------------------------ */
-
-QScrollArea QWidget {
-    background: white;
-}
-
 /* -------------------- QSplitter ------------------------ */
 
 QSplitter {
