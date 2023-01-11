@@ -42,6 +42,7 @@ class McStasSimulation(BaseSimulation):
         'size': Override(default=(256, 256)),
         'mcstasprog': Override(default='stressi_fast'),
         'mcstasfile': Override(default='PSD_STRESSI_total.psd'),
+        'neutronspersec': Override(default={'localhost', 1.12e5}),
     }
 
     attached_devices = {

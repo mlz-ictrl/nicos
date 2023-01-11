@@ -47,6 +47,7 @@ class McStasSimulation(BaseSimulation):
 
     parameter_overrides = {
         'mcstasprog': Override(default='reseda_fast'),
+        'neutronspersec': Override(default={'localhost': 1241000}),
     }
 
     attached_devices = {
@@ -113,7 +114,7 @@ class McStasSimulation(BaseSimulation):
         return params
 
     def _getNeutronsToSimulate(self):
-        n = self.neutronspersec * self.preselection
+        n = BaseSimulation._getNeutronsToSimulate(self)
         if self._attached_sample.sampletype == 1:
             # Scaling factor for simulation runs with different sample types
             # determined by test runs

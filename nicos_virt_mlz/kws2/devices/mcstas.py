@@ -36,6 +36,7 @@ class KwsSimulation(McStasSimulation):
 
     parameter_overrides = {
         'mcstasprog': Override(default='KWS2pra'),
+        'neutronspersec': Override(default={'localhost': 6e5}),
     }
 
     def _prepare_params(self):

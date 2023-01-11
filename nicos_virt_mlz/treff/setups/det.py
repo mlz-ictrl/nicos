@@ -34,7 +34,6 @@ devices = dict(
     ),
     mcstas = device('nicos_virt_mlz.treff.devices.McStasSimulation',
         description = 'McStas simulation',
-        neutronspersec = 1.6e6,
         beamstop = 'beamstop',
         sample_y = 'sample_y',
         sample_x = 'sample_x',

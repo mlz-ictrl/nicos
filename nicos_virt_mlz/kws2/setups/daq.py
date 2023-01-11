@@ -10,7 +10,6 @@ devices = dict(
     mcstas = device('nicos_virt_mlz.kws2.devices.mcstas.KwsSimulation',
         description = 'McStas simulation',
         mcstasprog = 'KWS2pra -g',
-        neutronspersec = 6e5,
         intensityfactor = 1,
     ),
     det_ext_rt = device('nicos.devices.generic.ManualSwitch',

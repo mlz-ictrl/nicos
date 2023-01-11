@@ -33,7 +33,6 @@ devices = dict(
     ),
     mcstas = device('nicos_virt_mlz.reseda.devices.detector.McStasSimulation',
         description = 'McStas simulation',
-        neutronspersec = 1241000,
         intensityfactor = 1e17,
         l_ambda = 'selector_lambda',
         d_lambda = 'selector_delta_lambda',

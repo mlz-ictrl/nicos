@@ -36,6 +36,7 @@ class McStasSimulation(BaseSimulation):
 
     parameter_overrides = {
         'mcstasprog': Override(default='treff_fast'),
+        'neutronspersec': Override(default={'localhost': 1.6e6}),
     }
 
     attached_devices = {

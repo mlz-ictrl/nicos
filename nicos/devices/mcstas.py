@@ -27,6 +27,7 @@
 
 import os
 import shutil
+import socket
 from os import path
 from signal import SIGTERM, SIGUSR2
 from subprocess import PIPE
@@ -37,10 +38,11 @@ from psutil import AccessDenied, NoSuchProcess, Popen
 
 from nicos import session
 from nicos.core import MASTER, ArrayDesc, Attach, Override, Param, Readable, \
-    Value, Waitable, floatrange, intrange, oneof, status, tupleof
+    Value, Waitable, dictof, floatrange, intrange, nonemptystring, oneof, \
+    status, tupleof
 from nicos.core.constants import FINAL, LIVE
-from nicos.devices.generic import ActiveChannel, ImageChannelMixin, \
-    PassiveChannel, Detector as BaseDetector
+from nicos.devices.generic import ActiveChannel, Detector as BaseDetector, \
+    ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
 # Minimum time to let McStas run before attempting to save data
@@ -75,10 +77,11 @@ class McStasSimulation(Readable):
         'mcsiminfo':  Param('Name for the McStas Siminfo file', settable=False,
                             type=str, default='mccode.sim'),
         'neutronspersec':  Param('Approximate simulated neutrons per second '
-                                 'for this machine. Tune this parameter '
-                                 'according to your hardware for realistic '
-                                 'count times', settable=True,
-                                 type=floatrange(1e3), default=1e6),
+                                 'for machines running this device. Tune this '
+                                 'parameter according to your hardware for '
+                                 'realistic count times',
+                                 type=dictof(nonemptystring, floatrange(1e3)),
+                                 default={'localhost': 1.e6},),
         'intensityfactor': Param('Constant multiplied with simulated McStas '
                                  'intensity to get simulated neutron counts '
                                  'per second', settable=True,
@@ -95,6 +98,7 @@ class McStasSimulation(Readable):
     def doInit(self, mode):
         self._workdir = os.getcwd()
         self._interesting_files = set([self.mcsiminfo])
+        self._hostname = socket.getfqdn()
 
     def doStatus(self, maxage=0):
         if self._started or (self._mythread and self._mythread.is_alive()):
@@ -210,9 +214,15 @@ class McStasSimulation(Readable):
     def _getNeutronsToSimulate(self):
         """Return number of neutrons to simulate.
 
-        default: neutronspersec * preselection
+        default: neutronspersec['hostname -f'] * preselection
         """
-        return self.neutronspersec * self.preselection
+        # get the default rate
+        default = self.parameters['neutronspersec'].default.get('localhost')
+        # try first 'hostname -f' and then 'hostname -s' an then take
+        # the default rate
+        return self.neutronspersec.get(
+            self._hostname, self.neutronspersec.get(
+                self._hostname.split('.', 1)[0], default)) * self.preselection
 
     def _run(self):
         """Thread to run McStas simulation executable.
@@ -354,7 +364,7 @@ class McStasTimer(ActiveChannel, Waitable):
     }
 
     parameters = {
-        'curvalue':  Param('Current value', settable=True, unit='main'),
+        'curvalue': Param('Current value', settable=True, unit='main'),
     }
 
     parameter_overrides = {
