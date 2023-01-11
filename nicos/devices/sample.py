@@ -27,7 +27,7 @@
 
 from nicos import session
 from nicos.core import InvalidValueError, Moveable, Override, Param, anytype, \
-    dictof, none_or, oneof, status
+    dictof, intrange, none_or, oneof, status
 from nicos.utils import safeName
 
 
@@ -46,17 +46,17 @@ class Sample(Moveable):
 
     parameters = {
         'sampledescription': Param(
-            'Extended sample description',
+            'Sample description',
             type=str, settable=True, category='sample'
         ),
         'samplename': Param(
             'Current sample name',
             type=str, settable=True, category='sample'
         ),
+        # The maximum number of the QSpinBox seems to be 2**31 - 1 ?!
         'samplenumber': Param(
-            'Current sample number: e.g. the position in a sample changer or '
-            'the index of the sample among all defined samples',
-            type=none_or(int), settable=True
+            'Current sample number',
+            type=none_or(intrange(0, 2**31 - 1)), settable=True,
         ),
         'samples': Param(
             'Information about all defined samples',
@@ -64,6 +64,10 @@ class Sample(Moveable):
             internal=True, preinit=True
         ),
     }
+    parameters['samplenumber'].ext_desc = """
+        The position in a sample changer or the index of the sample among all
+        defined samples
+    """
 
     parameter_overrides = {
         'unit': Override(mandatory=False, default=''),

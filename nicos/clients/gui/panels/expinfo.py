@@ -50,10 +50,8 @@ class ExpInfoPanel(Panel):
       There are several panels that are useful for this:
 
       - ``nicos.clients.gui.panels.setup_panel.GenericSamplePanel`` -- a panel
-        that only shows a single input box for the sample name.
-      - ``nicos.clients.gui.panels.setup_panel.TasSamplePanel`` -- a panel that
-        also shows input boxes for triple-axis sample properties (such as
-        lattice constants).
+        that shows input for the sample parameters, like name, number, and
+        others.
 
     * ``popup_proposal_after`` -- if given, the proposal dialog will be opened
       when the daemon has been idle for more than the specified time interval

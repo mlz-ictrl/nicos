@@ -47,15 +47,7 @@ main_window = docked(
                ),
                ('Sample',
                 panel('nicos.clients.gui.panels.setup_panel.GenericSamplePanel',
-                      setups='sans and not sc?'),
-               ),
-               ('TAS sample',
-                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
-                      setups='tas',)
-               ),
-               ('SXTAL sample',
-                panel('nicos.clients.gui.panels.setup_panel.SXTalSamplePanel',
-                      setups='sxtal',)
+                      setups='not (sans and sc?)'),
                ),
            ),
            # to configure panels to show on New/FinishExperiment

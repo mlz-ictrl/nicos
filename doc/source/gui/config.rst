@@ -390,19 +390,19 @@ Nicos includes a comprehensive set of Panels for most general use cases:
      :alt: sample panel
      :align: center
 
-.. autoclass:: nicos.clients.gui.panels.setup_panel.TasSamplePanel()
-     :no-members:
+     Standard sample parameter input
 
 .. figure:: tassamplepanel.png
      :alt: TAS sample panel
      :align: center
 
-.. autoclass:: nicos.clients.gui.panels.setup_panel.SXTalSamplePanel()
-     :no-members:
+     TAS sample parameter input
 
 .. figure:: sxtalsamplepanel.png
      :alt: SXT sample panel
      :align: center
+
+     Single crystal sample parameter input
 
 
 Auxiliary windows

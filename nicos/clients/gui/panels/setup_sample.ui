@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>508</width>
+    <width>512</width>
     <height>242</height>
    </rect>
   </property>
@@ -15,43 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="font">
-        <font>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Sample name:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="DeviceParamEdit" name="samplenameEdit">
-       <property name="dev" stdset="0">
-        <string>Sample</string>
-       </property>
-       <property name="param" stdset="0">
-        <string>samplename</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>500</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
+    <widget class="GenericSampleWidget" name="sample" native="true"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -64,14 +28,10 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DeviceParamEdit</class>
-   <extends>DeviceValueEdit</extends>
-   <header>nicos.guisupport.typedvalue</header>
-  </customwidget>
-  <customwidget>
-   <class>DeviceValueEdit</class>
+   <class>GenericSampleWidget</class>
    <extends>QWidget</extends>
-   <header>nicos.guisupport.typedvalue</header>
+   <header>nicos.clients.gui.panels.setup_panel</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -13,14 +13,7 @@ main_window = docked(
         panel('nicos.clients.gui.panels.devices.DevicesPanel'),
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-           sample_panel=tabbed(
-               ('TAS sample',
-                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
-                      setups='tas',)
-               ),
-           ),
-     ),
+        panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
     ),
 )
 

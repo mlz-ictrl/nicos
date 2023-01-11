@@ -10,9 +10,7 @@ main_window = docked(
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right',)
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-           sample_panel=panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel'),
-          )
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
     ),
 )
 
