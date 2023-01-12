@@ -358,10 +358,10 @@ class FileWriterSinkHandler(DataSinkHandler):
             self.dataset, self.sink.filenametemplate, self.sink.subdir
         )
         if self.sink.use_instrument_directory:
-            file_path = session.experiment.proposalpath_of(
+            proposal_path = session.experiment.proposalpath_of(
                 session.experiment.propinfo.get('proposal')
             )
-            file_path = path.join(file_path, filename)
+            file_path = path.join(proposal_path, 'raw', filename)
         else:
             file_path = path.join(self.sink.subdir, filename)
 
