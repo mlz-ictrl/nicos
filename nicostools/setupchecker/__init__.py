@@ -348,6 +348,9 @@ class SetupChecker:
                 'invalid setup group %r', group, extra=self.find_global('group')
             )
 
+        if self.setupname in ('system', 'startup') and group != 'lowlevel':
+            self.log.error("%s is not in 'lowlevel' setup group", self.filename)
+
         # check for a description
         description = self.ns.get('description', None)
         if description in (None, ''):
