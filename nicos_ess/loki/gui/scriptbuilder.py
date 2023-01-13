@@ -65,7 +65,7 @@ class LokiScriptBuilderPanel(PanelBase):
         loadUi(self,
                findResource('nicos_ess/loki/gui/ui_files/scriptbuilder.ui'))
 
-        self.window = parent
+        self.parent_window = parent
         self.combo_delegate = ComboBoxDelegate()
         self.duration_options = ['Mevents', 'seconds', 'frames']
 

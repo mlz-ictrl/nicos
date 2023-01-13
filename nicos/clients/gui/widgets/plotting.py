@@ -489,7 +489,7 @@ class NicosPlot(DlgUtils):
 
     def __init__(self, window, timeaxis=False):
         DlgUtils.__init__(self, 'Plot')
-        self.window = window
+        self.parent_window = window
         self.plotcurves = []
         self.show_all = False
         self.timeaxis = timeaxis
@@ -501,7 +501,7 @@ class NicosPlot(DlgUtils):
 
         self.fitter = None
 
-        font = self.window.user_font
+        font = self.parent_window.user_font
         bold = QFont(font)
         bold.setBold(True)
         larger = scaledFont(font, 1.6)
@@ -643,8 +643,8 @@ class NicosPlot(DlgUtils):
         if not fitcurve:
             return self.showError('Plot must have a visible curve '
                                   'to be fitted.')
-        self.fitter = fitterclass(self, self.window, fitteraction, fitcurve,
-                                  pickmode)
+        self.fitter = fitterclass(self, self.parent_window,
+                                  fitteraction, fitcurve, pickmode)
         self.fitter.begin()
 
     def _getCurveData(self, curve):
@@ -926,9 +926,9 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                 msg = "%s (X = %g, Y = %g)" % (self.statusMessage, wc.x, wc.y)
             else:
                 msg = "X = %g, Y = %g" % (wc.x, wc.y)
-            self.window.statusBar.showMessage(msg)
+            self.parent_window.statusBar.showMessage(msg)
         else:
-            self.window.statusBar.clearMessage()
+            self.parent_window.statusBar.clearMessage()
 
     def addPlotCurve(self, plotcurve, replot=False):
         existing_curve = next((c for c in self._axes.getCurves()
@@ -1010,7 +1010,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             item._parent.disabled = not on
 
     def _enterFitMode(self):
-        self.window.statusBar.showMessage(self.statusMessage)
+        self.parent_window.statusBar.showMessage(self.statusMessage)
         self._cursor = self.cursor()
         self.setCursor(QCursor(Qt.CrossCursor))
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
@@ -1018,7 +1018,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     def _fitRequestPick(self, paramname):
         self.statusMessage = 'Fitting: Click on %s' % paramname
-        self.window.statusBar.showMessage(self.statusMessage)
+        self.parent_window.statusBar.showMessage(self.statusMessage)
 
     def _leaveFitMode(self):
         self.fitter = None
@@ -1033,7 +1033,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                                      linecolor=color, markercolor=color)
         self.addPlotCurve(resultcurve, True)
         resultcurve.markertype = gr.MARKERTYPE_DOT
-        self.window.statusBar.showMessage("Fitting complete")
+        self.parent_window.statusBar.showMessage("Fitting complete")
 
         text = '\n'.join(
             (n + ': ' if n else '') +
@@ -1107,7 +1107,7 @@ class ViewPlot(NicosGrPlot):
             msg = "%s (X = %s, Y = %g)" % (self.statusMessage, ts, wc.y)
         else:
             msg = "X = %s, Y = %g" % (ts, wc.y)
-        self.window.statusBar.showMessage(msg)
+        self.parent_window.statusBar.showMessage(msg)
 
     def addAllCurves(self):
         for series in self.view.series.values():
@@ -1376,7 +1376,7 @@ class DataSetPlot(NicosGrPlot):
                                                  self.dwidth, self.dheight)
         if not curve:
             return
-        self.fitter = GaussFitter(self, self.window, None, curve, False)
+        self.fitter = GaussFitter(self, self.parent_window, None, curve, False)
         self.fitter.begin()
 
     def getViewport(self):

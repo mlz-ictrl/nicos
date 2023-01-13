@@ -178,7 +178,7 @@ class EditorPanel(Panel):
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'panels/editor.ui')
 
-        self.window = parent
+        self.parent_window = parent
         self.custom_font = None
         self.custom_back = None
 
@@ -419,17 +419,18 @@ class EditorPanel(Panel):
         self.enableFileActions(index >= 0)
         if index == -1:
             self.currentEditor = None
-            self.window.setWindowTitle('%s editor' % self.mainwindow.instrument)
+            self.parent_window.setWindowTitle(
+                '%s editor' % self.mainwindow.instrument)
             return
         editor = self.editors[index]
         fn = self.filenames[editor]
         if fn:
-            self.window.setWindowTitle('%s[*] - %s editor' %
-                                       (fn, self.mainwindow.instrument))
+            self.parent_window.setWindowTitle('%s[*] - %s editor' %
+                                              (fn, self.mainwindow.instrument))
         else:
-            self.window.setWindowTitle('New[*] - %s editor' %
-                                       self.mainwindow.instrument)
-        self.window.setWindowModified(editor.isModified())
+            self.parent_window.setWindowTitle('New[*] - %s editor' %
+                                              self.mainwindow.instrument)
+        self.parent_window.setWindowModified(editor.isModified())
         self.actionSave.setEnabled(editor.isModified())
         self.actionUndo.setEnabled(editor.isModified())
         self.currentEditor = editor
@@ -453,7 +454,7 @@ class EditorPanel(Panel):
         if editor is self.currentEditor:
             self.actionSave.setEnabled(dirty)
             self.actionUndo.setEnabled(dirty)
-            self.window.setWindowModified(dirty)
+            self.parent_window.setWindowModified(dirty)
             index = self.tabber.currentIndex()
             tt = self.tabber.tabText(index).rstrip('*')
             self.tabber.setTabText(index, tt + (dirty and '*' or ''))
@@ -791,14 +792,14 @@ class EditorPanel(Panel):
     @pyqtSlot()
     def on_actionSave_triggered(self):
         self.saveFile(self.currentEditor)
-        self.window.setWindowTitle(
+        self.parent_window.setWindowTitle(
             '%s[*] - %s editor' %
             (self.filenames[self.currentEditor], self.mainwindow.instrument))
 
     @pyqtSlot()
     def on_actionSaveAs_triggered(self):
         self.saveFileAs(self.currentEditor)
-        self.window.setWindowTitle(
+        self.parent_window.setWindowTitle(
             '%s[*] - %s editor' %
             (self.filenames[self.currentEditor], self.mainwindow.instrument))
 

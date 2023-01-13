@@ -51,7 +51,7 @@ class CommandsPanel(Panel):
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'panels/scriptbuilder.ui')
 
-        self.window = parent
+        self.parent_window = parent
         self.options = options
         self.runBtn.setVisible(False)
         self.mapping = {}

@@ -56,7 +56,7 @@ class CommandPanel(Panel):
         Panel.__init__(self, parent, client, options)
         loadUi(self, self.ui)
 
-        self.window = parent
+        self.parent_window = parent
         self.options = options
         self.mapping = {}
         self.current_cmdlet = None
@@ -98,7 +98,7 @@ class CommandPanel(Panel):
             self.btnLayout.insertWidget(1, toolbtn)
 
     def postInit(self):
-        self.console = self.window.getPanel('Console')
+        self.console = self.parent_window.getPanel('Console')
         if self.console:
             self.console.outView.anchorClicked.connect(
                 self.on_consoleView_anchorClicked)
