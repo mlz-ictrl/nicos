@@ -13,9 +13,10 @@ devices = dict(
         readpv='YMIR-SETS:SE-BPTP-001:PTP_STATUS',
         visibility=(),
     ),
-    laser=device('nicos_ess.ymir.devices.laser_detector.LaserDetector',
-                 description='Laser detector in YMIR cave',
-                 laser='laser_pv',
-                 timingstatus='laser_timing_status',
+    laser=device(
+        'nicos_ess.ymir.devices.laser_detector.LaserDetector',
+        description='Laser detector in YMIR cave',
+        laser='laser_pv',
+        timingstatus='laser_timing_status',
     ),
 )
