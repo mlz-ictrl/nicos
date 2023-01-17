@@ -174,7 +174,11 @@ class NicosClient:
         if eventmask:
             self.tell('eventmask', eventmask)
 
-        self.transport.connect_events(conndata)
+        try:
+            self.transport.connect_events(conndata)
+        except Exception as err:
+            self.signal('failed', 'Event connection failed: %s.' % err, err)
+            return
 
         # start event handler
         self.event_thread = createThread('event handler', self.event_handler)
