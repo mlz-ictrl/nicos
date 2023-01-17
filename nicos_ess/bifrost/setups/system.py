@@ -6,7 +6,7 @@ sysconfig = dict(
     cache='localhost',
     instrument='BIFROST',
     experiment='Exp',
-    datasinks=['conssink', 'daemonsink', 'liveview'],
+    datasinks=['conssink', 'daemonsink', 'liveview', 'FileWriterControl'],
 )
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands']
@@ -17,7 +17,7 @@ devices = dict(
         description='instrument object',
         facility='European Spallation Source (ERIC)',
         instrument='BIFROST',
-        responsible='Ebad Kamil <ebad.kamil@ess.eu>',
+        responsible='Rasmus Toft-Petersen <rasmus.toft-petersen@ess.eu>',
         website='https://europeanspallationsource.se/instruments/bifrost'),
     Sample=device(
         'nicos.devices.sample.Sample',
@@ -42,7 +42,41 @@ devices = dict(
     KafkaForwarderStatus=device(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description='Monitors the status of the Forwarder',
-        statustopic="status_topic",
-        brokers=["localhost"],
+        statustopic="bifrost_forwarder_status",
+        brokers=["10.100.1.19:9092"],
+    ),
+    NexusStructure_Basic=device(
+        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
+        description='Provides the NeXus structure',
+        nexus_config_path='nicos_ess/bifrost/nexus/bifrost_basic.json',
+        visibility=(),
+    ),
+    NexusStructure=device(
+        'nicos.devices.generic.DeviceAlias',
+        alias='NexusStructure_Basic',
+        devclass=
+        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
+    ),
+    FileWriterStatus=device(
+        'nicos_ess.devices.datasinks.file_writer.FileWriterStatus',
+        description='Status of the file-writer',
+        brokers=['10.100.1.19:9092'],
+        statustopic='bifrost_filewriter',
+        unit='',
+    ),
+    FileWriterControl=device(
+        'nicos_ess.devices.datasinks.file_writer.FileWriterControlSink',
+        description='Control for the file-writer',
+        brokers=['10.100.1.19:9092'],
+        pool_topic='ess_filewriter_pool',
+        status='FileWriterStatus',
+        nexus='NexusStructure',
+        use_instrument_directory=True,
+    ),
+    SciChat=device(
+        'nicos_ess.devices.scichat.ScichatBot',
+        description='Sends messages to SciChat',
+        brokers=['10.100.1.19:9092'],
+        scichat_topic='bifrost_scichat',
     ),
 )
