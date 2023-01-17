@@ -33,8 +33,8 @@ from nicos.nexus.nexussink import NexusTemplateProvider
 from nicos_sinq.camea.nexus.camea_elements import BoundaryArrayParam, \
     CameaAzimuthalAngle
 from nicos_sinq.nexus.specialelements import AbsoluteTime, ArrayParam, \
-    CellArray, EnvDeviceDataset, OptionalDeviceDataset, OutSampleEnv, \
-    Reflection, ScanCommand, ScanSampleEnv, ScanVars
+    CellArray, EnvDeviceDataset, OptionalDeviceDataset,\
+    Reflection, ScanCommand, ScanVars, SaveSampleEnv
 
 
 class CameaTemplateProvider(NexusTemplateProvider):
@@ -96,7 +96,6 @@ class CameaTemplateProvider(NexusTemplateProvider):
     _camea_sample = {
         "name": DeviceDataset(
             'Sample', 'samplename'),
-        "hugo": OutSampleEnv(blocklist=_camea_blocklist, postfix='_log'),
         "azimuthal_angle": CameaAzimuthalAngle('CAMEA'),
         "orientation_matrix": ArrayParam('Sample', 'ubmatrix', 'float32',
                                          reshape=(3, 3)),
@@ -135,7 +134,7 @@ class CameaTemplateProvider(NexusTemplateProvider):
         "ql": EnvDeviceDataset('l', dtype='float32',
                                units=NXAttribute('rlu', 'string')),
         "unit_cell": CellArray(),
-        "lieselotte": ScanSampleEnv(),
+        "lieselotte": SaveSampleEnv(blocklist=_camea_blocklist),
     }
 
     _camea_inst = {
