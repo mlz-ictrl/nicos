@@ -32,15 +32,15 @@ devices = dict(
         powersupplies = ["pow4curr1", "pow4curr2"],
     ),
     # aflipper (3HE) has inverted up/down mapping
-    aflipper = device("nicos_mlz.maria.devices.pyro4.NamedDigitalOutput",
-        description = "Pyro4 Device",
-        pyro4device = "PYRO:he3.cell@3he.maria.frm2:50555",
-        hmackey = "iamverysecret",
-        mapping = {
-            "down": 0,
-            "up": 1,
-        }
-    ),
+#    aflipper = device("nicos_mlz.maria.devices.pyro4.NamedDigitalOutput",
+#        description = "Pyro4 Device",
+#        pyro4device = "PYRO:he3.cell@3he.maria.frm2:50555",
+#        hmackey = "iamverysecret",
+#        mapping = {
+#            "down": 0,
+#            "up": 1,
+#        }
+#    ),
     pow4curr1 = device("nicos_mlz.maria.devices.powersupply."
         "ReadOnlyPowerSupply",
         description = "Power supply 4 current control ch 1",

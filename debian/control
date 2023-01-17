@@ -90,7 +90,6 @@ Depends: ${misc:Depends},
  nicos-services,
  python3-serial,
  python3-matplotlib,
- python3-pyro4,
  python3-h5py,
  python3-tz
 Recommends:
