@@ -8,7 +8,8 @@ sysconfig = dict(
 )
 
 includes = [
-    'counter', 'shutter', 'microstep', 'reactor', 'nl1', 'guidehall', 'astrium'
+    'counter', 'shutter', 'microstep', 'reactor', 'nl1', 'guidehall',
+    'astrium', 'collimator',
 ]
 
 _TANGO_SRV = 'maatel.biodiff.frm2:9999'
