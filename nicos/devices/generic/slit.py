@@ -88,12 +88,12 @@ class Gap(HasAutoDevices, CanReference, Moveable):
                                 visibility=self.autodevice_visibility)
 
     def _getPositions(self, target):
-        if self.opmode == '2blades':
+        if self.opmode.endswith('blades'):
             if len(target) != 2:
                 raise InvalidValueError(self, 'arguments required for '
                                         f'2-blades mode: {self._axnames}')
             positions = list(target)
-        elif self.opmode == '2blades_opposite':
+        elif self.opmode.endswith('blades_opposite'):
             if len(target) != 2:
                 raise InvalidValueError(self, 'arguments required for '
                                         f'2-blades mode: {self._axnames}')
@@ -405,29 +405,25 @@ class Slit(HorizontalGap, VerticalGap):
         self._axnames = ['left', 'right', 'bottom', 'top']
 
     def _getPositions(self, target):
-        if self.opmode == '4blades':
+        if self.opmode.startswith('4blades'):
             if len(target) != 4:
                 raise InvalidValueError(self, 'arguments required for '
                                         f'4-blades mode: {self._axnames}')
-            positions = list(target)
-        elif self.opmode == '4blades_opposite':
-            if len(target) != 4:
-                raise InvalidValueError(self, 'arguments required for '
-                                        f'4-blades mode: {self._axnames}')
-            positions = [-target[0], target[1], -target[2], target[3]]
+            positions = (HorizontalGap._getPositions(self, target[:2])
+                         + VerticalGap._getPositions(self, target[2:]))
         elif self.opmode == 'centered':
             if len(target) != 2:
                 raise InvalidValueError(self, 'arguments required for '
                                         'centered mode: [width, height]')
-            positions = [-target[0] / 2, target[0] / 2,
-                         -target[1] / 2, target[1] / 2]
+            positions = (HorizontalGap._getPositions(self, target[:1])
+                         + VerticalGap._getPositions(self, target[1:]))
         else:
             if len(target) != 4:
                 raise InvalidValueError(self, 'arguments required for off-'
                                         'centered mode: [xcenter, ycenter, '
                                         'width, height]')
-            positions = [target[0] - target[2] / 2, target[0] + target[2] / 2,
-                         target[1] - target[3] / 2, target[1] + target[3] / 2]
+            positions = (HorizontalGap._getPositions(self, target[::2])
+                         + VerticalGap._getPositions(self, target[1::2]))
         return positions
 
     def _isAllowedSlitOpening(self, positions):
