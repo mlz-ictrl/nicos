@@ -172,7 +172,7 @@ class ILLAsciiHandler(DataSinkHandler):
         self._header += 'FILE_: %s\n' % str(counters['scancounter'])
         self._header += 'DATE_: %s\n' % time_str
         self._header += 'TITLE: %s\n' % self._findValue('Exp', 'title')
-        self._header += 'COMND: %s\n' % session._script_text
+        self._header += 'COMND: %s\n' % session._currentscan._scaninfo
         qe = session.instrument.read(0)
         self._header += 'POSQE: QH=%8.4f, QK=%8.4f, QL=%8.4f, EN=%8.4f, ' \
                         'UN=MEV\n' % tuple(qe)
@@ -379,7 +379,7 @@ def _parse_header(f, dataset):
 
     def _make_devices(text, _):
         lines = text.replace('=', ',')
-        return set([l.strip().rstrip() for l in lines.split(',') if l][0:-1:2])
+        return set([ll.strip() for ll in lines.split(',') if ll][0:-1:2])
 
     header_processors = {
         'DATE_': _make_time,
@@ -393,7 +393,7 @@ def _parse_header(f, dataset):
         line = f.readline()
         if not line.strip() or line.startswith('DATA_'):
             return devices
-        splitline = [l.rstrip().lstrip() for l in line.split(':')]
+        splitline = [ll.strip() for ll in line.split(':')]
 
         key, text = splitline[0], ':'.join(splitline[1:])
         if key in header_processors:
