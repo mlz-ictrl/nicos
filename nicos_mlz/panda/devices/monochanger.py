@@ -143,7 +143,7 @@ class Changer(BaseSequencer):
 
     positions = ['101', '110', '011', '111']  # CounterClockwise
     monos = ['Heusler', 'PG', 'Si', 'empty frame']  # assigned monos
-    shields = ['110', '110', '110', '110']  # which magzinslot after changing
+    shields = ['110', '110', '110', '110']  # which magazine slot after change
     #    (e.g. Put a PE dummy to 101 and set this to ('101,'*4).split(',')
     valuetype = oneof(*(monos + ['None']))
 
