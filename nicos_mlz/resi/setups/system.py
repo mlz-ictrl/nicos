@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 description = 'system setup only'
 
-group = 'basic'
+group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'resictrl.resi.frm2',
