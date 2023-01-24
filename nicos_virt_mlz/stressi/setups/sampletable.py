@@ -3,6 +3,13 @@ description = 'Sample table CARESS HWB Devices'
 group = 'lowlevel'
 
 devices = dict(
+    xsd = device('nicos.devices.generic.ManualMove',
+        description = 'distance monochromator sample',
+        default = 500.,
+        fmtstr = '%.2f',
+        unit = 'mm',
+        abslimits = (500, 1100.),
+    ),
     tths = device('nicos.devices.generic.VirtualMotor',
         description = 'Simulated TTHS',
         fmtstr = '%.2f',
@@ -17,6 +24,13 @@ devices = dict(
         unit = 'deg',
         abslimits = (-200, 200),
         speed = 2,
+    ),
+    omgr = device('nicos.devices.generic.VirtualMotor',
+        description = 'Rotation of robot base around the sample',
+        fmtstr = '%.2f',
+        unit = 'deg',
+        abslimits = (-200, 200),
+        speed = 1,
     ),
     xt = device('nicos.devices.generic.VirtualMotor',
         description = 'Simulated XT',
