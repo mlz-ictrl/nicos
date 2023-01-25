@@ -1,5 +1,6 @@
 #  -*- coding: utf-8 -*-
 description = 'NICOS system setup'
+group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
