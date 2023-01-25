@@ -192,9 +192,9 @@ class CacheDatabase(Device):
             time = currenttime()
 
         # handle the no-store flag
-        no_store = key.endswith(FLAG_NO_STORE)
+        no_store = subkey.endswith(FLAG_NO_STORE)
         if no_store:
-            key = key[:-len(FLAG_NO_STORE)]
+            subkey = subkey[:-len(FLAG_NO_STORE)]
 
         # apply rewrite mechanism: a single update might be mapped to updates
         # of multiple keys with different categories

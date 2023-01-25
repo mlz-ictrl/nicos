@@ -30,6 +30,7 @@ from time import sleep
 import pytest
 
 from nicos.devices.cacheclient import CacheError
+from nicos.protocols.cache import FLAG_NO_STORE
 
 from test.utils import TestCacheClient as CacheClient, alt_cache_addr, \
     killSubprocess, raises, startCache
@@ -62,15 +63,18 @@ def test_basic(session, setup):
         testval = 'test1'
         key = 'value'
         cc.put('testcache', key, testval, ttl=10)
+        cc.put('nostore', key, testval, ttl=10, flag=FLAG_NO_STORE)
         cc.flush()
         cachedval_local = cc.get('testcache', key, None)
         cachedval = cc.get_explicit('testcache', key, None)
         cachedval2 = cc.get_explicit('testcache', key, None)
+        nostore = cc.get_explicit('nostore', key, None)
 
         print(cachedval_local, cachedval, cachedval2)
         assert cachedval_local == testval
         assert cachedval[2] == testval
         assert cachedval2[2] == testval
+        assert nostore[2] == testval
     finally:
         killSubprocess(cache)
 
