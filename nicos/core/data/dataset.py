@@ -285,9 +285,9 @@ class ScanDataset(BaseDataset):
         # Index of the X value to plot.
         self.xindex = 0
 
-        # If this is a continuation dataset, the UIDs of the continued ones.
-        self.continuation = []
-        self.cont_direction = 0
+        # If this is a chained dataset, the UIDs of the continued ones.
+        self.chain = []
+        self.chain_direction = 0
 
         BaseDataset.__init__(self, **kwds)
 
@@ -367,8 +367,8 @@ class ScanData:
     xindex = 0
     # number of env. values
     envvalues = 0
-    # continuation info
-    continuation = ''
+    # chaining info
+    chain = ''
     # value info
     xvalueinfo = []
     yvalueinfo = []
@@ -398,7 +398,7 @@ class ScanData:
             self.filepaths = dataset.filepaths
             self.xindex = dataset.xindex
             self.envvalues = len(dataset.envvalueinfo)
-            self.continuation = ','.join(str(uid) for uid in dataset.continuation)
+            self.chain = ','.join(str(uid) for uid in dataset.chain)
             self.xvalueinfo = dataset.devvalueinfo + dataset.envvalueinfo
             self.yvalueinfo = dataset.detvalueinfo
 

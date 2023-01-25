@@ -123,8 +123,8 @@ class Scan:
         self._scaninfo = scaninfo
         self._subscan = subscan
         self._guessPlotIndex(xindex)
-        self._continuation = []
-        self._cont_direction = None
+        self._chain = []
+        self._chain_direction = None
         try:
             self._npoints = len(startpositions)  # can be zero if not known
         except TypeError:
@@ -192,8 +192,8 @@ class Scan:
             xindex=self._xindex,
             startpositions=self._startpositions,
             endpositions=self._endpositions,
-            continuation=self._continuation,
-            cont_direction=self._cont_direction,
+            chain=self._chain,
+            chain_direction=self._chain_direction,
         )
         session.elogEvent('scanbegin', self.dataset)
 

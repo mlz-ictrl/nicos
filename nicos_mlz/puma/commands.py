@@ -124,8 +124,8 @@ class MultiADScan(Scan):
             xindex=self._xindex,
             startpositions=self._startpositions,
             endpositions=self._endpositions,
-            continuation=self._continuation,
-            cont_direction=self._cont_direction,
+            chain=self._chain,
+            chain_direction=self._chain_direction,
             parameters=self._paraValueinfo,
         )
         for sink in session.datasinks:

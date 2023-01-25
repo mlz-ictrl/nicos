@@ -57,7 +57,7 @@ def _getData(columns=None, dataset=None):
         # Can happen with manualscan
         xresults = dataset.envvaluelists
     yresults = dataset.detvaluelists
-    while dataset.continuation:
+    while dataset.chain:
         i -= 1
         dataset = dslist[i]
         if dataset.devices:

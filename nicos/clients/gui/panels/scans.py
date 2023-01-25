@@ -154,7 +154,7 @@ class ScansPanel(Panel):
         # stack of set uids
         self.setUidStack = []
         # uids of automatically combined datasets -> uid of combined one
-        self.contSetUids = {}
+        self.chainSetUids = {}
 
         self.splitter.setSizes([20, 80])
         self.splitter.restoreState(self.splitterstate)
@@ -487,18 +487,18 @@ class ScansPanel(Panel):
             if self.actionAutoDisplay.isChecked() and not self.data.bulk_adding:
                 self.openDataset(dataset.uid)
             self.no_openset = False
-        # If the dataset is a continuation of another dataset, automatically
+        # If the dataset is chained with another dataset, automatically
         # create a combined dataset.
-        contuids = dataset.continuation
-        if contuids:
-            alluids = tuple(contuids.split(',')) + (dataset.uid,)
+        chain_uids = dataset.chain
+        if chain_uids:
+            alluids = tuple(chain_uids.split(',')) + (dataset.uid,)
             # Did we already create this set?  Then don't create it again.
-            if self.contSetUids.get(alluids) in self.setitems:
+            if self.chainSetUids.get(alluids) in self.setitems:
                 return
             allsets = list(map(self.data.uid2set.get, alluids))
             newuid = self._combine(COMBINE, allsets)
             if newuid:
-                self.contSetUids[alluids] = newuid
+                self.chainSetUids[alluids] = newuid
 
     def on_data_pointsAdded(self, dataset):
         if dataset.uid in self.setplots:

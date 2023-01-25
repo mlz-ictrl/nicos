@@ -660,7 +660,7 @@ def appendscan(numpoints=5, stepsize=None):
     i = len(dslist) - 1
     while i >= 0:
         contuids.insert(0, dslist[i].uid)
-        if not dslist[i].continuation:
+        if not dslist[i].chain:
             break
         i -= 1
 
@@ -670,11 +670,11 @@ def appendscan(numpoints=5, stepsize=None):
     #   appendscan(5)
     #   appendscan(2)
     #   appendscan(-3)
-    if dslist[-1].cont_direction == direction:
+    if dslist[-1].chain_direction == direction:
         scan = dslist[-1]
         # to continue an appendscan in the negative direction, which has
         # the points reversed, we need to reverse the direction again
-        if scan.cont_direction == -1:
+        if scan.chain_direction == -1:
             numpoints = -numpoints
     else:
         scan = dslist[i]
@@ -734,8 +734,8 @@ def appendscan(numpoints=5, stepsize=None):
              scan.environment, scan.preset, '%d more steps of last scan' %
              numpoints)
     s._xindex = scan.xindex
-    s._continuation = contuids
-    s._cont_direction = direction
+    s._chain = contuids
+    s._chain_direction = direction
     # envlist must be reset since Scan.__init__ messes with the ordering
     s._envlist[:] = scan.environment
     s.run()
