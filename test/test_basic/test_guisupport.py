@@ -78,7 +78,6 @@ inf = float('inf')
 def test_double_validator(val, ll, ul, expected):
     # valid cases
     validator = DoubleValidator()
-    validator.setLocale(QLocale('en'))
     validator.setBottom(ll)
     validator.setTop(ul)
     valres = validator.validate(val, 0)

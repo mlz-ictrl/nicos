@@ -30,7 +30,7 @@ from os import path
 import gr
 
 from nicos.guisupport.qt import QApplication, QDoubleValidator, QFileDialog, \
-    QFont, QPalette, Qt, QValidator
+    QFont, QPalette, Qt, QValidator, QLocale
 
 
 def savePlot(widget, default_file_type, old_file_path=None):
@@ -96,6 +96,10 @@ def scaledFont(font, scale):
 
 
 class DoubleValidator(QDoubleValidator):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setLocale(QLocale('C'))
 
     def validate(self, string, pos):
         if ',' in string:
