@@ -28,10 +28,11 @@ import sys
 from os import unlink
 from time import time as currenttime
 
-from nicos.core import CacheLockError, Override, Param, oneof, listof
+from nicos.core import CacheLockError, Override, Param, listof, oneof
 from nicos.core.sessions.utils import sessionInfo
 from nicos.devices.cacheclient import BaseCacheClient
-from nicos.protocols.cache import OP_ASK, OP_SUBSCRIBE, OP_TELL, cache_load
+from nicos.protocols.cache import BUFSIZE, END_MARKER, OP_ASK, OP_SUBSCRIBE, \
+    OP_TELL, OP_TELLOLD, cache_load
 from nicos.utils import importString, timedRetryOnExcept
 
 
@@ -80,24 +81,27 @@ class Logbook(BaseCacheClient):
             self._islocked = True
 
         # request current directory for the handler to start up correctly
-        self._socket.sendall(
-            ('logbook/directory%s\n###%s\n' % (OP_ASK, OP_ASK)).encode())
+        msg = f'@{self._prefix}directory{OP_ASK}\n{END_MARKER}{OP_ASK}\n'
+        self._socket.sendall(msg.encode())
 
         # read response
         data, n = b'', 0
-        while not data.endswith(b'###!\n') and n < 1000:
-            data += self._socket.recv(8192)
+        sentinel = (END_MARKER + OP_TELLOLD + '\n').encode()
+        while not data.endswith(sentinel) and n < 1000:
+            data += self._socket.recv(BUFSIZE)
             n += 1
 
         self.storeSysInfo('elog')
 
         # send request for all relevant updates
-        self._socket.sendall(('@logbook/%s\n' % OP_SUBSCRIBE).encode())
+        msg = f'@{self._prefix}{OP_SUBSCRIBE}\n'
+        self._socket.sendall(msg.encode())
 
         self._process_data(data)
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
-        if op != OP_TELL or not key.startswith(self._prefix):
+        self.log.debug('got %s, op: %s', key, op)
+        if op not in (OP_TELL, ) or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix):]
         time = time and float(time)
