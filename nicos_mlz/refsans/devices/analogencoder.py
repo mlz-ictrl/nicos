@@ -27,7 +27,7 @@ Support code for any encoder with analog signal, like poti laser distance etc
 
 import numpy as np
 
-from nicos.core import Moveable, Readable
+from nicos.core import HasPrecision, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import Attach
 from nicos.devices.abstract import TransformedMoveable, TransformedReadable
@@ -53,7 +53,7 @@ class AnalogEncoder(PolynomFit, TransformedReadable):
         return self._fit(value)
 
 
-class AnalogMove(PolynomFit, TransformedMoveable):
+class AnalogMove(HasPrecision, PolynomFit, TransformedMoveable):
     """Does only work for polynomial order of 1
     a reverse polynomial can only be done for a order of 1
     """
