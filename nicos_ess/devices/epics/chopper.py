@@ -26,7 +26,7 @@
 #
 # *****************************************************************************
 from nicos.core import Attach, Override, Param, Readable, Waitable, status
-from nicos.devices.abstract import MappedMoveable
+from nicos.devices.abstract import MappedMoveable, Moveable
 from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.epics.pva import EpicsDevice
 
@@ -120,7 +120,8 @@ class EssChopperController(MappedMoveable):
     attached_devices = {
         'state': Attach('Current state of the chopper', Readable),
         'command': Attach('Command PV of the chopper', MappedMoveable),
-        'alarms': Attach('Alarms of the chopper', ChopperAlarms, optional=True)
+        'alarms': Attach('Alarms of the chopper', ChopperAlarms, optional=True),
+        'speed': Attach('Speed PV of the chopper', Moveable)
     }
 
     parameter_overrides = {
@@ -142,6 +143,9 @@ class EssChopperController(MappedMoveable):
         return self._attached_state.read()
 
     def doStart(self, target):
+        if target.lower() == 'stop':
+            # Set the speed to zero to keep EPICS behaviour consistent.
+            self._attached_speed.move(0)
         self._attached_command.move(target)
 
     def doStop(self):

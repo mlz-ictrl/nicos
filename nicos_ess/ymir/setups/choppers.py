@@ -45,5 +45,6 @@ devices = dict(
         description='The mini-chopper controller',
         state='mini_chopper_status',
         command='mini_chopper_control',
+        speed='mini_chopper_speed',
     ),
 )

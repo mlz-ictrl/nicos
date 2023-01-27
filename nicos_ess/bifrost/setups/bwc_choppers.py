@@ -58,6 +58,7 @@ devices = dict(
         description='The chopper controller',
         state='bwc1_chopper_status',
         command='bwc1_chopper_control',
+        speed='bwc1_chopper_speed',
     ),
     bwc2_chopper_status=device(
         'nicos.devices.epics.pva.EpicsMappedReadable',
@@ -113,5 +114,6 @@ devices = dict(
         description='The chopper controller',
         state='bwc2_chopper_status',
         command='bwc2_chopper_control',
+        speed='bwc2_chopper_speed',
     ),
 )
