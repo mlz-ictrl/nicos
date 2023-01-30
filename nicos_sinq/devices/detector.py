@@ -25,13 +25,64 @@
 """Module to implement generic sinq detector and ControlDetector
 """
 
-from nicos.core import Attach, Measurable
+from nicos.core import Attach, Measurable, Param, pvname, status, Value
 from nicos.devices.generic import Detector
 from nicos.utils import uniq
 
-from nicos_ess.devices.epics.detector import EpicsCounterActiveChannel, \
-    EpicsTimerActiveChannel
+from nicos_ess.devices.epics.detector import EpicsActiveChannel \
+    as ESSEpicsActiveChannel
 from nicos_sinq.devices.epics.scaler_record import EpicsScalerRecord
+
+
+class EpicsActiveChannel(ESSEpicsActiveChannel):
+    """
+    SINQ EL737 counter boxes are getting old and overrun their
+    presets rarely but frequently enough to be a problem. This code
+    together with SinqDetector.doStatus() tries to detect the problem
+    and stop the counter in such a case.
+    """
+    parameters = {
+        'controlpv':
+            Param('PV to check for overrun',
+                  type=pvname,
+                  mandatory=True,
+                  settable=False,
+                  userparam=False),
+    }
+
+    def _get_pv_parameters(self):
+        readable_params = ESSEpicsActiveChannel._get_pv_parameters(self)
+        return readable_params | {'controlpv'}
+
+    def presetReached(self, name, value, maxage):
+        """Return true if the preset for *name* has overrun the given
+        *value*.
+        """
+        if name in self._presetmap and value > 0:
+            # Give it 10% grace in order to allow for normal counter box
+            # operation
+            return self._get_pv('controlpv') >= 1.1 * value
+        return False
+
+
+class EpicsTimerActiveChannel(EpicsActiveChannel):
+    """
+    Manages time presets
+    """
+    _presetmap = {'t', 'timer'}
+
+    def valueInfo(self):
+        return (Value('timepreset', unit='sec', fmtstr='%s'), )
+
+
+class EpicsCounterActiveChannel(EpicsActiveChannel):
+    """
+    Manages monitor presets
+    """
+    _presetmap = {'m', 'monitor'}
+
+    def valueInfo(self):
+        return (Value('monitorpreset', unit='counts', fmtstr='%d'), )
 
 
 class SinqDetector(EpicsScalerRecord):
@@ -45,6 +96,12 @@ class SinqDetector(EpicsScalerRecord):
                              EpicsTimerActiveChannel),
         'monitorpreset': Attach('Device to set the monitor preset',
                                 EpicsCounterActiveChannel)
+    }
+
+    parameters = {
+        'check_overrun': Param('Flag to enable overrun checking',
+                               type=bool, default=False, settable=False,
+                               userparam=False),
     }
 
     monitor_preset_names = ['m', 'monitor']
@@ -150,6 +207,16 @@ class SinqDetector(EpicsScalerRecord):
             ret.append(('desc_' + desc.name, desc.__dict__, '', '', 'general'))
 
         return ret
+
+    def doStatus(self, maxage=0):
+        st, txt = EpicsScalerRecord.doStatus(self, maxage)
+        if self.check_overrun and st == status.BUSY:
+            for controller in self._controlchannels:
+                for (name, value) in self._channel_presets.get(controller, ()):
+                    if controller.presetReached(name, value, maxage):
+                        self.log.warning('Stopping overrun counter!')
+                        self.stop()
+        return st, txt
 
 
 class ControlDetector(Detector):
