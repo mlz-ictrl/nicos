@@ -16,12 +16,9 @@ devices = dict(
         writepv='{}Cmd'.format(pv_root),
         requires={'level': 'admin'},
         visibility=set(),
-        mapping={
-            'Start chopper': 6,
-            'Stop chopper': 3,
-            'Reset chopper': 1,
-            'Clear chopper': 8,
-        },
+        monitor=True,
+        pollinterval=None,
+        pva=True,
     ),
     mini_chopper_speed=device(
         'nicos.devices.epics.pva.EpicsAnalogMoveable',
@@ -31,6 +28,8 @@ devices = dict(
         abslimits=(0.0, 14),
         monitor=True,
         precision=0.1,
+        pollinterval=None,
+        pva=True,
     ),
     mini_chopper_delay=device(
         'nicos.devices.epics.pva.EpicsAnalogMoveable',
@@ -39,6 +38,8 @@ devices = dict(
         writepv='{}ChopDly-S'.format(pv_root),
         abslimits=(0.0, 71428571.0),
         monitor=True,
+        pollinterval=None,
+        pva=True,
     ),
     mini_chopper=device(
         'nicos_ess.devices.epics.chopper.EssChopperController',
