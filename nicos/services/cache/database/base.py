@@ -111,11 +111,11 @@ class CacheDatabase(Device):
 
         if entry.ttl:
             if ts:
-                return [f'{entry.time!r}+{entry.ttl}@{key}{op}{entry.value}\n']
+                return [f'{entry.time}+{entry.ttl}@{key}{op}{entry.value}\n']
             else:
                 return [f'{key}{op}{entry.value}\n']
         if ts:
-            return [f'{entry.time!r}@{key}{op}{entry.value}\n']
+            return [f'{entry.time}@{key}{op}{entry.value}\n']
         else:
             return [f'{key}{op}{entry.value}\n']
 
@@ -136,12 +136,12 @@ class CacheDatabase(Device):
             op = entry.expired and OP_TELLOLD or OP_TELL
             if entry.ttl:
                 if ts:
-                    ret.add(f'{entry.time!r}+{entry.ttl}@{key}'
+                    ret.add(f'{entry.time}+{entry.ttl}@{key}'
                             f'{op}{entry.value}\n')
                 else:
                     ret.add(f'{key}{op}{entry.value}\n')
             elif ts:
-                ret.add(f'{entry.time!r}@{key}{op}{entry.value}\n')
+                ret.add(f'{entry.time}@{key}{op}{entry.value}\n')
             else:
                 ret.add(f'{key}{op}{entry.value}\n')
         return [''.join(ret)]
@@ -168,11 +168,11 @@ class CacheDatabase(Device):
         else:
             try:
                 interval = int(float(interval))
-            except ValueError as _:
+            except ValueError:
                 interval = None
         for entry in self.queryHistory((category, subkey), fromtime, totime,
                                        interval):
-            bunch.append(f'{entry.time!r}@{key}={entry.value}\n')
+            bunch.append(f'{entry.time}@{key}={entry.value}\n')
             if len(bunch) > 100:
                 yield ''.join(bunch)
                 bunch = []
