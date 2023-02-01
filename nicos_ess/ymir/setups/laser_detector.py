@@ -6,12 +6,18 @@ devices = dict(
         description='The laser PV',
         readpv='YMIR-SETS:SE-BADC-001:SLOWDATA',
         visibility=(),
+        monitor=True,
+        pollinterval=None,
+        pva=True,
     ),
     laser_timing_status=device(
         'nicos_ess.ymir.devices.laser_detector.TimingStatusDevice',
         description='The lasers timestamps synchronisation status',
         readpv='YMIR-SETS:SE-BPTP-001:PTP_STATUS',
         visibility=(),
+        monitor=True,
+        pollinterval=None,
+        pva=True,
     ),
     laser=device(
         'nicos_ess.ymir.devices.laser_detector.LaserDetector',
