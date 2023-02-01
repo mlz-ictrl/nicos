@@ -145,7 +145,7 @@ class BaseCacheClient(Device):
         # send request for all keys and updates....
         # (send a single request for a nonexisting key afterwards to
         # determine the end of data)
-        msg = '@%s%s\n%s%s\n' % (self._prefix, OP_WILDCARD, END_MARKER, OP_ASK)
+        msg = f'@{self._prefix}{OP_WILDCARD}\n{END_MARKER}{OP_ASK}\n'
         self._socket.sendall(msg.encode())
 
         # read response
@@ -156,10 +156,10 @@ class BaseCacheClient(Device):
             n += 1
 
         # send request for all updates
-        msg = '@%s%s\n' % (self._prefix, OP_SUBSCRIBE)
+        msg = f'@{self._prefix}{OP_SUBSCRIBE}\n'
         self._socket.sendall(msg.encode())
         for prefix in self._prefixcallbacks:
-            msg = '@%s%s\n' % (prefix, OP_SUBSCRIBE)
+            msg = f'@{prefix}{OP_SUBSCRIBE}\n'
             self._socket.sendall(msg.encode())
 
         self._process_data(data)
@@ -385,7 +385,7 @@ class BaseCacheClient(Device):
     def flush(self):
         """wait for empty output queue"""
         self._synced = False
-        self._queue.put('%s%s\n' % (SYNC_MARKER, OP_ASK))
+        self._queue.put(f'{SYNC_MARKER}{OP_ASK}\n')
         self._queue.join()
         for _ in range(100):
             # self.log.debug('flush; waiting for sync...')
@@ -399,7 +399,7 @@ class BaseCacheClient(Device):
         the prefix given to this function.
         """
         if prefix not in self._prefixcallbacks:
-            self._queue.put('@%s%s\n' % (prefix, OP_SUBSCRIBE))
+            self._queue.put(f'@{prefix}{OP_SUBSCRIBE}\n')
         self._prefixcallbacks[prefix] = function
 
     def removePrefixCallback(self, prefix):
@@ -409,7 +409,7 @@ class BaseCacheClient(Device):
         If prefix is unknown, then do nothing.
         """
         if prefix in self._prefixcallbacks:
-            self._queue.put('@%s%s\n' % (prefix, OP_UNSUBSCRIBE))
+            self._queue.put(f'@{prefix}{OP_UNSUBSCRIBE}\n')
             del self._prefixcallbacks[prefix]
 
     # methods to make this client usable as the main device in a simple session
@@ -430,12 +430,11 @@ class BaseCacheClient(Device):
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
         """Locking/unlocking: opens a separate connection."""
-        tosend = '%s%s%s%s%s\n' % (
-            self._prefix, key.lower(), OP_LOCK,
-            unlock and OP_LOCK_UNLOCK or OP_LOCK_LOCK,
-            sessionid or session.sessionid)
+        lockop = unlock and OP_LOCK_UNLOCK or OP_LOCK_LOCK,
+        tosend = f'{self._prefix}{key.lower()}{OP_LOCK}' \
+            f'{lockop}{sessionid or session.sessionid}\n'
         if ttl is not None:
-            tosend = ('+%s@' % ttl) + tosend
+            tosend = f'+{ttl}@{tosend}'
         for msgmatch in self._single_request(tosend, sync=False):
             if msgmatch.group('value'):
                 raise CacheLockError(msgmatch.group('value'))
@@ -453,8 +452,7 @@ class BaseCacheClient(Device):
             return
         try:
             key, res = getSysInfo(service)
-            msg = '%s@%s%s%s\n' % (currenttime(), key, OP_TELL,
-                                   cache_dump(res))
+            msg = f'{currenttime()}@{key}{OP_TELL}{cache_dump(res)}\n'
             self._socket.sendall(msg.encode())
         except Exception:
             self.log.exception('storing sysinfo failed')
@@ -579,18 +577,18 @@ class CacheClient(BaseCacheClient):
         The callback is also called if the value is expired or deleted.
         """
         with self._dblock:  # {}.setdefault may not be threadsafe
-            cbs = self._callbacks.setdefault(('%s/%s' % (dev, key)).lower(), [])
+            cbs = self._callbacks.setdefault(f'{dev}/{key}'.lower(), [])
             cbs.append(function)  # this is supposed to be safe, but why bother?
 
     def removeCallback(self, dev, key, function):
         """Remove the given callback for the given device/subkey, if present."""
         with self._dblock:
-            cbs = self._callbacks.get(('%s/%s' % (dev, key)).lower(), None)
+            cbs = self._callbacks.get(f'{dev}/{key}'.lower(), None)
             if cbs and function and function in cbs:
                 cbs.remove(function)
                 if not cbs:
                     # emty list: remove!
-                    self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
+                    self._callbacks.pop(f'{dev}/{key}'.lower(), None)
 
     def get(self, dev, key, default=None, mintime=None):
         """Get a value from the local cache for the given device and subkey.
@@ -602,7 +600,7 @@ class CacheClient(BaseCacheClient):
         if not self._stoprequest and not self._startup_done.wait(15):
             self.log.warning('Cache _startup_done took more than 15s!')
             raise CacheError(self, 'Cache _startup_done took more than 15s!')
-        dbkey = ('%s/%s' % (dev, key)).lower()
+        dbkey = f'{dev}/{key}'.lower()
         with self._dblock:
             entry = self._db.get(dbkey)
         if entry is None:
@@ -637,8 +635,8 @@ class CacheClient(BaseCacheClient):
         is needed if the current update time and ttl is required.
         """
         if dev:
-            key = ('%s/%s' % (dev, key)).lower()
-        tosend = '@%s%s%s\n' % (self._prefix, key, OP_ASK)
+            key = f'{dev}/{key}'.lower()
+        tosend = f'@{self._prefix}{key}{OP_ASK}\n'
         for msgmatch in self._single_request(tosend):
             if msgmatch.group('tsop') is None:
                 raise CacheError('Cache did not send timestamp info')
@@ -654,7 +652,7 @@ class CacheClient(BaseCacheClient):
 
     def get_raw(self, key, default=None):
         """Get a value from the cache server by full name."""
-        tosend = '%s%s\n' % (key, OP_ASK)
+        tosend = f'{key}{OP_ASK}\n'
         for msgmatch in self._single_request(tosend):
             value = msgmatch.group('value')
             if value:
@@ -671,13 +669,12 @@ class CacheClient(BaseCacheClient):
             return
         if time is None:
             time = currenttime()
-        ttlstr = ttl and '+%s' % ttl or ''
-        dbkey = ('%s/%s' % (dev, key)).lower()
+        ttlstr = f'+{ttl}' if ttl else ''
+        dbkey = f'{dev}/{key}'.lower()
         with self._dblock:
             self._db[dbkey] = (value, time)
         dvalue = cache_dump(value)
-        msg = '%r%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
-                                     flag, OP_TELL, dvalue)
+        msg = f'{time}{ttlstr}@{self._prefix}{dbkey}{flag}{OP_TELL}{dvalue}\n'
         # self.log.debug('putting %s=%s', dbkey, value)
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, dvalue))
@@ -687,7 +684,7 @@ class CacheClient(BaseCacheClient):
         # us updates for a rewritten key if we sent the original key
         if str(dev).lower() in self._rewrites:
             for newprefix in self._rewrites[str(dev).lower()]:
-                rdbkey = ('%s/%s' % (newprefix, key)).lower()
+                rdbkey = f'{newprefix}/{key}'.lower()
                 with self._dblock:
                     self._db[rdbkey] = (value, time)
                 self._propagate((time, rdbkey, OP_TELL, dvalue))
@@ -698,15 +695,15 @@ class CacheClient(BaseCacheClient):
         """Delete a given device's subkey."""
         if time is None:
             time = currenttime()
-        dbkey = ('%s/%s' % (dev, key)).lower()
+        dbkey = f'{dev}/{key}'.lower()
         with self._dblock:
             self._db.pop(dbkey, None)
-        msg = '%r@%s%s%s' % (time, self._prefix, dbkey, OP_TELL)
+        msg = f'{time}@{self._prefix}{dbkey}{OP_TELL}\n'
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, ''))
         if str(dev).lower() in self._rewrites:
             for newprefix in self._rewrites[str(dev).lower()]:
-                rdbkey = ('%s/%s' % (newprefix, key)).lower()
+                rdbkey = f'{newprefix}/{key}'.lower()
                 with self._dblock:
                     self._db.pop(rdbkey, None)
                 self._propagate((time, rdbkey, OP_TELL, ''))
@@ -723,9 +720,9 @@ class CacheClient(BaseCacheClient):
             return
         if time is None:
             time = currenttime()
-        ttlstr = ttl and '+%s' % ttl or ''
+        ttlstr = f'+{ttl}' if ttl else ''
         value = cache_dump(value)
-        msg = '%r%s@%s%s%s%s\n' % (time, ttlstr, key, flag, OP_TELL, value)
+        msg = f'{time}{ttlstr}@{key}{flag}{OP_TELL}{value}\n'
         # self.log.debug('putting %s=%s', key, value)
         self._queue.put(msg)
 
@@ -756,13 +753,13 @@ class CacheClient(BaseCacheClient):
     def clear(self, dev, exclude=()):
         """Clear all cache subkeys belonging to the given device."""
         time = currenttime()
-        devprefix = str(dev).lower() + '/'
+        devprefix = f'{dev}/'.lower()
         with self._dblock:
             for dbkey in list(self._db):
                 if dbkey.startswith(devprefix):
                     if exclude and dbkey.rsplit('/', 1)[-1] in exclude:
                         continue
-                    msg = '%r@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
+                    msg = f'{time}@{self._prefix}{dbkey}{OP_TELL}\n'
                     self._db.pop(dbkey, None)
                     self._queue.put(msg)
                     self._propagate((time, dbkey, OP_TELL, ''))
@@ -772,7 +769,7 @@ class CacheClient(BaseCacheClient):
         time = currenttime()
         with self._dblock:
             for dbkey in list(self._db):
-                msg = '%r@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
+                msg = f'{time}@{self._prefix}{dbkey}{OP_TELL}\n'
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
                 self._propagate((time, dbkey, OP_TELL, ''))
@@ -782,7 +779,7 @@ class CacheClient(BaseCacheClient):
         cache, but will trigger re-initializing short-lived things like device
         values and status from the hardware.
         """
-        dbkey = ('%s/%s' % (dev, key)).lower()
+        dbkey = f'{dev}/{key}'.lower()
         self.log.debug('invalidating %s', dbkey)
         with self._dblock:
             self._db.pop(dbkey, None)
@@ -792,9 +789,9 @@ class CacheClient(BaseCacheClient):
         possible to determine which response lines belong to it.
         """
         if dev:
-            key = ('%s/%s' % (dev, key)).lower()
-        tosend = '%r-%r@%s%s%s%s\n###?\n' % (fromtime, totime,
-                                           self._prefix, key, OP_ASK, interval)
+            key = f'{dev}/{key}'.lower()
+        tosend = f'{fromtime}-{totime}@{self._prefix}{key}{OP_ASK}{interval}' \
+            f'\n{END_MARKER}{OP_ASK}\n'
         ret = []
         for msgmatch in self._single_request(tosend, b'###!\n', sync=False):
             # process data
@@ -838,7 +835,7 @@ class SyncCacheClient(BaseCacheClient):
 
     def _connect_action(self):
         # like for BaseCacheClient, but without request for updates
-        msg = '@%s%s\n###%s\n' % (self._prefix, OP_WILDCARD, OP_ASK)
+        msg = f'@{self._prefix}{OP_WILDCARD}\n{END_MARKER}{OP_ASK}\n'
         self._socket.sendall(msg.encode())
 
         # read response
