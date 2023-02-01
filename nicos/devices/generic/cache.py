@@ -61,8 +61,8 @@ class CacheReader(Readable):
             return func()
         val = None
         if maxage != 0:
-            val = self._cache.get(self, name,
-                                  mintime=currenttime() - maxage if maxage is not None else 0)
+            mintime = currenttime() - maxage if maxage is not None else 0
+            val = self._cache.get(self, name, mintime=mintime)
         if val is None:
             val = func(self.maxage if maxage is None else maxage)
         return val
@@ -70,15 +70,18 @@ class CacheReader(Readable):
     def doRead(self, maxage=0):
         if self._cache:
             try:
-                time, ttl, val = self._cache.get_explicit(self, 'value')
+                time, ttl, val = self._cache.get_explicit(self, 'value', ...)
             except CacheError:
                 raise CommunicationError(self, CACHE_NOVALUE_STRING) from None
+            if val is ...:
+                raise CommunicationError(self, CACHE_NOVALUE_STRING)
             if time and ttl and time + ttl < currenttime():
-                # Note: this will only be reached if self.maxage is expired as well
+                # Note: this will only be reached if self.maxage is expired
+                # as well
                 self.log.warning('value timed out in cache, this should be '
                                  'considered as an error!')
             return val
-        raise CommunicationError(self, '%s: no cache found' % self.__class__.__name__)
+        raise CommunicationError(self, 'no cache found')
 
     def doStatus(self, maxage=0):
         if self._cache:

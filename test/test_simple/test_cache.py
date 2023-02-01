@@ -62,6 +62,18 @@ class TestCache:
         assert cachedval_local == testval
         assert cachedval[2] == testval
 
+    def test_delete(self, session):
+        cc = session.cache
+        testval = 'test_del'
+        key = 'delvalue'
+        cc.put('testcache', key, testval)
+        cc.flush()
+        assert cc.get_explicit('testcache', key, None)[2] == testval
+
+        cc.delete('testcache', key)
+        cc.flush()
+        assert cc.get_explicit('testcache', key, None)[2] is None
+
     def test_rewrite(self, session):
         cc = session.cache
         cc.setRewrite('testrewrite', 'testcache')
@@ -116,6 +128,12 @@ class TestCache:
         assert cachedval2[2] == testval2
         assert cachedval5[2] == testval3
         assert cachedval6[2] == cachedval5[2]
+
+    def test_raw(self, session):
+        cc = session.cache
+        cc.put_raw('some/strange/key', [1, 2])
+        cc.flush()
+        assert cc.get_raw('some/strange/key') == [1, 2]
 
     def test_readonly_objects(self, session):
         cc = session.cache
