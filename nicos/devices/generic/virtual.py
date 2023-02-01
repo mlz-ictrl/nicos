@@ -375,11 +375,13 @@ class VirtualCounter(VirtualChannel):
 
 class VirtualGauss(PassiveChannel):
     """A virtual channel which returns values from gauss curves centered
-    at  defined positions of movable devices
+    at defined positions of movable devices.
     """
     attached_devices = {
         'motors': Attach('Moveables on which the count depends',
                          Moveable, multiple=True),
+        'timer':  Attach('Timer device to use as elapsed time instead of '
+                         'real time', PassiveChannel, optional=True),
     }
 
     parameters = {
@@ -398,12 +400,13 @@ class VirtualGauss(PassiveChannel):
     _start_time = None
     _end_time = None
     _pause_start = None
-    _pause_intervall = None
+    _pause_interval = None
 
     def doStart(self):
         self._start_time = time.time()
         self._pause_start = None
         self._pause_time = None
+        self._pause_interval = 0
         PassiveChannel.doStart(self)
 
     def doStop(self):
@@ -421,15 +424,17 @@ class VirtualGauss(PassiveChannel):
 
     def doResume(self):
         time_paused = time.time() - self._pause_start
-        if self._pause_intervall:
-            self._pause_intervall += time_paused
+        if self._pause_interval:
+            self._pause_interval += time_paused
         else:
-            self._pause_intervall = time_paused
+            self._pause_interval = time_paused
 
     def doRead(self, maxage=0):
-        if self._end_time:
+        if self._attached_timer:
+            ampl = self._attached_timer.read(maxage)[0] * self.rate
+        elif self._end_time:
             elapsed_time = self._end_time - self._start_time
-            if self._pause_intervall:
+            if self._pause_interval:
                 elapsed_time -= self._pause_interval
             ampl = elapsed_time * self.rate
         else:

@@ -78,7 +78,8 @@ devices = dict(
         motors = ['stt', 'om', 'chi', 'phi'],
         centers = [12.0, 3.0, 44.5, 122.33],
         stddev = 2.,
-        rate = 200
+        rate = 200,
+        timer = 'timer',
     ),
     EULER = device('nicos_sinq.sxtal.instrument.EulerSXTal',
         description = 'instrument object',
