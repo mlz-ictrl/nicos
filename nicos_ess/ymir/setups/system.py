@@ -80,6 +80,5 @@ devices = dict(
         'nicos_ess.devices.scichat.ScichatBot',
         description='Sends messages to SciChat',
         brokers=['10.100.1.19:9092'],
-        scichat_topic='ymir_scichat',
     ),
 )

@@ -43,9 +43,10 @@ class ScichatBot(Device):
             Param(
                 'Kafka topic where Scichat messages are sent',
                 type=str,
+                default='nicos_scichat',
                 settable=False,
                 preinit=True,
-                mandatory=True,
+                mandatory=False,
                 userparam=False,
             ),
     }
