@@ -39,7 +39,7 @@ class LivePowderWidget(LiveWidget1D):
         start = float(self.client.getCacheKey('s2t/value')[1])
         self.curve.x = numpy.linspace(start,start+nx*self.tthstep,nx)
         self.curve.y = numpy.ma.masked_equal(self._array.ravel(), 0).astype(
-            numpy.float)
+            numpy.float64)
         self.curve.filly = .1 if self._logscale else 0
         self.axes.setWindow(start,start+nx*self.tthstep,0,ny)
         title = self.client.getCacheKey('exp/title')[1]
