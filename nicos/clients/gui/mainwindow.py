@@ -697,10 +697,9 @@ class MainWindow(DlgUtils, QMainWindow):
             return
         from nicos.clients.gui.tools.website import WebsiteTool
 
-        # XXX: change URL to current release version
         dlg = WebsiteTool(
             self, self.client,
-            url='https://www.nicos-controls.org')
+            url='https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/')
         dlg.setWindowModality(Qt.NonModal)
         dlg.show()
 

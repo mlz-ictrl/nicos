@@ -44,6 +44,8 @@ class WebsiteTool(QDialog):
         loadUi(self, 'tools/website.ui')
         self.webView = QWebView(self)
         self.layout().addWidget(self.webView)
+        self.backBtn.clicked.connect(self.webView.back)
+        self.fwdBtn.clicked.connect(self.webView.forward)
 
         site = settings.get('url', '')
         if site:
