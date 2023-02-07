@@ -21,6 +21,8 @@
 #   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
+import time
+
 from nicos.core import Attach, Measurable, Override, Param, pvname, status, \
     usermethod
 from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
@@ -45,7 +47,9 @@ class ImageType(ManualSwitch):
             Override(mandatory=False,
                      default=list(range(PROJECTION, INVALID + 1))),
         'maxage':
-            Override(default=0)
+            Override(default=0),
+        'pollinterval':
+            Override(default=None, userparam=False, settable=False),
     }
 
     hardware_access = False
@@ -58,12 +62,15 @@ class ImageType(ManualSwitch):
     }
 
     def doStatus(self, maxage=0):
-        stat = status.OK
-        msg = self._image_key_to_image_type[self.target]
         if self.target == INVALID:
-            stat = status.WARN
-            msg = 'State is invalid for the tomography experiment.'
-        return stat, msg
+            return status.WARN, 'State is invalid for a tomography experiment.'
+        return status.OK, self._image_key_to_image_type[self.target]
+
+    def doStart(self, target):
+        curr_time = time.time()
+        self._cache.put(self._name, 'value', target, curr_time)
+        ManualSwitch.doStart(self, target)
+        self._cache.put(self._name, 'status', self.doStatus(), curr_time)
 
     @usermethod
     def set_to_projection(self):
