@@ -430,7 +430,7 @@ class BaseCacheClient(Device):
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
         """Locking/unlocking: opens a separate connection."""
-        lockop = unlock and OP_LOCK_UNLOCK or OP_LOCK_LOCK,
+        lockop = unlock and OP_LOCK_UNLOCK or OP_LOCK_LOCK
         tosend = f'{self._prefix}{key.lower()}{OP_LOCK}' \
             f'{lockop}{sessionid or session.sessionid}\n'
         if ttl is not None:

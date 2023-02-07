@@ -30,7 +30,7 @@ from time import sleep
 
 import pytest
 
-from nicos.core.errors import CommunicationError, LimitError
+from nicos.core.errors import CommunicationError, LimitError, CacheLockError
 from nicos.devices.cacheclient import CacheClient
 from nicos.utils import readonlydict, readonlylist
 
@@ -134,6 +134,20 @@ class TestCache:
         cc.put_raw('some/strange/key', [1, 2])
         cc.flush()
         assert cc.get_raw('some/strange/key') == [1, 2]
+
+    def test_lock(self, session):
+        cc = session.cache
+        key = 'lock'
+        ses_a, ses_b = 'client1', 'client2'
+        # need to access base class method since lock() is disabled in the
+        # TestCacheClient to avoid implicit master locking
+        CacheClient.lock(cc, key, 5, sessionid=ses_a)
+        assert raises(CacheLockError, CacheClient.lock, cc, key, 5,
+                      sessionid=ses_b)
+        CacheClient.lock(cc, key, unlock=True, sessionid=ses_a)
+        CacheClient.lock(cc, key, 0.01, sessionid=ses_a)
+        sleep(0.1)
+        CacheClient.lock(cc, key, 0.01, sessionid=ses_b)
 
     def test_readonly_objects(self, session):
         cc = session.cache
