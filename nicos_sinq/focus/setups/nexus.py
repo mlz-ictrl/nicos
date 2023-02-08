@@ -17,3 +17,6 @@ devices = dict(
         'nicos_sinq.focus.nexus.nexus_templates.FOCUSTemplateProvider',
     ),
 )
+startupcode = """
+Exp._setROParam('forcescandata', True)
+"""
