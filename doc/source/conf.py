@@ -45,6 +45,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.todo',
+    'sphinx.ext.mathjax',
     'ext.setupdoc',
     'ext.daemondoc',
     'ext.stubs',

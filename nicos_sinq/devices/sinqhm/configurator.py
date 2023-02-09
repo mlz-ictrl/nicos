@@ -145,32 +145,41 @@ class HistogramConfTofArray(HistogramConfArray):
 
 
 class HistogramConfAxis(HistogramConfElement):
-    """ This element describes an axis of the histogram memory.
+    """This element describes an axis of the histogram memory.
     The axis tag has the following attributes:
+
     *length*: The length of the axis.
+
     *mapping*: The mapping type of the axis.
-        Currently supported mapping types are:
+    Currently supported mapping types are:
+
         direct:  Detector number in packet is detector number in histogram.
+
         calculate:  The detector number in the histogram memory must be
-            calculated from the data in the packet. If calculate has been
-            selected, the following additional attribute to axis are evaluated:
+        calculated from the data in the packet. If calculate has been selected,
+        the following additional attribute to axis are evaluated:
+
             - multiplier A multiplier
             - divisor A divisor
             - preoffset An offset to apply before division or multiplication.
             - postoffset An offset to apply after division or multiplication.
-            The formula to arrive at the histogram memory detector number d
-            from the value in the packet p is:
-            d = postoffset + (preoffset + p ∗ multiplier)/divisor
-            If any of the parameters are not given or 0, then the operation
-            is not performed: i.e. without a divisor no division.
+
+        The formula to arrive at the histogram memory detector number d
+        from the value in the packet p is:
+        :math:`d = postoffset + (preoffset + p \cdot multiplier)/divisor`.
+        If any of the parameters are not given or 0, then the operation
+        is not performed: i.e. without a divisor no division.
+
         boundary: The histogram memory detector position is deduced through
-            lookup in an array of bin boundaries. These boundaries must not
-            necessarily be linear. This mode is commonly applied to time of
-            flight data. This array should have length+1 bin boundary entries.
+        lookup in an array of bin boundaries. These boundaries must not
+        necessarily be linear. This mode is commonly applied to time of flight
+        data. This array should have length+1 bin boundary entries.
+
         lookuptable: This is for an area detector where the lookup for y is
         not independent of x. A 2D lookup array is required.
+
     *array*: Some axis mappings, tof, lookup, need arrays for their data.
-        This attribute gives the name of the array to use.
+    This attribute gives the name of the array to use.
 
     Additionally an axis can provide information about it's unit and label
     using parameters. The arrays associated with this axis need to be
