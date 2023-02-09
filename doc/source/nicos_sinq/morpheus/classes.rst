@@ -5,6 +5,3 @@
 .. .. autoclass:: SetSPS()
 .. autoclass:: AldiController()
 .. autoclass:: AldiMotor()
-
-.. module:: nicos_sinq.morpheus.devices.spin
-.. autoclass:: MorpheusSpin()
