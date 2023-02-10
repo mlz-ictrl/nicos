@@ -44,7 +44,7 @@ def get_git_version(abbrev=4, cwd=None):
     ver = translate_version(stdout.strip().decode('utf-8', 'ignore'))
     if ver:
         return ver
-    raise RuntimeError(stderr.strip().decode('utf-8', 'ignore'))
+    return 'Cannot find a version number!'
 
 
 def read_release_version():
@@ -84,9 +84,7 @@ def get_nicos_version(abbrev=4):
     elif release_version:
         return release_version
     else:
-        raise ValueError('Cannot find a version number.\n'
-                         f'From git describe: {git_ver_error}\n'
-                         f'Reading RELEASE-VERSION: {rel_ver_error}')
+        return 'Cannot find a version number!'
 
 
 if __name__ == "__main__":

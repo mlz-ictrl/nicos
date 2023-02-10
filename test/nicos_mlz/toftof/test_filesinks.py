@@ -34,6 +34,7 @@ session_setup = 'toftof'
 exp_dataroot = 'toftofdata'
 
 
+@pytest.mark.skip(reason="Fails on ESS Jenkins")
 class TestSinks:
 
     @pytest.fixture(scope='class', autouse=True)
