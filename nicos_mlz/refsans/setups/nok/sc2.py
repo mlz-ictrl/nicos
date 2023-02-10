@@ -13,5 +13,8 @@ devices = dict(
                       '2019-05-29 photo',
         tangodevice = tango_base + 'optic/sc2/motor',
         refpos = -7.2946,
+        speed = 10,
+        accel = 0.05,
+        decel = 0.05,
     ),
 )
