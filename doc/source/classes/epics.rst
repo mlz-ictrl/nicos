@@ -57,13 +57,16 @@ Allows specify which EPICS protocol to use.
 Wrapper classes for EPICS protocols
 -----------------------------------
 
+.. module:: nicos.devices.epics.pva.caproto
 .. autoclass:: CaprotoWrapper()
 
+.. module:: nicos.devices.epics.pva.p4p
 .. autoclass:: P4pWrapper()
 
 Specific classes using one or more PVs
 --------------------------------------
 
+.. currentmodule:: nicos.devices.epics.pva
 .. autoclass:: EpicsReadable()
 
 .. autoclass:: EpicsMoveable()
