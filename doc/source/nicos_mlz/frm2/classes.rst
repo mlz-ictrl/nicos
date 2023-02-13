@@ -48,3 +48,6 @@
 
 .. module:: nicos_mlz.devices.wmirfgen
 .. autoclass:: Frequency()
+
+.. module:: nicos_mlz.devices.rabbit_sink
+.. autoclass:: RabbitSink()
