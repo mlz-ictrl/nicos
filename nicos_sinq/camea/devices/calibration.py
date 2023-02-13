@@ -59,6 +59,8 @@ class CalibrationData(Device):
 
     @usermethod
     def load(self, filename):
+        """initialise the calibration data from data stored in file passed
+        in as filename"""
         amp = []
         e = []
         off = []

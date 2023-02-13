@@ -50,6 +50,7 @@ class BoaTable(Device):
 
     @usermethod
     def addSetup(self, name):
+        """add the named setup to the table"""
         if name not in session.loaded_setups:
             raise ValueError('%s not a loaded setup' % name)
         if name not in self.setups:
@@ -59,6 +60,7 @@ class BoaTable(Device):
 
     @usermethod
     def removeSetup(self, name):
+        """"remove the named setup from the table"""
         if name in self.setups:
             tmp = list(self.setups)
             tmp.remove(name)
@@ -66,6 +68,7 @@ class BoaTable(Device):
 
     @usermethod
     def addDevice(self, name):
+        """add the named device to the table"""
         if name not in session.configured_devices:
             raise ValueError('device %s is not available' % name)
         if name not in self.additional_devices:
@@ -75,6 +78,7 @@ class BoaTable(Device):
 
     @usermethod
     def removeDevice(self, name):
+        """"remove the named device from the table"""
         if name in self.additional_devices:
             tmp = list(self.additional_devices)
             tmp.remove(name)
@@ -82,6 +86,7 @@ class BoaTable(Device):
 
     @usermethod
     def show(self):
+        """list the current configuration of the table"""
         txt = 'Table %s Configuration:\n' % self.doReadName()
         txt += 'Standard Devices:\n'
         txt += '\t %s\n' % ', '.join(self.standard_devices)
