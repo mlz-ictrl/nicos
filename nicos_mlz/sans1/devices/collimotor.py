@@ -662,6 +662,10 @@ class MotorAllParams(Motor):
     @usermethod
     @requires(level=USER)
     def readParameter(self, index):
+        """reads one of the numerically indexed parameters
+
+        indices see docu.
+        """
         self.log.debug('readParameter %d', index)
         try:
             index = int(self._paridx.get(index, index))
@@ -701,6 +705,10 @@ class MotorAllParams(Motor):
     @usermethod
     @requires(level=ADMIN)
     def writeParameter(self, index, value, store2eeprom=False):
+        """writes one of the numerically indexed parameters
+
+        indices see docu.
+        """
         self.log.debug('writeParameter %d:0x%04x', index, value)
         if store2eeprom:
             self.log.warning('writeParameter stores to eeprom !')
