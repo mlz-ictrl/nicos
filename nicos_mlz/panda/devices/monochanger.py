@@ -491,6 +491,7 @@ class Changer(BaseSequencer):
 
     @usermethod
     def printstatusinfo(self):
+        """prints extensive debug information about the state of the changer"""
         self.log.info('PLC is %s',
                       'enabled' if self._attached_enable.read() == 0xef16
                       else 'disabled, you need to set enable_word to the '
