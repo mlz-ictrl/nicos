@@ -203,6 +203,9 @@ class SdsRatemeter(JsonBase):
 
     @usermethod
     def clear(self):
+        """
+        Clear interlock for shutter if neutronrate has been exeded
+        """
         try:
             res = requests.post(self.controlurl, timeout=self.timeout,
                                 data={'mon_button': '1'})

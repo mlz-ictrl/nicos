@@ -700,11 +700,13 @@ class Motor(HasTimeout, NicosMotor):
 
     @usermethod
     def _store(self):
+        """Store the current parameter values to EEPROM."""
         self._attached_bus.send(self.addr, 40)
         self.log.info('parameters stored to EEPROM')
 
     @usermethod
     def _printconfig(self):
+        """Print the current configuration in human readable format."""
         byte = self.confbyte
         c = ''
 

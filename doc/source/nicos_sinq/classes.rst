@@ -100,9 +100,6 @@ SINQ classes
 .. autoclass:: NiagShutter
 .. autoclass:: NiagExpShutter
 
-.. module:: nicos_sinq.devices.powdersample
-.. autoclass:: PowderSample
-
 .. module:: nicos_sinq.devices.procdevice
 .. autoclass:: ProcDevice
 

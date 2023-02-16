@@ -60,6 +60,7 @@ class ScichatBot(Device):
 
     @usermethod
     def send(self, message):
+        """Send the message to SciChat"""
         if not self._producer:
             return
         self._producer.send(self.scichat_topic, self._create_message(message))

@@ -77,9 +77,10 @@ QMenuBar::item:pressed {
 /* ----- QMenu -------------------------------------------------- */
 
 QMenu {
-     color: #1f5366;
+     background-color: #ececec;
      color: black;
      margin: 0px;
+     border-radius: 5px;
 }
 
 QMenu::item:disabled {
@@ -405,14 +406,23 @@ QTabWidget QLabel
     color: black;
 }
 
-QTreeView,
 QListView,
-QTableView,
-QColumnView {
+QColumnView
+{
     color: black;
     border: 1px solid #a9a9a9;
     gridline-color: #32414B;
     border-radius: 5px;
+}
+
+
+QTableView {
+    background-color: white;
+    color: black;
+}
+
+QTableView QTableCornerButton::section {
+    background: gray;
 }
 
 QDoubleSpinBox,
@@ -432,7 +442,9 @@ QLineEdit:read-only {
     border-radius: 5px;
 }
 
-QTreeView::item {
+QTreeView {
+    background-color: white;
+    alternate-background-color: #f1f2f2;
     color: black;
 }
 
@@ -450,6 +462,13 @@ QHeaderView {
     padding: 0px;
     margin: 0px;
     border-radius: 5px;
+}
+
+/* -------------------- QPlainTextEdit --------------------- */
+
+QPlainTextEdit {
+    background-color: white;
+    color: black;
 }
 
 /* -------------------- QPushButton ------------------------ */

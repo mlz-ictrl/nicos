@@ -10,9 +10,6 @@ Absorber
 Detectors
 ---------
 
-.. module:: nicos_jcns.galaxi.devices.mythen_det
-.. autoclass:: ImageChannel()
-
 .. automodule:: nicos_jcns.galaxi.devices.pindiode
 
 Automation
@@ -24,9 +21,3 @@ Bruker AXS control
 ------------------
 
 .. automodule:: nicos_jcns.galaxi.devices.bruker_axs
-
-File formats
-------------
-
-.. module:: nicos_jcns.galaxi.devices.mythen_det
-.. autoclass:: ImageSink()

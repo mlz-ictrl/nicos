@@ -24,7 +24,8 @@
 
 """NICOS GUI multiple cmdlet script-builder input."""
 
-from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
+from nicos.clients.gui.cmdlets import get_priority_sorted_categories, \
+    get_priority_sorted_cmdlets
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QAction, QMenu, QToolButton, pyqtSlot
@@ -61,7 +62,7 @@ class CommandsPanel(Panel):
         for module in modules:
             importString(module)  # should register cmdlets
 
-        for cmdlet in all_cmdlets:
+        for cmdlet in get_priority_sorted_cmdlets():
             def callback(on, cmdlet=cmdlet):
                 inst = cmdlet(self, self.client, self.options)
                 inst.cmdletUp.connect(self.on_cmdletUp)
@@ -74,7 +75,7 @@ class CommandsPanel(Panel):
             action.triggered.connect(callback)
             self.mapping.setdefault(cmdlet.category, []).append(action)
 
-        for category in all_categories[::-1]:
+        for category in get_priority_sorted_categories()[::-1]:
             if category not in self.mapping:
                 return
             toolbtn = QToolButton(self)

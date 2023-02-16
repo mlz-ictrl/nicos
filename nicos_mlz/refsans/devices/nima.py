@@ -127,10 +127,16 @@ class Area(MoveName):
 
     @usermethod
     def open(self):
+        """
+        Open barrier, at selected speed
+        """
         self.doStart('open')
 
     @usermethod
     def close(self):
+        """
+        Close barrier, at selected speed
+        """
         self.doStart('close')
 
 

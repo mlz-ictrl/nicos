@@ -67,18 +67,22 @@ class ImageType(ManualSwitch):
 
     @usermethod
     def set_to_projection(self):
+        """Set the image key to projection"""
         self.move(PROJECTION)
 
     @usermethod
     def set_to_flat_field(self):
+        """Set the image key to flat field"""
         self.move(FLATFIELD)
 
     @usermethod
     def set_to_dark_field(self):
+        """Set the image key to dark field"""
         self.move(DARKFIELD)
 
     @usermethod
     def set_to_invalid(self):
+        """Set the image key to invalid"""
         self.move(INVALID)
 
 
