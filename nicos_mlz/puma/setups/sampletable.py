@@ -94,14 +94,13 @@ devices = dict(
         maxtries = 5,
     ),
 
-     psi = device('nicos.devices.generic.DeviceAlias',
+    psi = device('nicos.devices.generic.DeviceAlias',
         description = 'Sample rocking angle Theta',
         alias = 'psi_puma',
         # when magnet is on :
         # alias = 'sth_m7T5_ccr',
         devclass = 'nicos.devices.generic.Axis',
     ),
-
     # Tilting
     st_sgx = device('nicos.devices.vendor.ipc.Motor',
         bus = 'motorbus3',
