@@ -28,7 +28,7 @@ import os
 
 # search for files at CURRENT DIRECTORY and below
 nullfiles = {}
-for root, dirs, files in os.walk('.'):
+for root, dirs, files in os.walk(os.getcwd()):
     for fn in files:
         if fn.endswith('.bak'):
             continue

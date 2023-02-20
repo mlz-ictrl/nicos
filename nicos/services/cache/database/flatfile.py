@@ -285,10 +285,14 @@ class FlatfileCacheDatabase(CacheDatabase):
                     self.log.warning('found nullbyte in file %s', fn)
                     continue
                 fields = line.rstrip().split(None, nsplit)
+                if len(fields) != nsplit + 1:
+                    self.log.warning(
+                        'found a corrupted line in file %s: %s', fn, line)
+                    continue
                 if fields[0] == subkey:
                     try:
                         time = float(fields[1])
-                    except Exception as e:
+                    except Exception:
                         self.log.exception('Error converting timestamp in '
                                            'cache file %s/%s/%s-%s',
                                            year, monthday, category, subkey)

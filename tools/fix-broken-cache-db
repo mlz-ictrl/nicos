@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
+# *****************************************************************************
+
+"""Cleans up Cache data files from invalid lines, e.g. after running multiple
+nicos-cache instance on multiple computers working on the same db files ..."""
+
+import os
+
+
+def read_and_check_cache_file(fn):
+    bad = False
+    valid = []
+    with open(fn, 'r', encoding='utf-8') as fd:
+        firstline = fd.readline()
+        nsplit = 2
+        if firstline.startswith('# NICOS cache store file v2'):
+            valid.append(firstline)
+            nsplit = 3
+        else:
+            fd.seek(0, os.SEEK_SET)
+        for line in fd:
+            if '\x00' in line:
+#                print('found nullbyte in file %s' % fn)
+                bad = True
+                continue
+            try:
+                fields = line.rstrip().split(None, nsplit)
+                if not fields:
+                    bad = True
+#                    print('found empty line in file %s' % fn)
+                    continue
+            except ValueError:
+                bad = True
+#                print('found bad line %r in file %s' %(line, fn))
+                continue
+            try:
+                float(fields[1])
+                if len(fields) < nsplit + 1:
+                    bad = True
+#                    print('found bad line %r in file %s' % (line, fn))
+                    continue
+                if nsplit == 3 and fields[2] not in '+-':
+                    bad = True
+#                    print('found bad persistency marker in line %r in file %s' % (line, fn))
+                    continue
+            except (ValueError, IndexError):
+                bad = True
+#                print('found timestamp in line %r in file %s' % (line, fn))
+                continue
+            valid.append(line)
+    if bad:
+        return bad, ''.join(valid)
+    return bad, None
+
+# search for files at CURRENT DIRECTORY and below
+badfiles = {}
+for root, dirs, files in os.walk(os.getcwd()):
+    for fn in files:
+        if fn.endswith('.bak'):
+            continue
+        full_fn = os.path.join(root,fn)
+        bad, data = read_and_check_cache_file(full_fn)
+        if bad:
+            print(full_fn)
+            badfiles[full_fn] = data
+
+# write backup files and cleaned files
+count = 0
+for fn, data in badfiles.items():
+    try:
+        # make backup
+        with open(fn + '.bak', 'wb') as fo:
+            with open(fn, 'rb') as fi:
+                fo.write(fi.read())
+        # rewrite cache file
+        with open(fn, 'w', encoding='utf-8') as f:
+            f.write(data)
+        count += 1
+    except Exception as e:
+        print(e)
+
+if count:
+    print('Wrote backup for %d changed file(s), please check '
+          'and remove them if not needed.' % count)
+    print('The find command is left as an exercise to the caller.')
