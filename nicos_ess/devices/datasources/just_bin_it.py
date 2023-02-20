@@ -400,6 +400,14 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
                 userparam=False,
                 settable=True,
             ),
+        'event_schema':
+            Param(
+                'Which schema the event data uses',
+                type=oneof('ev42', 'ev44'),
+                default='ev42',
+                userparam=False,
+                settable=True,
+            ),
     }
 
     parameter_overrides = {
@@ -550,6 +558,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         config_base = {
             'cmd': 'config',
             'msg_id': identifier,
+            'input_schema': self.event_schema,
             'output_schema': self.hist_schema,
             'histograms': histograms
         }
