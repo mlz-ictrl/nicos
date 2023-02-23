@@ -5,15 +5,15 @@ from os import path
 
 sys.path.insert(0, path.abspath('.'))
 
-from utils import rootdir, find_uis, find_custom, find_gr, find_modules, find_resources
+from utils import rootdir, find_uis, find_custom, find_gr, find_gr_osx,\
+                  find_modules, find_resources
 
 binscript = path.join(rootdir, 'bin', 'nicos-gui')
-
 
 a = Analysis([binscript],
              pathex=[rootdir],
              binaries=[],
-             datas=find_uis() + find_custom() + find_gr() + find_resources() + [
+             datas=find_uis() + find_custom() + find_gr_osx() + find_resources() + [
                  (path.join(rootdir, 'nicos', 'RELEASE-VERSION'), 'nicos')],
              hiddenimports=
                  find_modules('nicos', 'clients', 'gui') +
@@ -22,6 +22,7 @@ a = Analysis([binscript],
                  find_modules('nicos', 'core') +
                  find_modules('nicos', 'devices'),
              hookspath=[],
+             runtime_hooks=['rthook_osx.py'],
              excludes=['Tkinter', 'matplotlib', 'gtk', 'IPython',
                        'ipykernel', 'pygments'],
              win_no_prefer_redirects=False,
@@ -37,3 +38,8 @@ exe = EXE(pyz,
           debug=False,
           strip=False,
           console=False)
+app = BUNDLE(exe,
+         name='nicos-gui.app',
+         icon='../resources/icons/nicos.icns',
+         bundle_identifier=None,
+         version='3.9.4')

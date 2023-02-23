@@ -11,5 +11,6 @@ kafka-python>=1.4.6
 pre-commit==2.17.0
 PyQt5==5.15.4
 PyQtWebEngine==5.15.4
+pyqtgraph>=0.12.4
 QScintilla==2.12.1
 https://github.com/ess-dmsc/yuos_query/releases/download/v0.1.21/yuos_query-0.1.21-py3-none-any.whl

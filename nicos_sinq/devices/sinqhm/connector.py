@@ -75,10 +75,10 @@ class HttpConnector(HasCommunication, Readable):
         response = result.status_code
         if response in self.status_code_msg:
             raise CommunicationError(self.status_code_msg.get(response)
-                                     + result.content)
+                                     + result.content.decode('utf-8'))
         elif response != 200:
             raise CommunicationError('Error while connecting to server! %s'
-                                     % result.content)
+                                     % result.content.decode('utf-8'))
         self._setROParam('curstatus', (status.OK, ''))
         return result
 

@@ -24,7 +24,8 @@
 from nicos.core import Attach, InvalidValueError, Override, Param, pvname, \
     status, usermethod
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics import EpicsDevice, EpicsStringReadable
+from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pva import EpicsStringReadable
 
 
 class SyringePumpController(EpicsDevice, MappedMoveable):

@@ -34,9 +34,6 @@ rootdir = path.abspath('..')
 guidirs = [path.join('nicos', 'clients', 'gui'),
            path.join('nicos', 'clients', 'flowui')]
 
-grrtdir = path.join(path.dirname(gr.__file__), 'bin')
-
-
 # Make sure to generate the version file.
 os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + path.pathsep + rootdir
 subprocess.check_call([sys.executable,
@@ -57,6 +54,15 @@ def find_custom():
                 res.append((path.join(root, fn), root[len(rootdir) + 1:]))
     return res
 
+# find resource files
+def find_resources():
+    res = []
+    for root, dirs, files in os.walk(path.join(rootdir,  'resources')):
+        targetdir = root[len(rootdir) + 1:]
+        for fn in files:
+            res.append((path.join(root, fn), targetdir))
+    res.append((path.join(rootdir,'nicos/clients/flowui/guiconfig.qss'), 'nicos/clients/flowui'))
+    return res
 
 # Include all .ui files for the main GUI module.
 def find_uis():
@@ -72,8 +78,16 @@ def find_uis():
 
 # Include the GR runtime.
 def find_gr():
+    grrtdir = path.join(path.dirname(gr.__file__), 'bin')
     return [
         (path.join(grrtdir, '*.*'), path.join('gr', 'bin')),
+        (path.join(grrtdir, '..', 'fonts', '*.*'), path.join('gr', 'fonts')),
+    ]
+
+def find_gr_osx():
+    grrtdir = path.join(path.dirname(gr.__file__), 'lib')
+    return [
+        (path.join(grrtdir, '*.*'), path.join('gr', 'lib')),
         (path.join(grrtdir, '..', 'fonts', '*.*'), path.join('gr', 'fonts')),
     ]
 

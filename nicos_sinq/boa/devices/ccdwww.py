@@ -127,6 +127,7 @@ class CCDWWWImageChannel(ImageChannelMixin, ActiveChannel):
 
     @usermethod
     def configure(self):
+        """send XML configuration data to the CCDWWW"""
         # The XML digested by ccdwww is not very standard in that there
         # is no root, thus manual generation
         xml = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n'

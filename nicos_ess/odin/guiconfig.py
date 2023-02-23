@@ -24,7 +24,7 @@ main_window = docked(
                          ),
                         ('Detector Image',
                          panel(
-                             'nicos_ess.gui.panels.live.MultiLiveDataPanel'
+                             'nicos.clients.flowui.panels.live.MultiLiveDataPanel'
                          )),
                         ('Script Status',
                          panel(
