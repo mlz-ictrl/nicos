@@ -23,11 +23,25 @@
 
 name = 'test_puma setup'
 
-includes = ['tas']
+includes = ['tas', 'slit', 'reactor']
+
 monostates = ['GE311', 'PG002', 'CU220', 'CU111', 'None']
 monodevices = ['mono_ge311', 'mono_pg002', 'mono_cu220', 'mono_cu111',
                'mono_dummy']
 magazinepos = [(315.4, '8'), (45.46, '1'), (135.4, '2'), (225.4, '4')]
+
+puma_sinklist = []
+
+try:
+    import h5py  # pylint: disable=unused-import
+    puma_sinklist.append('nxsink')
+except Exception:
+    pass
+
+sysconfig = dict(
+    datasinks = puma_sinklist,
+)
+
 
 devices = dict(
     phi = device('nicos_mlz.puma.devices.CombAxis',
@@ -171,4 +185,34 @@ devices = dict(
         energytransferunit = 'meV',
         axiscoupling = True,
     ),
+    det = device('nicos.devices.generic.DeviceAlias',
+        alias = 'vtasdet',
+    ),
+    T = device('nicos.devices.generic.VirtualRealTemperature',
+        abslimits = (2, 1000),
+        warnlimits = (0, 325),
+        ramp = 60,
+        unit = 'K',
+        jitter = 0,
+        precision = 0.1,
+        window = 30.0,
+        visibility = (),
+    ),
+    B = device('nicos.devices.generic.VirtualMotor',
+        abslimits = (0, 2),
+        unit = 'T',
+    ),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass = 'nicos_mlz.puma.nexus.templates.PumaTemplateProvider',
+        filenametemplate = ['%(scancounter)07d.nxs'],
+        settypes = {'scan', 'point'},  # 'subscan', },
+        ss1 = 'slit',
+        ss2 = 'slit2',
+        ms = 'slit3',
+    ),
 )
+
+startupcode = """
+SetDetectors('det')
+SetEnvironment('T', 'B')
+"""

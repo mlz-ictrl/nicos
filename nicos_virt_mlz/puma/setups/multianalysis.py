@@ -2,6 +2,10 @@ description = 'Classical multianalysis setup'
 
 group = 'basic'
 
+sysconfig = dict(
+    datasinks = ['nxscansink'],
+)
+
 modules = ['nicos_mlz.puma.commands']
 
 includes = ['pumabase',

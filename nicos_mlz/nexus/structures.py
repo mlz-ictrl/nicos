@@ -35,9 +35,12 @@ mm = NXAttribute('mm', 'string')
 deg = NXAttribute('deg', 'string')
 
 signal = NXAttribute(1, 'int')
+axis0 = NXAttribute(0, 'int')
 axis1 = NXAttribute(1, 'int')
 axis2 = NXAttribute(2, 'int')
 axis3 = NXAttribute(3, 'int')
+
+mass_density = NXAttribute('g/cm^3', 'string')
 
 
 def LocalContact():
@@ -154,4 +157,51 @@ def Selector(speed, wl, delta_wl, tilt):
         'wavelength_spread': DeviceDataset(delta_wl, dtype='float'),
         'beamcenter': DeviceDataset(wl, 'beamcenter'),
         'tilt': DeviceDataset(tilt),
+    }
+
+
+def Collimator(device):
+    return {
+        'type': ConstDataset('Soller', 'string'),
+        'soller_angle': DeviceDataset(device, dtype='float'),
+        'blade_thickness': ConstDataset(0.1, dtype='float', units=mm),
+        'blade_spacing': ConstDataset(1., dtype='float', units=mm),
+        'absorbing_material': ConstDataset('Gd', 'string'),
+        'transmitting_material': ConstDataset('air', 'string'),
+        'geometry:NXgeometry': {
+            'shape:NXshape': {
+                'shape': ConstDataset('nxbox', 'string'),
+            },
+        },
+    }
+
+
+def Filter(device, material, thickness=5):
+    density_map = {
+        'C': 2.26,  # 2.25 - 2.265
+        'Be': 1.848,
+        'Al2O3': 4.0,  # 3.95 - 4.03
+        'Si': 2.33,
+        'Er': 9.045,
+    }
+
+    chem_formula_map = {
+        'Beryllium': 'Be',
+        'Pyrolytic Graphite': 'C',
+        'Graphite': 'C',
+        'Sapphire': 'Al2O3',
+        'Silicon': 'Si',
+        'Erbium': 'Er',
+        'Supermirror': '',
+    }
+
+    chem_formula = chem_formula_map.get(material)
+    density = density_map.get(chem_formula)
+    return {
+        'description': ConstDataset(material, 'string'),
+        'status': DeviceDataset(device),
+        # 'temperature_log:NXlog': ,
+        'thickness': ConstDataset(thickness, dtype='float', units=mm),
+        'chemical_formula': ConstDataset(chem_formula, dtype='string'),
+        'density': ConstDataset(density, dtype='float', units=mass_density),
     }

@@ -5,7 +5,7 @@ sysconfig = dict(
     cache = configdata('config_data.cache_host'),
     instrument = 'puma',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'nxscansink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
 )
 
@@ -45,8 +45,8 @@ devices = dict(
         lattice = [4.05, 4.05, 4.05],
     ),
     nxtassink = device('nicos.nexus.NexusSink',
-        templateclass = 'nicos_mlz.nexus.nexus_templates.TasTemplateProvider',
-        filenametemplate = ['puma%(scancounter)07d.nxs'],
+        templateclass = 'nicos_mlz.puma.nexus.templates.PumaTemplateProvider',
+        filenametemplate = ['tpuma%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },
         device_mapping = {
             'ss1': 'slit1',

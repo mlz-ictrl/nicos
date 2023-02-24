@@ -11,7 +11,7 @@ includes = [
 ]
 
 sysconfig = dict(
-    datasinks = ['polsink',]
+    datasinks = ['polsink', 'nxscansink'],
 )
 
 devices = dict(

@@ -2,6 +2,10 @@ description = 'Polarization analysis'
 
 group = 'basic'
 
+sysconfig = dict(
+    datasinks = ['nxscansink'],
+)
+
 includes = [
     'pumabase', 'multianalyzer', 'multidetector', 'rdcad', 'analyzer',
     'monochromator', 'aliases', 'lengths', 'slits', 'opticalbench',

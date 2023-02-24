@@ -60,6 +60,7 @@ devices = dict(
         opmode = '4blades',
         pollinterval = 5,
         maxage = 10,
+        autodevice_visibility = {'metadata', },
     ),
     ss2_l_mot = device('nicos.devices.generic.VirtualMotor',
         visibility = (),
@@ -118,5 +119,6 @@ devices = dict(
         opmode = '4blades',
         pollinterval = 5,
         maxage = 10,
+        autodevice_visibility = {'metadata', },
     ),
 )

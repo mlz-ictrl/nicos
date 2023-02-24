@@ -60,7 +60,7 @@ devices = dict(
         description = 'handles I/O inside daemon',
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass = 'nicos_mlz.nexus.nexus_templates.TasTemplateProvider',
+        templateclass = 'nicos_mlz.puma.nexus.templates.PumaTemplateProvider',
         filenametemplate = ['%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },
         device_mapping = {
