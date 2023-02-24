@@ -93,9 +93,12 @@ class TestSinks:
 
         SetEnvironment()
 
+    @pytest.fixture
+    def datapath(self, session):
+        return Path(session.experiment.datapath) / '0000043'
+
     @pytest.mark.skipif('h5py is None', reason='h5py module not available')
-    def test_nexus_sink(self, session):
-        datapath = Path(session.experiment.datapath) / '0000043'
+    def test_nexus_sink(self, datapath):
         assert datapath.with_suffix('.nxs').is_file()
 
         with h5py.File(datapath.with_suffix('.nxs'), 'r', driver='core') as h5:
