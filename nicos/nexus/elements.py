@@ -137,6 +137,11 @@ class ConstDataset(NexusElementBase):
             dtype = 'S%d' % (len(self.value.encode('utf-8')) + 1)
             dset = h5parent.create_dataset(name, (1,), dtype)
             dset[0] = np.array(self.value.encode('utf-8'), dtype=dtype)
+        elif isinstance(self.value, (tuple, list)):
+            dset = h5parent.create_dataset(name, (len(self.value),),
+                                           dtype=self.dtype)
+            for i, v in enumerate(self.value):
+                dset[i] = v
         else:
             dset = h5parent.create_dataset(name, (1,), dtype=self.dtype)
             dset[0] = self.value
