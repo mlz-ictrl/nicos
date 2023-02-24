@@ -264,11 +264,11 @@ class DeviceDataset(NexusElementBase):
             return
 
         dset = h5parent[name]
-        devices = (sinkhandler.dataset.devices +
-                   sinkhandler.dataset.environment)
+        devinfo = (sinkhandler.dataset.devvalueinfo +
+                   sinkhandler.dataset.envvalueinfo)
         values = (sinkhandler.dataset.devvaluelist +
                   sinkhandler.dataset.envvaluelist)
-        for dev, val in zip(devices, values):
+        for dev, val in zip(devinfo, values):
             if dev.name == self.device:
                 self.resize_dataset(dset)
                 dset[self.np] = val
