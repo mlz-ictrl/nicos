@@ -29,7 +29,7 @@ from contextlib import contextmanager
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
-from nicos.core import ADMIN, requires, SIMULATION
+from nicos.core import ADMIN, SIMULATION, requires
 
 from nicos_ess.devices.datasinks.file_writer import FileWriterControlSink
 

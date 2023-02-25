@@ -24,23 +24,20 @@
 
 """NICOS livewidget with pyqtgraph."""
 
-import numpy as np
+from enum import Enum
 
+import numpy as np
 import pyqtgraph as pg
-from pyqtgraph import PlotWidget, ViewBox, ImageItem, GraphicsView, AxisItem, \
-    mkPen, HistogramLUTItem
+from pyqtgraph import AxisItem, GraphicsView, HistogramLUTItem, ImageItem, \
+    PlotWidget, ViewBox, mkPen
 from pyqtgraph.graphicsItems.ROI import ROI
 
 from nicos.clients.gui.panels import Panel
 from nicos.core.constants import LIVE
-
-from enum import Enum
-
 from nicos.guisupport.livewidget import AXES, DATATYPES
-from nicos.guisupport.qt import QGroupBox, QSize, Qt, QVBoxLayout, \
-    pyqtProperty, pyqtSignal, QHBoxLayout, QLineEdit, QLabel, pyqtSlot, \
-    QPushButton, QSplitter, QFrame, QWidget, QSizePolicy, QTabWidget, \
-    QScrollArea
+from nicos.guisupport.qt import QFrame, QGroupBox, QHBoxLayout, QLabel, \
+    QLineEdit, QPushButton, QScrollArea, QSize, QSizePolicy, QSplitter, Qt, \
+    QTabWidget, QVBoxLayout, QWidget, pyqtProperty, pyqtSignal, pyqtSlot
 from nicos.utils.loggers import NicosLogger
 
 pg.setConfigOption("background", "w")
