@@ -46,10 +46,10 @@ class EulerianCradle(Moveable):
 
     Angle naming:
 
-    - rotation of the cradle: psi (IT: omega)
+    - rotation of the cradle: psi (International tables (IT): omega)
     - big circle of the cradle: chi
     - small circle of the cradle: omega (IT: phi)
-    - scattering angle: phi (International Tables: two-theta)
+    - scattering angle: phi (IT: two-theta)
     """
 
     attached_devices = {
@@ -73,7 +73,7 @@ class EulerianCradle(Moveable):
     }
 
     parameter_overrides = {
-        'unit':    Override(mandatory=False),
+        'unit': Override(mandatory=False),
     }
 
     hardware_access = False
@@ -86,18 +86,8 @@ class EulerianCradle(Moveable):
 
     def doStart(self, target):
         r1, r2 = target
-        for val in self.reflex1, self.reflex2, self.angles1, self.angles2:
-            if all(v == 0 for v in val):
-                raise NicosError(self, 'Please first set the Eulerian cradle '
-                                 'orientation with the reflex1/2 and '
-                                 'angles1/2 parameters')
-        sense = self._attached_tas.scatteringsense[1]
-        self._omat = self.calc_or(sense)
-        ang = self.euler_angles(r1, r2, 2, 2, sense,
-                                self._attached_chi.userlimits,
-                                self._attached_omega.userlimits)
-        psi, chi, om, _phi = ang
-        self.log.debug('euler angles: %s', ang)
+        (psi, chi, om, _phi), sense = self._calc_plane(r1, r2)
+        self.log.debug('euler angles: %s', [psi, chi, om, _phi])
         self.log.info('moving %s to %12s, %s to %12s',
                       self._attached_chi,
                       self._attached_chi.format(chi, unit=True),
@@ -121,6 +111,18 @@ class EulerianCradle(Moveable):
     def _getWaiters(self):
         return [self._attached_chi, self._attached_omega]
 
+    def _calc_plane(self, r1, r2):
+        for val in self.reflex1, self.reflex2, self.angles1, self.angles2:
+            if all(v == 0 for v in val):
+                raise NicosError(self, 'Please first set the Eulerian cradle '
+                                 'orientation with the reflex1/2 and '
+                                 'angles1/2 parameters')
+        sense = self._attached_tas.scatteringsense[1]
+        self._omat = self.calc_or(sense)
+        return self.euler_angles(r1, r2, 2, 2, sense,
+                                 self._attached_chi.userlimits,
+                                 self._attached_omega.userlimits), sense
+
     @usermethod
     def calc_plane(self, r1, r2=None):
         """Calculate chi and omega angles to get a scattering plane in which
@@ -132,21 +134,12 @@ class EulerianCradle(Moveable):
         """
         if r2 is None:
             r1, r2 = r1
-        for val in self.reflex1, self.reflex2, self.angles1, self.angles2:
-            if all(v == 0 for v in val):
-                raise NicosError(self, 'Please first set the Eulerian cradle '
-                                 'orientation with the reflex1/2 and '
-                                 'angles1/2 parameters')
-        sense = self._attached_tas.scatteringsense[1]
-        self._omat = self.calc_or(sense)
-        ang = self.euler_angles(r1, r2, 2, 2, sense,
-                                self._attached_chi.userlimits,
-                                self._attached_omega.userlimits)
+        (_, chi, om, _), _ = self._calc_plane(r1, r2)
         self.log.info('found scattering plane')
         self.log.info('%s: %20s', self._attached_chi,
-                      self._attached_chi.format(ang[1], unit=True))
+                      self._attached_chi.format(chi, unit=True))
         self.log.info('%s: %20s', self._attached_omega,
-                      self._attached_omega.format(ang[2], unit=True))
+                      self._attached_omega.format(om, unit=True))
 
     def euler_angles(self, target_q, another, ki, kf, sense,
                      chilimits=(-180, 180), omlimits=(-180, 180)):
@@ -163,7 +156,7 @@ class EulerianCradle(Moveable):
 
         # calculate phi from q, ki, kf
         self.log.debug("Bmat = %s", Bmat)
-        ##was: ec_q = dot(Bmat, target_q)
+        # was: ec_q = dot(Bmat, target_q)
         ec_q = self._attached_cell.hkl2Qcart(*target_q)
         self.log.debug("ec_q = %s", ec_q)
         phi = self._attached_cell.cal_phi(ec_q, ki, kf, sense)
@@ -172,12 +165,12 @@ class EulerianCradle(Moveable):
         ec_a = dot(Bmat, another)
 
         ec_al = norm(ec_a)
-        ec_b  = cross(ec_q, ec_a)
+        ec_b = cross(ec_q, ec_a)
         ec_bl = norm(ec_b)
         self.log.debug('vector perp q and sp1 ec_b = %s', ec_b)
         if ec_bl < 0.01:
             # should be:
-            # der Q-Vektor ist parallel zu sp1 (der erste Reflex)
+            # Q vector is parallel to sp1 (first reflex)
             raise ComputationError('selected Q and second vector are parallel; '
                                    'no scattering plane is defined by them')
 
@@ -241,8 +234,8 @@ class EulerianCradle(Moveable):
             ec_sichi = ec_xlb*ec_b[1]/ec_bl
             ec_xh = ec_sichi*(ec_r[1]*ec_b[2]/ec_b[1] - ec_r[2])
             ec_xah = ec_r[0]**2 + ec_xh**2
-            # in der folgenden Zeile gabe es Fehler:
-            # die r[1] muss r[0] heissen
+            # in the following line was an error:
+            # r[1] has to be r[0]
             # ec_copsi1 = ec_q1[0]*ec_r[1]/ec_xah
             ec_copsi1 = ec_q1[0]*ec_r[0]/ec_xah
             ec_copsi2 = ec_xh/ec_xah*ec_q1[1]
@@ -483,10 +476,10 @@ class EulerianCradle(Moveable):
         cell.orient1 = [1, 0, 0]
         cell.orient2 = [0, 1, 0]
         self._Bmat = cell._matrix
-        # print 'd1 (psi=%f chi =%f om = %f\n' %(ang1[0],ang1[1],ang1[2]), \
-        #       self.calc_euler(ang1[0],ang1[1],ang1[2])
-        # print 'd2 (psi=%f chi =%f om = %f\n' %(ang2[0],ang2[1],ang2[2]), \
-        #       self.calc_euler(ang2[0],ang2[1],ang2[2])
+        # self.log.debug('d1 (psi=%f chi=%f om=%f) %f',
+        #     ang1[0], ang1[1], ang1[2], self.calc_euler(ang1[0], ang1[1], ang1[2])
+        # self.log.debug('d2 (psi=%f chi=%f om=%f) %f',
+        #     ang2[0], ang2[1], ang2[2], self.calc_euler(ang2[0], ang2[1], ang2[2])
         d1_inv = inv(self.calc_euler(ang1[0], ang1[1], ang1[2]))
         d2_inv = inv(self.calc_euler(ang2[0], ang2[1], ang2[2]))
         # self.log.debug('d1_inv = %f', d1_inv)
