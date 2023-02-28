@@ -653,9 +653,9 @@ class IntegralLiveWidget(LiveWidget):
 
         # use float type in order to mask zeros with 0.1 for logscale
         self.curvex.x = reference[:, int(x0):int(x1)].sum(
-            axis=1, dtype=numpy.float)
+            axis=1, dtype=numpy.float64)
         self.curvey.y = reference[int(y0):int(y1), :].sum(
-            axis=0, dtype=numpy.float)
+            axis=0, dtype=numpy.float64)
         self._applymask()
 
     def _finishSetData(self, newrange):
@@ -820,7 +820,7 @@ class LiveWidget1D(LiveWidgetBase):
     def _prepareSetData(self):
         for curve, arr in zip(self._curves, self._arrays):
             curve.y = numpy.ma.masked_equal(arr.ravel(), 0).astype(
-                numpy.float)
+                numpy.float64)
             curve.filly = 0.1 if self._logscale else 0
             curve.x = self._labels['x']
 
