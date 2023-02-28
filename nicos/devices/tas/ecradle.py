@@ -26,12 +26,13 @@
 
 """Eulerian cradle calculations."""
 
-from numpy import arctan2, array, cos, cross, dot, identity, sin, sqrt, zeros
+from numpy import arctan2, array, cos, cross, degrees, dot, identity, \
+    radians, sin, sqrt, zeros
 from numpy.linalg import inv, norm
 
 from nicos.core import Attach, ComputationError, Moveable, NicosError, \
     Override, Param, multiStatus, tupleof, usermethod, vec3
-from nicos.devices.tas.cell import D2R, Cell
+from nicos.devices.tas.cell import Cell
 
 
 class EulerianCradle(Moveable):
@@ -188,7 +189,7 @@ class EulerianCradle(Moveable):
 
         # calculate Q1 defined by ki, kf and phi
 
-        ec_q1 = array([ki-kf*cos(phi*D2R), -kf*sin(phi*D2R), 0])
+        ec_q1 = array([ki-kf*cos(radians(phi)), -kf*sin(radians(phi)), 0])
         self.log.debug('scattering vector as function of ki 2: ec_q1 = %s', ec_q1)
         ec_q1 = ec_q1/ec_ql
         self.log.debug('unit scattering vector: ec_q1 = %s', ec_q1)
@@ -214,7 +215,7 @@ class EulerianCradle(Moveable):
             # this is direct what stands in calec
             ec_copom = ec_xlchi*ec_q1[1]*ec_r[1] + ec_q1[0]*ec_r[0]
             ec_sipom = ec_xlchi*ec_q1[1]*ec_r[0] - ec_q1[0]*ec_r[1]
-            ec_pom = arctan2(ec_sipom, ec_copom)/D2R
+            ec_pom = degrees(arctan2(ec_sipom, ec_copom))
 
             # acos(ec_copom) should be the same!
 
@@ -299,7 +300,7 @@ class EulerianCradle(Moveable):
                     continue   # corresponds to: go to 9
                 ec_d1 = ec_xlom*ec_xlchi*ec_cochi
                 ec_d2 = ec_xlchi*ec_sichi
-                ec_cc = arctan2(ec_d2, ec_d1)/D2R
+                ec_cc = degrees(arctan2(ec_d2, ec_d1))
                 self.log.debug('xlom, xlchi, ec_cc = %s, %s, %s',
                                ec_xlom, ec_xlchi, ec_cc)
                 if ec_cc < -180:
@@ -310,7 +311,7 @@ class EulerianCradle(Moveable):
                     continue
                 ec_d1 = ec_xlom*ec_copsi1 + ec_xlchi*ec_copsi2
                 ec_d2 = ec_xlom*ec_sipsi1 + ec_xlchi*ec_sipsi2
-                ec_p = arctan2(ec_d2, ec_d1)/D2R
+                ec_p = degrees(arctan2(ec_d2, ec_d1))
                 self.log.debug('ec_p = %s', ec_p)
                 if ec_p < -180:
                     ec_p += 360.
@@ -344,7 +345,7 @@ class EulerianCradle(Moveable):
     #   10   continue
                 ec_d1 = ec_xlom*ec_coom
                 ec_d2 = ec_xlom*ec_siom
-                ec_om = arctan2(ec_d2, ec_d1)/D2R
+                ec_om = degrees(arctan2(ec_d2, ec_d1))
                 self.log.debug('ec_om = %s', ec_om)
                 if ec_om < -180.:
                     ec_om += 360.
@@ -365,7 +366,7 @@ class EulerianCradle(Moveable):
         # v = norm(a_vector)
         v = a_vector
         result = zeros((3, 3))
-        a = an_angle*D2R
+        a = radians(an_angle)
         co = cos(a)
         si = sin(a)
         result[0, 0] = co
@@ -385,12 +386,12 @@ class EulerianCradle(Moveable):
     def calc_euler(self, psi, chi, om):
         """This is the exact copy of Eckold's SR Euler."""
         temp = zeros((3, 3))   # init 3x3 matrix
-        sipsi = sin(psi*D2R)
-        copsi = cos(psi*D2R)
-        sichi = sin(chi*D2R)
-        cochi = cos(chi*D2R)
-        siom = sin(om*D2R)
-        coom = cos(om*D2R)
+        sipsi = sin(radians(psi))
+        copsi = cos(radians(psi))
+        sichi = sin(radians(chi))
+        cochi = cos(radians(chi))
+        siom = sin(radians(om))
+        coom = cos(radians(om))
         temp[0, 0] = copsi*coom - sipsi*cochi*siom
         temp[0, 1] = -copsi*siom - sipsi*cochi*coom
         temp[0, 2] = sipsi*sichi
@@ -450,10 +451,10 @@ class EulerianCradle(Moveable):
             a1 *= -1
         if xx2 > 0:
             a2 *= -1
-        alfa1 = arctan2(a1, cos1)/D2R
-        # print alfa1
-        alfa2 = arctan2(a2, cos2)/D2R
-        # print alfa2
+        alfa1 = degrees(arctan2(a1, cos1))
+        # self.log.debug('alfa1: %f', alfa1)
+        alfa2 = degrees(arctan2(a2, cos2))
+        # self.log.debug('alfa2: %f', alfa2)
         if abs(alfa1 - alfa2) > 0.7:
             raise ComputationError('error in orient: no solution for Omat')
         alfa = (alfa1 + alfa2)/2
@@ -488,10 +489,10 @@ class EulerianCradle(Moveable):
         #       self.calc_euler(ang2[0],ang2[1],ang2[2])
         d1_inv = inv(self.calc_euler(ang1[0], ang1[1], ang1[2]))
         d2_inv = inv(self.calc_euler(ang2[0], ang2[1], ang2[2]))
-        # print 'd1_inv = \n', d1_inv
-        # print 'd2_inv = \n', d2_inv
-        ec_q1 = [cos((90-ang1[3]/2)*D2R), -sense*sin((90-ang1[3]/2)*D2R), 0]
-        ec_q2 = [cos((90-ang2[3]/2)*D2R), -sense*sin((90-ang2[3]/2)*D2R), 0]
+        # self.log.debug('d1_inv = %f', d1_inv)
+        # self.log.debug('d2_inv = %f', d2_inv)
+        ec_q1 = [cos(radians(90-ang1[3]/2)), -sense*sin(radians(90-ang1[3]/2)), 0]
+        ec_q2 = [cos(radians(90-ang2[3]/2)), -sense*sin(radians(90-ang2[3]/2)), 0]
         self.log.debug('ec_q1 = %s, ec_q2 = %s', ec_q1, ec_q2)
         ec_h1 = dot(self._Bmat, hkl1)
         ec_h2 = dot(self._Bmat, hkl2)
