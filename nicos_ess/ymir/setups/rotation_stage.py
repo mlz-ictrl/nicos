@@ -8,5 +8,7 @@ devices = dict(rotation_stage=device(
     errormsgpv=f'{pv_root}m-MsgTxt',
     errorbitpv=f'{pv_root}m-Err',
     reseterrorpv=f'{pv_root}m-ErrRst',
+    pollinterval=None,
     monitor=True,
+    pva=True,
 ), )

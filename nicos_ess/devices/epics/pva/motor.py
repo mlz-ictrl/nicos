@@ -270,6 +270,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                 return status.BUSY, message or 'homing'
             return status.BUSY, message or f'moving to {self.target}'
 
+        enabled = self._get_pv('enable')
+        if not enabled:
+            return status.WARN, 'motor is not enabled'
+
         miss = self._get_pv('miss')
         if miss != 0:
             return (status.NOTREACHED, message
