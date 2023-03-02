@@ -46,7 +46,6 @@ devices = dict(
         sendmail = False,
         serviceexp = 'Service',
         sample = 'Sample',
-        forcescandata = True,
         elog = False,
     ),
     Space = device('nicos.devices.generic.FreeSpace',

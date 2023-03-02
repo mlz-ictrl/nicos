@@ -30,8 +30,8 @@ from yuos_query.exceptions import BaseYuosException
 from yuos_query.yuos_client import YuosCacheClient
 
 from nicos import session
-from nicos.core import SIMULATION, Override, Param, UsageError, absolute_path, \
-    listof, mailaddress
+from nicos.core import SIMULATION, Override, Param, UsageError, \
+    absolute_path, listof, mailaddress
 from nicos.devices.experiment import Experiment
 from nicos.utils import createThread
 

@@ -181,3 +181,5 @@ NeXus elements
 
 .. automodule:: nicos.nexus.elements
    :member-order: bysource
+.. automodule:: nicos.nexus.specialelements
+   :member-order: bysource

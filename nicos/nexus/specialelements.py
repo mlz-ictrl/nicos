@@ -22,8 +22,13 @@
 #
 # *****************************************************************************
 
+import numpy
+
 from nicos import nicos_version, session
-from .elements import ConstDataset, NXAttribute
+from nicos.devices.sxtal.sample import SXTalSample
+from nicos.devices.tas import Cell
+
+from .elements import ConstDataset, NexusElementBase, NXAttribute
 
 
 class NicosProgramDataset(ConstDataset):
@@ -36,3 +41,56 @@ class NicosProgramDataset(ConstDataset):
                               version=NXAttribute(nicos_version, 'string'),
                               configuration=NXAttribute(
                                   session.explicit_setups, 'string'))
+
+
+class CellArray(NexusElementBase):
+    """Place holder for sample cell parameters, stored as an array.
+
+    The sample should be `nicos.devices.tas.Cell` or
+    `nicos.devices.sxtal.SXTalSample`.
+    """
+    def __init__(self):
+        self.attrs = {}
+        NexusElementBase.__init__(self)
+
+    def create(self, name, h5parent, sinkhandler):
+        sample = session.experiment.sample
+        if isinstance(sample, Cell):
+            data = sample.lattice + sample.angles
+        elif isinstance(sample, SXTalSample):
+            data = [sample.a, sample.b, sample.c,
+                    sample.alpha, sample.beta, sample.gamma]
+        else:
+            session.log.error('Your sample is no Cell and no SXTalSample')
+            return
+        self.attrs['units'] = NXAttribute('', 'string')
+        ds = h5parent.create_dataset(name, (6,), maxshape=(None,),
+                                     dtype='float64')
+        ds[...] = numpy.array(data)
+        self.createAttributes(ds, sinkhandler)
+
+
+class UBMatrix(NexusElementBase):
+    """Place holder for the UB matrix of the sample cell or SXTalSample.
+
+    The sample should be `nicos.devices.tas.Cell` or
+    `nicos.devices.sxtal.SXTalSample`.
+    """
+    def __init__(self):
+        self.attrs = {}
+        NexusElementBase.__init__(self)
+
+    def create(self, name, h5parent, sinkhandler):
+        sample = session.experiment.sample
+        if isinstance(sample, Cell):
+            data = sample.matrix_crystal2lab().flatten()
+        elif isinstance(sample, SXTalSample):
+            data = np.array(sample.ubmatrix, dtype='float64').flatten()
+        else:
+            session.log.error('Your sample is no Cell and no SXTalSample')
+            return
+        self.attrs['units'] = NXAttribute('', 'string')
+        ds = h5parent.create_dataset(name, (9,), maxshape=(None,),
+                                     dtype='float64')
+        ds[...] = data
+        self.createAttributes(ds, sinkhandler)

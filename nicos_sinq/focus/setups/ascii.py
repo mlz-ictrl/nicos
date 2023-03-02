@@ -14,3 +14,6 @@ devices = dict(
         ],
     ),
 )
+startupcode = """
+Exp._setROParam('forcescandata', False)
+"""
