@@ -47,7 +47,7 @@ class InstrSelectDialog(QDialog):
             self.saveBox.hide()
 
         self.confTree.itemDoubleClicked.connect(self.handleDoubleClick)
-        self.confTree.itemClicked.connect(self.handleClick)
+        self.confTree.currentItemChanged.connect(self.handleSelection)
         self.buttonBox.button(QDialogButtonBox.Ok).setDisabled(True)
         tree = {}
 
@@ -75,9 +75,9 @@ class InstrSelectDialog(QDialog):
                 pkgitem.setData(0, QTreeWidgetItem.UserType, v.pop('config'))
             add_subitems(pkgitem, v)
 
-    def handleClick(self, item, _col):
+    def handleSelection(self, cur, _prev):
         self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(
-            item.data(0, QTreeWidgetItem.UserType) is not None)
+            cur.data(0, QTreeWidgetItem.UserType) is not None)
 
     def handleDoubleClick(self, item, _col):
         if item.data(0, QTreeWidgetItem.UserType):
