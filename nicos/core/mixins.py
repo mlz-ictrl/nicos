@@ -116,7 +116,7 @@ class AutoDevice(DeviceMixinBase):
 
 class HasAutoDevices(DeviceMixinBase):
     """
-    This mixin can be intherited from device classes creating ``AutoDevices``.
+    This mixin can be inherited from device classes creating ``AutoDevices``.
     """
 
     autodevices = None
