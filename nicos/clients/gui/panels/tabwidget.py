@@ -27,9 +27,9 @@
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.guisupport.qt import QApplication, QByteArray, QCursor, QDrag, \
-    QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, QSize, \
-    QStyle, QStyleOptionTab, QStylePainter, Qt, QTabBar, QTabWidget, QWidget, \
-    pyqtSignal, pyqtSlot
+    QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, QPointF, \
+    QSize, QStyle, QStyleOptionTab, QStylePainter, Qt, QTabBar, QTabWidget, \
+    QWidget, pyqtSignal, pyqtSlot
 
 
 def findTab(tab, w):
@@ -84,7 +84,8 @@ class TearOffTabBar(QTabBar):
         if (event.buttons() == Qt.MouseButton.LeftButton) \
                 and self._dragInitiated and \
                 not self.geometry().contains(event.pos()):
-            finishMoveEvent = QMouseEvent(QEvent.Type.MouseMove, event.pos(),
+            finishMoveEvent = QMouseEvent(QEvent.Type.MouseMove,
+                                          QPointF(event.pos()),
                                           Qt.MouseButton.NoButton,
                                           Qt.MouseButton.NoButton,
                                           Qt.KeyboardModifier.NoModifier)
