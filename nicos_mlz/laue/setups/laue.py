@@ -11,4 +11,4 @@ modules = [
 devices = dict(
 )
 
-includes = ['detector', 'kappa', 'reactor', 'slits', 'shutter']
+includes = ['detector', 'kappa', 'reactor', 'slits']
