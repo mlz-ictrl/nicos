@@ -2,6 +2,7 @@ description = 'The choppers for BIFROST'
 
 pv_root_1 = 'BIFROST-ChpSy2:Chop-BWC-101:'
 pv_root_2 = 'BIFROST-ChpSy2:Chop-BWC-102:'
+chic_root = 'BIFROST-ChpSy2:Chop-CHIC-001:'
 
 devices = dict(
     bwc1_chopper_status=device(
@@ -53,12 +54,22 @@ devices = dict(
         pollinterval=None,
         pva=True,
     ),
+    bwc1_chopper_chic=device(
+        'nicos.devices.epics.pva.EpicsMappedReadable',
+        description='The status of the CHIC connection.',
+        readpv='{}ConnectedR'.format(chic_root),
+        visibility=set(),
+        monitor=True,
+        pollinterval=None,
+        pva=True,
+    ),
     bwc1_chopper=device(
         'nicos_ess.devices.epics.chopper.EssChopperController',
         description='The chopper controller',
         state='bwc1_chopper_status',
         command='bwc1_chopper_control',
         speed='bwc1_chopper_speed',
+        chic_conn='bwc1_chopper_chic',
     ),
     bwc2_chopper_status=device(
         'nicos.devices.epics.pva.EpicsMappedReadable',
@@ -109,11 +120,21 @@ devices = dict(
         pollinterval=None,
         pva=True,
     ),
+    bwc2_chopper_chic=device(
+        'nicos.devices.epics.pva.EpicsMappedReadable',
+        description='The status of the CHIC connection.',
+        readpv='{}ConnectedR'.format(chic_root),
+        visibility=set(),
+        monitor=True,
+        pollinterval=None,
+        pva=True,
+    ),
     bwc2_chopper=device(
         'nicos_ess.devices.epics.chopper.EssChopperController',
         description='The chopper controller',
         state='bwc2_chopper_status',
         command='bwc2_chopper_control',
         speed='bwc2_chopper_speed',
+        chic_conn='bwc2_chopper_chic',
     ),
 )
