@@ -22,9 +22,10 @@
 #
 # *****************************************************************************
 import time
+from enum import Enum
 
 from nicos.core import Attach, Measurable, Override, Param, pvname, status, \
-    usermethod
+    usermethod, LIVE, InvalidValueError, floatrange, listof, host, oneof
 from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.epics.pva import EpicsDevice
 from nicos.devices.generic import Detector, ImageChannelMixin, ManualSwitch
@@ -33,6 +34,12 @@ from nicos_sinq.devices.epics.area_detector import \
     ADKafkaPlugin as ADKafkaPluginBase
 
 PROJECTION, FLATFIELD, DARKFIELD, INVALID = 0, 1, 2, 3
+
+
+class ImageMode(Enum):
+    SINGLE = 0
+    MULTIPLE = 1
+    CONTINUOUS = 2
 
 
 class ImageType(ManualSwitch):
@@ -127,13 +134,41 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
     the Kafka plugin for area detectors.
     """
     parameters = {
-        'pv_root':
-            Param('Area detector EPICS prefix', type=pvname, mandatory=True),
-        'iscontroller':
-            Param('If this channel is an active controller',
-                  type=bool,
-                  settable=True,
-                  default=True),
+        'pv_root': Param(
+            'Area detector EPICS prefix', type=pvname, mandatory=True
+        ),
+        'iscontroller': Param(
+            'If this channel is an active controller', type=bool,
+            settable=True, default=True
+        ),
+        'image_topic': Param(
+            'Topic where the image is.', type=str, mandatory=True,
+            settable=True, default=False
+        ),
+        'brokers': Param(
+            'Kafka broker for the images.', type=listof(host(defaultport=9092)),
+            mandatory=True, settable=True, default=False
+        ),
+        'imagemode': Param(
+            'Mode to acquire images.',
+            type=oneof('single', 'multiple', 'continuous'), settable=True,
+            default='continuous', volatile=True
+        ),
+        'sizex': Param('Image X size.', settable=True, volatile=True),
+        'sizey': Param('Image Y size.', settable=True, volatile=True),
+        'binx': Param('Binning factor X', settable=True, volatile=True),
+        'biny': Param('Binning factor Y', settable=True, volatile=True),
+        'acquiretime': Param('Exposure time ', settable=True, volatile=True),
+        'acquireperiod': Param(
+            'Time between exposure starts.', settable=True, volatile=True
+        ),
+        'numimages': Param(
+            'Number of images to take (only in imageMode=multiple).',
+            settable=True, volatile=True
+        ),
+        'numexposures': Param(
+            'Number of exposures per image.', settable=True, volatile=True
+        ),
     }
 
     _control_pvs = {
@@ -143,10 +178,9 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
         'bin_y': 'BinY',
         'acquire_time': 'AcquireTime',
         'acquire_period': 'AcquirePeriod',
-        'frame_rate': 'FrameRate',
         'num_images': 'NumImages',
         'num_exposures': 'NumExposures',
-        'pixel_format': 'PixelFormat',
+        'image_mode': 'ImageMode',
     }
 
     _record_fields = {}
@@ -169,12 +203,13 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
     def _set_custom_record_fields(self):
         self._record_fields['max_size_x'] = 'MaxSizeX_RBV'
         self._record_fields['max_size_y'] = 'MaxSizeY_RBV'
-        self._record_fields['num_images_counter_rbv'] = 'NumImagesCounter_RBV'
+        self._record_fields['readpv'] = 'NumImagesCounter_RBV'
         self._record_fields['detector_state'] = 'DetectorState_RBV'
         self._record_fields['detector_state.STAT'] = 'DetectorState_RBV.STAT'
         self._record_fields['detector_state.SEVR'] = 'DetectorState_RBV.SEVR'
         self._record_fields['array_rate_rbv'] = 'ArrayRate_RBV'
         self._record_fields['acquire'] = 'Acquire'
+        self._record_fields['acquire_status'] = 'AcquireBusy'
 
     def _get_pv_parameters(self):
         return set(self._record_fields)
@@ -186,7 +221,7 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
         return getattr(self, pvparam)
 
     def doRead(self, maxage=0):
-        return []
+        return self._get_pv('readpv')
 
     def doReadArray(self, quality):
         return None
@@ -194,9 +229,7 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
     def doSetPreset(self, **preset):
         pass
 
-    def doStart(self, target):
-        if target:
-            self._put_pv('acquire_period', target)
+    def doStart(self):
         self._put_pv('acquire', 1)
 
     def doFinish(self):
@@ -206,13 +239,19 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
         self._put_pv('acquire', 0)
 
     def doStatus(self, maxage=0):
-        detector_state = self._get_pv('detector_state', True)
-        alarm_status = STAT_TO_STATUS.get(self._get_pv('detector_state.STAT'),
-                                          status.UNKNOWN)
+        detector_state = self._get_pv('acquire_status', True)
+        alarm_status = STAT_TO_STATUS.get(
+            self._get_pv('detector_state.STAT'),
+            status.UNKNOWN
+        )
         alarm_severity = SEVERITY_TO_STATUS.get(
-            self._get_pv('detector_state.SEVR'), status.UNKNOWN)
+            self._get_pv('detector_state.SEVR'),
+            status.UNKNOWN
+        )
         self._write_alarm_to_log(detector_state, alarm_severity, alarm_status)
-        return alarm_severity, detector_state
+        return alarm_severity, '%s, image mode is %s' % (
+            detector_state, self.imagemode
+        )
 
     def _write_alarm_to_log(self, pv_value, severity, stat):
         msg_format = '%s (%s)'
@@ -221,68 +260,82 @@ class AreaDetector(EpicsDevice, ImageChannelMixin, Measurable):
         elif severity == status.WARN:
             self.log.warning(msg_format, pv_value, stat)
 
-    def doReadSizeX(self):
+    def doReadSizex(self):
         return self._get_pv('max_size_x')
 
-    def doWriteSizeX(self, value):
+    def doWriteSizex(self, value):
         self._put_pv('size_x', value)
 
-    def doReadSizeY(self):
+    def doReadSizey(self):
         return self._get_pv('max_size_y')
 
-    def doWriteSizeY(self, value):
+    def doWriteSizey(self, value):
         self._put_pv('size_y', value)
 
-    def doReadExposureTime(self):
+    def doReadAcquiretime(self):
         return self._get_pv('acquire_time_rbv')
 
-    def doWriteExposureTime(self, value):
+    def doWriteAcquiretime(self, value):
         self._put_pv('acquire_time', value)
 
-    def doReadAcquirePeriod(self):
+    def doReadAcquireperiod(self):
         return self._get_pv('acquire_period_rbv')
 
-    def doWriteAcquirePeriod(self, value):
+    def doWriteAcquireperiod(self, value):
         self._put_pv('acquire_period', value)
 
-    def doReadBinX(self):
+    def doReadBinx(self):
         return self._get_pv('bin_x_rbv')
 
-    def doWriteBinX(self, value):
+    def doWriteBinx(self, value):
         self._put_pv('bin_x', value)
 
-    def doReadBinY(self):
+    def doReadBiny(self):
         return self._get_pv('bin_y_rbv')
 
-    def doWriteBinY(self, value):
+    def doWriteBiny(self, value):
         self._put_pv('bin_y', value)
 
-    def doReadFrameRate(self):
-        return self._get_pv('frame_rate_rbv')
-
-    def doWriteFrameRate(self, value):
-        self._put_pv('frame_rate', value)
-
-    def doReadNumImages(self):
+    def doReadNumimages(self):
         return self._get_pv('num_images_rbv')
 
-    def doWriteNumImages(self, value):
+    def doWriteNumimages(self, value):
         self._put_pv('num_images', value)
 
-    def doReadNumExposures(self):
+    def doReadNumexposures(self):
         return self._get_pv('num_exposures_rbv')
 
-    def doWriteNumExposures(self, value):
+    def doWriteNumexposures(self, value):
         self._put_pv('num_exposures', value)
 
+    def doWriteImagemode(self, value):
+        self._put_pv('image_mode', ImageMode[value.upper()].value)
+
+    def doReadImagemode(self):
+        return ImageMode(self._get_pv('image_mode')).name.lower()
+
+    @usermethod
+    def acquire_single(self):
+        self.imagemode = 'single'
+        self.start()
+
+    @usermethod
+    def acquire_multiple(self, n_images=None):
+        self.imagemode = 'multiple'
+        if n_images:
+            self.numimages = int(n_images)
+        self.start()
+
+    @usermethod
+    def acquire_continous(self):
+        self.imagemode = 'continuous'
+        self.start()
+
     def get_array_size(self):
-        array_size = [
+        return [
             self._get_pv('size_x_rbv'),
             self._get_pv('size_y_rbv'),
         ]
-        if self._get_pv('pixel_format_rbv', True) in ['BayerRG8', 'BayerRG16']:
-            array_size.append(3)
-        return array_size
 
     def get_topic_and_source(self):
         return self._attached_ad_kafka_plugin.get_topic_and_source()
@@ -294,11 +347,58 @@ class AreaDetectorCollector(Detector):
     setup.
     """
 
+    parameter_overrides = {
+        'unit': Override(default='images', settable=False, mandatory=False),
+        'fmtstr': Override(default='%d'),
+        'liveinterval': Override(
+            type=floatrange(0.5),
+            default=1,
+            userparam=True
+        ),
+        'pollinterval': Override(default=1, userparam=True, settable=False),
+        'statustopic': Override(default='', mandatory=False),
+    }
+
+    _presetkeys = {}
+
+    def doPreinit(self, mode):
+        for image_channel in self._attached_images:
+            image_channel._detector_collector_name = self.name
+        self._channels = self._attached_images
+        self._collectControllers()
+
+    def _collectControllers(self):
+        self._controlchannels, self._followchannels = self._attached_images, []
+
     def get_array_size(self, topic, source):
         for area_detector in self._attached_images:
             if (topic, source) == area_detector.get_topic_and_source():
                 return area_detector.get_array_size()
-        self.log.error(
-            'No array size was found for area detector '
-            'with topic %s and source %s.', topic, source)
+        self.log.error('No array size was found for area detector '
+                       'with topic %s and source %s.', topic, source)
         return []
+
+    def doSetPreset(self, **preset):
+        if not preset:
+            # keep old settings
+            return
+        self._presets = preset.copy()
+
+    def doRead(self, maxage=0):
+        return []
+
+    def doReadArrays(self, quality):
+        return [image.doReadArray(quality) for image in self._attached_images]
+
+    def doReset(self):
+        pass
+
+    def duringMeasureHook(self, elapsed):
+        if self.liveinterval is not None:
+            if elapsed > self._last_live + self.liveinterval:
+                self._last_live = elapsed
+                return LIVE
+        return None
+
+    def doTime(self, preset):
+        return 0
