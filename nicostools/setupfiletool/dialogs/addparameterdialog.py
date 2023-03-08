@@ -52,6 +52,6 @@ class AddParameterDialog(QDialog):
             self.lineEditCustomParameter.setEnabled(True)
 
     def getValue(self):
-        if self.checkBoxCustomParameter.checkState() == Qt.Checked:
+        if self.checkBoxCustomParameter.checkState() == Qt.CheckState.Checked:
             return self.lineEditCustomParameter.text()
         return self.listWidgetSelectParameter.currentItem().text()

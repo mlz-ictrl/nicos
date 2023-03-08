@@ -38,14 +38,15 @@ from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
 def decolor_logo(pixmap, color):
     ret_pix = QPixmap(pixmap.size())
     ret_pix.fill(color)
-    ret_pix.setMask(pixmap.createMaskFromColor(Qt.transparent))
+    ret_pix.setMask(pixmap.createMaskFromColor(Qt.GlobalColor.transparent))
     return ret_pix
 
 
 class Spacer(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,
+                           QSizePolicy.Policy.Preferred)
 
 
 class MainWindow(DefaultMainWindow):
@@ -95,29 +96,29 @@ class MainWindow(DefaultMainWindow):
 
     def _init_experiment_name(self):
         self.experiment_label = QLabel()
-        self.experiment_label.setSizePolicy(QSizePolicy.Expanding,
-                                            QSizePolicy.Preferred)
+        self.experiment_label.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                            QSizePolicy.Policy.Preferred)
         self.experiment_label.setStyleSheet('font-size: 17pt; '
                                             'font-weight: bold')
         self.toolBarMain.addWidget(self.experiment_label)
 
         self.experiment_text = QLabel()
-        self.experiment_text.setSizePolicy(QSizePolicy.Expanding,
-                                           QSizePolicy.Preferred)
+        self.experiment_text.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                           QSizePolicy.Policy.Preferred)
         self.experiment_text.setStyleSheet('font-size: 17pt')
         self.toolBarMain.addWidget(self.experiment_text)
 
     def _init_instrument_name(self):
         self.instrument_label = QLabel()
-        self.instrument_label.setSizePolicy(QSizePolicy.Expanding,
-                                            QSizePolicy.Preferred)
+        self.instrument_label.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                            QSizePolicy.Policy.Preferred)
         self.instrument_label.setStyleSheet('font-size: 17pt; '
                                             'font-weight: bold')
         self.toolBarMain.addWidget(self.instrument_label)
 
         self.instrument_text = QLabel()
-        self.instrument_text.setSizePolicy(QSizePolicy.Expanding,
-                                           QSizePolicy.Preferred)
+        self.instrument_text.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                           QSizePolicy.Policy.Preferred)
         self.instrument_text.setStyleSheet('font-size: 17pt')
         self.toolBarMain.addWidget(self.instrument_text)
 
@@ -135,14 +136,17 @@ class MainWindow(DefaultMainWindow):
     def add_logo(self):
         spacer = QWidget()
         spacer.setMinimumWidth(20)
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding,
+                             QSizePolicy.Policy.Expanding)
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], spacer)
 
         nicos_label = QLabel()
         pxr = decolor_logo(QPixmap(path.join(root_path, 'resources',
-                                             'nicos-logo-high.svg')), Qt.white)
-        nicos_label.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
-                                                 Qt.SmoothTransformation))
+                                             'nicos-logo-high.svg')),
+                           Qt.GlobalColor.white)
+        nicos_label.setPixmap(pxr.scaledToHeight(
+            self.toolBarMain.height(),
+            Qt.TransformationMode.SmoothTransformation))
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[1],
                                       nicos_label)
 
@@ -152,12 +156,13 @@ class MainWindow(DefaultMainWindow):
         if instrument:
             logo = decolor_logo(QPixmap(path.join(root_path,
                                 'resources', f'{instrument}-logo.svg')),
-                                Qt.white)
+                                Qt.GlobalColor.white)
             if logo.isNull():
                 self.instrument_text.setText(instrument.upper())
                 return
             self.instrument_text.setPixmap(logo.scaledToHeight(
-                self.toolBarMain.height(), Qt.SmoothTransformation))
+                self.toolBarMain.height(),
+                Qt.TransformationMode.SmoothTransformation))
         else:
             self.instrument_text.setText('UNKNOWN')
 
@@ -208,7 +213,7 @@ class MainWindow(DefaultMainWindow):
         # new status icon
         pixmap = QPixmap(':/' + status + ('exc' if exception else ''))
         new_icon = QIcon()
-        new_icon.addPixmap(pixmap, QIcon.Disabled)
+        new_icon.addPixmap(pixmap, QIcon.Mode.Disabled)
         self.trayIcon.setIcon(new_icon)
         self.trayIcon.setToolTip('%s status: %s' % (self.instrument, status))
         if self.showtrayicon:

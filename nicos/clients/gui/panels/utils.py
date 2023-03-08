@@ -59,8 +59,9 @@ def createPanel(item, window, menuwindow, topwindow, log):
     for menu in p.getMenus():
         if hasattr(menuwindow, 'menuWindows'):
             p.actions.update((
-            menuwindow.menuBar().insertMenu(menuwindow.menuWindows.menuAction(),
-                menu),))
+                menuwindow.menuBar().insertMenu(
+                    menuwindow.menuWindows.menuAction(), menu),
+            ))
         else:
             p.actions.update((menuwindow.menuBar().addMenu(menu),))
 
@@ -82,7 +83,8 @@ class NotClosableDockWidget(QDockWidget):
     def __init__(self, title, parent):
         QDockWidget.__init__(self, title, parent)
         self.setFeatures(
-            QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable)
+            QDockWidget.DockWidgetFeature.DockWidgetMovable |
+            QDockWidget.DockWidgetFeature.DockWidgetFloatable)
 
     def closeEvent(self, event):
         # Workaround for the fact that undocked QDockWidgets can still be
@@ -92,9 +94,10 @@ class NotClosableDockWidget(QDockWidget):
 
 
 def createDockedWidget(item, window, menuwindow, topwindow, log):
-    dockPosMap = {'left': Qt.LeftDockWidgetArea,
-                  'right': Qt.RightDockWidgetArea, 'top': Qt.TopDockWidgetArea,
-                  'bottom': Qt.BottomDockWidgetArea}
+    dockPosMap = {'left': Qt.DockWidgetArea.LeftDockWidgetArea,
+                  'right': Qt.DockWidgetArea.RightDockWidgetArea,
+                  'top': Qt.DockWidgetArea.TopDockWidgetArea,
+                  'bottom': Qt.DockWidgetArea.BottomDockWidgetArea}
 
     mainitem, dockitems = item
     main = createWindowItem(mainitem, window, menuwindow, topwindow, log)

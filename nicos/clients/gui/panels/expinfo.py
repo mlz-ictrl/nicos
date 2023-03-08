@@ -125,8 +125,8 @@ class ExpInfoPanel(Panel):
                     self._timeout)
         contButton = QPushButton('Continue current experiment')
         finishAndNewButton = QPushButton('Finish and start new experiment')
-        dlg.addButton(contButton, QMessageBox.RejectRole)
-        dlg.addButton(finishAndNewButton, QMessageBox.ActionRole)
+        dlg.addButton(contButton, QMessageBox.ButtonRole.RejectRole)
+        dlg.addButton(finishAndNewButton, QMessageBox.ButtonRole.ActionRole)
         dlg.exec()
         if dlg.clickedButton() == finishAndNewButton:
             self.on_proposalBtn_clicked()

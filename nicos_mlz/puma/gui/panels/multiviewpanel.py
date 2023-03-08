@@ -61,7 +61,7 @@ class MultiAnalyzerView(QGraphicsView):
     def __init__(self):
         scene = QGraphicsScene()
         QGraphicsView.__init__(self, scene)
-        self.setRenderHints(QPainter.Antialiasing)
+        self.setRenderHints(QPainter.RenderHint.Antialiasing)
 
         self._sample = Sample(0, 0, scene=scene)
 

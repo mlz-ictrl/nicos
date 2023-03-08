@@ -58,16 +58,16 @@ class NewDeviceDialog(QDialog):
         self.lineEditDeviceName.setValidator(QRegularExpressionValidator(
             QRegularExpression('[A-Za-z0-9_]*')))
         self.pushButtonSelectClass.setMenu(self.menu)
-        self.buttonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setDisabled(True)
         self.lineEditDeviceName.textChanged['const QString &'].connect(
             self.devChanged)
 
     def devChanged(self, text):
-        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setEnabled(
             bool(text) and bool(self.labelSelectedClass.text()))
 
     def stateChangedHandler(self, state):
-        if state == Qt.Checked:
+        if state == Qt.CheckState.Checked:
             self.pushButtonSelectClass.setMenu(self.menuCustom)
         else:
             self.pushButtonSelectClass.setMenu(self.menu)
@@ -80,7 +80,7 @@ class NewDeviceDialog(QDialog):
             uncombinedNextPartialString = partialString.split('.')
             submenu = None
             for menu in parentMenu.findChildren(
-                QMenu, options=Qt.FindDirectChildrenOnly):
+                QMenu, options=Qt.FindChildOption.FindDirectChildrenOnly):
                 if menu.title() == uncombinedNextPartialString[0]:
                     submenu = menu
                     uncombinedNextPartialString.pop(0)
@@ -98,7 +98,7 @@ class NewDeviceDialog(QDialog):
         self.recursiveActionParent(self.sender(), stringList)
         stringList.append(self.sender().text())
         self.labelSelectedClass.setText('.'.join(stringList))
-        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setEnabled(
             bool(self.lineEditDeviceName.text()) and bool(stringList))
 
     def recursiveActionParent(self, action, partialStringList):

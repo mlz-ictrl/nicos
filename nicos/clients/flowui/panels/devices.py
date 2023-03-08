@@ -85,7 +85,7 @@ class DevicesPanel(DefaultDevicesPanel):
             self.tree.topLevelItem(itemid).setHidden(False)
 
     def filterErrorOnly(self, state):
-        if state == Qt.Checked:
+        if state == Qt.CheckState.Checked:
             self._show_only_error_devices()
         else:
             self._show_all_devices()

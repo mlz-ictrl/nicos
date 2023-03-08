@@ -549,7 +549,7 @@ class CheckWidget(QWidget):
         layout = self._layout = QHBoxLayout()
         self.checkbox = QCheckBox(self)
         if curvalue is not None:
-            self.checkbox.setCheckState(Qt.Checked)
+            self.checkbox.setCheckState(Qt.CheckState.Checked)
         if curvalue is None:
             curvalue = inner()  # generate a dummy value
         self.inner_widget = create(self, inner, curvalue, client=client)
@@ -562,7 +562,7 @@ class CheckWidget(QWidget):
         self.setLayout(layout)
 
     def on_checkbox_stateChanged(self, state):
-        self.inner_widget.setEnabled(state == Qt.Checked)
+        self.inner_widget.setEnabled(state == Qt.CheckState.Checked)
         self.valueModified.emit()
 
     def getValue(self):
@@ -585,7 +585,7 @@ class SetOfWidget(QWidget):
         for value in values:
             checkbox = QCheckBox(str(value), self)
             if value in curvalue:
-                checkbox.setCheckState(Qt.Checked)
+                checkbox.setCheckState(Qt.CheckState.Checked)
             checkbox.stateChanged.connect(self.on_checkbox_stateChanged)
             layout.addWidget(checkbox)
             self.checkboxes.append(checkbox)
@@ -627,7 +627,8 @@ class DeviceComboWidget(QComboBox):
                  needs_class='nicos.core.device.Device',
                  allow_enter=False):
         QComboBox.__init__(self, parent, editable=True)
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
+                                       QSizePolicy.Policy.Fixed))
         if client:
             devs = client.getDeviceList(needs_class)
             self.addItems(devs)
@@ -663,7 +664,7 @@ class ItemsWidget(QScrollArea):
         self.addBtn = QPushButton(QIcon(':/add'), '', self.frame)
         self.addBtn.clicked.connect(self.on_addBtn_clicked)
         self.addBtn.setSizePolicy(
-            QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred))
+            QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred))
         self.layout.addWidget(self.addBtn)
         self.layout.addStretch()
         self.frame.setLayout(self.layout)

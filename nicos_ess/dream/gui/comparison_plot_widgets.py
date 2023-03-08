@@ -87,11 +87,11 @@ class ComparisonPlot2D(QWidget):
         parent.setLayout(QVBoxLayout())
         self.plot = IntegralLiveWidget(self)
         titleLabel = QLabel(title)
-        titleLabel.setAlignment(Qt.AlignCenter)
+        titleLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         titleLabel.setStyleSheet('QLabel {font-weight: 600}')
         parent.layout().insertWidget(0, titleLabel)
-        self.plot.setSizePolicy(QSizePolicy.MinimumExpanding,
-                                QSizePolicy.MinimumExpanding)
+        self.plot.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
+                                QSizePolicy.Policy.MinimumExpanding)
         parent.layout().insertWidget(1, self.plot)
 
     def setData(self, array, labels=None):

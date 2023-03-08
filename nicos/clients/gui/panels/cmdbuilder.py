@@ -92,7 +92,7 @@ class CommandPanel(Panel):
                 continue
             toolbtn = QToolButton(self)
             toolbtn.setText(category)
-            toolbtn.setPopupMode(QToolButton.InstantPopup)
+            toolbtn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
             menu = QMenu(self)
             menu.addActions(self.mapping[category])
             toolbtn.setMenu(menu)
@@ -198,7 +198,8 @@ class CommandPanel(Panel):
     @pyqtSlot()
     def on_runBtn_clicked(self):
         # Make sure we add the command to the history.
-        event = QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Enter, Qt.NoModifier)
+        event = QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_Enter,
+                          Qt.KeyboardModifier.NoModifier)
         QApplication.postEvent(self.commandInput, event)
 
     def on_commandInput_execRequested(self, script, action):

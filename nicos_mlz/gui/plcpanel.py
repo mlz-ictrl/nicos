@@ -100,7 +100,7 @@ class PlcDeviceControlPanel(Panel):
         self.paramTable.setRowCount(len(parlist))
         for (i, par) in enumerate(parlist):
             nameitem = QTableWidgetItem(par)
-            nameitem.setFlags(nameitem.flags() & ~Qt.ItemIsEditable)
+            nameitem.setFlags(nameitem.flags() & ~Qt.ItemFlag.ItemIsEditable)
             self.paramTable.setItem(i, 0, nameitem)
             value = self.client.eval('session.getDevice(%r)._dev.'
                                      'GetParam(%r)' % (devname, par),

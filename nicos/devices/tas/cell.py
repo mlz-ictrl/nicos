@@ -27,8 +27,8 @@
 coordinates.
 """
 
-from numpy import arccos, arcsin, arctan2, array, cos, cross, dot, identity, \
-    pi, sign, sin, sqrt, zeros
+from numpy import arccos, arcsin, arctan2, array, cos, cross, degrees, dot, \
+    identity, pi, radians, sign, sin, sqrt, zeros
 from numpy.linalg import inv, norm
 
 from nicos.core import ComputationError, Device, NicosError, Param, anytype, \
@@ -36,8 +36,6 @@ from nicos.core import ComputationError, Device, NicosError, Param, anytype, \
 from nicos.devices.sample import Sample
 from nicos.devices.tas.spacegroups import get_spacegroup
 
-D2R = pi / 180
-R2D = 180 / pi
 # conversion from THz to A^-2
 K = 1.9958584
 
@@ -79,11 +77,11 @@ class CellBase:
                       *self._angles)
         self.log.info('plane vectors:    (%s %s %s), (%s %s %s)',
                       *(tuple(self._orient1) + tuple(self._orient2)))
-        self.log.info('psi0:             %4.3f', self._psi0 * R2D)
+        self.log.info('psi0:             %4.3f', self._psi0)
         self.log.info('recip. lattice:   %4.7f   %4.7f   %4.7f',
                       *self._lattice_rec)
         self.log.info('recip. angles:    %4.7f   %4.7f   %4.7f',
-                      *(x * R2D for x in self._angles_rec))
+                      *(degrees(self._angles_rec)))
         self.log.info('zone axis:        [%s %s %s]', *self.cal_zone())
         self.log.info('cardan matrix:    \n%s', self._matrix_cardan)
         self.log.info('hkl2Qcart matrix: \n%s', self._matrix)
@@ -100,8 +98,8 @@ class CellBase:
             alphastar = zeros(3)
             V = self.cal_volume_real()
 
-            co = cos(self._angles * D2R)
-            si = sin(self._angles * D2R)
+            co = cos(radians(self._angles))
+            si = sin(radians(self._angles))
 
             astar[0] = self._lattice[1] * self._lattice[2] * si[0] / V
             astar[1] = self._lattice[2] * self._lattice[0] * si[1] / V
@@ -116,7 +114,7 @@ class CellBase:
 
     def cal_volume_real(self):
         try:
-            co = cos(self._angles * D2R)
+            co = cos(radians(self._angles))
             mul = self._lattice[0] * self._lattice[1] * self._lattice[2]
             V = mul * sqrt(1 - dot(co, co) + 2 * co[0] * co[1] * co[2])
             return V
@@ -177,7 +175,7 @@ class CellBase:
             B[1, 0] = 0
             B[1, 1] = self._lattice_rec[1] * sin(self._angles_rec[2]) * 2 * pi
             B[1, 2] = -self._lattice_rec[2] * sin(self._angles_rec[1]) * \
-                     cos(self._angles[0] * D2R) * 2 * pi
+                      cos(radians(self._angles[0])) * 2 * pi
             B[2, 0] = 0
             B[2, 1] = 0
             B[2, 2] = 2 * pi / self._lattice[2]
@@ -263,9 +261,9 @@ class CellBase:
         """Calculate Q cartesian from instrument [ki, kf, phi, psi]."""
         try:
             ki, kf, phi, psi = angles
-            psi *= D2R
-            psi += self._psi0 * D2R
-            phi *= D2R
+            psi += self._psi0
+            psi = radians(psi)
+            phi = radians(phi)
             if coupled:
                 psi += phi
 
@@ -317,8 +315,7 @@ class CellBase:
             elif hkl[0] > crit:
                 Y = a1
 
-            Y *= R2D
-            return Y
+            return degrees(Y)
         except ComputationError:
             raise
         except Exception as err:
@@ -340,7 +337,7 @@ class CellBase:
 
     def metric_tensor(self):
         """Return the metric tensor in real space for the lattice."""
-        return self._metric(self._lattice, self._angles * D2R)
+        return self._metric(self._lattice, radians(self._angles))
 
     def metric_tensor_rec(self):
         """Return the metric tensor in reciprocal space for the lattice."""
@@ -367,7 +364,7 @@ class CellBase:
 
             a = skalpro / (hkl1_len * hkl2_len)
             try:
-                an = arccos(a) * R2D
+                an = degrees(arccos(a))
             except Exception:
                 if a < -1:
                     an = 180
@@ -386,11 +383,9 @@ class CellBase:
             qabs = norm(q)
             temp = (ki**2 + kf**2 - qabs**2) / (2.0 * ki * kf)
             if -1 <= temp <= 1:
-                phi = arctan2(sqrt(1 - temp**2), temp) * sense * R2D
-                return phi
-            else:
-                raise ComputationError('scattering triangle not closed when '
-                                       'calculating phi angle')
+                return degrees(arctan2(sqrt(1 - temp**2), temp)) * sense
+            raise ComputationError('scattering triangle not closed when '
+                                   'calculating phi angle')
         except ComputationError:
             raise
         except Exception as err:
@@ -403,11 +398,9 @@ class CellBase:
         """
         kf = ki**2 - K * ny
         if kf > 0.000001:
-            kf = sqrt(kf)
-            return kf
-        else:
-            raise ComputationError('energy transfer of %s THz not possible '
-                                   'with k_i = %s' % (ny, ki))
+            return sqrt(kf)
+        raise ComputationError('energy transfer of %s THz not possible '
+                               'with k_i = %s' % (ny, ki))
 
     def cal_ki1(self, ny, kf):
         """Calculate the incoming wavevector for given energy transfer and
@@ -415,11 +408,9 @@ class CellBase:
         """
         ki = kf**2 + K * ny
         if ki > 0.000001:
-            ki = sqrt(ki)
-            return ki
-        else:
-            raise ComputationError('energy transfer of %s THz not possible '
-                                   'with k_f = %s' % (ny, kf))
+            return sqrt(ki)
+        raise ComputationError('energy transfer of %s THz not possible '
+                               'with k_f = %s' % (ny, kf))
 
     def cal_ki2(self, Qlab, ny, phi):
         """Calculate the incoming wavevector for given Qlab vector, energy
@@ -427,7 +418,7 @@ class CellBase:
         """
         try:
             ki = 0
-            phi *= D2R
+            phi = radians(phi)
             Qabs = norm(Qlab)
             a1 = (Qabs / sin(phi))**2
             a2 = K * ny
@@ -437,11 +428,9 @@ class CellBase:
                 ki = a1 + a2 + cos(phi) * sqrt(a3)
                 ki /= 2
             if ki > 0.000001:
-                ki = sqrt(ki)
-                return ki
-            else:
-                raise ComputationError('energy transfer of %s THz not possible '
-                                       'with phi = %s' % (ny, phi))
+                return sqrt(ki)
+            raise ComputationError('energy transfer of %s THz not possible '
+                                   'with phi = %s' % (ny, phi))
         except ComputationError:
             raise
         except Exception as err:
@@ -452,14 +441,12 @@ class CellBase:
         transfer and angle alpha(ki, Q).
         """
         try:
-            alpha *= D2R
             Qabs = norm(Qlab)
-            ki = (Qabs**2 + K * ny) / (2.0 * Qabs * cos(alpha))
+            ki = (Qabs**2 + K * ny) / (2.0 * Qabs * cos(radians(alpha)))
             if ki > 0.000001:
                 return ki
-            else:
-                raise ComputationError('energy transfer of %s THz not possible;'
-                                       ' scattering triangle not closed' % ny)
+            raise ComputationError('energy transfer of %s THz not possible;'
+                                   ' scattering triangle not closed' % ny)
         except ComputationError:
             raise
         except Exception as err:
@@ -484,11 +471,9 @@ class CellBase:
             Qabs = norm(Qlab)
             temp = (Qabs**2 + K * ny) / (2 * Qabs * ki)
             if -1 <= temp < 1:
-                alpha = arctan2(sqrt(1 - temp**2), temp) * sense * R2D
-                return alpha
-            else:
-                raise ComputationError('energy transfer of %s THz not possible;'
-                                       ' scattering triangle not closed' % ny)
+                return degrees(arctan2(sqrt(1 - temp**2), temp)) * sense
+            raise ComputationError('energy transfer of %s THz not possible;'
+                                   ' scattering triangle not closed' % ny)
         except ComputationError:
             raise
         except Exception as err:
@@ -518,10 +503,8 @@ class CellBase:
         d = self.cal_dvalue_rec(Qhkl)
         temp = pi / d / Ei_f
         if temp < 1:
-            theta = arcsin(temp) * sense * R2D
-            return theta
-        else:
-            raise ComputationError("arcsin > 1 when calculating theta")
+            return degrees(arcsin(temp)) * sense
+        raise ComputationError("arcsin > 1 when calculating theta")
 
     def cal_angles(self, Qhkl, ny, SM, SC, sense, coupled=False, psi360=True):
         """

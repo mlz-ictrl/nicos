@@ -119,10 +119,10 @@ class BlockBox(QFrame):
 
     def __init__(self, parent, text, font, config):
         if config.get('frames', True):
-            QFrame.__init__(self, parent, frameShape=QFrame.Panel,
-                            frameShadow=QFrame.Raised, lineWidth=2)
+            QFrame.__init__(self, parent, frameShape=QFrame.Shape.Panel,
+                            frameShadow=QFrame.Shadow.Raised, lineWidth=2)
         else:
-            QFrame.__init__(self, parent, frameShape=QFrame.NoFrame)
+            QFrame.__init__(self, parent, frameShape=QFrame.Shape.NoFrame)
         self._label = None
         if text:
             self._label = QLabel(' ' + text + ' ', parent,
@@ -213,7 +213,7 @@ class Monitor(BaseMonitor):
         self._gray = QColor('gray')
 
         master.setWindowTitle(self.title)
-        self._bgcolor = master.palette().color(QPalette.Window)
+        self._bgcolor = master.palette().color(QPalette.ColorRole.Window)
 
         timefont  = QFont(self.font, self._timefontsize)
         blockfont = QFont(self.font, self._fontsizebig)
@@ -234,12 +234,12 @@ class Monitor(BaseMonitor):
         if self.title:
             self._titlelabel = QLabel(
                 '', master, font=timefont, autoFillBackground=True,
-                alignment=Qt.AlignHCenter)
+                alignment=Qt.AlignmentFlag.AlignHCenter)
             pal = self._titlelabel.palette()
-            pal.setColor(QPalette.WindowText, self._gray)
+            pal.setColor(QPalette.ColorRole.WindowText, self._gray)
             self._titlelabel.setPalette(pal)
-            self._titlelabel.setSizePolicy(QSizePolicy.Preferred,
-                                           QSizePolicy.Fixed)
+            self._titlelabel.setSizePolicy(QSizePolicy.Policy.Preferred,
+                                           QSizePolicy.Policy.Fixed)
             self._master.updateTitle.connect(self._titlelabel.setText)
             masterlayout.addWidget(self._titlelabel)
             masterlayout.addSpacing(round(0.2 * tiheight))
@@ -251,7 +251,7 @@ class Monitor(BaseMonitor):
 
         warningslayout = QVBoxLayout()
         lbl = QLabel('Warnings', self._warnpanel, font=warnfont)
-        lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        lbl.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         warningslayout.addWidget(lbl)
         self._warnlabel = SqueezedLabel('', self._warnpanel, font=blockfont)
         warningslayout.addWidget(self._warnlabel)
@@ -419,8 +419,8 @@ class Monitor(BaseMonitor):
         if on:
             if self._titlelabel:
                 pal = self._titlelabel.palette()
-                pal.setColor(QPalette.WindowText, self._black)
-                pal.setColor(QPalette.Window, self._red)
+                pal.setColor(QPalette.ColorRole.WindowText, self._black)
+                pal.setColor(QPalette.ColorRole.Window, self._red)
                 self._titlelabel.setPalette(pal)
             self._warnlabel.setText(self._currwarnings)
             self._warnpanel.setVisible(True)
@@ -429,8 +429,8 @@ class Monitor(BaseMonitor):
             self._warnpanel.setVisible(False)
             if self._titlelabel:
                 pal = self._titlelabel.palette()
-                pal.setColor(QPalette.WindowText, self._gray)
-                pal.setColor(QPalette.Window, self._bgcolor)
+                pal.setColor(QPalette.ColorRole.WindowText, self._gray)
+                pal.setColor(QPalette.ColorRole.Window, self._bgcolor)
                 self._titlelabel.setPalette(pal)
             # resize to minimum
             self.reconfigureBoxes()

@@ -131,9 +131,7 @@ class SISChannel(BaseImageChannel):
                                    volatile=True),
     }
 
-    def __init__(self, name, **config):
-        BaseImageChannel.__init__(self, name, **config)
-
+    def doInit(self, mode):
         self._block = []
         self._reason = ''
 

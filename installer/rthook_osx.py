@@ -3,23 +3,22 @@
 import os
 import gr
 
-qt = os.environ.get('NICOS_QT')
+# We're building the installer always with Qt 6.
+os.environ['NICOS_QT'] = '6'
 
 dirgr = os.path.dirname(gr.__file__)
 libs = ['QtWidgets', 'QtCore', 'QtGui']
-v = 'A' if qt else '5'
 for lib in libs:
-    os.makedirs(f'{dirgr}/lib/{lib}.framework/Versions/{v}')
+    os.makedirs(f'{dirgr}/lib/{lib}.framework/Versions/A')
     os.symlink(f'../../../../../{lib}',
-               f'{dirgr}/lib/{lib}.framework/Versions/{v}/{lib}')
+               f'{dirgr}/lib/{lib}.framework/Versions/A/{lib}')
 
 icufiles = ['qtwebengine_resources.pak', 'qtwebengine_resources_200p.pak',
             'qtwebengine_resources_100p.pak',
             'qtwebengine_devtools_resources.pak', 'icudtl.dat']
 dir = os.path.dirname(dirgr)
-v = '6' if qt else '5'
 for file in icufiles:
-    os.symlink(f'../../{file}', f'{dir}/PyQt{v}/Qt{v}/{file}')
+    os.symlink(f'../../{file}', f'{dir}/PyQt6/Qt6/{file}')
 
 os.symlink(f'../../../qtwebengine_locales',
-           f'{dir}/PyQt{v}/Qt{v}/translations/qtwebengine_locales')
+           f'{dir}/PyQt6/Qt6/translations/qtwebengine_locales')

@@ -44,7 +44,7 @@ class MultiEntry(QWidget):
         self.setButton('+')
         self.button.clicked.connect(self.on_button_click)
         new_layout.addWidget(self.subwidget)
-        new_layout.addSpacerItem(QSpacerItem(15, 1, QSizePolicy.Fixed))
+        new_layout.addSpacerItem(QSpacerItem(15, 1, QSizePolicy.Policy.Fixed))
         new_layout.addWidget(self.button)
         new_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(new_layout)

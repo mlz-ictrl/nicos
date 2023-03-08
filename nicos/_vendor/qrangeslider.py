@@ -116,7 +116,7 @@ class Ui_Form:
         self._splitter = QSplitter(Form)
         self._splitter.setMinimumSize(QSize(0, 0))
         self._splitter.setMaximumSize(QSize(16777215, 16777215))
-        self._splitter.setOrientation(Qt.Horizontal)
+        self._splitter.setOrientation(Qt.Orientation.Horizontal)
         self._splitter.setObjectName("splitter")
         self._head = QGroupBox(self._splitter)
         self._head.setTitle("")
@@ -173,7 +173,8 @@ class Head(Element):
     def drawText(self, event, qp):
         qp.setPen(self.textColor())
         qp.setFont(QFont('Arial', 10))
-        qp.drawText(event.rect(), Qt.AlignLeft, str(self.main.min()))
+        qp.drawText(event.rect(), Qt.AlignmentFlag.AlignLeft,
+                    str(self.main.min()))
 
 
 class Tail(Element):
@@ -182,7 +183,8 @@ class Tail(Element):
     def drawText(self, event, qp):
         qp.setPen(self.textColor())
         qp.setFont(QFont('Arial', 10))
-        qp.drawText(event.rect(), Qt.AlignRight, str(self.main.max()))
+        qp.drawText(event.rect(), Qt.AlignmentFlag.AlignRight,
+                    str(self.main.max()))
 
 
 class Handle(Element):
@@ -191,8 +193,10 @@ class Handle(Element):
     def drawText(self, event, qp):
         qp.setPen(self.textColor())
         qp.setFont(QFont('Arial', 10))
-        qp.drawText(event.rect(), Qt.AlignLeft, str(self.main.start()))
-        qp.drawText(event.rect(), Qt.AlignRight, str(self.main.end()))
+        qp.drawText(event.rect(), Qt.AlignmentFlag.AlignLeft,
+                    str(self.main.start()))
+        qp.drawText(event.rect(), Qt.AlignmentFlag.AlignRight,
+                    str(self.main.end()))
 
     def mouseMoveEvent(self, event):
         event.accept()
@@ -422,10 +426,10 @@ class QRangeSlider(QWidget, Ui_Form):
     def keyPressEvent(self, event):
         """overrides key press event to move range left and right"""
         key = event.key()
-        if key == Qt.Key_Left:
+        if key == Qt.Key.Key_Left:
             s = self.start()-1
             e = self.end()-1
-        elif key == Qt.Key_Right:
+        elif key == Qt.Key.Key_Right:
             s = self.start()+1
             e = self.end()+1
         else:

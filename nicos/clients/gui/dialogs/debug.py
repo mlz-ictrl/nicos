@@ -60,9 +60,10 @@ class ConsoleBox(QPlainTextEdit):
         self.compiler = codeop.CommandCompiler()
         self.stdout = StdoutProxy(self.appendPlainText)
 
-        self.setWordWrapMode(QTextOption.WrapAnywhere)
+        self.setWordWrapMode(QTextOption.WrapMode.WrapAnywhere)
         self.setUndoRedoEnabled(False)
-        self.document().setDefaultFont(QFont('Monospace', 10, QFont.Normal))
+        self.document().setDefaultFont(QFont('Monospace', 10,
+                                             QFont.Weight.Normal))
         self.showMessage(startup_message)
 
     def showMessage(self, message):
@@ -78,7 +79,7 @@ class ConsoleBox(QPlainTextEdit):
         else:
             prompt = self.ps1
         self.appendPlainText(prompt)
-        self.moveCursor(QTextCursor.End)
+        self.moveCursor(QTextCursor.MoveOperation.End)
 
     def getCommand(self):
         doc = self.document()
@@ -88,13 +89,15 @@ class ConsoleBox(QPlainTextEdit):
     def setCommand(self, command):
         if self.getCommand() == command:
             return
-        self.moveCursor(QTextCursor.End)
-        self.moveCursor(QTextCursor.StartOfLine, QTextCursor.KeepAnchor)
+        self.moveCursor(QTextCursor.MoveOperation.End)
+        self.moveCursor(QTextCursor.MoveOperation.StartOfLine,
+                        QTextCursor.MoveMode.KeepAnchor)
         for _ in range(len(self.ps1)):
-            self.moveCursor(QTextCursor.Right, QTextCursor.KeepAnchor)
+            self.moveCursor(QTextCursor.MoveOperation.Right,
+                            QTextCursor.MoveMode.KeepAnchor)
         self.textCursor().removeSelectedText()
         self.textCursor().insertText(command)
-        self.moveCursor(QTextCursor.End)
+        self.moveCursor(QTextCursor.MoveOperation.End)
 
     def getConstruct(self, command):
         self.construct.append(command)
@@ -128,9 +131,9 @@ class ConsoleBox(QPlainTextEdit):
         return self.textCursor().columnNumber() - len(self.ps1)
 
     def setCursorPosition(self, position):
-        self.moveCursor(QTextCursor.StartOfLine)
+        self.moveCursor(QTextCursor.MoveOperation.StartOfLine)
         for _ in range(len(self.ps1) + position):
-            self.moveCursor(QTextCursor.Right)
+            self.moveCursor(QTextCursor.MoveOperation.Right)
 
     def runCommand(self):
         command = self.getCommand()
@@ -152,24 +155,25 @@ class ConsoleBox(QPlainTextEdit):
         self.newPrompt()
 
     def keyPressEvent(self, event):
-        if event.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if event.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.runCommand()
             return
-        if event.key() == Qt.Key_Home:
+        if event.key() == Qt.Key.Key_Home:
             self.setCursorPosition(0)
             return
-        if event.key() == Qt.Key_PageUp:
+        if event.key() == Qt.Key.Key_PageUp:
             return
-        elif event.key() in (Qt.Key_Left, Qt.Key_Backspace):
+        elif event.key() in (Qt.Key.Key_Left, Qt.Key.Key_Backspace):
             if self.getCursorPosition() == 0:
                 return
-        elif event.key() == Qt.Key_Up:
+        elif event.key() == Qt.Key.Key_Up:
             self.setCommand(self.getPrevHistoryEntry())
             return
-        elif event.key() == Qt.Key_Down:
+        elif event.key() == Qt.Key.Key_Down:
             self.setCommand(self.getNextHistoryEntry())
             return
-        elif event.key() == Qt.Key_D and event.modifiers() == Qt.ControlModifier:
+        elif event.key() == Qt.Key.Key_D and \
+             event.modifiers() == Qt.KeyboardModifier.ControlModifier:
             self.closeConsole.emit()
         return QPlainTextEdit.keyPressEvent(self, event)
 
@@ -194,7 +198,7 @@ Helper functions:
         self.outbox = QPlainTextEdit(self)
         self.outbox.document().setDefaultFont(
             self.console.document().defaultFont())
-        self.mainwidget = QSplitter(Qt.Vertical, self)
+        self.mainwidget = QSplitter(Qt.Orientation.Vertical, self)
         self.mainwidget.addWidget(self.console)
         self.mainwidget.addWidget(self.outbox)
         self.setCentralWidget(self.mainwidget)

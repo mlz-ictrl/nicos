@@ -38,7 +38,7 @@ class SamplesTableModel(TableModel):
         self.columns = columns
 
     def setData(self, index, value, role):
-        if role != Qt.EditRole:
+        if role != Qt.ItemDataRole.EditRole:
             return False
 
         row, column = self._get_row_and_column(index)
@@ -49,9 +49,11 @@ class SamplesTableModel(TableModel):
         return True
 
     def headerData(self, section, orientation, role):
-        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+        if role == Qt.ItemDataRole.DisplayRole and \
+           orientation == Qt.Orientation.Horizontal:
             return self._headings[section]
-        if role == Qt.DisplayRole and orientation == Qt.Vertical:
+        if role == Qt.ItemDataRole.DisplayRole and \
+           orientation == Qt.Orientation.Vertical:
             return self.positions[section] \
                 if section < len(self.positions) else ''
 

@@ -141,9 +141,9 @@ class AmorControlPanel(GenericPanel):
         if ask_queue and not immediate and self._current_status != 'idle':
             qwindow = ScriptExecQuestion()
             result = qwindow.exec()
-            if result == QMessageBox.Cancel:
+            if result == QMessageBox.StandardButton.Cancel:
                 return
-            elif result == QMessageBox.Apply:
+            elif result == QMessageBox.StandardButton.Apply:
                 immediate = True
         if immediate:
             self.client.tell('exec', command)

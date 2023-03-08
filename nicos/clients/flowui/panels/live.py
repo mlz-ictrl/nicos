@@ -403,7 +403,7 @@ class MultiLiveDataPanel(LiveDataPanel):
             else:
                 widget = LiveWidget(name=info.name, parent=self)
             widget.gr.keepRatio = True
-            widget.gr.setAttribute(Qt.WA_TransparentForMouseEvents)
+            widget.gr.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
             previews.append(LiveWidgetWrapper(title=info.name, widget=widget))
         return previews
 

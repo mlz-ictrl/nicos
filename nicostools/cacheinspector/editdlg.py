@@ -50,8 +50,8 @@ class EntryEditDialog(QDialog):
                     self, 'Really?', 'The value you entered for key %s '
                     'does not conform to the serialization format used by NICOS'
                     ' and therefore cannot be used by NICOS cache clients.\n\n'
-                    'Really set this value?' % self.valueKey.text(),
-                    QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+                    'Really set this value?' % self.valueKey.text()
+            ) == QMessageBox.StandardButton.No:
                 return
         self.accept()
 

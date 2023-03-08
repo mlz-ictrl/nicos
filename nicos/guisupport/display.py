@@ -280,14 +280,14 @@ class ValueDisplay(NicosWidget, QWidget):
         NicosWidget.propertyUpdated(self, pname, value)
 
     def initUi(self):
-        self.namelabel = QLabel(' ', self, textFormat=Qt.RichText)
+        self.namelabel = QLabel(' ', self, textFormat=Qt.TextFormat.RichText)
         self.update_namelabel()
 
         valuelabel = SensitiveSMLabel('----', self, self._label_entered,
                                       self._label_left)
-        valuelabel.setFrameShape(QFrame.Panel)
-        valuelabel.setAlignment(Qt.AlignHCenter)
-        valuelabel.setFrameShadow(QFrame.Sunken)
+        valuelabel.setFrameShape(QFrame.Shape.Panel)
+        valuelabel.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        valuelabel.setFrameShadow(QFrame.Shadow.Sunken)
         valuelabel.setAutoFillBackground(True)
         setBothColors(valuelabel, (self._colorscheme['fore'][UNKNOWN],
                                    self._colorscheme['back'][UNKNOWN]))
@@ -304,7 +304,8 @@ class ValueDisplay(NicosWidget, QWidget):
             new_layout.addWidget(self.namelabel)
             new_layout.addStretch()
             new_layout.addWidget(self.valuelabel)
-            self.namelabel.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.namelabel.setAlignment(Qt.AlignmentFlag.AlignLeft |
+                                        Qt.AlignmentFlag.AlignVCenter)
         else:
             new_layout = QVBoxLayout()
             new_layout.addWidget(self.namelabel)
@@ -315,7 +316,7 @@ class ValueDisplay(NicosWidget, QWidget):
             if self.width >= 0:
                 tmplayout.addStretch()
             new_layout.addLayout(tmplayout)
-            self.namelabel.setAlignment(Qt.AlignHCenter)
+            self.namelabel.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         if self.layout():
             sip.delete(self.layout())
         new_layout.setContentsMargins(1, 1, 1, 1)  # save space
@@ -428,7 +429,7 @@ class PictureDisplay(NicosWidget, QWidget):
         NicosWidget.__init__(self)
         self._last_mtime = None
         self.namelabel = QLabel(self)
-        self.namelabel.setAlignment(Qt.AlignHCenter)
+        self.namelabel.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.piclabel = QLabel(self)
         self.piclabel.setScaledContents(True)
         layout = QVBoxLayout()

@@ -35,8 +35,8 @@ class ErrorDialog(QDialog):
         loadUi(self, 'dialogs/error.ui')
 
         self.iconLabel.setPixmap(
-            self.style().standardIcon(QStyle.SP_MessageBoxWarning).
-            pixmap(32, 32))
+            self.style().standardIcon(
+                QStyle.StandardPixmap.SP_MessageBoxWarning).pixmap(32, 32))
         self.setWindowTitle(windowTitle)
 
     def addMessage(self, message):

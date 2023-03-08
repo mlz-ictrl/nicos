@@ -104,7 +104,7 @@ class Tube(NicosWidget, QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setBrush(QBrush(self.color))
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         fontscale = float(self._scale)
         h = self.props['height'] * fontscale
@@ -116,7 +116,7 @@ class Tube(NicosWidget, QWidget):
             painter.setFont(self.font())
             painter.drawText(QRectF(5, 0, w, fontscale * 2.5),
                              self.props['name'],
-                             QTextOption(Qt.AlignCenter))
+                             QTextOption(Qt.AlignmentFlag.AlignCenter))
             yoff = fontscale * 2.5
         elif self.props['smalldet']:
             yoff = 50
@@ -173,15 +173,15 @@ class Tube(NicosWidget, QWidget):
             # X translation
             painter.drawText(QRectF(xp + xoff, yoff + 2 * fontscale,
                                     7 * fontscale, 2 * fontscale), x_str,
-                             QTextOption(Qt.AlignRight))
+                             QTextOption(Qt.AlignmentFlag.AlignRight))
             # Y translation
             painter.drawText(QRectF(xp + xoff, yoff + 3.5 * fontscale,
                                     7 * fontscale, 2 * fontscale), y_str,
-                             QTextOption(Qt.AlignRight))
+                             QTextOption(Qt.AlignmentFlag.AlignRight))
             # Z position
             minx = max(0, xp + 5 - 4 * fontscale)
             painter.drawText(QRectF(minx, h + 10 + yoff, 8 * fontscale, 30),
-                             pos_str, QTextOption(Qt.AlignCenter))
+                             pos_str, QTextOption(Qt.AlignmentFlag.AlignCenter))
 
             # draw beamstop
             if self.props['beamstop']:
@@ -207,10 +207,10 @@ class Tube(NicosWidget, QWidget):
 
             painter.drawText(QRectF(sx - 10.5 * fontscale, sy,
                                     8 * fontscale, 2 * fontscale), x_str,
-                             QTextOption(Qt.AlignRight))
+                             QTextOption(Qt.AlignmentFlag.AlignRight))
             painter.drawText(QRectF(sx - 10.5 * fontscale, sy + 1.5 * fontscale,
                                     8 * fontscale, 2 * fontscale), y_str,
-                             QTextOption(Qt.AlignRight))
+                             QTextOption(Qt.AlignmentFlag.AlignRight))
 
 
 collstatusbrush = {
@@ -269,7 +269,7 @@ class Collimation(NicosWidget, QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         pen = painter.pen()
 
         fontscale = float(self._scale)
@@ -299,12 +299,13 @@ class Collimation(NicosWidget, QWidget):
             if i >= 18-pol_bits:
                 painter.setPen(QPen(_white.color()))
                 painter.drawText(QRectF(x + 3, y + ely - 2,
-                                        elwidth - 8, elheight / 3 + 2),
-                                 'POL', QTextOption(Qt.AlignHCenter))
+                                        elwidth - 8, elheight / 3 + 2), 'POL',
+                                 QTextOption(Qt.AlignmentFlag.AlignHCenter))
                 painter.setPen(QPen(_black.color()))
             painter.drawText(QRectF(x, 3, elwidth, 2 * fontscale),
                              str(19 - i),
-                             QTextOption(Qt.AlignRight | Qt.AlignTop))
+                             QTextOption(Qt.AlignmentFlag.AlignRight |
+                                         Qt.AlignmentFlag.AlignTop))
             x += elwidth
         painter.fillRect(QRectF(0, y + elheight / 3 - 5, w, 3), _yellow)
         painter.setPen(pen)
@@ -326,7 +327,7 @@ class Collimation(NicosWidget, QWidget):
                                     slhw - 2 * w, slhw - 2 * h))
             painter.drawText(QRectF(xmiddle - 0.8 * elwidth, y + 15, slhw, slhw),
                              '%.1f\n%.1f' % (slitw, slith),
-                             QTextOption(Qt.AlignCenter))
+                             QTextOption(Qt.AlignmentFlag.AlignCenter))
 
 
 class Lenses(NicosWidget, QWidget):
@@ -373,7 +374,7 @@ class Lenses(NicosWidget, QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         painter.setPen(QPen(_black.color()))
         painter.setBrush(_grey)
@@ -441,7 +442,7 @@ class SampleSlit(NicosWidget, QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         fontscale = float(self._scale)
         ww = self.props['width'] * fontscale - 4
         wh = self.props['height'] * fontscale - 4
@@ -475,10 +476,14 @@ class SampleSlit(NicosWidget, QWidget):
 
         painter.setFont(scaledFont(self.valueFont, 0.8))
         painter.drawText(QRectF(2, 2, ww, wh), l1,
-                         QTextOption(Qt.AlignTop | Qt.AlignHCenter))
+                         QTextOption(Qt.AlignmentFlag.AlignTop |
+                                     Qt.AlignmentFlag.AlignHCenter))
         painter.drawText(QRectF(2, 2, ww, wh), l2,
-                         QTextOption(Qt.AlignBottom | Qt.AlignHCenter))
+                         QTextOption(Qt.AlignmentFlag.AlignBottom |
+                                     Qt.AlignmentFlag.AlignHCenter))
         painter.drawText(QRectF(2, 2, ww, wh), l3,
-                         QTextOption(Qt.AlignVCenter | Qt.AlignLeft))
+                         QTextOption(Qt.AlignmentFlag.AlignVCenter |
+                                     Qt.AlignmentFlag.AlignLeft))
         painter.drawText(QRectF(2, 2, ww, wh), l4,
-                         QTextOption(Qt.AlignVCenter | Qt.AlignRight))
+                         QTextOption(Qt.AlignmentFlag.AlignVCenter |
+                                     Qt.AlignmentFlag.AlignRight))

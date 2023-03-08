@@ -58,7 +58,7 @@ class PanelDialog(SetupDepWindowMixin, QDialog):
         self.log = NicosLogger('PanelDialog')
         self.log.parent = self.mainwindow.log
         self.client = client
-        self.user_color = self.palette().color(QPalette.Base)
+        self.user_color = self.palette().color(QPalette.ColorRole.Base)
         self.user_font = self.font()
         if isinstance(panelcfg, type) and issubclass(panelcfg, Panel):
             panelcfg = panel('%s.%s' % (panelcfg.__module__,
@@ -189,4 +189,5 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
         opt = QStyleOption()
         opt.initFrom(self)
         painter = QPainter(self)
-        self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
+        self.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget, opt,
+                                   painter, self)

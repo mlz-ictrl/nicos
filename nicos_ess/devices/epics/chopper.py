@@ -121,7 +121,8 @@ class EssChopperController(MappedMoveable):
         'state': Attach('Current state of the chopper', Readable),
         'command': Attach('Command PV of the chopper', MappedMoveable),
         'alarms': Attach('Alarms of the chopper', ChopperAlarms, optional=True),
-        'speed': Attach('Speed PV of the chopper', Moveable)
+        'speed': Attach('Speed PV of the chopper', Moveable),
+        'chic_conn': Attach('Status of the CHIC connection', Readable)
     }
 
     parameter_overrides = {
@@ -161,6 +162,8 @@ class EssChopperController(MappedMoveable):
             stat, msg = self._attached_alarms.doStatus(maxage)
             if stat != status.OK:
                 return stat, msg
+        if self._attached_chic_conn.read() != 'Connected':
+            return status.ERROR, 'no connection to the CHIC'
         stat, msg = Waitable.doStatus(self, maxage)
         if stat != status.OK:
             return stat, msg

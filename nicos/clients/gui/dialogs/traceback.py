@@ -69,7 +69,7 @@ class TracebackDialog(QDialog):
                 message += line
 
         button = QPushButton('To clipboard', self)
-        self.buttonBox.addButton(button, QDialogButtonBox.ActionRole)
+        self.buttonBox.addButton(button, QDialogButtonBox.ButtonRole.ActionRole)
 
         def copy():
             QApplication.clipboard().setText(tb+'\n', QClipboard.Selection)

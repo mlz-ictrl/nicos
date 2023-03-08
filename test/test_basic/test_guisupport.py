@@ -29,8 +29,9 @@ from nicos.guisupport.qt import QLocale, QValidator
 from nicos.guisupport.utils import DoubleValidator
 
 idmap = {
-    QValidator.Acceptable: 'Acceptable', QValidator.Intermediate: 'Intermediate',
-    QValidator.Invalid: 'Invalid'
+    QValidator.State.Acceptable: 'Acceptable',
+    QValidator.State.Intermediate: 'Intermediate',
+    QValidator.State.Invalid: 'Invalid'
 }
 
 
@@ -48,30 +49,30 @@ inf = float('inf')
 @pytest.mark.parametrize(
     'val, ll, ul, expected',
     [
-        ('0', -inf, inf, (QValidator.Acceptable, None)),
-        ('0.0', -inf, inf, (QValidator.Acceptable, None)),
-        ('0.0e0', -inf, inf, (QValidator.Acceptable, None)),
-        ('-0.0', -inf, inf, (QValidator.Acceptable, None)),
-        ('1.23456789123456789e130', -inf, inf, (QValidator.Acceptable, None)),
-        ('0', -1, 1, (QValidator.Acceptable, None)),
-        ('0', 0, inf, (QValidator.Acceptable, None)),
-        ('0', -inf, 0, (QValidator.Acceptable, None)),
-        ('.1', -1, 1, (QValidator.Acceptable, '0.1')),
-        ('-.1', -1, 1, (QValidator.Acceptable, '-0.1')),
-        ('+.1', -1, 1, (QValidator.Acceptable, '+0.1')),
-        ('.e9', 0, 10, (QValidator.Acceptable, '0.e9')),  # validator prepends 0!
+        ('0', -inf, inf, (QValidator.State.Acceptable, None)),
+        ('0.0', -inf, inf, (QValidator.State.Acceptable, None)),
+        ('0.0e0', -inf, inf, (QValidator.State.Acceptable, None)),
+        ('-0.0', -inf, inf, (QValidator.State.Acceptable, None)),
+        ('1.23456789123456789e130', -inf, inf, (QValidator.State.Acceptable, None)),
+        ('0', -1, 1, (QValidator.State.Acceptable, None)),
+        ('0', 0, inf, (QValidator.State.Acceptable, None)),
+        ('0', -inf, 0, (QValidator.State.Acceptable, None)),
+        ('.1', -1, 1, (QValidator.State.Acceptable, '0.1')),
+        ('-.1', -1, 1, (QValidator.State.Acceptable, '-0.1')),
+        ('+.1', -1, 1, (QValidator.State.Acceptable, '+0.1')),
+        ('.e9', 0, 10, (QValidator.State.Acceptable, '0.e9')),  # validator prepends 0!
         # intermediate
-        ('4', 10, 50, (QValidator.Intermediate, None)),
-        ('-4', -50, -10, (QValidator.Intermediate, None)),
-        ('1.0e', -inf, inf, (QValidator.Intermediate, None)),
-        ('0', 10, 20, (QValidator.Intermediate, None)),
-        ('1.e9', 0, 10, (QValidator.Intermediate, '1.e9')),
+        ('4', 10, 50, (QValidator.State.Intermediate, None)),
+        ('-4', -50, -10, (QValidator.State.Intermediate, None)),
+        ('1.0e', -inf, inf, (QValidator.State.Intermediate, None)),
+        ('0', 10, 20, (QValidator.State.Intermediate, None)),
+        ('1.e9', 0, 10, (QValidator.State.Intermediate, '1.e9')),
         # invalid
-        ('-15', 10, 20, (QValidator.Invalid, None)),
-        ('-1', 10, 20, (QValidator.Invalid, None)),
-        ('+15', -20, -10, (QValidator.Invalid, None)),
-        ('+1', -20, -10, (QValidator.Invalid, None)),
-        ('1,5', 0, 10, (QValidator.Invalid, None)),
+        ('-15', 10, 20, (QValidator.State.Invalid, None)),
+        ('-1', 10, 20, (QValidator.State.Invalid, None)),
+        ('+15', -20, -10, (QValidator.State.Invalid, None)),
+        ('+1', -20, -10, (QValidator.State.Invalid, None)),
+        ('1,5', 0, 10, (QValidator.State.Invalid, None)),
     ],
     ids=idfn
 )

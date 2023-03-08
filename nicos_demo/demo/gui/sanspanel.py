@@ -43,18 +43,18 @@ class SANSPanel(Panel):
         self.current_status = None
 
         self._idle = QColor('#99FF99')
-        self._busy = QColor(Qt.yellow)
+        self._busy = QColor(Qt.GlobalColor.yellow)
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
-        policy.setVerticalPolicy(QSizePolicy.Fixed)
+        policy.setVerticalPolicy(QSizePolicy.Policy.Fixed)
         self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
         client.cache.connect(self.on_client_cache)
 
-        run = self.buttonBox.button(QDialogButtonBox.Yes)
+        run = self.buttonBox.button(QDialogButtonBox.StandardButton.Yes)
         run.setText('Run')
         run.setIcon(QIcon(':/continue'))
         self.buttonBox.accepted.connect(self.on_start_clicked)
@@ -98,13 +98,20 @@ class SANSPanel(Panel):
                                          ' do you want to do?')
             icon = qwindow.style().standardIcon
             qwindow.iconLabel.setPixmap(
-                icon(QStyle.SP_MessageBoxQuestion).pixmap(32, 32))
-            b0 = QPushButton(icon(QStyle.SP_DialogCancelButton), 'Cancel')
-            b1 = QPushButton(icon(QStyle.SP_DialogOkButton), 'Queue script')
-            b2 = QPushButton(icon(QStyle.SP_MessageBoxWarning), 'Execute now!')
-            qwindow.buttonBox.addButton(b0, QDialogButtonBox.ApplyRole)
-            qwindow.buttonBox.addButton(b1, QDialogButtonBox.ApplyRole)
-            qwindow.buttonBox.addButton(b2, QDialogButtonBox.ApplyRole)
+                icon(QStyle.StandardPixmap.SP_MessageBoxQuestion).pixmap(32,
+                                                                         32))
+            b0 = QPushButton(icon(QStyle.StandardPixmap.SP_DialogCancelButton),
+                             'Cancel')
+            b1 = QPushButton(icon(QStyle.StandardPixmap.SP_DialogOkButton),
+                             'Queue script')
+            b2 = QPushButton(icon(QStyle.StandardPixmap.SP_MessageBoxWarning),
+                             'Execute now!')
+            qwindow.buttonBox.addButton(b0,
+                                        QDialogButtonBox.ButtonRole.ApplyRole)
+            qwindow.buttonBox.addButton(b1,
+                                        QDialogButtonBox.ButtonRole.ApplyRole)
+            qwindow.buttonBox.addButton(b2,
+                                        QDialogButtonBox.ButtonRole.ApplyRole)
             qwindow.buttonBox.setFocus()
             result = [0]
 

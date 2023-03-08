@@ -142,9 +142,8 @@ class AsyncCommandsTool(CommandsTool):
         if ((self.thread and self.thread.is_alive()) or
                 (self.proc and self.proc.poll is None)):
             res = QMessageBox.question(self, 'Message',
-                                       'Close window and kill program?',
-                                       QMessageBox.Yes, QMessageBox.No)
-            if res == QMessageBox.No:
+                                       'Close window and kill program?')
+            if res == QMessageBox.StandardButton.No:
                 return False
             else:
                 if self.proc:

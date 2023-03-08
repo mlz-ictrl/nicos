@@ -47,16 +47,21 @@ class PnPSetupQuestion(QMessageBox):
                 '<b>Sample environment removed</b><br/>'
                 'The sample environment <b>%s</b> has been removed:<br/>%s'
                 % (data[1], data[2] or ''))
-        QMessageBox.__init__(self, QMessageBox.Information, 'NICOS Plug & Play',
-                             message, QMessageBox.NoButton, parent)
-        self.setWindowModality(Qt.NonModal)
-        self.b0 = self.addButton('Ignore', QMessageBox.RejectRole)
-        self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
+        QMessageBox.__init__(
+            self, QMessageBox.Icon.Information, 'NICOS Plug & Play',
+            message, QMessageBox.StandardButton.NoButton, parent)
+        self.setWindowModality(Qt.WindowModality.NonModal)
+        self.b0 = self.addButton('Ignore', QMessageBox.ButtonRole.RejectRole)
+        self.b0.setIcon(self.style().standardIcon(QStyle.StandardPixmap
+                                                  .SP_DialogCancelButton))
         if add_mode:
-            self.b1 = self.addButton('Load setup', QMessageBox.YesRole)
+            self.b1 = self.addButton('Load setup',
+                                     QMessageBox.ButtonRole.YesRole)
         else:
-            self.b1 = self.addButton('Remove setup', QMessageBox.YesRole)
-        self.b1.setIcon(self.style().standardIcon(QStyle.SP_DialogOkButton))
+            self.b1 = self.addButton('Remove setup',
+                                     QMessageBox.ButtonRole.YesRole)
+        self.b1.setIcon(self.style().standardIcon(QStyle.StandardPixmap
+                                                  .SP_DialogOkButton))
         self.b0.clicked.connect(self.on_ignore_clicked)
         self.b1.clicked.connect(self.on_execute_clicked)
         self.b0.setFocus()

@@ -65,7 +65,7 @@ class Led(ClickableOutputLed):
         self.current = value
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             if self.current == self._stateActive:
                 self._client.tell('exec', '%s.move(%r)' %
                                   (self.dev, self._stateInactive))
@@ -105,7 +105,7 @@ class CustomLED(ClickableOutputLed):
         return self.current
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.setValue(
                 self._stateInactive if self.current == self._stateActive
                 else self._stateActive)
@@ -151,7 +151,7 @@ class CustomCombo(QComboBox):
         self.valueChanged[int].emit(index)
 
     def mousePressEvent(self, e):
-        if e.button() == Qt.RightButton:
+        if e.button() == Qt.MouseButton.RightButton:
             if self.parent():
                 self.parent().mousePressEvent(e)
         else:
@@ -429,7 +429,7 @@ class AttCell(CellItem):
             return float(self.cb.currentText())
 
     def mousePressEvent(self, e):
-        if e.button() == Qt.RightButton:
+        if e.button() == Qt.MouseButton.RightButton:
             cbvis = self.cb.isVisible()
             self.cb.setVisible(not cbvis)
             for w in self.cled:
@@ -562,7 +562,7 @@ class StatusCell(CellItem):
     def __init__(self, controller, parent=None, state=None):
         CellItem.__init__(self, controller, parent, state)
         self.label = QLabel('%s' % self.state)
-        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.widgets.append(self.label)
         self.set_layout()
         self.setMinimumWidth(20)
@@ -605,7 +605,7 @@ class StartCell(CellItem):
         return '[%s,%s]' % (dt, self.state[1])
 
     # def mousePressEvent(self, e):
-    #    if e.button() == Qt.RightButton:
+    #    if e.button() == Qt.MouseButton.RightButton:
     #        if self.widgets[0].currentIndex() == 0:
     #            self.widgets[0].setCurrentWidget(self.delay_widget)
     #        elif self.widgets[0].currentIndex() == 1:
@@ -648,7 +648,7 @@ class NameCommentCell(CellItem):
 
     def mouseDoubleClickEvent(self, e):
         CellItem.mouseDoubleClick(self, e)
-        if e.button() == Qt.LeftButton:
+        if e.button() == Qt.MouseButton.LeftButton:
             self.le.setFocus()
             e.accept()
 
@@ -729,7 +729,7 @@ class FileNum(NicosListener, QLineEdit):
         self.setReadOnly(False)
 
     def keyPressEvent(self, e):
-        if e.key() in [Qt.Key_Return, Qt.Key_Enter]:
+        if e.key() in [Qt.Key.Key_Return, Qt.Key.Key_Enter]:
             self._client.tell('exec',
                               'csvsink.filecount = %s' % int(self.text()))
             self.setReadOnly(True)

@@ -137,17 +137,19 @@ class ELogPanel(Panel):
                 self.log.error('No logbook seems to be loaded.')
                 self.on_client_connected()
                 return
-            scrollval = frame.scrollBarValue(Qt.Vertical)
-            was_at_bottom = scrollval == frame.scrollBarMaximum(Qt.Vertical)
+            scrollval = frame.scrollBarValue(Qt.Orientation.Vertical)
+            was_at_bottom = \
+                scrollval == frame.scrollBarMaximum(Qt.Orientation.Vertical)
 
             # restore current scrolling position in document on reload
             def callback(new_size):
                 nframe = self.preview.page().mainFrame().childFrames()[1]
                 if was_at_bottom:
-                    nframe.setScrollBarValue(Qt.Vertical,
-                                             nframe.scrollBarMaximum(Qt.Vertical))
+                    nframe.setScrollBarValue(
+                        Qt.Orientation.Vertical,
+                        nframe.scrollBarMaximum(Qt.Orientation.Vertical))
                 else:
-                    nframe.setScrollBarValue(Qt.Vertical, scrollval)
+                    nframe.setScrollBarValue(Qt.Orientation.Vertical, scrollval)
                 self.preview.loadFinished.disconnect(callback)
             self.preview.loadFinished.connect(callback)
         self.preview.reload()
@@ -255,7 +257,7 @@ class ELogPanel(Panel):
         f = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         f.setFixedPitch(True)
         dlg.editor.setFont(f)
-        if dlg.exec() != QDialog.Accepted:
+        if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         text = dlg.editor.toPlainText()
         if not text:
@@ -271,7 +273,7 @@ class ELogPanel(Panel):
             self.selectInputFile(dlg.fileName, 'Choose a file to attach')
             dlg.fileRename.setFocus()
         dlg.fileSelect.clicked.connect(on_fileSelect_clicked)
-        if dlg.exec() != QDialog.Accepted:
+        if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         fname = dlg.fileName.text()
         if not path.isfile(fname):

@@ -89,14 +89,14 @@ class ExpPanel(PanelBase):
         self.users_model.data_updated.connect(self._check_for_changes)
         self.userTable.setModel(self.users_model)
         self.userTable.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Interactive)
+            QHeaderView.ResizeMode.Interactive)
 
         self.contacts_model = TableModel(['name', 'email', 'affiliation'])
         self.contacts_model.insert_row(0)
         self.contacts_model.data_updated.connect(self._check_for_changes)
         self.contactsTable.setModel(self.contacts_model)
         self.contactsTable.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
+            QHeaderView.ResizeMode.Stretch)
 
         self.samples_model = TableModel(
             ['name', 'formula', 'number of', 'mass/volume', 'density'],
@@ -108,7 +108,7 @@ class ExpPanel(PanelBase):
         self.samples_model.data_updated.connect(self._check_for_changes)
         self.sampleTable.setModel(self.samples_model)
         self.sampleTable.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Interactive)
+            QHeaderView.ResizeMode.Interactive)
 
         self.proposalNum.setValidator(QIntValidator(0, 999999999))
 
@@ -122,24 +122,25 @@ class ExpPanel(PanelBase):
         self.initialise_connection_status_listeners()
 
     def _setup_button_box_and_warn_label(self):
-        self.buttonBox.setLayoutDirection(Qt.RightToLeft)
-        self.buttonBox.addButton('Discard Changes', QDialogButtonBox.ResetRole)
+        self.buttonBox.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.buttonBox.addButton('Discard Changes',
+                                 QDialogButtonBox.ButtonRole.ResetRole)
 
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ApplyRole:
+        if role == QDialogButtonBox.ButtonRole.ApplyRole:
             self.applyChanges()
-        elif role == QDialogButtonBox.ResetRole:
+        elif role == QDialogButtonBox.ButtonRole.ResetRole:
             self.discardChanges()
 
     def _set_buttons_and_warning_behaviour(self, value):
         for button in self.buttonBox.buttons():
             role = self.buttonBox.buttonRole(button)
             button.setEnabled(value)
-            if role == QDialogButtonBox.ResetRole:
+            if role == QDialogButtonBox.ButtonRole.ResetRole:
                 button.setVisible(value)
         self.applyWarningLabel.setVisible(value)
 
@@ -384,7 +385,7 @@ class ExpPanel(PanelBase):
             prop_copy = deepcopy(prop)
             prop_copy['users'] = [{'name': combineUsers(prop['users'])}]
             item = QListWidgetItem('', dlg.list)
-            item.setData(Qt.UserRole, prop_copy)
+            item.setData(Qt.ItemDataRole.UserRole, prop_copy)
         if not dlg.exec():
             return
         sel = dlg.list.currentRow()

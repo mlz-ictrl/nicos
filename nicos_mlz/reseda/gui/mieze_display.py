@@ -88,8 +88,8 @@ class FoilWidget(QWidget):
 
         # insert plot widget + store reference
         self.plotwidget = MiniPlot(self)
-        self.plotwidget.setSizePolicy(QSizePolicy.MinimumExpanding,
-                                      QSizePolicy.MinimumExpanding)
+        self.plotwidget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
+                                      QSizePolicy.Policy.MinimumExpanding)
         self.verticalLayout.insertWidget(0, self.plotwidget)
         self.do_update([['avg', 'contrast', 'phase', 'freq'],
                         (0, 0, 0, 0), (0, 0, 0, 0), [0] * 16] * 2)

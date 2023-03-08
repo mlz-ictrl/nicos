@@ -100,7 +100,8 @@ class ConfigEditDialog(QDialog):
             QRegularExpressionValidator(QRegularExpression(r'[A-Za-z0-9.,=+-]{1,20}'),
                                         self))
         box = QDialogButtonBox(self)
-        box.setStandardButtons(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        box.setStandardButtons(QDialogButtonBox.StandardButton.Ok |
+                               QDialogButtonBox.StandardButton.Cancel)
         box.accepted.connect(self.maybeAccept)
         box.rejected.connect(self.reject)
         layout.addWidget(self.frm)
@@ -407,9 +408,9 @@ class KWSSamplePanel(Panel):
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.RejectRole:
+        if role == QDialogButtonBox.ButtonRole.RejectRole:
             return
-        do_apply = role == QDialogButtonBox.ApplyRole
+        do_apply = role == QDialogButtonBox.ButtonRole.ApplyRole
         if self.dirty:
             initialdir = self.client.eval('session.experiment.scriptpath', '')
             fn = QFileDialog.getSaveFileName(self, 'Save sample file',

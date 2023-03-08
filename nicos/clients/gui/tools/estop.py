@@ -37,11 +37,12 @@ class PicButton(QAbstractButton):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        mode = QIcon.Active if self.isDown() else QIcon.Normal
+        mode = QIcon.Mode.Active if self.isDown() else QIcon.Mode.Normal
         pixmap = self.icon.pixmap(self._size, mode)
         painter.drawPixmap(
             QPoint(0, 0),
-            pixmap.scaled(event.rect().size(), Qt.KeepAspectRatio))
+            pixmap.scaled(event.rect().size(),
+                          Qt.AspectRatioMode.KeepAspectRatio))
 
     def sizeHint(self):
         return self._size
@@ -62,8 +63,8 @@ class EmergencyStopTool(QMainWindow):
         self.client = client
         self.setWindowTitle(' ')  # window title is unnecessary
         flags = self.windowFlags()
-        flags |= Qt.WindowStaysOnTopHint
-        flags ^= Qt.WindowMinimizeButtonHint
+        flags |= Qt.WindowType.WindowStaysOnTopHint
+        flags ^= Qt.WindowType.WindowMinimizeButtonHint
         self.setWindowFlags(flags)
 
         self.sgroup = SettingGroup('EstopTool')
@@ -71,7 +72,7 @@ class EmergencyStopTool(QMainWindow):
             self.restoreGeometry(settings.value('geometry', '', QByteArray))
 
         icon = QIcon(':/estop')
-        icon.addFile(':/estopdown', mode=QIcon.Active)
+        icon.addFile(':/estopdown', mode=QIcon.Mode.Active)
         self.btn = PicButton(icon, self)
 
         widget = QWidget(self)

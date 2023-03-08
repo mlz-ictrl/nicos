@@ -80,7 +80,7 @@ class ToolAction(QAction):
         QAction.__init__(self, icon, text, parent)
         # the default menu rule is TextHeuristicRole, which moves 'setup' to
         # the 'Preferences' Menu on a Mac -> this is not what we want
-        self.setMenuRole(self.NoRole)
+        self.setMenuRole(self.MenuRole.NoRole)
         setups = options.get('setups', '')
         self.setupSpec = setups
         if self.setupSpec:
@@ -434,9 +434,10 @@ class MainWindow(DlgUtils, QMainWindow):
         settings.setValue('tunnel', self.tunnel)
 
     def closeEvent(self, event):
-        if self.confirmexit and QMessageBox.question(
-                self, 'Quit', 'Do you really want to quit?',
-                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+        if self.confirmexit and \
+           QMessageBox.question(
+               self, 'Quit', 'Do you really want to quit?'
+           ) == QMessageBox.StandardButton.No:
             event.ignore()
             return
 
@@ -505,7 +506,7 @@ class MainWindow(DlgUtils, QMainWindow):
         self.statusLabel.setPixmap(pixmap)
         self.statusLabel.setToolTip('Script status: %s' % status)
         newicon = QIcon()
-        newicon.addPixmap(pixmap, QIcon.Disabled)
+        newicon.addPixmap(pixmap, QIcon.Mode.Disabled)
         self.trayIcon.setIcon(newicon)
         self.trayIcon.setToolTip('%s status: %s' % (self.instrument, status))
         if self.showtrayicon:
@@ -637,15 +638,17 @@ class MainWindow(DlgUtils, QMainWindow):
         # show non-modal dialog box that prompts the user to continue or abort
         prompt_text = data[0]
         dlg = self.promptWindow = QMessageBox(
-            QMessageBox.Information, 'Confirmation required',
-            prompt_text, QMessageBox.Ok | QMessageBox.Cancel, self)
-        dlg.setWindowModality(Qt.NonModal)
+            QMessageBox.Icon.Information, 'Confirmation required',
+            prompt_text,
+            QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel,
+            self)
+        dlg.setWindowModality(Qt.WindowModality.NonModal)
 
         # give the buttons better descriptions
-        btn = dlg.button(QMessageBox.Cancel)
+        btn = dlg.button(QMessageBox.StandardButton.Cancel)
         btn.setText('Abort script')
         btn.clicked.connect(lambda: self.client.tell_action('stop', BREAK_NOW))
-        btn = dlg.button(QMessageBox.Ok)
+        btn = dlg.button(QMessageBox.StandardButton.Ok)
         btn.setText('Continue script')
         btn.clicked.connect(lambda: self.client.tell_action('continue'))
         btn.setFocus()
@@ -700,7 +703,7 @@ class MainWindow(DlgUtils, QMainWindow):
         dlg = WebsiteTool(
             self, self.client,
             url='https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/')
-        dlg.setWindowModality(Qt.NonModal)
+        dlg.setWindowModality(Qt.WindowModality.NonModal)
         dlg.show()
 
     @pyqtSlot()
@@ -790,7 +793,7 @@ class MainWindow(DlgUtils, QMainWindow):
     def on_actionPreferences_triggered(self):
         dlg = SettingsDialog(self)
         ret = dlg.exec()
-        if ret == QDialog.Accepted:
+        if ret == QDialog.DialogCode.Accepted:
             dlg.saveSettings()
 
     @pyqtSlot()

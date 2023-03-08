@@ -90,11 +90,11 @@ class PlotWidget(QWidget):
         self.plot = MiniPlot(xlabel, ylabel, self, color1=COLOR_BLACK,
                              color2=COLOR_RED, **kwds)
         titleLabel = QLabel(title)
-        titleLabel.setAlignment(Qt.AlignCenter)
+        titleLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         titleLabel.setStyleSheet('QLabel {font-weight: 600}')
         parent.layout().insertWidget(0, titleLabel)
-        self.plot.setSizePolicy(QSizePolicy.MinimumExpanding,
-                                QSizePolicy.MinimumExpanding)
+        self.plot.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
+                                QSizePolicy.Policy.MinimumExpanding)
         parent.layout().insertWidget(1, self.plot)
 
     def setData(self, x, y1, y2):

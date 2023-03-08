@@ -43,8 +43,8 @@ class DetectorBox(QGraphicsPathItem):
         QGraphicsPathItem.__init__(self, parent=parent)
 
     def paint(self, painter, options, widget):
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.setBrush(Qt.NoBrush)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.shape())
 
     def shape(self):

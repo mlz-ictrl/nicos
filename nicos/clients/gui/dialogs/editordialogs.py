@@ -123,20 +123,21 @@ class OverwriteQuestion(QMessageBox):
     """Special QMessageBox for asking what to do when a script is running."""
 
     def __init__(self):
-        QMessageBox.__init__(self, QMessageBox.Question, 'Code generation',
-                             'Do you want to append to or overwrite the '
-                             'current code?',
-                             QMessageBox.NoButton)
-        self.b0 = self.addButton('Append', QMessageBox.YesRole)
-        self.b1 = self.addButton('Overwrite', QMessageBox.ApplyRole)
-        self.b2 = self.addButton('Cancel', QMessageBox.RejectRole)
-        self.b2.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
+        QMessageBox.__init__(
+            self, QMessageBox.Icon.Question, 'Code generation',
+            'Do you want to append to or overwrite the current code?',
+            QMessageBox.StandardButton.NoButton)
+        self.b0 = self.addButton('Append', QMessageBox.ButtonRole.YesRole)
+        self.b1 = self.addButton('Overwrite', QMessageBox.ButtonRole.ApplyRole)
+        self.b2 = self.addButton('Cancel', QMessageBox.ButtonRole.RejectRole)
+        self.b2.setIcon(self.style().standardIcon(
+            QStyle.StandardPixmap.SP_DialogCancelButton))
 
     def exec(self):
         QMessageBox.exec(self)
         btn = self.clickedButton()
         if btn == self.b0:
-            return QMessageBox.Yes    # Append
+            return QMessageBox.StandardButton.Yes    # Append
         if btn == self.b1:
-            return QMessageBox.Apply  # Overwrite
-        return QMessageBox.Cancel     # Cancel
+            return QMessageBox.StandardButton.Apply  # Overwrite
+        return QMessageBox.StandardButton.Cancel     # Cancel

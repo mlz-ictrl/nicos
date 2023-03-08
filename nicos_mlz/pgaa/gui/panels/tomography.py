@@ -144,9 +144,9 @@ class TomographyPanel(Panel):
         if self.current_status != 'idle':
             qwindow = ScriptExecQuestion()
             result = qwindow.exec()
-            if result == QMessageBox.Cancel:
+            if result == QMessageBox.StandardButton.Cancel:
                 return
-            elif result == QMessageBox.Apply:
+            elif result == QMessageBox.StandardButton.Apply:
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)

@@ -131,9 +131,9 @@ class SetupWidget(QWidget):
 
     def _get_unused_setups(self):
         _in = [i.text() for i in self.listWidgetIncludes.findItems(
-               '', Qt.MatchContains)]
+               '', Qt.MatchFlag.MatchContains)]
         _ex = [i.text() for i in self.listWidgetExcludes.findItems(
-               '', Qt.MatchContains)]
+               '', Qt.MatchFlag.MatchContains)]
         return list(set(self.availablesetups) - set(_in + _ex))
 
     @pyqtSlot()

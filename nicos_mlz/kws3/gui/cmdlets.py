@@ -103,13 +103,13 @@ class RestoreState(Cmdlet):
                         findResource('nicos_mlz/kws3/gui/restore.ui'))
         for devname in self._getDeviceList():
             item = QListWidgetItem(devname, self.devList)
-            item.setCheckState(Qt.Unchecked)
+            item.setCheckState(Qt.CheckState.Unchecked)
         # self.devList.
 
     def generate(self, mode):
         entries = []
         for i in range(self.devList.count()):
-            if self.devList.item(i).checkState() == Qt.Checked:
+            if self.devList.item(i).checkState() == Qt.CheckState.Checked:
                 dev = self.devList.item(i).text()
                 value = self.client.getDeviceValue(dev)
                 if value is not None:

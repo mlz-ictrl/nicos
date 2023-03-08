@@ -52,7 +52,7 @@ class TreeWidget(TreeWidgetContextMenu):
 
         # don't allow dropping items in root
         root = self.invisibleRootItem()
-        root.setFlags(root.flags() & ~Qt.ItemIsDropEnabled)
+        root.setFlags(root.flags() & ~Qt.ItemFlag.ItemIsDropEnabled)
 
     def loadNicosData(self):
         while self.topLevelItemCount() > 0:
@@ -71,8 +71,8 @@ class TreeWidget(TreeWidgetContextMenu):
         for setup_directory in self.topLevelItems:
             # directories can neither be dragged nor have something dropped on
             setup_directory.setFlags(setup_directory.flags() &
-                                     ~Qt.ItemIsDragEnabled &
-                                     ~Qt.ItemIsDropEnabled)
+                                     ~Qt.ItemFlag.ItemIsDragEnabled &
+                                     ~Qt.ItemFlag.ItemIsDropEnabled)
             setup_directory.setIcon(0, QIcon(path.join(getResDir(),
                                     'folder.png')))
             for setup in setupcontroller.setup_directories[
@@ -82,7 +82,7 @@ class TreeWidget(TreeWidgetContextMenu):
                 # scripts cannot be dragged, but they can have
                 # something dropped on them (a device).
                 treeWidgetItem.setFlags(treeWidgetItem.flags() &
-                                        ~Qt.ItemIsDragEnabled)
+                                        ~Qt.ItemFlag.ItemIsDragEnabled)
                 treeWidgetItem.setIcon(0, QIcon(
                     path.join(getResDir(), 'setup.png')))
                 treeWidgetItem.setup = setup
@@ -101,7 +101,7 @@ class TreeWidget(TreeWidgetContextMenu):
                     # devices can be dragged, but they can't have something
                     # dropped on them.
                     deviceItem.setFlags(deviceItem.flags() &
-                                        ~Qt.ItemIsDropEnabled)
+                                        ~Qt.ItemFlag.ItemIsDropEnabled)
                     deviceItem.device = setup.devices[device]
                     currentItem.addChild(deviceItem)
 
@@ -114,7 +114,7 @@ class TreeWidget(TreeWidgetContextMenu):
                 currentIndex += 1
 
         self.setSortingEnabled(True)
-        self.sortByColumn(0, Qt.AscendingOrder)
+        self.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
     def dragEnterEvent(self, event):
         TreeWidgetContextMenu.dragEnterEvent(self, event)
@@ -163,7 +163,7 @@ class TreeWidget(TreeWidgetContextMenu):
         deviceName = self.dragItem.device.name
         target.setup.devices[deviceName] = deepcopy(self.dragItem.device)
         deviceItem = QTreeWidgetItem([deviceName], ItemTypes.Device)
-        deviceItem.setFlags(deviceItem.flags() & ~Qt.ItemIsDropEnabled)
+        deviceItem.setFlags(deviceItem.flags() & ~Qt.ItemFlag.ItemIsDropEnabled)
         deviceItem.device = target.setup.devices[deviceName]
         deviceItem.setIcon(0, QIcon(path.join(getResDir(), 'device.png')))
         target.insertChild(index, deviceItem)
@@ -302,7 +302,7 @@ class TreeWidget(TreeWidgetContextMenu):
             treeWidgetItem = QTreeWidgetItem(['*' + newSetup.name],
                                              ItemTypes.Setup)
             treeWidgetItem.setFlags(treeWidgetItem.flags() &
-                                    ~Qt.ItemIsDragEnabled)
+                                    ~Qt.ItemFlag.ItemIsDragEnabled)
             treeWidgetItem.setIcon(0, QIcon(
                 path.join(getResDir(), 'setup.png')))
             treeWidgetItem.setup = newSetup

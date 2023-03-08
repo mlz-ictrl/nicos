@@ -155,13 +155,16 @@ class MonoBlocks(NicosWidget, QWidget):
             painter.drawEllipse(posx - 5, posy - 5, 10, 10)
             if talign == 1:
                 painter.drawText(posx - 210, posy - 5, 200, 20,
-                                 Qt.AlignRight | Qt.AlignTop, text)
+                                 Qt.AlignmentFlag.AlignRight |
+                                 Qt.AlignmentFlag.AlignTop, text)
             elif talign == 2:
                 painter.drawText(posx + 10, posy - 5, 200, 20,
-                                 Qt.AlignLeft | Qt.AlignTop, text)
+                                 Qt.AlignmentFlag.AlignLeft |
+                                 Qt.AlignmentFlag.AlignTop, text)
             else:
                 painter.drawText(posx - 100, posy - 20, 200, 20,
-                                 Qt.AlignHCenter | Qt.AlignTop, text)
+                                 Qt.AlignmentFlag.AlignHCenter |
+                                 Qt.AlignmentFlag.AlignTop, text)
 
 
 class MTTManualPanel(GenericPanel):

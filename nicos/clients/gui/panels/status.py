@@ -55,7 +55,7 @@ class ScriptQueue:
 
     def append(self, request):
         item = QListWidgetItem(self._format_item(request))
-        item.setData(Qt.UserRole, request['reqid'])
+        item.setData(Qt.ItemDataRole.UserRole, request['reqid'])
         self._id2item[request['reqid']] = item
         self._view.addItem(item)
         # delay showing the frame for 20 msecs, so that it doesn't flicker in
@@ -105,11 +105,11 @@ class LineDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
-        lineno = index.data(Qt.UserRole)
+        lineno = index.data(Qt.ItemDataRole.UserRole)
         rect = option.rect.adjusted(self._icon_offset, 0, 0, 0)
         painter.save()
         painter.setPen(self._pen)
-        painter.drawText(rect, Qt.AlignVCenter, lineno)
+        painter.drawText(rect, Qt.AlignmentFlag.AlignVCenter, lineno)
         margin_x = self._icon_offset + self._margin_offset
         painter.drawLine(margin_x, rect.top(), margin_x, rect.bottom() + 1)
         painter.restore()
@@ -158,7 +158,7 @@ class ScriptStatusPanel(Panel):
         self.curlineicon = QIcon(':/currentline')
         self.errlineicon = QIcon(':/errorline')
         empty = QPixmap(16, 16)
-        empty.fill(Qt.transparent)
+        empty.fill(Qt.GlobalColor.transparent)
         self.otherlineicon = QIcon(empty)
         self.traceView.setItemDelegate(LineDelegate(24, self.traceView))
 
@@ -293,7 +293,7 @@ class ScriptStatusPanel(Panel):
             item = QListWidgetItem(self.otherlineicon, padding + line,
                                    self.traceView)
             item.setSizeHint(QSize(-1, height))
-            item.setData(Qt.UserRole, '%*d' % (longest, i+1))
+            item.setData(Qt.ItemDataRole.UserRole, '%*d' % (longest, i+1))
             self.traceView.addItem(item)
         self.current_line = -1
 
@@ -435,7 +435,7 @@ class ScriptStatusPanel(Panel):
         item = self.queueView.currentItem()
         if not item:
             return
-        reqid = item.data(Qt.UserRole)
+        reqid = item.data(Qt.ItemDataRole.UserRole)
         if self.client.tell('unqueue', str(reqid)):
             self.script_queue.remove(reqid)
 
@@ -443,8 +443,8 @@ class ScriptStatusPanel(Panel):
         rowCount = self.queueView.count()
         IDs = []
         for i in range(rowCount):
-            IDs.append(self.queueView.item(i).data(Qt.UserRole))
-        curID = self.queueView.currentItem().data(Qt.UserRole)
+            IDs.append(self.queueView.item(i).data(Qt.ItemDataRole.UserRole))
+        curID = self.queueView.currentItem().data(Qt.ItemDataRole.UserRole)
         i = IDs.index(curID)
         IDs.insert(i + delta, IDs.pop(i))
         self.client.ask('rearrange', IDs)

@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
         self.deviceWidgets = {}
 
         self.labelHeader = QLabel('Select Setup or device...')
-        self.labelHeader.setAlignment(Qt.AlignCenter)
+        self.labelHeader.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.treeWidget.headerItem().setText(0, facility)
 
@@ -175,7 +175,7 @@ class MainWindow(QMainWindow):
         self.workarea.addWidget(deviceWidget)
         self.deviceWidgets[setupItem.setup.abspath][deviceName] = deviceWidget
         deviceItem = QTreeWidgetItem([deviceName], ItemTypes.Device)
-        deviceItem.setFlags(deviceItem.flags() & ~Qt.ItemIsDropEnabled)
+        deviceItem.setFlags(deviceItem.flags() & ~Qt.ItemFlag.ItemIsDropEnabled)
         deviceItem.device = setupItem.setup.devices[deviceName]
         deviceItem.setIcon(0, QIcon(path.join(getResDir(), 'device.png')))
         setupItem.insertChild(0, deviceItem)
@@ -239,15 +239,15 @@ class MainWindow(QMainWindow):
         if setupItemsToBeSaved:
             reply = QMessageBox.question(self, 'Unsaved changes',
                                          'Do you want to save your changes?',
-                                         QMessageBox.Yes|
-                                         QMessageBox.No|
-                                         QMessageBox.Cancel)
-            if reply == QMessageBox.Yes:
+                                         QMessageBox.StandardButton.Yes |
+                                         QMessageBox.StandardButton.No |
+                                         QMessageBox.StandardButton.Cancel)
+            if reply == QMessageBox.StandardButton.Yes:
                 self.saveSetups(setupItemsToBeSaved)
                 event.accept()
-            elif reply == QMessageBox.No:
+            elif reply == QMessageBox.StandardButton.No:
                 event.accept()
-            elif reply == QMessageBox.Cancel:
+            elif reply == QMessageBox.StandardButton.Cancel:
                 event.ignore()
         else:
             event.accept()

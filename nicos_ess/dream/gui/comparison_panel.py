@@ -161,7 +161,7 @@ class ComparisonPanel(LiveDataPanel):
                     self.fileList.takeItem(index)
 
     def _init_right_click_context_menu(self):
-        self.fileList.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.fileList.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.fileList.customContextMenuRequested.connect(
             self._show_context_menu)
 
