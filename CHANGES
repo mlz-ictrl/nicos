@@ -57,7 +57,7 @@ Release 3.10.0
 
   - "Measure" type commandlets can now specify arbitrary presets, not only time.
 
-  - The guiconfig can now specify default connetion presets for the GUI client
+  - The guiconfig can now specify default connection presets for the GUI client
     as an additional option.
 
 * Other
