@@ -1,6 +1,83 @@
 Changelog
 =========
 
+Release 3.10.0
+--------------
+
+* Core
+
+  - Added an experimental InfluxDB backend for the NICOS cache.
+
+  - The cache supports prefiltering history by a minimum time interval, speeding
+    up query execution.
+
+  - The ``lowlevel`` parameter is replaced by finer-grained ``visibility``.
+
+* Commands
+
+  - Use of ``time.sleep`` is now warned about, users should use NICOS' ``sleep``
+    instead.
+
+* Devices
+
+  - Added a general slit based on two-bladed gap devices.
+
+  - Added a method to query the preset on the generic detector.
+
+  - The SECoP integration has been updated, and the ``frappy`` package is now
+    not required on the client side.
+
+  - On classes inheriting from Device, it is now a hard error to set attributes
+    with names not starting with ``_``, except if they are NICOS parameters.
+
+  - Data sink devices are now hidden from the user by default.
+
+  - The order of calling data sink handlers can now be configured by a new
+    class attribute.
+
+* GUI
+
+  - Device targets are now displayed in a new column in the devices panel.
+
+  - The SSH tunnel option can now be configured in the GUI.
+
+  - Large scan metadata will not be transferred to the GUI anymore, speeding
+    up transfer of datasets.
+
+  - The point number can now be used as an X axis in scan plots.
+
+  - The scan plot should now use the same color series for each new graph,
+    making them easier to compare.
+
+  - Building installer packages for macOS is now supported.  Packages will be
+    available on `our website <https://nicos-controls.org/download>`_.
+
+  - Qt 6 is now supported.  At the moment, support is experimental and needs to
+    be activated using the environment variable setting ``NICOS_QT=6``.
+
+  - "Measure" type commandlets can now specify arbitrary presets, not only time.
+
+  - The guiconfig can now specify default connetion presets for the GUI client
+    as an additional option.
+
+* Other
+
+  - A ``/pause`` meta-command has been added to the CLI client.
+
+  - For watchdog conditions, a "precondition cooldown" time can now be
+    configured.
+
+  - Additional help topics can be added to each setup, and they will be
+    displayed in the GUI/CLI help section for the setup.
+
+  - The LDAP authenticator can now query multiple LDAP servers.
+
+  - The email notifier can now connect to an SMTP server requiring login.
+
+  - The electronic logbook daemon can now be configured to use multiple backend
+    handlers at the same time.
+
+
 Release 3.9.0
 -------------
 
