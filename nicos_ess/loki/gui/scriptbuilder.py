@@ -204,7 +204,8 @@ class LokiScriptBuilderPanel(PanelBase):
 
         self.model = LokiScriptModel(headers, self.columns, mappings)
         self.tableView.setModel(self.model)
-        self.tableView.setSelectionMode(QTableView.ContiguousSelection)
+        self.tableView.setSelectionMode(
+            QTableView.SelectionMode.ContiguousSelection)
         self.table_helper = TableHelper(self.tableView, self.model,
                                         Clipboard())
 
@@ -258,9 +259,18 @@ class LokiScriptBuilderPanel(PanelBase):
 
     def _create_keyboard_shortcuts(self):
         for key, to_call in [
-            (QKeySequence.Paste, self.table_helper.paste_from_clipboard),
-            (QKeySequence.Cut, self.table_helper.cut_selected_to_clipboard),
-            (QKeySequence.Copy, self.table_helper.copy_selected_to_clipboard),
+            (
+                QKeySequence.StandardKey.Paste,
+                self.table_helper.paste_from_clipboard
+            ),
+            (
+                QKeySequence.StandardKey.Cut,
+                self.table_helper.cut_selected_to_clipboard
+            ),
+            (
+                QKeySequence.StandardKey.Copy,
+                self.table_helper.copy_selected_to_clipboard
+            ),
             ('Ctrl+Backspace', self._delete_rows),
         ]:
             self._create_shortcut_key(key, to_call)

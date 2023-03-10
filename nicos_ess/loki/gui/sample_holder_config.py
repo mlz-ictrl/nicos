@@ -240,7 +240,8 @@ class LokiSampleHolderPanel(PanelBase):
                                         Clipboard())
         self.positions = []
 
-        self.sampleTable.setSelectionMode(QTableView.ContiguousSelection)
+        self.sampleTable.setSelectionMode(
+            QTableView.SelectionMode.ContiguousSelection)
         self.sampleTable.horizontalHeader().setStretchLastSection(True)
         self.sampleTable.verticalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.Fixed)
@@ -458,9 +459,12 @@ class LokiSampleHolderPanel(PanelBase):
 
     def _create_keyboard_shortcuts(self):
         for key, to_call in [
-            (QKeySequence.Paste, self._on_paste),
-            (QKeySequence.Cut, self._on_cut),
-            (QKeySequence.Copy, self.table_helper.copy_selected_to_clipboard),
+            (QKeySequence.StandardKey.Paste, self._on_paste),
+            (QKeySequence.StandardKey.Cut, self._on_cut),
+            (
+                QKeySequence.StandardKey.Copy,
+                self.table_helper.copy_selected_to_clipboard
+            ),
             ("Ctrl+Backspace", self._on_clear),
         ]:
             self._create_shortcut_key(key, to_call)
