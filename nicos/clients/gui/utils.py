@@ -205,27 +205,30 @@ class ScriptExecQuestion(QMessageBox):
             self, QMessageBox.Icon.Information, 'Error',
             'A script is currently running.  What do you want to do?',
             QMessageBox.StandardButton.NoButton)
-        self.b0 = self.addButton('Cancel', QMessageBox.ButtonRole.RejectRole)
-        self.b0.setIcon(self.style().standardIcon(QStyle.StandardPixmap
-                                                  .SP_DialogCancelButton))
-        self.b1 = self.addButton('Queue script', QMessageBox.ButtonRole.YesRole)
-        self.b1.setIcon(self.style().standardIcon(QStyle.StandardPixmap
-                                                  .SP_DialogOkButton))
-        self.b2 = self.addButton('Execute now!', QMessageBox.ButtonRole.ApplyRole)
-        self.b2.setIcon(self.style().standardIcon(QStyle.StandardPixmap
-                                                  .SP_MessageBoxWarning))
+
+        # Using NoRole to avoid buttons getting rearranged depending on OS
+        self.queueBtn = self.addButton('Queue script',
+                                       QMessageBox.ButtonRole.NoRole)
+        self.queueBtn.setIcon(self.style().standardIcon(
+            QStyle.StandardPixmap.SP_DialogOkButton))
+        self.execBtn = self.addButton('Execute now!',
+                                      QMessageBox.ButtonRole.NoRole)
+        self.execBtn.setIcon(self.style().standardIcon(
+            QStyle.StandardPixmap.SP_MessageBoxWarning))
+        self.cancelBtn = self.addButton('Cancel',
+                                        QMessageBox.ButtonRole.NoRole)
+        self.cancelBtn.setIcon(self.style().standardIcon(
+            QStyle.StandardPixmap.SP_DialogCancelButton))
 
     def exec(self):
-        # According to the docs, exec() returns an "opaque value" if using
-        # non-standard buttons, so we have to check clickedButton(). Do that
-        # here and return a valid QMessageBox button constant.
         QMessageBox.exec(self)
+        # Since our buttons have no role, determine the correct return value
         btn = self.clickedButton()
-        if btn == self.b2:
-            return QMessageBox.StandardButton.Apply  # Execute now
-        elif btn == self.b1:
-            return QMessageBox.StandardButton.Yes    # Queue
-        return QMessageBox.StandardButton.Cancel     # Cancel
+        if btn == self.execBtn:
+            return QMessageBox.StandardButton.Apply
+        elif btn == self.queueBtn:
+            return QMessageBox.StandardButton.Yes
+        return QMessageBox.StandardButton.Cancel
 
 
 class DlgPresets:
