@@ -327,7 +327,8 @@ node('dockerhost') {
         u18.pull()
         d11 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye')
         d11.pull()
-        if (GERRIT_BRANCH == 'master') {
+        // remove bionic usage fully once we don't support the 3.9 branch anymore
+        if (GERRIT_BRANCH == 'master'  || GERRIT_BRANCH == 'release-3.10') {
             buildimage_deb = d11
         } else {
             buildimage_deb = u18
