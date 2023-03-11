@@ -34,13 +34,13 @@ from nicos.core.constants import FINAL, INTERMEDIATE, POINT
 from nicos.core.data import DataSinkHandler
 from nicos.core.status import BUSY, OK
 from nicos.devices.datasinks import FileSink
-from nicos.devices.entangle import BaseImageChannel
+from nicos.devices.entangle import ImageChannel
 from nicos.utils import lazy_property
 
 MODES = ['cross_auto1', 'cross_auto2', 'auto1_auto2', 'cross_cross']
 
 
-class DLSCard(BaseImageChannel):
+class DLSCard(ImageChannel):
     attached_devices = {
         'wheels': Attach('The filter wheel positions', Readable,
                          multiple=True, optional=True),

@@ -46,7 +46,7 @@ devices = dict(
         description = 'QMesyDAQ Timer',
         tangodevice = qm_base + 'timer',
     ),
-    qlive = device('nicos_mlz.dns.devices.ImageChannel',
+    qlive = device('nicos.devices.entangle.ImageChannel',
         description = 'QMesyDAQ live image',
         tangodevice = tango_base + 'dns/mesy/img',
     ),

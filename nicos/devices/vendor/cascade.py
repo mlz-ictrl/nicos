@@ -32,13 +32,13 @@ from nicos.core import SIMULATION, ArrayDesc, ConfigurationError, Override, \
 from nicos.core.data import GzipFile
 from nicos.devices.datasinks.raw import SingleRawImageFileReader, \
     SingleRawImageSink, SingleRawImageSinkHandler
-from nicos.devices.entangle import BaseImageChannel
+from nicos.devices.entangle import ImageChannel
 from nicos.protocols.cache import FLAG_NO_STORE
 
 from nicos_mlz.reseda.utils import MiezeFit
 
 
-class CascadeDetector(BaseImageChannel):
+class CascadeDetector(ImageChannel):
     """Detector channel for the CASCADE-MIEZE detector.
 
     Controls the detector via a connection to a Tango server.
@@ -103,7 +103,7 @@ class CascadeDetector(BaseImageChannel):
     _perfoil = 16
 
     def doPreinit(self, mode):
-        BaseImageChannel.doPreinit(self, mode)
+        ImageChannel.doPreinit(self, mode)
         if mode != SIMULATION:
             if self._getProperty('compact_readout') != 'True':
                 raise ConfigurationError(self, 'server must be set to '

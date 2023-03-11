@@ -25,7 +25,7 @@
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Measurable
 from nicos.core.params import Attach, Value
-from nicos.devices.entangle import BaseImageChannel
+from nicos.devices.entangle import ImageChannel
 
 
 def calculateRate(store, quality, cts, seconds):
@@ -47,7 +47,7 @@ def calculateRate(store, quality, cts, seconds):
     return rate
 
 
-class RateImageChannel(BaseImageChannel):
+class RateImageChannel(ImageChannel):
     """Subclass of the Tango image channel that automatically returns the
     sum of all counts and the momentary count rate as scalar values.
     """
@@ -57,11 +57,11 @@ class RateImageChannel(BaseImageChannel):
     }
 
     def doInit(self, mode):
-        BaseImageChannel.doInit(self, mode)
+        ImageChannel.doInit(self, mode)
         self._rate_data = [0, 0]
 
     def doReadArray(self, quality):
-        narray = BaseImageChannel.doReadArray(self, quality)
+        narray = ImageChannel.doReadArray(self, quality)
         seconds = self._attached_timer.read(0)[0]
         cts = narray.sum()
         rate = calculateRate(self._rate_data, quality, cts, seconds)
