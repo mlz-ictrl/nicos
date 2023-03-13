@@ -1,2 +1,1 @@
 kafka-python>=1.4.6
-flatbuffers==1.12
