@@ -12,6 +12,6 @@ devices = dict(
             ('a.steffens@fz-juelich.de', 'all'),
             ('p.zakalek@fz-juelich.de', 'important'),
         ],
-        subject = 'NICOS@TMR',
+        subject = '[NICOS] TMR',
     ),
 )
