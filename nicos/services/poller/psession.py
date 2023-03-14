@@ -78,10 +78,10 @@ class PollerSession(NoninteractiveSession):
     sessiontype = POLLER
 
     @classmethod
-    def _notify_systemd(cls, appname, msg):
+    def _notify_systemd(cls, appname, status, ready=False):
         # can only notify systemd from the main poller process
         if appname == 'poller':
-            NoninteractiveSession._notify_systemd(appname, msg)
+            NoninteractiveSession._notify_systemd(appname, status, ready)
 
     # pylint: disable=dangerous-default-value
     def getDevice(self, dev, cls=None, source=None,

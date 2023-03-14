@@ -50,8 +50,16 @@ class NoninteractiveSession(Session):
         pass
 
     @classmethod
-    def _notify_systemd(cls, appname, msg):
-        systemd.daemon.notify(msg)
+    def _notify_systemd(cls, appname, status, ready=False):
+        if hasattr(systemd.daemon, 'Notification'):
+            # older module from PyPI
+            systemd.daemon.notify(systemd.daemon.Notification.STATUS, status)
+            if ready:
+                systemd.daemon.notify(systemd.daemon.Notification.READY)
+        else:
+            # newer module from systemd package
+            systemd.daemon.notify(('READY=1\n' if ready else '') +
+                                  'STATUS=' + status)
 
     @classmethod
     def _get_maindev(cls, appname, maindevname, setupname):
@@ -63,7 +71,7 @@ class NoninteractiveSession(Session):
     def run(cls, appname, maindevname=None, setupname=None, pidfile=True,
             daemon=False, start_args=None):
         if daemon == 'systemd':
-            cls._notify_systemd(appname, "STATUS=initializing session")
+            cls._notify_systemd(appname, 'initializing session')
         elif daemon:
             daemonize()
         else:
@@ -103,13 +111,13 @@ class NoninteractiveSession(Session):
             return 1
 
         if daemon == 'systemd':
-            cls._notify_systemd(appname, "STATUS=starting main device")
+            cls._notify_systemd(appname, 'starting main device')
 
         start_args = start_args or ()
         maindev.start(*start_args)
 
         if daemon == 'systemd':
-            cls._notify_systemd(appname, "READY=1\nSTATUS=running")
+            cls._notify_systemd(appname, 'running', ready=True)
 
         # For services that don't run in a separate thread
         if hasattr(maindev, 'run_main_loop'):
