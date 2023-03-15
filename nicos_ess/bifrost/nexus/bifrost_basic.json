@@ -134,7 +134,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -162,7 +163,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -235,14 +237,29 @@
                   "config": {
                     "source": "source",
                     "topic": "topic"
-                  }
+                  },
+                  "attributes": [
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": ""
+                    }
+                  ]
                 },
                 {
                   "module": "dataset",
                   "config": {
                     "name": "depends_on",
-                    "values": "/entry/instrument/pulse_shaping_chopper/transformations/translation"
-                  }
+                    "values": "/entry/instrument/pulse_shaping_chopper/transformations/translation",
+                    "type": "string"
+                  },
+                  "attributes": [
+                    {
+                      "name": "units",
+                      "dtype": "string",
+                      "values": ""
+                    }
+                  ]
                 },
                 {
                   "type": "group",
@@ -382,7 +399,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -410,7 +428,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -489,6 +508,64 @@
               ],
               "children": [
                 {
+                  "name": "delay",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "source",
+                        "topic": "topic",
+                        "dtype": "double",
+                        "value_units": "ns"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "ns"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "rotation_speed",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "source",
+                        "topic": "topic",
+                        "dtype": "double",
+                        "value_units": "Hz"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "Hz"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
                   "module": "dataset",
                   "config": {
                     "name": "slits",
@@ -552,69 +629,6 @@
                   }
                 },
                 {
-                  "name": "delay",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f142",
-                      "config": {
-                        "source": "source",
-                        "topic": "topic",
-                        "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": "ns"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "rotation_speed",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f142",
-                      "config": {
-                        "source": "source",
-                        "topic": "topic",
-                        "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": "Hz"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "module": "dataset",
-                  "config": {
-                    "name": "depends_on",
-                    "values": "/entry/instrument/frame_overlap_chopper_2/transformations/translation"
-                  }
-                },
-                {
                   "type": "group",
                   "name": "transformations",
                   "children": [
@@ -659,6 +673,14 @@
                       "values": "NXtransformations"
                     }
                   ]
+                },
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "depends_on",
+                    "dtype": "string",
+                    "values": "/entry/instrument/frame_overlap_chopper_2/transformations/translation"
+                  }
                 }
               ]
             },
@@ -689,7 +711,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -717,7 +740,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -874,7 +898,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -902,7 +927,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -1122,7 +1148,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -1150,7 +1177,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -93000,7 +93028,8 @@
               "values": "NXsample"
             }
           ],
-          "children": [            {
+          "children": [
+            {
               "name": "sample_environment",
               "type": "group",
               "attributes": [
@@ -93478,14 +93507,7 @@
                         "source": "YMIR-SEE:SE-LS336-004:SETP_S1",
                         "topic": "bifrost_sample_env",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -93506,14 +93528,7 @@
                         "source": "YMIR-SEE:SE-LS336-004:SETP_S2",
                         "topic": "bifrost_sample_env",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -93534,14 +93549,7 @@
                         "source": "YMIR-SEE:SE-LS336-004:SETP_S3",
                         "topic": "bifrost_sample_env",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -93562,14 +93570,7 @@
                         "source": "YMIR-SEE:SE-LS336-004:SETP_S4",
                         "topic": "bifrost_sample_env",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -93624,7 +93625,8 @@
                   ]
                 }
               ]
-            }]
+            }
+          ]
         },
         "$USERS$"
       ]
