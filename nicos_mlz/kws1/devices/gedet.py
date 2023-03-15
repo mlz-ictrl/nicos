@@ -74,6 +74,7 @@ class HVSwitcher(Switcher):
 
     @usermethod
     def transferSettings(self):
+        """Transfer the setting to the EPICS system."""
         import epics
         for epicsid, pvs in self.pv_values.items():
             for pvname, pvvalue in pvs:

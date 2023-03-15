@@ -32,14 +32,14 @@ from nicos import session
 from nicos.core import Attach, Moveable, NicosError, Override, Param, \
     intrange, listof, status
 from nicos.core.constants import INTERMEDIATE, SIMULATION
-from nicos.devices.entangle import ImageChannel, TOFChannel
+from nicos.devices.entangle import TOFChannel
 from nicos.devices.generic.detector import Detector as GenericDetector
 
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.chopper import BaseChopperController
 
 
-class TOFTOFChannel(ImageChannel, TOFChannel):
+class TOFTOFChannel(TOFChannel):
     # This class is, unfortunately, not agnostic to hw specifics
     parameters = {
         'frametime': Param('Total width of all time bins in s',
@@ -108,7 +108,7 @@ class TOFTOFChannel(ImageChannel, TOFChannel):
         self._dev.delay = value
 
     def doReadArray(self, quality):
-        ndata = ImageChannel.doReadArray(self, quality)
+        ndata = TOFChannel.doReadArray(self, quality)
         self.readresult = [ndata[2:self.monitorchannel].sum() +
                            ndata[self.monitorchannel + 1:].sum()]
         return ndata
