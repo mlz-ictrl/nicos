@@ -85,7 +85,7 @@ class UBMatrix(NexusElementBase):
         if isinstance(sample, Cell):
             data = sample.matrix_crystal2lab().flatten()
         elif isinstance(sample, SXTalSample):
-            data = np.array(sample.ubmatrix, dtype='float64').flatten()
+            data = numpy.array(sample.ubmatrix, dtype='float64').flatten()
         else:
             session.log.error('Your sample is no Cell and no SXTalSample')
             return
