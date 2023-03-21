@@ -140,7 +140,7 @@ class InfluxDBWrapper:
     def _convert_to_float(self, value):
         try:
             value = ast.literal_eval(value)
-        except Exception as _:
+        except Exception:
             value = None
         if value:
             if type(value) in [list, tuple, set]:
