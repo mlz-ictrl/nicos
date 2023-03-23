@@ -6,6 +6,6 @@ repos:
     - id: yapf
       args: ['--style', '{based_on_style: pep8, indent_dictionary_value: True}', '-i']
 -   repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
     - id: isort
