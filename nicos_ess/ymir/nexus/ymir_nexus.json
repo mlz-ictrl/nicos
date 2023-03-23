@@ -373,7 +373,8 @@
                       "config": {
                         "source": "YMIR-ChpSy1:Chop-MIC-101:Spd_SP",
                         "topic": "ymir_motion",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "1/s"
                       },
                       "attributes": [
                         {
@@ -551,14 +552,7 @@
                         "source": "YMIR-TS:Ctrl-EVR-01:EvtFCnt-I",
                         "topic": "ymir_motion",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -666,6 +660,13 @@
                   }
                 },
                 {
+                  "module": "dataset",
+                  "config": {
+                    "name": "depends_on",
+                    "values": "/entry/instrument/laser_source/transformations/rotation"
+                  }
+                },
+                {
                   "name": "laser_fast_data",
                   "type": "group",
                   "attributes": [
@@ -685,13 +686,6 @@
                       }
                     }
                   ]
-                },
-                {
-                  "module": "dataset",
-                  "config": {
-                    "name": "depends_on",
-                    "values": "/entry/instrument/laser_source/transformations/rotation"
-                  }
                 },
                 {
                   "type": "group",
@@ -805,6 +799,120 @@
               ]
             },
             {
+              "name": "screen",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "NX_class",
+                  "dtype": "string",
+                  "values": "NXbeam_stop"
+                }
+              ],
+              "children": [
+                {
+                  "name": "geometry",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXgeometry"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "shape",
+                      "type": "group",
+                      "attributes": [
+                        {
+                          "name": "NX_class",
+                          "dtype": "string",
+                          "values": "NXshape"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "module": "dataset",
+                          "config": {
+                            "name": "size",
+                            "values": [
+                              0.01,
+                              0.6,
+                              0.4
+                            ],
+                            "type": "double"
+                          },
+                          "attributes": [
+                            {
+                              "name": "units",
+                              "dtype": "string",
+                              "values": "m"
+                            }
+                          ]
+                        },
+                        {
+                          "module": "dataset",
+                          "config": {
+                            "name": "shape",
+                            "values": "nxbox",
+                            "type": "string"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "depends_on",
+                    "values": "/entry/instrument/screen/transformations/translation"
+                  }
+                },
+                {
+                  "type": "group",
+                  "name": "transformations",
+                  "children": [
+                    {
+                      "module": "dataset",
+                      "config": {
+                        "name": "translation",
+                        "values": 0.3,
+                        "type": "double"
+                      },
+                      "attributes": [
+                        {
+                          "name": "transformation_type",
+                          "dtype": "string",
+                          "values": "translation"
+                        },
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "m"
+                        },
+                        {
+                          "name": "vector",
+                          "dtype": "string",
+                          "values": [
+                            0.0,
+                            0.0,
+                            1.0
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "values": "NXtransformations"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
               "name": "laser_aperature",
               "type": "group",
               "attributes": [
@@ -831,7 +939,8 @@
                       "config": {
                         "source": "YMIR-SpScn:MC-X-01:Mtr.RBV",
                         "topic": "ymir_motion",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "mm"
                       },
                       "attributes": [
                         {
@@ -859,7 +968,8 @@
                       "config": {
                         "source": "YMIR-SpScn:MC-Y-01:Mtr.RBV",
                         "topic": "ymir_motion",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "mm"
                       },
                       "attributes": [
                         {
@@ -887,7 +997,8 @@
                       "config": {
                         "source": "YMIR-SpScn:MC-Z-01:Mtr.RBV",
                         "topic": "ymir_motion",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "mm"
                       },
                       "attributes": [
                         {
@@ -1180,120 +1291,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "name": "screen",
-              "type": "group",
-              "attributes": [
-                {
-                  "name": "NX_class",
-                  "dtype": "string",
-                  "values": "NXbeam_stop"
-                }
-              ],
-              "children": [
-                {
-                  "name": "geometry",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXgeometry"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "shape",
-                      "type": "group",
-                      "attributes": [
-                        {
-                          "name": "NX_class",
-                          "dtype": "string",
-                          "values": "NXshape"
-                        }
-                      ],
-                      "children": [
-                        {
-                          "module": "dataset",
-                          "config": {
-                            "name": "size",
-                            "values": [
-                              0.01,
-                              0.6,
-                              0.4
-                            ],
-                            "type": "double"
-                          },
-                          "attributes": [
-                            {
-                              "name": "units",
-                              "dtype": "string",
-                              "values": "m"
-                            }
-                          ]
-                        },
-                        {
-                          "module": "dataset",
-                          "config": {
-                            "name": "shape",
-                            "values": "nxbox",
-                            "type": "string"
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "module": "dataset",
-                  "config": {
-                    "name": "depends_on",
-                    "values": "/entry/instrument/screen/transformations/translation"
-                  }
-                },
-                {
-                  "type": "group",
-                  "name": "transformations",
-                  "children": [
-                    {
-                      "module": "dataset",
-                      "config": {
-                        "name": "translation",
-                        "values": 0.3,
-                        "type": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "transformation_type",
-                          "dtype": "string",
-                          "values": "translation"
-                        },
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": "m"
-                        },
-                        {
-                          "name": "vector",
-                          "dtype": "string",
-                          "values": [
-                            0.0,
-                            0.0,
-                            1.0
-                          ]
-                        }
-                      ]
-                    }
-                  ],
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "values": "NXtransformations"
-                    }
-                  ]
-                }
-              ]
             }
           ]
         },
@@ -1332,7 +1329,8 @@
                   "config": {
                     "source": "YMIR-SpRot:MC-Rz-01:Mtr.RBV",
                     "topic": "ymir_motion",
-                    "dtype": "double"
+                    "dtype": "double",
+                    "value_units": "deg"
                   },
                   "attributes": [
                     {

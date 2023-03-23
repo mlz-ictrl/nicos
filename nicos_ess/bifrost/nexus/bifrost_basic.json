@@ -134,7 +134,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -162,7 +163,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -382,7 +384,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -410,7 +413,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -489,6 +493,64 @@
               ],
               "children": [
                 {
+                  "name": "delay",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "source",
+                        "topic": "topic",
+                        "dtype": "double",
+                        "value_units": "ns"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "ns"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "rotation_speed",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "source",
+                        "topic": "topic",
+                        "dtype": "double",
+                        "value_units": "Hz"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "Hz"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
                   "module": "dataset",
                   "config": {
                     "name": "slits",
@@ -550,62 +612,6 @@
                     "source": "source",
                     "topic": "topic"
                   }
-                },
-                {
-                  "name": "delay",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f142",
-                      "config": {
-                        "source": "source",
-                        "topic": "topic",
-                        "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": "ns"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "rotation_speed",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f142",
-                      "config": {
-                        "source": "source",
-                        "topic": "topic",
-                        "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": "Hz"
-                        }
-                      ]
-                    }
-                  ]
                 },
                 {
                   "module": "dataset",
@@ -689,7 +695,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -717,7 +724,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -874,7 +882,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -902,7 +911,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -1122,7 +1132,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "Hz"
                       },
                       "attributes": [
                         {
@@ -1150,7 +1161,8 @@
                       "config": {
                         "source": "source",
                         "topic": "topic",
-                        "dtype": "double"
+                        "dtype": "double",
+                        "value_units": "ns"
                       },
                       "attributes": [
                         {
@@ -55403,6 +55415,11 @@
                           ]
                         },
                         {
+                          "name": "offset",
+                          "dtype": "string",
+                          "values": 0.0
+                        },
+                        {
                           "name": "depends_on",
                           "values": "/entry/instrument/bifrost_detector/transformations/translation",
                           "dtype": "string"
@@ -55414,8 +55431,16 @@
                           "config": {
                             "source": "source",
                             "topic": "topic",
-                            "dtype": "double"
-                          }
+                            "dtype": "double",
+                            "value_units": "degrees"
+                          },
+                          "attributes": [
+                            {
+                              "name": "units",
+                              "dtype": "string",
+                              "values": "degrees"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -55427,6 +55452,11 @@
                         "type": "double"
                       },
                       "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "m"
+                        },
                         {
                           "name": "transformation_type",
                           "dtype": "string",
@@ -55445,6 +55475,11 @@
                             1.0,
                             0.0
                           ]
+                        },
+                        {
+                          "name": "offset",
+                          "dtype": "string",
+                          "values": 0.0
                         }
                       ]
                     }
@@ -93000,7 +93035,8 @@
               "values": "NXsample"
             }
           ],
-          "children": [            {
+          "children": [
+            {
               "name": "sample_environment",
               "type": "group",
               "attributes": [
@@ -93478,14 +93514,7 @@
                         "source": "YMIR-SEE:SE-LS336-004:SETP_S1",
                         "topic": "bifrost_sample_env",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -93506,14 +93535,7 @@
                         "source": "YMIR-SEE:SE-LS336-004:SETP_S2",
                         "topic": "bifrost_sample_env",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -93534,14 +93556,7 @@
                         "source": "YMIR-SEE:SE-LS336-004:SETP_S3",
                         "topic": "bifrost_sample_env",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -93562,14 +93577,7 @@
                         "source": "YMIR-SEE:SE-LS336-004:SETP_S4",
                         "topic": "bifrost_sample_env",
                         "dtype": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": ""
-                        }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -93624,7 +93632,8 @@
                   ]
                 }
               ]
-            }]
+            }
+          ]
         },
         "$USERS$"
       ]
