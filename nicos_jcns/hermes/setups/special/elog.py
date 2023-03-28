@@ -1,4 +1,4 @@
-description = 'setup for the TMR electronic logbook'
+description = 'setup for the HERMES electronic logbook'
 group = 'special'
 
 devices = dict(

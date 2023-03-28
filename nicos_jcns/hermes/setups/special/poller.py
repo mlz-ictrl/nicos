@@ -1,4 +1,4 @@
-description = 'setup for the TMR poller'
+description = 'setup for the HERMES poller'
 group = 'special'
 
 sysconfig = dict(
