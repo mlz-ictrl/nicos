@@ -258,7 +258,7 @@ except the :ref:`description <setup-description>` entry:
 
    This is preferred to setting aliases in the ``startupcode`` since NICOS will
    combine this information from loaded setups and can make decisions how to set
-   the aliases.
+   the aliases.  It can also present the choice to the user graphically.
 
    The format is the following::
 
@@ -274,11 +274,11 @@ except the :ref:`description <setup-description>` entry:
 
    Regarding the choice of the priority numbers:
 
-   - below 0: fallbacks (should normally not be used, but sometimes a (virtual
-     dummy fallback) device is needed
+   - below 0: fallbacks (should normally not be used, but sometimes a virtual
+     dummy fallback device is needed)
    - around 0: instrument default (normally always there, fallback)
    - around 100: 'outermost' optional stuff (magnets, ovens, ...)
-   - around 200: 'spezialised' optional stuff (carrying cryostats, extra
+   - around 200: 'specialised' optional stuff (carrying cryostats, extra
      rotational stages)
    - around 300: 'innermost' optional stuff (cci3he/4he inserts, cold-end-sample
      rotation,...)
