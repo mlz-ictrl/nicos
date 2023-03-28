@@ -1284,7 +1284,7 @@ class ImagingControls(QWidget):
                 ob = numpy.subtract(ob, di)
                 # set 0's to 1's to avoid division by 0 errors
                 ob += (ob == 0).astype(ob.dtype)
-            ob = numpy.array(ob, dtype=float)
+            ob = numpy.array(ob, dtype=numpy.float64)
             image = numpy.divide(image, ob)
         return image
 
@@ -1332,7 +1332,7 @@ class ImagingLiveDataPanel(LiveDataPanel):
 
         if self.controls.autoScale():
             cdf = histogram.cumsum()
-            cdf_normalized = cdf.astype(float) / cdf.max()
+            cdf_normalized = cdf.astype(numpy.float64) / cdf.max()
             maxValue = round(binedges[numpy.argmax(cdf_normalized > 0.99)])
             minValue = round(binedges[numpy.argmax(cdf_normalized > 0.01)])
             self.controls.setRange(minValue, maxValue)

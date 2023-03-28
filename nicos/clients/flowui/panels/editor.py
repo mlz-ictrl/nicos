@@ -33,7 +33,7 @@ from nicos.guisupport.qt import QToolBar
 class EditorPanel(DefaultEditorPanel):
 
     def __init__(self, parent, client, options):
-        if not 'show_browser' in options:
+        if 'show_browser' not in options:
             options['show_browser'] = False
         DefaultEditorPanel.__init__(self, parent, client, options)
         self.layout().setMenuBar(self.createPanelToolbar())

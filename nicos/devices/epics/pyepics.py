@@ -232,7 +232,7 @@ class EpicsDevice(DeviceMixinBase):
 
             try:
                 self._pvctrls[pvparam] = self._pvs[pvparam].get_ctrlvars()
-            except Exception as _:
+            except Exception:
                 self._pvctrls[pvparam] = {}
 
         result = self._pvctrls[pvparam]

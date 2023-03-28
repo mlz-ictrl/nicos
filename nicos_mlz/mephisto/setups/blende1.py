@@ -1,32 +1,32 @@
-description = 'sample table devices'
+description = 'sample slit devices'
 
 includes = ['system']
 
-nethost = '//mephistosrv.mephisto.frm2/'
+tango_base = 'tango://mephistosrv.mephisto.frm2:10000/mephisto/aperture1/'
 
 devices = dict(
-    edge1 = device('nicos.devices.taco.Motor',
+    edge1 = device('nicos.devices.entangle.Motor',
         description = 'top edge',
-        tacodevice = nethost + 'mephisto/aperture1/motor1',
+        tangodevice = tango_base + 'motor1',
         fmtstr = '%7.3f',
         abslimits = (-100, 100),
         visibility = (),
     ),
-    edge2 = device('nicos.devices.taco.Motor',
+    edge2 = device('nicos.devices.entangle.Motor',
         description = 'bottom edge',
-        tacodevice = nethost + 'mephisto/aperture1/motor2',
+        tangodevice = tango_base + 'motor2',
         fmtstr = '%7.3f',
         abslimits = (-100, 100),
         visibility = (),
     ),
-    edge3 = device('nicos.devices.taco.Motor',
-        tacodevice = nethost + 'mephisto/aperture1/motor3',
+    edge3 = device('nicos.devices.entangle.Motor',
+        tangodevice = tango_base + 'motor3',
         fmtstr = '%7.3f',
         abslimits = (-100, 100),
         visibility = (),
     ),
-    edge4 = device('nicos.devices.taco.Motor',
-        tacodevice = nethost + 'mephisto/aperture1/motor4',
+    edge4 = device('nicos.devices.entangle.Motor',
+        tangodevice = tango_base + 'motor4',
         fmtstr = '%7.3f',
         abslimits = (-100, 100),
         visibility = (),

@@ -833,7 +833,7 @@ class NicosCmdClient(NicosClient):
             self.tell('break', BREAK_AFTER_STEP)
         elif cmd in ('cont', 'continue'):
             self.tell('continue')
-        elif cmd in ('pause'):
+        elif cmd in ('pause',):
             self.tell('break', BREAK_NOW)
         elif cmd in ('s', 'stop'):
             if self.status == 'running':
