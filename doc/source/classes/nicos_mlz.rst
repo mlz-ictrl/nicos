@@ -6,3 +6,4 @@ MLZ specific classes
    :glob:
 
    ../../nicos_mlz/*/classes
+   ../../nicos_mlz/labs/**/classes

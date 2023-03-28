@@ -10,4 +10,4 @@
       :glob:
 
       ../nicos_mlz/*/setups
-      ../nicos_mlz/labs/*/setups
+      ../nicos_mlz/labs/**/setups
