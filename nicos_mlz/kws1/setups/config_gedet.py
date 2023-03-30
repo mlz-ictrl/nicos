@@ -10,16 +10,16 @@ EIGHT_PACKS = [
     ('ep06', 'GE-D72EB0-EP'),
     ('ep07', 'GE-D72F9D-EP'),
     ('ep08', 'GE-D73043-EP'),
-#    ('ep09x', 'GE-D7561E-EP'),
+#    ('ep09x', 'GE-D7561E-EP'), spare
     ('ep09', 'GE-D71E2C-EP'),
-#    ('ep10', 'GE-D72EA6-EP'), doesn't exist
+#    ('ep10', 'GE-D72EA6-EP'), doesn't exist anymore
     ('ep10x', 'GE-D72F49-EP'),
     ('ep11', 'GE-D75751-EP'),
     ('ep12', 'GE-D73046-EP'),
     ('ep13', 'GE-D75623-EP'),
     ('ep14', 'GE-D72F44-EP'),
     ('ep15x', 'GE-D76A5A-EP'),
-#    ('ep15', 'GE-D7304D-EP'), damaged tube
+#    ('ep15', 'GE-D7304D-EP'), damaged tube (at factory)
     ('ep16', 'GE-D74372-EP'),
     ('ep17', 'GE-D7436D-EP'),
     ('ep18', 'GE-D76A50-EP'),

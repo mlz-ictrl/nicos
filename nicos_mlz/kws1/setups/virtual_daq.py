@@ -2,6 +2,8 @@ description = 'Detector data acquisition setup'
 group = 'lowlevel'
 display_order = 25
 
+includes = ['virtual_gedet']
+
 sysconfig = dict(
     datasinks = ['kwsformat', 'yamlformat', 'binaryformat'],
 )
