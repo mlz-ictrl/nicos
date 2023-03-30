@@ -65,7 +65,7 @@ devices = dict(
         precision = 0.2,
     ),
     mex = device('nicos_ess.devices.epics.motor.EpicsMotor',
-        description = 'Monochromator lift',
+        description = 'Monochromator side',
         motorpv = motb + 'MEX',
         errormsgpv = motb + 'MEX-MsgTxt',
         precision = 0.2,
@@ -149,6 +149,22 @@ devices = dict(
         unit = 'mm',
         abslimits = (0, 2500),
         default = 2000
+    ),
+    slit_width = device('nicos.devices.generic.manual.ManualMove',
+        description = 'Width of the sample slit',
+        unit = 'mm',
+        abslimits = (0, 100),
+        default = 20
+    ),
+    slit_height = device('nicos.devices.generic.manual.ManualMove',
+        description = 'Height of the sample slit',
+        unit = 'mm',
+        abslimits = (0, 100),
+        default = 20
+    ),
+    bef = device('nicos.devices.generic.manual.ManualSwitch',
+        description = 'State of the beryllium filter',
+        states = ['In', 'Out'],
     ),
 )
 
