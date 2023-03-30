@@ -457,7 +457,7 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
             count *= d
         data = self._get_pv('readpv', count=count)
         self.readresult = [int(sum(data))]
-        return np.rot90(data.reshape(self.arraydesc.shape))
+        return data.reshape(self.arraydesc.shape)
 
     def valueInfo(self):
         return (Value(self.name, unit=''), )
