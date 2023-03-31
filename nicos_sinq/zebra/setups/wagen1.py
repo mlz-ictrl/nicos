@@ -27,3 +27,6 @@ devices = dict(
         unit = 'meV'
     ),
 )
+startupcode = """
+counts._setROParam('readpv', 'SQ:ZEBRA:counter.S3')
+"""

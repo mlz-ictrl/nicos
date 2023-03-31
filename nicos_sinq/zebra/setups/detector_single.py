@@ -82,4 +82,5 @@ devices = dict(
 )
 startupcode = """
 SetDetectors(zebradet)
+Exp._setROParam('forcescandata', False)
 """
