@@ -43,15 +43,19 @@ builders = pipeline_builder.createBuilders { container ->
     // Also need to install some dependencies relating to other facilities.
     container.sh """
       which python
+      python -m venv venv
+      . venv/bin/activate
+      pip install pip install --upgrade pip
       python --version
-      python -m pip install --user -r ${project}/nicos_ess/requirements.txt
-      python -m pip install --user pytest pytest-timeout mock lxml Pillow
+      python -m pip install -r ${project}/nicos_ess/requirements.txt
+      python -m pip install pytest pytest-timeout mock lxml Pillow
     """
   } // stage
 
   pipeline_builder.stage("${container.key}: Test") {
     def test_output = "TestResults.xml"
     container.sh """
+      . venv/bin/activate
       cd ${project}/test
       python -m pytest --junitxml=${test_output} --ignore=nicos_sinq
     """
