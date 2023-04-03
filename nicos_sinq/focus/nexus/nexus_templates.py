@@ -41,6 +41,7 @@ focus_default = {"NeXus_Version": "4.4.0",
                     "title": DeviceDataset("Exp", "title"),
                     "proposal_title": DeviceDataset("Exp", "title"),
                     "proposal_id": DeviceDataset("Exp", "proposal"),
+                    "comment": DeviceDataset("Exp", "remark"),
                     "start_time": NXTime(),
                     "end_time": NXTime(),
                     "definition": ConstDataset("NXdirecttof", "string"),
@@ -138,7 +139,7 @@ monochromator = {
     "monochromator2_vertical_curvature": DeviceDataset("m2cv"),
     "x_translation": DeviceDataset("mtx"),
     "y_translation": DeviceDataset("mty"),
-    "monochromator_lift": DeviceDataset("mex"),
+    "monochromator_side": DeviceDataset("mex"),
     "monochromator_rotation": DeviceDataset("mgo"),
     "msl": DeviceDataset("msl"),
     "name": ConstDataset("Graphite Monochromator", "string"),
@@ -190,8 +191,8 @@ upperbank = {
     "time_of_flight": NXLink("/entry1/FOCUS/bank1/time_binning"),
     "polar_angle": NXLink("/entry1/FOCUS/upperbank/theta"),
     "detector_number": FixedArray(0, 1, 110, dtype='int32'),
-    "distance": FixedArray(2000, 0, 110, dtype="float32",
-                           units=NXAttribute("mm", "string")),
+    "distance": TwoThetaArray("sampledist", 0, 110, dytpe="float32",
+                              units=NXAttribute("mm", "string")),
     "azimuthal_angle": ConstDataset(13., dtype="float32",
                                     units=NXAttribute("degree", "string")),
     "summed_counts": SumImage('upper_image', 110, dtype='int32'),
@@ -219,8 +220,8 @@ lowerbank = {
     "time_of_flight": NXLink("/entry1/FOCUS/bank1/time_binning"),
     "polar_angle": NXLink("/entry1/FOCUS/lowerbank/theta"),
     "detector_number": FixedArray(0, 1, 115, dtype='int32'),
-    "distance": FixedArray(2000, 0, 115, dtype="float32",
-                           units=NXAttribute("mm", "string")),
+    "distance": TwoThetaArray("sampledist", 0, 115, dytpe="float32",
+                              units=NXAttribute("mm", "string")),
     "azimuthal_angle": ConstDataset(-13., dtype="float32",
                                     units=NXAttribute("degree", "string")),
     "summed_counts": SumImage('lower_image', 116, dtype='int32'),
@@ -279,6 +280,16 @@ f2d_data = {
     "time_of_flight": NXLink("/entry1/FOCUS/bank1/time_binning"),
 }
 
+be_filter = {
+    "name": ConstDataset("BE-filter", "string"),
+    "state": DeviceDataset("bef"),
+}
+
+sample_slit = {
+     "width": DeviceDataset("slit_width"),
+     "height": DeviceDataset("slit_height"),
+}
+
 
 class FOCUSTemplateProvider(NexusTemplateProvider):
     def getTemplate(self):
@@ -293,6 +304,8 @@ class FOCUSTemplateProvider(NexusTemplateProvider):
         focus["disk_chopper:NXchopper"] = deepcopy(disk_chopper)
         focus["fermi_chopper:NXchopper"] = deepcopy(fermi_chopper)
         focus["flight_path:NXfilter"] = deepcopy(flight_path)
+        focus["be_filter:NXfilter"] = deepcopy(be_filter)
+        focus["sample_slit:NXslit"] = deepcopy(sample_slit)
         focus["monochromator:NXmonochromator"] = deepcopy(monochromator)
         bankcount = 0
         if "middlebank" in session.loaded_setups:

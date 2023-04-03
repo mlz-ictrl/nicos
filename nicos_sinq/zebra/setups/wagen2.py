@@ -92,16 +92,18 @@ devices = dict(
     ),
     anslit = device('nicos.devices.generic.slit.Slit',
         description = 'Analyser slit with left, right, bottom and top motors',
-        opmode = '4blades',
+        opmode = 'centered',
+        coordinates = 'opposite',
         left = 's2anl',
         right = 's2anr',
         top = 's2ant',
         bottom = 's2anb',
         visibility = (),
     ),
-    s2anv = device('nicos_sinq.amor.devices.slit.SlitOpening',
+    s2anv = device('nicos.devices.generic.slit.HeightSlitAxis',
         description = 'Analyser slit  opening controller',
-        slit = 'anslit'
+        slit = 'anslit',
+        unit = 'mm',
     ),
     s2anh = device('nicos.devices.generic.slit.WidthSlitAxis',
         description = 'Analyser slit width controller',
@@ -109,3 +111,6 @@ devices = dict(
         unit = 'mm',
     ),
 )
+startupcode = """
+counts._setROParam('readpv', 'SQ:ZEBRA:counter.S5')
+"""

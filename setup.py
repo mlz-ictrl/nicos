@@ -171,6 +171,11 @@ setup(
     maintainer_email = 'jens.krueger@frm2.tum.de',
     description = 'The Networked Instrument Control System',
     url = 'https://www.nicos-controls.org',
+    project_urls = {
+        'Documentation': 'https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/',
+        'Source': 'https://forge.frm2.tum.de/cgit/cgit.cgi/frm2/nicos/nicos-core.git/',
+        'Tracker': 'https://forge.frm2.tum.de/redmine/projects/nicos/issues',
+    },
     cmdclass = {'install': nicosinstall},
     packages = packages,
     package_data = package_data,

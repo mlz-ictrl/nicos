@@ -1,4 +1,4 @@
-"""NICOS GUI default configuration."""
+"""TMR NICOS GUI configuration."""
 
 main_window = tabbed(
     ('Instrument', docked(

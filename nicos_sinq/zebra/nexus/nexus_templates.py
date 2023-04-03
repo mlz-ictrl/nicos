@@ -29,7 +29,7 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_sinq.nexus.specialelements import ArrayParam, CellArray, \
-    FixedArray, OutSampleEnv, ScanSampleEnv
+    FixedArray, OutSampleEnv, SaveSampleEnv
 
 
 class ZEBRATemplateProvider(NexusTemplateProvider):
@@ -163,7 +163,7 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
         'l': DeviceDataset('l'),
         'name': DeviceDataset('Sample', 'samplename'),
         "hugo": OutSampleEnv(blocklist=_zebrablocklist, postfix='_log'),
-        "lieselotte": ScanSampleEnv(),
+        "lieselotte": SaveSampleEnv(),
     }
 
     def getTemplate(self):

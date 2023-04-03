@@ -25,12 +25,14 @@
 """Module to implement generic sinq detector and ControlDetector
 """
 
-from nicos.core import Attach, Measurable, Param, pvname, status, Value
+from nicos.core import Attach, Measurable, Param, Value, pvname, status
 from nicos.devices.generic import Detector
+from nicos.devices.generic.detector import CounterChannelMixin, \
+    TimerChannelMixin
 from nicos.utils import uniq
 
-from nicos_ess.devices.epics.detector import EpicsActiveChannel \
-    as ESSEpicsActiveChannel
+from nicos_ess.devices.epics.detector import \
+    EpicsActiveChannel as ESSEpicsActiveChannel
 from nicos_sinq.devices.epics.scaler_record import EpicsScalerRecord
 
 
@@ -93,9 +95,9 @@ class SinqDetector(EpicsScalerRecord):
 
     attached_devices = {
         'timepreset': Attach('Device to set the preset time',
-                             EpicsTimerActiveChannel),
+                             TimerChannelMixin),
         'monitorpreset': Attach('Device to set the monitor preset',
-                                EpicsCounterActiveChannel)
+                                CounterChannelMixin)
     }
 
     parameters = {
@@ -351,3 +353,6 @@ class ControlDetector(Detector):
         for det in self._attached_slave_detectors:
             det.reset()
         return self.doStatus()
+
+    def _collectControllers(self):
+        self._channels = self._attached_trigger._channels

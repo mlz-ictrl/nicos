@@ -648,7 +648,7 @@ def register(cmdlet, priority=None, cat_priority=None):
             if issubclass(cmdlet, old):
                 # replace if priority is the same
                 if prio == priority or priority is None:
-                    all_cmdlets[priority][i] = cmdlet
+                    all_cmdlets[prio][i] = cmdlet
                     register_category(cmdlet.category, cat_priority)
                     return
                 # remove to add to the right priority later

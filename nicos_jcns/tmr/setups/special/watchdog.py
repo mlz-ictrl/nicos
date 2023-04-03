@@ -1,4 +1,4 @@
-description = 'setup for the NICOS watchdog'
+description = 'setup for the TMR NICOS watchdog'
 group = 'special'
 
 watch_conditions = []

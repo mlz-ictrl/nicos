@@ -7,6 +7,18 @@ excludes = ['zebraeuler', 'zebratas', 'zebrakappa']
 sysconfig = dict(instrument = 'ZEBRA',)
 
 devices = dict(
+    chi = device('nicos.devices.generic.ManualMove',
+        description = 'Simulated chi motor',
+        abslimits = (70, 212.5),
+        default = 180,
+        unit = 'degree',
+    ),
+    phi = device('nicos.devices.generic.ManualMove',
+        description = 'Simulated phi motor',
+        abslimits = (-180, 180),
+        default = 0,
+        unit = 'degree',
+    ),
     ZEBRA = device('nicos_sinq.zebra.devices.sinqxtal.SinqNB',
         description = 'instrument object',
         instrument = 'SINQ ZEBRA',
@@ -44,4 +56,5 @@ maw(zebramode, 'nb')
 ublist.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'NU'),())
 messlist.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'NU'),())
 satref.column_headers=(('H', 'K', 'L'), ('STT', 'OM', 'NU'),())
+maw(chi, 180, phi, 0)
 """
