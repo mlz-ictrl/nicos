@@ -68,6 +68,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - mock
   - coverage (optional)
   - sphinx (for generating doc)
+  - pyftpdlib
 
 * Under Windows:
 
