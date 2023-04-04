@@ -116,7 +116,7 @@ class LiveViewSinkHandler(DataSinkHandler):
         Derived classes may override this in order to specify custom
         labels for every array.
 
-        Examples:
+        Examples::
 
             'x': dict(
                     define = 'range',
@@ -145,6 +145,7 @@ class LiveViewSinkHandler(DataSinkHandler):
 
     def getLabelArrays(self, result):
         """Derived classes may override this to specify custom set of abscissa.
+
         The buffers must be in the same order as the datatypestrings returned
         by getAbscissa.
         """
