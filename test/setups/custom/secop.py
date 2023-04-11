@@ -21,15 +21,11 @@
 #
 # *****************************************************************************
 
-import nicos.devices.generic
-
-import nicos_sinq.devices.channel
-
 name = 'Dummy Setup for SECoP test'
 
 description = 'Test setup for secop'
 
 devices = {'secnode': device(
-    'nicos.devices.secop.SecNodeDevice',
+    'nicos.devices.secop.devices.SecNodeDevice',
     description='main SEC node', unit='')
 }
