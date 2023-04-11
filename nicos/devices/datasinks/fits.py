@@ -135,4 +135,4 @@ class FITSFileReader(ImageFileReader):
     @classmethod
     def fromfile(cls, filename):
         hdu_list = pyfits.open(filename)
-        return hdu_list[0].data
+        return numpy.flipud(hdu_list[0].data)
