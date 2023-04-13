@@ -33,22 +33,23 @@ from nicos.utils import readonlydict
 
 # map SECoP types to NICOS types:
 # all types must either be vanilla NICOS types or inherit from them
+# as we want to avoid pickling
 
 # pylint: disable=redefined-builtin
-def Secop_double(min=None, max=None, **kwds):
-    if min is None and max is None:
-        return float
-    return floatrange("float('-inf')" if min is None else min, max)
+def Secop_double(min=None, max=None, use_limits=False, **kwds):
+    if use_limits and (min, max) != (None, None):
+        return floatrange("float('-inf')" if min is None else min, max)
+    return float
 
 
 # pylint: disable=redefined-builtin
-def Secop_int(min=None, max=None, **kwds):
+def Secop_int(min=None, max=None, use_limits=False, **kwds):
     # by the spec, min and max are mandatory in SECoP
     # an integer without limits is therefore indicated by big limits
     # 9999 is apparently big value, but not bigger than 2 ** 15
     # which might be a natural limit if the server side uses 16bit ints.
     # be tolerant with missing min / max here (future spec change?)
-    if min <= -9999 and max >= 9999:
+    if min is None or max is None or not use_limits or (min < -9999 and max > 9999):
         return int
     return intrange(min, max)
 
@@ -88,10 +89,10 @@ class Secop_enum(oneofdict):
 
 
 class Secop_array(listof):
-    def __init__(self, members, minlen=0, maxlen=None, **kwds):
+    def __init__(self, members, minlen=0, maxlen=None, use_limits=False, **kwds):
         self.minlen = minlen
         self.maxlen = maxlen
-        listof.__init__(self, get_validator(members))
+        listof.__init__(self, get_validator(members, use_limits))
 
     def __call__(self, val=None):
         if val is None:
@@ -104,13 +105,13 @@ class Secop_array(listof):
         return result
 
 
-def Secop_tuple(members, **kwds):
-    return tupleof(*tuple(get_validator(m) for m in members))
+def Secop_tuple(members, use_limits=False, **kwds):
+    return tupleof(*tuple(get_validator(m, use_limits) for m in members))
 
 
 class Secop_struct(dictwith):
-    def __init__(self, members, optional=(), **kwds):
-        convs = {k: get_validator(m) for k, m in members.items()}
+    def __init__(self, members, optional=(), use_limits=False, **kwds):
+        convs = {k: get_validator(m, use_limits) for k, m in members.items()}
         for key in optional:
             # missing optional items are indicated with a None value
             convs[key] = none_or(convs[key])
@@ -137,16 +138,8 @@ class Secop_struct(dictwith):
             ret[k] = conv(val.get(k))
         return readonlydict(ret)
 
-    def write_validator(self, val=None):
-        """special validator for writing"""
-        val = self(val)
-        if self.optional:
-            # remove optional values which are None
-            val = {k: v for k, v in val.items() if v is not None}
-        return val
 
-
-def get_validator(datainfo):
-    if datainfo is None:
+def get_validator(datainfo, use_limits):
+    if datainfo is None:  # used for commands without argument or without result
         return anytype
-    return globals()['Secop_%s' % datainfo['type']](**datainfo)
+    return globals()['Secop_%s' % datainfo['type']](**datainfo, use_limits=use_limits)

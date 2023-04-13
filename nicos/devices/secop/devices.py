@@ -396,7 +396,9 @@ class SecNodeDevice(Readable):
             params_cfg = {}
             for pname, props in mod_desc['parameters'].items():
                 datainfo = props['datainfo']
-                pargs = dict(datainfo=datainfo, description=props['description'])
+                # take only the first line in description, else it would messup ListParams
+                # TODO: check whether is not better to do this in ListParams
+                pargs = dict(datainfo=datainfo, description=props['description'].splitlines()[0])
                 if not props.get('readonly', True) and pname != 'target':
                     pargs['settable'] = True
                 unit = datainfo.get('unit', '')
@@ -601,11 +603,14 @@ class SecopDevice(Device):
         # create parameters and methods
         attrs = dict(parameters=parameters, __module__=cls.__module__)
         if 'target_datainfo' in config:
-            attrs['valuetype'] = get_validator(config.pop('target_datainfo'))
+            attrs['valuetype'] = staticmethod(get_validator(
+                config.pop('target_datainfo'), use_limits=True))
         if 'value_datainfo' in config:
-            attrs['_maintype'] = staticmethod(get_validator(config.pop('value_datainfo')))
+            attrs['_maintype'] = staticmethod(get_validator(
+                config.pop('value_datainfo'), use_limits=False))
         for pname, kwargs in params_cfg.items():
-            typ = get_validator(kwargs.pop('datainfo'))
+            typ = get_validator(kwargs.pop('datainfo'),
+                                use_limits=kwargs.get('settable', False))
             if 'fmtstr' not in kwargs and (typ is float or
                                            isinstance(typ, floatrange)):
                 # the fmtstr default differs in SECoP and NICOS
@@ -622,11 +627,8 @@ class SecopDevice(Device):
             attrs['doRead%s' % pname.title()] = do_read
 
             if kwargs.get('settable', False):
-                if isinstance(typ, Secop_struct):
-                    typ = typ.write_validator
-
-                def do_write(self, value, pname=pname, validator=typ):
-                    return self._write(pname, value, validator)
+                def do_write(self, value, pname=pname):
+                    return self._write(pname, value)
 
                 attrs['doWrite%s' % pname.title()] = do_write
 
@@ -635,57 +637,54 @@ class SecopDevice(Device):
             def makecmd(cname, datainfo, description):
                 argument = datainfo.get('argument')
 
-                optional = datainfo.get('optional', ())
-
-                # Check the result type
-                check_result = get_validator(datainfo.get('result'))
+                validate_result = get_validator(datainfo.get('result'), use_limits=False)
 
                 if argument is None:
                     help_arglist = ''
 
                     def cmd(self):
-                        return check_result(self._call(cname, None))
+                        return validate_result(self._call(cname, None))
 
                 elif argument['type'] == 'tuple':
                     # treat tuple elements as separate arguments
-                    help_arglist = ', '.join('<%s>' % type_name(get_validator(t))
-                                             for t in argument['members'])
+                    help_arglist = ', '.join(
+                        '<%s>' % type_name(get_validator(t, use_limits=False))
+                        for t in argument['members'])
 
                     def cmd(self, *args):
-                        return check_result(self._call(cname, args))
+                        return validate_result(self._call(cname, args))
 
                 elif argument['type'] == 'struct':
                     # treat SECoP struct as keyworded arguments
-                    # varargs will be treated in the order from the dictwith
-                    # original order is kept only in Py >= 3.6
-                    # however, it will correspond to the order in help_arglist
+                    # positional args will be treated in the given order
+                    # which is not guaranteed to be kept in SECoP
+                    optional = datainfo.get('optional')
                     keys = list(argument['members'])
-                    if optional is True:
-                        optional = keys
+                    if optional is None:
+                        optional = list(keys)
                     for key in optional:
                         keys.remove(key)
                     help_arglist = ', '.join(keys + ['%s=None' % k
                                                      for k in optional])
                     keys.extend(optional)
 
-                    def cmd(self, *args, keys_=tuple(keys), **kwds):
-                        if len(args) > len(keys_):
+                    def cmd(self, *args, **kwds):
+                        if len(args) > len(keys):
                             raise ValueError('too many arguments')
-                        for arg, key in zip(args, keys_):
+                        for arg, key in zip(args, keys):
                             if key in kwds:
                                 raise ValueError(
                                     'got multiple values for argument %r'
                                     % key)
                             kwds[key] = arg
-                        return check_result(self._call(cname, kwds))
+                        return validate_result(self._call(cname, kwds))
 
                 else:
-                    argtype = get_validator(argument)
-                    help_arglist = '<%s>' % type_name(argtype) if argtype \
-                                   else ''
+                    help_arglist = '<%s>' % type_name(
+                        get_validator(argument, use_limits=False))
 
-                    def cmd(self, argument=None):
-                        return check_result(self._call(cname, argument))
+                    def cmd(self, arg):
+                        return validate_result(self._call(cname, arg))
 
                 cmd.help_arglist = help_arglist
                 cmd.__doc__ = description
@@ -698,7 +697,8 @@ class SecopDevice(Device):
             elif cname != 'stop':
                 # stop is handled separately, do not complain
                 session.log.warning(
-                    'skip command %s, as it would overwrite method of %r', cname, cls.__name__)
+                    'skip command %s, as it would overwrite method of %r',
+                    cname, cls.__name__)
 
         classname = cls.__name__ + '_' + name
         # create a new class extending SecopDevice, apply DeviceMeta in order
@@ -804,9 +804,8 @@ class SecopDevice(Device):
             self.log.exception('can not set %r to %r', param, value)
             raise
 
-    def _write(self, param, value, validator):
+    def _write(self, param, value):
         try:
-            value = validator(value)
             self._attached_secnode._secnode.setParameter(self.secop_module,
                                                          param, value)
             return value
@@ -993,7 +992,7 @@ class SecopHasOffset(HasOffset):
     def doWriteOffset(self, value):
         # remark: possible adjustments of limits, targets have to be done
         # in the remote implementation
-        self._write('offset', value, float)
+        self._write('offset', value)
 
 
 class SecopHasLimits(HasLimits):

@@ -53,11 +53,11 @@ ambiguous_types = [  # matching some nicos types from above
 ]
 
 special_types = [
-    (dict(type='double', min=0.5), floatrange(0.5),
+    (dict(type='double', min=0.5), floatrange(0.5), float,
      [0.5, 1], [0]),
-    (dict(type='double', min=-2.5, max=2.3), floatrange(-2.5, 2.3),
+    (dict(type='double', min=-2.5, max=2.3), floatrange(-2.5, 2.3), float,
      [-2.5, 2.3], [4]),
-    (dict(type='int', min=0, max=10000), intrange(0, 10000),
+    (dict(type='int', min=0, max=10000), intrange(0, 10000), int,
      [0, 10000], [-1, 10001]),
 ]
 
@@ -130,13 +130,14 @@ complex_types.append(
 
 @pytest.mark.parametrize('datainfo, validator', simple_types + ambiguous_types)
 def test_simple_types(datainfo, validator):
-    assert get_validator(datainfo) == validator
+    assert get_validator(datainfo, True) == validator
 
 
-@pytest.mark.parametrize('datainfo, validator, valid, invalid', special_types)
-def test_special_types(datainfo, validator, valid, invalid):
-    v = get_validator(datainfo)
+@pytest.mark.parametrize('datainfo, validator, dtype, valid, invalid', special_types)
+def test_special_types(datainfo, validator, dtype, valid, invalid):
+    v = get_validator(datainfo, True)
     assert isinstance(v, type(validator))
+    assert get_validator(datainfo, False) is dtype
     for value in valid:
         v(value)
     for value in invalid:
@@ -146,7 +147,7 @@ def test_special_types(datainfo, validator, valid, invalid):
 
 @pytest.mark.parametrize('datainfo, validator, default, valid, invalid', complex_types)
 def test_complex_types(datainfo, validator, default, valid, invalid):
-    v = get_validator(datainfo)
+    v = get_validator(datainfo, True)
     assert isinstance(v, type(validator))
     assert v() == default
     for value in valid:
@@ -158,7 +159,7 @@ def test_complex_types(datainfo, validator, default, valid, invalid):
 def test_no_pickle_for_values():
     all_types = simple_types + special_types + complex_types
     for args in all_types:
-        typ = get_validator(args[0])
+        typ = get_validator(args[0], True)
         # check that cache_dump of default value does not need pickle
         assert 'cache_unpickle' not in cache_dump(typ())
 
