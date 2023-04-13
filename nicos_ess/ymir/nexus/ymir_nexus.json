@@ -116,7 +116,7 @@
               ]
             },
             {
-              "name": "flir_camera",
+              "name": "hama_camera",
               "type": "group",
               "attributes": [
                 {
@@ -140,7 +140,7 @@
                     {
                       "module": "f142",
                       "config": {
-                        "source": "flir_image_type",
+                        "source": "hama_image_type",
                         "topic": "ymir_nicos_devices",
                         "dtype": "int16"
                       }
@@ -161,7 +161,7 @@
                     {
                       "module": "ADAr",
                       "config": {
-                        "source": "some_source",
+                        "source": "hama_source",
                         "topic": "ymir_camera",
                         "array_size": "$AREADET$"
                       }
@@ -214,7 +214,7 @@
                   "module": "dataset",
                   "config": {
                     "name": "depends_on",
-                    "values": "/entry/instrument/flir_camera/transformations/translation"
+                    "values": "/entry/instrument/hama_camera/transformations/translation"
                   }
                 },
                 {
