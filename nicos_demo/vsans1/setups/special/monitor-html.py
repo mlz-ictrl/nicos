@@ -96,23 +96,18 @@ _sans1general = Column(
                  Field(name='NL4a', dev='NL4a', width=12),
                 ),
         BlockRow(
-                 Field(name='T in', dev='t_in_memograph', width=12, unit='C'),
-                 Field(name='T out', dev='t_out_memograph', width=12, unit='C'),
-                 Field(name='Cooling', dev='cooling_memograph', width=12,
-                       unit='kW'),
+                 Field(name='T in', dev='t_in_memograph', width=12),
+                 Field(name='T out', dev='t_out_memograph', width=12),
+                 Field(name='Cooling', dev='cooling_memograph', width=12),
                 ),
         BlockRow(
-                 Field(name='Flow in', dev='flow_in_memograph', width=12,
-                       unit='l/min'),
-                 Field(name='Flow out', dev='flow_out_memograph', width=12,
-                       unit='l/min'),
-                 Field(name='Leakage', dev='leak_memograph', width=12,
-                       unit='l/min'),
+                 Field(name='Flow in', dev='flow_in_memograph', width=12),
+                 Field(name='Flow out', dev='flow_out_memograph', width=12),
+                 Field(name='Leakage', dev='leak_memograph', width=12),
                 ),
         BlockRow(
-                 Field(name='P in', dev='p_in_memograph', width=12, unit='bar'),
-                 Field(name='P out', dev='p_out_memograph', width=12,
-                       unit='bar'),
+                 Field(name='P in', dev='p_in_memograph', width=12),
+                 Field(name='P out', dev='p_out_memograph', width=12),
                  Field(name='Crane Pos', dev='Crane', width=12),
                 ),
         ],
@@ -683,9 +678,9 @@ _tisane_counts = Column(
 _live = Column(
     Block('Live image of Detector', [
         BlockRow(
-            Field(name='Data (lin)', picture='sans1-online/live_lin.png',
+            Field(name='Data (lin)', picture='live_lin.png',
                   width=64, height=64),
-            Field(name='Data (log)', picture='sans1-online/live_log.png',
+            Field(name='Data (log)', picture='live_log.png',
                   width=64, height=64),
         ),
         ],
@@ -728,7 +723,7 @@ _helios01 = Column(
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
         title = 'SANS-1 Status monitor',
-        filename = '/sans1control/webroot/index.html',
+        filename = 'webroot/index.html',
         interval = 10,
         loglevel = 'info',
         cache = 'localhost',
