@@ -246,8 +246,8 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     }
 
     def doPreinit(self, mode):
-        _unique_id = None
-        _current_status = (status.OK, '')
+        self._unique_id = None
+        self._current_status = (status.OK, '')
         if mode == SIMULATION:
             return
         self._update_status(status.OK, '')

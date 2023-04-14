@@ -23,7 +23,5 @@
 # *****************************************************************************
 
 
-from nicos_ess.devices.epics.area_detector import ADKafkaPlugin, \
-    AreaDetector, AreaDetectorCollector, ImageType
 from nicos_ess.devices.epics.chopper import ChopperAlarms, EssChopperController
 from nicos_ess.devices.epics.motor import EpicsMotor

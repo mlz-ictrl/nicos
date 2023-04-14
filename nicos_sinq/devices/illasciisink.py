@@ -265,8 +265,17 @@ class ILLAsciiHandler(DataSinkHandler):
             if det in subset.values:
                 self.scanvalues[det].append(subset.values[det])
             else:
-                session.log.warning('Detector %s not found when saving scan '
-                                    'data', det)
+                # contscan: try finding the value in results
+                for idx, v in enumerate(subset.detvalueinfo):
+                    if v.name == det:
+                        self.scanvalues[det].append(
+                            subset.results[subset.detectors[0].name][0][idx])
+                        break
+                else:
+                    # arcane python: this is executed when the
+                    # break in the loop above did not occur
+                    session.log.warning('Detector %s not found when'
+                                        'saving scan data', det)
 
     def end(self):
         with open(self.dataset.filepaths[0], 'w', encoding='utf-8') as out:

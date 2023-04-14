@@ -347,11 +347,11 @@ class SecNodeDevice(Readable):
             updatefunc = getattr(device, '_update_' + parameter,
                                  device._update)
             self._secnode.register_callback((module, parameter),
-                                            updateEvent=updatefunc)
+                                            updateItem=updatefunc)
             try:
                 data = self._secnode.cache[module, parameter]
                 if data:
-                    updatefunc(module, parameter, *data)
+                    updatefunc(module, parameter, data)
                 else:
                     self.log.warning('No data for %s:%s', module, parameter)
             except KeyError:
@@ -372,7 +372,7 @@ class SecNodeDevice(Readable):
             updatefunc = getattr(device, '_update_' + parameter,
                                  device._update)
             self._secnode.unregister_callback((module, parameter),
-                                              updateEvent=updatefunc)
+                                              updateItem=updatefunc)
 
     def createDevices(self):
         """create drivers and devices
@@ -766,19 +766,18 @@ class SecopDevice(Device):
         if mode != SIMULATION:
             self._attached_secnode.registerDevice(self)
 
-    def _update(self, module, parameter, value, timestamp, readerror):
+    def _update(self, module, parameter, item):
         if parameter not in self.parameters:
             return
-        if readerror:
+        if item.readerror:
             if self._cache:
                 self._cache.invalidate(self, parameter)
             return
         try:
             # ignore timestamp for now
-            self._setROParam(parameter, value)
-        except Exception as err:
-            self.log.error('%r', err)
-            self.log.error('can not set %s:%s to %r', module, parameter, value)
+            self._setROParam(parameter, item.value)
+        except Exception:
+            self.log.exception('can not set %s to %r', parameter, item.value)
 
     def _defunct_error(self):
         if session.devices.get(self.name) == self:
@@ -799,8 +798,11 @@ class SecopDevice(Device):
             raise NicosError(str(readerror)) from None
         if maxage is not None and time.time() > (timestamp or 0) + maxage:
             value = secnode.getParameter(self.secop_module, param)[0]
-        value = validator(value)
-        return value
+        try:
+            return validator(value)
+        except Exception:
+            self.log.exception('can not set %r to %r', param, value)
+            raise
 
     def _write(self, param, value, validator):
         try:
@@ -906,21 +908,23 @@ class SecopReadable(SecopDevice, Readable):
         # NICOS status unknown
         return self.STATUS_MAP.get(code // 100, status.UNKNOWN), text
 
-    def _update_status(self, module, parameter, value, timestamp, readerror):
+    def _update_status(self, module, parameter, item):
         self.updateStatus()
 
-    def _update_value(self, module, parameter, value, timestamp, readerror):
-        if readerror:
+    def _update_value(self, module, parameter, item):
+        if item.readerror:
             if self._cache:
                 self._cache.invalidate(self, 'value')
             return
         if self._cache:
             try:
-                # convert enum code to name
-                value = self._maintype(value)
+                # convert to nicos type (important for enums)
+                value = self._maintype(item.value)
+                self._cache.put(self, 'value', value)
             except Exception:
-                pass
-            self._cache.put(self, 'value', value)
+                # when this happens, probably there is an error on the SEC node
+                self.log.exception('can not convert main value %r to %r',
+                                   item.value, self._maintype.__doc__)
 
     def info(self):
         # override the default NICOS behaviour here:
@@ -938,9 +942,22 @@ class SecopReadable(SecopDevice, Readable):
 
 class SecopWritable(SecopReadable, Moveable):
 
+    def _update_target(self, module, parameter, item):
+        if item.readerror:
+            if self._cache:
+                self._cache.invalidate(self, 'value')
+            return
+        try:
+            # convert to nicos type (important for enums)
+            self._setROParam('target', item.value)
+        except Exception:
+            # when this happens, probably there is an error on the SEC node
+            self.log.exception('can not convert target=%r to %s',
+                               item.value, self.valuetype.__doc__)
+
     def doReadTarget(self, maxage=None):
         try:
-            return self._read('target', maxage, anytype)
+            return self._read('target', maxage, self.valuetype)
         except NicosError:
             # this might happen when the target is not initialized
             # if we do not catch here, Moveable.start will raise
@@ -962,8 +979,8 @@ class SecopMoveable(SecopWritable):
             try:
                 self._attached_secnode._secnode.execCommand(
                     self.secop_module, 'stop')
-            except Exception as e:
-                self.log.error('error while stopping: %r', e)
+            except Exception:
+                self.log.exception('error while stopping')
                 self.updateStatus()
 
 

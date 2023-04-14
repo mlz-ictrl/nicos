@@ -16,6 +16,7 @@ distribution.
    taco/index
    tango
    epics
+   secop
    vendor/index
    debug
    devindex
