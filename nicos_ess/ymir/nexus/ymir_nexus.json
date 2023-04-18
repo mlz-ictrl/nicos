@@ -138,7 +138,7 @@
                   ],
                   "children": [
                     {
-                      "module": "f142",
+                      "module": "f144",
                       "config": {
                         "source": "hama_image_type",
                         "topic": "ymir_nicos_devices",
@@ -180,7 +180,7 @@
                   ],
                   "children": [
                     {
-                      "module": "f142",
+                      "module": "f144",
                       "config": {
                         "source": "x_pixel_size_pv",
                         "topic": "ymir_camera",
@@ -201,7 +201,7 @@
                   ],
                   "children": [
                     {
-                      "module": "f142",
+                      "module": "f144",
                       "config": {
                         "source": "y_pixel_size",
                         "topic": "ymir_camera",
@@ -283,7 +283,7 @@
                   ],
                   "children": [
                     {
-                      "module": "f142",
+                      "module": "f144",
                       "config": {
                         "source": "delay_source_chopper",
                         "topic": "ymir_motion",
@@ -369,7 +369,7 @@
                   ],
                   "children": [
                     {
-                      "module": "f142",
+                      "module": "f144",
                       "config": {
                         "source": "YMIR-ChpSy1:Chop-MIC-101:Spd_SP",
                         "topic": "ymir_motion",
@@ -531,27 +531,6 @@
                       "config": {
                         "source": "YMIR-TS:Ctrl-EVR-01:01-TS-I",
                         "topic": "ymir_motion"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "name": "event_14",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f142",
-                      "config": {
-                        "source": "YMIR-TS:Ctrl-EVR-01:EvtFCnt-I",
-                        "topic": "ymir_motion",
-                        "dtype": "double"
                       }
                     }
                   ]
@@ -1327,7 +1306,7 @@
                 {
                   "module": "f144",
                   "config": {
-                    "source": "YMIR-SpRot:MC-Rz-01:Mtr.RBV",
+                    "source": "YMIR-SpRot:MC-Rz-01:m.RBV",
                     "topic": "ymir_motion",
                     "dtype": "double",
                     "value_units": "deg"
