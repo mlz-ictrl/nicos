@@ -29,8 +29,8 @@ from nicos.guisupport.qt import QGroupBox, QHBoxLayout, QLabel, QLineEdit, \
     QSizePolicy, QFileDialog
 from nicos_ess.gui.panels.live import \
     MultiLiveDataPanel as DefaultMultiLiveDataPanel, \
-    layout_iterator, Preview
-
+    layout_iterator, Preview, DEFAULT_TAB_WIDGET_MAX_WIDTH, \
+    DEFAULT_TAB_WIDGET_MIN_WIDTH
 
 
 class ADControl(QWidget):
@@ -263,19 +263,16 @@ class ADControl(QWidget):
         combo_box.setMinimumContentsLength(1)
         combo_box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         combo_box.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-        combo_box.setMaximumWidth(100)
         combo_box.addItems(items)
         combo_box.currentIndexChanged.connect(callback)
         return combo_box
 
-    def create_line_edit(self, placeholder, callback, max_width=100):
+    def create_line_edit(self, placeholder, callback):
         line_edit = QLineEdit()
         line_edit.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         line_edit.setPlaceholderText(placeholder)
-        line_edit.setMaximumWidth(max_width)
         line_edit.returnPressed.connect(callback)
         line_edit.readback = QLabel('Readback Value')
-        line_edit.readback.setMaximumWidth(max_width)
         return line_edit
 
     def _get_file_path(self, dialog_type, title):
@@ -594,9 +591,14 @@ class MultiLiveDataPanel(DefaultMultiLiveDataPanel):
             preview.widget().clicked.connect(self.on_preview_clicked)
             self.scroll_content.layout().addWidget(preview)
 
+    def set_tab_widget_width(self):
+        self.tab_widget.setMaximumWidth(DEFAULT_TAB_WIDGET_MAX_WIDTH)
+        self.tab_widget.setMinimumWidth(DEFAULT_TAB_WIDGET_MIN_WIDTH)
+
     def on_client_cache(self, data):
         _, key, _, _ = data
         self.ad_controller.update_readback_values()
+        self.scroll.setMaximumWidth(self.ad_controller.size().width())
         if key == 'exp/detlist':
             self.ad_controller.detector_combo.clear()
             self._cleanup_existing_previews()
