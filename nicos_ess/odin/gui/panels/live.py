@@ -60,7 +60,7 @@ class ADControl(QWidget):
     def create_settings_group(self):
         settings_group = QGroupBox('Settings')
         settings_group.setSizePolicy(
-            QSizePolicy.Preferred, QSizePolicy.Minimum
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
         )
         settings_layout = QGridLayout()
         settings_layout.setContentsMargins(5, 5, 5, 5)
@@ -104,7 +104,9 @@ class ADControl(QWidget):
 
     def create_normalisation_group(self):
         normal_group = QGroupBox('Normalisation')
-        normal_group.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        normal_group.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
         normal_layout = QGridLayout()
         normal_layout.setContentsMargins(5, 5, 5, 5)
         normal_layout.setHorizontalSpacing(5)
@@ -172,7 +174,9 @@ class ADControl(QWidget):
     def create_acquisition_control(self):
         def create_button(name, text, callback, color=None):
             button = QPushButton(text)
-            button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            button.setSizePolicy(
+                QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred
+            )
             if color:
                 button.setStyleSheet(f'background-color: {color}')
             button.clicked.connect(callback)
@@ -261,15 +265,21 @@ class ADControl(QWidget):
     def create_combo_box(self, items, callback):
         combo_box = QComboBox()
         combo_box.setMinimumContentsLength(1)
-        combo_box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        combo_box.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        combo_box.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToContents
+        )
+        combo_box.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred
+        )
         combo_box.addItems(items)
         combo_box.currentIndexChanged.connect(callback)
         return combo_box
 
     def create_line_edit(self, placeholder, callback):
         line_edit = QLineEdit()
-        line_edit.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        line_edit.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred
+        )
         line_edit.setPlaceholderText(placeholder)
         line_edit.returnPressed.connect(callback)
         line_edit.readback = QLabel('Readback Value')
