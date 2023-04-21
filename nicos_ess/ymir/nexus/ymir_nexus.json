@@ -12,30 +12,6 @@
       ],
       "children": [
         {
-          "module": "dataset",
-          "config": {
-            "name": "title",
-            "values": "$TITLE$",
-            "type": "string"
-          }
-        },
-        {
-          "module": "dataset",
-          "config": {
-            "name": "experiment_identifier",
-            "values": "$EXP_ID$",
-            "type": "string"
-          }
-        },
-        {
-          "module": "dataset",
-          "config": {
-            "name": "definition",
-            "values": "NXevr",
-            "type": "string"
-          }
-        },
-        {
           "name": "instrument",
           "type": "group",
           "attributes": [
@@ -639,13 +615,6 @@
                   }
                 },
                 {
-                  "module": "dataset",
-                  "config": {
-                    "name": "depends_on",
-                    "values": "/entry/instrument/laser_source/transformations/rotation"
-                  }
-                },
-                {
                   "name": "laser_fast_data",
                   "type": "group",
                   "attributes": [
@@ -665,6 +634,13 @@
                       }
                     }
                   ]
+                },
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "depends_on",
+                    "values": "/entry/instrument/laser_source/transformations/rotation"
+                  }
                 },
                 {
                   "type": "group",
@@ -1357,7 +1333,38 @@
             }
           ]
         },
-        "$USERS$"
+        {
+          "module": "dataset",
+          "config": {
+            "name": "entry_identifier",
+            "values": "$ENT_ID$",
+            "type": "string"
+          }
+        },
+        {
+          "module": "dataset",
+          "config": {
+            "name": "entry_identifier_uuid",
+            "values": "$JOB_ID$",
+            "type": "string"
+          }
+        },
+        {
+          "module": "dataset",
+          "config": {
+            "name": "experiment_identifier",
+            "values": "$EXP_ID$",
+            "type": "string"
+          }
+        },
+        {
+          "module": "dataset",
+          "config": {
+            "name": "title",
+            "values": "$TITLE$",
+            "type": "string"
+          }
+        }
       ]
     }
   ]
