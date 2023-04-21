@@ -61,6 +61,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                   mandatory=True,
                   settable=False,
                   userparam=False),
+        'powerautopv':
+            Param('Optional PV for auto enable power.',
+                  type=pvname,
+                  mandatory=False,
+                  settable=False,
+                  userparam=False),
         'errormsgpv':
             Param('Optional PV with error message.',
                   type=pvname,
@@ -148,6 +154,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         :return: List of PV aliases.
         """
         pvs = set(self._record_fields.keys())
+
+        if self.powerautopv:
+            pvs.add('powerautopv')
 
         if self.errormsgpv:
             pvs.add('errormsgpv')
@@ -270,8 +279,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                 return status.BUSY, message or 'homing'
             return status.BUSY, message or f'moving to {self.target}'
 
-        enabled = self._get_pv('enable')
-        if not enabled:
+        if self.powerautopv:
+            powerauto_enabled = self._get_pv('powerautopv')
+        else:
+            powerauto_enabled = 0
+
+        if not powerauto_enabled and not self._get_pv('enable'):
             return status.WARN, 'motor is not enabled'
 
         miss = self._get_pv('miss')

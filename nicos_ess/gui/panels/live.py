@@ -45,6 +45,15 @@ pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
 pg.setConfigOptions(antialias=True)
 
+TAB_WIDGET_MIN_WIDTH = 200
+DEFAULT_TAB_WIDGET_MIN_WIDTH = 0
+TAB_WIDGET_MAX_WIDTH = 200
+DEFAULT_TAB_WIDGET_MAX_WIDTH = 16777215
+VIEW_SPLITTER_SIZES = [600, 600, 100]
+HORI_SPLITTER_SIZES_1 = [100, 500]
+VERT_SPLITTER_SIZES_1 = [100, 500, 100]
+VERT_SPLITTER_SIZES_2 = [100, 500, 100]
+VERT_SPLITTER_SIZES_3 = [50, 1000]
 
 class HistogramItem(HistogramLUTItem):
     def __init__(
@@ -194,7 +203,7 @@ class LineView(QWidget):
         if not self.preview_mode:
             layout.addLayout(hbox)
 
-        splitter_widget = QSplitter(Qt.Vertical)
+        splitter_widget = QSplitter(Qt.Orientation.Vertical)
 
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.showGrid(x=True, y=True, alpha=0.2)
@@ -394,22 +403,22 @@ class ImageViewController(QWidget):
         hist_settings_hbox = QHBoxLayout()
         hist_min_level_label = QLabel('Level low')
         hist_settings_hbox.addWidget(
-            hist_min_level_label, alignment=Qt.AlignRight
+            hist_min_level_label, alignment=Qt.AlignmentFlag.AlignRight
         )
         hist_settings_hbox.addWidget(
-            self.hist_min_level_le, alignment=Qt.AlignLeft
+            self.hist_min_level_le, alignment=Qt.AlignmentFlag.AlignLeft
         )
         hist_max_level_label = QLabel('Level high')
         hist_settings_hbox.addWidget(
-            hist_max_level_label, alignment=Qt.AlignRight
+            hist_max_level_label, alignment=Qt.AlignmentFlag.AlignRight
         )
         hist_settings_hbox.addWidget(
-            self.hist_max_level_le, alignment=Qt.AlignLeft
+            self.hist_max_level_le, alignment=Qt.AlignmentFlag.AlignLeft
         )
         hist_autoscale_btn = QPushButton('Autoscale')
         hist_autoscale_btn.clicked.connect(self.single_shot_autoscale)
         hist_settings_hbox.addWidget(
-            hist_autoscale_btn, alignment=Qt.AlignLeft
+            hist_autoscale_btn, alignment=Qt.AlignmentFlag.AlignLeft
         )
 
         return hist_settings_hbox
@@ -624,28 +633,28 @@ class ImageView(QWidget):
         self.filler_layout.addStretch()
         self.filler_widget.setLayout(self.filler_layout)
 
-        self.splitter_vert_1 = QSplitter(Qt.Vertical)
+        self.splitter_vert_1 = QSplitter(Qt.Orientation.Vertical)
         self.splitter_vert_1.addWidget(self.roi_histogram)
         self.splitter_vert_1.addWidget(self.left_plot)
         self.splitter_vert_1.addWidget(self.filler_widget)
 
-        self.splitter_vert_2 = QSplitter(Qt.Vertical)
+        self.splitter_vert_2 = QSplitter(Qt.Orientation.Vertical)
         self.splitter_vert_2.addWidget(self.settings_histogram)
         self.splitter_vert_2.addWidget(self.graphics_view)
         self.splitter_vert_2.addWidget(self.bottom_plot)
 
-        self.splitter_hori_1 = QSplitter(Qt.Horizontal)
+        self.splitter_hori_1 = QSplitter(Qt.Orientation.Horizontal)
         self.splitter_hori_1.addWidget(self.splitter_vert_1)
         self.splitter_hori_1.addWidget(self.splitter_vert_2)
 
-        self.splitter_vert_3 = QSplitter(Qt.Vertical)
+        self.splitter_vert_3 = QSplitter(Qt.Orientation.Vertical)
         self.splitter_vert_3.addWidget(self.image_view_controller)
         self.splitter_vert_3.addWidget(self.splitter_hori_1)
 
-        self.splitter_hori_1.setSizes([100, 500])
-        self.splitter_vert_1.setSizes([100, 500, 100])
-        self.splitter_vert_2.setSizes([100, 500, 100])
-        self.splitter_vert_3.setSizes([50, 1000])
+        self.splitter_hori_1.setSizes(HORI_SPLITTER_SIZES_1)
+        self.splitter_vert_1.setSizes(VERT_SPLITTER_SIZES_1)
+        self.splitter_vert_2.setSizes(VERT_SPLITTER_SIZES_2)
+        self.splitter_vert_3.setSizes(VERT_SPLITTER_SIZES_3)
 
         self.ui.addWidget(self.splitter_vert_3)
         self.ui.addWidget(self.hover_label)
@@ -973,7 +982,7 @@ class LiveDataPanel(Panel):
     def build_ui(self):
         self.plotwidget.hide()
         self.plotwidget_1d.hide()
-        self.view_splitter = QSplitter(Qt.Horizontal)
+        self.view_splitter = QSplitter(Qt.Orientation.Horizontal)
 
         self.view_splitter.addWidget(self.plotwidget)
         self.view_splitter.addWidget(self.plotwidget_1d)
@@ -1327,26 +1336,37 @@ class MultiLiveDataPanel(LiveDataPanel):
         self._plotwidget_settings = {}
         LiveDataPanel.__init__(self, parent, client, options)
 
-        self.init_UI()
+        self.init_ui()
         self.connect_signals()
 
-    def init_UI(self):
+    def init_ui(self):
         self.tab_widget = QTabWidget()
 
+        self.tab_widget.setTabBarAutoHide(True)
+        self.set_tab_widget_width()
+
         self.scroll_content = QWidget()
-        self.scroll_content.setMaximumWidth(250)
         self.scroll_content.setLayout(QVBoxLayout())
 
         self.scroll = QScrollArea()
+        self.set_scroll_area_width()
         self.scroll.setWidget(self.scroll_content)
         self.scroll.setWidgetResizable(True)
         self.tab_widget.addTab(self.scroll, 'Previews')
 
         self.view_splitter.addWidget(self.tab_widget)
-        self.view_splitter.setSizes([600, 600, 100])
+        self.view_splitter.setSizes(VIEW_SPLITTER_SIZES)
         self.view_splitter.setStretchFactor(0, 1)
         self.view_splitter.setStretchFactor(1, 1)
         self.view_splitter.setStretchFactor(2, 0)
+
+    def set_tab_widget_width(self):
+        self.tab_widget.setMaximumWidth(TAB_WIDGET_MAX_WIDTH)
+        self.tab_widget.setMinimumWidth(TAB_WIDGET_MIN_WIDTH)
+
+    def set_scroll_area_width(self):
+        self.scroll.setMaximumWidth(TAB_WIDGET_MAX_WIDTH)
+        self.scroll.setMinimumWidth(TAB_WIDGET_MIN_WIDTH)
 
     def connect_signals(self):
         self.connect_disconnected_signal()
