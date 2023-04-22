@@ -11,6 +11,7 @@ main_window = tabbed(
                 ('All output', panel(
                     'nicos.clients.gui.panels.console.ConsolePanel',
                     hasinput=False, hasmenu=False,
+                    watermark='nicos_jcns/galaxi/gui/watermark.png',
                 )),
                 ('Errors/Warnings', panel(
                     'nicos.clients.gui.panels.errors.ErrorPanel',
