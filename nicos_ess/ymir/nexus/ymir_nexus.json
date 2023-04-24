@@ -30,8 +30,16 @@
         {
           "module": "dataset",
           "config": {
-            "name": "definition",
-            "values": "NXevr",
+            "name": "entry_identifier",
+            "values": "$ENTRY_ID$",
+            "type": "string"
+          }
+        },
+        {
+          "module": "dataset",
+          "config": {
+            "name": "entry_identifier_uuid",
+            "values": "$JOB_ID$",
             "type": "string"
           }
         },

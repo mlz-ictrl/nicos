@@ -376,10 +376,12 @@ class FileWriterSinkHandler(DataSinkHandler):
             return
 
         datetime_now = datetime.now()
+        job_id = str(uuid.uuid1())
+        self.dataset.metainfo[('Exp', 'job_id')] = job_id
         structure = self.sink._attached_nexus.get_structure(
             self.dataset, datetime_now)
         self.sink._start_job(file_path, self.dataset.counter,
-                             structure, datetime_now)
+                             structure, datetime_now, job_id=job_id)
         self._current_file = filename
 
     def end(self):
@@ -420,8 +422,10 @@ class FileWriterController:
         self.timeout_interval = timeout_interval * 2
         self.command_channel = None
 
-    def request_start(self, filename, structure, start_time, stop_time=None):
-        job_id = str(uuid.uuid1())
+    def request_start(self, filename, structure, start_time, stop_time=None, job_id=None):
+
+        if not job_id:
+            job_id = str(uuid.uuid1())
 
         if not stop_time:
             stop_time = start_time + timedelta(days=365.25 * 10)
@@ -558,11 +562,13 @@ class FileWriterControlSink(FileSink):
                    structure,
                    start_time=None,
                    stop_time=None,
-                   replay_of=None):
+                   replay_of=None,
+                   job_id=None,
+                   ):
         self.check_okay_to_start()
         start_time = start_time if start_time else datetime.now()
         job_id, commit = self._controller.request_start(
-            filename, structure, start_time, stop_time)
+            filename, structure, start_time, stop_time, job_id)
         job = JobRecord(job_id, counter, start_time, commit)
         job.replay_of = replay_of
         job.stop_time = stop_time

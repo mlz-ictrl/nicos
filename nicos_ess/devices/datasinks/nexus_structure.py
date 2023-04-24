@@ -56,12 +56,19 @@ class NexusStructureJsonFile(NexusStructureProvider):
     def get_structure(self, dataset, start_time):
         with open(self.nexus_config_path, 'r', encoding='utf-8') as file:
             structure = file.read()
-        return self._insert_metadata(structure, dataset.metainfo)
+        return self._insert_metadata(
+            structure,
+            dataset.metainfo,
+            dataset.counter,
+        )
 
-    def _insert_metadata(self, structure, metainfo):
+    def _insert_metadata(self, structure, metainfo, counter):
         structure = structure.replace('$TITLE$', metainfo[('Exp', 'title')][0])
         structure = structure.replace('$EXP_ID$',
                                       metainfo[('Exp', 'proposal')][0])
+        structure = structure.replace('$ENTRY_ID$', str(counter))
+        structure = structure.replace('$JOB_ID$',
+                                      metainfo[('Exp', 'job_id')])
         structure = self._insert_users(structure, metainfo)
         structure = self._insert_samples(structure, metainfo)
         return structure
