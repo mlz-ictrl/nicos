@@ -126,6 +126,8 @@
             {
               "name": "hama_camera",
               "type": "group",
+              "required_devices": ["hama_camera", "area_detector_collector"],
+              "required_nexus": "NexusStructure_AreaDetector",
               "attributes": [
                 {
                   "name": "NX_class",

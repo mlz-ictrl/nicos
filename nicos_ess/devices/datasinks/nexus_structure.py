@@ -39,7 +39,7 @@ class NexusStructureProvider(Device):
             Override(default=()),
     }
 
-    def get_structure(self, dataset, start_time):
+    def get_structure(self, dataset):
         raise NotImplementedError('must implement get_structure method')
 
 
@@ -53,14 +53,56 @@ class NexusStructureJsonFile(NexusStructureProvider):
                   settable=True),
     }
 
-    def get_structure(self, dataset, start_time):
-        with open(self.nexus_config_path, 'r', encoding='utf-8') as file:
-            structure = file.read()
-        return self._insert_metadata(
+    def get_structure(self, dataset):
+        structure = self._load_structure()
+        structure = self._filter_structure(structure)
+        structure = self._insert_metadata(
             structure,
             dataset.metainfo,
             dataset.counter,
         )
+        return structure
+
+    def _load_structure(self):
+        with open(self.nexus_config_path, 'r', encoding='utf-8') as file:
+            structure = file.read()
+        return structure
+
+    def _filter_structure(self, structure):
+        loaded_devices = [str(dev) for dev in session.devices]
+        nexus_alias = session.getDevice('NexusStructure').alias
+
+        structure = json.loads(structure)
+        self._filter_items(structure, self._are_required_devices_loaded,
+                           loaded_devices)
+        self._filter_items(structure, self._is_nexus_alias_correct,
+                           nexus_alias)
+        return json.dumps(structure)
+
+    def _filter_items(self, data, condition_func, condition_arg):
+        data['children'] = [
+            item for item in data['children']
+            if condition_func(item, condition_arg)
+            ]
+
+        for item in data['children']:
+            if 'children' in item:
+                self._filter_items(item, condition_func, condition_arg)
+
+    def _are_required_devices_loaded(self, item, loaded_devices):
+        if not isinstance(item, dict) or 'required_devices' not in item:
+            return True
+
+        return all(
+            dev in loaded_devices
+            for dev in item['required_devices']
+        )
+
+    def _is_nexus_alias_correct(self, item, nexus_alias):
+        if not isinstance(item, dict) or not item.get('required_nexus'):
+            return True
+
+        return item['required_nexus'] == nexus_alias
 
     def _insert_metadata(self, structure, metainfo, counter):
         structure = structure.replace('$TITLE$', metainfo[('Exp', 'title')][0])
@@ -141,15 +183,21 @@ class NexusStructureAreaDetector(NexusStructureJsonFile):
                   settable=True),
     }
 
-    def get_structure(self, dataset, start_time):
-        structure = NexusStructureJsonFile.get_structure(
-            self, dataset, start_time)
-        return self._add_area_detector_array_size(structure)
+    def get_structure(self, dataset):
+        structure = NexusStructureJsonFile._load_structure(self)
+        structure = NexusStructureJsonFile._insert_metadata(
+            self,
+            structure,
+            dataset.metainfo,
+            dataset.counter,
+        )
+        structure = self._add_area_detector_array_size(structure)
+        return structure
 
     def _add_area_detector_array_size(self, structure):
-        json_dict = json.loads(structure)
-        self._replace_area_detector_placeholder(json_dict)
-        return json.dumps(json_dict)
+        structure = json.loads(structure)
+        self._replace_area_detector_placeholder(structure)
+        return json.dumps(structure)
 
     def _replace_area_detector_placeholder(self, data):
         for item in data['children']:
@@ -215,7 +263,7 @@ class NexusStructureTemplate(NexusStructureProvider):
                               'starttime')] = (start_time, start_time, '',
                                                'general')
 
-    def get_structure(self, dataset, start_time):
+    def get_structure(self, dataset):
         template = copy.deepcopy(self._template)
         self._add_start_time(dataset)
         converter = NexusTemplateConverter()
