@@ -3,7 +3,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'HERMES',
+    instrument = 'hermes',
     experiment = 'Exp',
     datasinks = ['conssink', 'daemonsink', 'liveviewsink'],
     notifiers = ['email'],
@@ -14,13 +14,14 @@ modules = ['nicos.commands.standard']
 includes = ['notifiers']
 
 devices = dict(
-    HERMES = device('nicos.devices.instrument.Instrument',
+    hermes = device('nicos.devices.instrument.Instrument',
         description = 'HERMES reflectometer in COSY\'s Big Karl experimental '
                       'area.',
-        instrument = 'HERMES',
+        instrument = 'hermes',
         responsible = 'Ulrich Rücker <u.ruecker@fz-juelich.de>',
         facility = 'Forschungszentrum Jülich',
-        operators = ['Jülich Centre for Neutron Science (JCNS)'],
+        operators = ['Jülich Centre for Neutron Science (JCNS)',
+                     'Laboratoire Léon Brillouin (LLB)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'Currently used sample.',
