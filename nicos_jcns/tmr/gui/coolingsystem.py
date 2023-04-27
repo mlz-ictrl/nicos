@@ -41,6 +41,7 @@ STATUS_BRUSH.update({OK: QBrush(Qt.white),
                      UNKNOWN: QBrush(QColorConstants.Svg.olive)})
 
 SENSOR_ICON = dict(T='thermometer', P='gauge-meter', MF='gauge-meter')
+MAX_WATER_LEVEL = 0.5
 
 
 class Panel(GenericPanel):
@@ -791,7 +792,8 @@ class Widget(NicosWidget, QWidget):
             # visualise opening percentage with blue color
             brush_value = QColorConstants.Svg.steelblue
             try:
-                value = float(devinfo.value)
+                # set negative values to 0
+                value = max(0.0, float(devinfo.value))
             except ValueError:
                 value = 0
             if value < 100:
@@ -951,13 +953,14 @@ class Widget(NicosWidget, QWidget):
             value = float(self.devinfo[self.props['level_sensor']].value)
         except ValueError:
             value = 0
-        if value == 100:
+        if value == MAX_WATER_LEVEL:
             brush = QColorConstants.Svg.steelblue
         else:
+            percentage = value / MAX_WATER_LEVEL
             brush = QLinearGradient(x, y, x, y + height)
             brush.setColorAt(0, QColorConstants.Svg.steelblue)
-            brush.setColorAt(0.0099 * value, QColorConstants.Svg.steelblue)
-            brush.setColorAt(0.01 * value, Qt.white)
+            brush.setColorAt(0.999 * percentage, QColorConstants.Svg.steelblue)
+            brush.setColorAt(percentage, Qt.white)
         self._draw_rect(qp, x, y, width=width, height=height, brush=brush,
                         pen=Qt.black)
         # coloured status overlay
@@ -973,7 +976,7 @@ class Widget(NicosWidget, QWidget):
             qp.setOpacity(1)
         # marker visualising current value
         self._draw_marker(qp, x, y, width=width, height=height, dev=dev,
-                          value_range=100, check_limits=True)
+                          value_range=MAX_WATER_LEVEL, check_limits=True)
 
         # background of electric conductance and pH sensors
         width, height = x_max - x_conduct_ph, y_max - y_conduct_ph
