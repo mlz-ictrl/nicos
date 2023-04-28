@@ -264,6 +264,11 @@ class EpicsStringReadable(EpicsReadable):
     def _get_pv_parameters(self):
         return {'readpv'}
 
+    def _subscribe(self, change_callback, pvname, pvparam):
+        return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
+                                             self.connection_change_callback,
+                                             as_string=True)
+
     def doRead(self, maxage=0):
         return self._get_pv('readpv', as_string=True)
 
@@ -358,6 +363,11 @@ class EpicsStringMoveable(EpicsMoveable):
     def _get_pv_parameters(self):
         return {'readpv', 'writepv'}
 
+    def _subscribe(self, change_callback, pvname, pvparam):
+        return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
+                                             self.connection_change_callback,
+                                             as_string=True)
+
     def doRead(self, maxage=0):
         return self._get_pv('readpv', as_string=True)
 
@@ -431,13 +441,13 @@ class EpicsMappedReadable(MappedReadable, EpicsReadable):
         'mapping': Override(mandatory=False, settable=False, userparam=False)
     }
 
+    def _get_pv_parameters(self):
+        return {'readpv'}
+
     def _subscribe(self, change_callback, pvname, pvparam):
         return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
                                              self.connection_change_callback,
                                              as_string=True)
-
-    def _get_pv_parameters(self):
-        return {'readpv'}
 
     def doInit(self, mode):
         if mode == SIMULATION:
