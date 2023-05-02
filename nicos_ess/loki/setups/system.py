@@ -32,10 +32,4 @@ devices = dict(
         'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'),
     daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
-    Space=device(
-        'nicos.devices.generic.FreeSpace',
-        description='The amount of free space for storing data',
-        path=None,
-        minfree=5,
-    ),
 )

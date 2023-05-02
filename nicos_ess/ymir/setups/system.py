@@ -41,12 +41,6 @@ devices = dict(
     conssink=device(
         'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink',),
     daemonsink=device('nicos.devices.datasinks.DaemonSink',),
-    Space=device(
-        'nicos.devices.generic.FreeSpace',
-        description='The amount of free space for storing data',
-        path=None,
-        minfree=5,
-    ),
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
     NexusStructure_Basic=device(
         'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
