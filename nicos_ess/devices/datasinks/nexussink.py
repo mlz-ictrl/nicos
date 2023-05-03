@@ -172,7 +172,6 @@ class NexusFileWriterStatus(KafkaStatusHandler):
         if not message:
             return
 
-        self._set_next_update(message)
         self._job_in_progress = message.get('job_id', '')
         file_name = message.get('file_being_written', '')
         if file_name:

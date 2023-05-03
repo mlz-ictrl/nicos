@@ -168,12 +168,12 @@ class TestStatus(TestCase):
 
     def test_process_not_running_if_no_message_within_timeout_interval(self):
         expected_update = currenttime() + self.device.timeoutinterval
-        self.device._setROParam('nextupdate', expected_update - 10)
+        self.device._next_update = expected_update - 10
         assert not self.device.is_process_running()
 
     def test_process_is_running_if_message_is_within_timeout_interval(self):
         expected_update = currenttime() + self.device.timeoutinterval
-        self.device._setROParam('nextupdate', expected_update + 10)
+        self.device._next_update = expected_update + 10
         assert self.device.is_process_running()
 
     def test_x5f2_status_is_processed(self):

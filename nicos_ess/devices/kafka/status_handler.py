@@ -69,13 +69,6 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                 type=tupleof(int, str),
                 settable=True,
             ),
-        'nextupdate':
-            Param(
-                'Time when the next message is expected',
-                type=int,
-                internal=True,
-                settable=True,
-            ),
         'statusinterval':
             Param(
                 'Expected time (secs) interval for the status message updates',
@@ -85,6 +78,8 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                 internal=True,
             ),
     }
+
+    _next_update = 0
 
     parameter_overrides = {
         'unit': Override(mandatory=False, userparam=False),
@@ -97,7 +92,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
 
         # Be pessimistic and assume the process is down, if the process
         # is up then the status will be remedied quickly.
-        self._setROParam('nextupdate', currenttime())
+        self._next_update = currenttime()
 
         if self._mode == MASTER:
             self._setROParam('curstatus',
@@ -118,11 +113,8 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                 msg = deserialise_x5f2(message)
                 js = json.loads(msg.status_json) if msg.status_json else {}
                 js['update_interval'] = msg.update_interval
-                self._setROParam('statusinterval', msg.update_interval // 1000)
                 json_messages[timestamp] = js
-                next_update = currenttime() + self.statusinterval
-                if next_update > self.nextupdate:
-                    self._setROParam('nextupdate', next_update)
+                self._set_next_update(msg.update_interval)
             except Exception as e:
                 self.log.warning(
                     'Could not decode message from status topic: %s', e)
@@ -137,7 +129,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
 
     def is_process_running(self):
         # Allow some leeway in case of message lag.
-        if currenttime() > self.nextupdate + self.timeoutinterval:
+        if currenttime() > self._next_update + self.timeoutinterval:
             return False
         return True
 
@@ -148,10 +140,10 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         :param messages: dict of timestamp and message in JSON format
         """
 
-    def _set_next_update(self, message):
-        if 'update_interval' in message:
-            self._setROParam('statusinterval',
-                             message['update_interval'] // 1000)
-            next_update = currenttime() + self.statusinterval
-            if next_update > self.nextupdate:
-                self._setROParam('nextupdate', next_update)
+    def _set_next_update(self, update_interval):
+        update_interval = update_interval // 1000
+        if self.statusinterval != update_interval:
+            self._setROParam('statusinterval', update_interval)
+        next_update = currenttime() + self.statusinterval
+        if next_update > self._next_update:
+            self._next_update = next_update

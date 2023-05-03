@@ -63,7 +63,6 @@ class EpicsKafkaForwarder(KafkaStatusHandler):
         if not message:
             return
 
-        self._set_next_update(message)
         self._forwarded = {
             stream["channel_name"]
             for stream in message["streams"]
