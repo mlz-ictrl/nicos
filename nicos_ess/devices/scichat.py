@@ -23,7 +23,7 @@
 # *****************************************************************************
 import json
 
-from kafka import KafkaProducer
+from confluent_kafka import Producer
 
 from nicos import session
 from nicos.core import Device, Param, host, listof, usermethod
@@ -56,14 +56,18 @@ class ScichatBot(Device):
     def doInit(self, mode):
         if mode == SIMULATION:
             return
-        self._producer = KafkaProducer(bootstrap_servers=self.brokers)
+        self._producer = self._create_producer()
+
+    def _create_producer(self):
+        config = {"bootstrap.servers": ','.join(self.brokers)}
+        return Producer(**config)
 
     @usermethod
     def send(self, message):
         """Send the message to SciChat"""
         if not self._producer:
             return
-        self._producer.send(self.scichat_topic, self._create_message(message))
+        self._producer.produce(self.scichat_topic, self._create_message(message))
         self._producer.flush()
 
     def _create_message(self, message):
