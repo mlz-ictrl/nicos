@@ -5,7 +5,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'hermes',
     experiment = 'Exp',
-    datasinks = ['conssink', 'daemonsink', 'liveviewsink'],
+    datasinks = ['conssink', 'daemonsink', 'filesink', 'liveviewsink'],
     notifiers = ['email'],
 )
 
@@ -47,6 +47,12 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
+    ),
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
+        description = 'Device storing scanfiles in Ascii output format.',
+        filenametemplate = ['%(session.experiment.users)s_'
+                            '%(session.experiment.sample.filename)s_'
+                            '%(scancounter)s.dat'],
     ),
     liveviewsink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Device showing live data during measurements.',
