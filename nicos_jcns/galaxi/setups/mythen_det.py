@@ -37,10 +37,9 @@ devices = dict(
     mythen_imagesink = device('nicos_jcns.devices.dectris.MYTHENImageSink',
         description = 'Saves image data of the MYTHEN detector in a text '
         'file.',
-        filenametemplate = [
-            '%(Exp.users)s_%(session.experiment.sample.filename)s_'
-            '%(scancounter)s.%(pointnumber)s.mythen'
-        ],
+        filenametemplate = ['%(session.experiment.users)s_'
+                            '%(session.experiment.sample.filename)s_'
+                            '%(scancounter)s.%(pointnumber)s.mythen'],
         detectors = ['mythen'],
     ),
 )
