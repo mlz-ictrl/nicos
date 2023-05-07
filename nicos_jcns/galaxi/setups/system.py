@@ -58,11 +58,9 @@ devices = dict(
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         description = 'Device storing scanfiles in Ascii output format.',
-        filenametemplate = [
-            '%(session.experiment.users)s_'
-            '%(session.experiment.sample.filename)s_'
-            '%(session.experiment.lastscan)s.dat'
-        ],
+        filenametemplate = ['%(session.experiment.users)s_'
+                            '%(session.experiment.sample.filename)s_'
+                            '%(scancounter)s.dat'],
     ),
     liveviewsink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Device showing live data during measurements.',

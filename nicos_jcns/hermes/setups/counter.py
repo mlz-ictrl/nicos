@@ -38,7 +38,7 @@ devices = dict(
     ),
     tofcounter = device('nicos_jcns.hermes.devices.n110_counter.TOFChannel',
         description = 'N110 counter card with 5 time-of-flight channels.',
-        tangodevice = tango_base + 'n110_counter/channels',
+        tangodevice = tango_base + 'n110_counter/tof_channel',
     ),
     tofcounter_rate = device('nicos.devices.generic.RateChannel',
         description = 'Full N110 counts and rate',

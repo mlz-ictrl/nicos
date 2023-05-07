@@ -6,6 +6,8 @@ devices = dict(
         mailserver = 'mail.fz-juelich.de',
         sender = 'hermes@fz-juelich.de',
         copies = [
+            ('mariano-andres.paulin@cea.fr', 'all'),
+            ('frederic.ott@cea.fr', 'important'),
             ('j.baggemann@fz-juelich.de', 'important'),
             ('u.ruecker@fz-juelich.de', 'all'),
             ('a.steffens@fz-juelich.de', 'all'),

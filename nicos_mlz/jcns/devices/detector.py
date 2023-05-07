@@ -57,8 +57,8 @@ class RateImageChannel(ImageChannel):
     }
 
     def doInit(self, mode):
-        ImageChannel.doInit(self, mode)
         self._rate_data = [0, 0]
+        ImageChannel.doInit(self, mode)
 
     def doReadArray(self, quality):
         narray = ImageChannel.doReadArray(self, quality)

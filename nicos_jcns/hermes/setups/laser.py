@@ -7,6 +7,6 @@ devices = dict(
     laser = device('nicos.devices.entangle.NamedDigitalOutput',
         tangodevice = tango_base + 'euromove_motor/laser',
         description = 'Laser transversal translation.',
-        mapping = {'in': 1010, 'out': 1030},
+        mapping = {'in': 20 , 'out': 0},
     ),
 )
