@@ -107,6 +107,7 @@ Instrument-specific code was contributed by:
 * Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>
 * Tobias Schrader <t.schrader@fz-juelich.de>
 * Michael Schulz <michael.schulz@frm2.tum.de>
+* Simon Sebold <simon.sebold@frm2.tum.de>
 * Sandra Seger <sandra.seger@frm2.tum.de>
 * Anatoliy Senyshyn <anatoliy.senyshyn@frm2.tum.de>
 * Oleg Sobolev <oleg.sobolev@frm2.tum.de>

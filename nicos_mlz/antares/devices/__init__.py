@@ -29,6 +29,7 @@ from nicos_mlz.antares.devices.collimator import CollimatorLoverD, \
 from nicos_mlz.antares.devices.experiment import Experiment
 from nicos_mlz.antares.devices.monochromator import Monochromator
 from nicos_mlz.antares.devices.selector import SelectorTilt
+from nicos_mlz.antares.devices.toellner import ToellnerDc
 
 
 class TriggerTimer(VirtualTimer):
