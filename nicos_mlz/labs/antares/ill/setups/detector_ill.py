@@ -2,7 +2,7 @@ description = 'External ILL camera'
 
 group = 'optional'
 
-excludes = ['detector_neo']
+excludes = ['detector_neo', 'hicamfluo_acquisition_trigger']
 
 devices = dict(
     fastshutter_io = device('nicos.devices.generic.manual.ManualSwitch',
@@ -18,13 +18,13 @@ devices = dict(
         unit = '',
     ),
     trigger_hw = device('nicos.devices.entangle.DigitalOutput',
-        tangodevice = 'tango://192.168.20.65:10000/box/piface/out_0',
+        tangodevice = 'tango://192.168.20.65:10000/box/piface/out_1',
         visibility = (),
     ),
     trigger = device('nicos.devices.generic.Pulse',
         description = 'Camera trigger',
-        onvalue = 0,
-        offvalue = 1,
+        onvalue = 1,
+        offvalue = 0,
         ontime = 0.1,
         moveable = 'trigger_hw',
         visibility = (),
@@ -38,3 +38,7 @@ devices = dict(
         timers = ['timer_ill'],
     ),
 )
+
+startup_code = """
+SetDetectors(det_ill)
+"""

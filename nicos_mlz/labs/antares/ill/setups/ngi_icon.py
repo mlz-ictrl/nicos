@@ -1,10 +1,12 @@
-description = 'Neutron Grating Interferometer'
+description = 'Neutron Grating Interferometer at ICON'
 
 group = 'optional'
 
-excludes = ['ngi', 'neutrosense', 'ngi_icon']
+excludes = ['ngi']
 
 tango_base = 'tango://192.168.20.64:10000/box/'
+
+tango_base = 'tango://172.28.77.82:10000/box/'
 
 devices = dict(
     G0rz = device('nicos.devices.entangle.Motor',
@@ -50,13 +52,13 @@ devices = dict(
         pollinterval = 3,
         precision = 0.001,
     ),
-    sry = device('nicos.devices.entangle.Motor',
+    stz = device('nicos.devices.entangle.Motor',
         speed = 5,
-        unit = 'deg',
-        description = 'Sample rotation',
-        tangodevice = tango_base + 'phytron5/mot',
-        abslimits = (-999, 999),
-        userlimits = (-999, 999),
+        unit = 'mm',
+        description = 'Sample translation parallel to the beam direction',
+        tangodevice = tango_base + 'phytron8/mot',
+        abslimits = (0, 295),
+        userlimits = (0, 295),
         maxage = 5,
         pollinterval = 3,
         precision = 0.001,

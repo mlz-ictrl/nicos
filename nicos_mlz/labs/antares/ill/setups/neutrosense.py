@@ -38,5 +38,17 @@ devices = dict(
         pollinterval = 3,
         precision = 0.1,
     ),
+    scintillatortz = device('nicos.devices.entangle.Motor',
+        speed = 100,
+        unit = 'um',
+        description = 'Translation of scintillator for microscope setup',
+        tangodevice = tango_base + 'phytron4/mot',
+        abslimits = (-12500, 12500),
+        userlimits = (-12500, 12500),
+        maxage = 5,
+        pollinterval = 3,
+        precision = 0.1,
+    ),
+
 )
 
