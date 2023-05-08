@@ -15,7 +15,6 @@ devices = dict(
             mode = 'voltage',
             input_range = '10V',
             amplitude = 'ch1_amplitude',
-            # frequency = 'ch1_frequency',
             pollinterval = 0.5,
             maxage = 5,
             abslimits = (-20,20),
