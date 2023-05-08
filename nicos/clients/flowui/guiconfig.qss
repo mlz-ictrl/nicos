@@ -541,6 +541,10 @@ CommandLineEdit[state="BUSY"] {
     background-color: #ffdddd;
 }
 
+Panel[panel='DevicesPanel'] QComboBox {
+    background-color: white;
+}
+
 Panel[panel='ExpPanel'] QLineEdit::focus,
 Panel[panel='ExpPanel'] QPlainTextEdit::focus {
     border: 1px solid #0094ca;
@@ -569,6 +573,10 @@ Panel[panel='CommandPanel'] QPushButton {
     width:80px;
 }
 
+Panel[panel='CommandPanel'] * {
+    background-color: white;
+}
+
 LiveWidgetWrapper:title {
     subcontrol-origin: margin;
     subcontrol-position: top center;
@@ -594,4 +602,10 @@ QScrollBar:vertical {
 QScrollBar:horizontal {
     width: 10px;
     background-color: none;
+}
+
+/* For Auth Dialog */
+QDialog QComboBox {
+    color: black;
+    background-color: white;
 }
