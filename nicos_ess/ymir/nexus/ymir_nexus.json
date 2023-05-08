@@ -55,6 +55,14 @@
           ],
           "children": [
             {
+              "module": "dataset",
+              "config": {
+                "name": "name",
+                "values": "YMIR",
+                "type": "string"
+              }
+            },
+            {
               "name": "light_source",
               "type": "group",
               "attributes": [
