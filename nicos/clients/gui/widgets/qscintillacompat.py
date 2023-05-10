@@ -24,6 +24,7 @@
 
 """NICOS GUI user editor qscintilla compat edit widget."""
 
+from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QColor, QPainter, QPlainTextEdit, QRect, \
     QSize, Qt, QTextCursor, QTextDocument, QTextEdit, QTextFormat, QWidget
 
@@ -65,7 +66,7 @@ class QScintillaCompatible(QPlainTextEdit):
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.lineNumberArea)
-        painter.fillRect(event.rect(), Qt.GlobalColor.lightGray)
+        painter.fillRect(event.rect(), colors.switch_color(Qt.GlobalColor.lightGray, colors.base.lighter(130)))
 
         block = self.firstVisibleBlock()
         blockNumber = block.blockNumber()
@@ -76,7 +77,7 @@ class QScintillaCompatible(QPlainTextEdit):
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(blockNumber + 1)
-                painter.setPen(Qt.GlobalColor.black)
+                painter.setPen(colors.text)
                 painter.drawText(0, top, self.lineNumberArea.width(),
                                  self.fontMetrics().height(),
                                  Qt.AlignmentFlag.AlignRight, number)
@@ -106,7 +107,8 @@ class QScintillaCompatible(QPlainTextEdit):
 
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-            lineColor = QColor(Qt.GlobalColor.yellow).lighter(160)
+            lineColor = colors.switch_color(Qt.GlobalColor.yellow.lighter(160),
+                                            colors.base.lighter(140))
 
             selection.format.setBackground(lineColor)
             selection.format.setProperty(

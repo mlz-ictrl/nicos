@@ -24,59 +24,22 @@
 
 """NICOS GUI panel with a list of all devices."""
 
-from os import path
 from logging import WARNING
+from os import path
 
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import ScriptExecQuestion, dialogFromUi, loadUi
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
-from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
-    QCursor, QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
+from nicos.guisupport.colors import colors
+from nicos.guisupport.qt import QBrush, QByteArray, QComboBox, QCursor, \
+    QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
     QMessageBox, QPalette, QPushButton, QRegularExpression, Qt, \
     QTreeWidgetItem, pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.utils import AttrDict
-
-foregroundBrush = {
-    OK:         QBrush(QColor('#00aa00')),
-    WARN:       QBrush(Qt.GlobalColor.black),
-    BUSY:       QBrush(Qt.GlobalColor.black),
-    NOTREACHED: QBrush(Qt.GlobalColor.black),
-    DISABLED:   QBrush(Qt.GlobalColor.black),
-    ERROR:      QBrush(Qt.GlobalColor.black),
-    UNKNOWN:    QBrush(QColor('#cccccc')),
-}
-
-backgroundBrush = {
-    OK:         QBrush(),
-    WARN:       QBrush(QColor('#ffa500')),
-    BUSY:       QBrush(Qt.GlobalColor.yellow),
-    NOTREACHED: QBrush(QColor('#ff6655')),
-    DISABLED:   QBrush(QColor('#bbbbbb')),
-    ERROR:      QBrush(QColor('#ff6655')),
-    UNKNOWN:    QBrush(),
-}
-
-# keys: (expired, fixed)
-valueBrush = {
-    (False, False):  QBrush(),
-    (False, True):   QBrush(Qt.GlobalColor.blue),
-    (True, False):   QBrush(QColor('#aaaaaa')),
-    (True, True):    QBrush(QColor('#aaaaaa')),
-}
-
-lowlevelBrush = {
-    False:      QBrush(Qt.GlobalColor.black),
-    True:       QBrush(QColor('#666666')),
-}
-
-lowlevelFont = {
-    False:      QFont(),
-    True:       QFont(QFont().family(), -1, -1, True),
-}
 
 # QTreeWidgetItem types
 SETUP_TYPE = QTreeWidgetItem.ItemType.UserType
@@ -197,7 +160,7 @@ class DevicesPanel(Panel):
     ui = path.join('panels', 'devices.ui')
 
     @classmethod
-    def _createIcons(cls):
+    def _createResources(cls):
         # hack to make non-Qt usage as in checksetups work
         if not hasattr(cls, 'statusIcon'):
             cls.statusIcon = {
@@ -210,12 +173,50 @@ class DevicesPanel(Panel):
                 UNKNOWN: QIcon(':/leds/status_unknown'),
             }
 
+            cls.fgBrush = {
+                OK:         QBrush(colors.dev_fg_ok),
+                WARN:       QBrush(colors.text),
+                BUSY:       QBrush(colors.text),
+                NOTREACHED: QBrush(colors.text),
+                DISABLED:   QBrush(colors.text),
+                ERROR:      QBrush(colors.text),
+                UNKNOWN:    QBrush(colors.dev_fg_unknown),
+            }
+
+            cls.bgBrush = {
+                OK:         QBrush(),
+                WARN:       QBrush(colors.dev_bg_warning),
+                BUSY:       QBrush(colors.dev_bg_busy),
+                NOTREACHED: QBrush(colors.dev_bg_error),
+                DISABLED:   QBrush(colors.dev_bg_disabled),
+                ERROR:      QBrush(colors.dev_bg_error),
+                UNKNOWN:    QBrush(),
+            }
+
+            # keys: (expired, fixed)
+            cls.valueBrush = {
+                (False, False):  QBrush(),
+                (False, True):   QBrush(colors.value_fixed),
+                (True, False):   QBrush(colors.value_expired),
+                (True, True):    QBrush(colors.value_expired),
+            }
+
+            cls.lowlevelBrush = {
+                False:      QBrush(colors.text),
+                True:       QBrush(colors.lowlevel),
+            }
+
+            cls.lowlevelFont = {
+                False:      QFont(),
+                True:       QFont(QFont().family(), -1, -1, True),
+            }
+
     @property
     def groupIcon(self):
         return QIcon(':/setup')
 
     def __init__(self, parent, client, options):
-        DevicesPanel._createIcons()
+        DevicesPanel._createResources()
         Panel.__init__(self, parent, client, options)
         loadUi(self, self.ui)
         self.useicons = bool(options.get('icons', True))
@@ -441,8 +442,8 @@ class DevicesPanel(Panel):
         # create a tree node for the device
         devitem = QTreeWidgetItem(catitem, [devname, '', '', ''], DEVICE_TYPE)
 
-        devitem.setForeground(0, lowlevelBrush[lowlevel_device])
-        devitem.setFont(0, lowlevelFont[lowlevel_device])
+        devitem.setForeground(0, self.lowlevelBrush[lowlevel_device])
+        devitem.setFont(0, self.lowlevelFont[lowlevel_device])
 
         if failure:
             short_failure = failure.split('\n')[0]
@@ -540,7 +541,8 @@ class DevicesPanel(Panel):
             devitem.setText(1, fmted)
             if ldevname in self._control_dialogs:
                 self._control_dialogs[ldevname].valuelabel.setText(fmted)
-            devitem.setForeground(1, valueBrush[devinfo.expired, devinfo.fixed])
+            devitem.setForeground(
+                1, self.valueBrush[devinfo.expired, devinfo.fixed])
             if not devitem.parent().isExpanded():
                 if ldevname == devitem.parent().representative:
                     devitem.parent().setText(1, fmted)
@@ -571,23 +573,23 @@ class DevicesPanel(Panel):
                 return
             if self.useicons:
                 devitem.setIcon(0, self.statusIcon[status[0]])
-                devitem.setForeground(3, foregroundBrush[status[0]])
-                devitem.setBackground(3, backgroundBrush[status[0]])
+                devitem.setForeground(3, self.fgBrush[status[0]])
+                devitem.setBackground(3, self.bgBrush[status[0]])
             else:
-                devitem.setForeground(0, foregroundBrush[BUSY])
-                devitem.setBackground(0, backgroundBrush[status[0]])
+                devitem.setForeground(0, self.fgBrush[BUSY])
+                devitem.setBackground(0, self.bgBrush[status[0]])
             if not devitem.parent().isExpanded():
                 item = devitem.parent()
-                item.setBackground(0, backgroundBrush[
+                item.setBackground(0, self.bgBrush[
                     self._getHighestStatus(item)])
             else:
-                devitem.parent().setBackground(0, backgroundBrush[OK])
+                devitem.parent().setBackground(0, self.bgBrush[OK])
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 dlg.statuslabel.setText(status[1])
                 dlg.statusimage.setPixmap(self.statusIcon[status[0]].pixmap(16, 16))
-                setForegroundBrush(dlg.statuslabel, foregroundBrush[status[0]])
-                setBackgroundBrush(dlg.statuslabel, backgroundBrush[status[0]])
+                setForegroundBrush(dlg.statuslabel, self.fgBrush[status[0]])
+                setBackgroundBrush(dlg.statuslabel, self.bgBrush[status[0]])
         elif subkey == 'fmtstr':
             if not value:
                 return
@@ -604,7 +606,8 @@ class DevicesPanel(Panel):
             if not value:
                 value = "''"
             devinfo.fixed = bool(cache_load(value))
-            devitem.setForeground(1, valueBrush[devinfo.expired, devinfo.fixed])
+            devitem.setForeground(
+                1, self.valueBrush[devinfo.expired, devinfo.fixed])
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 if dlg.moveBtn:
@@ -647,7 +650,7 @@ class DevicesPanel(Panel):
     def on_tree_itemExpanded(self, item):
         if item.type() == SETUP_TYPE:
             item.setText(1, '')
-        item.setBackground(0, backgroundBrush[OK])
+        item.setBackground(0, self.bgBrush[OK])
 
     def _getHighestStatus(self, item):
         retval = OK
@@ -658,7 +661,7 @@ class DevicesPanel(Panel):
 
     def on_tree_itemCollapsed(self, item):
         if item.type() == SETUP_TYPE:
-            item.setBackground(0, backgroundBrush[self._getHighestStatus(item)])
+            item.setBackground(0, self.bgBrush[self._getHighestStatus(item)])
             if item.representative:
                 item.setText(1, self._devitems[item.representative].text(1))
 
@@ -885,8 +888,8 @@ class ControlDialog(QDialog):
                     # display non-userparams in grey italics, like lowlevel
                     # devices in the device list
                     if not is_userparam:
-                        item.setFont(0, lowlevelFont[True])
-                        item.setForeground(0, lowlevelBrush[True])
+                        item.setFont(0, self.device_panel.lowlevelFont[True])
+                        item.setForeground(0, self.device_panel.lowlevelBrush[True])
 
         # set description label
         if params.get('description'):

@@ -25,13 +25,11 @@
 """NICOS GUI command input widgets."""
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAbstractSpinBox, QColor, Qt, QWidget, \
-    pyqtSignal
+from nicos.guisupport.colors import colors
+from nicos.guisupport.qt import QAbstractSpinBox, QWidget, pyqtSignal
 from nicos.guisupport.typedvalue import DeviceParamEdit
 from nicos.guisupport.utils import DoubleValidator, setBackgroundColor
 from nicos.utils import findResource, formatDuration
-
-invalid = QColor('#ffcccc')
 
 
 def isFloat(ctl, minval=None, maxval=None, conv=float):
@@ -130,9 +128,9 @@ class Cmdlet(QWidget):
         For use in isValid().
         """
         if condition:
-            setBackgroundColor(ctl, Qt.GlobalColor.white)
+            setBackgroundColor(ctl, colors.palette.window().color())
         else:
-            setBackgroundColor(ctl, invalid)
+            setBackgroundColor(ctl, colors.invalid)
         if isinstance(ctl, QAbstractSpinBox):
             # also mark the inner line-edit
             return self.markValid(ctl.lineEdit(), condition)

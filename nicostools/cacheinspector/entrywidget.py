@@ -25,15 +25,12 @@
 import time
 from os import path
 
-from nicos.guisupport.qt import QCheckBox, QColor, QDialog, QLineEdit, \
-    QMessageBox, QSizePolicy, QSpacerItem, QTimer, pyqtProperty, pyqtSlot, \
-    uic
+from nicos.guisupport.colors import colors
+from nicos.guisupport.qt import QCheckBox, QDialog, QLineEdit, QMessageBox, \
+    QSizePolicy, QSpacerItem, QTimer, pyqtProperty, pyqtSlot, uic
 from nicos.guisupport.utils import setBackgroundColor
 
 from nicostools.cacheinspector.editdlg import EntryEditDialog
-
-ttlColor = QColor(0xff, 0xfa, 0x66)
-expiredColor = QColor(0xce, 0x9b, 0x9b)
 
 
 class ReadOnlyCheckBox(QCheckBox):
@@ -134,9 +131,9 @@ class EntryWidget(base_class, ui_class):
         entry = self.entry
 
         if entry.expired:
-            setBackgroundColor(self, expiredColor)
+            setBackgroundColor(self, colors.expired_color)
         elif entry.ttl:
-            setBackgroundColor(self, ttlColor)
+            setBackgroundColor(self, colors.ttl_color)
 
         if isinstance(self.widgetValue, ReadOnlyCheckBox):
             self.widgetValue.setChecked(entry.value == 'True')

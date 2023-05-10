@@ -32,6 +32,7 @@ from time import time as currenttime
 
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN, statuses
+from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QColor, QFontMetrics, QFrame, QHBoxLayout, \
     QLabel, QPixmap, QSize, Qt, QTimer, QVBoxLayout, QWidget, pyqtSignal, \
     sip
@@ -170,7 +171,7 @@ class ValueLabel(SqueezedLabel):
         if expired:
             setForegroundColor(self, QColor('grey'))
         else:
-            setForegroundColor(self, QColor('black'))
+            setForegroundColor(self, colors.text)
             self.setText(self._callback(value, strvalue))
 
 

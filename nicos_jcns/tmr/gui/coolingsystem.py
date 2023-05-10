@@ -23,22 +23,19 @@
 
 from os import path
 
-from nicos.clients.gui.panels.devices import DEVICE_TYPE, DevicesPanel, \
-    backgroundBrush, valueBrush
+from nicos.clients.gui.panels.devices import DEVICE_TYPE, DevicesPanel
 from nicos.clients.gui.panels.generic import GenericPanel
-from nicos.core.status import ERROR, OK, UNKNOWN, WARN, statuses
+from nicos.core.status import ERROR, OK, UNKNOWN, WARN, BUSY, NOTREACHED, \
+    DISABLED, statuses
 from nicos.core.utils import ACCESS_LEVELS, GUEST
 # pylint: disable=no-name-in-module
 from nicos.guisupport.qt import QBrush, QColorConstants, QLinearGradient, \
     QPainter, QPen, QPixmap, QPointF, QRectF, Qt, QTextOption, \
     QTreeWidgetItem, QWidget
 # pylint: enable=no-name-in-module
+from nicos.guisupport.colors import colors
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import AttrDict
-
-STATUS_BRUSH = dict(backgroundBrush)
-STATUS_BRUSH.update({OK: QBrush(Qt.white),
-                     UNKNOWN: QBrush(QColorConstants.Svg.olive)})
 
 SENSOR_ICON = dict(T='thermometer', P='gauge-meter', MF='gauge-meter')
 MAX_WATER_LEVEL = 0.5
@@ -82,6 +79,22 @@ class Widget(NicosWidget, QWidget):
 
     def __init__(self, parent, _designMode=False):
         QWidget.__init__(self, parent)
+        DevicesPanel._createResources()
+        self.statusBrush = {
+            OK:         QBrush(Qt.GlobalColor.white),
+            WARN:       QBrush(colors.dev_bg_warning),
+            BUSY:       QBrush(colors.dev_bg_busy),
+            NOTREACHED: QBrush(colors.dev_bg_error),
+            DISABLED:   QBrush(colors.dev_bg_disabled),
+            ERROR:      QBrush(colors.dev_bg_error),
+            UNKNOWN:    QBrush(QColorConstants.Svg.olive),
+        }
+        self.valueBrush = {
+            (False, False):  QBrush(),
+            (False, True):   QBrush(colors.value_fixed),
+            (True, False):   QBrush(colors.value_expired),
+            (True, True):    QBrush(colors.value_expired),
+        }
         NicosWidget.__init__(self)
         self._doubleclick = False
         # list of all widget devices
@@ -202,8 +215,8 @@ class Widget(NicosWidget, QWidget):
         :return QColor or int: Qt colour object or constant to use for ``dev``
           value visualisation
         """
-        colour = valueBrush[self.devinfo[dev].expired,
-                            bool(self.devinfo[dev].fixed)].color()
+        colour = self.valueBrush[self.devinfo[dev].expired,
+                                 bool(self.devinfo[dev].fixed)].color()
         return colour if colour.value() else default
 
     def paintEvent(self, event):
@@ -659,7 +672,7 @@ class Widget(NicosWidget, QWidget):
         margin = 0.25
         size_pen = 0.025 * size
         qp.setPen(Qt.NoPen)
-        qp.setBrush(STATUS_BRUSH[devinfo.status[0]])
+        qp.setBrush(self.statusBrush[devinfo.status[0]])
         # outer circle with status colour
         qp.drawEllipse(QRectF(x, y - 0.5 * size, size, size))
         # pump symbol
@@ -737,7 +750,7 @@ class Widget(NicosWidget, QWidget):
         self._draw_text(qp, x - 1.4 * size, y + 2.4 * size,
                         width=2.8 * size, height=0.75 * size,
                         text=value, align=Qt.AlignCenter,
-                        brush=STATUS_BRUSH[devinfo.status[0]],
+                        brush=self.statusBrush[devinfo.status[0]],
                         pen_rect=Qt.black,
                         pen_text=self._get_value_colour(dev))
         qp.restore()
@@ -832,7 +845,7 @@ class Widget(NicosWidget, QWidget):
             x, y = self._draw_rect(qp, x - size_icon, y - 0.5 * size_icon,
                                    width=size_icon, height=size_icon,
                                    rounded=True,
-                                   brush=STATUS_BRUSH[devinfo.status[0]],
+                                   brush=self.statusBrush[devinfo.status[0]],
                                    pen=Qt.black)
             # inner rect with warning/error icons if applicable
             size_inner = 0.75 * size_icon
@@ -867,7 +880,7 @@ class Widget(NicosWidget, QWidget):
                             width=size + 0.5 * size_connector,
                             height=0.5 * size, text=f'{int(value)} %',
                             align=Qt.AlignCenter,
-                            brush=STATUS_BRUSH[devinfo.status[0]],
+                            brush=self.statusBrush[devinfo.status[0]],
                             pen_rect=Qt.black,
                             pen_text=self._get_value_colour(dev))
         qp.restore()
@@ -967,7 +980,7 @@ class Widget(NicosWidget, QWidget):
         if devinfo.status[0] != OK:
             qp.setOpacity(0.5)
             self._draw_rect(qp, x, y, width=width, height=height,
-                            rounded=2, brush=STATUS_BRUSH[devinfo.status[0]])
+                            rounded=2, brush=self.statusBrush[devinfo.status[0]])
             if devinfo.status[0] in (WARN, ERROR):
                 size = 0.2 * height
                 self._draw_pixmap(qp, statuses[devinfo.status[0]],
@@ -1028,7 +1041,7 @@ class Widget(NicosWidget, QWidget):
                 qp.setOpacity(0.5)
                 self._draw_rect(qp, x, y, width=width_dev, height=height,
                                 rounded=2,
-                                brush=STATUS_BRUSH[devinfo.status[0]])
+                                brush=self.statusBrush[devinfo.status[0]])
                 if devinfo.status[0] in (WARN, ERROR):
                     size = 0.1 * height
                     self._draw_pixmap(qp, statuses[devinfo.status[0]],

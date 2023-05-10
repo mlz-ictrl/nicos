@@ -25,6 +25,7 @@
 from os import path
 from os.path import join
 
+from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QDialog, QMainWindow, Qt, QTreeWidgetItem, \
     QWidgetItem, uic
 from nicos.guisupport.utils import setBackgroundColor
@@ -32,7 +33,7 @@ from nicos.guisupport.utils import setBackgroundColor
 # The pylint errors must be fixed, but later
 from .connectdlg import ConnectDialog
 from .editdlg import EntryEditDialog
-from .entrywidget import EntryWidget, expiredColor, ttlColor
+from .entrywidget import EntryWidget
 from .watcher import WatcherWindow
 
 
@@ -40,6 +41,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, cacheclient, parent=None):
         QMainWindow.__init__(self)
+        colors.init_palette(self.palette())
         self.client = cacheclient
         self._treeitems = {}
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
@@ -51,8 +53,8 @@ class MainWindow(QMainWindow):
         self.showTimeStamp = True
         self.showTTL = True
 
-        setBackgroundColor(self.labelDemoTTL, ttlColor)
-        setBackgroundColor(self.labelDemoExpired, expiredColor)
+        setBackgroundColor(self.labelDemoTTL, colors.ttl_color)
+        setBackgroundColor(self.labelDemoExpired, colors.expired_color)
 
     def setupEvents(self):
         """Sets up all events."""

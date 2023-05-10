@@ -27,6 +27,7 @@
 import re
 
 from nicos.clients.gui.utils import ScriptExecQuestion
+from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QApplication, QColor, QCompleter, QEvent, \
     QKeyEvent, QLineEdit, QMessageBox, QPalette, QRegularExpression, \
     QRegularExpressionValidator, QStringListModel, Qt, pyqtSignal
@@ -47,10 +48,10 @@ class HistoryLineEdit(QLineEdit):
 
     def __init__(self, parent, history=None):
         QLineEdit.__init__(self, parent)
-        self.run_color = QColor('#ffdddd')
-        self.idle_color = self.palette().color(QPalette.ColorRole.Base)
-        self.active_fgcolor = QColor('#000000')
-        self.inactive_fgcolor = QColor('#c9c9c9')
+        self.run_color = colors.cmd_running
+        self.idle_color = colors.base
+        self.active_fgcolor = colors.text
+        self.inactive_fgcolor = colors.cmd_inactive
         self.error_fgcolor = QColor("#ff0000")
         self.history = history or []
         self.scrollWidget = None
