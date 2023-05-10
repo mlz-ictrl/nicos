@@ -2,7 +2,7 @@ description = 'elliptical neutron guide nose'
 
 group = 'optional'
 
-tango_base = 'tango://ng-focus.toftof.frm2:10000/box/'
+tango_base = 'tango://ng-focus.toftof.frm2.tum.de:10000/box/'
 
 devices = dict(
     ng_left = device('nicos.devices.entangle.Motor',

@@ -2,7 +2,7 @@ description = 'Setup for the pressure cell'
 
 group = 'optional'
 
-nethost = 'toftofsrv.toftof.frm2'
+nethost = 'toftofsrv.toftof.frm2.tum.de'
 
 devices = dict(
     P = device('nicos.devices.taco.AnalogInput',

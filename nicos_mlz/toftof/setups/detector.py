@@ -2,7 +2,7 @@ description = 'TOF counter devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://cpci3.toftof.frm2:10000/'
+tango_base = 'tango://cpci3.toftof.frm2.tum.de:10000/'
 
 devices = dict(
     timer = device('nicos.devices.entangle.TimerChannel',
