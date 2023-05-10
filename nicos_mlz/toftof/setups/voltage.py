@@ -2,11 +2,11 @@ description = 'low and high voltage power supplies for detector'
 
 group = 'lowlevel'
 
-tango_host = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/'
+tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/'
 
 devices = dict(
     lvbus = device('nicos_mlz.toftof.devices.ToniBus',
-        tangodevice = tango_host + 'rs232/ifpowersupply',
+        tangodevice = tango_base + 'rs232/ifpowersupply',
         visibility = (),
     ),
     lv0 = device('nicos_mlz.toftof.devices.LVPower',
@@ -76,13 +76,13 @@ devices = dict(
     hv0 = device('nicos.devices.entangle.PowerSupply',
         description = 'ISEG HV power supply 1',
         requires = {'level': 'admin'},
-        tangodevice = tango_host + 'iseg1/voltage',
+        tangodevice = tango_base + 'iseg1/voltage',
         ramp = 120,
     ),
     hv1 = device('nicos.devices.entangle.PowerSupply',
         description = 'ISEG HV power supply 2',
         requires = {'level': 'admin'},
-        tangodevice = tango_host + 'iseg2/voltage',
+        tangodevice = tango_base + 'iseg2/voltage',
         ramp = 120,
     ),
 )

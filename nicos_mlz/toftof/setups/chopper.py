@@ -4,13 +4,13 @@ group = 'lowlevel'
 
 includes = ['choppermemograph']
 
-tango_host = 'tango://tofhw.toftof.frm2.tum.de:10000/'
+tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/rs232/'
 
 devices = dict(
     ch = device('nicos_mlz.toftof.devices.Controller',
         description = 'TOFTOF chopper control device',
         io = device('nicos.devices.entangle.StringIO',
-            tangodevice = tango_host + 'toftof/rs232/ifchcontrol',
+            tangodevice = tango_base + 'ifchcontrol',
         ),
         speed_accuracy = 10,
         phase_accuracy = 10,
@@ -72,7 +72,7 @@ devices = dict(
         unit = 'rpm',
     ),
     chdelaybus = device('nicos_mlz.toftof.devices.ToniBus',
-        tangodevice = tango_host + 'toftof/rs232/ifchdelay',
+        tangodevice = tango_base + 'ifchdelay',
         visibility = (),
     ),
     chdelay = device('nicos_mlz.toftof.devices.DelayBox',
