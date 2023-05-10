@@ -9,7 +9,7 @@ devices = dict(
     ),
     Server = device('nicos.services.cache.server.CacheServer',
         db = 'DB',
-        server = 'tofhw.toftof.frm2.tum.de',
+        server = '',
         loglevel = 'info',
     ),
 )
