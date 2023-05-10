@@ -49,7 +49,7 @@ SecopMoveable, and the following parameters:
 import re
 import time
 from math import floor, log10
-from threading import Event
+from threading import Event, RLock
 
 from frappy.client import SecopClient
 from frappy.errors import CommunicationFailedError
@@ -61,7 +61,7 @@ from nicos.core.device import Device, DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import anytype, floatrange, intrange
 from nicos.core.utils import formatStatus
-from nicos.devices.secop.validators import get_validator, Secop_struct
+from nicos.devices.secop.validators import get_validator
 from nicos.utils import printTable
 from nicos.protocols.cache import cache_dump
 
@@ -175,6 +175,9 @@ class SecNodeDevice(Readable):
         'visibility_level': Param('level for visibility of created devices',
                                   type=intrange(1, 3), prefercache=False,
                                   default=1, userparam=False),
+        'async_only':  Param('True: inhibit SECoP reads on created devices, '
+                             'use events only', type=bool, prefercache=False,
+                             default=False, userparam=False),
     }
     parameter_overrides = {
         'unit': Override(default='', mandatory=False),
@@ -569,6 +572,10 @@ class SecopDevice(Device):
     }
     _defunct = False
     _cache = None
+    _inside_read = False
+    # overridden by a dict for the validators of 'value', 'status' and 'target':
+    _maintypes = None
+    __update_error_logged = False
 
     @classmethod
     def makeDevClass(cls, name, **config):
@@ -602,17 +609,16 @@ class SecopDevice(Device):
                     commands_cfg.pop(cname)  # remove commands not mentioned
         devcfg.update(config)
 
-        parameters = {}
         # create parameters and methods
-        attrs = dict(parameters=parameters, __module__=cls.__module__)
+        parameters = {}
+        # validators of special/pseudo parameters
+        maintypes = {'value': anytype, 'status': tuple, 'target': anytype}
+        attrs = dict(parameters=parameters, __module__=cls.__module__, _maintypes=maintypes)
         if 'value_datainfo' in config:
-            # we need to use staticmethod here, else it will be turned
-            # into a regular method
-            attrs['_maintype'] = staticmethod(get_validator(
-                config.pop('value_datainfo'), use_limits=False))
+            maintypes['value'] = get_validator(
+                config.pop('value_datainfo'), use_limits=False)
         if 'target_datainfo' in config:
-            # no staticmethod here, as it is applied in DeviceMeta
-            attrs['valuetype'] = get_validator(
+            attrs['valuetype'] = maintypes['target'] = get_validator(
                 config.pop('target_datainfo'), use_limits=True)
         for pname, kwargs in params_cfg.items():
             typ = get_validator(kwargs.pop('datainfo'),
@@ -627,8 +633,8 @@ class SecopDevice(Device):
             if pname == 'target':
                 continue  # special treatment of target in doReadTarget
 
-            def do_read(self, maxage=None, pname=pname, validator=typ):
-                return self._read(pname, maxage, validator)
+            def do_read(self, pname=pname):
+                return self._read(pname, None)
 
             attrs['doRead%s' % pname.title()] = do_read
 
@@ -740,6 +746,8 @@ class SecopDevice(Device):
     def __init__(self, name, **config):
         """apply modified config"""
         self._attached_secnode = None
+        self._read_lock = RLock()
+        self._pending_updates = {}
         Device.__init__(self, name, **self._modified_config)
         del self.__class__._modified_config
 
@@ -779,18 +787,46 @@ class SecopDevice(Device):
         if mode != SIMULATION:
             self._attached_secnode.registerDevice(self)
 
+    def _cache_update(self, parameter):
+        # trigger nicos cache update and trigger doRead<param>/doRead/doStatus
+        # respecting methods of mixins
+        try:
+            if parameter == 'value':
+                return self.read(0)
+            if parameter == 'status':
+                return self.status(0)
+            return getattr(self, parameter)  # trigger doRead<param>
+        except Exception as e:
+            try:
+                if self._attached_secnode._secnode.cache[
+                        self.secop_module, parameter].readerror:
+                    return  # the error is already handled
+            except Exception:
+                pass
+            if not self.__update_error_logged:
+                # just log once per device, avoid flooding log
+                self.__update_error_logged = True
+                self.log.exception(f'error {e!r} when updating {parameter}')
+
     def _update(self, module, parameter, item):
-        if parameter not in self.parameters:
+        if parameter not in self.parameters and parameter not in self._maintypes:
             return
         if item.readerror:
             if self._cache:
                 self._cache.invalidate(self, parameter)
             return
-        try:
-            # ignore timestamp for now
-            self._setROParam(parameter, item.value)
-        except Exception:
-            self.log.exception('can not set %s to %r', parameter, item.value)
+        if self._inside_read:
+            # this thread is inside secnode.getParameter.
+            # indicate to the getter that a cache update has to be done:
+            self._pending_updates[parameter] = True
+        else:
+            with self._read_lock:
+                try:
+                    # do not allow to call getParameter again
+                    self._inside_read = True
+                    self._cache_update(parameter)
+                finally:
+                    self._inside_read = False
 
     def _defunct_error(self):
         if session.devices.get(self.name) == self:
@@ -799,18 +835,64 @@ class SecopDevice(Device):
         return DefunctDevice('refers to a replaced defunct SECoP device %s'
                              % self.name)
 
-    def _read(self, param, maxage, validator):
+    @usermethod
+    def hwread(self, param='value', maxage=0):
+        """read from hw or get from secnode cache, depending on maxage
+
+        :param param: a parameter, 'value' (default) or 'status'
+        :param maxage: do not read when SECoP timestamp is more recent than
+                       indicated by maxage
+        :return: the validated value, after doRead<param> machinery
+        """
+        self._read(param, maxage, True)
+        return self._cache_update(param)
+
+    def _read(self, param, maxage=0, fromhw=True):
+        """read from hw or get from secnode cache
+
+        :param param: a parameter name, 'value' or 'status'
+        :param maxage: do not read when SECoP timestamp is more recent than
+                       indicated by maxage
+        :param fromhw: whether to read from HW or not
+                       None: called from .status() or .read():
+                       depends on secnode.async_only
+        :return: the validated value
+        """
+        try:
+            validator = self._maintypes.get(param) or self.parameters[param].type
+        except KeyError:
+            raise KeyError(f'{param} is no parameter')
         try:
             secnode = self._attached_secnode._secnode
         except AttributeError:
             raise self._defunct_error() from None
         if not secnode.online:
             raise NicosError('no SECoP connection')
+        if maxage is None:
+            fromhw = False
+        elif fromhw is None and not self._attached_secnode.async_only:
+            fromhw = True
         value, timestamp, readerror = secnode.cache[self.secop_module, param]
+        if fromhw and time.time() > (timestamp or 0) + maxage:
+            with self._read_lock:
+                if not self._inside_read:
+                    # this thread is not yet inside calling getParameter
+                    self._inside_read = True
+                    try:
+                        self._pending_updates = {}
+                        value = secnode.getParameter(self.secop_module, param)[0]
+                    finally:
+                        todo = self._pending_updates
+                        self._pending_updates = {}
+                        self._inside_read = False
+                    # updating the cache for pending updates
+                    # respecting overridden methods from mixins
+                    todo.pop(param, None)  # this is handled by the caller
+                    for pname in todo:
+                        self._cache_update(pname)
+
         if readerror:
             raise NicosError(str(readerror)) from None
-        if maxage is not None and time.time() > (timestamp or 0) + maxage:
-            value = secnode.getParameter(self.secop_module, param)[0]
         try:
             return validator(value)
         except Exception:
@@ -842,7 +924,6 @@ class SecopDevice(Device):
                 secnode._sdevs.discard(self._name)
             self._adevs = {}
             self._attached_secnode = None
-            self.updateStatus()
             self._cache = None
         self.updateStatus()
 
@@ -872,7 +953,7 @@ class SecopDevice(Device):
         # even when not a Readable, the status in the cache is updated
         # and appears in the device panel
         if self._cache:
-            self._cache.put(self, 'status', self.doStatus())
+            self._cache.put(self, 'status', self.doStatus(0))
 
     def setConnected(self, connected):
         if not connected:
@@ -886,57 +967,35 @@ class SecopReadable(SecopDevice, Readable):
         # do not force to give unit in setup file
         # (take from SECoP description)
         'unit': Override(default='', mandatory=False),
-        # maxage and pollinterval are unused as polling is done remotely
-        'maxage': Override(default=None, userparam=False),
+        # pollinterval is unused as polling is done remotely
         'pollinterval': Override(default=None, userparam=False),
     }
-    _maintype = staticmethod(anytype)
 
     def doRead(self, maxage=0):
         try:
-            return self._read('value', maxage, self._maintype)
+            return self._read('value', maxage, None)
         except NicosError:
-            st = self.doStatus()
+            st = self.doStatus(0)
             if st[0] in (status.DISABLED, status.ERROR):
                 raise NicosError(st[1]) from None
-            raise
 
     def doStatus(self, maxage=0):
         code, text = SecopDevice.doStatus(self)
         if code != status.OK:
             return code, text
-        cached = self._attached_secnode._secnode.cache.get(
-            (self.secop_module, 'status'))
-        if not cached:
-            return code, text
-        value, _, readerror = cached
-        if value is None:
-            code, text = SECOP_ERROR, str(readerror)
-        else:
-            code, text = value
+        try:
+            code, text = self._read('status', maxage, None)
+        except NicosError as e:
+            return status.ERROR, str(e)
         if 390 <= code < 400:  # SECoP status finalizing
             return status.OK, text
         # treat SECoP code 401 (unknown) as error - should be distinct from
         # NICOS status unknown
         return self.STATUS_MAP.get(code // 100, status.UNKNOWN), text
 
-    def _update_status(self, module, parameter, item):
-        self.updateStatus()
-
-    def _update_value(self, module, parameter, item):
-        if item.readerror:
-            if self._cache:
-                self._cache.invalidate(self, 'value')
-            return
-        if self._cache:
-            try:
-                # convert to nicos type (important for enums)
-                value = self._maintype(item.value)
-                self._cache.put(self, 'value', value)
-            except Exception:
-                # when this happens, probably there is an error on the SEC node
-                self.log.exception('can not convert main value %r to %r',
-                                   item.value, self._maintype.__doc__)
+    def updateStatus(self):
+        """status update without SECoP read"""
+        self._cache_update('status')
 
     def info(self):
         # override the default NICOS behaviour here:
@@ -954,22 +1013,9 @@ class SecopReadable(SecopDevice, Readable):
 
 class SecopWritable(SecopReadable, Moveable):
 
-    def _update_target(self, module, parameter, item):
-        if item.readerror:
-            if self._cache:
-                self._cache.invalidate(self, 'value')
-            return
+    def doReadTarget(self):
         try:
-            # convert to nicos type (important for enums)
-            self._setROParam('target', item.value)
-        except Exception:
-            # when this happens, probably there is an error on the SEC node
-            self.log.exception('can not convert target=%r to %s',
-                               item.value, self.valuetype.__doc__)
-
-    def doReadTarget(self, maxage=None):
-        try:
-            return self._read('target', maxage, self.valuetype)
+            return self._read('target', None)
         except NicosError:
             # this might happen when the target is not initialized
             # if we do not catch here, Moveable.start will raise
