@@ -39,7 +39,7 @@ devices = dict(
         },
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = 'tofhw.toftof.frm2',
+        server = 'tofhw.toftof.frm2.tum.de',
         authenticators = ['UserDBAuth', 'LDAPAuth', 'LDAPAuthBU',],
         loglevel = 'info',
     ),

@@ -2,7 +2,7 @@ description = 'safety system and shutter'
 
 group = 'lowlevel'
 
-tango_host = 'tango://tofhw.toftof.frm2:10000/toftof/'
+tango_host = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/'
 
 devices = dict(
     saf = device('nicos_mlz.toftof.devices.SafetyInputs',

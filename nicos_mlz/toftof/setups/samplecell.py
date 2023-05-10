@@ -4,7 +4,7 @@ group = 'optional'
 
 excludes = ['pressure']
 
-tango_base = 'tango://tofhw.toftof.frm2:10000/toftof/'
+tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/'
 
 devices = dict(
     P = device('nicos.devices.entangle.Sensor',

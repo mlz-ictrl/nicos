@@ -2,7 +2,7 @@ description = 'chopper vacuum readout'
 
 group = 'lowlevel'
 
-tango_host = 'tango://tofhw.toftof.frm2:10000/toftof/vacuum/'
+tango_host = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/vacuum/'
 
 devices = dict(
     vac0 = device('nicos.devices.entangle.Sensor',

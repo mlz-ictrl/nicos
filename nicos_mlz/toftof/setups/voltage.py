@@ -2,7 +2,7 @@ description = 'low and high voltage power supplies for detector'
 
 group = 'lowlevel'
 
-tango_host = 'tango://tofhw.toftof.frm2:10000/toftof/'
+tango_host = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/'
 
 devices = dict(
     lvbus = device('nicos_mlz.toftof.devices.ToniBus',

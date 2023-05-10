@@ -4,7 +4,7 @@ description = 'TOFTOF radial collimator'
 
 group = 'optional'
 
-tango_base = 'tango://tofhw.toftof.frm2:10000/toftof/'
+tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/'
 
 devices = dict(
     rc_onoff = device('nicos.devices.entangle.NamedDigitalOutput',

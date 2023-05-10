@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = ['choppermemograph']
 
-tango_host = 'tango://tofhw.toftof.frm2:10000/'
+tango_host = 'tango://tofhw.toftof.frm2.tum.de:10000/'
 
 devices = dict(
     ch = device('nicos_mlz.toftof.devices.Controller',
