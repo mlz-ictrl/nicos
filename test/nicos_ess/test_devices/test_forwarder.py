@@ -48,7 +48,8 @@ except ImportError:
 pytest.importorskip('kafka')
 pytest.importorskip('graypy')
 
-session_setup = 'ess_forwarder'
+# Set to None because we load the setup after the mocks are in place.
+session_setup = None
 
 
 def create_stream(
@@ -126,8 +127,10 @@ class TestEpicsKafkaForwarderStatus(TestCase):
     @pytest.fixture(autouse=True)
     def prepare(self, session):
         self.session = session
-        self.mock = self.create_patch('kafka.KafkaConsumer')
+        self.mock = self.create_patch('nicos_ess.devices.kafka.consumer.KafkaConsumer')
         self.mock.return_value.topics.return_value = 'TEST_forwarderStatus'
+        self.session.unloadSetup()
+        self.session.loadSetup('ess_forwarder', {})
         self.device = self.session.getDevice('KafkaForwarder')
         self.device._setROParam('curstatus', (0, ''))
 

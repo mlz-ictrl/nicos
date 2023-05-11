@@ -8,7 +8,6 @@ file-writer-control>=1.1.5
 graypy
 h5py>=2.6
 kafka-logging-handler<=0.2.4
-kafka-python>=1.4.6
 pre-commit==2.17.0
 pyqtgraph>=0.12.4
 https://github.com/ess-dmsc/yuos_query/releases/download/v0.1.21/yuos_query-0.1.21-py3-none-any.whl

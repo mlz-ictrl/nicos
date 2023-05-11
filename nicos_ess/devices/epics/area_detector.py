@@ -327,28 +327,15 @@ class AreaDetector(KafkaSubscriber, EpicsDevice, ImageChannelMixin, Measurable):
             session.updateLiveData(parameters, databuffer, labelbuffers)
 
     def _get_new_messages(self):
-        max_pos = 0
-        partitions = self._consumer.assignment()
+        self._consumer.seek_to_end()
         while not self._stoprequest:
-            self._consumer.seek_to_end()
-            for pt in partitions:
-                pos = self._consumer.position(pt)
-                if pos == max_pos:
-                    continue
-                self._consumer.seek(pt, pos - 1)
-                max_pos = pos
-
-            messages = []
-            data = self._consumer.poll(100)
-            for records in data.values():
-                for record in records:
-                    messages.append((record.timestamp, record.value))
-
-            if messages:
-                self.new_messages_callback(messages)
-                approx_imsize = numpy.sqrt(len(messages[-1][1])/2)
+            if (data := self._consumer.poll(timeout_ms=100)):
+                message = (data.timestamp()[1], data.value())
+                self.new_messages_callback([message])
+                approx_imsize = numpy.sqrt(len(data.value())/2)
                 sleep_time = (approx_imsize / 2048) * 2
                 time.sleep(sleep_time)
+                self._consumer.seek_to_end()
             else:
                 time.sleep(0.1)
         self.log.debug('KafkaSubscriber thread finished')

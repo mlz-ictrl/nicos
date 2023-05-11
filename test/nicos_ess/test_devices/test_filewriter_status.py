@@ -41,7 +41,8 @@ from nicos.core import MASTER
 
 from nicos_ess.devices.datasinks.file_writer import JobRecord, JobState
 
-session_setup = 'ess_filewriter'
+# Set to None because we load the setup after the mocks are in place.
+session_setup = None
 
 
 def no_op(*args, **kwargs):
@@ -101,7 +102,7 @@ class TestFileWriterStatus(TestCase):
         return thing
 
     def mock_dependencies(self):
-        self.consumer = self.create_patch('kafka.KafkaConsumer')
+        self.consumer = self.create_patch('nicos_ess.devices.kafka.consumer.KafkaConsumer')
         self.consumer.return_value.topics.return_value = ['TEST_controlTopic',
                                                           'TEST_jobPool']
 
@@ -119,6 +120,8 @@ class TestFileWriterStatus(TestCase):
         self.session = session
         self.log = log
         self.mock_dependencies()
+        self.session.unloadSetup()
+        self.session.loadSetup('ess_filewriter', {})
         self.filewriter_status = self.get_status_device()
 
     def test_after_startup_no_jobs_in_progress(self):

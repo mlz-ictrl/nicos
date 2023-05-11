@@ -21,15 +21,119 @@
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
+import time
+import uuid
 
-from time import sleep
-
-import kafka
+from confluent_kafka import Consumer, KafkaException, TopicPartition, OFFSET_END
 
 from nicos.core import DeviceMixinBase, Param, host, listof
 from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError
 from nicos.utils import createThread
+
+
+class KafkaConsumer:
+    """Class for wrapping the Confluent Kafka consumer."""
+
+    def __init__(self, brokers, starting_offset='latest', **options):
+        """
+        :param brokers: The broker addresses to connect to.
+        :param starting_offset: Either 'latest' (default) or 'earliest'.
+        :param options: Extra configuration options. See the Confluent Kafka
+            documents for the full list of options.
+        """
+        config = {
+            'bootstrap.servers': ','.join(brokers),
+            'group.id': uuid.uuid4(),
+            'auto.offset.reset': starting_offset,
+        }
+        self._consumer = Consumer({**config, **options})
+
+    def subscribe(self, topic_name, partitions=None):
+        """Subscribe to a topic.
+
+        :param topic_name: The topic to subscribe to.
+        :param partitions: Which partitions to subscribe to. Optional, defaults
+            to all partitions.
+        """
+        metadata = self._consumer.list_topics(topic_name)
+        if topic_name not in metadata.topics:
+            raise ConfigurationError('Provided topic %s does not exist' %
+                                     topic_name)
+
+        partitions = partitions if partitions \
+            else metadata.topics[topic_name].partitions
+        topic_partitions = [
+            TopicPartition(topic_name, p) for p in partitions
+        ]
+
+        self._consumer.assign(topic_partitions)
+
+    def unsubscribe(self):
+        """Remove any existing subscriptions."""
+        self._consumer.unsubscribe()
+
+    def poll(self, timeout_ms=5):
+        """Poll for messages.
+
+        Note: returns at most one message.
+
+        :param timeout_ms: The poll timeout
+        :return: A message or None if no message received within the
+            timeout.
+        """
+        return self._consumer.poll(timeout_ms // 1000)
+
+    def close(self):
+        """Close the consumer."""
+        self._consumer.close()
+
+    def topics(self):
+        """
+        :return: A list of topics.
+        """
+        return self._consumer.list_topics()
+
+    def seek(self, topic_name, partition, offset, timeout_s=5):
+        """Seek to a particular offset on a partition.
+
+        :param topic_name: The topic name.
+        :param partition: The partition to seek on.
+        :param offset: The required offset.
+        :param timeout_s: The timeout in seconds.
+        """
+        topic_partition = TopicPartition(topic_name, partition)
+        topic_partition.offset = offset
+        self._seek([topic_partition], timeout_s)
+
+    def _seek(self, partitions, timeout_s):
+        # Seek will fail if called too soon after assign.
+        # Therefore, try a few times.
+        start = time.monotonic()
+        while time.monotonic() < start + timeout_s:
+            for part in partitions:
+                try:
+                    self._consumer.seek(part)
+                except KafkaException:
+                    time.sleep(0.1)
+            return
+        raise RuntimeError('failed to seek offset')
+
+    def assignment(self):
+        """
+        :return: A list of assigned topic partitions.
+        """
+        return self._consumer.assignment()
+
+    def seek_to_end(self, timeout_s=5):
+        """Move the consumer to the end of the partition(s).
+
+        :param timeout_s: The timeout in seconds.
+        """
+        partitions = self._consumer.assignment()
+        for tp in partitions:
+            tp.offset = OFFSET_END
+        self._seek(partitions, timeout_s)
 
 
 class KafkaSubscriber(DeviceMixinBase):
@@ -40,25 +144,22 @@ class KafkaSubscriber(DeviceMixinBase):
 
     parameters = {
         'brokers':
-            Param('List of kafka hosts to be connected',
+            Param('List of kafka brokers to connect to',
                   type=listof(host(defaultport=9092)),
                   mandatory=True,
                   preinit=True,
                   userparam=False)
     }
+    _updater_thread = None
 
     def doPreinit(self, mode):
         if mode != SIMULATION:
-            self._consumer = kafka.KafkaConsumer(
-                bootstrap_servers=self.brokers,
-                auto_offset_reset='latest'  # start at latest offset
-            )
+            self._consumer = KafkaConsumer(self.brokers)
         else:
             self._consumer = None
 
         # Settings for thread to fetch new message
         self._stoprequest = True
-        self._updater_thread = None
 
     def doShutdown(self):
         if self._updater_thread is not None:
@@ -78,18 +179,8 @@ class KafkaSubscriber(DeviceMixinBase):
         # Remove all the assigned topics
         self._consumer.unsubscribe()
 
-        topics = self._consumer.topics()
-        if topic not in topics:
-            raise ConfigurationError('Provided topic %s does not exist' %
-                                     topic)
+        self._consumer.subscribe(topic)
 
-        # Assign the partitions
-        partitions = self._consumer.partitions_for_topic(topic)
-        if not partitions:
-            raise ConfigurationError('Cannot query partitions for %s' % topic)
-
-        self._consumer.assign(
-            [kafka.TopicPartition(topic, p) for p in partitions])
         self._stoprequest = False
         self._updater_thread = createThread('updater_' + topic,
                                             self._get_new_messages)
@@ -97,13 +188,12 @@ class KafkaSubscriber(DeviceMixinBase):
 
     def _get_new_messages(self):
         while not self._stoprequest:
-            sleep(self._long_loop_delay)
+            time.sleep(self._long_loop_delay)
 
             messages = []
-            data = self._consumer.poll(5)
-            for records in data.values():
-                for record in records:
-                    messages.append((record.timestamp, record.value))
+            data = self._consumer.poll(timeout_ms=5)
+            if data:
+                messages.append((data.timestamp(), data.value()))
 
             if messages:
                 self.new_messages_callback(messages)

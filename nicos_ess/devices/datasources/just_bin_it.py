@@ -24,7 +24,6 @@
 import json
 import time
 
-import kafka
 import numpy as np
 from streaming_data_types import deserialise_hs00, deserialise_hs01
 from streaming_data_types.utils import get_schema
@@ -35,7 +34,8 @@ from nicos.core.constants import LIVE, MASTER, SIMULATION
 from nicos.devices.generic import Detector, ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
-from nicos_ess.devices.kafka.consumer import KafkaSubscriber
+from nicos_ess.devices.kafka.consumer import KafkaSubscriber, KafkaConsumer
+from nicos_ess.devices.kafka.producer import KafkaProducer
 from nicos_ess.devices.kafka.status_handler import DISCONNECTED_STATE, \
     KafkaStatusHandler
 
@@ -441,18 +441,12 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         if self.statustopic:
             # Enable heartbeat monitoring
             KafkaStatusHandler.doPreinit(self, mode)
-        self._command_sender = kafka.KafkaProducer(
-            bootstrap_servers=self.brokers)
+        self._command_sender = KafkaProducer(self.brokers)
         # Set up the response message consumer
-        self._response_consumer = kafka.KafkaConsumer(
-            bootstrap_servers=self.brokers)
-        self._response_topic = kafka.TopicPartition(self.response_topic, 0)
-        self._response_consumer.assign([self._response_topic])
-        self._response_consumer.seek_to_end()
-        self.log.debug('Response topic consumer initial position = %s',
-                       self._response_consumer.position(self._response_topic))
+        self._response_consumer = KafkaConsumer(self.brokers)
+        self._response_consumer.subscribe(self.response_topic)
 
-    def doInit(self, _mode):
+    def doInit(self, mode):
         pass
 
     def doPrepare(self):
@@ -499,10 +493,9 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         timeout = int(time.time()) + timeout_duration
         acknowledged = False
         while not (acknowledged or self._exit_thread):
-            messages = self._response_consumer.poll(timeout_ms=50)
-            responses = messages.get(self._response_topic, [])
-            for records in responses:
-                msg = json.loads(records.value)
+            message = self._response_consumer.poll(timeout_ms=50)
+            if message:
+                msg = json.loads(message.value)
                 if 'msg_id' in msg and msg['msg_id'] == identifier:
                     acknowledged = self._handle_message(msg)
                     break
@@ -546,8 +539,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         return False
 
     def _send_command(self, topic, message):
-        self._command_sender.send(topic, message)
-        self._command_sender.flush()
+        self._command_sender.produce(topic, message)
 
     def _create_config(self, interval, identifier):
         histograms = []

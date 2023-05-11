@@ -41,7 +41,8 @@ from test.nicos_ess.test_devices.test_filewriter_status import \
     create_status_message, create_stop_message_with_error, no_op, \
     prepare_filewriter_status
 
-session_setup = 'ess_filewriter'
+# Set to None because we load the setup after the mocks are in place.
+session_setup = None
 
 
 class TestFileWriterControl(TestCase):
@@ -52,7 +53,7 @@ class TestFileWriterControl(TestCase):
         return thing
 
     def mock_dependencies(self):
-        self.consumer = self.create_patch('kafka.KafkaConsumer')
+        self.consumer = self.create_patch('nicos_ess.devices.kafka.consumer.KafkaConsumer')
         self.consumer.return_value.topics.return_value = ['TEST_controlTopic',
                                                           'TEST_jobPool']
         self.mock_controller = mock.create_autospec(FileWriterController)
@@ -76,9 +77,11 @@ class TestFileWriterControl(TestCase):
     @pytest.fixture(autouse=True)
     def prepare(self, session, log):
         self.session = session
-        self.session.experiment.propinfo['proposal'] = '123456'
         self.log = log
         self.mock_dependencies()
+        self.session.unloadSetup()
+        self.session.loadSetup('ess_filewriter', {})
+        self.session.experiment.propinfo['proposal'] = '123456'
         self.filewriter_control = self.get_filewriter_control_device()
         self.filewriter_status = self.filewriter_control._attached_status
         prepare_filewriter_status(self.filewriter_status)

@@ -45,7 +45,8 @@ try:
 except ImportError:
     pytestmark = pytest.mark.skip('all tests still WIP')
 
-session_setup = 'ess_filewriter'
+# Set to None because we load the setup after the mocks are in place.
+session_setup = None
 
 start_acknowledge_message = {
     'code': 'START',
@@ -159,10 +160,12 @@ class TestStatus(TestCase):
 
     @pytest.fixture(autouse=True)
     def prepare(self, session):
-        self.messages_processed = False
-        self.mock = self.create_patch('kafka.KafkaConsumer')
-        self.mock.return_value.topics.return_value = 'TEST_writerStatus'
         self.session = session
+        self.messages_processed = False
+        self.mock = self.create_patch('nicos_ess.devices.kafka.consumer.KafkaConsumer')
+        self.mock.return_value.topics.return_value = 'TEST_writerStatus'
+        self.session.unloadSetup()
+        self.session.loadSetup('ess_filewriter', {})
         self.device = self.session.getDevice('KafkaFileWriter')
         self.device._started = []
 

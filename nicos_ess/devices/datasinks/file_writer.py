@@ -27,6 +27,7 @@
 import copy
 import json
 import threading
+import time
 import uuid
 from collections import OrderedDict
 from datetime import datetime, timedelta
@@ -34,8 +35,6 @@ from enum import Enum
 from os import path
 from time import time as currenttime
 
-from kafka import KafkaConsumer, KafkaProducer, TopicPartition
-from kafka.errors import KafkaError
 from streaming_data_types import deserialise_answ, deserialise_pl72, \
     deserialise_wrdn, deserialise_x5f2, serialise_6s4t, serialise_pl72
 from streaming_data_types.fbschemas.action_response_answ.ActionOutcome import \
@@ -53,6 +52,8 @@ from nicos.devices.datasinks.file import FileSink
 from nicos.utils import printTable
 
 from nicos_ess.devices.datasinks.nexus_structure import NexusStructureProvider
+from nicos_ess.devices.kafka.consumer import KafkaConsumer
+from nicos_ess.devices.kafka.producer import KafkaProducer
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 
 
@@ -444,16 +445,22 @@ class FileWriterController:
             control_topic=self.instrument_topic,
         )
 
-        try:
-            producer = KafkaProducer(bootstrap_servers=self.brokers)
-            future = producer.send(self.pool_topic, message)
-            record_metadata = future.get(timeout=self.timeout_interval)
-            producer.close()
-        except KafkaError as error:
-            # If we cannot write to Kafka then we are screwed!
-            raise RuntimeError from error
+        delivered = False
+        delivery_info = None
 
-        return job_id, record_metadata.offset
+        def on_delivery(err, message):
+            nonlocal delivered, delivery_info
+            delivered = True
+            delivery_info = (message.partition(), message.offset())
+
+        producer = KafkaProducer(self.brokers)
+        producer.produce(self.pool_topic, message,
+                         on_delivery_callback=on_delivery)
+
+        while not delivered:
+            time.sleep(0.1)
+
+        return job_id, delivery_info
 
     def request_stop(self, job_id, stop_time, service_id):
         message = serialise_6s4t(
@@ -464,14 +471,8 @@ class FileWriterController:
             run_name='',
         )
 
-        try:
-            producer = KafkaProducer(bootstrap_servers=self.brokers)
-            future = producer.send(self.instrument_topic, message)
-            _ = future.get(timeout=self.timeout_interval)
-            producer.close()
-        except KafkaError as error:
-            # If we cannot write to Kafka then we are screwed!
-            raise RuntimeError from error
+        producer = KafkaProducer(self.brokers)
+        producer.produce(self.instrument_topic, message)
 
 
 class FileWriterControlSink(FileSink):
@@ -486,7 +487,7 @@ class FileWriterControlSink(FileSink):
                   userparam=False),
         'pool_topic':
             Param(
-                'Kafka topic where start messages are sent',
+                'List of kafka brokers to connect to',
                 type=str,
                 settable=False,
                 preinit=True,
@@ -569,9 +570,9 @@ class FileWriterControlSink(FileSink):
                    ):
         self.check_okay_to_start()
         start_time = start_time if start_time else datetime.now()
-        job_id, commit = self._controller.request_start(
+        job_id, commit_info = self._controller.request_start(
             filename, structure, start_time, stop_time, job_id)
-        job = JobRecord(job_id, counter, start_time, commit)
+        job = JobRecord(job_id, counter, start_time, commit_info)
         job.replay_of = replay_of
         job.stop_time = stop_time
         self._attached_status.add_job(job)
@@ -695,17 +696,21 @@ class FileWriterControlSink(FileSink):
             raise RuntimeError('Could not replay job as no stop time defined '
                                'for that job')
 
-        consumer = KafkaConsumer(bootstrap_servers=self.brokers)
-        topic = TopicPartition(self.pool_topic, partition=0)
-        consumer.assign([topic])
-        consumer.seek(topic, job_to_replay.kafka_offset)
-        data = consumer.poll(timeout_ms=5000, max_records=1)
-        if not data:
-            raise RuntimeError(
-                'Could not replay job as could not retrieve job '
-                'information from Kafka')
+        partition, offset = job_to_replay.kafka_offset
+        consumer = KafkaConsumer(self.pool_topic)
+        consumer.subscribe(self.pool_topic, partitions=[partition])
+        consumer.seek(self.pool_topic, partition=partition, offset=offset)
+        poll_start = time.monotonic()
+        data = consumer.poll(timeout_ms=5)
+        time_out_s = 5
+        while not data:
+            data = consumer.poll(timeout_ms=5)
+            if not data and time.monotonic_ns() > poll_start + time_out_s:
+                raise RuntimeError(
+                    'Could not replay job as could not retrieve job '
+                    'information from Kafka')
 
-        message = deserialise_pl72(data[topic][0].value)
+        message = deserialise_pl72(data.value())
 
         replay_info = {
             'structure': message.nexus_structure,
@@ -716,3 +721,4 @@ class FileWriterControlSink(FileSink):
         session.experiment.data.beginPoint(replay_info=replay_info)
         self._manual_start = True
         session.experiment.data.finishPoint()
+        consumer.close()

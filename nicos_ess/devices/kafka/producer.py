@@ -22,10 +22,39 @@
 #
 # *****************************************************************************
 
-import kafka
+from confluent_kafka import Producer
 
 from nicos.core import DeviceMixinBase, Param, host, listof
 from nicos.core.constants import SIMULATION
+
+
+class KafkaProducer:
+    """Class for wrapping the Confluent Kafka producer."""
+
+    def __init__(self, brokers, **options):
+        """
+        :param brokers: The broker addresses to connect to.
+        :param options: Extra configuration options. See the Confluent Kafka
+            documents for the full list of options.
+        """
+        config = {
+            'bootstrap.servers': ','.join(brokers),
+        }
+        self._producer = Producer({**config, **options})
+
+    def produce(self, topic_name, message, partition=-1, key=None,
+                on_delivery_callback=None):
+        """Send a message to Kafka.
+
+        :param topic_name: The topic to send to.
+        :param message: The message.
+        :param partition: Which partition to send to. Optional.
+        :param key: The key to assign. Optional
+        :param on_delivery_callback: The delivery callback. Optional.
+        """
+        self._producer.produce(topic_name, message, partition=partition,
+                               key=key, on_delivery=on_delivery_callback)
+        self._producer.flush()
 
 
 class ProducesKafkaMessages(DeviceMixinBase):
@@ -36,7 +65,7 @@ class ProducesKafkaMessages(DeviceMixinBase):
 
     parameters = {
         'brokers':
-            Param('List of kafka hosts to be connected',
+            Param('List of kafka brokers to connect to',
                   type=listof(host(defaultport=9092)),
                   mandatory=True,
                   preinit=True,
@@ -51,30 +80,23 @@ class ProducesKafkaMessages(DeviceMixinBase):
 
     def doPreinit(self, mode):
         if mode != SIMULATION:
-            self._producer = kafka.KafkaProducer(
-                bootstrap_servers=self.brokers,
+            self._producer = self._create_producer(
                 max_request_size=self.max_request_size)
         else:
             self._producer = None
 
-    def doShutdown(self):
-        if self._producer:
-            self._producer.close()
+    def _create_producer(self, **options):
+        return KafkaProducer(self.brokers, **options)
 
     def _setProducerConfig(self, **configs):
-        self.doShutdown()
-        self._producer = kafka.KafkaProducer(bootstrap_servers=self.brokers,
-                                             **configs)
+        self._producer = self._create_producer(**configs)
 
-    def send(self, topic, message, key=None, timestamp=None, partition=None):
+    def send(self, topic, message):
         """
         Produces and flushes the provided message
         :param topic: Topic on which the message is to be produced
         :param message: Message
-        :param key: key, for a compacted topic
-        :param timestamp: message timestamp in milliseconds
-        :param partition: partition on which the message is to be produced
         :return:
         """
-        self._producer.send(topic, message, key, partition, timestamp)
+        self._producer.produce(topic, message)
         self._producer.flush()
