@@ -38,7 +38,7 @@ from nicos.utils import readonlydict
 # pylint: disable=redefined-builtin
 def Secop_double(min=None, max=None, use_limits=False, **kwds):
     if use_limits and (min, max) != (None, None):
-        return floatrange("float('-inf')" if min is None else min, max)
+        return floatrange(float('-inf') if min is None else min, max)
     return float
 
 

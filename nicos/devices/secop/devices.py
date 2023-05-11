@@ -396,9 +396,11 @@ class SecNodeDevice(Readable):
             params_cfg = {}
             for pname, props in mod_desc['parameters'].items():
                 datainfo = props['datainfo']
-                # take only the first line in description, else it would messup ListParams
+                # take only the first line in description, else it would
+                # messup ListParams
                 # TODO: check whether is not better to do this in ListParams
-                pargs = dict(datainfo=datainfo, description=props['description'].splitlines()[0])
+                pargs = dict(datainfo=datainfo, description=(
+                        props['description'].splitlines() or [''])[0])
                 if not props.get('readonly', True) and pname != 'target':
                     pargs['settable'] = True
                 unit = datainfo.get('unit', '')
@@ -443,7 +445,8 @@ class SecNodeDevice(Readable):
                         **kwds)
             # the following test may be removed later, when no bugs appear ...
             if 'cache_unpickle("' in cache_dump(desc):
-                self.log.error('module %r skipped - setup info needs pickle', module)
+                self.log.error('module %r skipped - setup info needs pickle',
+                               module)
             else:
                 setup_info[prefix + module] = (
                     'nicos.devices.secop.devices.%s' % cls.__name__, desc)
@@ -602,12 +605,15 @@ class SecopDevice(Device):
         parameters = {}
         # create parameters and methods
         attrs = dict(parameters=parameters, __module__=cls.__module__)
-        if 'target_datainfo' in config:
-            attrs['valuetype'] = staticmethod(get_validator(
-                config.pop('target_datainfo'), use_limits=True))
         if 'value_datainfo' in config:
+            # we need to use staticmethod here, else it will be turned
+            # into a regular method
             attrs['_maintype'] = staticmethod(get_validator(
                 config.pop('value_datainfo'), use_limits=False))
+        if 'target_datainfo' in config:
+            # no staticmethod here, as it is applied in DeviceMeta
+            attrs['valuetype'] = get_validator(
+                config.pop('target_datainfo'), use_limits=True)
         for pname, kwargs in params_cfg.items():
             typ = get_validator(kwargs.pop('datainfo'),
                                 use_limits=kwargs.get('settable', False))
@@ -619,7 +625,7 @@ class SecopDevice(Device):
             parameters[pname] = Param(volatile=True, type=typ, **kwargs)
 
             if pname == 'target':
-                continue  # special treatment of target in SecopWritable.doReadTarget
+                continue  # special treatment of target in doReadTarget
 
             def do_read(self, maxage=None, pname=pname, validator=typ):
                 return self._read(pname, maxage, validator)
@@ -637,7 +643,8 @@ class SecopDevice(Device):
             def makecmd(cname, datainfo, description):
                 argument = datainfo.get('argument')
 
-                validate_result = get_validator(datainfo.get('result'), use_limits=False)
+                validate_result = get_validator(
+                    datainfo.get('result'), use_limits=False)
 
                 if argument is None:
                     help_arglist = ''
