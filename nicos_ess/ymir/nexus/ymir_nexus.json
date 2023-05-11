@@ -554,11 +554,74 @@
                   ]
                 },
                 {
+                  "name": "laser_fast_data",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "se00",
+                      "config": {
+                        "source": "YMIR-SETS:SE-BADC-001:VALUE",
+                        "topic": "ymir_motion",
+                        "dtype": "double"
+                      }
+                    }
+                  ]
+                },
+                {
                   "module": "dataset",
                   "config": {
                     "name": "depends_on",
                     "values": "/entry/instrument/laser_monitor/transformations/translation"
                   }
+                },
+                {
+                  "name": "laser_slow_data",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f144",
+                      "config": {
+                        "source": "YMIR-SETS:SE-BADC-001:SLOWDATA",
+                        "topic": "ymir_motion",
+                        "dtype": "double"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "laser_ptp_status",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f144",
+                      "config": {
+                        "source": "YMIR-SETS:SE-BPTP-001:PTP_STATUS",
+                        "topic": "ymir_motion",
+                        "dtype": "double"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "group",
@@ -662,27 +725,6 @@
                     "name": "depends_on",
                     "values": "/entry/instrument/laser_source/transformations/rotation"
                   }
-                },
-                {
-                  "name": "laser_fast_data",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "se00",
-                      "config": {
-                        "source": "YMIR-SETS:SE-BADC-001:VALUE",
-                        "topic": "ymir_motion",
-                        "dtype": "double"
-                      }
-                    }
-                  ]
                 },
                 {
                   "type": "group",
@@ -1284,6 +1326,143 @@
                     {
                       "name": "NX_class",
                       "values": "NXtransformations"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "lakeshore",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "NX_class",
+                  "dtype": "string",
+                  "values": "NXsensor"
+                }
+              ],
+              "children": [
+                {
+                  "module": "dataset",
+                  "config": {
+                    "name": "measurement",
+                    "values": "temperature",
+                    "type": "string"
+                  }
+                },
+                {
+                  "name": "temperatur_sensor_1",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f144",
+                      "config": {
+                        "source": "YMIR-SEE:SE-LS336-004:KRDG0",
+                        "topic": "ymir_motion",
+                        "dtype": "double",
+                        "value_units": "K"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "K"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "temperature_sensor_2",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f144",
+                      "config": {
+                        "source": "YMIR-SEE:SE-LS336-004:KRDG1",
+                        "topic": "ymir_motion",
+                        "dtype": "double",
+                        "value_units": "K"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "K"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "setpoint_ch_1",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f144",
+                      "config": {
+                        "source": "YMIR-SEE:SE-LS336-004:SETP_S1",
+                        "topic": "ymir_motion",
+                        "dtype": "double",
+                        "value_units": "K"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "K"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "setpoint_ch_2",
+                  "type": "group",
+                  "attributes": [
+                    {
+                      "name": "NX_class",
+                      "dtype": "string",
+                      "values": "NXlog"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "module": "f144",
+                      "config": {
+                        "source": "YMIR-SEE:SE-LS336-004:SETP_S2",
+                        "topic": "ymir_motion",
+                        "dtype": "double",
+                        "value_units": "K"
+                      },
+                      "attributes": [
+                        {
+                          "name": "units",
+                          "dtype": "string",
+                          "values": "K"
+                        }
+                      ]
                     }
                   ]
                 }
