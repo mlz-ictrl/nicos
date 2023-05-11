@@ -711,14 +711,20 @@ class SecopDevice(Device):
         # create a new class extending SecopDevice, apply DeviceMeta in order
         # to include the added parameters
         features = config['secop_properties'].get('features', [])
-        mixins = tuple(FEATURES[f] for f in features if f in FEATURES)
+        mixins = [FEATURES[f] for f in features if f in FEATURES]
+        if set(params_cfg) & {'target_limits', 'target_min', 'target_max'}:
+            mixins.append(SecopHasLimits)
         if mixins:
             # create class to hold access methods
-            newclass = DeviceMeta.__new__(DeviceMeta, classname + '_base', (cls,), attrs)
-            # create class with mixins, with methods potentially overriding access methods
-            newclass = DeviceMeta.__new__(DeviceMeta, classname, mixins + (newclass,), {})
+            newclass = DeviceMeta.__new__(
+                DeviceMeta, classname + '_base', (cls,), attrs)
+            # create class with mixins, with methods overriding access methods
+            mixins.append(newclass)
+            newclass = DeviceMeta.__new__(
+                DeviceMeta, classname, tuple(mixins), {})
         else:
-            newclass = DeviceMeta.__new__(DeviceMeta, classname, (cls,), attrs)
+            newclass = DeviceMeta.__new__(
+                DeviceMeta, classname, (cls,), attrs)
         newclass._modified_config = devcfg  # store temporarily for __init__
         return newclass
 
@@ -995,36 +1001,74 @@ class SecopHasOffset(HasOffset):
 
     goal: make the class to be accepted by the adjust command
     """
+    parameter_overrides = {
+        'offset': Override(prefercache=True, volatile=True),
+    }
+
+    def doRead(self, maxage=0):
+        return super().doRead() - self.offset
+
+    def doReadTarget(self):
+        return super().doReadTarget() - self.offset
+
+    def doStart(self, value):
+        super().doStart(value + self.offset)
 
     def doWriteOffset(self, value):
+        super().doWriteOffset(value)
         # remark: possible adjustments of limits, targets have to be done
         # in the remote implementation
         self._write('offset', value)
 
 
 class SecopHasLimits(HasLimits):
-    """modifed HasLimits mixin
+    """treat target_max and/or target_min
 
-    match the proposed SECoP feature HasOffset, with a limits parameter
-    corresponding to userlimits and the abslimits module _property_
+    accept also target_limits (intermediate draft spec)
     """
     parameter_overrides = {
-        'abslimits': Override(default=(-9e99, 9e99), prefercache=False),
-        'userlimits': Override(default=(-9e99, 9e99), volatile=True),
-        'limits': Override(userparam=False),
+        'abslimits': Override(prefercache=True, mandatory=False,
+                              volatile=True),
+        'userlimits': Override(volatile=True),
+        # only some of the following parameters are available,
+        # but nicos does not complain about superfluous overrides
+        'target_limits': Override(userparam=False),
+        'target_min': Override(userparam=False),
+        'target_max': Override(userparam=False),
     }
 
-    def doPreinit(self, mode):
-        super().doPreinit(mode)
-        if mode != SIMULATION:
-            self._config['abslimits'] = self.secop_properties.get('abslimits', (-9e99, 9e99))
+    def doReadAbslimits(self):
+        dt = self._config.get('target_datainfo')
+        return dt.get('min', float('-inf')), dt.get('max', float('inf'))
 
     def doReadUserlimits(self):
-        return self.limits
+        if hasattr(self, 'target_limits'):
+            min_, max_ = self.target_limits
+        else:
+            min_ = getattr(self, 'target_min', float('-inf'))
+            max_ = getattr(self, 'target_max', float('inf'))
+        offset = self.offset if isinstance(self, SecopHasOffset) else 0
+        return min_ - offset, max_ - offset
+
+    def _adjustLimitsToOffset(self, value, diff):
+        """not needed, as limits are calculated from SECoP parameters"""
 
     def doWriteUserlimits(self, value):
-        self.limits = value
-        return self.limits
+        super().doWriteUserlimits(value)
+        offset = self.offset if isinstance(self, SecopHasOffset) else 0
+        min_ = value[0] + offset
+        max_ = value[1] + offset
+        if hasattr(self, 'target_limits'):
+            self.target_limits = min_, max_
+        if hasattr(self, 'target_min'):
+            self.target_min = min_
+        else:  # silently replace with abslimits
+            min_ = self.abslimits[0]
+        if hasattr(self, 'target_max'):
+            self.target_max = max_
+        else:
+            max_ = self.abslimits[1]
+        return min_ - offset, max_ - offset
 
 
 IF_CLASSES = {
@@ -1037,6 +1081,5 @@ IF_CLASSES = {
 ALL_IF_CLASSES = set(IF_CLASSES.values())
 
 FEATURES = {
-    'HasLimits': SecopHasLimits,
     'HasOffset': SecopHasOffset,
 }
