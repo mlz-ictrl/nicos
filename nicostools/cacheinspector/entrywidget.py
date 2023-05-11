@@ -150,7 +150,7 @@ class EntryWidget(base_class, ui_class):
             # automatically refresh the value if the entry has a ttl (we don't
             # get timestamp updates from the server unless the value changes)
             time_to_update = max((entry.time + entry.ttl) - time.time(), 0)
-            self.updateTimer.start(time_to_update * 1000)
+            self.updateTimer.start(int(time_to_update * 1000))
 
     def setKey(self):
         """Sets the key locally and on the server."""
