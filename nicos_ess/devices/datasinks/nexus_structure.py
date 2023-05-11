@@ -110,7 +110,7 @@ class NexusStructureJsonFile(NexusStructureProvider):
                                       metainfo[('Exp', 'proposal')][0])
         structure = structure.replace('$ENTRY_ID$', str(counter))
         structure = structure.replace('$JOB_ID$',
-                                      metainfo[('Exp', 'job_id')])
+                                      metainfo[('Exp', 'job_id')][0])
         structure = self._insert_users(structure, metainfo)
         structure = self._insert_samples(structure, metainfo)
         return structure

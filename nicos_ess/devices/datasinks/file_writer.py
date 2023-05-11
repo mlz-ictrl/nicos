@@ -377,7 +377,9 @@ class FileWriterSinkHandler(DataSinkHandler):
 
         datetime_now = datetime.now()
         job_id = str(uuid.uuid1())
-        self.dataset.metainfo[('Exp', 'job_id')] = job_id
+        self.dataset.metainfo[('Exp', 'job_id')] = (
+            job_id, job_id, '', 'experiment'
+        )
         structure = self.sink._attached_nexus.get_structure(
             self.dataset)
         self.sink._start_job(file_path, self.dataset.counter,
