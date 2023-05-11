@@ -51,7 +51,7 @@ devices = dict(
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Space on log drive',
-        path = '/resedacontrol/log',
+        path = '/control/log',
         minfree = 1.5,
         visibility = (),
     ),
