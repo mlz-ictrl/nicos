@@ -23,7 +23,6 @@
 
 """Raw image formats."""
 
-import re
 from io import TextIOWrapper
 from os import path
 
@@ -92,24 +91,6 @@ class SingleRawImageSink(ImageSink):
     }
 
     handlerclass = SingleRawImageSinkHandler
-
-
-class SingleRawImageFileReader(ImageFileReader):
-    filetypes = [('singleraw', 'NICOS Single Raw Image File (*.raw)')]
-
-    @classmethod
-    def fromfile(cls, filename):
-        if path.isfile(filename):
-            with open(filename, 'rb') as f:
-                content = f.read()
-                for s in reversed(content.split(b'\n')):
-                    if s.startswith(b'ArrayDesc'):
-                        _desc, shape, t, _axes = eval(s.replace(
-                            b'ArrayDesc', b'').replace(b'dtype', b'np.dtype'))
-                        return np.frombuffer(
-                            content, t, np.product(shape)).reshape(shape)
-                raise NicosError('no ArrayDesc line found')
-        raise NicosError('file not found')
 
 
 class RawImageSinkHandler(NicosMetaWriterMixin, DataSinkHandler):
@@ -223,19 +204,26 @@ class RawImageFileReader(ImageFileReader):
 
     @classmethod
     def fromfile(cls, filename):
+        def get_array_desc(line):
+            _desc, shape, dtype, _axes = eval(
+                line.replace('ArrayDesc', '').replace('dtype', 'np.dtype'))
+            return shape, dtype
+
         fheader = path.splitext(filename)[0] + '.header'
         if path.isfile(fheader) and path.isfile(filename):
             with open(fheader, 'r', encoding='utf-8', errors='replace') as fd:
                 for line in fd:
-                    # TODO: ArrayDesc currently uses nx, ny, nz, ... as shape
                     if line.startswith('ArrayDesc('):
-                        m = re.match(r'.*\((\d+),\s*(\d+)\).*dtype\('
-                                     r'\'(.*)\'\).*', line)
-                        if m:
-                            nx, ny = int(m.group(1)), int(m.group(2))
-                            dtype = m.group(3)
-                            return np.fromfile(filename, dtype).reshape((ny,
-                                                                         nx))
-                raise NicosError('no ArrayDesc line found')
+                        shape, dtype = get_array_desc(line)
+                        return np.fromfile(filename, dtype).reshape(shape)
         else:
-            raise NicosError('file and/or corresponding .header not found')
+            with open(filename, 'rb') as f:
+                content = f.read()
+                hs = content.find(b'\n### NICOS Device snapshot')
+                header = content[hs:].decode('utf-8', errors='replace')
+                for line in header.split('\n'):
+                    if line.startswith('ArrayDesc'):
+                        shape, dtype = get_array_desc(line)
+                        return np.frombuffer(content, dtype,
+                                             np.prod(shape)).reshape(shape)
+        raise NicosError('no ArrayDesc line found')

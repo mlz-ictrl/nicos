@@ -29,7 +29,7 @@ import numpy as np
 from nicos.core import SIMULATION, ArrayDesc, ConfigurationError, Override, \
     Param, Value, intrange, listof, oneof, tupleof
 from nicos.core.data import GzipFile
-from nicos.devices.datasinks.raw import SingleRawImageFileReader, \
+from nicos.devices.datasinks.raw import RawImageFileReader, \
     SingleRawImageSink, SingleRawImageSinkHandler
 from nicos.devices.entangle import ImageChannel
 from nicos.protocols.cache import FLAG_NO_STORE
@@ -295,7 +295,7 @@ class CascadeTofSink(SingleRawImageSink):
         return len(arraydesc.shape) == 3
 
 
-class CascadeImageReader(SingleRawImageFileReader):
+class CascadeImageReader(RawImageFileReader):
     filetypes = [
         ('pad', 'PAD Image File (*.pad)'),
         ('tof', 'TOF Image File (*.tof)'),
