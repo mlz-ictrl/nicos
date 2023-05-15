@@ -86,7 +86,7 @@ tools = [
 
 options = {
     'reader_classes': [
-        'nicos_mlz.pgaa.devices.datasinks.CHNFileReader',
-        'nicos_mlz.pgaa.devices.datasinks.MCAFileReader',
+        'nicos_mlz.pgaa.datasinks.CHNFileReader',
+        'nicos_mlz.pgaa.datasinks.MCAFileReader',
     ],
 }

@@ -252,6 +252,17 @@ class CHNFileReader(ImageFileReader):
     def fromfile(cls, filename):
         with open(filename, 'rb') as f:
             f.seek(30)
+            # pylint: disable=unused-variable
+            # version = struct.unpack('h', f.read(2))[0]
+            # detnumber = struct.unpack('h', f.read(2))[0]
+            # segmentnumber = struct.unpack('h', f.read(2))[0]
+            # seconds = f.read(2).decode()
+            # truetime = struct.unpack('I', f.read(4))[0]
+            # livetime = struct.unpack('I', f.read(4))[0]
+            # startdate = f.read(8).decode()
+            # starttime = f.read(4).decode()
+            # channeloffset = struct.unpack('h', f.read(2))[0]
+            # pylint: enable=unused-variable
             numchannels = struct.unpack('h', f.read(2))[0]
             spectrum = np.zeros(numchannels, '<i4')
             for i in range(numchannels):
