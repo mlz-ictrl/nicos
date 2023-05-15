@@ -10,6 +10,8 @@ devices = dict(
         writepv='{}PM_Pressure-S'.format(pv_root),
         pva=True,
         monitor=True,
+        pollinterval=None,
+        maxage=None,
     ),
     vinci_pressure_SP=device(
         'nicos.devices.epics.pva.EpicsAnalogMoveable',
@@ -18,6 +20,8 @@ devices = dict(
         writepv='{}PM_Pressure-S'.format(pv_root),
         pva=True,
         monitor=True,
+        pollinterval=None,
+        maxage=None,
     ),
     vinci_volume=device(
         'nicos.devices.epics.pva.EpicsReadable',
@@ -25,6 +29,8 @@ devices = dict(
         readpv='{}Volume-R'.format(pv_root),
         pva=True,
         monitor=True,
+        pollinterval=None,
+        maxage=None,
     ),
     vinci_flowrate=device(
         'nicos.devices.epics.pva.EpicsReadable',
@@ -32,6 +38,8 @@ devices = dict(
         readpv='{}Flow-R'.format(pv_root),
         pva=True,
         monitor=True,
+        pollinterval=None,
+        maxage=None,
     ),
     vinci_process_valve=device(
         'nicos.devices.epics.pva.EpicsMappedMoveable',
@@ -40,6 +48,8 @@ devices = dict(
         writepv='{}ProcValveOpen-S'.format(pv_root),
         pva=True,
         monitor=True,
+        pollinterval=None,
+        maxage=None,
     ),
     vinci_tank_valve=device(
         'nicos.devices.epics.pva.EpicsMappedMoveable',
@@ -48,6 +58,8 @@ devices = dict(
         writepv='{}TankValveOpen-S'.format(pv_root),
         pva=True,
         monitor=True,
+        pollinterval=None,
+        maxage=None,
     ),
     vinci_pump=device(
         'nicos.devices.epics.pva.EpicsMappedMoveable',
@@ -56,5 +68,7 @@ devices = dict(
         writepv='{}Start-S'.format(pv_root),
         pva=True,
         monitor=True,
+        pollinterval=None,
+        maxage=None,
     ),
 )
