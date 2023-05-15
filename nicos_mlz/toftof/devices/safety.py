@@ -29,7 +29,7 @@ from nicos import session
 from nicos.core import Attach, Moveable, Override, Readable, oneofdict, status
 from nicos.devices.entangle import DigitalInput, DigitalOutput
 
-from nicos_mlz.toftof.devices.safety_desc import bit_description
+from nicos_mlz.toftof.lib.safety_desc import bit_description
 
 
 class SafetyInputs(Readable):
