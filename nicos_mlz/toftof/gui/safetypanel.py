@@ -30,7 +30,7 @@ from nicos.guisupport.qt import QByteArray, QTableWidgetItem
 from nicos.protocols.cache import cache_load
 from nicos.utils import findResource
 
-from nicos_mlz.toftof.devices.safety_desc import bit_description
+from nicos_mlz.toftof.lib.safety_desc import bit_description
 
 
 class SafetyPanel(Panel):
