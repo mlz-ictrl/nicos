@@ -4,6 +4,7 @@ group = 'basic'
 
 includes = [
     'autocollimator',
+    # 'ana4gpio03',
     'attenuators',
     'b3h3',
     'backguard',
@@ -19,7 +20,7 @@ includes = [
     'guidehall',
     'h2',
     'humidity',
-    'height',
+    # 'height',
     'memograph',
     'nl2b',
     'optic_elements',
