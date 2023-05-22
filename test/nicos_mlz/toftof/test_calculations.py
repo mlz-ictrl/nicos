@@ -26,7 +26,7 @@
 
 import pytest
 
-from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \
+from nicos_mlz.toftof.lib.calculations import Eres1, ResolutionAnalysis, \
     alpha, calculateChopperDelay, calculateCounterDelay, calculateFrameTime, \
     phi, phi1, speedRatio, t1, t2
 
