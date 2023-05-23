@@ -32,7 +32,7 @@ import numpy as np
 from nicos import session
 from nicos.core.constants import LIVE
 
-from nicos_mlz.toftof.devices import calculations as calc
+from nicos_mlz.toftof.lib import calculations as calc
 from nicos_mlz.toftof.datasinks.base import TofSink, TofSinkHandler
 
 
