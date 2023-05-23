@@ -31,7 +31,7 @@ from nicos import session
 from nicos.core import ADMIN, SIMULATION, Attach, NicosError, requires, status
 from nicos.devices.entangle import StringIO
 
-from nicos_mlz.toftof.devices import calculations as calc
+from nicos_mlz.toftof.lib import calculations as calc
 from nicos_mlz.toftof.devices.chopper.base import BaseChopperController
 
 WAVE_LENGTH = 4181

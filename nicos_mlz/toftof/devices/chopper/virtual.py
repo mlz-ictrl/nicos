@@ -31,7 +31,7 @@ from nicos.core import ADMIN, POLLER, SIMULATION, Attach, NicosError, \
     Override, Param, floatrange, requires, status
 from nicos.devices.generic.virtual import VirtualMotor
 
-from nicos_mlz.toftof.devices import calculations as calc
+from nicos_mlz.toftof.lib import calculations as calc
 from nicos_mlz.toftof.devices.chopper.base import BaseChopperController
 
 

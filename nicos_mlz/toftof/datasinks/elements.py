@@ -32,7 +32,7 @@ import numpy as np
 from nicos import session
 from nicos.nexus.elements import ImageDataset, NexusElementBase
 
-from nicos_mlz.toftof.devices import calculations as calc
+from nicos_mlz.toftof.lib import calculations as calc
 
 
 class ExperimentTitle(NexusElementBase):
