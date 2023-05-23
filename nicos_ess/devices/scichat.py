@@ -55,7 +55,7 @@ class ScichatBot(Device):
     def doInit(self, mode):
         if mode == SIMULATION:
             return
-        self._producer = KafkaProducer(self.brokers)
+        self._producer = KafkaProducer.create(self.brokers)
 
     @usermethod
     def send(self, message):

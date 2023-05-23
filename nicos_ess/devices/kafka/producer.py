@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
 
@@ -27,9 +28,25 @@ from confluent_kafka import Producer
 from nicos.core import DeviceMixinBase, Param, host, listof
 from nicos.core.constants import SIMULATION
 
+from nicos_ess.devices.kafka.utils import create_sasl_config
+
 
 class KafkaProducer:
     """Class for wrapping the Confluent Kafka producer."""
+
+    @staticmethod
+    def create(brokers, **options):
+        """Factory method for creating a producer.
+
+        Will automatically apply SSL settings if they are defined in the
+        nicos.conf file.
+
+        :param brokers: The broker addresses to connect to.
+        :param options: Extra configuration options. See the Confluent Kafka
+            documents for the full list of options.
+        """
+        options = {**options, **create_sasl_config()}
+        return KafkaProducer(brokers, **options)
 
     def __init__(self, brokers, **options):
         """
@@ -86,7 +103,7 @@ class ProducesKafkaMessages(DeviceMixinBase):
             self._producer = None
 
     def _create_producer(self, **options):
-        return KafkaProducer(self.brokers, **options)
+        return KafkaProducer.create(self.brokers, **options)
 
     def _setProducerConfig(self, **configs):
         self._producer = self._create_producer(**configs)

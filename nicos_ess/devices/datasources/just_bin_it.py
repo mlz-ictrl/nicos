@@ -441,9 +441,9 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         if self.statustopic:
             # Enable heartbeat monitoring
             KafkaStatusHandler.doPreinit(self, mode)
-        self._command_sender = KafkaProducer(self.brokers)
+        self._command_sender = KafkaProducer.create(self.brokers)
         # Set up the response message consumer
-        self._response_consumer = KafkaConsumer(self.brokers)
+        self._response_consumer = KafkaConsumer.create(self.brokers)
         self._response_consumer.subscribe(self.response_topic)
 
     def doInit(self, mode):

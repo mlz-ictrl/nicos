@@ -116,7 +116,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
                                                    start=False)
         while not self._producer:
             try:
-                self._producer = KafkaProducer(self.brokers)
+                self._producer = KafkaProducer.create(self.brokers)
             except Exception as error:
                 self.log.error(
                     'Could not connect to Kafka - will try again soon: %s',

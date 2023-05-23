@@ -453,7 +453,7 @@ class FileWriterController:
             delivered = True
             delivery_info = (message.partition(), message.offset())
 
-        producer = KafkaProducer(self.brokers)
+        producer = KafkaProducer.create(self.brokers)
         producer.produce(self.pool_topic, message,
                          on_delivery_callback=on_delivery)
 
@@ -471,7 +471,7 @@ class FileWriterController:
             run_name='',
         )
 
-        producer = KafkaProducer(self.brokers)
+        producer = KafkaProducer.create(self.brokers)
         producer.produce(self.instrument_topic, message)
 
 
@@ -697,7 +697,7 @@ class FileWriterControlSink(FileSink):
                                'for that job')
 
         partition, offset = job_to_replay.kafka_offset
-        consumer = KafkaConsumer(self.pool_topic)
+        consumer = KafkaConsumer.create(self.pool_topic)
         consumer.subscribe(self.pool_topic, partitions=[partition])
         consumer.seek(self.pool_topic, partition=partition, offset=offset)
         poll_start = time.monotonic()

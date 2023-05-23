@@ -19,21 +19,40 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
 import time
 import uuid
 
-from confluent_kafka import Consumer, KafkaException, TopicPartition, OFFSET_END
+from confluent_kafka import OFFSET_END, Consumer, KafkaException, \
+    TopicPartition
 
 from nicos.core import DeviceMixinBase, Param, host, listof
 from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError
 from nicos.utils import createThread
 
+from nicos_ess.devices.kafka.utils import create_sasl_config
+
 
 class KafkaConsumer:
     """Class for wrapping the Confluent Kafka consumer."""
+
+    @staticmethod
+    def create(brokers, starting_offset='latest', **options):
+        """Factory method for creating a consumer.
+
+        Will automatically apply SSL settings if they are defined in the
+        nicos.conf file.
+
+        :param brokers: The broker addresses to connect to.
+        :param starting_offset: Either 'latest' (default) or 'earliest'.
+        :param options: Extra configuration options. See the Confluent Kafka
+            documents for the full list of options.
+        """
+        options = {**options, **create_sasl_config()}
+        return KafkaConsumer(brokers, starting_offset, **options)
 
     def __init__(self, brokers, starting_offset='latest', **options):
         """
@@ -56,10 +75,15 @@ class KafkaConsumer:
         :param partitions: Which partitions to subscribe to. Optional, defaults
             to all partitions.
         """
-        metadata = self._consumer.list_topics(topic_name)
+        try:
+            metadata = self._consumer.list_topics(topic_name, timeout=5)
+        except KafkaException:
+            raise ConfigurationError('could not obtain metadata for topic '
+                                     f'{topic_name}')
+
         if topic_name not in metadata.topics:
-            raise ConfigurationError('Provided topic %s does not exist' %
-                                     topic_name)
+            raise ConfigurationError(f'provided topic {topic_name} does '
+                                     'not exist')
 
         partitions = partitions if partitions \
             else metadata.topics[topic_name].partitions
@@ -154,7 +178,7 @@ class KafkaSubscriber(DeviceMixinBase):
 
     def doPreinit(self, mode):
         if mode != SIMULATION:
-            self._consumer = KafkaConsumer(self.brokers)
+            self._consumer = KafkaConsumer.create(self.brokers)
         else:
             self._consumer = None
 
