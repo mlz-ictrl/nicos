@@ -1,4 +1,4 @@
-nicos-core (3.0.0) UNRELEASED; urgency=medium
+nicos (3.0.0) UNRELEASED; urgency=medium
 
   [ Georg Brandl ]
   * Changes.
@@ -6076,7 +6076,7 @@ nicos-core (3.0.0) UNRELEASED; urgency=medium
 
  -- Georg Brandl <g.brandl@fz-juelich.de>  Fri, 18 Aug 2017 16:51:53 +0200
 
-nicos-core (2.0.0) unstable; urgency=low
+nicos (2.0.0) unstable; urgency=low
 
   * Initial Release.
 
