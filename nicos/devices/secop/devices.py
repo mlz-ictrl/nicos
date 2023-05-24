@@ -48,6 +48,7 @@ SecopMoveable, and the following parameters:
 
 import re
 import time
+from collections import defaultdict
 from math import floor, log10
 from threading import Event, RLock
 
@@ -55,15 +56,15 @@ from frappy.client import SecopClient
 from frappy.errors import CommunicationFailedError
 
 from nicos import session
-from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, \
-    HasOffset, HasLimits, NicosError, Override, Param, status, usermethod
+from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
+    HasOffset, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import anytype, floatrange, intrange
 from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
-from nicos.utils import printTable
 from nicos.protocols.cache import cache_dump
+from nicos.utils import printTable
 
 SECOP_ERROR = 400
 
@@ -192,6 +193,7 @@ class SecNodeDevice(Readable):
     _value = ''
     _status = status.OK, 'unconnected'   # the nicos status
     _devices = {}
+    _custom_callbacks = defaultdict(list)
 
     def doPreinit(self, mode):
         self._devices = {}
@@ -376,6 +378,9 @@ class SecNodeDevice(Readable):
                                  device._update)
             self._secnode.unregister_callback((module, parameter),
                                               updateItem=updatefunc)
+            for custom_callback in self._custom_callbacks.pop((module, parameter), []):
+                self._secnode.unregister_callback((module, parameter),
+                                                  updateItem=custom_callback)
 
     def createDevices(self):
         """create drivers and devices
@@ -549,6 +554,38 @@ class SecNodeDevice(Readable):
         # inform client that setups have changed
         session.setupCallback(list(session.loaded_setups),
                               list(session.explicit_setups))
+
+    def register_custom_callback(self, module, parameter, f):
+        """Register custom callbacks for parameter updates.
+
+        Use the method found on the SecopDevice class instead of this directly.
+        """
+        # TODO: or NameError?
+        if module not in self._secnode.modules:
+            raise ValueError('no module %r found on this SEC node'
+                                     % module)
+        if parameter not in self._secnode.modules[module]['parameters']:
+            raise ValueError('no parameter %r found on module %r of this SEC node'
+                                     % module)
+        self.custom_callbacks[(module,parameter)].append(f)
+        self._secnode.register_callback((module, parameter), updateItem=f)
+        self.log.debug(f'registered callback \'{f.__name__}\' for \'{module}:{parameter}\'')
+
+    def unregister_custom_callback(self, module, parameter, f):
+        """Unregister a custom callback on this Node (prefer function on SecopDevice)."""
+        # TODO: or NameError?
+        if module not in self._secnode.modules:
+            raise ValueError('no module %r found on this SEC node'
+                                     % module)
+        if parameter not in self._secnode.modules[module]['parameters']:
+            raise ValueError('no parameter %r found on module %r of this SEC node'
+                                     % module)
+        try:
+            self.custom_callbacks[(module,parameter)].append(f)
+            self._secnode.register_callback((module, parameter), updateItem=f)
+        except ValueError as e:
+            raise ValueError('function not registered as callback!') from e
+        self.log.debug(f'removed callback \'{f.__name__}\' from \'{module}:{parameter}\'')
 
 
 class SecopDevice(Device):
@@ -960,6 +997,18 @@ class SecopDevice(Device):
             if self._cache:
                 self._cache.clear(self, ['status'])
         self.updateStatus()
+
+    def register_callback(self, parameter, f):
+        """Register a callback for parameter updates.
+
+        The function is executed every time the client receives a new value for
+        the given parameter..
+        """
+        self.secnode.register_custom_callback(self.secop_module , parameter, f)
+
+    def unregister_callback(self, parameter, f):
+        """Unregister a callback for parameter updates."""
+        self.secnode.unregister_custom_callback(self.secop_module , parameter, f)
 
 
 class SecopReadable(SecopDevice, Readable):
