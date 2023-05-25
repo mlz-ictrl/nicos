@@ -5,21 +5,22 @@ group = 'optional'
 display_order = 70
 
 
-tango_base = configdata('instrument.values')['tango_base'] + 'box/bruker/'
-excludes = ['hv_gen']
+tango_base = 'tango://rsxrd.softlab.frm2.tum.de:10000/box/bruker/'
 
 devices = dict(
     gen_voltage = device('nicos.devices.entangle.PowerSupply',
         description = 'Voltage generator',
         tangodevice = tango_base + 'gen_voltage',
         fmtstr = '%.0f',
+        visibility = (),
     ),
     gen_current = device('nicos.devices.entangle.PowerSupply',
         description = 'Current generator',
         tangodevice = tango_base + 'gen_current',
         fmtstr = '%.0f',
+        visibility = (),
     ),
-    hv = device('nicos_mlz.labs.softlab.xresd.devices.hv_generator.HighVoltagePowerSupply',
+    hv = device('nicos_mlz.labs.physlab.xresd.devices.hv_generator.HighVoltagePowerSupply',
         description = 'High voltage device',
         tangodevice = tango_base + 'generator',
         fmtstr = '(%.0f, %.0f)',
@@ -63,7 +64,7 @@ devices = dict(
         parameter = 'waterflow',
         fmtstr = '%.1f',
     ),
-    hv_heatercurrent = device('nicos.devices.generic.ReadonlyParamDevice',
+    hv_heaterCurrent = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'Heater current',
         device = 'hv',
         parameter = 'heatercurrent',

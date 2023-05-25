@@ -28,7 +28,7 @@ devices = dict(
         precision = 1e-3,
         fmtstr = '%.3f',
     ),
-    ctt = device('nicos_mlz.labs.softlab.xresd.devices.coupled.CoupledMotor',
+    ctt = device('nicos_mlz.labs.physlab.xresd.devices.coupled.CoupledMotor',
         description = 'Coupled Theta / 2Theta axis',
         maxis = 'stt',
         caxis = 'sth',
