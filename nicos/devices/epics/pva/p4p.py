@@ -223,6 +223,11 @@ class P4pWrapper:
                 self._values[pvname] = self._convert_value(pvname,
                                                            result['value'],
                                                            as_string)
+            if 'value.index' in change_set:
+                # Extract the enum's possible values
+                choices = result['value'].get('choices', [])
+                if choices:
+                    self._choices[pvname] = choices
             if 'display.units' in change_set:
                 self._units[pvname] = self._get_units(result, '')
             if 'alarm.status' in change_set or 'alarm.severity' in change_set:
