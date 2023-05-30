@@ -287,7 +287,13 @@ class FlatfileCacheDatabase(CacheDatabase):
                     continue
                 fields = line.rstrip().split(None, nsplit)
                 if fields[0] == subkey:
-                    time = float(fields[1])
+                    try:
+                        time = float(fields[1])
+                    except Exception as e:
+                        self.log.exception('Error converting timestamp in '
+                                           'cache file %s/%s/%s-%s',
+                                           year, monthday, category, subkey)
+                        continue
                     value = fields[-1]
                     if value == '-':
                         value = ''
