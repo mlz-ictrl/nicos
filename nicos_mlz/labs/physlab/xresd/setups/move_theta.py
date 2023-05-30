@@ -4,7 +4,7 @@ description = 'theta angle'
 group = 'optional'
 display_order = 70
 
-tango_base = 'tango://rsxrd.softlab.frm2.tum.de:10000/box/bruker/'
+tango_base = 'tango://rsxrd.physlab.frm2.tum.de:10000/box/bruker/'
 
 devices = dict(
 #    theta = device('nicos.devices.entangle.Motor',

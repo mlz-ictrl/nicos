@@ -4,7 +4,7 @@ description = 'phi rotation'
 group = 'optional'
 
 
-tango_base = 'tango://rsxrd.softlab.frm2.tum.de:10000/box/huber/'
+tango_base = 'tango://rsxrd.physlab.frm2.tum.de:10000/box/huber/'
 
 devices = dict(
     sam_rot = device('nicos.devices.entangle.Motor',

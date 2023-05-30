@@ -3,7 +3,7 @@ description = 'origin'
 group = 'configdata'
 
 instrument_name = 'xresd'
-hw_uri = 'rsxrd.softlab.frm2.tum.de'
+hw_uri = 'rsxrd.physlab.frm2.tum.de'
 tango_port = 10000
 facility = 'mlz'
 software_system = 'nicos'

@@ -6,7 +6,7 @@ group = 'optional'
 
 # excludes = ['virtual_sample']
 
-tango_base = 'tango://rsxrd.softlab.frm2.tum.de:10000/box/huber/'
+tango_base = 'tango://rsxrd.physlab.frm2.tum.de:10000/box/huber/'
 
 devices = dict(
     sam_tilt = device('nicos.devices.entangle.Motor',
