@@ -42,7 +42,6 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
     ),
-
     # Configure dataroot here (usually /data).
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
@@ -63,7 +62,7 @@ devices = dict(
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Space on log drive',
-        path = 'log',
+        path = '/control/log',
         warnlimits = (.5, None),
         minfree = 0.5,
         visibility = (),
