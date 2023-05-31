@@ -1,0 +1,16 @@
+#
+# Instrument specific template files
+#
+# Hint: all files ending in .template will be templated upon NewExperiment
+# or NewSample and then stored without that suffix into the scriptdirectory
+# (not overwriting exisitng files). Other files are 'just copied over',
+# overwriting older copies.
+#
+# Templating works by replacing constructs like {{key:default_value#description}}
+# with the value of <key> as given in the proposal or as keyword argument to NewExperiment/NewSample,
+# if no key is found, the (optional) default value is used.
+# if both are missing, NICOS complains and gives key and description to aid
+# specifying the right arguments.
+#
+# please list all files after the following line with a short description.
+# contents:
