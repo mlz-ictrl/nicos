@@ -63,4 +63,7 @@ devices = dict(
         precision = 1.5e-4,
         fmtstr = '%.4f',
     ),
+    tths = device('nicos.devices.generic.DeviceAlias',
+        alias = 'stt',
+    ),
 )
