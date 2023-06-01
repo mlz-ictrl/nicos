@@ -25,7 +25,7 @@
 from numpy import arange, arctan, array, rad2deg as deg
 
 from nicos.core import ArrayDesc, Attach, Readable
-from nicos.core.params import Param
+from nicos.core.params import Param, Value
 from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin
 
 
@@ -48,17 +48,18 @@ class Detector(ImageChannelMixin, ActiveChannel):
 
     def doInit(self, mode):
         self._attached_det.doInit(mode)
-        self.arraydesc = ArrayDesc(self.name, (2, self.pixel_count), 'f8')
-        self._ttheta_range = deg(
-            arctan((arange(0, self.pixel_count) - self.pixel_count / 2 + 0.5) *
-                   self.pixel_size / self.radius))
+        # self.arraydesc = ArrayDesc(self.name, (2, self.pixel_count), 'f8')
+        # self._ttheta_range = deg(
+        #     arctan((arange(0, self.pixel_count) - self.pixel_count / 2 + 0.5) *
+        #            self.pixel_size / self.radius))
 
     def doReadArray(self, quality):
         ttheta = self._attached_ttheta.doRead()
         cts = self._attached_det.doReadArray(quality)
-        ttheta_range = self._ttheta_range + ttheta
+        # ttheta_range = self._ttheta_range + ttheta
         self.readresult = self._attached_det.readresult
-        return array([ttheta_range, cts], dtype='f8')
+        # return array([ttheta_range, cts], dtype='f8')
+        return array([cts])
 
     def doStart(self):
         return self._attached_det.doStart()
@@ -83,3 +84,7 @@ class Detector(ImageChannelMixin, ActiveChannel):
 
     def doResume(self):
         return self._attached_det.doResume()
+
+    def valueInfo(self):
+        return (Value(self.name + '.sum', unit='cts', type='counter',
+                      errors='sqrt', fmtstr='%d'), )
