@@ -11,7 +11,7 @@ sysconfig = dict(
     instrument = 'reseda',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink', 'LiveImgSink'],
-    notifiers = ['email', 'slacker'],
+    notifiers = ['email'],
 )
 
 modules = ['nicos.commands.standard', 'nicos_mlz.reseda.tuning_commands',  'nicos_mlz.reseda.commands']

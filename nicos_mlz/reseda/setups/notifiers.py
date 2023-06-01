@@ -9,7 +9,7 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         sender = 'reseda@frm2.tum.de',
         receivers = [
-            'philipp.bender@frm2.tum.de',
+            'lukas.beddrich@frm2.tum.de',
             'johanna.jochum@frm2.tum.de'
         ],
         subject = 'NICOS@RESEDA',
@@ -19,8 +19,8 @@ devices = dict(
         server = 'triton.admin.frm2',
         receivers = [],
     ),
-    slacker = device('nicos.devices.notifiers.slack.Slacker',
-        receivers = ['#nicos_build-up'],
-        keystoretoken = 'slack',
-    ),
+    # slacker = device('nicos.devices.notifiers.slack.Slacker',
+    #     receivers = ['#nicos_build-up'],
+    #     keystoretoken = 'slack',
+    # ),
 )
