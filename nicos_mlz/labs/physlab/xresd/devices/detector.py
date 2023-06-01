@@ -107,15 +107,15 @@ class MovingDetector(MeasureSequencer):
 
     def _pixel_size(self):
         return self._attached_detector._attached_images[0].pixel_size
-        return self.pixel_size
+        # return self.pixel_size
 
     def _pixel_count(self):
         return self._attached_detector._attached_images[0].pixel_count
-        return self.pixel_count
+        # return self.pixel_count
 
     def _ttheta_radius(self):
         return self._attached_detector._attached_images[0].radius
-        return self.detector_radius
+        # return self.detector_radius
 
     def doStart(self):
         px_count = self._pixel_count()
