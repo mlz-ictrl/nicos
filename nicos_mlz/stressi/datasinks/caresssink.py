@@ -139,13 +139,13 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         buf = pack('<BBf', FLOATTYPE, 1, float(value))
         self._file_write(buf)
 
-    def _write_exptype(self, l):
+    def _write_exptype(self, types):
         data = 'EXPTYPE'
         self._defcmd(data)
         self._string(data)
         buf = b'\x80'
         sbuf = b''
-        for item in l:
+        for item in types:
             item = item.encode()
             buf += pack('BBBB', 0x80, CHARTYPE, 0x81, len(item))
             sbuf += item
@@ -545,7 +545,20 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         d.clear()
         d['TTHS'] = (256., 128., 0.85)
         d['NYS'] = (256., 128., 0.85)
-        d['YSD'] = (0)
+        d['YSD'] = (point.metainfo.get(('ysd', 'value'), [0])[0],)
+        if self._detvalues is not None:
+            # TODO: Pixel size
+            if len(self._detvalues.shape) == 2:
+                d['TTHS'] = (
+                    float(self._detvalues.shape[1]), self._detvalues.shape[1] / 2,
+                        0.85)
+            elif len(self._detvalues.shape) == 1:
+                d['TTHS'] = (
+                    float(self._detvalues.shape[0]), self._detvalues.shape[0] / 2,
+                        0.85)
+            d['NYS'] = (
+                float(self._detvalues.shape[0]), self._detvalues.shape[0] / 2,
+                0.85)
         self._write_rela(d)
 
         d.clear()
@@ -553,6 +566,12 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         d['W2'] = (0, 0, 0, 0)
         d['W3'] = (0, 0, 0, 0)
         d['W4'] = (0, 0, 0, 0)
+        if self._detvalues is not None:
+            if len(self._detvalues.shape) == 2:
+                d['W1'] = (
+                    1, self._detvalues.shape[0], 1, self._detvalues.shape[1])
+            elif len(self._detvalues.shape) == 1:
+                d['W1'] = (1, 1, 1, self._detvalues.shape[0])
         self._write_winda(d)
 
         if 'sample' in bycategory:
@@ -584,8 +603,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             return
 
         point = subset
-        if point.number == 1:
-            self._write_header(point)
 
         self.log.debug('%r - %r', point.detvalueinfo, point.detvaluelist)
 
@@ -600,6 +617,9 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             # create empty data set
             self.log.error('Could not get the image data from %s', det)
             self._detvalues = np.zeros((256, 256))
+
+        if point.number == 1:
+            self._write_header(point)
 
         self.log.debug('storing results %r', self._detvalues)
 
@@ -617,10 +637,10 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                     self._write_integer(val)
                 else:
                     tim1 = 100 * val
-        tths = point.metainfo['tths', 'value'][0]
+        tths = point.metainfo.get(('tths', 'value'), [0])[0]
         self._write_float(tths)
         for (info, val) in zip(point.detvalueinfo, point.detvaluelist):
-            self.log.debug('%s: %r', info.type, val)
+            self.log.debug('%s (%s): %r', info.name, info.type, val)
             if info.type == 'counter' and info.name.endswith('.sum'):
                 addvalues = (tths, )
                 buf = b'\x80'
