@@ -61,6 +61,7 @@ Contributors:
 * Michael Wedel <michael.wedel@esss.se>
 * Wolfgang Wein <wein@informatik.tu-muenchen.de>
 * Markus Zolliker <markus.zolliker@psi.ch>
+* Jonathan Haehne <jonathan.haehne@frm2.tum.de>
 
 Instrument-specific code was contributed by:
 
