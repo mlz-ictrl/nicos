@@ -566,7 +566,7 @@ class SecNodeDevice(Readable):
         if parameter not in self._secnode.modules[module]['parameters']:
             raise ValueError('no parameter %r found on module %r of this SEC node'
                                      % module)
-        self.custom_callbacks[(module,parameter)].append(f)
+        self._custom_callbacks[(module,parameter)].append(f)
         self._secnode.register_callback((module, parameter), updateItem=f)
         self.log.debug(f'registered callback \'{f.__name__}\' for \'{module}:{parameter}\'')
 
@@ -580,7 +580,7 @@ class SecNodeDevice(Readable):
             raise ValueError('no parameter %r found on module %r of this SEC node'
                                      % module)
         try:
-            self.custom_callbacks[(module,parameter)].append(f)
+            self._custom_callbacks[(module,parameter)].append(f)
             self._secnode.register_callback((module, parameter), updateItem=f)
         except ValueError as e:
             raise ValueError('function not registered as callback!') from e
