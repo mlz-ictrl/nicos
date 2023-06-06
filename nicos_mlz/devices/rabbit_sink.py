@@ -28,8 +28,10 @@ from datetime import datetime
 import pika
 
 from nicos import session
-from nicos.core import DataSink, DataSinkHandler, Param
-from nicos.core.constants import MASTER, SCAN
+from nicos.core import Override, Param
+from nicos.core.constants import BLOCK, MASTER, POINT, SCAN, SUBSCAN
+from nicos.core.data import BaseDataset, BlockDataset, DataSink, \
+    DataSinkHandler, ScanDataset
 
 
 class Message:
@@ -40,9 +42,13 @@ class Message:
     def __init__(
             self,
             id: uuid.UUID,  # pylint: disable=redefined-builtin
+            scanid: uuid.UUID,
+            blockid: uuid.UUID,
             type: str,  # pylint: disable=redefined-builtin
             attributes: dict):
         self.id = str(id)
+        self.blockid = str(blockid) or None
+        self.scanid = str(scanid) or None
         self.type = type
         self.creation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.attributes = attributes
@@ -59,33 +65,37 @@ class Message:
 
 
 class RabbitSinkHandler(DataSinkHandler):
-    dataset_id = uuid.uuid4()
 
     @property
     def metainfo(self):
         """Returns the metainfo of its dataset as json"""
         metadata = {}
+        # TODO: add mapping to devices w/ important information, currently
+        # experiment and sample
         experiment = {
             'experiment_id': session.experiment.proposal,
             'samples': session.experiment.sample.samples,
             'samplenumber': session.experiment.sample.samplenumber
         }
-        try:
-            for (dev, parm), (_, value, _, _) in self.dataset.metainfo.items():
-                if dev in metadata:
-                    metadata[dev][parm] = value
-                else:
-                    metadata.update({dev: {parm: value}})
-        finally:
-            return {'experiment': experiment, 'metadata': metadata}  # pylint: disable=lost-exception
+        if hasattr(self.dataset, 'metainfo'):
+            # A dictionary of (devname, key) -> (value, str_value, unit, category)
+            for (dev, parm), (
+            value, _str_value, unit, _) in self.dataset.metainfo.items():
+                metadata.setdefault(dev, {})
+                metadata[dev][parm] = value if not unit else (value, unit)
+            return {'experiment': experiment, 'metadata': metadata}
 
-    def _sendMessage(self, type: str):  # pylint: disable=redefined-builtin
+    def _sendMessage(self, type: str, dataset: BaseDataset,  # pylint: disable=redefined-builtin
+                     scands: ScanDataset = None, blockds: BlockDataset = None):
         """Sends the metainfo, if available, and other information to the
         Queue"""
         msg = Message(
-            self.dataset_id,
+            dataset.uid,
+            scands.uid if scands else None,
+            blockds.uid if blockds else None,
             type,
             attributes=self.metainfo)
+        # TODO: metadata goes to toplevel, attributes already inherited (-> remove)
         for retry in range(3):
             try:
                 if retry > 0:  # reconnect
@@ -102,12 +112,52 @@ class RabbitSinkHandler(DataSinkHandler):
         else:
             raise exc
 
+    def _getScanDatasetParents(self, it):
+        """Returns a tuple of `BlockDataset`, `ScanDataset` for a given
+        iterator if available.
+        """
+        # get parent `ScanDataset` (subscan) and `BlockDataset` for this
+        # `ScanDataset` if available
+        while True:
+            scands = next(it, None)
+            if not scands or scands.settype != POINT:
+                break
+        blockds = next(it, scands)
+        if blockds == scands:  # not a subscan -> `BlockDataset` is first parent
+            return blockds, None
+        return blockds, scands
+
     def addSubset(self, subset):
-        self._sendMessage(self.dataset.settype)
+        # do not take into account addSubset of scans to blocks
+        # this is handled in `end()`.
+        if subset.settype != POINT:
+            return
+        blockds, scands = self._getScanDatasetParents(
+            self.manager.iterParents(self.dataset))
+        if subset.number == 1:  # begin of ScanDataset including metainfo
+            self._sendMessage(self.dataset.settype, self.dataset, scands,
+                              blockds)
+        self._sendMessage(subset.settype, subset, self.dataset, blockds)
+
+    def begin(self):
+        self.log.debug("begin: dataset.settype = %s", self.dataset.settype)
+        # need to skip begin of ScanDataset as metainfo is not available
+        # before the first point. This is handled on the first point in
+        # `addSubset`.
+        if self.dataset.settype not in (SCAN, SUBSCAN):
+            self._sendMessage(self.dataset.settype, self.dataset)
 
     def end(self):
-        if self.dataset.settype == SCAN:
-            self._sendMessage(f'{SCAN}.end')
+        self.log.debug("end: dataset.settype = %s", self.dataset.settype)
+        blockds, scands = None, None
+        if self.dataset.settype in (SCAN, SUBSCAN):
+            # the `ScanDataset` has been popped from DataManager's stack before
+            # dispatching `finish`. Parents are left on the stack, using
+            # `iter(self.manager.stack)` though.
+            blockds, scands = self._getScanDatasetParents(
+                reversed(self.manager._stack))
+        self._sendMessage(f'{self.dataset.settype}.end', self.dataset,
+                          scands, blockds)
 
 
 class RabbitSink(DataSink):
@@ -116,6 +166,10 @@ class RabbitSink(DataSink):
     """
     parameters = {
         'rabbit_url': Param('RabitMQ server url', type=str, mandatory=True)
+    }
+
+    parameter_overrides = {
+        'settypes': Override(default=[SCAN, SUBSCAN, BLOCK])
     }
 
     handlerclass = RabbitSinkHandler

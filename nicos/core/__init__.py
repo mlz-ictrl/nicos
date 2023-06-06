@@ -26,8 +26,8 @@
 from nicos.core.acquire import DevStatistics, acquire, read_environment
 from nicos.core.constants import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, \
     MAIN, MAINTENANCE, MASTER, POLLER, SIMULATION, SLAVE
-from nicos.core.data import BaseDataset, DataSink, DataSinkHandler, \
-    PointDataset, ScanDataset
+from nicos.core.data import BaseDataset, BlockDataset, DataSink, \
+    DataSinkHandler, PointDataset, ScanDataset
 from nicos.core.device import Device, DeviceAlias, DeviceMeta, Measurable, \
     Moveable, NoDevice, Readable, SubscanMeasurable, Waitable, requires
 from nicos.core.errors import AccessError, CacheError, CacheLockError, \
