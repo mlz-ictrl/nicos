@@ -86,10 +86,21 @@ class RabbitSinkHandler(DataSinkHandler):
             self.dataset_id,
             type,
             attributes=self.metainfo)
-        msg.publish(
-            self.sink._exchange,
-            self.sink._channel,
-            session.instrument.instrument)
+        for retry in range(3):
+            try:
+                if retry > 0:  # reconnect
+                    self.sink._connect()
+                msg.publish(
+                    self.sink._exchange,
+                    self.sink._channel,
+                    session.instrument.instrument)
+                break
+            except (pika.exceptions.AMQPChannelError,
+                    pika.exceptions.AMQPConnectionError) as e:
+                self.log.debug('reconnect #%d due to %r', retry + 1, e)
+                exc = e
+        else:
+            raise exc
 
     def addSubset(self, subset):
         self._sendMessage(self.dataset.settype)
