@@ -364,7 +364,6 @@ class SecNodeDevice(Readable):
 
     def unregisterDevice(self, device):
         self.log.debug('unregister %s from %s', device, self)
-        session.configured_devices.pop(device.name, None)
         if self._devices.pop(device.name, None) is None:
             self.log.info('device %s already removed', device.name)
             return
@@ -954,6 +953,7 @@ class SecopDevice(Device):
             return
         self._defunct = True
         if self._attached_secnode is not None:
+            session.configured_devices.pop(self.name, None)
             self._attached_secnode.unregisterDevice(self)
             # make defunct
             secnode = self._adevs.pop('secnode', None)
