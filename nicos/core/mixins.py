@@ -265,16 +265,26 @@ class HasLimits(DeviceMixinBase):
             # value stays within them, but only after the new offset is applied
             return
         curval = self.read(0)
-        if isinstance(self, HasPrecision):
-            outoflimits = curval + self.precision < value[0] or \
-                curval - self.precision > value[1]
-        else:
-            outoflimits = not (value[0] <= curval <= value[1])
-        if outoflimits:
+
+        if self._check_in_range(curval, value)[0] == status.WARN:
             self.log.warning('current device value (%s) not within new '
                              'userlimits (%s, %s)',
                              self.format(curval, unit=True),
                              value[0], value[1])
+
+    def _check_in_range(self, curval, userlimits):
+        # take precision into account in case we drive exactly to the
+        # user limit but the device overshoots a little
+        precision = self.precision if isinstance(self, HasPrecision) else 0
+
+        if curval + precision < userlimits[0]:
+            return status.WARN, 'below user limit (%s)' % \
+                                self.format(userlimits[0], unit=True)
+        elif curval - precision > userlimits[1]:
+            return status.WARN, 'above user limit (%s)' % \
+                                self.format(userlimits[1], unit=True)
+
+        return status.OK, ''
 
     def _adjustLimitsToOffset(self, value, diff):
         """Adjust the user limits to the given offset.

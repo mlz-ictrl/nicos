@@ -31,7 +31,7 @@ import threading
 
 from nicos.core import Override, Param, oneof, pvname, status
 from nicos.core.errors import ConfigurationError
-from nicos.core.mixins import CanDisable, HasOffset
+from nicos.core.mixins import CanDisable, HasLimits, HasOffset
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics.pva.epics_devices import EpicsMoveable
 
@@ -376,3 +376,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
     def doReadUnit(self):
         return self._get_pv('units')
+
+    def _check_in_range(self, curval, userlimits):
+        if userlimits == (0, 0) and self.abslimits == (0, 0):
+            # No limits defined, so must be in range
+            return status.OK, ''
+
+        return HasLimits._check_in_range(self, curval, userlimits)

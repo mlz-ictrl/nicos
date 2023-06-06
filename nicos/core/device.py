@@ -38,7 +38,7 @@ from nicos.core.errors import AccessError, CacheLockError, \
     ModeError, MoveError, NicosError, PositionError, ProgrammingError, \
     UsageError
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
-    HasPrecision, HasTimeout, IsController
+    HasTimeout, IsController
 from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
     Value, anytype, dictof, floatrange, listof, nicosdev, none_or, oneof, \
     setof, tupleof
@@ -1145,17 +1145,9 @@ class Readable(Device):
                 if value is None:
                     value = self.read(maxage)
                 ul = self.userlimits
-                # take precision into account in case we drive exactly to the
-                # user limit but the device overshoots a little
-                prec = self.precision if isinstance(self, HasPrecision) else 0
-                if value < ul[0] - prec:
-                    stvalue = status.WARN, \
-                        statusString(stvalue[1], 'below user limit (%s)' %
-                                     self.format(ul[0], unit=True))
-                elif value > ul[1] + prec:
-                    stvalue = status.WARN, \
-                        statusString(stvalue[1], 'above user limit (%s)' %
-                                     self.format(ul[1], unit=True))
+                result = self._check_in_range(value, ul)
+                if result[0] == status.WARN:
+                    stvalue = status.WARN, statusString(stvalue[1], result[1])
 
         return stvalue
 
