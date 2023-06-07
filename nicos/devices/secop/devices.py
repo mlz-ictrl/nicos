@@ -1104,7 +1104,8 @@ class SecopHasOffset(HasOffset):
         return super().doRead() - self.offset
 
     def doReadTarget(self):
-        return super().doReadTarget() - self.offset
+        raw = super().doReadTarget()
+        return None if raw is None else super().doReadTarget() - self.offset
 
     def doStart(self, value):
         super().doStart(value + self.offset)
