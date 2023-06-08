@@ -33,17 +33,18 @@ class Detector(ImageChannelMixin, ActiveChannel):
 
     attached_devices = {
         'det': Attach('Underlying pixel detector (1 dim)', ActiveChannel),
-        'ttheta': Attach('2Theta axis encoder', Readable)
+        # 'ttheta': Attach('2Theta axis encoder', Readable)
     }
 
     parameters = {
         'radius': Param('Distance detector to the goniometer center (in mm)',
                         type=float, volatile=False, settable=False),
         'pixel_size': Param('Size of a single pixel (in mm)',
-                            type=float, volatile=False, settable=False),
+                            type=float, volatile=False, settable=False,
+                            category='instrument'),
         'pixel_count': Param('Number of detector pixels',
                              type=int, volatile=False, settable=False,
-                             default=1280),
+                             default=1280, category='instrument'),
     }
 
     def doInit(self, mode):
@@ -54,7 +55,7 @@ class Detector(ImageChannelMixin, ActiveChannel):
         #            self.pixel_size / self.radius))
 
     def doReadArray(self, quality):
-        ttheta = self._attached_ttheta.doRead()
+        # ttheta = self._attached_ttheta.doRead()
         cts = self._attached_det.doReadArray(quality)
         # ttheta_range = self._ttheta_range + ttheta
         self.readresult = self._attached_det.readresult
