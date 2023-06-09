@@ -31,6 +31,9 @@ from nicos.core.constants import SIMULATION
 from nicos_ess.devices.kafka.utils import create_sasl_config
 
 
+MAX_MESSAGE_SIZE = 209_715_200
+
+
 class KafkaProducer:
     """Class for wrapping the Confluent Kafka producer."""
 
@@ -56,6 +59,7 @@ class KafkaProducer:
         """
         config = {
             'bootstrap.servers': ','.join(brokers),
+            'message.max.bytes': MAX_MESSAGE_SIZE,
         }
         self._producer = Producer({**config, **options})
 
