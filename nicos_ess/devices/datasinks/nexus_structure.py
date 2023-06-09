@@ -149,11 +149,14 @@ class NexusStructureJsonFile(NexusStructureProvider):
         return ','.join(temp) if temp else ''
 
     def _insert_samples(self, structure, metainfo):
+        samples_info = metainfo.get(('Sample', 'samples'))
+        if not samples_info:
+            return structure
+
         samples_str = self._generate_nxclass_template(
-            'NXsample',
-            'sample',
-            metainfo[('Sample', 'samples')][0].values(),
+            'NXsample', 'sample', samples_info[0].values(),
             skip_keys=['number_of'])
+
         if samples_str:
             structure = structure.replace('"$SAMPLES$"', samples_str)
         return structure
