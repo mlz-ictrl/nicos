@@ -11,6 +11,8 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands']
 
+KAFKA_BROKERS = ["10.100.1.19:8093"]
+
 devices = dict(
     BIFROST=device(
         'nicos.devices.instrument.Instrument',
@@ -37,7 +39,7 @@ devices = dict(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description='Monitors the status of the Forwarder',
         statustopic="bifrost_forwarder_status",
-        brokers=["10.100.1.19:9092"],
+        brokers=KAFKA_BROKERS,
     ),
     NexusStructure_Basic=device(
         'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
@@ -54,14 +56,14 @@ devices = dict(
     FileWriterStatus=device(
         'nicos_ess.devices.datasinks.file_writer.FileWriterStatus',
         description='Status of the file-writer',
-        brokers=['10.100.1.19:9092'],
+        brokers=KAFKA_BROKERS,
         statustopic='bifrost_filewriter',
         unit='',
     ),
     FileWriterControl=device(
         'nicos_ess.devices.datasinks.file_writer.FileWriterControlSink',
         description='Control for the file-writer',
-        brokers=['10.100.1.19:9092'],
+        brokers=KAFKA_BROKERS,
         pool_topic='ess_filewriter_pool',
         status='FileWriterStatus',
         nexus='NexusStructure',
@@ -70,6 +72,6 @@ devices = dict(
     SciChat=device(
         'nicos_ess.devices.scichat.ScichatBot',
         description='Sends messages to SciChat',
-        brokers=['10.100.1.19:9092'],
+        brokers=KAFKA_BROKERS,
     ),
 )
