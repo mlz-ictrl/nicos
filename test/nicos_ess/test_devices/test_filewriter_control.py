@@ -29,6 +29,7 @@ import pytest
 from test.utils import ErrorLogged
 
 pytest.importorskip('streaming_data_types')
+pytest.importorskip('confluent_kafka')
 
 from nicos.commands.measure import count
 from nicos.commands.scan import scan

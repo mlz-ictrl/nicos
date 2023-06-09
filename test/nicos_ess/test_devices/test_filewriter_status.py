@@ -30,6 +30,7 @@ import pytest
 
 pytest.importorskip('file_writer_control')
 pytest.importorskip('streaming_data_types')
+pytest.importorskip('confluent_kafka')
 
 from streaming_data_types import serialise_answ, serialise_wrdn, serialise_x5f2
 from streaming_data_types.fbschemas.action_response_answ.ActionOutcome import \
