@@ -2,4 +2,4 @@ description = 'Basic setup'
 
 group = 'basic'
 
-includes = ['sampletable']
+includes = ['sampletable', 'detector']
