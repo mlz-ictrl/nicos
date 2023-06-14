@@ -27,7 +27,7 @@ devices = dict(
         description = 'instrument object',
         instrument = 'BIO',
         responsible = 'Anatoliy Senyshyn <anatoliy.senyshyn@frm2.tum.de>',
-        website = 'http://instrument.website',
+        website = 'http://www.mlz-garching.de/spodi',
         operators = ['MLZ'],
         facility = 'MLZ',
     ),
