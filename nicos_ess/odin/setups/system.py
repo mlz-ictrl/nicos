@@ -11,6 +11,8 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands']
 
+KAFKA_BROKERS = ["10.100.1.19:8093"]
+
 devices = dict(
     ODIN=device(
         'nicos.devices.instrument.Instrument',
@@ -33,4 +35,15 @@ devices = dict(
         'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'),
     daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
+    KafkaForwarderStatus=device(
+        'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+        description='Monitors the status of the Forwarder',
+        statustopic="odin_forwarder_status",
+        brokers=KAFKA_BROKERS,
+    ),
+    SciChat=device(
+        'nicos_ess.devices.scichat.ScichatBot',
+        description='Sends messages to SciChat',
+        brokers=KAFKA_BROKERS,
+    ),
 )
