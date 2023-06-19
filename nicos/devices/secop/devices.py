@@ -224,6 +224,15 @@ class SecNodeDevice(Readable):
             self._value = ''
         return self._value
 
+    def doReset(self):
+        try:
+            self._call('reset')
+        except KeyError:
+            try:
+                self.clear_errors()
+            except AttributeError:
+                pass
+
     def doStatus(self, maxage=0):
         return self._status
 
@@ -644,6 +653,9 @@ class SecopDevice(Device):
                 attrs['doWrite%s' % pname.title()] = do_write
 
         for cname, cmddict in commands_cfg.items():
+
+            if cname == 'reset':
+                continue  # special treatment of reset command in doReset
 
             def makecmd(cname, datainfo, description):
                 argument = datainfo.get('argument')
