@@ -59,11 +59,12 @@ class EssExperiment(Experiment):
         'propprefix': Override(default=''),
         'proptype': Override(settable=True),
         'serviceexp': Override(default='Service'),
-        'sendmail': Override(default=False),
-        'zipdata': Override(default=False),
+        'sendmail': Override(default=False, settable=False),
+        'zipdata': Override(default=False, settable=False),
         'users': Override(default=[], type=listof(dict)),
         'localcontact': Override(default=[], type=listof(dict)),
-        'title': Override(settable=True)
+        'title': Override(settable=True),
+        'elog': Override(default=False, settable=False),
     }
 
     def doInit(self, mode):
