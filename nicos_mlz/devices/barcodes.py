@@ -18,6 +18,7 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
+#   Alexander Zaft <a.zaft@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -123,6 +124,112 @@ class BarcodeInterpreter(StringIO):
                 # Also leave some time inbetween attempts; if the Tango server
                 # is not coming back we don't want to busy-loop.
                 time.sleep(3)
+
+    def _convert_code(self, codetype, content):
+        """Convert a barcode of given type and content to Python code to
+        execute.
+        """
+        if codetype == 'QR':
+            try:
+                res = urllib.parse.urlparse(content)
+                if not res.scheme.startswith('nicos+'):
+                    return
+            except ValueError:
+                return
+            if res.scheme == 'nicos+cmd':
+                cmd = res.netloc
+                args = res.path.split('/')
+                if cmd in self.commandmap:
+                    code = re.sub(r'\$(\d)', lambda m: args[int(m.group(1))],
+                                  self.commandmap[cmd])
+                else:
+                    code = '%s(%s)' % (cmd, ', '.join(args[1:]))
+                return code
+        elif codetype == 'Code 128' and content.isdigit():
+            # shortcut for samples from sample database
+            # XXX: proposals use the same barcode type without distinction
+            # return 'NewSampleFromDatabase(%s)' % content
+            pass
+
+
+class BarcodeInterpreterMixin:
+    """Mixin for SECoP barcode devices.
+
+    Receives updates from a connected barcodereader Secop device and executes
+    corresponding actions as scripts in the NICOS daemon.
+
+    Right now, this Mixin only works for the ZebraBarcodeReader from Frappy.
+    Generalizing this would have to make 'decoded' configurable and may need to
+    consider the calls to the beep()-command on self.
+
+    - Currently recognized barcodes must be in QR-Code format and should
+      contain an URI of this format::
+
+         nicos+cmd://Command/arg1/arg2/...
+
+      For example, ::
+
+          nicos+cmd://maw/shutter1/"open"
+
+      to execute `maw(shutter1, "open")`.
+
+    - This device supports assigning shortcuts in the `commandmap` parameter.
+      The `Command` in the URI is looked up in the map, and if found, the
+      corresponding code is executed, with URI path arguments represented
+      by `$0`, `$1` and so forth.
+
+      For example, for this command map ::
+
+         { 'SE': 'NewSetup("$0"); printinfo("Loaded $1 $0")' }
+
+      and this QR-Code content ::
+
+         nicos+cmd://SE/ccr0/cryostat
+
+      NICOS will execute `NewSetup("ccr0"); printinfo("Loaded cryostat ccr0")`.
+
+    Executed commands are run at `USER` level by a special user named like this
+    device is called in the setup.
+    """
+
+    parameters = {
+        'commandmap': Param('Mapping of short commands to Python code',
+                            type=dictof(str, str), mandatory=True),
+    }
+
+    def doInit(self, mode):
+        if hasattr(super(), 'doInit'):
+            super().doInit(mode)
+        if mode != SIMULATION:
+            self._daemon = getattr(session, 'daemon_device', None)
+            self.register_callback(
+                # move 'decoded' to be a configurable parameter, if needed
+                'decoded', lambda mod, param, item: self.on_update(item)
+            )
+
+    def on_update(self, item):
+        barcode = item.value
+        if not barcode:
+            return
+        user = User(name=self.name, level=USER)
+        if not self._daemon:
+            return  # probably raise error
+        controller = self._daemon._controller
+        script = self._convert_code(*barcode.split(',', 1))
+        if not script:
+            # Let the user know that the code was not recognized.
+            self.beep(12)
+            return
+        try:
+            controller.new_request(ScriptRequest(
+                script, '<barcode request>', user))
+        except RequestError:
+            self.log.warning('could not initiate request from barcode',
+                             exc=1)
+            self.beep(12)
+        else:
+            # Acknowledge receipt and execution.
+            self.beep(25)
 
     def _convert_code(self, codetype, content):
         """Convert a barcode of given type and content to Python code to
