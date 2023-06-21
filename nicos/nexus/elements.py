@@ -108,9 +108,9 @@ class NXAttribute(NexusElementBase):
     """Placeholder for a NeXus Attribute."""
 
     def __init__(self, value, dtype):
+        NexusElementBase.__init__(self)
         self.dtype = dtype
         self.value = value
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         if self.dtype == 'string':
@@ -123,6 +123,7 @@ class ConstDataset(NexusElementBase):
     """Placeholder for a Dataset with a constant value."""
 
     def __init__(self, value, dtype, **attrs):
+        NexusElementBase.__init__(self)
         self.value = value
         self.dtype = dtype
         self.attrs = {}
@@ -130,7 +131,6 @@ class ConstDataset(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         if self.dtype == 'string':
@@ -183,6 +183,7 @@ class DeviceDataset(NexusElementBase):
 
     def __init__(self, device, parameter='value', dtype=None, defaultval=None,
                  **attr):
+        NexusElementBase.__init__(self)
         self.device = device
         self.parameter = parameter
         self.dtype = dtype
@@ -193,7 +194,6 @@ class DeviceDataset(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def testAppend(self, sinkhandler):
         NexusElementBase.testAppend(self, sinkhandler)
@@ -286,6 +286,7 @@ class DetectorDataset(NexusElementBase):
     """Placeholder for a detector data dataset."""
 
     def __init__(self, nicosname, dtype, **attr):
+        NexusElementBase.__init__(self)
         self.nicosname = nicosname
         self.dtype = dtype
         # Hack for countmode which is a short text
@@ -296,7 +297,6 @@ class DetectorDataset(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     # At creation time, I do not yet have a value for detector data. This is
     # why the dtype needs to be specified. Values can only get written on
@@ -361,6 +361,7 @@ class ImageDataset(NexusElementBase):
     """Placeholder for a detector image."""
 
     def __init__(self, detectorIDX, imageIDX, **attrs):
+        NexusElementBase.__init__(self)
         self.detectorIDX = detectorIDX
         self.imageIDX = imageIDX
         self.attrs = {}
@@ -371,7 +372,6 @@ class ImageDataset(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         self.testAppend(sinkhandler)
@@ -463,9 +463,9 @@ class NXLink(NexusElementBase):
     """
 
     def __init__(self, target):
+        NexusElementBase.__init__(self)
         self.target = target
         self.linkCreated = False
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         # The __init__() linkCreated is only initialised at template
@@ -551,10 +551,10 @@ class NexusSampleEnv(NexusElementBase):
     """
 
     def __init__(self, update_interval=10, postfix=None):
+        NexusElementBase.__init__(self)
         self._update_interval = update_interval
         self._last_update = {}
         self._postfix = postfix
-        NexusElementBase.__init__(self)
 
     def createNXlog(self, h5parent, dev):
         logname = dev.name
@@ -627,6 +627,7 @@ class CalcData(NexusElementBase):
     value. The default is float32.
     """
     def __init__(self, **attrs):
+        NexusElementBase.__init__(self)
         self.attrs = {}
         self.doAppend = False
         self.np = 0
@@ -636,7 +637,6 @@ class CalcData(NexusElementBase):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
         self.dtype = "float32"
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         self.testAppend(sinkhandler)
