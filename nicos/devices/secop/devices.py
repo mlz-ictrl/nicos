@@ -574,7 +574,7 @@ class SecNodeDevice(Readable):
                                      % module)
         if parameter not in self._secnode.modules[module]['parameters']:
             raise ValueError('no parameter %r found on module %r of this SEC node'
-                                     % module)
+                                     % (parameter, module))
         self._custom_callbacks[(module,parameter)].append(f)
         self._secnode.register_callback((module, parameter), updateItem=f)
         self.log.debug(f'registered callback \'{f.__name__}\' for \'{module}:{parameter}\'')
@@ -587,7 +587,7 @@ class SecNodeDevice(Readable):
                                      % module)
         if parameter not in self._secnode.modules[module]['parameters']:
             raise ValueError('no parameter %r found on module %r of this SEC node'
-                                     % module)
+                                     % (parameter, module))
         try:
             self._custom_callbacks[(module,parameter)].append(f)
             self._secnode.register_callback((module, parameter), updateItem=f)
@@ -1016,11 +1016,13 @@ class SecopDevice(Device):
         The function is executed every time the client receives a new value for
         the given parameter..
         """
-        self.secnode.register_custom_callback(self.secop_module , parameter, f)
+        self._attached_secnode.register_custom_callback(self.secop_module,
+                                                        parameter, f)
 
     def unregister_callback(self, parameter, f):
         """Unregister a callback for parameter updates."""
-        self.secnode.unregister_custom_callback(self.secop_module , parameter, f)
+        self._attached_secnode.unregister_custom_callback(self.secop_module,
+                                                          parameter, f)
 
 
 class SecopReadable(SecopDevice, Readable):
