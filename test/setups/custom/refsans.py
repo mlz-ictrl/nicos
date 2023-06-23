@@ -493,6 +493,14 @@ devices = dict(
         opmode = 'offcentered',
         coordinates = 'opposite',
     ),
+    ttr = device('nicos_mlz.refsans.devices.converters.Ttr',
+        unit = 'mbar',
+        att = device('nicos.devices.generic.ManualMove',
+            abslimits = (0, 10),
+            unit = 'V',
+            default = 1,
+        ),
+    ),
 )
 
 alias_config = {

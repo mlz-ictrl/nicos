@@ -239,3 +239,25 @@ class TestDimetixLaser:
         """Signal strength is bad."""
         session.getDevice('dix_signal').curvalue = 7000
         assert session.getDevice('dix').read(0) == -2000
+
+
+class TestTtr:
+    """Class to test Ttr device."""
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        pass
+
+    @pytest.mark.parametrize('unit,expected', [
+        ('mbar', 0.0001),
+        ('ubar', 0.09982),
+        ('torr', 7.51e-05),
+        ('mtorr', 0.0748),
+        ('micron', 0.0748),
+        ('Pa', 0.01002),
+        ('kPa', 1.002e-5),
+    ])
+    def test_read(self, session, unit, expected):
+        dev = session.getDevice('ttr')
+        dev.unit = unit
+        assert dev.read(0) == approx(expected, rel=0.01)

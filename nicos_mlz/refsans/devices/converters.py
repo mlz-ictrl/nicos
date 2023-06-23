@@ -23,31 +23,37 @@
 # *****************************************************************************
 
 from nicos.core import Override, Readable
-from nicos.core.params import Attach
+from nicos.core.params import Attach, oneof
 from nicos.devices.abstract import TransformedReadable
 
 from nicos_mlz.stressi.devices.mixins import TransformRead
 
+UNITCONVS = {
+    'mbar': 6.143,
+    'ubar': 2.287,
+    'torr': 6.304,
+    'mtorr': 2.448,
+    'micron': 2.448,
+    'Pa': 3.572,
+    'kPa': 7.429,
+}
 
-class Ttr(Readable):
+
+class Ttr(TransformedReadable):
 
     attached_devices = {
         'att': Attach('center', Readable),
     }
 
-    unitconvs = {
-        'mbar': 6.143,
-        'ubar': 2.287,
-        'torr': 6.304,
-        'mtorr': 2.448,
-        'micron': 2.448,
-        'Pa': 3.572,
-        'kPa': 7.429,
+    parameter_overrides = {
+        'unit': Override(type=oneof(*UNITCONVS.keys())),
     }
 
-    def doRead(self, maxage=0):
-        c = self.unitconvs.get(self.unit, 0.0)
-        return 10**((self._attached_att.read(maxage) - c)/1.286)
+    def _readRaw(self, maxage=0):
+        return self._attached_att.read(maxage)
+
+    def _mapReadValue(self, value):
+        return 10**((value - UNITCONVS.get(self.unit, 0.)) / 1.286)
 
 
 class LinearKorr(TransformRead, TransformedReadable):
