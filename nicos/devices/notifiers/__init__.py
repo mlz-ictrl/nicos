@@ -25,6 +25,7 @@
 """NICOS notification classes."""
 
 import subprocess
+import socket
 from time import time as currenttime
 
 from nicos import session
@@ -145,6 +146,9 @@ class Mailer(Notifier):
                                                   oneof('all', 'important')))),
     }
 
+    def doInit(self, mode):
+        self._subject = self.subject
+
     def reset(self):
         self.log.info('mail receivers cleared')
         self.receivers = []
@@ -155,7 +159,7 @@ class Mailer(Notifier):
             if not receivers:
                 return
             ret = sendMail(self.mailserver, receivers, self.sender,
-                           self.subject + ' -- ' + subject, body,
+                           self._subject + ' -- ' + subject, body,
                            security=self.security, username=self.username)
             if not ret:  # on error, ret is a list of errors
                 self.log.info('%smail sent to %s',
@@ -166,6 +170,17 @@ class Mailer(Notifier):
             return
         createThread('mail sender', send)
 
+
+class HostnameMailer(Mailer):
+    """ Use the hostname as a subject prefix.
+
+    This is intended for the seop systems that are running their own instance
+    of NICOS with the seop-instrument on their controlling PC.
+    This is done as there are multiple of these, in order to differentiate
+    their notifications.
+    """
+    def doInit(self, mode):
+        self._subject = socket.getfqdn()
 
 # Implements the GSM03.38 encoding for SMS messages, including escape-encoded
 # chars, generated from ftp://ftp.unicode.org/Public/MAPPINGS/ETSI/GSM0338.TXT
