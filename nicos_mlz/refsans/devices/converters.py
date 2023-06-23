@@ -24,11 +24,13 @@
 
 from nicos.core import Override, Readable
 from nicos.core.params import Attach
+from nicos.devices.abstract import TransformedReadable
 
 from nicos_mlz.stressi.devices.mixins import TransformRead
 
 
 class Ttr(Readable):
+
     attached_devices = {
         'att': Attach('center', Readable),
     }
@@ -48,7 +50,8 @@ class Ttr(Readable):
         return 10**((self._attached_att.read(maxage) - c)/1.286)
 
 
-class LinearKorr(TransformRead, Readable):
+class LinearKorr(TransformRead, TransformedReadable):
+
     parameter_overrides = {
         'unit': Override(volatile=False),
     }
