@@ -43,7 +43,7 @@ class McStasSimulation(BaseSimulation):
     """
 
     parameter_overrides = {
-        'mcstasprog': Override(default='TOFTOF_NICOS'),
+        'mcstasprog': Override(default='toftof'),
     }
 
     attached_devices = {
