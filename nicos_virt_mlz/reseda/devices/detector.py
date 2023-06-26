@@ -79,8 +79,8 @@ class McStasSimulation(BaseSimulation):
     def _prepare_params(self):
         params = [
             'lam=%s' % self._dev(self._attached_l_ambda),
-            # TODO: Delta lambda calculations
-            'dlam=%s' % self._dev(self._attached_d_lambda, 100),
+            'dlam=%.2f' % (self._attached_d_lambda.read(0) *
+                           self._attached_l_ambda.read(0) / 100),
             'table_x=%s' % self._dev(self._attached_tablex),
             'table_y=%s' % self._dev(self._attached_tabley),
             'table_z=%s' % self._dev(self._attached_tablez),
