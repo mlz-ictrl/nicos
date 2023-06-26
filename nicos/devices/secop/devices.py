@@ -577,7 +577,8 @@ class SecNodeDevice(Readable):
                                      % (parameter, module))
         self._custom_callbacks[(module,parameter)].append(f)
         self._secnode.register_callback((module, parameter), updateItem=f)
-        self.log.debug(f'registered callback \'{f.__name__}\' for \'{module}:{parameter}\'')
+        self.log.debug('registered callback %r for %s:%s', f.__name__,
+                       module, parameter)
 
     def unregister_custom_callback(self, module, parameter, f):
         """Unregister a custom callback on this Node (prefer function on SecopDevice)."""
@@ -593,7 +594,8 @@ class SecNodeDevice(Readable):
             self._secnode.register_callback((module, parameter), updateItem=f)
         except ValueError as e:
             raise ValueError('function not registered as callback!') from e
-        self.log.debug(f'removed callback \'{f.__name__}\' from \'{module}:{parameter}\'')
+        self.log.debug('removed callback %r from %s:%s', f.__name__,
+                       module, parameter)
 
 
 class SecopDevice(Device):
@@ -862,7 +864,7 @@ class SecopDevice(Device):
             if not self.__update_error_logged:
                 # just log once per device, avoid flooding log
                 self.__update_error_logged = True
-                self.log.exception(f'error {e!r} when updating {parameter}')
+                self.log.exception('error when updating %s', parameter)
 
     def _update(self, module, parameter, item):
         if parameter not in self.parameters and parameter not in self._maintypes:
