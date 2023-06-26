@@ -761,6 +761,14 @@ class SecopDevice(Device):
                     'skip command %s, as it would overwrite method of %r',
                     cname, cls.__name__)
 
+        # see if secop_properties exists (the case when auto-created from the
+        # SecNode, or not, where we need to get it from setup_info.
+        if not 'secop_properties' in config:
+            name = secnodedev.prefix + config['secop_module']
+            config["secop_properties"] = secnodedev.setup_info[name][1].get(
+                "secop_properties", {}
+            )
+
         classname = cls.__name__ + '_' + name
         # create a new class extending SecopDevice, apply DeviceMeta in order
         # to include the added parameters
