@@ -21,6 +21,7 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
+from collections.abc import Iterable
 from functools import partial
 from threading import Lock
 
@@ -160,10 +161,13 @@ class P4pWrapper:
         return raw_result['control'] if 'control' in raw_result else {}
 
     def get_value_choices(self, pvname):
-        # Only works for enum types like MBBI and MBBO
-        raw_result = _CONTEXT.get(pvname, timeout=self._timeout)
-        if 'choices' in raw_result['value']:
-            self._choices[pvname] = raw_result['value']['choices']
+        value = _CONTEXT.get(pvname, timeout=self._timeout)['value']
+        if isinstance(value, bool):
+            return [False, True]
+        if not isinstance(value, Iterable):
+            return []
+        if 'choices' in value:
+            self._choices[pvname] = value['choices']
             return self._choices[pvname]
         return []
 

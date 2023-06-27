@@ -33,7 +33,7 @@ import numpy
 from nicos import session
 from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, HasPrecision, Moveable, Override, Param, \
-    Readable, anytype, floatrange, none_or, pvname, status
+    Readable, anytype, dictof, floatrange, none_or, pvname, status
 from nicos.devices.abstract import MappedMoveable, MappedReadable
 from nicos.utils import HardwareStub
 
@@ -490,7 +490,8 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
         # MBBI, BI, etc. do not have units
         'unit': Override(mandatory=False, settable=False, volatile=False),
         # Mapping values are read from EPICS
-        'mapping': Override(mandatory=False, settable=False, userparam=False)
+        'mapping': Override(mandatory=False, settable=False, userparam=False,
+                            type=dictof(anytype, anytype), default={}),
     }
 
     def _get_pv_parameters(self):
