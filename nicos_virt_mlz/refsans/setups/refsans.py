@@ -27,7 +27,7 @@ includes = [
     'reactor',
     # 'safedetectorsystem',
     # 'safetysystem',
-    'sample',
+    # 'sample',
     # 'samplechanger',
     'shutter',
     'shutter_gamma',
@@ -36,6 +36,7 @@ includes = [
     #  'instrument_mode',
     'qmesydaq',
     'alphai',
+    'd_last_slit_sample',
 ]
 
 startupcode = """
@@ -55,12 +56,6 @@ devices = dict(
         abslimits = (-120, 1000),
         unit = 'mm',
     ),
-    # alphai = device('nicos.devices.generic.VirtualMotor',
-    #     description = 'theta',
-    #     abslimits = (0, 3.5),
-    #     unit = 'deg',
-    #     speed = 0.1,
-    # ),
     alphaf = device('nicos_mlz.refsans.devices.tube.DetAngle',
         description = 'gamma',
         tubeangle = 'tube_angle',

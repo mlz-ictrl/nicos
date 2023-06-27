@@ -1,6 +1,6 @@
 description = 'Sample table devices'
 
-group = 'optional'
+group = 'lowlevel'
 
 devices = dict(
     gonio_theta = device('nicos.devices.generic.Axis',
@@ -48,8 +48,19 @@ devices = dict(
         ),
         precision = 0.01,
     ),
+    gonio_x = device('nicos_mlz.refsans.devices.analogencoder.AnalogEncoder',
+        description = 'pos of goniometer in beamdirection, with respect to b3',
+        device = device('nicos.devices.generic.ManualMove',
+            default = 0.14501711047921587,
+            abslimits = (0, 10),
+            unit = 'V',
+        ),
+        poly = [-0.269211180059716, 381.122648733114],
+        unit = 'mm',
+    ),
 )
 
 alias_config = {
-    'alphai': {'gonio_theta': 100}
+    'alphai': {'gonio_theta': 100},
+    'd_last_slit_sample': {'gonio_x': 300},
 }

@@ -61,6 +61,7 @@ devices = dict(
         chopper4 = 'chopper4',
         chopper5 = 'chopper5',
         chopper6 = 'chopper6',
+        d_b3_sample = 'd_last_slit_sample',
         visibility = (),
     ),
     image = device('nicos.devices.mcstas.McStasImage',

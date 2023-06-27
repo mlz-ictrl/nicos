@@ -24,7 +24,7 @@
 
 """Virtual Refsans specific sample implementation."""
 
-from nicos.core.params import Param
+from nicos.core.params import Param, absolute_path
 from nicos_mlz.refsans.devices.sample import Sample as BaseSample
 
 
@@ -35,4 +35,7 @@ class Sample(BaseSample):
         'sample_file': Param('Sample definition file',
                              type=str, settable=True, userparam=True,
                              default='Si_Ti_Al_Mirror.dat'),
+        'datapath': Param('Path to the sample definition files',
+                          type=absolute_path, settable=False, userparam=True,
+                          default='/tmp'),
     }

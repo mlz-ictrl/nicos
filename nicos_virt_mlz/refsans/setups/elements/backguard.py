@@ -1,6 +1,6 @@
 description = 'backguard: after sample'
 
-group = 'optional'
+group = 'lowlevel'
 
 devices = dict(
     backguard = device('nicos_mlz.refsans.devices.skew_motor.SkewMotor',

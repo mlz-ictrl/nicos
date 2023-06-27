@@ -24,6 +24,7 @@
 
 """VRefsans detector image based on McSTAS simulation."""
 
+import os
 import re
 from math import log10
 
@@ -82,6 +83,7 @@ class McStasSimulation(BaseSimulation):
         'nok7': Attach('NOK 7', DoubleMotorNOK),
         'nok8': Attach('NOK 8', DoubleMotorNOK),
         'nok9': Attach('NOK 9', DoubleMotorNOK),
+        'd_b3_sample': Attach('Distance B3 to sample', Readable),
     }
 
     def _dev(self, dev, scale=1, default='0', fmtstr=None):
@@ -98,9 +100,6 @@ class McStasSimulation(BaseSimulation):
                 m = re.search(expr, fmtstr)
                 fmtstr = '%s%d%s' % (fmtstr[:m.start()], num, fmtstr[m.end()])
         return fmtstr % (dev.read(0) / scale)
-
-    def _dev_param(self, dev, param):
-        fmtstr = dev.params[param]
 
     # sim_chopper []      A flag to use (1) or not (0) the chopping system,
     #                     useful to speedup the simulation
@@ -247,11 +246,12 @@ class McStasSimulation(BaseSimulation):
                                          default='0'),
             'l_probe=%s' % self._attached_sample.length,
             'w_probe=%s' % self._attached_sample.width,
-            'sample_file=%s' % self._attached_sample.sample_file,
+            'sample_file=%s' % os.path.join(self._attached_sample.datapath,
+                                            self._attached_sample.sample_file),
             'backguard=%s' % self._dev(self._attached_backguard),
             'pivot_Pos=%s' % self._dev(self._attached_pivot, fmtstr='%d'),
             'yoke=%s' % self._dev(self._attached_yoke),
             'det_table=%s' % self._dev(self._attached_dettable),
 
-            'd_b3_probe=%s' % 55,  # self._dev(),  # 55
+            'd_b3_probe=%s' % self._dev(self._attached_d_b3_sample),
         ]
