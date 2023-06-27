@@ -4,9 +4,14 @@ group = 'optional'
 
 excludes = ['ngi']
 
-tango_base = 'tango://192.168.20.64:10000/box/'
+# Local private subnet
+tango_host = '192.168.20.64'
 
-tango_base = 'tango://172.28.77.82:10000/box/'
+# At PSI -> needs to be in ICON network
+# Phytron3 MAC: b8:27:eb:f3:31:b0
+# tango_host = '172.28.77.82'
+
+tango_base = 'tango://%s:10000/box/' % tango_host
 
 devices = dict(
     G0rz = device('nicos.devices.entangle.Motor',
@@ -52,48 +57,4 @@ devices = dict(
         pollinterval = 3,
         precision = 0.001,
     ),
-    stz = device('nicos.devices.entangle.Motor',
-        speed = 5,
-        unit = 'mm',
-        description = 'Sample translation parallel to the beam direction',
-        tangodevice = tango_base + 'phytron8/mot',
-        abslimits = (0, 295),
-        userlimits = (0, 295),
-        maxage = 5,
-        pollinterval = 3,
-        precision = 0.001,
-    ),
 )
-'''
-    G2rz_p = device('nicos.devices.entangle.Motor',
-        speed = 0.2,
-        unit = 'deg',
-        description = 'Rotation of G1 grating around beam direction',
-        tangodevice = tango_base + 'fzjs7/G1rz',
-        abslimits = (-400, 400),
-        maxage = 5,
-        pollinterval = 3,
-        precision = 0.0005,
-    ),
-    G2tz = device('nicos.devices.entangle.Motor',
-        speed = 1,
-        unit = 'mm',
-        description = 'Translation of G1 in beam direction. (Talbot distance)',
-        tangodevice = tango_base + 'fzjs7/G1tz',
-        abslimits = (0, 20),
-        maxage = 5,
-        pollinterval = 3,
-        precision = 0.05,
-    ),
-    G2rz = device('nicos.devices.entangle.Motor',
-        speed = 1,
-        unit = 'deg',
-        description = 'Rotation of G2 and G1 around beam axis',
-        tangodevice = tango_base + 'fzjs7/G12rz',
-        abslimits = (-400, 400),
-        userlimits = (-250, 250),
-        maxage = 5,
-        pollinterval = 3,
-        precision = 0.01,
-    ),
-'''
