@@ -35,7 +35,7 @@ devices = dict(
         mapping = {
             'Off': (0, 0),
             'Standby': (20, 5),
-            'On': (25, 40),
+            'On': (35, 40),
         },
         blockingmove = False,
     ),
