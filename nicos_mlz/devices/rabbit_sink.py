@@ -34,10 +34,18 @@ from nicos.core.data import BaseDataset, BlockDataset, DataSink, \
     DataSinkHandler, ScanDataset
 
 
+def metainfo_to_json(metainfo):
+    metadata = {}
+    for (dev, parm), (value, _str_value, unit, _) in metainfo.items():
+        metadata.setdefault(dev, {})
+        metadata[dev][parm] = value if not unit else (value, unit)
+    return metadata
+
+
 class Message:
     id: str  # pylint: disable=redefined-builtin
     type: str  # pylint: disable=redefined-builtin
-    attributes: dict
+    metadata: dict
 
     def __init__(
             self,
@@ -45,13 +53,15 @@ class Message:
             scanid: uuid.UUID,
             blockid: uuid.UUID,
             type: str,  # pylint: disable=redefined-builtin
-            attributes: dict):
+            mapping: dict,
+            metainfo: dict):
         self.id = str(id)
         self.blockid = str(blockid) or None
         self.scanid = str(scanid) or None
         self.type = type
         self.creation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.attributes = attributes
+        self.mapping = mapping
+        self.metadata = metainfo
 
     def __str__(self):
         return json.dumps({**self.__dict__})
@@ -66,36 +76,25 @@ class Message:
 
 class RabbitSinkHandler(DataSinkHandler):
 
-    @property
-    def metainfo(self):
-        """Returns the metainfo of its dataset as json"""
-        metadata = {}
-        # TODO: add mapping to devices w/ important information, currently
-        # experiment and sample
-        experiment = {
-            'experiment_id': session.experiment.proposal,
-            'samples': session.experiment.sample.samples,
-            'samplenumber': session.experiment.sample.samplenumber
-        }
-        if hasattr(self.dataset, 'metainfo'):
-            # A dictionary of (devname, key) -> (value, str_value, unit, category)
-            for (dev, parm), (
-            value, _str_value, unit, _) in self.dataset.metainfo.items():
-                metadata.setdefault(dev, {})
-                metadata[dev][parm] = value if not unit else (value, unit)
-            return {'experiment': experiment, 'metadata': metadata}
-
     def _sendMessage(self, type: str, dataset: BaseDataset,  # pylint: disable=redefined-builtin
                      scands: ScanDataset = None, blockds: BlockDataset = None):
         """Sends the metainfo, if available, and other information to the
         Queue"""
+        metadata = {}
+        if dataset.settype != BLOCK:
+            metadata = metainfo_to_json(dataset.metainfo)
         msg = Message(
             dataset.uid,
             scands.uid if scands else None,
             blockds.uid if blockds else None,
             type,
-            attributes=self.metainfo)
-        # TODO: metadata goes to toplevel, attributes already inherited (-> remove)
+            # DEVICE_INFO_MAPPING,
+            {
+                'experiment': session.experiment.name,
+                'sample': session.experiment.sample.name,
+                'instrument': session.instrument.name,
+            },
+            metainfo=metadata)
         for retry in range(3):
             try:
                 if retry > 0:  # reconnect
