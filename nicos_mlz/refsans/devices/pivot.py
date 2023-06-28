@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Matthias Pomm <matthias.pomm@hzg.de> 2018-08-08 08:33:38
+#   Matthias Pomm <matthias.pomm@hzg.de>
 #
 # *****************************************************************************
 
