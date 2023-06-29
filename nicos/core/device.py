@@ -2137,6 +2137,7 @@ class SubscanMeasurable(Measurable):
     Subclasses *need* to implement:
 
     * doRead(maxage=0)
+    * doSetPreset(**preset)
     * doStart()
 
     Subclasses *can* implement:
@@ -2158,6 +2159,9 @@ class SubscanMeasurable(Measurable):
         self.doStart()
 
     def doStop(self):
+        pass
+
+    def doFinish(self):
         pass
 
     def doIsCompleted(self):

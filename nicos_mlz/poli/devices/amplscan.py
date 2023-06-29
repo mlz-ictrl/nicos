@@ -76,6 +76,3 @@ class ScanningDetector(SubscanMeasurable):
 
     def doRead(self, maxage=0):
         return self.readresult
-
-    def doFinish(self):
-        pass
