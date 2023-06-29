@@ -45,7 +45,7 @@ devices = dict(
     sdet = device('nicos_mlz.labs.physlab.xresd.devices.detector.MovingDetector',
         description = 'Moving detector ... ',
         motor = 'ctt',
-        detector = 'det',
+        detector = 'adet',
     ),
     fileformat = device('nicos.devices.datasinks.raw.SingleRawImageSink',
         # filenametemplate = ['%(proposal)s_%(pointcounter)08d.txt']
