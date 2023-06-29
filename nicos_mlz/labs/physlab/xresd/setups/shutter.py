@@ -8,7 +8,6 @@ devices = dict(
     t_shutter = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'main shutter for the x-ray source',
         tangodevice = tango_base + 'shutter',
-        visibility = {'devlist',},
         unit = '',
     ),
     t_shutter_time = device('nicos.devices.entangle.AnalogInput',

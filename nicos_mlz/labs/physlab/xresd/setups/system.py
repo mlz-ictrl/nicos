@@ -1,8 +1,3 @@
-# A detailed description of the setup file structure and it's elements is
-# available here: https://forge.frm2.tum.de/nicos/doc/nicos-stable/setups/
-#
-# Please remove these lines after copying this file.
-
 description = 'system setup'
 
 group = 'lowlevel'
@@ -11,7 +6,6 @@ instrument_values = configdata('instrument.values')
 
 sysconfig = dict(
     cache = 'localhost',
-    # Adapt this name to your instrument's name (also below).
     instrument = 'XReSD',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
@@ -36,7 +30,6 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
     ),
-    # Configure dataroot here (usually /data).
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = '/data/04_RSXRD',

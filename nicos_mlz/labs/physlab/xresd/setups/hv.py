@@ -6,7 +6,6 @@ display_order = 70
 
 
 tango_base = configdata('instrument.values')['tango_base'] + 'box/bruker/'
-excludes = ['hv_gen']
 
 devices = dict(
     gen_voltage = device('nicos.devices.entangle.PowerSupply',
