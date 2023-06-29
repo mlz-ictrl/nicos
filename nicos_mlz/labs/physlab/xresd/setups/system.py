@@ -22,12 +22,6 @@ modules = ['nicos.commands.standard']
 
 includes = [
     'notifiers',
-    'incident',
-    'shutter',
-    'dectris',
-    'sample',
-    'd8',
-    'hv',
 ]
 
 devices = dict(

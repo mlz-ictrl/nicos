@@ -34,7 +34,6 @@ class Detector(ImageChannelMixin, ActiveChannel):
 
     attached_devices = {
         'det': Attach('Underlying pixel detector (1 dim)', ActiveChannel),
-        # 'ttheta': Attach('2Theta axis encoder', Readable)
     }
 
     parameters = {
@@ -57,11 +56,10 @@ class Detector(ImageChannelMixin, ActiveChannel):
 
     def doReadArray(self, quality):
         # ttheta = self._attached_ttheta.doRead()
-        cts = self._attached_det.doReadArray(quality)
         # ttheta_range = self._ttheta_range + ttheta
-        self.readresult = self._attached_det.readresult
         # return array([ttheta_range, cts], dtype='f8')
-        return np.array([cts])
+        self.readresult = self._attached_det.readresult
+        return self._attached_det.doReadArray(quality)
 
     def doStart(self):
         return self._attached_det.doStart()

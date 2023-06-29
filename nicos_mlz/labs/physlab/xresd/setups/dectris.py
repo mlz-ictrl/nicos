@@ -34,7 +34,6 @@ devices = dict(
     ttheta = device('nicos_mlz.labs.physlab.xresd.devices.ttheta.Detector',
         description = 'Detector ...',
         det = 'image',
-        # ttheta = 'stt',
         # radius = 201.984, # mm
         pixel_size = 50/1000.0, # mm
         pixel_count = 1280,
