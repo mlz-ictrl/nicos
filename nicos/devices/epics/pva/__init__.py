@@ -23,6 +23,6 @@
 # *****************************************************************************
 
 from nicos.devices.epics.pva.epics_devices import EpicsAnalogMoveable, \
-    EpicsDevice, EpicsDigitalMoveable, EpicsMappedMoveable, \
+    EpicsBoolMoveable, EpicsDevice, EpicsDigitalMoveable, EpicsMappedMoveable, \
     EpicsMappedReadable, EpicsMoveable, EpicsReadable, EpicsStringMoveable, \
     EpicsStringReadable

@@ -40,7 +40,8 @@ from nicos.utils import HardwareStub
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
     'EpicsMoveable', 'EpicsStringMoveable', 'EpicsAnalogMoveable',
-    'EpicsDigitalMoveable', 'EpicsMappedMoveable', 'EpicsMappedReadable'
+    'EpicsDigitalMoveable', 'EpicsMappedMoveable', 'EpicsMappedReadable',
+    'EpicsBoolMoveable',
 ]
 
 DEFAULT_EPICS_PROTOCOL = os.environ.get('DEFAULT_EPICS_PROTOCOL', 'ca')
@@ -490,8 +491,7 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
         # MBBI, BI, etc. do not have units
         'unit': Override(mandatory=False, settable=False, volatile=False),
         # Mapping values are read from EPICS
-        'mapping': Override(mandatory=False, settable=False, userparam=False,
-                            type=dictof(anytype, anytype), default={}),
+        'mapping': Override(mandatory=False, settable=False, userparam=False)
     }
 
     def _get_pv_parameters(self):
@@ -533,3 +533,9 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
     def doStatus(self, maxage=0):
         stat, msg = MappedMoveable.doStatus(self, maxage)
         return stat, '' if stat == status.OK else msg
+
+
+class EpicsBoolMoveable(EpicsMappedMoveable):
+    parameter_overrides = {
+        'mapping': Override(type=dictof(bool, anytype)),
+    }
