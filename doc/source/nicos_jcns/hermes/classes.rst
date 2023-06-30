@@ -6,3 +6,8 @@ Counters
 --------
 
 .. automodule:: nicos_jcns.hermes.devices.n110_counter
+
+Motors
+------
+
+.. automodule:: nicos_jcns.hermes.devices.laser
