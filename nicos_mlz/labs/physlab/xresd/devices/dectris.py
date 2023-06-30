@@ -39,4 +39,6 @@ class Detector(ImageChannel):
     }
 
     def doReadPixel_Count(self):
-        return self.arraydesc.shape[0]
+        if self.arraydesc:
+            return self.arraydesc.shape[0]
+        return self._dev.detectorSize[0]
