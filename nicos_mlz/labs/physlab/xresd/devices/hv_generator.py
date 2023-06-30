@@ -90,3 +90,7 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
     def _onseq(self, on):
         vps, cps = self._attached_voltage, self._attached_current
         return [SeqMethod(vps, 'doEnable', on), SeqMethod(cps, 'doEnable', on)]
+
+    def doPoll(self, n, maxage):
+        self._pollParam('heatercurrent', 1)
+        self._pollParam('waterflow', 1)

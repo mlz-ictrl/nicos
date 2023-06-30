@@ -92,3 +92,7 @@ class D8(Readable):
         if len(er) > 0:
             return status.ERROR, 'components faulty: %s' %  er
         return status.OK, 'idle'
+
+    def doPoll(self, n, maxage):
+        self._pollParam('ldoor', 1)
+        self._pollParam('rdoor', 1)
