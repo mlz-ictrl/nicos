@@ -48,6 +48,7 @@ devices = dict(
     ),
     counters = device('nicos.devices.generic.detector.Detector',
         description = 'HERMES counter channels.',
+        liveinterval = 1.0,
         counters = ['counter0', 'counter1', 'counter2', 'counter3',
                     'counter4', 'tofcounter_rate', 'tofcounter_roirate'],
         images = ['tofcounter'],
