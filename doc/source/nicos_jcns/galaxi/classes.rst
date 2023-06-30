@@ -1,5 +1,5 @@
-`GALAXI <http://www.fz-juelich.de/pgi/pgi-4/DE/Leistungen/GALAXI/_node.html>`_
-==============================================================================
+`GALAXI <https://www.fz-juelich.de/en/jcns/jcns-2/expertise/in-house-x-ray/galaxi>`_
+====================================================================================
 
 
 Absorber
