@@ -598,8 +598,22 @@ def startCache(hostport, setup='cache', wait=10):
                     break
             else:
                 raise Exception('cache failed to start within %s sec' % wait)
-    cache = startSubprocess('cache', setup, wait_cb=cache_wait_cb)
-    return cache
+    return startSubprocess('cache', setup, wait_cb=cache_wait_cb)
+
+
+def startElog(wait=2):
+    def elog_wait_cb():
+        start = monotonic()
+        logfile = path.join(runtime_root, 'cacheserver.log')
+        while monotonic() < start + wait:
+            # elog started successfully when it has locked itself in the cache
+            if path.isfile(logfile) and \
+               'lock request logbook/elog' in open(logfile).read():
+                break
+            sleep(0.02)
+        else:
+            raise Exception('elog failed to start within %s sec' % wait)
+    return startSubprocess('elog', wait_cb=elog_wait_cb)
 
 
 def hasGnuplot():
