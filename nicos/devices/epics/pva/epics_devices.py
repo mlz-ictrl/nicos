@@ -41,7 +41,7 @@ __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
     'EpicsMoveable', 'EpicsStringMoveable', 'EpicsAnalogMoveable',
     'EpicsDigitalMoveable', 'EpicsMappedMoveable', 'EpicsMappedReadable',
-    'EpicsBoolMoveable',
+    'EpicsBoolMoveable', 'EpicsBoolReadable',
 ]
 
 DEFAULT_EPICS_PROTOCOL = os.environ.get('DEFAULT_EPICS_PROTOCOL', 'ca')
@@ -533,6 +533,12 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
     def doStatus(self, maxage=0):
         stat, msg = MappedMoveable.doStatus(self, maxage)
         return stat, '' if stat == status.OK else msg
+
+
+class EpicsBoolReadable(EpicsMappedReadable):
+    parameter_overrides = {
+        'mapping': Override(type=dictof(bool, anytype)),
+    }
 
 
 class EpicsBoolMoveable(EpicsMappedMoveable):
