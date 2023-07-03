@@ -28,24 +28,20 @@ import sys
 from os import unlink
 from time import time as currenttime
 
-from nicos.core import CacheLockError, Override, Param, listof, oneof
+from nicos.core import Attach, CacheLockError, Override
 from nicos.core.sessions.utils import sessionInfo
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import BUFSIZE, END_MARKER, OP_ASK, OP_SUBSCRIBE, \
     OP_TELL, OP_TELLOLD, cache_load
-from nicos.utils import importString, timedRetryOnExcept
+from nicos.services.elog.handler import Handler
+from nicos.utils import timedRetryOnExcept
 
 
 class Logbook(BaseCacheClient):
 
-    parameters = {
-        'plotformat': Param('Format for scan plots', type=oneof('svg', 'png')),
-        'handlerclasses': Param('Classes to handle the incoming messages',
-                                type=listof(str),
-                                default=[
-                                    'nicos.services.elog.handler.html.Handler',
-                                    'nicos.services.elog.handler.text.Handler',
-                                ]),
+    attached_devices = {
+        'handlers': Attach('The handlers for incoming data', Handler,
+                           multiple=True),
     }
 
     parameter_overrides = {
@@ -54,11 +50,6 @@ class Logbook(BaseCacheClient):
 
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
-        # this is run in the main thread
-        self._handler = []
-        for handlerclass in self.handlerclasses:
-            class_ = importString(handlerclass)
-            self._handler.append(class_(self.log, self.plotformat))
         # the execution master lock needs to be refreshed every now and then
         self._islocked = False
         self._lock_expires = 0.
@@ -107,7 +98,7 @@ class Logbook(BaseCacheClient):
         time = time and float(time)
         self.log.debug('got %s=%r', key, value)
         value = cache_load(value)
-        for handler in self._handler:
+        for handler in self._attached_handlers:
             try:
                 handler.handle(key, time, value)
             except Exception:
@@ -129,8 +120,3 @@ class Logbook(BaseCacheClient):
             self._islocked = False
             self.unlock('elog')
         BaseCacheClient._disconnect(self, why)
-
-    def doShutdown(self):
-        for handler in self._handler:
-            handler.close()
-        BaseCacheClient.doShutdown(self)

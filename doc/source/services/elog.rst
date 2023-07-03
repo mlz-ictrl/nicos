@@ -45,19 +45,23 @@ Setup file
 The setup file for the electronic logbook daemon is by default:
 ``<setup_package>/<instrument_name>/setups/special/elog.py``.
 
-A simple setup file for the poller could look like this::
+A simple setup file for the logbook could look like this::
 
   description = 'setup for the electronic logbook'
   group = 'special'
 
   devices = dict(
+      LogbookHtml = device('nicos.services.elog.handler.html.Handler'),
+      LogbookText = device('nicos.services.elog.handler.text.Handler'),
       Logbook = device('nicos.services.elog.Logbook',
                        cache = 'localhost:14869',
-                      ),
+                       handlers = ['LogbookHtml', 'LogbookText']),
   )
 
 The :class:`Logbook <nicos.services.elog.Logbook>` device has only one important
-parameter, the *cache* to connect to.
+parameter, the *cache* to connect to.  The backends are configured with the list
+of attached *handlers*.
+
 
 Server class
 ------------

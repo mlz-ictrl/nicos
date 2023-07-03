@@ -31,25 +31,28 @@ from nicos.services.elog.utils import create_or_open, formatMessagePlain
 
 
 class Handler(BaseHandler):
-    def __init__(self, log, plotformat):
-        BaseHandler.__init__(self, log, plotformat)
-        self.fd = None
+    def doInit(self, mode):
+        BaseHandler.doInit(self, mode)
+        self._fd = None
 
-    def close(self):
-        if self.fd:
-            self.fd.close()
-            self.fd = None
+    def doShutdown(self):
+        self._close()
+
+    def _close(self):
+        if self._fd:
+            self._fd.close()
+            self._fd = None
 
     def handle_directory(self, time, data):
         BaseHandler.handle_directory(self, time, data)
-        self.close()
-        logfile = path.join(self.logdir, 'nicos_log.txt')
-        self.fd = create_or_open(logfile)
+        self._close()
+        logfile = path.join(self._logdir, 'nicos_log.txt')
+        self._fd = create_or_open(logfile)
         self.log.info('Opened new output in %s', logfile)
 
     def handle_message(self, time, message):
         formatted = formatMessagePlain(message)
-        if not formatted or not self.fd:
+        if not formatted or not self._fd:
             return
-        self.fd.write(formatted.encode())
-        self.fd.flush()
+        self._fd.write(formatted.encode())
+        self._fd.flush()

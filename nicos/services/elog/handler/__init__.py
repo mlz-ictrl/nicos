@@ -26,28 +26,25 @@
 
 from os import path
 
+from nicos.core.device import Device
 
-class Handler:
-    def __init__(self, log, plotformat):
-        self.log = log
-        self.plotformat = plotformat
-        self.dir = self.logdir = None
+
+class Handler(Device):
+    def doInit(self, mode):
+        self._dir = self._logdir = None
 
     def handle(self, key, timestamp, data):
         fun = getattr(self, f'handle_{key}', None)
         if fun:
             fun(timestamp, data)
 
-    def close(self):
-        pass
-
     def handle_directory(self, time, data):
         """Handle the 'directory' event.
 
            data = [directory, instrument, proposal]
         """
-        self.dir, self.instr, self.proposal = data
-        self.logdir = path.join(self.dir, 'logbook')
+        self._dir, self._instr, self._proposal = data
+        self._logdir = path.join(self._dir, 'logbook')
 
     def handle_newexperiment(self, time, data):
         """Handle the 'newexperiment' event.

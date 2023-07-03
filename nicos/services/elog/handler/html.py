@@ -30,6 +30,7 @@ from os import path
 from shutil import copyfile
 from time import localtime, strftime
 
+from nicos.core import Param, oneof
 from nicos.services.elog.genplot import plotDataset
 from nicos.services.elog.handler import Handler as BaseHandler
 from nicos.services.elog.utils import create_or_open, formatMessage, pretty1, \
@@ -300,40 +301,43 @@ class HtmlWriter:
 
 
 class Handler(BaseHandler):
-    def __init__(self, log, plotformat):
-        BaseHandler.__init__(self, log, plotformat)
-        self.out = HtmlWriter()
+    parameters = {
+        'plotformat': Param('Format for scan plots', type=oneof('svg', 'png')),
+    }
 
-    def close(self):
-        self.out.close()
+    def doInit(self, mode):
+        self._out = HtmlWriter()
+
+    def doShutdown(self):
+        self._out.close()
 
     def handle_directory(self, time, data):
         BaseHandler.handle_directory(self, time, data)
-        self.out.open(self.logdir, self.instr or 'NICOS', self.proposal)
-        self.log.info('Opened new output files in %s', self.logdir)
+        self._out.open(self._logdir, self._instr or 'NICOS', self._proposal)
+        self.log.info('Opened new output files in %s', self._logdir)
 
     def handle_newexperiment(self, time, data):
         proposal, title = data
-        targetid = self.out.new_id()
+        targetid = self._out.new_id()
         if title:
             text = 'Experiment %s: %s' % (escape(proposal), escape(title))
         else:
             text = 'Experiment %s' % escape(proposal)
-        self.out.timestamp(time)
-        self.out.newstate('plain', '', '',
-                          '<h1 id="%s">%s</h1>\n' % (targetid, text))
-        self.out.toc_entry(1, text, targetid)
+        self._out.timestamp(time)
+        self._out.newstate('plain', '', '',
+                           '<h1 id="%s">%s</h1>\n' % (targetid, text))
+        self._out.toc_entry(1, text, targetid)
 
     def handle_setup(self, time, setupnames):
-        self.out.timestamp(time)
-        self.out.newstate('plain', '', '',
-                          '<p class="setup">New setup: %s</p>\n' %
-                          escape(', '.join(setupnames)))
+        self._out.timestamp(time)
+        self._out.newstate('plain', '', '',
+                           '<p class="setup">New setup: %s</p>\n' %
+                           escape(', '.join(setupnames)))
 
     def handle_entry(self, time, data):
-        self.out.timestamp(time)
+        self._out.timestamp(time)
         if markdown:
-            header_ext = CollectHeaders(self.out.new_id)
+            header_ext = CollectHeaders(self._out.new_id)
             data = markdown.markdown(data, extensions=[
                 'markdown.extensions.tables',
                 'markdown.extensions.fenced_code',
@@ -342,108 +346,108 @@ class Handler(BaseHandler):
             headers = header_ext.headers
         else:
             data, headers = escape(data), []
-        self.out.newstate('entry', '', '', data)
+        self._out.newstate('entry', '', '', data)
         for level, text, targetid in headers:
-            self.out.toc_entry(level, text, targetid)
+            self._out.toc_entry(level, text, targetid)
 
     def handle_remark(self, time, remark):
-        targetid = self.out.new_id()
-        self.out.timestamp(time)
-        self.out.newstate('plain', '', '',
-                          '<h3 id="%s" class="remark">%s</h3>\n' %
-                          (targetid, escape(remark)))
-        self.out.toc_entry(2, escape(remark), targetid)
+        targetid = self._out.new_id()
+        self._out.timestamp(time)
+        self._out.newstate('plain', '', '',
+                           '<h3 id="%s" class="remark">%s</h3>\n' %
+                           (targetid, escape(remark)))
+        self._out.toc_entry(2, escape(remark), targetid)
 
     def handle_scriptbegin(self, time, script):
-        self.out.timestamp(time)
-        targetid = self.out.new_id()
+        self._out.timestamp(time)
+        targetid = self._out.new_id()
         text = 'Script started: %s' % escape(script)
-        # self.out.toc_entry(2, text, targetid)
-        self.out.newstate('plain', '', '',
-                          '<p id="%s" class="scriptbegin">%s</p>\n' %
-                          (targetid, text))
+        # self._out.toc_entry(2, text, targetid)
+        self._out.newstate('plain', '', '',
+                           '<p id="%s" class="scriptbegin">%s</p>\n' %
+                           (targetid, text))
 
     def handle_scriptend(self, time, script):
-        self.out.timestamp(time)
-        targetid = self.out.new_id()
+        self._out.timestamp(time)
+        targetid = self._out.new_id()
         text = 'Script finished: %s' % escape(script)
-        # self.out.toc_entry(2, text, targetid)
-        self.out.newstate('plain', '', '',
-                          '<p id="%s" class="scriptend">%s</p>\n' %
-                          (targetid, text))
+        # self._out.toc_entry(2, text, targetid)
+        self._out.newstate('plain', '', '',
+                           '<p id="%s" class="scriptend">%s</p>\n' %
+                           (targetid, text))
 
     def handle_sample(self, time, sample):
-        self.out.timestamp(time)
+        self._out.timestamp(time)
         text = 'New sample: %s' % escape(sample)
-        targetid = self.out.new_id()
-        self.out.toc_entry(2, text, targetid, 'sample')
-        self.out.newstate('plain', '', '',
-                          '<p id="%s" class="sample">%s</p>\n' %
-                          (targetid, text))
+        targetid = self._out.new_id()
+        self._out.toc_entry(2, text, targetid, 'sample')
+        self._out.newstate('plain', '', '',
+                           '<p id="%s" class="sample">%s</p>\n' %
+                           (targetid, text))
 
     def handle_detectors(self, time, dlist):
-        self.out.timestamp(time)
+        self._out.timestamp(time)
         text = 'New standard detectors: %s' % escape(', '.join(dlist))
-        targetid = self.out.new_id()
-        self.out.toc_entry(2, text, targetid, 'detectors')
-        self.out.newstate('plain', '', '',
-                          '<p id="%s" class="detectors">%s</p>\n' %
-                          (targetid, text))
+        targetid = self._out.new_id()
+        self._out.toc_entry(2, text, targetid, 'detectors')
+        self._out.newstate('plain', '', '',
+                           '<p id="%s" class="detectors">%s</p>\n' %
+                           (targetid, text))
 
     def handle_environment(self, time, elist):
-        self.out.timestamp(time)
+        self._out.timestamp(time)
         text = 'New standard environment: %s' % escape(', '.join(elist))
-        targetid = self.out.new_id()
-        self.out.toc_entry(2, text, targetid, 'environment')
-        self.out.newstate('plain', '', '',
-                          '<p id="%s" class="environment">%s</p>\n' %
-                          (targetid, text))
+        targetid = self._out.new_id()
+        self._out.toc_entry(2, text, targetid, 'environment')
+        self._out.newstate('plain', '', '',
+                           '<p id="%s" class="environment">%s</p>\n' %
+                           (targetid, text))
 
     def handle_offset(self, time, data):
-        self.out.timestamp(time)
+        self._out.timestamp(time)
         dev, old, new = data
-        self.out.newstate('plain', '', '',
-                          '<p class="offset"><b>Adjustment:</b> ' +
-                          escape('Offset of %s changed from %s to %s' %
-                                 (dev, old, new))
-                          + '</p>\n')
+        self._out.newstate('plain', '', '',
+                           '<p class="offset"><b>Adjustment:</b> ' +
+                           escape('Offset of %s changed from %s to %s' %
+                                  (dev, old, new))
+                           + '</p>\n')
 
     def handle_attachment(self, time, data):
-        if not self.logdir:
+        if not self._logdir:
             return
         description, fpaths, names = data
         links = []
         for fpath, name in zip(fpaths, names):
-            fullname = path.join(self.logdir, name)
+            fullname = path.join(self._logdir, name)
             oname = name
             i = 0
             while path.exists(fullname):
                 i += 1
                 name = oname + str(i)
-                fullname = path.join(self.logdir, name)
+                fullname = path.join(self._logdir, name)
             # using copyfile instead of shutil.move since we do not
             # want to keep a restrictive file mode set by the daemon
             copyfile(fpath, fullname)
             links.append('<a href="%s">%s</a>' % (name, escape(oname)))
         text = '<b>%s:</b> %s' % (escape(description) or 'Attachment',
                                   ' '.join(links))
-        self.out.timestamp(time)
-        self.out.newstate('plain', '', '', '<p class="attach">%s</p>\n' % text)
+        self._out.timestamp(time)
+        self._out.newstate('plain', '', '', '<p class="attach">%s</p>\n' % text)
 
     def handle_message(self, time, message):
         formatted = formatMessage(message)
         if not formatted:
             return
         if message[2] == ERROR:
-            self.out.newstate('messages_error',
-                              '<div class="errblock"><pre class="messages">\n',
-                              '</pre></div>\n', formatted)
+            self._out.newstate('messages_error',
+                               '<div class="errblock"><pre class="messages">\n',
+                               '</pre></div>\n', formatted)
         else:
-            self.out.newstate('messages',
-                              '<div class="msgblock" onclick="hideshow(this)">'
-                              '<span class="msglabel">Messages</span>'
-                              '<pre class="messages">\n', '</pre></div>\n',
-                              formatted)
+            self._out.newstate('messages',
+                               '<div class="msgblock" onclick="hideshow(this)">'
+                               '<span class="msglabel">Messages</span>'
+                               '<pre class="messages">\n', '</pre></div>\n',
+                               formatted)
 
     def handle_scanend(self, time, dataset):
         names = '+'.join(dataset.xnames)
@@ -492,9 +496,9 @@ class Handler(BaseHandler):
         # plot link
         plotfmt = self.plotformat
         try:
-            if self.logdir:
+            if self._logdir:
                 plotDataset(dataset,
-                            path.join(self.logdir, 'scan-%d' % scannumber),
+                            path.join(self._logdir, 'scan-%d' % scannumber),
                             plotfmt)
         except Exception:
             self.log.warning('could not generate plot', exc=1)
@@ -504,8 +508,8 @@ class Handler(BaseHandler):
                         '<a href="scan-%d-log.%s">Log</a></td>' %
                         (scannumber, plotfmt, scannumber, plotfmt))
         # file link
-        if self.logdir and dataset.filepaths:
-            relfile = path.relpath(dataset.filepaths[0], self.logdir)
+        if self._logdir and dataset.filepaths:
+            relfile = path.relpath(dataset.filepaths[0], self._logdir)
             html.append('<td><a href="%s" type="text/plain">File</a></td>'
                         % relfile)
         else:
@@ -513,11 +517,11 @@ class Handler(BaseHandler):
         html.append('</tr>')
         headers = ''.join('<th width="%d%%">%s</th>' %
                           (100//len(headers), escape(h)) for h in headers)
-        self.out.newstate('scan-' + names,
-                          '<table class="scan"><tr class="head">' + headers
-                          + '</tr>', '</table>\n', ''.join(html))
+        self._out.newstate('scan-' + names,
+                           '<table class="scan"><tr class="head">' + headers
+                           + '</tr>', '</table>\n', ''.join(html))
         if scannumber >= 0 and scannumber % 50 == 0:
-            self.out.toc_entry(3, 'Scan %d' % scannumber, 'scan%s' % scannumber)
+            self._out.toc_entry(3, 'Scan %d' % scannumber, 'scan%s' % scannumber)
 
 
 # more ideas:
