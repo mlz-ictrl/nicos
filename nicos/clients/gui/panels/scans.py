@@ -36,6 +36,7 @@ from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
 from nicos.core.data import ScanData
 from nicos.core.params import INFO_CATEGORIES
 from nicos.devices.datasinks.scan import AsciiScanfileReader
+from nicos.guisupport.plots import GRMARKS
 from nicos.guisupport.qt import QActionGroup, QByteArray, QCheckBox, \
     QComboBox, QDialog, QFont, QFrame, QHBoxLayout, QKeySequence, \
     QListWidgetItem, QMenu, QPalette, QShortcut, QSizePolicy, QStatusBar, Qt, \
@@ -390,6 +391,8 @@ class ScansPanel(PlotPanel):
         newplot = None
         if dataset.uid not in self.setplots:
             newplot = DataSetPlot(self.plotFrame, self, dataset)
+            newplot.setMarkerType(GRMARKS['circle'])
+            newplot.setSymbols(True)
             if self.currentPlot:
                 newplot.enableCurvesFrom(self.currentPlot)
             self.setplots[dataset.uid] = newplot
