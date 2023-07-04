@@ -29,7 +29,7 @@ devices = dict(
         description = 'Timer channel of the DECTRIS PILATUS2 R 1M detector.',
         tangodevice = tango_base + 'timer_channel',
     ),
-    pilatus = device('nicos_jcns.devices.dectris.PILATUSDetector',
+    pilatus = device('nicos_jcns.devices.dectris.PILATUS1MDetector',
         description = 'DECTRIS PILATUS2 R 1M detector at the GALAXI '
         'diffractometer.',
         mxsettings = {'energy_range': (9.2247, 9.2517), 'wavelength': 1.341},
