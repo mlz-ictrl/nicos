@@ -25,6 +25,7 @@
 """NICOS GUI common plot codebase"""
 
 import os
+from os import path
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import dialogFromUi
@@ -47,13 +48,21 @@ class PlotPanel(Panel):
         if ret != QDialog.DialogCode.Accepted:
             return
         descr = newdlg.description.text()
-        fname = newdlg.filename.text()
-        pathname = self.currentPlot.saveQuietly()
-        try:
-            with open(pathname, 'rb') as fp:
-                remotefn = self.client.ask('transfer', fp.read())
-            if remotefn is not None:
-                self.client.eval('_LogAttach(%r, [%r], [%r])' %
-                                 (descr, remotefn, fname))
-        finally:
-            os.unlink(pathname)
+        fname = path.splitext(newdlg.filename.text())[0]
+
+        fnames, remotefns, extensions = [], [], []
+        for pathname, ext in self.currentPlot.saveQuietly():
+            try:
+                with open(pathname, 'rb') as fp:
+                    remotefn = self.client.ask('transfer', fp.read())
+                    if remotefn is not None:
+                        remotefns.append(remotefn)
+                        extensions.append(ext)
+                        fnames.append(fname + ext)
+            finally:
+                os.unlink(pathname)
+        if remotefns:
+            self.client.eval(
+                '_LogAttachImage(%r, %r, %r, %r)' % (descr, remotefns,
+                                                     extensions, fnames)
+            )

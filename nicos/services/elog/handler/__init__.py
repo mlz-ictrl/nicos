@@ -88,6 +88,12 @@ class Handler(Device):
            data = [description, fpaths, names]
         """
 
+    def handle_image(self, time, data):
+        """Handle the 'image' event.
+
+           data = [description, fpaths, extensions, names]
+        """
+
     def handle_message(self, time, message):
         """Handle the 'message' event."""
 

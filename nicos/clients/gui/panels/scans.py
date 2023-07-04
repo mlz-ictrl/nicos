@@ -585,8 +585,7 @@ class ScansPanel(PlotPanel):
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
         self.attachElogDialogExec(
-            safeName('data_%s' %
-                     self.currentPlot.dataset.name + self.currentPlot.SAVE_EXT)
+            safeName('data_%s' % self.currentPlot.dataset.name)
         )
 
     @pyqtSlot()

@@ -55,7 +55,8 @@ __all__ = [
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', 'ListMailReceivers', 'SetDataReceivers',
     'ListDataReceivers', '_trace', 'timer',
-    'LogEntry', '_LogAttach', 'SetErrorAbort', 'pause', 'abort',
+    'LogEntry', '_LogAttach', '_LogAttachImage',
+    'SetErrorAbort', 'pause', 'abort',
 ]
 
 
@@ -1021,6 +1022,26 @@ def _LogAttach(description, paths, names):
     dialogs.
     """
     session.elogEvent('attachment', (description, paths, names))
+
+
+@hiddenusercommand
+@parallel_safe
+def _LogAttachImage(description, paths, extensions, names):
+    """Attach an image to the electronic logbook.
+
+    The same image, may be send in different formats, e.g. png and svg.
+    The elog handler can use one or multiple files, e.g. skip unsupported file
+    formats.
+
+    The file *paths* should be temporary file names accessible from the machine
+    on which the electronic logbook daemon runs (i.e. on a common network
+    share).  They will be moved to the logbook using the given *names* with
+    their corresponding filename **extensions**.
+
+    This is intended to be used from the NICOS GUI, from the respective
+    dialogs.
+    """
+    session.elogEvent('image', (description, paths, extensions, names))
 
 
 @usercommand

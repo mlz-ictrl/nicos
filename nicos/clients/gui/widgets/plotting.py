@@ -485,7 +485,7 @@ class NicosPlotCurve(MaskedPlotCurve):
 class NicosPlot(DlgUtils):
 
     HAS_AUTOSCALE = False
-    SAVE_EXT = '.png'
+    SAVE_EXT = ['.png']
 
     def __init__(self, window, timeaxis=False):
         DlgUtils.__init__(self, 'Plot')
@@ -591,9 +591,9 @@ class NicosPlot(DlgUtils):
         raise NotImplementedError
 
     def saveQuietly(self):
-        """Save plot quietly to a temporary file with default format.
+        """Save plot quietly to temporary files with default formats.
 
-        Return the created filename.
+        Return a list of tuples (created filname, extension)
         """
         raise NotImplementedError
 
@@ -714,7 +714,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     axescls = NicosPlotAxes
     HAS_AUTOSCALE = True
-    SAVE_EXT = '.svg'
+    SAVE_EXT = ['.svg', '.png']
 
     def __init__(self, parent, window, timeaxis=False):
         InteractiveGRWidget.__init__(self, parent)
@@ -985,14 +985,14 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         """Get current gr.pygr.Plot object."""
         return self._plot
 
-    def _save(self, extension=".pdf"):
+    def _save(self, extension):
         fd, pathname = tempfile.mkstemp(extension)
         self.save(pathname)
         os.close(fd)
         return pathname
 
     def saveQuietly(self):
-        return self._save(".svg")
+        return [(self._save(ext), ext) for ext in self.SAVE_EXT]
 
     def _getCurveData(self, curve):
         errBar1 = curve.errorBar1

@@ -102,6 +102,9 @@ class Cellarray(gr.pygr.PlotSurface):
 
 
 class GRWidget(InteractiveGRWidget):
+
+    SAVE_EXT = ['.svg', '.png']
+
     def __init__(self, widget, **kwargs):
         InteractiveGRWidget.__init__(self, widget, **kwargs)
         self.widget = widget
@@ -147,7 +150,7 @@ class GRWidget(InteractiveGRWidget):
         return pathname
 
     def saveQuietly(self):
-        return self._save('.svg')
+        return [(self._save(ext), ext) for ext in self.SAVE_EXT]
 
 
 class Plot(OrigPlot):

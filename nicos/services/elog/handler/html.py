@@ -434,6 +434,14 @@ class Handler(BaseHandler):
         self._out.timestamp(time)
         self._out.newstate('plain', '', '', '<p class="attach">%s</p>\n' % text)
 
+    def handle_image(self, time, data):
+        description, fpaths, extensions, names = data
+        svgs = [(p, n) for (p, n, e) in zip(fpaths, names, extensions) if
+                e.lower() == '.svg']
+        if svgs:  # prefer .svg format
+            fpaths, names = zip(*svgs)
+        self.handle_attachment(time, [description, fpaths, names])
+
     def handle_message(self, time, message):
         formatted = formatMessage(message)
         if not formatted:

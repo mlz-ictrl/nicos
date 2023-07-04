@@ -1171,8 +1171,7 @@ class HistoryPanel(BaseHistoryWindow, PlotPanel):
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
         self.attachElogDialogExec(
-            safeName('history_%s' %
-                     self.currentPlot.view.name + self.currentPlot.SAVE_EXT)
+            safeName('history_%s' % self.currentPlot.view.name)
         )
 
 

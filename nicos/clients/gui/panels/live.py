@@ -485,8 +485,7 @@ class LiveDataPanel(PlotPanel):
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
         self.attachElogDialogExec(
-            safeName('data_' + self.fileList.currentItem().data(FILEUID) +
-                     '.svg')
+            safeName('data_' + self.fileList.currentItem().data(FILEUID))
         )
 
     def _getLiveWidget(self, roi):
