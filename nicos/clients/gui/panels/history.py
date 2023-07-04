@@ -32,9 +32,9 @@ import sys
 from collections import OrderedDict
 from time import localtime, mktime, time as currenttime
 
-from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import DlgUtils, dialogFromUi, \
-    enumerateWithProgress, loadUi, split_query
+from nicos.clients.gui.panels.plot import PlotPanel
+from nicos.clients.gui.utils import DlgUtils, enumerateWithProgress, loadUi, \
+    split_query
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
     ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
     PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, TcFitter, ViewPlot
@@ -1097,13 +1097,13 @@ class BaseHistoryWindow:
                                   self.fitPickCheckbox.isChecked())
 
 
-class HistoryPanel(BaseHistoryWindow, Panel):
+class HistoryPanel(BaseHistoryWindow, PlotPanel):
     """Provides a panel to show time series plots of any cache values."""
 
     panelName = 'History viewer'
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        PlotPanel.__init__(self, parent, client, options)
         BaseHistoryWindow.__init__(self)
 
         self.actionClose.setVisible(False)
@@ -1170,22 +1170,10 @@ class HistoryPanel(BaseHistoryWindow, Panel):
 
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'panels/plot_attach.ui')
-        suffix = self.currentPlot.SAVE_EXT
-        newdlg.filename.setText(
-            safeName('history_%s' % self.currentPlot.view.name + suffix))
-        ret = newdlg.exec()
-        if ret != QDialog.DialogCode.Accepted:
-            return
-        descr = newdlg.description.text()
-        fname = newdlg.filename.text()
-        pathname = self.currentPlot.saveQuietly()
-        with open(pathname, 'rb') as fp:
-            remotefn = self.client.ask('transfer', fp.read())
-        if remotefn is not None:
-            self.client.eval('_LogAttach(%r, [%r], [%r])' %
-                             (descr, remotefn, fname))
-        os.unlink(pathname)
+        self.attachElogDialogExec(
+            safeName('history_%s' %
+                     self.currentPlot.view.name + self.currentPlot.SAVE_EXT)
+        )
 
 
 class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):

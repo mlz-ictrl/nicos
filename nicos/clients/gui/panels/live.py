@@ -35,9 +35,9 @@ import numpy
 from gr import COLORMAPS as GR_COLORMAPS
 
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
-from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import dialogFromUi, enumerateWithProgress, \
-    loadUi, uipath, waitCursor
+from nicos.clients.gui.panels.plot import PlotPanel
+from nicos.clients.gui.utils import enumerateWithProgress, loadUi, uipath, \
+    waitCursor
 from nicos.core.constants import FILE, LIVE
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import AXES, DATATYPES, IntegralLiveWidget, \
@@ -82,7 +82,7 @@ def readDataFromFile(filename, filetype):
         raise NicosError('Unsupported file format %r' % filetype) from None
 
 
-class LiveDataPanel(Panel):
+class LiveDataPanel(PlotPanel):
     """Provides a generic "detector live view".
 
     For most instruments, a specific panel must be implemented that takes care
@@ -183,7 +183,7 @@ class LiveDataPanel(Panel):
     ui = path.join(uipath, 'panels', 'live.ui')
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        PlotPanel.__init__(self, parent, client, options)
         loadUi(self, self.ui)
 
         self._allowed_filetypes = set()
@@ -376,6 +376,7 @@ class LiveDataPanel(Panel):
 
         # create a new one
         self.widget = widgetcls(self, xscale=self.xscale, yscale=self.yscale)
+        self.currentPlot = self.widget.gr
 
         # enable/disable controls and set defaults for new livewidget instances
         self.setControlsEnabled(True)
@@ -483,23 +484,10 @@ class LiveDataPanel(Panel):
 
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'panels/plot_attach.ui')
-        suffix = '.svg'  # self.widget.SAVE_EXT
-        newdlg.filename.setText(
-            safeName('data_' + self.fileList.currentItem().data(FILEUID)
-                     + suffix))
-        ret = newdlg.exec()
-        if ret != QDialog.DialogCode.Accepted:
-            return
-        descr = newdlg.description.text()
-        fname = newdlg.filename.text()
-        pathname = self.widget.gr.saveQuietly()
-        with open(pathname, 'rb') as fp:
-            remotefn = self.client.ask('transfer', fp.read())
-        if remotefn is not None:
-            self.client.eval('_LogAttach(%r, [%r], [%r])' %
-                             (descr, remotefn, fname))
-        os.unlink(pathname)
+        self.attachElogDialogExec(
+            safeName('data_' + self.fileList.currentItem().data(FILEUID) +
+                     '.svg')
+        )
 
     def _getLiveWidget(self, roi):
         return self._livewidgets.get(roi + '/roi', None)

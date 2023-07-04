@@ -25,12 +25,11 @@
 
 """NICOS GUI scan plot window."""
 
-import os
 from math import sqrt
 
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
-from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.panels.plot import PlotPanel
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
     DataSetPlot, ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
@@ -74,7 +73,7 @@ def itemuid(item):
     return str(item.data(32))
 
 
-class ScansPanel(Panel):
+class ScansPanel(PlotPanel):
     """Provides a display for the scans of the current experiment.
 
     Options:
@@ -96,7 +95,7 @@ class ScansPanel(Panel):
     panelName = 'Scans'
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        PlotPanel.__init__(self, parent, client, options)
         loadUi(self, 'panels/scans.ui')
         ArbitraryFitter.arby_functions.update(options.get('fit_functions', {}))
 
@@ -149,8 +148,6 @@ class ScansPanel(Panel):
         self.setplots = {}
         # maps set uid -> list item
         self.setitems = {}
-        # current plot object
-        self.currentPlot = None
         # stack of set uids
         self.setUidStack = []
         # uids of automatically combined datasets -> uid of combined one
@@ -587,22 +584,10 @@ class ScansPanel(Panel):
 
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'panels/plot_attach.ui')
-        suffix = self.currentPlot.SAVE_EXT
-        newdlg.filename.setText(
-            safeName('data_%s' % self.currentPlot.dataset.name + suffix))
-        ret = newdlg.exec()
-        if ret != QDialog.DialogCode.Accepted:
-            return
-        descr = newdlg.description.text()
-        fname = newdlg.filename.text()
-        pathname = self.currentPlot.saveQuietly()
-        with open(pathname, 'rb') as fp:
-            remotefn = self.client.ask('transfer', fp.read())
-        if remotefn is not None:
-            self.client.eval('_LogAttach(%r, [%r], [%r])' %
-                             (descr, remotefn, fname))
-        os.unlink(pathname)
+        self.attachElogDialogExec(
+            safeName('data_%s' %
+                     self.currentPlot.dataset.name + self.currentPlot.SAVE_EXT)
+        )
 
     @pyqtSlot()
     def on_actionUnzoom_triggered(self):
