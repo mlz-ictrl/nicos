@@ -13,7 +13,6 @@ standard interface to NICOS.
    caress
    ipc
    qmesydaq
-   frm2
    astrium
    lima
    cascade
