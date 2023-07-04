@@ -1,5 +1,5 @@
 ===========================================================
-`GALAXI <https://www-llb.cea.fr/fr-en/pdf/hermes-llb.pdf>`_
+`HERMES <https://www-llb.cea.fr/fr-en/pdf/hermes-llb.pdf>`_
 ===========================================================
 
 
