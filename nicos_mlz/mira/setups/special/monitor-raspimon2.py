@@ -90,21 +90,8 @@ _column1 = Column(
         ],
         setups='garfield',
     ),
-    Block('FRM Magnet', [
-        BlockRow(
-            Field(dev='B'),
-            # Field(name='sth', dev='sth_ccm55v_stick'),
-            Field(name='T1', dev='ccm55v_T1', width=6),
-            Field(name='T2', dev='ccm55v_T2', width=6),
-        ),
-        BlockRow(
-            Field(name='T3', dev='ccm55v_T3', width=6),
-            Field(name='T4', dev='ccm55v_T4', width=6),
-            Field(name='T8', dev='ccm55v_T8', width=6),
-        ),
-        ],
-        setups='ccm55v',
-    ),
+    SetupBlock('ccm5v5'),
+    SetupBlock('ccm5v5', 'temperatures'),
     Block('SANS-1 Magnet', [
         BlockRow(
             Field(dev='B'),

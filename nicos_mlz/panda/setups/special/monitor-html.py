@@ -275,14 +275,8 @@ for i in range(10, 22 + 1):
     )
 
 # for setup magnet frm2-setup
-ccm55v = Block('5.5T Magnet', [
-    BlockRow(
-        Field(dev='B_ccm55v'),
-        Field(key='B_ccm55v/target', name='Target', fmtstr='%.2f'),
-    ),
-    ],
-    setups='ccm55v',
-)
+ccm5v5 = SetupBlock('ccm5v5')
+ccm5v5supp = SetupBlock('ccm5v5', 'temperatures')
 
 # for setup magnet jcns 5T
 wm5v = Block('5T Magnet', [
@@ -292,33 +286,6 @@ wm5v = Block('5T Magnet', [
     ),
     ],
     setups='wm5v',
-)
-
-
-ccm55vsupp = Block('Magnet', [
-    BlockRow(
-        Field(dev='sth_ccm55v',name='sth'),
-    ),
-    # Maximum temperatures for field operation above 6.6 T (80A) taken from the
-    # manual
-    BlockRow(
-        Field(dev='ccm55v_T1', max=4.3),
-        Field(dev='ccm55v_T2', max=4.3),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T3', max=5.1),
-        Field(dev='ccm55v_T4', max=4.7),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T5'),
-        Field(dev='ccm55v_T6'),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T7'),
-        Field(dev='ccm55v_T8', max=4.3),
-    ),
-    ],
-    setups='ccm55v',
 )
 
 wm5vsupp = Block('Magnet', [
@@ -436,9 +403,9 @@ tas = Block('TAS', [
 )
 
 column2 = Column(collimation, detector, ccm12v) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, lakeshore_hts, ccm55v, wm5v, vti)
+          Column(lakeshore, lakeshore_hts, ccm5v5, wm5v, vti)
 
-column3 = Column(tas) + Column(ccm55vsupp, wm5vsupp, kelvinox, foki,  memograph) + \
+column3 = Column(tas) + Column(ccm5v5supp, wm5vsupp, kelvinox, foki,  memograph) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)

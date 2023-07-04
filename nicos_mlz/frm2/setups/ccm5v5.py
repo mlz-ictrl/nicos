@@ -49,3 +49,43 @@ alias_config = {
 extended = dict(
     representative = 'B_%s' % setupname,
 )
+
+monitor_blocks = dict(
+    default = Block('5T Magnet', [
+        BlockRow(
+            Field(dev='B_ccm5v5', name='Field', fmtstr='%.3f'),
+            Field(key='B_ccm5v5/target', name='Target', fmtstr='%.2f'),
+            Field(dev='sth_ccm5v5', name='sth'),
+        ),
+    ], setups='ccm5v5'),
+    temperatures = Block('5T Magnet', [
+        # Maximum temperatures for field operation above 6.6 T (80A)
+        # taken from the manual
+        BlockRow(
+            Field(dev='ccm5v5_T1', max=4.3),
+            Field(dev='ccm5v5_T2', max=4.3),
+        ),
+        BlockRow(
+            Field(dev='ccm5v5_T3', max=5.1),
+            Field(dev='ccm5v5_T4', max=4.7),
+        ),
+        BlockRow(
+            Field(dev='ccm5v5_T5'),
+            Field(dev='ccm5v5_T6'),
+        ),
+        BlockRow(
+            Field(dev='ccm5v5_T7'),
+            Field(dev='ccm5v5_T8', max=4.3),
+        ),
+    ], setups='ccm5v5'),
+    plots = Block('5T Magnet plots', [
+        BlockRow(
+            Field(dev='ccm5v5_T1', name='T1', plot='Tm', plotwindow=24*3600,
+                  width=100, height=40),
+            Field(dev='ccm5v5_T2', name='T2', plot='Tm'),
+            Field(dev='ccm5v5_T3', name='T3', plot='Tm'),
+            Field(dev='ccm5v5_T4', name='T4', plot='Tm'),
+            Field(dev='B', plot='Tm'),
+        ),
+    ], setups='ccm5v5'),
+)

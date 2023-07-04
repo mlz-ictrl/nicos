@@ -323,40 +323,8 @@ miramagnet = Block('MIRA Magnet', [
 )
 
 # for setup magnet frm2-setup
-magnet55 = Block('5T Magnet', [
-    BlockRow(
-        Field(dev='B_ccm55v'),
-        Field(key='B_ccm55v/target', name='Target', fmtstr='%.2f'),
-    ),
-    ],
-    setups='ccm55v',
-)
-
-magnet55supp = Block('Magnet', [
-    BlockRow(
-        Field(dev='sth_ccm55v', name='sth'),
-    ),
-    # Maximum temperatures for field operation above 6.6 T (80A) taken from the
-    # manual
-    BlockRow(
-        Field(dev='ccm55v_T1', max=4.3),
-        Field(dev='ccm55v_T2', max=4.3),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T3', max=5.1),
-        Field(dev='ccm55v_T4', max=4.7),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T5'),
-        Field(dev='ccm55v_T6'),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T7'),
-        Field(dev='ccm55v_T8', max=4.3),
-    ),
-    ],
-    setups='ccm55v',
-)
+ccm5v5 = SetupBlock('ccm5v5')
+ccm5v5supp = SetupBlock('ccm5v5', 'temperatures')
 
 # for setup magnet jcns
 wm5v = Block('5T Magnet', [
@@ -501,11 +469,11 @@ memograph = Block('Water Flow', [
     ],
 )
 
-column1 = Column(filters, primary, sample, analyzer) + Column(magnet55)
+column1 = Column(filters, primary, sample, analyzer) + Column(ccm5v5)
 column2 = Column(collimation, detector, bambus, lakeshore_hts, ccm12v) + Column(*cryos) + Column(*ccrs) + \
           Column(lakeshore, miramagnet, wm5v, vti)
 
-column3 = Column(magnet55supp, wm5vsupp, kelvinox, foki, memograph, cam) + \
+column3 = Column(ccm5v5supp, wm5vsupp, kelvinox, foki, memograph, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(*cryoplots) + Column(*ccrplots) + \
