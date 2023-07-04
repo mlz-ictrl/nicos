@@ -1,0 +1,78 @@
+description = 'The digital inputs of the MacGyver box.'
+
+pv_root = 'se-macgyver-001:'
+
+devices = dict(
+    macgyver_digital_in_1=device(
+        'nicos.devices.epics.pva.EpicsBoolReadable',
+        description='MacGyver box digital in 1',
+        readpv='{}digital_in_1-R'.format(pv_root),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
+    macgyver_digital_in_2=device(
+        'nicos.devices.epics.pva.EpicsBoolReadable',
+        description='MacGyver box digital in 2',
+        readpv='{}digital_in_2-R'.format(pv_root),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
+    macgyver_digital_in_3=device(
+        'nicos.devices.epics.pva.EpicsBoolReadable',
+        description='MacGyver box digital in 3',
+        readpv='{}digital_in_3-R'.format(pv_root),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
+    macgyver_digital_in_4=device(
+        'nicos.devices.epics.pva.EpicsBoolReadable',
+        description='MacGyver box digital in 4',
+        readpv='{}digital_in_4-R'.format(pv_root),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
+    macgyver_digital_in_5=device(
+        'nicos.devices.epics.pva.EpicsBoolReadable',
+        description='MacGyver box digital in 5',
+        readpv='{}digital_in_5-R'.format(pv_root),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
+    macgyver_digital_in_6=device(
+        'nicos.devices.epics.pva.EpicsBoolReadable',
+        description='MacGyver box digital in 6',
+        readpv='{}digital_in_6-R'.format(pv_root),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
+    macgyver_digital_in_7=device(
+        'nicos.devices.epics.pva.EpicsBoolReadable',
+        description='MacGyver box digital in 7',
+        readpv='{}digital_in_7-R'.format(pv_root),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
+    macgyver_digital_in_8=device(
+        'nicos.devices.epics.pva.EpicsBoolReadable',
+        description='MacGyver box digital in 8',
+        readpv='{}digital_in_8-R'.format(pv_root),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
+)
