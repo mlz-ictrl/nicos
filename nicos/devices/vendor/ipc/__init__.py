@@ -36,10 +36,6 @@ from .bus.base import InvalidCommandError, IPCModBus, IPCModBusRS232, \
     IPCModBusSerial, IPCModBusTCP
 
 try:
-    from .bus.taco import IPCModBusTaco, IPCModBusTacoSerial
-except ImportError:
-    pass
-try:
     from .bus.tango import IPCModBusTango
 except ImportError:
     pass

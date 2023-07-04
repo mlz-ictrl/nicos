@@ -11,13 +11,11 @@ Communication
 
 .. autoclass:: IPCModBus()
 
-.. autoclass:: IPCModBusTaco()
+.. autoclass:: IPCModBusTango()
 
 .. autoclass:: IPCModBusRS232()
 
 .. autoclass:: IPCModBusTCP()
-
-.. autoclass:: IPCModBusTacoSerial()
 
 .. autoclass:: IPCModBusSerial()
 
