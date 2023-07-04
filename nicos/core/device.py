@@ -862,7 +862,7 @@ class Device(metaclass=DeviceMeta):
         """Return a list of versions for this device.
 
         These are tuples (component, version) where a "component" can be the
-        name of a Python module, or an external dependency (like a TACO
+        name of a Python module, or an external dependency (like a Tango
         server).
 
         The base implementation already collects VCS revision information

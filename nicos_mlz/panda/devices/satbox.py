@@ -37,8 +37,7 @@ class SatBox(HasTimeout, Moveable):
     """
     Device Object for PANDA's Attenuator
 
-    controlled by a WUT-device via a ModBusTCP interface via a ModBus TACO
-    Server.
+    controlled by a WUT-device via a ModBusTCP interface.
     """
 
     valuetype = int
