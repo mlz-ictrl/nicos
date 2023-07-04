@@ -87,7 +87,7 @@ they return a converter.
    *element_converter*.  Examples::
 
        Param(..., type=listof(int))
-       Param(..., type=listof(tacodev))
+       Param(..., type=listof(anytype))
 
 .. function:: nonemptylistof(element_converter)
 
@@ -99,7 +99,7 @@ they return a converter.
    *element_converters*.  Examples::
 
        Param(..., type=tupleof(int, int))
-       Param(..., type=tupleof(tacodev, str, str))
+       Param(..., type=tupleof(anytype, str, str))
 
 .. function:: dictof(key_converter, value_converter)
 
