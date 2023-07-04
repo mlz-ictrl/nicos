@@ -324,7 +324,6 @@ class PILATUSDetector(HasEnergy, Detector2D):
     parameter.
     """
 
-    # TODO: add proper descriptions
     attached_devices = {
         'detector_distance': Attach(
             'Current detector distance to sample.',
@@ -343,7 +342,7 @@ class PILATUSDetector(HasEnergy, Detector2D):
             Readable, optional=True,
         ),
         'start_angle': Attach(
-            '',
+            'Starting angle of the detector scan.',
             Readable, optional=True,
         ),
         'detector_2theta': Attach(
@@ -351,7 +350,7 @@ class PILATUSDetector(HasEnergy, Detector2D):
             Readable, optional=True,
         ),
         'polarization': Attach(
-            '',
+            'X-ray polarization.',
             Readable, optional=True,
         ),
         'alpha': Attach(
@@ -375,11 +374,11 @@ class PILATUSDetector(HasEnergy, Detector2D):
             Readable, optional=True,
         ),
         'start_position': Attach(
-            '',
+            'Starting position of the detector scan.',
             Readable, optional=True,
         ),
         'shutter_time': Attach(
-            '',
+            'Time the shutter was open.',
             Readable, optional=True,
         ),
     }
