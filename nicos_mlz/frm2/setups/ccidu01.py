@@ -4,7 +4,7 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-tango_base = "tango://%s:10000/box/" % setupname
+tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
     'T_%s_mc' % setupname: device('nicos.devices.entangle.TemperatureController',
@@ -123,4 +123,53 @@ alias_config = {
 
 extended = dict(
     representative = 'T_%s_mc' % setupname,
+)
+
+monitor_blocks = dict(
+    default = Block('Dilution insert ' + setupname, [
+        BlockRow(
+            Field(name='Setpoint', key=f't_{setupname}_mc/setpoint',
+                  unitkey='t/unit'),
+            Field(name='Target', key=f't_{setupname}_mc/target',
+                  unitkey='t/unit'),
+        ),
+        BlockRow(
+            Field(name='Manual Heater Power', key=f't_{setupname}_mc/heaterpower',
+                  unitkey='t/unit'),
+        ),
+        BlockRow(
+             Field(name='MC', dev=f'T_{setupname}_mc'),
+             Field(name='Sample', dev=f'T_{setupname}_sample'),
+        ),
+        BlockRow(
+             Field(name='Still', dev=f'T_{setupname}_still'),
+             Field(name='Sensor6', dev=f'T_{setupname}_sensor6'),
+        ),
+    ], setups=setupname),
+    pressures = Block('Pressures ' + setupname, [
+        BlockRow(
+            Field(dev=f'{setupname}_p_still', name='Still', width=10),
+            Field(dev=f'{setupname}_p_inlet', name='Inlet', width=10),
+        ),
+        BlockRow(
+            Field(dev=f'{setupname}_p_cond', name='Cond', width=10),
+            Field(dev=f'{setupname}_p_tank', name='Tank', width=10),
+        ),
+        BlockRow(
+            Field(dev=f'{setupname}_p_outlet', name='Outlet', width=10),
+            Field(dev=f'{setupname}_p_vac', name='Vacuum', width=10),
+        ),
+        BlockRow(
+            Field(dev=f'{setupname}_flow', name='Flow', width=10),
+        ),
+    ], setups=setupname),
+    plots = Block(setupname, [
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  plotwindow=300, width=25, height=25,
+                  devices=[f't_{setupname}_mc/setpoint', f't_{setupname}_mc'],
+                  names=['Setpoint', 'Regulation'],
+                  ),
+        ),
+    ], setups=setupname)
 )

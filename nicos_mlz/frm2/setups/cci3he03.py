@@ -108,3 +108,49 @@ alias_config = {
     'Ts': {'T_%s_pot' % setupname: 280, 'T_%s_sample' % setupname: 300,
            'T_%s_sample2' % setupname: 290},
 }
+
+monitor_blocks = dict(
+    default = Block('3He insert ' + setupname, [
+        BlockRow(
+            Field(name='Setpoint', key=f't_{setupname}_pot/setpoint',
+                  unitkey='t/unit'),
+            Field(name='Target', key=f't_{setupname}_pot/target',
+                  unitkey='t/unit'),
+        ),
+        BlockRow(
+            Field(name='Pot', dev=f'T_{setupname}_pot'),
+            Field(name='Manual Heater Power', key=f't_{setupname}_pot/heaterpower',
+                  unitkey='t/unit'),
+        ),
+        BlockRow(
+            Field(name='Sample', dev=f'T_{setupname}_sample'),
+            Field(name='Sample2', dev=f'T_{setupname}_sample2'),
+        ),
+    ], setups=setupname),
+    pressures = Block('Pressures ' + setupname, [
+        BlockRow(
+            Field(dev=f'{setupname}_p_pot', name='Pot', width=10),
+            Field(dev=f'{setupname}_p_inlet', name='Inlet', width=10),
+        ),
+        BlockRow(
+            Field(dev=f'{setupname}_p_outlet', name='Outlet', width=10),
+            Field(dev=f'{setupname}_p_cond', name='Cond', width=10),
+        ),
+        BlockRow(
+            Field(dev=f'{setupname}_p_tank', name='Tank', width=10),
+            Field(dev=f'{setupname}_p_vac', name='Vac', width=10),
+        ),
+        BlockRow(
+            Field(dev=f'{setupname}_flow', name='Flow', width=10),
+        ),
+    ], setups=setupname),
+    plots = Block(setupname, [
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  plotwindow=300, width=25, height=25,
+                  devices=[f't_{setupname}/setpoint', f't_{setupname}'],
+                  names=['Setpoint', 'Regulation'],
+                  ),
+        ),
+    ], setups=setupname)
+)
