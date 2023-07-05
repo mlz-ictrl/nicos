@@ -2,85 +2,16 @@ description = 'The digital outputs of the MacGyver box.'
 
 pv_root = 'se-macgyver-001:'
 
-devices = dict(
-    macgyver_digital_out_1=device(
+devices = dict()
+
+for i in range(1, 9):
+    devices[f'macgyver_digital_out_{i}'] = device(
         'nicos.devices.epics.pva.EpicsBoolMoveable',
-        description='MacGyver box digital out 1',
-        readpv='{}digital_out_1-R'.format(pv_root),
-        writepv='{}digital_out_1-R'.format(pv_root),
+        description=f'MacGyver box digital out {i}',
+        readpv=f'{pv_root}digital_out_{i}-R',
+        writepv=f'{pv_root}digital_out_{i}-S',
         pva=True,
         monitor=True,
         pollinterval=0.5,
         maxage=None,
-    ),
-    macgyver_digital_out_2=device(
-        'nicos.devices.epics.pva.EpicsBoolMoveable',
-        description='MacGyver box digital out 2',
-        readpv='{}digital_out_2-R'.format(pv_root),
-        writepv='{}digital_out_2-R'.format(pv_root),
-        pva=True,
-        monitor=True,
-        pollinterval=0.5,
-        maxage=None,
-    ),
-    macgyver_digital_out_3=device(
-        'nicos.devices.epics.pva.EpicsBoolMoveable',
-        description='MacGyver box digital out 3',
-        readpv='{}digital_out_3-R'.format(pv_root),
-        writepv='{}digital_out_3-R'.format(pv_root),
-        pva=True,
-        monitor=True,
-        pollinterval=0.5,
-        maxage=None,
-    ),
-    macgyver_digital_out_4=device(
-        'nicos.devices.epics.pva.EpicsBoolMoveable',
-        description='MacGyver box digital out 4',
-        readpv='{}digital_out_4-R'.format(pv_root),
-        writepv='{}digital_out_4-R'.format(pv_root),
-        pva=True,
-        monitor=True,
-        pollinterval=0.5,
-        maxage=None,
-    ),
-    macgyver_digital_out_5=device(
-        'nicos.devices.epics.pva.EpicsBoolMoveable',
-        description='MacGyver box digital out 5',
-        readpv='{}digital_out_5-R'.format(pv_root),
-        writepv='{}digital_out_5-R'.format(pv_root),
-        pva=True,
-        monitor=True,
-        pollinterval=0.5,
-        maxage=None,
-    ),
-    macgyver_digital_out_6=device(
-        'nicos.devices.epics.pva.EpicsBoolMoveable',
-        description='MacGyver box digital out 6',
-        readpv='{}digital_out_6-R'.format(pv_root),
-        writepv='{}digital_out_6-R'.format(pv_root),
-        pva=True,
-        monitor=True,
-        pollinterval=0.5,
-        maxage=None,
-    ),
-    macgyver_digital_out_7=device(
-        'nicos.devices.epics.pva.EpicsBoolMoveable',
-        description='MacGyver box digital out 7',
-        readpv='{}digital_out_7-R'.format(pv_root),
-        writepv='{}digital_out_7-R'.format(pv_root),
-        pva=True,
-        monitor=True,
-        pollinterval=0.5,
-        maxage=None,
-    ),
-    macgyver_digital_out_8=device(
-        'nicos.devices.epics.pva.EpicsBoolMoveable',
-        description='MacGyver box digital out 8',
-        readpv='{}digital_out_8-R'.format(pv_root),
-        writepv='{}digital_out_8-R'.format(pv_root),
-        pva=True,
-        monitor=True,
-        pollinterval=0.5,
-        maxage=None,
-    ),
-)
+    )
