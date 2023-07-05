@@ -52,6 +52,10 @@ interpol_re = re.compile(
 )
 
 
+def setupname(filename):
+    return path.basename(filename)[:-3]
+
+
 class FileHandler(StreamHandler):
 
     def __init__(self, *args):
@@ -73,36 +77,89 @@ class Logger(logging.Logger):
         logging.Logger.handle(self, record)
 
 
+class SetupCollection:
+    """Represents a bunch of setups that are available to a certain instrument
+    configuration.
+    """
+
+    def __init__(self):
+        self.log = logging.getLogger('collection')
+
+        # results of collection
+        self.all_setups = None      # All found setups with their paths.
+        self.namespace = {}         # Setup file namespaces for each setup.
+        self.setup_ast = {}         # Setup file ASTs.
+        self.exec_errors = {}       # Errors during exec()ution of a setup.
+        self.all_devs_lc = set()    # All devices seen, with lowercase name.
+
+        # bookkeeping for SetupChecker
+        self.devs_seen = {}
+        self.helptopics_seen = {}
+
+    def add(self, filename):
+        if setupname(filename).startswith('guiconfig'):
+            self._exec_all([(setupname(filename), filename)])
+            return
+
+        if self.all_setups is None:
+            try:
+                setup_roots = findSetupRoots(filename)
+            except RuntimeError as err:
+                self.log.error(str(err))
+                setup_roots = (path.dirname(filename),)
+            setuplist = list(iterSetups(setup_roots))
+            self.all_setups = dict(setuplist)
+            self._exec_all(setuplist)
+
+    def _exec_all(self, setuplist):
+        for (setupname, filename) in setuplist:
+            self.log.info('excecuting %s', filename)
+            filename = path.normpath(path.abspath(filename))
+            is_guiconfig = setupname.startswith('guiconfig')
+            if is_guiconfig:
+                ns = prepareGuiNamespace()
+            else:
+                ns = prepareNamespace(setupname, filename, self.all_setups)
+            try:
+                with open(filename, encoding='utf-8') as fp:
+                    code = fp.read()
+                exec(code, ns)
+            except SyntaxError as e:
+                msg = 'SyntaxError:\t%s' % e.msg
+                msg += '\n|line: %s : %s ' % (
+                    e.lineno, e.text.strip() if e.text else ''
+                )
+                self.exec_errors[filename] = (e, msg)
+            except Exception as e:
+                self.exec_errors[filename] = (e, None)
+            else:
+                self.setup_ast[filename] = ast.parse(code)
+                ns['devices'] = fixup_stacked_devices(self.log,
+                                                      ns.get('devices', {}))
+                self.namespace[filename] = ns
+
+                for dev in ns.get('devices', {}):
+                    self.all_devs_lc.add(dev.lower())
+
+
 class SetupChecker:
-    all_setups_cache = {}
 
-    def __init__(self, filename, devs_seen, helptopics_seen, setup_info):
-        self.filename = filename
-        self.devs_seen = devs_seen
-        self.helptopics_seen = helptopics_seen
-        self.setup_info = setup_info
-        self.setupname = path.basename(filename)[:-3]
+    def __init__(self, collection, filename):
         self.log = logging.getLogger(filename)
-        self.is_guiconfig = self.setupname.startswith('guiconfig')
-        try:
-            setup_roots = findSetupRoots(filename)
-        except RuntimeError as err:
-            self.log_error(str(err))
-            setup_roots = (path.dirname(filename),)
-        if setup_roots in SetupChecker.all_setups_cache:
-            all_setups = SetupChecker.all_setups_cache[setup_roots]
+        filename = path.normpath(path.abspath(filename))
+        self.collection = collection
+        self.filename = filename
+        self.setupname = setupname(filename)
+        if self.filename in self.collection.exec_errors:
+            (exc, msg) = self.collection.exec_errors[self.filename]
+            if msg:
+                self.log_error(msg, extra={'line': exc.lineno})
+            else:
+                self.log_exception(exc)
+            self.good = False
         else:
-            SetupChecker.all_setups_cache[setup_roots] = all_setups = \
-                dict(iterSetups(setup_roots))
-        if self.is_guiconfig:
-            self.ns = prepareGuiNamespace()
-        else:
-            self.ns = prepareNamespace(self.setupname, filename, all_setups)
-        self.good = True
-
-        # filled by check()
-        self.code = None
-        self.ast = None
+            self.ns = collection.namespace[filename]
+            self.good = True
 
     def log_exception(self, exception):
         formatted_lines = traceback.format_exc().splitlines()
@@ -120,8 +177,9 @@ class SetupChecker:
 
     def _find_binding(self, binding):
         assign = [
-            x for x in self.ast.body if isinstance(x, ast.Assign)
-            and isinstance(x.targets[0], ast.Name) and x.targets[0].id == binding
+            x for x in self.collection.setup_ast[self.filename].body
+            if isinstance(x, ast.Assign) and isinstance(x.targets[0], ast.Name)
+            and x.targets[0].id == binding
         ]
         if not assign:
             return None
@@ -246,7 +304,7 @@ class SetupChecker:
                 extra=self.find_deventry(devname)
             )
             return self.log_exception(e)
-        config = devconfig[1]
+        config = devconfig[1].copy()
 
         # check missing attached devices
         if not hasattr(cls, 'attached_devices'):
@@ -318,26 +376,12 @@ class SetupChecker:
             )
 
     def check(self):
-        # check syntax
-        try:
-            with open(self.filename, encoding='utf-8') as fp:
-                self.code = fp.read()
-            exec(self.code, self.ns)
-            self.ast = ast.parse(self.code)
-        except SyntaxError as e:
-            msg = 'SyntaxError:\t%s' % e.msg
-            msg += '\n|line: %s : %s ' % (
-                e.lineno, e.text.strip() if e.text else ''
-            )
-            self.log_error(msg, extra={'line': e.lineno})
-            return self.good
-        except Exception as e:
-            self.log_exception(e)
-            return self.good
-        self.log.info('syntax ok')
-        self.setup_info[self.setupname] = self.ns
+        # report errors found by the collection phase
+        if not self.good:
+            return False
 
-        if self.is_guiconfig:
+        # special check for guiconfigs
+        if self.setupname.startswith('guiconfig'):
             return self.check_guiconfig()
 
         # check for valid group
@@ -358,24 +402,24 @@ class SetupChecker:
                 extra=self.find_global('description')
             )
 
-        self.ns['devices'
-                ] = fixup_stacked_devices(self, self.ns.get('devices', {}))
+        devs = self.ns.get('devices', {})
         # check if devices are duplicated
         if group != 'special':
-            devs = self.ns.get('devices', {})
             for devname in devs:
-                if devname not in self.devs_seen:
-                    self.devs_seen[devname] = self.setupname
+                if devname not in self.collection.devs_seen:
+                    self.collection.devs_seen[devname] = self.filename
                     continue
                 # we have a duplicate: it's okay if we exclude the other setup
                 # or if we are both basic setups
-                other = self.devs_seen[devname]
+                other = self.collection.devs_seen[devname]
                 self_group = self.ns.get('group', 'optional')
-                other_group = self.setup_info[other].get('group', 'optional')
+                other_group = self.collection.namespace[other].get('group',
+                                                                   'optional')
                 if self_group == 'basic' and other_group == 'basic':
                     continue
-                if other in self.ns.get('excludes', []) or \
-                   self.setupname in self.setup_info[other].get('excludes', []):
+                if setupname(other) in self.ns.get('excludes', []) or \
+                   self.setupname in self.collection.namespace[other].get(
+                       'excludes', []):
                     continue
                 # it's also ok if it is a sample, experiment, or instrument
                 # device
@@ -384,7 +428,8 @@ class SetupChecker:
                     continue
                 self.log.warning(
                     'device name %s duplicate: also in %s', devname,
-                    self.devs_seen[devname], extra=self.find_deventry(devname)
+                    self.collection.devs_seen[devname],
+                    extra=self.find_deventry(devname)
                 )
         # check for "require" or "requires"
         for req in ['require', 'requires']:
@@ -426,8 +471,10 @@ class SetupChecker:
             ('devices', dict),
             ('alias_config', dict),
             ('startupcode', str),
+            ('display_order', int),
             ('extended', dict),
-            ('help_topics', dict)
+            ('watch_conditions', list),
+            ('help_topics', dict),
         ]:
             if vname in self.ns and not isinstance(self.ns[vname], vtype):
                 self.log_error(
@@ -469,9 +516,9 @@ class SetupChecker:
                             extra=self.find_global('alias_config')
                         )
                         break
-                    if target not in self.ns.get('devices', {}):
+                    if target not in devs:
                         basedev = target.partition('.')[0]
-                        if basedev not in self.ns.get('devices'):
+                        if basedev not in devs:
                             self.log_error(
                                 'alias_config device target should '
                                 'be a device from the current setup',
@@ -491,7 +538,7 @@ class SetupChecker:
         # check for validity of extended representative
         representative = self.ns.get('extended', {}).get('representative')
         if representative is not None:
-            if representative not in self.ns.get('devices', {}):
+            if representative not in devs:
                 self.log_error(
                     'extended["representative"] should be a device '
                     'defined in the current setup',
@@ -499,7 +546,7 @@ class SetupChecker:
                 )
 
         # check for valid device classes (if importable) and parameters
-        for devname, devconfig in self.ns.get('devices', {}).items():
+        for devname, devconfig in devs.items():
             self.check_device(
                 devname, devconfig, group in ('special', 'configdata')
             )
@@ -602,20 +649,22 @@ class SetupChecker:
         if group != 'special':
             helptopics = self.ns.get('help_topics', {})
             for helpname in helptopics:
-                if helpname not in self.helptopics_seen:
-                    self.helptopics_seen[helpname] = self.setupname
+                if helpname not in self.collection.helptopics_seen:
+                    self.collection.helptopics_seen[helpname] = self.filename
                     continue
-                other = self.helptopics_seen[helpname]
+                other = self.collection.helptopics_seen[helpname]
                 self_group = self.ns.get('group', 'optional')
-                other_group = self.setup_info[other].get('group', 'optional')
+                other_group = self.collection.namespace[other].get('group',
+                                                                   'optional')
                 if self_group == 'basic' and other_group == 'basic':
                     continue
-                if other in self.ns.get('excludes', []) or \
-                    self.setupname in self.setup_info[other].get('excludes', []):
+                if setupname(other) in self.ns.get('excludes', []) or \
+                   self.setupname in self.collection.namespace[other].get(
+                       'excludes', []):
                     continue
                 self.log.error(
                     'Help topic name %s duplicate: also in %s', helpname,
-                    self.helptopics_seen[helpname]
+                    self.collection.helptopics_seen[helpname]
                 )
         return self.good
 
@@ -630,34 +679,35 @@ class SetupChecker:
 
 
 class SetupValidator:
-    def __init__(self):
-        self.devs_seen = {}
-        self.setup_info = {}
-        self.helptopics_seen = {}
-        self.result = True
-
     def walk(self, paths, separate=False):
+        good = True
+        collection = SetupCollection()
         for p in paths:
             if separate:
-                self.devs_seen = {}
-                self.setup_info = {}
+                collection = SetupCollection()
             if path.isdir(p):
-                self.validateRecursive(p)
+                self.collectRecursive(collection, p)
+                self.validateRecursive(collection, p)
             elif path.isfile(p):
-                self.validateOne(p)
+                collection.add(p)
+                good &= SetupChecker(collection, p).check()
             if not path.exists(p):
                 # Explicitly no negative return value as the rest of the paths
                 # may have been checked.
                 log = logging.getLogger(p)
                 log.error('File not found')
-        return self.result
+        return good
 
-    def validateRecursive(self, p):
+    def collectRecursive(self, c, p):
         for root, _dirs, files in os.walk(p):
             for f in files:
                 if f.endswith('.py'):
-                    self.validateOne(path.join(root, f))
+                    c.add(path.join(root, f))
 
-    def validateOne(self, p):
-        self.result &= SetupChecker(
-            p, self.devs_seen, self.helptopics_seen, self.setup_info).check()
+    def validateRecursive(self, c, p):
+        good = True
+        for root, _dirs, files in os.walk(p):
+            for f in files:
+                if f.endswith('.py'):
+                    good &= SetupChecker(c, path.join(root, f)).check()
+        return good

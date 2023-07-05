@@ -94,7 +94,7 @@ def findSetupRoots(filename):
     cfg = readToml(path.join(dirname, 'nicos.conf'))
     subdirs = cfg.get('nicos', {}).get('setup_subdirs', None)
     if subdirs is not None:
-        return tuple(path.join(path.dirname(dirname), subdir)
+        return tuple(path.join(path.dirname(dirname), subdir, 'setups')
                      for subdir in subdirs)
     else:
         return (dirname,)
