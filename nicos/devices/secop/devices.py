@@ -59,11 +59,11 @@ from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
     HasOffset, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
-from nicos.core.params import anytype, floatrange, intrange
+from nicos.core.params import anytype, dictof, floatrange, intrange, listof
 from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
-from nicos.utils import printTable
+from nicos.utils import importString, printTable
 
 SECOP_ERROR = 400
 
@@ -165,7 +165,8 @@ class SecNodeDevice(Readable):
 
     parameters = {
         'prefix':      Param("Prefix for the generated devices\n\n"
-                             "'$' will be replaced by the equipment id",
+                             "'$' will be replaced by the equipment id."
+                             " It should end with a trailing underscore",
                              type=str, default='$_', settable=True),
         'uri':         Param('tcp://<host>:<port>', type=str, settable=True),
         'auto_create': Param('Flag for automatic creation of devices',
@@ -178,7 +179,49 @@ class SecNodeDevice(Readable):
         'async_only':  Param('True: inhibit SECoP reads on created devices, '
                              'use events only', type=bool, prefercache=False,
                              default=False, userparam=False),
+        'allow_list':  Param('list of device names to allow creating',
+                             ext_desc='The original names found on the'
+                             ' SecNode are looked at. If the allow_list is'
+                             ' empty, all modules are allowed',
+                             type=listof(str), prefercache=False, default=[],
+                             userparam=False),
+        'device_mapping': Param('Dict of mappings for Name and Mixins ',
+                                type=dictof(str, dictof(str, anytype)),
+                                prefercache=False, default={}, userparam=False),
     }
+    parameters['device_mapping'].ext_desc = '''
+    Dictionary name -> mapping where mapping is a dictionary which can contain
+    the following keys:
+    name -> remapped name of the device
+    mixins -> list of names of mixin classes that should be added to the class
+
+    For example, from a secnode with the modules examplemodule and barcodes,
+    among others:
+
+    .. code:
+
+        secnode = device(
+            'nicos.devices.secop.SecNodeDevice',
+            description='doc demo',
+            uri = 'tcp://localhost:10767',
+            auto_create = True,
+            unit='',
+            device_mapping = {
+                'examplemodule': {
+                    'name': 'ExampleName',
+                },
+                'barcodes': {
+                    'mixins':
+                        ['nicos_mlz.devices.barcodes.BarcodeInterpreterMixin'],
+                }
+            },
+            allow_list = ['barcodes', 'examplemodule'],
+        ),
+
+    Barcodes will then be mapped to a NICOS-device called nodname_barcodes and
+    examplemodule will become a device named ExampleName.
+    '''
+
     parameter_overrides = {
         'unit': Override(default='', mandatory=False),
         # no polling on the SEC node
@@ -329,6 +372,15 @@ class SecNodeDevice(Readable):
         equipment_name = clean_identifier(self._secnode.nodename).lower()
         return self.prefix.replace('$', equipment_name)
 
+    def _get_device_name(self, module):
+        """get a modules mapped name according to device_mapping or None,
+        if unmapped
+        """
+        if module in self.device_mapping \
+            and 'name' in self.device_mapping[module]:
+            return self.device_mapping[module]['name']
+        return self._get_prefix() + module
+
     @usermethod
     def showModules(self):
         """show modules of the connected SECoP server
@@ -397,13 +449,27 @@ class SecNodeDevice(Readable):
         if not self._secnode:
             self.log.error('secnode is not connected')
             return
-        prefix = self._get_prefix()
         setup_info = {}
+        # keep track of configured devices to warn when one is configured
+        # without being found on the SECNode or filtered by allow_list
+        configured = set(self.device_mapping.keys())
         for module, mod_desc in self._secnode.modules.items():
+            # If the module should not be created, skip it
+            if self.allow_list and module not in self.allow_list:
+                self.log.debug('skipping module %s, as it is not in the list'
+                               ' of allowed modules', module)
+                continue
+
+            if module in configured:
+                configured.remove(module)
             module_properties = mod_desc.get('properties', {})
             kwds = {
                 'secop_properties': module_properties,
             }
+            # Map device name according to config
+            dev_name = self._get_device_name(module)
+            self.log.debug('using device name %s for SECoP-module %s',
+                           dev_name, module)
             # convert parameters and command description to the needed items,
             # especially avoid datatype or a nicos type here,
             # as this would need pickle to put into the cache.
@@ -446,6 +512,7 @@ class SecNodeDevice(Readable):
                 cname: {'description': props.get('description', ''),
                         'datainfo': props['datainfo']}
                 for cname, props in mod_desc['commands'].items()}
+            mixins = self.device_mapping.get(module, {}).get('mixins', [])
             cls = class_from_interface(module_properties)
             if isinstance(cls, SecopReadable):
                 kwds.setdefault('unit', '')  # unit is mandatory on Readables
@@ -457,18 +524,24 @@ class SecNodeDevice(Readable):
                         secop_module=module,
                         params_cfg=params_cfg,
                         commands_cfg=commands_cfg,
+                        mixins=mixins,
                         **kwds)
+
             # the following test may be removed later, when no bugs appear ...
             if 'cache_unpickle("' in cache_dump(desc):
                 self.log.error('module %r skipped - setup info needs pickle',
                                module)
             else:
-                setup_info[prefix + module] = (
+                setup_info[dev_name] = (
                     'nicos.devices.secop.devices.%s' % cls.__name__, desc)
         if not setup_info:
             self.log.info('creating devices for %s skipped', self.name)
             return
         if self.auto_create:
+            if configured:
+                self.log.warning('configured modules were not found or were'
+                                 ' skipped during creation: %s!',
+                                 list(configured))
             self.makeDynamicDevices(setup_info)
         else:
             self._setROParam('setup_info', setup_info)
@@ -608,6 +681,8 @@ class SecopDevice(Device):
         'secop_properties': Param('SECoP module properties',
                                   type=anytype, settable=False,
                                   userparam=False),
+        'mixins': Param('Mixins to add to this Device', type=listof(str),
+                        settable=False, userparam=False, default=[]),
     }
     STATUS_MAP = {
         0: status.DISABLED,
@@ -632,6 +707,7 @@ class SecopDevice(Device):
         secnodedev = session.getDevice(config['secnode'])
         params_override = config.pop('params_cfg', None)
         commands_override = config.pop('commands_cfg', None)
+        add_mixins = config.pop('mixins', [])
         setup_info = secnodedev.get_setup_info()
         if name in setup_info:
             devcfg = dict(setup_info[name][1])
@@ -763,9 +839,9 @@ class SecopDevice(Device):
                     cname, cls.__name__)
 
         # see if secop_properties exists (the case when auto-created from the
-        # SecNode, or not, where we need to get it from setup_info.
-        if not 'secop_properties' in config:
-            name = secnodedev.prefix + config['secop_module']
+        # SecNode) or not, where we need to get it from setup_info.
+        if 'secop_properties' not in config:
+            name = secnodedev._get_device_name(config['secop_module'])
             config["secop_properties"] = secnodedev.setup_info[name][1].get(
                 "secop_properties", {}
             )
@@ -774,7 +850,8 @@ class SecopDevice(Device):
         # create a new class extending SecopDevice, apply DeviceMeta in order
         # to include the added parameters
         features = config['secop_properties'].get('features', [])
-        mixins = [FEATURES[f] for f in features if f in FEATURES]
+        mixins = [importString(mixin) for mixin in add_mixins]
+        mixins.extend([FEATURES[f] for f in features if f in FEATURES])
         if set(params_cfg) & {'target_limits', 'target_min', 'target_max'}:
             mixins.append(SecopHasLimits)
         if mixins:
