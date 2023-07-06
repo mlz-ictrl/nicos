@@ -735,6 +735,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                            ";;".join(gr.GRAPHIC_TYPE.values()))
         self._saveName = None
         self._color = ColorIndexGenerator()
+        # avoid the first and therefore most used color being yellow
+        self._color.getNextColorIndex()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
         self._plot.setLegendWidth(0.05)
         self._axes = self.axescls(viewport=self._plot.viewport)
