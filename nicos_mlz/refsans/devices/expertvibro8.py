@@ -24,7 +24,7 @@
 
 """Devices for the Refsans expertvibro."""
 
-from nicos.core import Attach, Override, Param, Readable, status
+from nicos.core import Override, Param, Readable, intrange, status
 from nicos.devices.tango import PyTangoDevice
 
 
@@ -45,10 +45,6 @@ class Base(PyTangoDevice, Readable):
     def _readBuffer(self):
         return tuple(self._dev.ReadOutputFloats((0, 16)))
 
-    #
-    # Nicos Methods
-    #
-
     def doRead(self, maxage=0):
         return self._readBuffer()
 
@@ -59,13 +55,11 @@ class Base(PyTangoDevice, Readable):
         return status.OK, ''
 
 
-class AnalogValue(Readable):
-    attached_devices = {
-        'iodev': Attach('IO Device', Base),
-    }
+class AnalogValue(Base):
 
     parameters = {
-        'channel': Param('Channel for readout', type=int, settable=True),
+        'channel': Param('Channel for readout',
+                         type=intrange(0, 16), settable=True),
     }
 
     parameter_overrides = {
@@ -76,7 +70,4 @@ class AnalogValue(Readable):
         return 'foo'
 
     def doRead(self, maxage=0):
-        return self._attached_iodev._readBuffer()[self.channel]
-
-    def doStatus(self, maxage=0):
-        return status.OK, ''
+        return self._readBuffer()[self.channel]
