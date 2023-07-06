@@ -104,7 +104,7 @@ class Logbook(BaseCacheClient):
             except Exception:
                 self.log.exception('Error in %s for: %s=%r',
                                    handler.__class__.__name__, key, value)
-        if key == 'attachment':
+        if key in ('attachment', 'image'):
             for fn in value[1]:
                 unlink(fn)
 
