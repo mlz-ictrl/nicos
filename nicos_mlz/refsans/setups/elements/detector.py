@@ -145,7 +145,6 @@ devices = dict(
         unit = 'mm',
         table = 'det_table_ctrl',
         pivot = 'det_pivot',
-        # precision = 10,
         abslimits = [1065, 10864],
     ),
     det_table_ctrl = device(code_base + 'controls.TemperatureControlled',
