@@ -50,19 +50,19 @@ class JsonBase(Readable):
 
     def _read_controller(self, keys):
         line = '_read_controller %s' % keys
-        self.log.debug(line)
+        self.log.debug('%s', line)
         try:
             data = requests.get(self.url, timeout=self.timeout).json()
             self.log.debug(data)
         except requests.Timeout as e:
-            self.log.info(line)
-            self.log.info('url %s' % self.url)
-            self.log.info('err %s' % e)
+            self.log.info('%s', line)
+            self.log.info('url %s', self.url)
+            self.log.info('err %s', e)
             raise CommunicationError(self, 'HTTP Timeout failed') from e
         except Exception as e:
-            self.log.info(line)
-            self.log.info('url %s' % self.url)
-            self.log.info('err %s' % e)
+            self.log.info('%s', line)
+            self.log.info('url %s', self.url)
+            self.log.info('err %s', e)
             raise ConfigurationError(self, 'HTTP request failed') from e
         res = {}
         for key in keys:

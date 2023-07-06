@@ -71,11 +71,11 @@ class TriangleBase(Readable, StringIO):
 
     def _read_controller(self, index):
         index = int(index)
-        self.log.debug('_read_controller %s %d' % (type(index), index))
+        self.log.debug('_read_controller %s %d', type(index), index)
         res = self.communicate('P 1')
-        self.log.debug('_read_controller res for %s' % res)
+        self.log.debug('_read_controller res for %s', res)
         res = res.split(';')
-        self.log.debug('_read_controller res %s' % res)
+        self.log.debug('_read_controller res %s', res)
         res = [float(e) for e in res]
         return res[index]
 
@@ -117,9 +117,9 @@ class TriangleAngle(HasOffset, TriangleMaster):
 
     def doRead(self, maxage=0):
         try:
-            self.log.debug('index: %d' % self.index)
+            self.log.debug('index: %d', self.index)
             res = self.offset + self.scale * self._read_controller(self.index)
-            self.log.debug('pos: %f' % res)
+            self.log.debug('pos: %f', res)
         except IndexError:
             res = 0
         return res

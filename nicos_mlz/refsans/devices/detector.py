@@ -176,13 +176,13 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
         # the other entries are normally 'just' the hardlinks to the datafile
         # we use the first for the filename and the others for the links.
         self.manager.assignCounter(self.dataset)
-        self.log.warning('tmpl:' + repr(self.sink.filenametemplate))  # XXX: rm
-        self.log.warning('subdir:' + repr(self.sink.subdir))  # XXX: rm
+        self.log.warning('tmpl: %r', self.sink.filenametemplate)  # XXX: rm
+        self.log.warning('subdir: %r', self.sink.subdir)  # XXX: rm
         self.prefix, allfilepaths = self.manager.getFilenames(
             self.dataset, self.sink.filenametemplate, self.sink.subdir)
-        self.log.warning('allpaths:' + repr(self.allfilepaths))  # XXX: rm
+        self.log.warning('allpaths: %r', self.allfilepaths)  # XXX: rm
         self.linkpaths = allfilepaths[1:]
-        self.log.warning('linkpaths:' + repr(self.linkpaths))  # XXX: rm
+        self.log.warning('linkpaths: %r', self.linkpaths)  # XXX: rm
         # set prefix on tacodevice
         self.sink._attached_detector.prefix = self.prefix
         self._arraydesc = self.detector.arrayInfo()[0]
@@ -196,7 +196,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
             if result is None:
                 return
             image = result[1][0]
-            self.log.debug("results: %r", results)
+            self.log.debug('results: %r', results)
             if not self.linkpaths:  # XXX: rm
                 self.log.warning('no linkpaths set, NOT saving header')
                 return
@@ -245,7 +245,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
                 for filename in filenames:
                     filepath = os.path.join(dirpath, filename)
                     if self.prefix in filepath:
-                        self.log.info('found matching datafile: %r' % filepath)
+                        self.log.info('found matching datafile: %r', filepath)
                         # Gotcha!
                         # dstfilename = self.linkpaths[0] + filename
                         # copy file

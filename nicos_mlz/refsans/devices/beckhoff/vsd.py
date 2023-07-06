@@ -218,9 +218,9 @@ class VSDIO(PyTangoDevice, Readable):
             self.log.info("%s: %s", k,
                           'SET' if self._readU16(v[0] // 2) & (1 << v[1])
                           else 'clear')
-        self.log.info("Merkerwords:")
+        self.log.info('Merkerwords:')
         for i in range(16):
-            self.log.info("Merker%d..%d : 0x%04x", 128 + 15 + 16 * i,
+            self.log.info('Merker%d..%d : 0x%04x', 128 + 15 + 16 * i,
                           128 + 16 * i, self._readU16(160 // 2 + i))
 
 
