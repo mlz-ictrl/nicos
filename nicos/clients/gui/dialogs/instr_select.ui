@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Select instrument configuration</string>
+   <string>Select GUI configuration</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
@@ -30,7 +30,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Select an instrument configuration:</string>
+      <string>Select a configuration for the NICOS GUI:</string>
      </property>
     </widget>
    </item>

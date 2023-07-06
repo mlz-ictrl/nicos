@@ -62,7 +62,7 @@
           <item row="1" column="0">
            <widget class="QGroupBox" name="groupInstrConfig">
             <property name="title">
-             <string>Default instrument configuration</string>
+             <string>Default GUI configuration</string>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
