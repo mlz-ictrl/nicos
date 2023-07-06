@@ -147,7 +147,7 @@ class CPTReadout(HasOffset, JsonBase):
 class CPTReadoutproof(HasPrecision, CPTReadout):
 
     attached_devices = {
-        'chopper': Attach('to get status of controller', Moveable),
+        'chopper': Attach('to get status of controller', Readable),
         'speed': Attach('self speed', Readable),
     }
 
