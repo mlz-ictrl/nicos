@@ -73,6 +73,7 @@ class ImageMode(Enum):
     MULTIPLE = 1
     CONTINUOUS = 2
 
+
 class ImageType(ManualSwitch):
     """
     Class that contains the image type for a tomography experiment using the
@@ -332,7 +333,7 @@ class AreaDetector(KafkaSubscriber, EpicsDevice, ImageChannelMixin, Measurable):
             if (data := self._consumer.poll(timeout_ms=100)):
                 message = (data.timestamp()[1], data.value())
                 self.new_messages_callback([message])
-                approx_imsize = numpy.sqrt(len(data.value())/2)
+                approx_imsize = numpy.sqrt(len(data.value()) / 2)
                 sleep_time = (approx_imsize / 2048) * 2
                 time.sleep(sleep_time)
                 self._consumer.seek_to_end()
@@ -563,7 +564,7 @@ class AreaDetectorCollector(Detector):
         for controller in self._controlchannels:
             sub_preset = preset.get(controller.name, None)
             if sub_preset:
-                controller.doSetPreset(**{'n':sub_preset})
+                controller.doSetPreset(**{'n': sub_preset})
 
         self._lastpreset = preset.copy()
 
