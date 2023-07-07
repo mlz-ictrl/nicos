@@ -46,9 +46,9 @@ class TriState(CanDisable, HasOffset, Readable):
         if self._enabled:
             stat = self._attached_port.status(maxage)
             if stat[0] == status.OK:
-                return status.OK, 'enable'
+                return status.OK, 'enabled'
             return stat
-        return status.OK, 'disable'
+        return status.DISABLED, 'disabled'
 
     def doEnable(self, on):
         self._enabled = on
