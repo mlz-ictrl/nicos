@@ -261,3 +261,23 @@ class TestTtr:
         dev = session.getDevice('ttr')
         dev.unit = unit
         assert dev.read(0) == approx(expected, rel=0.01)
+
+
+class TestAccuracy:
+    """Class to test the Accuracy device."""
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        pass
+
+    @pytest.mark.parametrize('absolute,expected', [
+        (True, 10),
+        (False, -10),
+    ])
+    def test_read(self, session, absolute, expected):
+        dev = session.getDevice('table_acc')
+        dev.absolute = absolute
+        assert dev.read(0) == expected
+
+    def test_status(self, session):
+        assert session.getDevice('table_acc').status() == (status.OK, '')
