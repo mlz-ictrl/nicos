@@ -64,14 +64,6 @@ _slitsBlock = Block('Slits', [
     ],
 )
 
-_cryoStreamBlock = Block('Cryo-stream', [
-    BlockRow(Field(name='Temperature', dev='T_cryostream'),
-             Field(name='Target', key='T_cryostream/target', unit='K')),
-    BlockRow(Field(name='LN2', dev='cryostream_LN2')),
-    ],
-    setups='cryostream',
-)
-
 _ls332Block = Block('LakeShore', [
     BlockRow(Field(name='Temperature', dev='T_ls332'),
              Field(name='Target', key='T_ls332/target', unit='K')),
@@ -84,10 +76,6 @@ _ls332Block = Block('LakeShore', [
 _selectorBlock = Block('Selector', [
     BlockRow(Field(name='Speed', dev='selector_speed')),
     BlockRow(Field(name='Lambda', dev='selector_lambda')),
-    BlockRow(Field(name='Vac', dev='selector_vacuum'),
-             Field(name='Rotor T', dev='selector_rtemp')),
-    BlockRow(Field(name='Flow', dev='selector_wflow'),
-             Field(name='Vibration', dev='selector_vibrt')),
     ],
     setups='astrium',
 )
@@ -118,7 +106,7 @@ _thirdRow = Row(
     Column(_slitsBlock))
 
 _forthRow = Row(
-    Column(_cryoStreamBlock, _ls332Block),
+    Column(_ls332Block),
     Column(_selectorBlock),
     Column(_outsideWorldBlock),
     )

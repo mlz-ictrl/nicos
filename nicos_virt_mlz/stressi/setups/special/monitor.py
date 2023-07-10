@@ -67,21 +67,6 @@ _sampletable = Column(
         BlockRow(
             Field(dev='tths'),
         ),
-        BlockRow(
-            Field(dev='robt'),
-        ),
-        BlockRow(
-            Field(dev='robs'),
-        ),
-        BlockRow(
-            Field(dev='robsl'),
-        ),
-        BlockRow(
-            Field(dev='robsj'),
-        ),
-        BlockRow(
-            Field(dev='robsr'),
-        ),
         ],
         setups = 'robot*',
     ),
@@ -117,7 +102,6 @@ _measurement = Column(
     ),
     Block('Radial collimator', [
         BlockRow(
-            Field(dev='rcdet'),
             Field(dev='rad_fwhm'),
         ),
         ],
@@ -126,12 +110,6 @@ _measurement = Column(
     Block('Tensile machine', [
         BlockRow(
             Field(dev='teload'),
-        ),
-        BlockRow(
-            Field(dev='tepos'),
-        ),
-        BlockRow(
-            Field(dev='teext'),
         ),
         ],
         setups = 'tensile*',
@@ -156,13 +134,6 @@ _eulerian = Column(
             Field(name='Wave length', dev='wav'),
         ),
         ]
-    ),
-    Block('Sample Temperature', [
-        BlockRow(
-              Field(dev='T'),
-        ),
-        ],
-        setups = 'stressihtf* or htf* or ccr*',
     ),
 )
 
