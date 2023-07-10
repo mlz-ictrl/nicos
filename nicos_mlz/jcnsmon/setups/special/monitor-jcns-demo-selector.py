@@ -62,3 +62,7 @@ devices = dict(
         expectmaster = False,
     ),
 )
+
+extended = dict(
+    dont_check_devicenames = True,
+)

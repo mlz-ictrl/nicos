@@ -30,3 +30,7 @@ devices = dict(
         noexpired = True,
     ),
 )
+
+extended = dict(
+    dont_check_devicenames = True,
+)

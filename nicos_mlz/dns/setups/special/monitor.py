@@ -51,7 +51,7 @@ _thirdcolumn = Column(
         BlockRow('selector_speed', 'selector_lift'),
         BlockRow('selector_vibrt'),
         ],
-        setups='astrium',
+        setups='selector',
     ),
 
     Block('Cryostat (cct3)', [
@@ -61,7 +61,7 @@ _thirdcolumn = Column(
         BlockRow(Field(name='Temp. at sample stick', dev='T_cct3_stick')),
         BlockRow(Field(name='P', key='T_cct3_tube/p'), Field(name='I', key='T_cct3_tube/i'),
                  Field(name='D', key='T_cct3_tube/d')),
-        BlockRow(Field(name='He pressure', dev='T_cct3_C', unit='mbar')),
+        BlockRow(Field(name='He pressure', dev='p_cct3', unit='mbar')),
         ],
         setups='cct3',
     ),

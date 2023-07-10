@@ -44,7 +44,7 @@ _secondcolumn = Column(
         BlockRow('selector_speed', 'selector_lift'),
         BlockRow('selector_vibrt'),
         ],
-        setups='astrium',
+        setups='selector',
     ),
 
 )
@@ -85,7 +85,7 @@ _plotcolumn = Column(
         BlockRow(Field(dev='selector_speed', plot='Sel',
                        plotwindow=12*3600, plotinterval=60, width=100, height=40),),
         ],
-        setups='astrium',
+        setups='selector',
     ),
 )
 

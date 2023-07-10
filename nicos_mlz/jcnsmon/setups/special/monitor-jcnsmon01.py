@@ -99,3 +99,7 @@ devices = dict(
         layout = layout2,
         expectmaster = False,
     ))
+
+extended = dict(
+    dont_check_devicenames = True,
+)

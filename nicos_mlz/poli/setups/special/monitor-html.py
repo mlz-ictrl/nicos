@@ -206,20 +206,10 @@ var1supp2 = Block('Variox - pressures', [
     setups='var1',
 )
 
-di1 = Block('Kelvinox', [
-    BlockRow(
-        Field(dev='T_di1_mix', name='T (mix)'),
-        Field(dev='T_di1_pot', name='T (pot)'),
-        Field(dev='T_di1_sorb', name='T (sorb)')
-    ),
-    ],
-    setups='di1',
-)
-
 ccm8v = SetupBlock('ccm8v', 'short')
 
 column2 = Column(shutters, collimation, ccm8v) + Column(*cryos) + Column(*ccrs) + \
-          Column(var1, di1)
+          Column(var1)
 column3 = Column(var1supp1, var1supp2) + \
           Column(*cryosupps) + Column(*ccrsupps)
 

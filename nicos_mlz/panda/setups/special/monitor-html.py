@@ -266,27 +266,6 @@ wm5vsupp = Block('Magnet', [
 )
 
 
-vti = Block('VTI', [
-#    BlockRow(
-#        Field(dev='sTs'),
-#        Field(dev='vti'),
-#        Field(key='vti/setpoint',name='Setpoint',min=1,max=200),
-#        Field(key='vti/heater',name='Heater (%)'),
-#    ),
-    BlockRow(
-        Field(dev='LHe'),
-        Field(dev='LN2'),
-    ),
-    BlockRow(
-        Field(dev='NV'),
-        Field(dev='vti_pressure', name='p(UP)'),
-        Field(dev='pressure_ls', name='p(DOWN)'),
-        Field(key='vti_pressure/setpoint', name='setpoint'),
-    ),
-    ],
-    setups='variox',
-)
-
 ccm12v = Block('12T Magnet', [
     BlockRow(
         Field(dev='B_ccm12v'),
@@ -311,19 +290,6 @@ ccm12vplots = Block('12T Magnet', [
     setups='ccm12v',
 )
 
-
-kelvinox = Block('Kelvinox', [
-    BlockRow(Field(dev='mc')),
-    BlockRow(Field(key='mc/setpoint',name='Setpoint',unit='K')),
-    BlockRow(Field(dev='sorb')),
-    BlockRow(Field(dev='onekpot')),
-    BlockRow(Field(dev='igh_p1')),
-    BlockRow(Field(dev='igh_g1')),
-    BlockRow(Field(dev='igh_g2')),
-    ],
-    setups='kelvinox',
-)
-
 foki = Block('Foki', [
     BlockRow(
         Field(dev='mfh'),
@@ -335,17 +301,16 @@ foki = Block('Foki', [
 
 memograph = Block('Water Flow', [
     BlockRow(
-        Field(dev='flow_in_panda', name='In'),
-        Field(dev='flow_out_panda', name='Out'),
+        Field(dev='cooling_flow_in', name='In'),
+        Field(dev='cooling_flow_out', name='Out'),
     ),
     BlockRow(
-        Field(dev='t_in_panda', name='T In'),
-        Field(dev='t_out_panda', name='T Out'),
+        Field(dev='cooling_t_in', name='T In'),
+        Field(dev='cooling_t_out', name='T Out'),
     ),
-    BlockRow(Field(dev='leak_panda', name='leak')),
+    BlockRow(Field(dev='cooling_leak', name='leak')),
     ],
 )
-
 
 tas = Block('TAS', [
         BlockRow(Field(name='H', key='panda/value[0]', format='%.3f', unit=''),
@@ -359,9 +324,9 @@ tas = Block('TAS', [
 )
 
 column2 = Column(collimation, detector, ccm12v) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, lakeshore_hts, ccm5v5, wm5v, vti)
+          Column(lakeshore, lakeshore_hts, ccm5v5, wm5v)
 
-column3 = Column(tas) + Column(ccm5v5supp, wm5vsupp, kelvinox, foki,  memograph) + \
+column3 = Column(tas) + Column(ccm5v5supp, wm5vsupp, foki, memograph) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)

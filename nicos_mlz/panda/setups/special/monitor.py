@@ -271,8 +271,8 @@ for i in range(10, 22 + 1):
 
 miramagnet = Block('MIRA Magnet', [
     BlockRow(
-        Field(dev='I'),
-        Field(dev='B'),
+        Field(dev='I_miramagnet'),
+        Field(dev='B_miramagnet'),
     ),
     ],
     setups='miramagnet',
@@ -310,39 +310,6 @@ wm5vsupp = Block('Magnet', [
     ),
     ],
     setups='wm5v',
-)
-
-vti = Block('VTI', [
-#    BlockRow(
-#        Field(dev='sTs'),
-#        Field(dev='vti'),
-#        Field(key='vti/setpoint', name='Setpoint', min=1, max=200),
-#        Field(key='vti/heater', name='Heater (%)'),
-#    ),
-    BlockRow(
-        Field(dev='LHe'),
-        Field(dev='LN2'),
-    ),
-    BlockRow(
-        Field(dev='NV'),
-        Field(dev='vti_pressure', name='p(UP)'),
-        Field(dev='pressure_ls', name='p(DOWN)'),
-        Field(key='vti_pressure/setpoint', name='setpoint'),
-    ),
-    ],
-    setups='variox',
-)
-
-vtiplot = Block('Needle Valve', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=25, height=25, plotwindow=300,
-              devices=['NV/setpoint', 'NV'],
-              names=['Setpoint', 'Value'],
-        ),
-    ),
-    ],
-    setups='variox',
 )
 
 wm5vplots = Block('JVM 5', [
@@ -390,19 +357,6 @@ ccm12vplots = Block('12T Magnet', [
     setups='ccm12v',
 )
 
-
-kelvinox = Block('Kelvinox', [
-    BlockRow(Field(dev='mc')),
-    BlockRow(Field(key='mc/setpoint', name='Setpoint', unit='K')),
-    BlockRow(Field(dev='sorb')),
-    BlockRow(Field(dev='onekpot')),
-    BlockRow(Field(dev='igh_p1')),
-    BlockRow(Field(dev='igh_g1')),
-    BlockRow(Field(dev='igh_g2')),
-    ],
-    setups='kelvinox',
-)
-
 foki = Block('Foki', [
     BlockRow(
         Field(dev='mfh'),
@@ -414,26 +368,26 @@ foki = Block('Foki', [
 
 memograph = Block('Water Flow', [
     BlockRow(
-        Field(dev='flow_in_panda', name='In'),
-        Field(dev='flow_out_panda', name='Out'),
+        Field(dev='cooling_flow_in', name='In'),
+        Field(dev='cooling_flow_out', name='Out'),
     ),
     BlockRow(
-        Field(dev='t_in_panda', name='T In'),
-        Field(dev='t_out_panda', name='T Out'),
+        Field(dev='cooling_t_in', name='T In'),
+        Field(dev='cooling_t_out', name='T Out'),
     ),
-    BlockRow(Field(dev='leak_panda', name='leak')),
+    BlockRow(Field(dev='cooling_leak', name='leak')),
     ],
 )
 
 column1 = Column(filters, primary, sample, analyzer) + Column(ccm5v5)
 column2 = Column(collimation, detector, bambus, lakeshore_hts, ccm12v) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, miramagnet, wm5v, vti)
+          Column(lakeshore, miramagnet, wm5v)
 
-column3 = Column(ccm5v5supp, wm5vsupp, kelvinox, foki, memograph, cam) + \
+column3 = Column(ccm5v5supp, wm5vsupp, foki, memograph, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(*cryoplots) + Column(*ccrplots) + \
-          Column(wm5vplots) + Column(ccm12vplots) + Column(vtiplot) + \
+          Column(wm5vplots) + Column(ccm12vplots) + \
           Column(lakeshoreplot)
 
 devices = dict(
