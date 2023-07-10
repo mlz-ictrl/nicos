@@ -129,12 +129,12 @@ monitor_blocks = dict(
             BlockRow(
                 Field(name='G0rz', dev='G0rz'),
                 Field(name='G0ry', dev='G0ry'),
-                Field(name='G0tx', dev='G0tx'),
+                Field(name='G0tz', dev='G0tz'),
             ),
             BlockRow(
                 Field(name='G1rz', dev='G1rz'),
                 Field(name='G1tz', dev='G1tz'),
-                Field(name='G12rz', dev='G12rz'),
+                Field(name='G2rz', dev='G2rz'),
             ),
         ],
         setups=setupname,  # 'ngi or ngi_jcns',
