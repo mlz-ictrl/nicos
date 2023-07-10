@@ -25,6 +25,7 @@ Devices to support calculations between device values
 """
 
 from nicos.core import Readable
+from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import Attach, Override, Param, oneof
 
@@ -44,10 +45,14 @@ class CalculatedReadable(Readable):
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False, settable=True),
+        'unit': Override(mandatory=False, settable=True, volatile=True),
     }
 
+    hardware_access = False
+
     def doInit(self, mode):
+        if mode == SIMULATION:
+            return
         if self._attached_device1.unit != self._attached_device2.unit:
             raise ConfigurationError(
                 self, 'different units for device1 and device2 (%s vs %s)' %

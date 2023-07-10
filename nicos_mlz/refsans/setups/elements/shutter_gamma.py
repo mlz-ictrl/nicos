@@ -51,9 +51,8 @@ devices = dict(
     ),
     shutter_gamma_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
-         motor = 'shutter_gamma_motor',
-         analog = 'shutter_gamma_analog',
+         device1 = 'shutter_gamma_motor',
+         device2 = 'shutter_gamma_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
     ),
 )

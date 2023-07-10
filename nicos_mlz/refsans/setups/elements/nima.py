@@ -20,9 +20,8 @@ devices = dict(
     ),
     nima_acc = device(code_base + 'accuracy.Accuracy',
         description = 'calc error Motor and heigt',
-        motor = 'gonio_z',
-        analog = 'height',
-        unit = 'mm'
+        device1 = 'gonio_z',
+        device2 = 'height',
     ),
     nima_com = device('nicos.devices.entangle.StringIO',
         tangodevice = tango_host,
