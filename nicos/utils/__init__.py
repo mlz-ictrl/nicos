@@ -1631,20 +1631,11 @@ def checkSetupSpec(setupspec, setups, log=None):
 
     if not setupspec:
         return True  # no spec -> always visible
-    if isinstance(setupspec, list):
-        if log:
-            log.warning("\"%s\" is old 'setups' style (list)", setupspec)
-        return True
-    if setupspec.startswith('!'):
-        if log:
-            log.warning("\"%s\" is old 'setups' style (negation via '!')",
-                        setupspec)
-        return True
     if not setups:
         return False  # no setups -> not visible (safety)
-    expr = re.sub(r'[-\w\[\]*?]+', subst_setupexpr, setupspec)
-    ns = {'has_setup': has_setup}
     try:
+        expr = re.sub(r'[-\w\[\]*?]+', subst_setupexpr, setupspec)
+        ns = {'has_setup': has_setup}
         return eval(expr, ns)
     except Exception:  # wrong spec -> visible
         if log:
