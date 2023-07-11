@@ -90,22 +90,8 @@ _column1 = Column(
         ],
         setups='garfield',
     ),
-    SetupBlock('ccm5v5'),
-    SetupBlock('ccm5v5', 'temperatures'),
-    Block('SANS-1 Magnet', [
-        BlockRow(
-            Field(dev='B'),
-            Field(name='T2', dev='ccmsans_T2', width=6),
-            Field(name='T3', dev='ccmsans_T3', width=6),
-        ),
-        BlockRow(
-            Field(name='T4', dev='ccmsans_T4', width=6),
-            Field(name='T5', dev='ccmsans_T5', width=6),
-            Field(name='T6', dev='ccmsans_T6', width=6),
-        ),
-        ],
-        setups='ccmsans',
-    ),
+    SetupBlock('ccm5v5'), SetupBlock('ccm5v5', 'temperatures'),
+    SetupBlock('ccm5h'), SetupBlock('ccm5h', 'temperatures'),
     Block('2.2T Magnet (HTS)', [
         BlockRow(
             Field(name='Target', dev='B_ccm2a'),

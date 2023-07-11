@@ -428,62 +428,9 @@ _p_filter = Column(
     ),
 )
 
-_ccmsans = Column(
-    Block('SANS-1 5T Magnet', [
-        BlockRow(Field(name='Field', dev='b_ccmsans', width=14),
-                ),
-        BlockRow(
-                 Field(name='Target', key='b_ccmsans/target', width=14),
-                 Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=14),
-                ),
-        BlockRow(
-                 Field(name='Power Supply 1', dev='a_ccmsans_left', width=14),
-                 Field(name='Power Supply 2', dev='a_ccmsans_right', width=14),
-                ),
-        ],
-        setups='ccmsans',
-    ),
-)
-
-_ccmsans_temperature = Column(
-    Block('SANS-1 5T Magnet Temperatures', [
-        BlockRow(
-                 Field(name='CH Stage 1', dev='ccmsans_T1', width=14),
-                 Field(name='CH Stage 2', dev='ccmsans_T2', width=14),
-                ),
-        BlockRow(
-                 Field(name='Shield Top', dev='ccmsans_T3', width=14),
-                 Field(name='Shield Bottom', dev='ccmsans_T4', width=14),
-                ),
-        BlockRow(
-                 Field(name='Magnet TL', dev='ccmsans_T5', width=14),
-                 Field(name='Magnet TR', dev='ccmsans_T6', width=14),
-                ),
-        BlockRow(
-                 Field(name='Magnet BL', dev='ccmsans_T8', width=14),
-                 Field(name='Magnet BR', dev='ccmsans_T7', width=14),
-                ),
-        ],
-        setups='ccmsans',
-    ),
-)
-
-_ccmsans_plot = Column(
-    Block('SANS-1 5T Magnet plot', [
-        BlockRow(
-                 Field(plot='30 min ccmsans', name='30 min', dev='B_ccmsans',
-                       width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min ccmsans', name='Target',
-                       key='B_ccmsans/target'),
-                 Field(plot='12 h ccmsans', name='12 h', dev='B_ccmsans',
-                       width=60, height=40, plotwindow=12*3600),
-                 Field(plot='12 h ccmsans', name='Target',
-                       key='B_ccmsans/target'),
-        ),
-        ],
-        setups='ccmsans',
-    ),
-)
+_ccm5h = Column(SetupBlock('ccm5h'))
+_ccm5h_temperature = Column(SetupBlock('ccm5h', 'temperatures'))
+_ccm5h_plot = Column(SetupBlock('ccm5h', 'plot'))
 
 _ccm2a = Column(
     Block('CCM2a Magnet', [
@@ -737,13 +684,13 @@ devices = dict(
             Row(_sans1general, _table2, _table1, _sans1det),
             Row(_meteocolumn, _pressurecolumn, _p_filter),
             Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
-            Row(_ccmsans, _ccmsans_temperature,
+            Row(_ccm5h, _ccm5h_temperature,
                 _ccm2a, _ccm2a_temperature,
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                 _sc_t, _ccmsanssc, _miramagnet, _amagnet,
                 _htf03, _htf01, _irf01, _irf10, _rscs, _julabo,
                 _tisane_counts, _tisane_fc, _helios01),
-            Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot,
+            Row(_ccm5h_plot, _ccm2a_plot, _ccr19_plot,
                 _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
                 _miramagnet_plot),
             Row(_live),

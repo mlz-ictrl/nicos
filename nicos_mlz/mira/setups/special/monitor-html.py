@@ -305,20 +305,7 @@ _column2 = Column(
     SetupBlock('ccidu01'), SetupBlock('ccidu01', 'pressures'),
     SetupBlock('ccidu02'), SetupBlock('ccidu02', 'pressures'),
     SetupBlock('ccm5v5'), SetupBlock('ccm5v5', 'temperatures'),
-    Block('SANS-1 Magnet', [
-        BlockRow(
-            Field(dev='B'),
-            Field(name='T2', dev='ccmsans_T2', width=6),
-            Field(name='T3', dev='ccmsans_T3', width=6),
-        ),
-        BlockRow(
-            Field(name='T4', dev='ccmsans_T4', width=6),
-            Field(name='T5', dev='ccmsans_T5', width=6),
-            Field(name='T6', dev='ccmsans_T6', width=6),
-        ),
-        ],
-        setups='ccmsans',
-    ),
+    SetupBlock('ccm5h'), SetupBlock('ccm5h', 'temperatures'),
     Block('TTi + Huber', [
         BlockRow(
             Field(dev='dct1'),
@@ -426,15 +413,15 @@ _column4 = Column(
     SetupBlock('ccm5v5', 'plots'),
     Block('Magnet temp. plots', [
         BlockRow(
-            Field(dev='ccmsans_T2', name='T2', plot='Tm5', plotwindow=24*3600,
+            Field(dev='ccm5h_T_stage2', name='T2', plot='Tm5', plotwindow=24*3600,
                   width=100, height=40),
-            Field(dev='ccmsans_T3', name='T3', plot='Tm5'),
-            Field(dev='ccmsans_T4', name='T4', plot='Tm5'),
-            Field(dev='ccmsans_T5', name='T5', plot='Tm5'),
-            Field(dev='ccmsans_T6', name='T6', plot='Tm5'),
+            Field(dev='ccm5h_T_shield_top', name='T3', plot='Tm5'),
+            Field(dev='ccm5h_T_shield_bottom', name='T4', plot='Tm5'),
+            Field(dev='ccm5h_T_topleft', name='T5', plot='Tm5'),
+            Field(dev='ccm5h_T_topright', name='T6', plot='Tm5'),
         ),
         ],
-        setups='ccmsans',
+        setups='ccm5h',
     ),
 )
 

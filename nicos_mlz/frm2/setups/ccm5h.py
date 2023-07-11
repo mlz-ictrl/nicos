@@ -94,3 +94,51 @@ alias_config = {
 extended = dict(
     representative = 'B_ccm5h',
 )
+
+monitor_blocks = dict(
+    default = Block('SANS-1 5T Magnet', [
+        BlockRow(
+            Field(name='Field', dev='B_ccm5h', width=12),
+        ),
+        BlockRow(
+            Field(name='Target', key='B_ccm5h/target', width=12),
+            Field(name='Asymmetry', key='B_ccm5h/asymmetry', width=12),
+        ),
+        BlockRow(
+            Field(name='Power Supply 1', dev='I1_ccm5h', width=12),
+            Field(name='Power Supply 2', dev='I2_ccm5h', width=12),
+        ),
+    ], setups=setupname),
+    temperatures = Block('SANS-1 5T Magnet Temperatures', [
+        BlockRow(
+            Field(name='CH Stage 1', dev='ccm5h_T_stage1', width=12),
+            Field(name='CH Stage 2', dev='ccm5h_T_stage2', width=12),
+        ),
+        BlockRow(
+            Field(name='Shield Top', dev='ccm5h_T_shield_top', width=12),
+            Field(name='Shield Bottom', dev='ccm5h_T_shield_bottom', width=12),
+        ),
+        BlockRow(
+            Field(name='Magnet TL', dev='ccm5h_T_topleft', width=12),
+            Field(name='Magnet TR', dev='ccm5h_T_topright', width=12),
+        ),
+        BlockRow(
+            Field(name='Magnet BL', dev='ccm5h_T_bottomleft', width=12),
+            Field(name='Magnet BR', dev='ccm5h_T_bottomright', width=12),
+        ),
+    ], setups=setupname),
+    plot = Block('SANS-1 5T Magnet plot', [
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=40, height=20, plotwindow=1800,
+                  devices=['B_ccm5h', 'B_ccm5h/target'],
+                  names=['30min', 'Target'],
+                  legend=True),
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=40, height=20, plotwindow=12*3600,
+                  devices=['B_ccm5h', 'B_ccm5h/target'],
+                  names=['12h', 'Target'],
+                  legend=True),
+        ),
+    ], setups=setupname),
+)
