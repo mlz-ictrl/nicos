@@ -216,19 +216,6 @@ _column2 = Column(
         ],
         setups='euler',
     ),
-    Block('Sample environment', [
-        BlockRow(
-            Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
-            Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
-            Field(name='C', dev='T_ccr5_C'),
-        ),
-        BlockRow(
-            Field(name='P', key='t/p'), Field(name='I', key='t/i'),
-            Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1'),
-        ),
-        ],
-        setups='ccr5',
-    ),
     Block('Sample environment CCR11', [
         BlockRow(
             Field(name='Setpoint', key='t_ccr11/setpoint', unitkey='t_ccr11/unit'),
@@ -401,15 +388,6 @@ _column1 = Column(
 )
 
 _column4 = Column(
-    Block('Temperature plots', [
-        BlockRow(
-            Field(dev='T', plot='T', plotwindow=12*3600, width=100, height=40),
-            Field(dev='Ts', plot='T'),
-            Field(dev='TBe', name='Filter', plot='T'),
-        ),
-        ],
-        setups='ccr5',
-    ),
     SetupBlock('ccm5v5', 'plots'),
     Block('Magnet temp. plots', [
         BlockRow(

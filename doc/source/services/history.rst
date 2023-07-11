@@ -35,10 +35,10 @@ It has a few options:
 Also, you can give "view" arguments on the command line to open plots at
 startup.  For example::
 
-   nicos-history T_ccr5,T_ccr5.setpoint
+   nicos-history T_cryo,T_cryo.setpoint
 
 A time specification can be given with a colon::
 
-   nicos-history T_ccr5,T_ccr5.setpoint:24h
+   nicos-history T_cryo,T_cryo.setpoint:24h
 
 A separate view plot is opened for each such argument.

@@ -37,11 +37,11 @@ usage = '''%(prog)s [-h] [-c CACHE] [-p PREFIX] [key ... ]
 
 When some keys are given, they are opened as plots on startup.  For example:
 
-    %(prog)s T_ccr5,T_ccr5.setpoint
+    %(prog)s T_cryo,T_cryo.setpoint
 
 A time specification can be given with a colon:
 
-    %(prog)s T_ccr5,T_ccr5.setpoint:24h
+    %(prog)s T_cryo,T_cryo.setpoint:24h
 
 A separate view plot is opened for each such argument.
 '''

@@ -34,6 +34,6 @@ devices = dict(
 )
 
 alias_config = {
-    'T': {'T_ht_stick': 180},  # lower than default T_ccr5
+    'T': {'T_ht_stick': 180},  # lower than default CCR
     'Ts': {'T_ht_stick_B': 60, 'T_ht_stick_D' : 50},
 }

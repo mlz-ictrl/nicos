@@ -208,23 +208,6 @@ _column2 = Column(
         ],
         setups='rsc03',
     ),
-    Block('Cryostat (CCR5)', [
-        BlockRow(
-            Field(name='Setpoint', key='T_ccr5/setpoint', unitkey='T_ccr5/unit',
-                  format='%.2f'),
-            Field(name='A', dev='T_ccr5_A'),
-            Field(name='B', dev='T_ccr5_B'),
-            Field(name='C', dev='T_ccr5_C'),
-        ),
-        BlockRow(
-            Field(name='P', key='t/p'),
-            Field(name='I', key='t/i'),
-            Field(name='D', key='t/d'),
-            Field(name='p', dev='ccr5_p1'),
-        ),
-        ],
-        setups='ccr5',
-    ),
     Block('Cryostat (CCR11)', [
         BlockRow(
             Field(name='Setpoint', key='t/setpoint', unitkey='t/unit',
