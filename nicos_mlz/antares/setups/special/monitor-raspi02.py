@@ -5,23 +5,23 @@ _detectorcolumn = Column(
     Block('Detector', [
         BlockRow(
             Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
-            Field(name='Last Image', key='ccd.lastfilename', width=50),
+            Field(name='Last Image', key='ikonl.lastfilename', width=50),
         ),
         BlockRow(
-            Field(name='CCD status', key='ccd/status[1]', width=25),
-            Field(dev='ccdTemp'),
-            Field(name='hsspeed', key='ccd.hsspeed', width=4),
-            Field(name='vsspeed', key='ccd.vsspeed', width=4),
-            Field(name='pgain', key='ccd.pgain', width=4),
+            Field(name='CCD status', key='ikonl/status[1]', width=25),
+            Field(dev='temp_ikonl'),
+            Field(name='hsspeed', key='ikonl.hsspeed', width=4),
+            Field(name='vsspeed', key='ikonl.vsspeed', width=4),
+            Field(name='pgain', key='ikonl.pgain', width=4),
         ),
         BlockRow(
-            Field(name='roi', key='ccd.roi'),
-            Field(name='bin', key='ccd.bin'),
-            Field(name='flip (H,V)', key='ccd.flip'),
-            Field(name='rotation', key='ccd.rotation'),
+            Field(name='roi', key='ikonl.roi'),
+            Field(name='bin', key='ikonl.bin'),
+            Field(name='flip (H,V)', key='ikonl.flip'),
+            Field(name='rotation', key='ikonl.rotation'),
         ),
         ],
-        setups='detector',
+        setups='detector_ikonl',
     ),
 )
 

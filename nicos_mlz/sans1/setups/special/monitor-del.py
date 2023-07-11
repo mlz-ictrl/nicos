@@ -51,15 +51,15 @@ _warnings = [
     ('tub_v2/value', '> -5.75', 'NIM voltage (-) > -5.75'),
 ]
 
-_rightcolumn = [
+_rightcolumn = Column(
     _nim_voltage,
     _electronicsbox,
-]
+)
 
-_leftcolumn = [
+_leftcolumn = Column(
     _interfaceboxtop,
     _interfaceboxbottom,
-]
+)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',

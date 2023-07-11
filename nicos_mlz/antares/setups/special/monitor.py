@@ -24,25 +24,25 @@ _servostarblock = SetupBlock('servostar')
 
 _detectorblock = Block('Detector', [
     BlockRow(
-        Field(name='Last Image', key='ccd.lastfilename'),
+        Field(name='Last Image', key='ikonl.lastfilename'),
     ),
     BlockRow(
-        Field(dev='ccdTemp'),
-        Field(name='CCD status', key='ccd/status[1]', width=15),
+        Field(dev='temp_ikonl'),
+        Field(name='CCD status', key='ikonl/status[1]', width=15),
     ),
     BlockRow(
-        Field(name='bin', key='ccd.bin'),
-        Field(name='flip (H,V)', key='ccd.flip'),
-        Field(name='rotation', key='ccd.rotation'),
+        Field(name='bin', key='ikonl.bin'),
+        Field(name='flip (H,V)', key='ikonl.flip'),
+        Field(name='rotation', key='ikonl.rotation'),
     ),
     BlockRow(
-        Field(name='roi', key='ccd.roi'),
-        Field(name='hsspeed', key='ccd.hsspeed', width=4),
-        Field(name='vsspeed', key='ccd.vsspeed', width=4),
-        Field(name='pgain', key='ccd.pgain', width=4),
+        Field(name='roi', key='ikonl.roi'),
+        Field(name='hsspeed', key='ikonl.hsspeed', width=4),
+        Field(name='vsspeed', key='ikonl.vsspeed', width=4),
+        Field(name='pgain', key='ikonl.pgain', width=4),
     ),
     ],
-    setups='detector',
+    setups='detector_ikonl',
 )
 
 _shutterblock = SetupBlock('basic', 'shutters')

@@ -568,7 +568,7 @@ _spinflipper = Column(
 )
 
 rscs = []
-for k in [1,2,3,4,5,10,11,12]:
+for k in [1,2,3,10,11,12]:
     rscs.append(Block('RSC%02d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_rsc%02d' % k,
