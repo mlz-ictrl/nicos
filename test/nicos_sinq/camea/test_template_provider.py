@@ -25,6 +25,8 @@ from collections.abc import MutableMapping
 
 import pytest
 
+pytest.importorskip('lxml')
+
 from nicos.core import Param, tupleof
 from nicos.devices.instrument import Instrument
 

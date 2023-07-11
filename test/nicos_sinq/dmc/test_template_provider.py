@@ -26,6 +26,8 @@ from collections.abc import MutableMapping
 
 import pytest
 
+pytest.importorskip('lxml')
+
 from nicos_sinq.dmc.nexus.nexus_templates import DMCTemplateProvider
 
 session_setup = "sinq_dmc_nexus"
