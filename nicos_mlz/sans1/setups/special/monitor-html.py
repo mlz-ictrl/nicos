@@ -185,47 +185,11 @@ _sanscolumn = Column(
 #     ),
 # )
 
-_miramagnet = Column(
-    Block('MIRA Magnet', [
-        BlockRow(
-            Field(name='Field', dev='B_miramagnet'),
-            Field(name='Target', key='B_miramagnet/target', width=12),
-        ),
-        BlockRow(
-            Field(name='Current', dev='I_miramagnet', width=12),
-        ),
-        ],
-        setups='miramagnet',
-    ),
-)
+_miramagnet = Column(SetupBlock('miramagnet'))
+_miramagnet_plot = Column(SetupBlock('miramagnet', 'plot'))
 
-_miramagnet_plot = Column(
-    Block('Miramagnet plot', [
-        BlockRow(
-            Field(plot='30 min miramagnet', name='30 min',
-                  dev='B_miramagnet', width=60, height=40, plotwindow=1800),
-            Field(plot='30 min miramagnet', name='Target',
-                  key='B_miramagnet/target'),
-            Field(plot='6 h', name='6 h',
-                  dev='B_miramagnet', width=60, height=40, plotwindow=6*3600),
-            Field(plot='6 h', name='Target',
-                  key='B_miramagnet/target'),
-        ),
-        ],
-        setups='miramagnet',
-    ),
-)
-
-_amagnet = Column(
-    Block('Antares Magnet', [
-        BlockRow(
-            Field(name='Field', dev='B_amagnet'),
-            Field(name='Target', key='B_amagnet/target', width=12),
-        ),
-        ],
-        setups='amagnet',
-    ),
-)
+_amagnet = Column(SetupBlock('amagnet'))
+_amagnet_plot = Column(SetupBlock('amagnet', 'plot'))
 
 _sc1 = Column(
     Block('Sample Changer 1', [
@@ -747,7 +711,7 @@ devices = dict(
                 _pressure_box),
             Row(_ccm5h_plot, _ccm2a2_plot, _ccm2a5_plot, _ccr19_plot,
                 _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
-                _miramagnet_plot, _dilato_plot, _pressure_box_plot),
+                _miramagnet_plot, _amagnet_plot, _dilato_plot, _pressure_box_plot),
             Row(_dilato_plot2),
             Row(_dilato_plot3),
             Row(_live),

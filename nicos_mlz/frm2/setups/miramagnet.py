@@ -45,3 +45,39 @@ alias_config = {
 extended = dict(
     representative = 'B_miramagnet',
 )
+
+monitor_blocks = dict(
+    default = Block('MIRA 0.5T Magnet', [
+        BlockRow(
+            Field(name='Field', dev='B_miramagnet', width=12),
+            Field(name='Target', key='B_miramagnet/target', width=12),
+        ),
+        BlockRow(
+            Field(name='Current', dev='I_miramagnet', width=12),
+        ),
+    ], setups=setupname),
+    temperatures = Block('MIRA 0.5T Magnet temperatures', [
+        BlockRow(
+            Field(name='T1', dev='miramagnet_T1', width=6, format='%d'),
+            Field(name='T2', dev='miramagnet_T2', width=6, format='%d'),
+        ),
+        BlockRow(
+            Field(name='T3', dev='miramagnet_T3', width=6, format='%d'),
+            Field(name='T4', dev='miramagnet_T4', width=6, format='%d'),
+        ),
+    ], setups=setupname),
+    plot = Block('MIRA 0.5T Magnet plot', [
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=60, height=15, plotwindow=1800,
+                  devices=['B_miramagnet', 'B_miramagnet/target'],
+                  names=['30min', 'Target'],
+                  legend=True),
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=60, height=15, plotwindow=24*3600,
+                  devices=['B_miramagnet', 'B_miramagnet/target'],
+                  names=['24h', 'Target'],
+                  legend=True),
+        ),
+    ], setups=setupname),
+)

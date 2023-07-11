@@ -62,14 +62,7 @@ _temperatureblock = Block('Cryo Temperature', [
     setups='cc_puma',
 )
 
-_garfieldblock = Block('Garfield Magnet', [
-    BlockRow(
-        Field(dev='B_amagnet', name='B'),
-        Field(dev='amagnet_symmetry', name='Mode')
-    ),
-    ],
-    setups='amagnet',
-)
+_amagnetblock = SetupBlock('amagnet')
 
 _flipperblock = SetupBlock('mezeiflip')
 
@@ -109,7 +102,7 @@ _rightcolumn = Column(
     _monochromatorblock,
     _flipperblock,
     _lockinblock,
-    _garfieldblock,
+    _amagnetblock,
     _sockets6block,
     _sockets7block,
     _ngiblock,

@@ -142,37 +142,9 @@ for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'ccidu01', 'ccidu02']:
 
 _ccm5h = SetupBlock('ccm5h')
 
-_miramagnet = Block('MIRA 0.5T Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_miramagnet', width=12),
-        Field(name='Target', key='B_miramagnet/target', width=12),
-    ),
-    BlockRow(
-        Field(name='Current', dev='I_miramagnet', width=12),
-    ),
-    ],
-    setups='miramagnet',
-)
+_miramagnet = SetupBlock('miramagnet')
 
-_amagnet = Block('Antares Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_amagnet', width=12),
-        Field(name='Target', key='B_amagnet/target', width=12),
-    ),
-    BlockRow(
-        Field(name='Current', dev='amagnet_current', width=12),
-        Field(name='ON/OFF', dev='amagnet_onoff', width=12),
-    ),
-    BlockRow(
-        Field(name='Polarity', dev='amagnet_polarity', width=12),
-        Field(name='Connection', dev='amagnet_connection', width=12),
-    ),
-    BlockRow(
-        Field(name='Lambda out', dev='l_out', width=12),
-    ),
-    ],
-    setups='amagnet',
-)
+_amagnet = SetupBlock('amagnet')
 
 _ccm2a2 = SetupBlock('ccm2a2')
 _ccm2a2_temperature = SetupBlock('ccm2a2', 'temperatures')

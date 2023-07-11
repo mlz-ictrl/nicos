@@ -276,71 +276,11 @@ _ccm5h = SetupBlock('ccm5h')
 _ccm5h_temperature = SetupBlock('ccm5h', 'temperatures')
 _ccm5h_plot = SetupBlock('ccm5h', 'plot')
 
-_miramagnet = Block('MIRA 0.5T Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_miramagnet', width=12),
-        Field(name='Target', key='B_miramagnet/target', width=12),
-    ),
-    BlockRow(
-        Field(name='Current', dev='I_miramagnet', width=12),
-    ),
-    ],
-    setups='miramagnet',
-)
+_miramagnet = SetupBlock('miramagnet')
+_miramagnet_plot = SetupBlock('miramagnet', 'plot')
 
-_miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=1800,
-              devices=['B_miramagnet', 'B_miramagnet/target'],
-              names=['30min', 'Target'],
-              legend=True),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=24*3600,
-              devices=['B_miramagnet', 'B_miramagnet/target'],
-              names=['24h', 'Target'],
-              legend=True),
-    ),
-    ],
-    setups='miramagnet',
-)
-
-_amagnet = Block('Antares Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_amagnet', width=12),
-        Field(name='Target', key='B_amagnet/target', width=12),
-    ),
-    BlockRow(
-        Field(name='Current', dev='amagnet_current', width=12),
-        Field(name='ON/OFF', dev='amagnet_onoff', width=12),
-    ),
-    BlockRow(
-        Field(name='Polarity', dev='amagnet_polarity', width=12),
-        Field(name='Connection', dev='amagnet_connection', width=12),
-    ),
-    BlockRow(
-        Field(name='Lambda out', dev='l_out', width=12),
-    ),
-    ],
-    setups='amagnet',
-)
-
-_amagnet_plot = Block('Antares Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=1800,
-              devices=['B_amagnet', 'b_amagnet/target'],
-              names=['30min', 'Target'],
-              legend=True),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=12*3600,
-              devices=['B_amagnet', 'b_amagnet/target'],
-              names=['12h', 'Target'],
-              legend=True),
-    ),
-    ],
-    setups='amagnet',
-)
+_amagnet = SetupBlock('amagnet')
+_amagnet_plot = SetupBlock('amagnet', 'plot')
 
 _spinflipper = Block('Spin Flipper', [
     BlockRow(

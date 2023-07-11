@@ -217,14 +217,7 @@ for i in range(10, 25 + 1):
     ccrs.append(SetupBlock(f'ccr{i}'))
     ccrplots.append(SetupBlock(f'ccr{i}', 'plots'))
 
-miramagnet = Block('MIRA Magnet', [
-    BlockRow(
-        Field(dev='I_miramagnet'),
-        Field(dev='B_miramagnet'),
-    ),
-    ],
-    setups='miramagnet',
-)
+miramagnet = SetupBlock('miramagnet')
 
 # for setup magnet frm2-setup
 ccm5v5 = SetupBlock('ccm5v5')

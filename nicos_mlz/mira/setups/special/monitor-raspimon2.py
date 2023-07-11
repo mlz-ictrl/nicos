@@ -64,32 +64,8 @@ _column1 = Column(
         ],
         setups='tas',
     ),
-    Block('MIRA Magnet', [
-        BlockRow(
-            Field(dev='I'),
-            Field(dev='B'),
-        ),
-        BlockRow(
-            Field(name='T1', dev='miramagnet_T1', width=6, format='%d'),
-            Field(name='T2', dev='miramagnet_T2', width=6, format='%d'),
-        ),
-        BlockRow(
-            Field(name='T3', dev='miramagnet_T3', width=6, format='%d'),
-            Field(name='T4', dev='miramagnet_T4', width=6, format='%d'),
-        ),
-        ],
-        setups='miramagnet',
-    ),
-    Block('Garfield Magnet', [
-        BlockRow(
-            Field(name='on/off', dev='garfield_onoff'),
-        ),
-        BlockRow(
-            Field(dev='I_garfield'),
-        ),
-        ],
-        setups='garfield',
-    ),
+    SetupBlock('miramagnet'), SetupBlock('miramagnet', 'temperatures'),
+    SetupBlock('amagnet'),
     SetupBlock('ccm5v5'), SetupBlock('ccm5v5', 'temperatures'),
     SetupBlock('ccm5h'), SetupBlock('ccm5h', 'temperatures'),
     SetupBlock('ccm2a2'), SetupBlock('ccm2a2', 'temperatures'),

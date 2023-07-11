@@ -125,3 +125,37 @@ alias_config = {'B': {'B_amagnet': 100},
 extended = dict(
     representative = 'B_amagnet',
 )
+
+monitor_blocks = dict(
+    default = Block('Antares Magnet', [
+        BlockRow(
+            Field(name='Field', dev='B_amagnet', width=12),
+            Field(name='Target', key='B_amagnet/target', width=12),
+        ),
+        BlockRow(
+            Field(name='Current', dev='I_amagnet', width=12),
+            Field(name='ON/OFF', dev='amagnet_enable', width=12),
+        ),
+        BlockRow(
+            Field(name='Polarity', dev='amagnet_polarity', width=12),
+            Field(name='Symmetry', dev='amagnet_symmetry', width=12),
+        ),
+        BlockRow(
+            Field(name='Lambda out', dev='amagnet_pscurrent', width=12),
+        ),
+    ], setups=setupname),
+    plot = Block('Antares Magnet plot', [
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=60, height=15, plotwindow=1800,
+                  devices=['B_amagnet', 'b_amagnet/target'],
+                  names=['30min', 'Target'],
+                  legend=True),
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=60, height=15, plotwindow=12*3600,
+                  devices=['B_amagnet', 'b_amagnet/target'],
+                  names=['12h', 'Target'],
+                  legend=True),
+        ),
+    ], setups=setupname),
+)

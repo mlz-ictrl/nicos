@@ -169,14 +169,7 @@ _tensileblock = Block('Tensile Rig', [
     setups='tensile',
 )
 
-_garfieldblock = Block('Garfield Magnet', [
-    BlockRow(
-        Field(dev='B_amagnet', name='B'),
-        Field(dev='amagnet_symmetry', name='Mode'),
-    ),
-    ],
-    setups='amagnet',
-)
+_amagnetblock = SetupBlock('amagnet')
 
 _flipperblock = SetupBlock('mezeiflip')
 
@@ -257,7 +250,7 @@ _rightcolumn = Column(
     _monochromatorblock,
     _flipperblock,
     _lockinblock,
-    _garfieldblock,
+    _amagnetblock,
     _batteryblock,
     _sockets6block,
     _sockets7block,
