@@ -51,7 +51,7 @@ devices = dict(
         monitor=True,
     ),
     chopper_alarms_bwc1=device(
-        'nicos_ess.devices.epics.ChopperAlarms',
+        'nicos_ess.devices.epics.chopper.ChopperAlarms',
         description='Chopper alarms.',
         pv_root=pv_root,
         monitor=True,
