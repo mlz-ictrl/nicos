@@ -163,27 +163,10 @@ _amagnet = Block('Antares Magnet', [
     setups='amagnet',
 )
 
-_ccm2a = Block('CCM2a Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm2a', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='B_ccm2a/target', width=12),
-        Field(name='Readback', dev='B_ccm2a_readback', width=12),
-    ),
-    BlockRow(
-        Field(name='T1', dev='ccm2a_T1', width=12),
-        Field(name='T2', dev='ccm2a_T2', width=12),
-    ),
-    BlockRow(
-        Field(name='TA', dev='ccm2a_TA', width=12),
-        Field(name='TB', dev='ccm2a_TB', width=12),
-    ),
-    ],
-    setups='ccm2a',
-)
+_ccm2a2 = SetupBlock('ccm2a2')
+_ccm2a2_temperature = SetupBlock('ccm2a2', 'temperatures')
 
-magnets = [_ccm2a, _ccm5h, _miramagnet, _amagnet]
+magnets = [_ccm2a2, _ccm2a2_temperature, _ccm5h, _miramagnet, _amagnet]
 
 _column3 = Column(
     Block('Cascade detector', [

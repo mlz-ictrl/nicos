@@ -443,93 +443,13 @@ _ccm5h = Column(SetupBlock('ccm5h'))
 _ccm5h_temperature = Column(SetupBlock('ccm5h', 'temperatures'))
 _ccm5h_plot = Column(SetupBlock('ccm5h', 'plot'))
 
-_ccm2a2 = Column(
-    Block('CCM2a2 Magnet', [
-        BlockRow(
-             Field(name='Field', dev='B_ccm2a2', width=12),
-        ),
-        BlockRow(
-             Field(name='Target', key='B_ccm2a2/target', width=12),
-             Field(name='Readback', dev='B_ccm2a2_readback', width=12),
-        ),
-        ],
-        setups='ccm2a2',
-    ),
-)
+_ccm2a2 = Column(SetupBlock('ccm2a2'))
+_ccm2a2_temperature = Column(SetupBlock('ccm2a2', 'temperatures'))
+_ccm2a2_plot = Column(SetupBlock('ccm2a2', 'plot'))
 
-_ccm2a2_temperature = Column(
-    Block('CCM2a2 Magnet Temperature', [
-        BlockRow(
-             Field(name='T1', dev='ccm2a2_T1', width=12),
-             Field(name='T2', dev='ccm2a2_T2', width=12),
-        ),
-        BlockRow(
-             Field(name='TA', dev='ccm2a2_TA', width=12),
-             Field(name='TB', dev='ccm2a2_TB', width=12),
-        ),
-        ],
-        setups='ccm2a2',
-    ),
-)
-
-_ccm2a2_plot = Column(
-    Block('CCM2a2 Magnet plot', [
-        BlockRow(
-            Field(plot='30 min ccm2a2', name='30 min', dev='B_ccm2a2',
-                  width=60, height=40, plotwindow=1800),
-            Field(plot='30 min ccm2a2', name='Target', key='B_ccm2a2/target'),
-            Field(plot='12 h ccm2a2', name='12 h', dev='B_ccm2a2', width=60,
-                  height=40, plotwindow=12*3600),
-            Field(plot='12 h ccm2a2', name='Target', key='B_ccm2a2/target'),
-        ),
-        ],
-        setups='ccm2a2',
-    ),
-)
-
-_ccm2a5 = Column(
-    Block('CCM2a5 Magnet', [
-        BlockRow(
-             Field(name='Field', dev='B_ccm2a5', width=12),
-        ),
-        BlockRow(
-             Field(name='Target', key='B_ccm2a5/target', width=12),
-             Field(name='Readback', dev='B_ccm2a5_readback', width=12),
-        ),
-        ],
-        setups='ccm2a5',
-    ),
-)
-
-_ccm2a5_temperature = Column(
-    Block('CCM2a5 Magnet Temperature', [
-        BlockRow(
-             Field(name='T1', dev='ccm2a5_T1', width=12),
-             Field(name='T2', dev='ccm2a5_T2', width=12),
-        ),
-        BlockRow(
-             Field(name='TA', dev='ccm2a5_TA', width=12),
-             Field(name='TB', dev='ccm2a5_TB', width=12),
-        ),
-        ],
-        setups='ccm2a5',
-    ),
-)
-
-_ccm2a5_plot = Column(
-    Block('CCM2a5 Magnet plot', [
-        BlockRow(
-            Field(plot='30 min ccm2a5', name='30 min', dev='B_ccm2a5',
-                  width=60, height=40, plotwindow=1800),
-            Field(plot='30 min ccm2a5', name='Target', key='B_ccm2a5/target'),
-            Field(plot='12 h ccm2a5', name='12 h', dev='B_ccm2a5', width=60,
-                  height=40, plotwindow=12*3600),
-            Field(plot='12 h ccm2a5', name='Target', key='B_ccm2a5/target'),
-        ),
-        ],
-        setups='ccm2a5',
-    ),
-)
+_ccm2a5 = Column(SetupBlock('ccm2a5'))
+_ccm2a5_temperature = Column(SetupBlock('ccm2a5', 'temperatures'))
+_ccm2a5_plot = Column(SetupBlock('ccm2a5', 'plot'))
 
 _ccr19_plot = Column(
     Block('30min T and Ts plot', [

@@ -92,14 +92,7 @@ _column1 = Column(
     ),
     SetupBlock('ccm5v5'), SetupBlock('ccm5v5', 'temperatures'),
     SetupBlock('ccm5h'), SetupBlock('ccm5h', 'temperatures'),
-    Block('2.2T Magnet (HTS)', [
-        BlockRow(
-            Field(name='Target', dev='B_ccm2a'),
-            Field(name='Readback', dev='B_ccm2a_readback'),
-        ),
-        ],
-        setups='ccm2a',
-    ),
+    SetupBlock('ccm2a2'), SetupBlock('ccm2a2', 'temperatures'),
     Block('12T Magnet', [
         BlockRow(
             Field(name='Field', dev='B_ccm12v'),

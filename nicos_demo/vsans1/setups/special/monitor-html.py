@@ -432,49 +432,9 @@ _ccm5h = Column(SetupBlock('ccm5h'))
 _ccm5h_temperature = Column(SetupBlock('ccm5h', 'temperatures'))
 _ccm5h_plot = Column(SetupBlock('ccm5h', 'plot'))
 
-_ccm2a = Column(
-    Block('CCM2a Magnet', [
-        BlockRow(
-             Field(name='Field', dev='B_ccm2a', width=12),
-            ),
-        BlockRow(
-             Field(name='Target', key='B_ccms2a/target', width=12),
-             Field(name='Readback', dev='B_ccm2a_readback', width=12),
-            ),
-        ],
-    setups='ccm2a',
-    ),
-)
-
-_ccm2a_temperature = Column(
-    Block('CCM2a Magnet Temperature', [
-        BlockRow(
-             Field(name='T1', dev='ccm2a_T1', width=12),
-             Field(name='T2', dev='ccm2a_T2', width=12),
-            ),
-        BlockRow(
-             Field(name='TA', dev='ccm2a_TA', width=12),
-             Field(name='TB', dev='ccm2a_TB', width=12),
-            ),
-        ],
-    setups='ccm2a',
-    ),
-)
-
-_ccm2a_plot = Column(
-    Block('CCM2a Magnet plot', [
-        BlockRow(
-                 Field(plot='30 min ccm2a', name='30 min', dev='B_ccm2a',
-                       width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min ccm2a', name='Target', key='B_ccm2a/target'),
-                 Field(plot='12 h ccm2a', name='12 h', dev='B_ccm2a', width=60,
-                       height=40, plotwindow=12*3600),
-                 Field(plot='12 h ccm2a', name='Target', key='B_ccm2a/target'),
-        ),
-        ],
-        setups='ccm2a',
-    ),
-)
+_ccm2a2 = Column(SetupBlock('ccm2a2'))
+_ccm2a2_temperature = Column(SetupBlock('ccm2a2', 'temperatures'))
+_ccm2a2_plot = Column(SetupBlock('ccm2a2', 'plot'))
 
 _ccr19_plot = Column(
     Block('30min T and Ts plot', [
@@ -685,12 +645,12 @@ devices = dict(
             Row(_meteocolumn, _pressurecolumn, _p_filter),
             Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
             Row(_ccm5h, _ccm5h_temperature,
-                _ccm2a, _ccm2a_temperature,
+                _ccm2a2, _ccm2a2_temperature,
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                 _sc_t, _ccmsanssc, _miramagnet, _amagnet,
                 _htf03, _htf01, _irf01, _irf10, _rscs, _julabo,
                 _tisane_counts, _tisane_fc, _helios01),
-            Row(_ccm5h_plot, _ccm2a_plot, _ccr19_plot,
+            Row(_ccm5h_plot, _ccm2a2_plot, _ccr19_plot,
                 _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
                 _miramagnet_plot),
             Row(_live),

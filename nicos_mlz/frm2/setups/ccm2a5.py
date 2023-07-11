@@ -87,3 +87,35 @@ alias_config = {
 extended = dict(
     representative = 'B_%s' % setupname,
 )
+
+monitor_blocks = dict(
+    default = Block('2.5T Magnet (HTS)', [
+        BlockRow(
+             Field(name='Field', dev='B_ccm2a5', width=12),
+        ),
+        BlockRow(
+            Field(name='Target', key='B_ccm2a5/target', width=12),
+            Field(name='Readback', dev='B_ccm2a5_readback', width=12),
+        ),
+    ], setups=setupname),
+    temperatures = Block('2.5T Magnet Temperature', [
+        BlockRow(
+             Field(name='T1', dev='ccm2a5_T1', width=12),
+             Field(name='T2', dev='ccm2a5_T2', width=12),
+        ),
+        BlockRow(
+             Field(name='TA', dev='ccm2a5_TA', width=12),
+             Field(name='TB', dev='ccm2a5_TB', width=12),
+        ),
+    ], setups=setupname),
+    plot = Block('2.5T Magnet plot', [
+        BlockRow(
+            Field(plot='30 min ccm2a5', name='30 min', dev='B_ccm2a5',
+                  width=60, height=40, plotwindow=1800),
+            Field(plot='30 min ccm2a5', name='Target', key='B_ccm2a5/target'),
+            Field(plot='12 h ccm2a5', name='12 h', dev='B_ccm2a5', width=60,
+                  height=40, plotwindow=12*3600),
+            Field(plot='12 h ccm2a5', name='Target', key='B_ccm2a5/target'),
+        ),
+    ], setups=setupname),
+)

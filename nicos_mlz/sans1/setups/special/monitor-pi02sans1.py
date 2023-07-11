@@ -73,84 +73,13 @@ _ccmsanssc = Block('Magnet Sample Changer', [
     setups='ccmsanssc',
 )
 
-_ccm2a2 = Block('CCM2a2 Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm2a2', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='B_ccm2a2/target', width=12),
-        Field(name='Readback', dev='B_ccm2a2_readback', width=12),
-    ),
-    BlockRow(
-        Field(name='T1', dev='ccm2a2_T1', width=12),
-        Field(name='T2', dev='ccm2a2_T2', width=12),
-    ),
-    BlockRow(
-        Field(name='TA', dev='ccm2a2_TA', width=12),
-        Field(name='TB', dev='ccm2a2_TB', width=12),
-    ),
-    ],
-    setups='ccm2a2',
-)
+_ccm2a2 = SetupBlock('ccm2a2')
+_ccm2a2_temperature = SetupBlock('ccm2a2', 'temperatures')
+_ccm2a2_plot = SetupBlock('ccm2a2', 'plot')
 
-_ccm2a2_plot = Block('CCM2a2 Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=15, plotwindow=1800,
-              devices=['B_ccm2a2', 'B_ccm2a2/target'],
-              names=['30min', 'Target'],
-              legend=True,
-              ),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=15, plotwindow=12*3600,
-              devices=['B_ccm2a2', 'B_ccm2a2/target'],
-              names=['12h', 'Target'],
-              legend=True,
-              ),
-        ),
-    ],
-    setups='ccm2a2',
-)
-
-_ccm2a5 = Block('CCM2a5 Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm2a5', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='B_ccm2a5/target', width=12),
-        Field(name='Readback', dev='B_ccm2a5_readback', width=12),
-    ),
-    BlockRow(
-        Field(name='T1', dev='ccm2a5_T1', width=12),
-        Field(name='T2', dev='ccm2a5_T2', width=12),
-    ),
-    BlockRow(
-        Field(name='TA', dev='ccm2a5_TA', width=12),
-        Field(name='TB', dev='ccm2a5_TB', width=12),
-    ),
-    ],
-    setups='ccm2a5',
-)
-
-_ccm2a5_plot = Block('CCM2a5 Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=15, plotwindow=1800,
-              devices=['B_ccm2a5', 'B_ccm2a5/target'],
-              names=['30min', 'Target'],
-              legend=True,
-              ),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=15, plotwindow=12*3600,
-              devices=['B_ccm2a5', 'B_ccm2a5/target'],
-              names=['12h', 'Target'],
-              legend=True,
-              ),
-        ),
-    ],
-    setups='ccm2a5',
-)
-
+_ccm2a5 = SetupBlock('ccm2a5')
+_ccm2a5_temperature = SetupBlock('ccm2a5', 'temperatures')
+_ccm2a5_plot = SetupBlock('ccm2a5', 'plot')
 
 _st2 = Block('Sample Table 2', [
     BlockRow(
@@ -830,7 +759,9 @@ devices = dict(
                 Column(_sc1, _sc2, _sc_t, _st2, _st1, *rscs),
                 Column(_tisane_counts, _fg1, _helios01),
                 Column(_fc, _fg2),
-                Column(_htf01, _htf03, _irf01, _irf10, _ccm2a2, _ccm2a5,
+                Column(_htf01, _htf03, _irf01, _irf10,
+                       _ccm2a2, _ccm2a2_temperature,
+                       _ccm2a5, _ccm2a5_temperature,
                        _ccm5h, _ccm5h_temperature,
                        _miramagnet, _amagnet,
                        _sans1julabo, _dilato, _pressure_box),
