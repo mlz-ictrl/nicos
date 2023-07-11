@@ -375,38 +375,11 @@ for k in [1,2,3,10,11,12]:
     ))
 
 ccrs = []
-for i in range(10, 22 + 1):
-    ccrs.append(Block('CCR%d' % i, [
-        BlockRow(
-            Field(name='Setpoint', key='t_ccr%d/setpoint' % i,
-                  unitkey='t/unit'),
-            Field(name='Target', key='t_ccr%d/target' % i,
-                  unitkey='t/unit'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power Stick',
-                  key='t_ccr%d_stick/heaterpower' % i, format='%.3f',
-                  unitkey='t/unit'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power Tube',
-                  key='t_ccr%d_tube/heaterpower' % i, format='%.3f',
-                  unitkey='t/unit'),
-        ),
-        BlockRow(
-             Field(name='A', dev='T_ccr%d_A' % i),
-             Field(name='B', dev='T_ccr%d_B' % i),
-        ),
-        BlockRow(
-             Field(name='C', dev='T_ccr%d_C' % i),
-             Field(name='D', dev='T_ccr%d_D' % i),
-        ),
-        ],
-        setups='ccr%d' % i,
-    ))
-
 T_Ts_plot = []
-for k in range(10, 22 + 1):
+for i in range(10, 25 + 1):
+    if i == 13:
+        continue
+    ccrs.append(SetupBlock(f'ccr{i}'))
     T_Ts_plot.append(Block('30min T and Ts plot', [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
@@ -416,8 +389,10 @@ for k in range(10, 22 + 1):
                   legend=True),
         ),
         ],
-        setups='ccr%d' %k,
+        setups=f'ccr{i}',
     ))
+
+_ccrs = Column(*tuple(ccrs))
 
 cryos = []
 for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',

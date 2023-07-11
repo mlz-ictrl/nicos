@@ -484,33 +484,10 @@ for k in [1,2,3,10,11,12]:
 _rscs = Column(*tuple(rscs))
 
 ccrs = []
-for i in range(10, 22 + 1):
-    ccrs.append(Block('CCR%d' % i, [
-        BlockRow(
-            Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
-                  unitkey='t/unit', width=12),
-            Field(name='Target', key='t_ccr%d/target' % i,
-                  unitkey='t/unit', width=12),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power Stick',
-                  key='t_ccr%d_stick/heaterpower' % i, format='%.3f'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power Tube',
-                  key='t_ccr%d_tube/heaterpower' % i, format='%.3f'),
-        ),
-        BlockRow(
-            Field(name='A', dev='T_ccr%d_A' % i, width=12),
-            Field(name='B', dev='T_ccr%d_B' % i, width=12),
-        ),
-        BlockRow(
-            Field(name='C', dev='T_ccr%d_C' % i, width=12),
-            Field(name='D', dev='T_ccr%d_D' % i, width=12),
-        ),
-        ],
-        setups='ccr%d' % i,
-    ))
+for i in range(10, 25 + 1):
+    if i == 13:
+        continue
+    ccrs.append(SetupBlock(f'ccr{i}'))
 _ccrs = Column(*tuple(ccrs))
 
 cryos = []

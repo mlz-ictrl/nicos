@@ -67,54 +67,15 @@ _frm = Column(
 
 # generic CCR-stuff
 ccrs = []
-ccrsupps = []
 ccrplots = []
-_ccrnrs = [6,] + list(range(10, 22 + 1))
-for i in _ccrnrs:
-    ccrs.append(
-        Block('CCR%d-Pulse tube' % i, [
-            BlockRow(
-                Field(dev='t_ccr%d_c' % i, name='Coldhead'),
-                Field(dev='t_ccr%d_d' % i, name='Regulation'),
-                Field(dev='t_ccr%d_b' % i, name='Sample'),
-            ),
-            BlockRow(
-                Field(key='t_ccr%d/setpoint' % i, name='Setpoint'),
-                Field(key='t_ccr%d/p' % i, name='P', width=7),
-                Field(key='t_ccr%d/i' % i, name='I', width=7),
-                Field(key='t_ccr%d/d' % i, name='D', width=6),
-            ),
-            ],
-            setups='ccr%d and not cci3he0*' % i,
-        ),
-    )
-    ccrsupps.append(
-        Block('CCR%d' % i, [
-            BlockRow(
-                Field(dev='T_ccr%d_A' % i, name='A'),
-                Field(dev='T_ccr%d_B' % i, name='B'),
-                Field(dev='T_ccr%d_C' % i, name='C'),
-                Field(dev='T_ccr%d_D' % i, name='D'),
-            ),
-            BlockRow(
-                Field(key='t_ccr%d/setpoint' % i, name='SetP.', width=6),
-                Field(key='t_ccr%d/p' % i, name='P', width=4),
-                Field(key='t_ccr%d/i' % i, name='I', width=4),
-                Field(key='t_ccr%d/d' % i, name='D', width=3),
-            ),
-            BlockRow(
-                Field(dev='ccr%d_p1' % i, name='P1'),
-                Field(dev='ccr%d_p2' % i, name='P2'),
-            ),
-            ],
-            setups='ccr%d' % i,
-        ),
-    )
+for i in [6] + list(range(10, 25 + 1)):
+    if i == 13:
+        continue
+    ccrs.append(SetupBlock(f'ccr{i}'))
+    ccrplots.append(SetupBlock(f'ccr{i}', 'plots'))
 
 
 _cryo = Column(*ccrs)
-
-_cryosup = Column(*ccrsupps)
 
 _htf = Column(
     Block('HTF', [
@@ -203,7 +164,6 @@ devices = dict(
             Row(_expcolumn),
             Row(_frm, _instrument, _sampletable),
             Row(_htf,),
-            Row(_cryosup),
             Row(_tension),
             Row(_magnet, _e,),
             Row(_sc, _rsc),

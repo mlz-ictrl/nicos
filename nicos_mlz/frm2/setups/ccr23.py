@@ -126,3 +126,50 @@ printinfo("If using the pressure regulation feature, set the limits via "
 printinfo("Activate the wanted channel with the %s_pressure_regulate device or "
           "switch it to 'off' to deactivate the regulation.")
 ''' % (setupname, setupname, setupname, setupname, setupname)
+
+monitor_blocks = dict(
+    default = Block('Cryo ' + setupname, [
+        BlockRow(
+            Field(key=f't_{setupname}/setpoint', unitkey=f't_{setupname}/unit',
+                  name='Setpoint', width=12),
+            Field(key=f't_{setupname}/target', unitkey=f't_{setupname}/unit',
+                  name='Target', width=12),
+        ),
+        BlockRow(
+            Field(dev=f'T_{setupname}_C', name='Coldhead'),
+            Field(dev=f'T_{setupname}_D', name='Regulation'),
+            Field(dev=f'T_{setupname}_B', name='Sample'),
+        ),
+        BlockRow(
+            Field(name='Manual Heater Power Stick',
+                  key=f't_{setupname}_stick/heaterpower', format='%.3f',
+                  unitkey='t/unit'),
+        ),
+        BlockRow(
+            Field(name='Manual Heater Power Tube',
+                  key=f't_{setupname}_tube/heaterpower', format='%.3f',
+                  unitkey='t/unit'),
+        ),
+        BlockRow(
+            Field(key=f't_{setupname}/p', name='P', width=7),
+            Field(key=f't_{setupname}/i', name='I', width=7),
+            Field(key=f't_{setupname}/d', name='D', width=6),
+        ),
+        BlockRow(
+            Field(dev=f'{setupname}_p1', name='P1'),
+            Field(dev=f'{setupname}_p2', name='P2'),
+        )
+    ], setups=setupname),
+    plots = Block(setupname, [
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  plotwindow=300, width=25, height=25,
+                  devices=[f'T_{setupname}/setpoint',
+                           f'T_{setupname}_C',
+                           f'T_{setupname}_D',
+                           f'T_{setupname}_B'],
+                  names=['Setpoint', 'Coldhead', 'Regulation', 'Sample'],
+                  ),
+        ),
+    ], setups=setupname)
+)
