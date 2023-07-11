@@ -4,10 +4,10 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = {
-    'T_%s' % setupname:   device('nicos.devices.entangle.TemperatureController',
+    'T_cryostream': device('nicos.devices.entangle.TemperatureController',
         description = 'Sample temperature control',
         tangodevice = tango_base + 'cryostream/cryo',
         abslimits = (0, 300),
@@ -16,13 +16,12 @@ devices = {
         pollinterval = 5,
         maxage = 12,
     ),
-    '%s_LN2' % setupname: device('nicos.devices.entangle.Sensor',
+    'cryostream_LN2': device('nicos.devices.entangle.Sensor',
         description = 'Cryostream LN2 supply',
         tangodevice = tango_base + 'levelmeter/level',
         fmtstr = '%.1f',
     ),
-    '%s_LN2_fill' % setupname:
-        device('nicos.devices.entangle.NamedDigitalOutput',
+    'cryostream_LN2_fill': device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Cryostream LN2 supply fill switch',
         tangodevice = tango_base + 'levelmeter/fill',
         mapping = {
@@ -33,10 +32,10 @@ devices = {
 }
 
 alias_config = {
-    'T':  {'T_%s' % setupname: 100},
-    'Ts': {'T_%s' % setupname: 100},
+    'T':  {'T_cryostream': 100},
+    'Ts': {'T_cryostream': 100},
 }
 
 extended = dict(
-    representative = 'T_%s' % setupname,
+    representative = 'T_cryostream',
 )

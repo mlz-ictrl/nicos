@@ -1,7 +1,7 @@
 description = 'WMI microwave generator'
 group = 'plugplay'
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = dict(
 #    fg1_modulation_io = device('nicos.devices.entangle.DigitalOutput',

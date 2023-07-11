@@ -4,10 +4,10 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = {
-    'I_%s' % setupname: device('nicos.devices.entangle.PowerSupply',
+    f'I_{setupname}': device('nicos.devices.entangle.PowerSupply',
         description = 'Magnet current',
         tangodevice = tango_base + 'bruker/supply',
         fmtstr = '%.1f',
@@ -15,8 +15,8 @@ devices = {
         timeout = 60.0,
         precision = 0.1,
     ),
-    'B_%s' % setupname: device('nicos.devices.generic.CalibratedMagnet',
-        currentsource = 'I_%s' % setupname,
+    f'B_{setupname}': device('nicos.devices.generic.CalibratedMagnet',
+        currentsource = f'I_{setupname}',
         description = 'Magnet field',
         # abslimits are automatically determined from I
         unit = 'T',
@@ -31,7 +31,7 @@ devices = {
             0.029687
         )
     ),
-    '%s_sam_trans' % setupname: device('nicos.devices.entangle.Motor',
+    f'{setupname}_sam_trans': device('nicos.devices.entangle.Motor',
         description = 'Sample changer stage',
         tangodevice = tango_base + 'plc/plc_motor',
         fmtstr = '%.1f',
@@ -41,9 +41,9 @@ devices = {
 }
 
 alias_config = {
-    'B': {'B_%s' % setupname: 100, 'I_%s' % setupname: 80},
+    'B': {f'B_{setupname}': 100, f'I_{setupname}': 80},
 }
 
 extended = dict(
-    representative = 'B_%s' % setupname,
+    representative = f'B_{setupname}',
 )

@@ -4,22 +4,22 @@ group = 'plugplay'
 
 includes = ['alias_sth']
 
-tango_base = 'tango://%s:10000/' % setupname
+tango_base = f'tango://{setupname}:10000/'
 
 devices = {
-    'sth_%s' % setupname: device('nicos.devices.entangle.MotorAxis',
+    f'sth_{setupname}': device('nicos.devices.entangle.MotorAxis',
         description = 'Newport z rotation axis',
         tangodevice = tango_base + 'box/newport/sth',
         fmtstr = '%.3f',
         unit = 'deg',
     ),
-    'sgx_%s' % setupname: device('nicos.devices.entangle.MotorAxis',
+    f'sgx_{setupname}': device('nicos.devices.entangle.MotorAxis',
         description = 'Newport x rotation axis',
         tangodevice = tango_base + 'box/newport/sgx',
         fmtstr = '%.3f',
         unit = 'deg',
     ),
-    'stz_%s' % setupname: device('nicos.devices.entangle.MotorAxis',
+    f'stz_{setupname}': device('nicos.devices.entangle.MotorAxis',
         description = 'Newport z translation axis',
         tangodevice = tango_base + 'box/newport/stz',
         fmtstr = '%.3f',
@@ -28,9 +28,9 @@ devices = {
 }
 
 alias_config = {
-    'sth': {'sth_%s' % setupname: 200},
+    'sth': {f'sth_{setupname}': 200},
 }
 
 extended = dict(
-    representative = 'sth_%s' % setupname,
+    representative = f'sth_{setupname}',
 )

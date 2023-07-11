@@ -4,10 +4,10 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = {
-    'T_%s' % setupname: device('nicos.devices.entangle.TemperatureController',
+    f'T_{setupname}': device('nicos.devices.entangle.TemperatureController',
         description = 'The sample temperature',
         tangodevice = tango_base + 'eurotherm/ctrl',
         abslimits = (0, 2000),
@@ -15,25 +15,25 @@ devices = {
         fmtstr = '%.3f',
         unit = 'C',
     ),
-    '%s_vacuum' % setupname: device('nicos.devices.entangle.Sensor',
+    f'{setupname}_vacuum': device('nicos.devices.entangle.Sensor',
         description = 'The furnace pressure',
         tangodevice = tango_base + 'leybold/pressure',
         fmtstr = '%.3f',
         unit = 'mbar',
     ),
-    '%s_watertemp' % setupname: device('nicos.devices.entangle.Sensor',
+    f'{setupname}_watertemp': device('nicos.devices.entangle.Sensor',
         description = 'Cooling water temperature',
         tangodevice = tango_base + 'plc/_water_temp',
         fmtstr = '%.3f',
         unit = 'C',
     ),
-    '%s_waterflow' % setupname: device('nicos.devices.entangle.Sensor',
+    f'{setupname}_waterflow': device('nicos.devices.entangle.Sensor',
         description = 'Cooling water flow',
         tangodevice = tango_base + 'plc/_water_flow',
         fmtstr = '%.3f',
         unit = 'l/s',
     ),
-    '%s_pumpstate' % setupname: device('nicos.devices.entangle.NamedDigitalInput',
+    f'{setupname}_pumpstate': device('nicos.devices.entangle.NamedDigitalInput',
         description = 'State of the turbo pump',
         tangodevice = tango_base + 'plc/_pumpstate',
         mapping = {'on': 1, 'off': 0}
@@ -41,10 +41,10 @@ devices = {
 }
 
 alias_config = {
-    'T':  {'T_%s' % setupname: 100},
-    'Ts': {'T_%s' % setupname: 100},
+    'T':  {f'T_{setupname}': 100},
+    'Ts': {f'T_{setupname}': 100},
 }
 
 extended = dict(
-    representative = 'T_%s' % setupname,
+    representative = f'T_{setupname}',
 )

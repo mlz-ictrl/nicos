@@ -7,9 +7,9 @@ includes = ['alias_T']
 nethost = setupname
 
 devices = {
-    'T_%s' % setupname: device('nicos.devices.taco.TemperatureController',
+    f'T_{setupname}': device('nicos.devices.taco.TemperatureController',
         description = 'The sample temperature',
-        tacodevice = '//%s/irf/eurotherm/control' % nethost,
+        tacodevice = f'//{nethost}/irf/eurotherm/control',
         abslimits = (0, 1200),
         unit = 'C',
         fmtstr = '%.3f',
@@ -17,10 +17,10 @@ devices = {
 }
 
 alias_config = {
-    'T':  {'T_%s' % setupname: 100},
-    'Ts': {'T_%s' % setupname: 100},
+    'T':  {f'T_{setupname}': 100},
+    'Ts': {f'T_{setupname}': 100},
 }
 
 extended = dict(
-    representative = 'T_%s' % setupname,
+    representative = f'T_{setupname}',
 )

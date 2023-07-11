@@ -4,10 +4,10 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = {
-    'T_%s_sorb' % setupname: device('nicos.devices.entangle.Sensor',
+    f'T_{setupname}_sorb': device('nicos.devices.entangle.Sensor',
         description = 'Sorb temperature',
         tangodevice = tango_base + 'igh/sorb',
         unit = 'K',
@@ -15,7 +15,7 @@ devices = {
         pollinterval = 1,
         maxage = 2,
     ),
-    'T_%s_pot' % setupname:  device('nicos.devices.entangle.Sensor',
+    f'T_{setupname}_pot':  device('nicos.devices.entangle.Sensor',
         description = '1K pot temperature',
         tangodevice = tango_base + 'igh/pot',
         unit = 'K',
@@ -23,7 +23,7 @@ devices = {
         pollinterval = 1,
         maxage = 2,
     ),
-    'T_%s_mix' % setupname:  device('nicos.devices.entangle.Sensor',
+    f'T_{setupname}_mix':  device('nicos.devices.entangle.Sensor',
         description = 'Mix chamber temperature',
         tangodevice = tango_base + 'igh/mix',
         unit = 'K',
@@ -34,5 +34,5 @@ devices = {
 }
 
 alias_config = {
-    'Ts':  {'T_%s_mix' % setupname: 200},
+    'Ts':  {f'T_{setupname}_mix': 200},
 }

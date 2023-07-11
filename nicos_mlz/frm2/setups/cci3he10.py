@@ -4,12 +4,12 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-plc_tango_base = 'tango://%s:10000/box/plc/_' % setupname
-ls_tango_base = 'tango://%s:10000/box/lakeshore/' % setupname
+plc_tango_base = f'tango://{setupname}:10000/box/plc/_'
+ls_tango_base = f'tango://{setupname}:10000/box/lakeshore/'
 
 
 devices = {
-    'T_%s_pot' % setupname: device('nicos.devices.entangle.TemperatureController',
+    f'T_{setupname}_pot': device('nicos.devices.entangle.TemperatureController',
         description = 'The control device to the 3He-pot',
         tangodevice = ls_tango_base + 'control',
         abslimits = (0, 300),
@@ -18,7 +18,7 @@ devices = {
         pollinterval = 5,
         maxage = 6,
     ),
-    'T_%s_pot_heaterrange' % setupname: device('nicos.devices.generic.Switcher',
+    f'T_{setupname}_pot_heaterrange': device('nicos.devices.generic.Switcher',
         description = 'Heater range for 3He-pot',
         moveable = device('nicos.devices.entangle.AnalogOutput',
             tangodevice = ls_tango_base + 'heaterrange',
@@ -28,7 +28,7 @@ devices = {
         precision = 0.5,
         mapping = {'off': 0, '1 mW': 3, '10 mW': 4, '100 mW': 5},
     ),
-    'T_%s_sample' % setupname: device('nicos.devices.entangle.Sensor',
+    f'T_{setupname}_sample': device('nicos.devices.entangle.Sensor',
         description = 'The sample temperature (if installed)',
         tangodevice = ls_tango_base + 'sensorb',
         unit = 'K',
@@ -36,7 +36,7 @@ devices = {
         pollinterval = 5,
         maxage = 6,
     ),
-    'T_%s_sample2' % setupname: device('nicos.devices.entangle.Sensor',
+    f'T_{setupname}_sample2': device('nicos.devices.entangle.Sensor',
         description = 'The 2(nd) sample temperature (if installed)',
         tangodevice = ls_tango_base + 'sensorc',
         unit = 'K',
@@ -44,42 +44,42 @@ devices = {
         pollinterval = 5,
         maxage = 6,
     ),
-    '%s_p_pot' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_p_pot': device('nicos.devices.entangle.AnalogInput',
         description = 'Pressure at 3He-pot, also at turbo-pump inlet',
         tangodevice = plc_tango_base + 'pStill',
         fmtstr = '%.3e',
     ),
-    '%s_p_inlet' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_p_inlet': device('nicos.devices.entangle.AnalogInput',
         description = 'Pressure at turbo pump outlet, also at pre-pump inlet',
         tangodevice = plc_tango_base + 'pInlet',
         fmtstr = '%.3g',
     ),
-    '%s_p_outlet' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_p_outlet': device('nicos.devices.entangle.AnalogInput',
         description = 'Pressure at compressor inlet, also at pre-pump outlet',
         tangodevice = plc_tango_base + 'pOutlet',
         fmtstr = '%.3g',
     ),
-    '%s_p_cond' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_p_cond': device('nicos.devices.entangle.AnalogInput',
         description = 'Condensing pressure, also at compressor outlet',
         tangodevice = plc_tango_base + 'pKond',
         fmtstr = '%.3g',
     ),
-    '%s_p_tank' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_p_tank': device('nicos.devices.entangle.AnalogInput',
         description = 'Pressure in 3He-gas reservoir',
         tangodevice = plc_tango_base+ 'pTank',
         fmtstr = '%.3g',
     ),
-    '%s_p_vac' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_p_vac': device('nicos.devices.entangle.AnalogInput',
         description = 'Pressure in vacuum dewar',
         tangodevice = plc_tango_base + 'pVacc',
         fmtstr = '%.2e',
     ),
-    '%s_p_v15' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_p_v15': device('nicos.devices.entangle.AnalogInput',
         description = 'Pressure on pumping side of V15',
         tangodevice = plc_tango_base + 'pV15',
         fmtstr = '%.2e',
     ),
-    '%s_flow' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_flow': device('nicos.devices.entangle.AnalogInput',
         description = 'Gas flow',
         tangodevice = plc_tango_base + 'flow',
         fmtstr = '%.1f',
@@ -88,12 +88,12 @@ devices = {
 }
 
 alias_config = {
-    'T':  {'T_%s_pot' % setupname: 300},
-    'Ts': {'T_%s_pot' % setupname: 300, 'T_%s_sample' % setupname: 280},
+    'T':  {f'T_{setupname}_pot': 300},
+    'Ts': {f'T_{setupname}_pot': 300, f'T_{setupname}_sample': 280},
 }
 
 extended = dict(
-    representative = 'T_%s_pot' % setupname,
+    representative = f'T_{setupname}_pot',
 )
 
 monitor_blocks = dict(

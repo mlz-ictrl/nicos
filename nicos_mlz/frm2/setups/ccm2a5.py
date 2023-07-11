@@ -4,10 +4,10 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = {
-    'B_%s' % setupname: device('nicos.devices.entangle.RampActuator',
+    f'B_{setupname}': device('nicos.devices.entangle.RampActuator',
         description = 'magnetic field device',
         tangodevice = tango_base + 'plc/plc_magneticfield',
         unit = 'T',
@@ -15,60 +15,60 @@ devices = {
         abslimits = (-2.5, 2.5),
         precision = 0.0005,
     ),
-    'B_%s_readback' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'B_{setupname}_readback': device('nicos.devices.entangle.AnalogInput',
         description = 'magnetic field device',
         tangodevice = tango_base + 'plc/plc_currentmonitor',
         unit = 'T',
         fmtstr = '%.3f',
         pollinterval = 1,
     ),
-    '%s_current' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_current': device('nicos.devices.entangle.AnalogInput',
         description = 'Measured current through the leads',
         tangodevice = tango_base + 'plc/plc_transducer',
         unit = 'A',
         fmtstr = "%.1f",
         warnlimits = (-208, 208),
     ),
-    '%s_watertemp' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_watertemp': device('nicos.devices.entangle.AnalogInput',
         description = 'Temperature of cooling water',
         tangodevice = tango_base + 'plc/plc_watertemp',
         unit = 'degC',
         fmtstr = "%.1f",
         warnlimits = (5, 45),
     ),
-    '%s_waterflow' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_waterflow': device('nicos.devices.entangle.AnalogInput',
         description = 'Flow rate of cooling water',
         tangodevice = tango_base + 'plc/waterflow',
         unit = 'l/min',
         fmtstr = "%.1f",
         warnlimits = (5, 10),
     ),
-    '%s_compressor' % setupname: device('nicos.devices.entangle.NamedDigitalOutput',
+    f'{setupname}_compressor': device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Compressor for cold head',
         tangodevice = tango_base + 'plc/plc_compressor',
         mapping = dict(on=1, off=0),
     ),
-    '%s_T1' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_T1': device('nicos.devices.entangle.AnalogInput',
         description = 'Temperature of the first stage of the '
         'cryo-cooler',
         tangodevice = tango_base + 'hts_mss/t1',
         unit = 'K',
         warnlimits = (0, 44),
     ),
-    '%s_T2' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_T2': device('nicos.devices.entangle.AnalogInput',
         description = 'Temperature of the second stage of the '
         'cryo-cooler',
         tangodevice = tango_base + 'hts_mss/t2',
         unit = 'K',
         warnlimits = (0, 14),
     ),
-    '%s_TA' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_TA': device('nicos.devices.entangle.AnalogInput',
         description = 'Temperature of coil pack A',
         tangodevice = tango_base + 'hts_mss/t3',
         unit = 'K',
         warnlimits = (0, 19),
     ),
-    '%s_TB' % setupname: device('nicos.devices.entangle.AnalogInput',
+    f'{setupname}_TB': device('nicos.devices.entangle.AnalogInput',
         description = 'Temperature of coil pack B',
         tangodevice = tango_base + 'hts_mss/t4',
         unit = 'K',
@@ -76,16 +76,16 @@ devices = {
     ),
 }
 
-startupcode='''
-B_%s.ramp = 0.1
-''' % setupname
+startupcode=f'''
+B_{setupname}.ramp = 0.1
+'''
 
 alias_config = {
-    'B': {'B_%s' % setupname: 100},
+    'B': {f'B_{setupname}': 100},
 }
 
 extended = dict(
-    representative = 'B_%s' % setupname,
+    representative = f'B_{setupname}',
 )
 
 monitor_blocks = dict(

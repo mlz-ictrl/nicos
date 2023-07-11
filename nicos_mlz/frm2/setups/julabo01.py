@@ -4,10 +4,10 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = {
-    'T_%s' % setupname: device('nicos.devices.entangle.TemperatureController',
+    f'T_{setupname}': device('nicos.devices.entangle.TemperatureController',
         description = 'The sample temperature',
         tangodevice = tango_base + 'julabo/control',
         abslimits = (-10, 140),
@@ -18,10 +18,10 @@ devices = {
 }
 
 alias_config = {
-    'T':  {'T_%s' % setupname: 200},
-    'Ts': {'T_%s' % setupname: 100},
+    'T':  {f'T_{setupname}': 200},
+    'Ts': {f'T_{setupname}': 100},
 }
 
 extended = dict(
-    representative = 'T_%s' % setupname,
+    representative = f'T_{setupname}',
 )

@@ -3,7 +3,7 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = dict(
     I_miramagnet = device('nicos.devices.entangle.RampActuator',

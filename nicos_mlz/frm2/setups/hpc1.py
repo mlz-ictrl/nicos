@@ -2,10 +2,10 @@ description = 'High pressure cell'
 
 group = 'plugplay'
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = {
-    'P_%s' % setupname: device('nicos.devices.entangle.TemperatureController',
+    f'P_{setupname}': device('nicos.devices.entangle.TemperatureController',
         description = 'Pressure controller',
         tangodevice = tango_base + 'eurotherm/control',
         fmtstr = '%.1f',
@@ -15,5 +15,5 @@ devices = {
 }
 
 extended = dict(
-    representative = 'P_%s' % setupname,
+    representative = f'P_{setupname}',
 )

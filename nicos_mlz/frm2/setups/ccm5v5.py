@@ -4,15 +4,15 @@ group = 'plugplay'
 
 includes = ['alias_B', 'alias_sth']
 
-tango_base = 'tango://%s:10000/box/' % setupname
+tango_base = f'tango://{setupname}:10000/box/'
 
 devices = {
-    'B_%s' % setupname: device('nicos.devices.entangle.Actuator',
+    f'B_{setupname}': device('nicos.devices.entangle.Actuator',
         description = 'The magnetic field',
         tangodevice = tango_base + 'magnet/field',
         abslimits = (-5.555, 5.555),
     ),
-    'sth_%s' % setupname: device('nicos.devices.generic.Axis',
+    f'sth_{setupname}': device('nicos.devices.generic.Axis',
         description = 'Cryotstat tube rotation',
         abslimits = (-180, 180),
         motor = device('nicos.devices.entangle.Motor',
@@ -42,12 +42,12 @@ for i in range(1, 9):
     devices['%s_T%d' % (setupname, i)] = dev
 
 alias_config = {
-    'B':   {'B_%s' % setupname: 100},
-    'sth': {'sth_%s' % setupname: 100},
+    'B':   {f'B_{setupname}': 100},
+    'sth': {f'sth_{setupname}': 100},
 }
 
 extended = dict(
-    representative = 'B_%s' % setupname,
+    representative = f'B_{setupname}',
 )
 
 monitor_blocks = dict(
