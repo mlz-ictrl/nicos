@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Capacity box 0'
 group = 'optional'
 

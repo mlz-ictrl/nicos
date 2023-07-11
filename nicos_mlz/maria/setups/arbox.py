@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = "MARIA Argon box monitoring setup"
-
 group = "optional"
 
 tango_base = "tango://phys.maria.frm2:10000/maria/"

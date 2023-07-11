@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Mobile Sample devices'
 group = 'optional'
 display_order = 40

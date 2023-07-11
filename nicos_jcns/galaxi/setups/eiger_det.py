@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'GALAXI EIGER2 R 4M detector setup'
-
 group = 'optional'
 
 display_order = 11

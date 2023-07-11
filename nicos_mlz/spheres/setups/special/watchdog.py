@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'setup for the NICOS watchdog'
 group = 'special'
 watch_conditions = []

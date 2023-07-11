@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Software based micro stepping for several axes'
 group = 'lowlevel'
 

@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Resonance flippers'
 group = 'lowlevel'
 display_order = 24

@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Static flippers'
-
 group = 'lowlevel'
 
 display_order = 22

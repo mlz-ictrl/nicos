@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'qmesydaq channel devices'
-
 group = 'optional'
 
 sysconfig = dict(datasinks = ['mesysink', 'mesylive'])

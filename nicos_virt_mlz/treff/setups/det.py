@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'detector setup'
 group = 'basic'
 

@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'ANTARES collimator drum'
-
 group = 'lowlevel'
 
 devices = dict(

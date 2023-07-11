@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Gauss meter setup"
 group = "optional"
 

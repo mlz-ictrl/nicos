@@ -1,6 +1,4 @@
-#  -*- coding: utf-8 -*-
 description = 'Analyser rotation'
-
 group = 'optional'
 
 devices = dict(

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Polarizer motor devices and flipper'
 group = 'optional'
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Sample rotation and tilt tables'
 group = 'optional'
 display_order = 36

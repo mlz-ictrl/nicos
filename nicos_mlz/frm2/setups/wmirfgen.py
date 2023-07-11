@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'WMI microwave generator'
-
 group = 'plugplay'
 
 tango_base = 'tango://%s:10000/box/' % setupname

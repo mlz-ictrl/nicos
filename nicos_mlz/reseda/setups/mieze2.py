@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'RESEDA MIEZE setup with resedacascade2 detector (7 foils)'
 group = 'basic'
 includes = [

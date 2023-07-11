@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Attenuators'
 group = 'optional'
 display_order = 2

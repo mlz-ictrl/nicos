@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Voltage control setup for sample power supply"
 group = "optional"
 

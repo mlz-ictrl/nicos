@@ -1,5 +1,3 @@
-# coding: utf-8
-
 description = 'Sample Environment and Miscellaneous [Monitor 04]'
 group = 'special'
 

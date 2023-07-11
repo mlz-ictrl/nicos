@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'SIS detector setup'
-
 group = 'lowlevel'
 
 includes = ['shutter', 'cct6', 'doppler']

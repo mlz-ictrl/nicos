@@ -1,5 +1,4 @@
 description = 'CASCADE detector'
-
 group = 'lowlevel'
 
 includes = ['det_base', 'filesavers']

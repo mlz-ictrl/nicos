@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Mini-kappa axes setup'
 group = 'lowlevel'
 

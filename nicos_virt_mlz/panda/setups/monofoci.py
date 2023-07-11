@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Setup of a Monochromator Focusing Box on PANDA'
-
 group = 'lowlevel'
 
 extended = dict(dynamic_loaded = True)

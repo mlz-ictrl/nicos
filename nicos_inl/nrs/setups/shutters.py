@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'Shutter devices'
-
 group = 'lowlevel'
 
 devices = dict(

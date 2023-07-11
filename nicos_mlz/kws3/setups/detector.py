@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Detector motor setup'
 group = 'lowlevel'
 display_order = 65

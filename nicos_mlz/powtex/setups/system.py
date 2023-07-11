@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'system setup for POWTEX'
-
 group = 'lowlevel'
 
 sysconfig = dict(

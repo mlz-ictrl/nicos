@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'Shutter devices'
-
 group = 'lowlevel'
 
 tango_base = 'tango://motorpi:10000/tomo/digital/'

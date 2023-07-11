@@ -1,5 +1,4 @@
 description = 'Reseda arm controller setup'
-
 group = 'lowlevel'
 
 includes = ['arm_1', 'arm_2']

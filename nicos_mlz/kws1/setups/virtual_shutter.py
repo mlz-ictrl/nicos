@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Virtual beam shutter setup'
 group = 'lowlevel'
 display_order = 5

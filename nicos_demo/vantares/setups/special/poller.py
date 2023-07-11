@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for the poller'
 group = 'special'
 

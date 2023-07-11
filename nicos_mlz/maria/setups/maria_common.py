@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "MARIA common setup"
 group = "lowlevel"
 

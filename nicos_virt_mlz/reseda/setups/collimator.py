@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'collimator'
-
 group = 'optional'
 
 devices = dict(

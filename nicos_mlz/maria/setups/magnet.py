@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Magnet Power supply setup"
 group = "optional"
 

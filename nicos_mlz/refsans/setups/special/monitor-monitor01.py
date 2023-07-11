@@ -1,5 +1,3 @@
-# coding: utf-8
-
 description = 'Chopper [Monitor 01]'
 group = 'special'
 

@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 #  pylint: disable=unidiomatic-typecheck
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ

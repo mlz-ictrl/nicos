@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Substraction coils'
 group = 'lowlevel'
 display_order = 26

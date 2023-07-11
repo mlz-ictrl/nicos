@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Monoturm, everything inside the Monochromator housing'
 
 # sampletable.py contains all buses

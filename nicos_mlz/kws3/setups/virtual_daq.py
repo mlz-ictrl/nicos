@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Virtual detector data acquisition setup'
 group = 'lowlevel'
 display_order = 10

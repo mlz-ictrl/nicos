@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Virtual sample aperture and table'
 group = 'lowlevel'
 

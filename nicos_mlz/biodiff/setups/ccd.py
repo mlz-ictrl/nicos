@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Andor DV936 CCD camera setup'
 group = 'basic'
 

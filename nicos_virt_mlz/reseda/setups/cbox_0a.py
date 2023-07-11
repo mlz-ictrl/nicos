@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Capacity box %s' % setupname
-
 group = 'optional'
 
 # includes = ['rte1104']

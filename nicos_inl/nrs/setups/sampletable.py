@@ -1,5 +1,4 @@
 description = 'Sample manipulation stage'
-
 group = 'lowlevel'
 
 tango_base = 'tango://localhost:10000/st/'

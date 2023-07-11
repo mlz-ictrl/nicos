@@ -1,6 +1,3 @@
-# coding: utf-8
-
-
 description = 'Facility Managing [05]'
 
 group = 'special'

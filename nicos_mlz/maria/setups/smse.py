@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Setup for MARIA soft matter sample environment"
 group = "optional"
 

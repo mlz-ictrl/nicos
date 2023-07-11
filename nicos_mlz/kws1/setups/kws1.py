@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'KWS-1 setup'
 group = 'basic'
 

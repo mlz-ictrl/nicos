@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'GALAXI MYTHEN R 1K detector setup'
-
 group = 'optional'
 
 display_order = 12

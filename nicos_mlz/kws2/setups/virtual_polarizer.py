@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Virtual polarizer setup'
 group = 'lowlevel'
 display_order = 60

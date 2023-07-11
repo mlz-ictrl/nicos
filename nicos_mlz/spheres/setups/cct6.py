@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Setup for the sample environment.'
 group = 'lowlevel'
 

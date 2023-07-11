@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'TEST setup for new version of Monochanger on PANDA (now with PLC)'
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'

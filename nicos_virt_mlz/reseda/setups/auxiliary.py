@@ -1,6 +1,4 @@
-#  -*- coding: utf-8 -*-
 description = 'Aux Motor setup'
-
 group = 'optional'
 
 devices = dict(

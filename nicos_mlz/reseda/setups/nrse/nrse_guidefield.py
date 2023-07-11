@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Guide field for NRSE mode'
 group = 'lowlevel'
 

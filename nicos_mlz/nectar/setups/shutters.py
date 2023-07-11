@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'ANTARES shutter devices'
-
 group = 'optional'
 
 excludes = ['fastshutter']

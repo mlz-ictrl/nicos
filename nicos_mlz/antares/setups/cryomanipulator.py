@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Cryostat manipulation stage'
-
 group = 'optional'
 
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Jumiom detector setup"
 group = "basic"
 

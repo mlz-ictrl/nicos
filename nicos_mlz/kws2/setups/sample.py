@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Sample aperture and table'
 group = 'lowlevel'
 display_order = 35

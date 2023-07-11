@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Cache Inspector documentation build configuration file, created by
 # sphinx-quickstart on Tue Dec 16 14:33:07 2014.
 #

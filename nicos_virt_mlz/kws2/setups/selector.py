@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'velocity selector'
 group = 'lowlevel'
 display_order = 15

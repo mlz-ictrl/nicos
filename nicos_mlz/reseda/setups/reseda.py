@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Basic (lowlevel) setup for all permanent instrument components'
 group = 'lowlevel'
 includes = [

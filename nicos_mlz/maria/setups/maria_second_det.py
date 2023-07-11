@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "MARIA secondary detector setup"
 group = "basic"
 

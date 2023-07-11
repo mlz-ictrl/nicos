@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 description = 'system setup for DNS '
 
 group = 'lowlevel'

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'Mouse button devices'
-
 group = 'optional'
 
 tango_base = 'tango://motorpi:10000/tomo/digital/'

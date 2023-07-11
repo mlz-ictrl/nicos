@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 description = 'hv generator'
 group = 'optional'
 display_order = 70
-
 
 tango_base = configdata('instrument.values')['tango_base'] + 'box/bruker/'
 

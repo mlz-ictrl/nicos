@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'incident optics'
-
 group = 'optional'
 
 devices = dict(

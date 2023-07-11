@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for water flow'
-
 group = 'optional'
 display_order = 11
 

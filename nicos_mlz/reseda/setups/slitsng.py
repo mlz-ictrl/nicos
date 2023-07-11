@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'New phytron based slits'
 group = 'optional'
 display_order = 6

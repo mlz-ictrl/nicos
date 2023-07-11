@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'qmesydaq channel devices'
 group = 'optional'
 

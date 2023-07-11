@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Virtual polarizer motor setup'
 group = 'lowlevel'
 display_order = 25

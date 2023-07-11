@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Sample table'
-
 group = 'lowlevel'
 
 devices = dict(

@@ -1,5 +1,4 @@
 description = 'Instrument aperture'
-
 group = 'lowlevel'
 
 devices = dict(

@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Monochromator'
-
 group = 'lowlevel'
 
 includes = ['system', 'motorbus1', 'motorbus4', 'motorbus7',

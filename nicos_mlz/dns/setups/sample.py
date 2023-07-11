@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'DNS sample table and aperture'
 group = 'lowlevel'
 

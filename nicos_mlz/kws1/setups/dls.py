@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Dynamic light scattering addon'
 group = 'optional'
 

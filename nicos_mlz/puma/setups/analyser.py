@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Analysator'
 
 includes = ['system', 'motorbus6']

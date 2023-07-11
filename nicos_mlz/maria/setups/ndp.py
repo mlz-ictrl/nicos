@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Neutron depth profiling detector setup"
 group = "plugplay"
 

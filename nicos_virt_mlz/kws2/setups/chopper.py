@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for the choppers'
 group = 'lowlevel'
 display_order = 65

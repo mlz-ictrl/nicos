@@ -1,5 +1,4 @@
 description = 'Reseda arm 1 (NRSE)'
-
 group = 'optional'
 
 devices = dict(

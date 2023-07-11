@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'General sample aliases'
 group = 'lowlevel'
 display_order = 35

@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Andor IKON-L CCD camera emulation'
-
 group = 'optional'
 
 includes = ['shutters', 'filesavers']

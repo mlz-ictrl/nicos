@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Write files for each measurement'
 group = 'optional'
 

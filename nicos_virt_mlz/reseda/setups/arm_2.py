@@ -1,5 +1,4 @@
 description = 'Reseda arm 2 (MIEZE)'
-
 group = 'optional'
 
 devices = dict(

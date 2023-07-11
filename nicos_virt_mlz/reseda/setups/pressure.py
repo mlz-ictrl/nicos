@@ -1,5 +1,4 @@
 description = 'Pressure sensors'
-
 group = 'optional'
 
 devices = dict(

@@ -1,5 +1,4 @@
 description = 'Neutron source'
-
 group = 'lowlevel'
 
 devices = dict(

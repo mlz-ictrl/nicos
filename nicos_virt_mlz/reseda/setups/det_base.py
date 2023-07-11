@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = '3He detector'
-
 group = 'optional'
 
 devices = dict(

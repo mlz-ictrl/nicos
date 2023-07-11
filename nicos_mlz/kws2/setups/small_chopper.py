@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for the small chopper'
 group = 'optional'
 display_order = 65

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'sample stage'
 group = 'optional'
 display_order = 70

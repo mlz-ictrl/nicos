@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Andor Neo sCMOS camera'
-
 group = 'lowlevel'
 
 tango_base = 'tango://localhost:10000/pgaa/'
@@ -46,4 +43,3 @@ SetDetectors(det_neo)
 ## override hw setting to known good values.
 set('neo', 'rotation', 90)
 '''
-

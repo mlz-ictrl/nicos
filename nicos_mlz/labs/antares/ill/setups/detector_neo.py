@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Andor Neo sCMOS camera'
-
 group = 'optional'
 
 includes = ['filesavers']

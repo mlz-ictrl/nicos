@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Detector file savers'
-
 group = 'lowlevel'
 
 sysconfig = dict(

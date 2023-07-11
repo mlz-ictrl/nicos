@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Datasinks used for writing and viewing detector data"
 group = "lowlevel"
 

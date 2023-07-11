@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Virtual mirror area setup'
 group = 'lowlevel'
 display_order = 30

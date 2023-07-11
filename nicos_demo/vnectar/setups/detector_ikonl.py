@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Andor IKON-L CCD camera'
-
 group = 'optional'
 
 includes = ['filesavers']

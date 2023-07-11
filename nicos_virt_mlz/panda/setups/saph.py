@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Setup for the Saphire Filter in primary beam'
 
 includes = ['monoturm']

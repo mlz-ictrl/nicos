@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Email and SMS notifiers'
-
 group = 'lowlevel'
 
 devices = dict(

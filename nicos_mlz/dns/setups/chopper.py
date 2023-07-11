@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'New DNS chopper'
 group = 'optional'
 

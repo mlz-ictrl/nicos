@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'GALAXI absorber plates setup'
 group = 'optional'
 

@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Collimation and Lengths'
-
 group = 'lowlevel'
 
 includes = ['system']

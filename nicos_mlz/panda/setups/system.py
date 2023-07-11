@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'system setup for PANDA'
-
 group = 'lowlevel'
 display_order = 90
 

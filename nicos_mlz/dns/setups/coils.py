@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Coil setup'
 group = 'lowlevel'
 

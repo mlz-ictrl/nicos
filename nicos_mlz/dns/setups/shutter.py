@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'DNS shutter digital in- and outputs'
 group = 'lowlevel'
 

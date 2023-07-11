@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Andor DV434 CCD camera'
-
 group = 'optional'
 
 includes = ['filesavers']

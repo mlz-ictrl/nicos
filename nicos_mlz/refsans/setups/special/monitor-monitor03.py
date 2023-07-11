@@ -1,5 +1,3 @@
-# coding: utf-8
-
 description = 'Scattering Geometry, Experiment and Detector [Monitor 03]'
 group = 'special'
 

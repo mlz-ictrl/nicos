@@ -1,5 +1,3 @@
-# coding: utf-8
-
 description = 'Optic Collimation and Slits [Monitor 12]'
 group = 'special'
 

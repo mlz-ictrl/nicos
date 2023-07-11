@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Image plate detector setup'
 group = 'basic'
 

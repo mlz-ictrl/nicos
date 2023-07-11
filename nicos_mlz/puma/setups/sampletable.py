@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Sample table'
 
 includes = ['motorbus1', 'motorbus2', 'motorbus3', 'motorbus4']

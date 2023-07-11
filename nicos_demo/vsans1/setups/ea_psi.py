@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Multipurpose EA power supply'
 group = 'optional'
 

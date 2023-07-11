@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'setup for the shutter'
-
 group = 'lowlevel'
 
 includes = ['sps']

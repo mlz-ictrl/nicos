@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Guide fields'
 group = 'lowlevel'
 display_order = 20

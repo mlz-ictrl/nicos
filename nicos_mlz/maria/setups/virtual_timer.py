@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "virtual time channel setup"
 group = "optional"
 

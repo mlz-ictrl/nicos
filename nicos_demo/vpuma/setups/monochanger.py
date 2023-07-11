@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Monochanger'
-
 group = 'optional'
 
 includes = ['monochromator']

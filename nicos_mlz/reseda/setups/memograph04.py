@@ -1,5 +1,4 @@
 description = 'memograph04 readout'
-
 group = 'lowlevel'
 
 tango_base = 'tango://ictrlfs.ictrl.frm2.tum.de:10000/memograph04/RESEDA2/'

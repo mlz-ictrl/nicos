@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for the velocity selector'
-
 group = 'lowlevel'
 
 devices = dict(

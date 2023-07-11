@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Setup for the CA1 lift in primary beam and CA2 adjustment motor'
 
 includes = ['monoturm', 'sampletable']

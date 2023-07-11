@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -29,8 +28,6 @@ from nicos.guisupport.qt import QButtonGroup, QLabel, QMainWindow, QRadioButton
 from nicos.utils import findResource
 
 TEMPLATE = '''\
-# -*- coding: utf-8 -*-
-
 description = %(description)r
 group = 'basic'
 

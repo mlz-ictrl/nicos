@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'setup for Beckhoff PLC mtt devices on PANDA'
-
 group = 'lowlevel'
 display_order = 23
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'lens switching devices'
 group = 'lowlevel'
 display_order = 75

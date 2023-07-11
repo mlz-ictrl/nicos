@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Sample tilt table'
 group = 'optional'
 display_order = 36

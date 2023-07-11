@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'D8 x-ray instrument'
-
 group = 'optional'
 
 tango_base = configdata('instrument.values')['tango_base'] + 'box/bruker/'

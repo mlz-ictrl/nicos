@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Sample table for euler cradle'
-
 group = 'optional'
 
 includes = ['motorbus1', 'motorbus2', 'motorbus5']

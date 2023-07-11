@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Take images from webcam before every image'
 group = 'optional'
 display_order = 10

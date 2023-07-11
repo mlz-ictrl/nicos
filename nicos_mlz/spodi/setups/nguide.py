@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'Spodi neutron guide'
-
 group = 'lowlevel'
 
 tango_base = 'tango://nguidectrl.spodi.frm2.tum.de:10000/box/'

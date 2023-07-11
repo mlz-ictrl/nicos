@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'ZEA-2 counter card setup'
 group = 'lowlevel'
 

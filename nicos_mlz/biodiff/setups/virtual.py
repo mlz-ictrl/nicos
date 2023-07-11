@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Test setup for virtual devices'
 group = 'optional'
 

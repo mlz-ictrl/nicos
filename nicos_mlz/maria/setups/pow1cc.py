@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Current control setup for power supply pow1"
 group = "optional"
 

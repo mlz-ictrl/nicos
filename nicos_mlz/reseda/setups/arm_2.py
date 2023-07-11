@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Arm 2 (MIEZE)'
 group = 'optional'
 

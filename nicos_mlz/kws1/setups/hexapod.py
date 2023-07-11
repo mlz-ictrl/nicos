@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Hexapod control via TCP/IP'
 group = 'optional'
 display_order = 70

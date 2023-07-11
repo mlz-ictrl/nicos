@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'GALAXI PILATUS2 R 1M detector setup'
-
 group = 'optional'
 
 display_order = 10

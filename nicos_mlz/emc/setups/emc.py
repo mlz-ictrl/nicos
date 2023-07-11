@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'EMC setup'
 group = 'basic'
 

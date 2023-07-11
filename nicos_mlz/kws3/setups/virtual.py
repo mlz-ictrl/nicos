@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Mirror virtual motors'
 group = 'optional'
 display_order = 31

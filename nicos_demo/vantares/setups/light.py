@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'light in ANTARES bunker'
-
 group = 'lowlevel'
 
 devices = dict(

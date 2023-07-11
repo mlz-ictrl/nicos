@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'laue basic setup'
-
 group = 'basic'
 
 modules = [

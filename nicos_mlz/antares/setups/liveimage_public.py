@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'File saver for live image'
-
 group = 'optional'
 
 sysconfig = dict(

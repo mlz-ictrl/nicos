@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 description = 'Detector test table setup'
-
 group = 'basic'
+
 excludes = ['det', 'ndp']
 includes = ['treff', 'counter']
 

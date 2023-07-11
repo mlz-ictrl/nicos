@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Collimation setup'
 group = 'lowlevel'
 display_order = 10

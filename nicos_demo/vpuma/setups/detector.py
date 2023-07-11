@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'common detector devices provided by QMesyDAQ'
 
 group = 'lowlevel'

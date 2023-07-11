@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'controlling the UV-vis spectrometer and LEDs'
 group = 'optional'
 

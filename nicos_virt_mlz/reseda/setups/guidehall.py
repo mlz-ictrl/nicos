@@ -1,5 +1,4 @@
 description = 'FRM II Neutron guide hall west infrastructure devices'
-
 group = 'lowlevel'
 
 devices = dict(

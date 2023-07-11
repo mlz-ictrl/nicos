@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'doppler control devices'
-
 group = 'lowlevel'
 
 tangohost = 'phys.spheres.frm2'

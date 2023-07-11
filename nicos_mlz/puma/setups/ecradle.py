@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Eulerian cradle'
-
 group = 'lowlevel'
 
 includes = ['system', 'motorbus1', 'motorbus2', 'motorbus5']

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'High voltage setup'
 group = 'optional'
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Fully virtual KWS-3 setup'
 group = 'basic'
 

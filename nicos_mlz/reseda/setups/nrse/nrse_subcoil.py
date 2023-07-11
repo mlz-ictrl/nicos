@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Substraction coil for NRSE mode'
 group = 'lowlevel'
 excludes = ['mieze_subcoil']

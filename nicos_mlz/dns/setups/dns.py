@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Basic DNS setup without QMesyDAQ'
 group = 'basic'
 

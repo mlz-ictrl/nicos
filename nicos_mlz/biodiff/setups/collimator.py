@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Collimation hexapod setup'
 group = 'lowlevel'
 

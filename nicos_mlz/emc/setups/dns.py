@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Monitoring for DNS setup'
 group = 'basic'
 

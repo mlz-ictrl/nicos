@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'detectors'
-
 group = 'lowlevel'  # is included by panda.py
 
 devices = dict(

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Data acquisition setup for using the KWS3 small detector'
 group = 'lowlevel'
 display_order = 10

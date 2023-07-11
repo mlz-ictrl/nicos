@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Hexapod control'
 group = 'optional'
 

@@ -1,5 +1,4 @@
 description = 'Camera devices'
-
 group = 'lowlevel'
 
 tango_base = 'tango://localhost:10000/zwo/camera/'

@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'common detector devices provided by QMesyDAQ'
-
 group = 'lowlevel'
 
 tango_base = 'tango://mesydaq.puma.frm2.tum.de:10000/qm/qmesydaq/'

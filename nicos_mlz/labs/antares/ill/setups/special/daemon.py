@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for the execution daemon'
-
 group = 'special'
 
 devices = dict(

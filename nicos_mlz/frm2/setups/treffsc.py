@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'samplechanger for the neutron optics group, used @TREFF'
 group = 'plugplay'
 

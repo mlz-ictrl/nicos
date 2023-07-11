@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Denex common detector setup"
 group = "lowlevel"
 

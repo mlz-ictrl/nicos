@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'system setup for PUMA'
-
 group = 'lowlevel'
 
 sysconfig = dict(

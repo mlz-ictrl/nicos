@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Multidetector motors'
 
 includes = ['system', 'motorbus10', 'cad']

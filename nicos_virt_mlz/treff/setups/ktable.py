@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 description = 'Axes in detector test table'
-
 group = 'optional'
 
 devices = dict(

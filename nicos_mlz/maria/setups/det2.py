@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = "Second Denex detector setup"
 group = "optional"
 

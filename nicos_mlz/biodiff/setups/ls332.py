@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Setup for the LakeShore 332 cryo temp. controller'
 group = 'optional'
 

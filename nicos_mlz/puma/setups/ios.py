@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Attenuator and PGFilter'
-
 group = 'lowlevel'
 
 includes = ['motorbus6', 'motorbus9']

@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'setup for tomo with huber rotation stage from antares'
-
 group = 'optional'
 
 tango_base = 'tango://nectarhw.nectar.frm2.tum.de:10000/nectar'

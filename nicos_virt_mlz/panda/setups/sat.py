@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for sample attenuator'
-
 group = 'optional'
 
 devices = dict(

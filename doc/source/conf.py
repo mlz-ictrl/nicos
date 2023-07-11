@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # NICOS documentation build configuration file, created by
 # sphinx-quickstart on Sat Jul  9 18:33:07 2016.
 #

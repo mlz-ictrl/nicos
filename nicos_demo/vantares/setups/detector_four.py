@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'ZWO camera emulation (4 cams)'
-
 group = 'lowlevel'
 
 sysconfig = dict(

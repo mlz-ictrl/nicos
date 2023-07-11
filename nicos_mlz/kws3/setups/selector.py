@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Selector area setup'
 group = 'lowlevel'
 display_order = 20

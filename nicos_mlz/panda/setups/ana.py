@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Analyser'
 
 # sampletable.py contains all buses

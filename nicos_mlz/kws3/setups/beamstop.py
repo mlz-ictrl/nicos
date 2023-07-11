@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 description = 'Beamstop setup'
 group = 'lowlevel'
 display_order = 66

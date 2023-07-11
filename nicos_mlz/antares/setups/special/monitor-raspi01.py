@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 description = 'Configuration for raspi01 status monitor'
 
 name = 'setup for the status monitor'

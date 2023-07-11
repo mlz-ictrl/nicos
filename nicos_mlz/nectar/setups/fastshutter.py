@@ -1,7 +1,4 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Fast Shutter'
-
 group = 'optional'
 
 tango_base = 'tango://nectarhw.nectar.frm2:10000/nectar'
