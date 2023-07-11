@@ -9,7 +9,7 @@ _reactorblock = Block('Reactor', [
     ],
 )
 
-_expcolumn = Row(
+_expcolumn = Column(
     Block('Experiment', [
         BlockRow(
             Field(name='Proposal', key='exp/proposal', width=7),
@@ -92,7 +92,7 @@ _samplecoolingblock = Block('Cooling system (Sample)', [
         Field(name='Flow in', dev='flow_in_sa_cooling'),
     ),
     ],
-    setups='biofurnace or ccr* or htf*',
+    setups='julabo01 or ccr* or htf*',
 )
 
 _ccrblock = Block('Sample environment', [
@@ -118,18 +118,18 @@ _julabo01block = Block('Sample environment', [
 _htfblock = Block('Sample environment', [
     BlockRow(
         Field(name='Sample', dev='T_htf01'),
-        Field(name='Vacuum', dev='htf01_p'),
+        Field(name='Vacuum', dev='htf01_p1'),
     ),
     ],
     setups='htf01',
 )
 
-_biofurnaceblock = Block('Sample environment', [
+_julabo01block = Block('Sample environment', [
     BlockRow(
-        Field(name='Sample', dev='T_bio'),
+        Field(name='Sample', dev='T_julabo01'),
     ),
     ],
-    setups='biofurnace',
+    setups='julabo01',
 )
 
 _temperatureblock = Block('Sample environment', [
@@ -137,12 +137,12 @@ _temperatureblock = Block('Sample environment', [
         Field(name='Sample Temperatur', dev='T'),
     ),
     ],
-    setups='ccr* or cci* or htf* or biofurnace',
+    setups='ccr* or cci* or htf* or julabo01',
 )
 
 _pressureblock = Block('Sample environment', [
     BlockRow(
-        Field(name='Pressure', dev='pressure'),
+        Field(name='Pressure', dev='P'),
     ),
     ],
     setups='pressure',
@@ -227,7 +227,7 @@ _col2 = Column(
     _ccrblock,
     _julabo01block,
     _htfblock,
-    _biofurnaceblock,
+    _julabo01block,
     _pressureblock,
     _magnetblock,
     _samplerotationblock,

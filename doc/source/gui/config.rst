@@ -185,7 +185,7 @@ Examples
   but not any starting with 'ccr'
 * 'biofurnace and not ccr01' - displayed if the 'biofurnace' setup is loaded
   but not the 'ccr01' setup
-* '(biofurnace and not (ccr01 or htf01)' - displayed if the 'biofurnace' setup
+* 'biofurnace and not (ccr01 or htf01)' - displayed if the 'biofurnace' setup
   is loaded but not any of 'ccr01' or 'htf01'
 
 .. _panels:
