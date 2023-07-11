@@ -208,7 +208,8 @@ _cryomanipulatorblock = SetupBlock('cryomanipulator')
 cryos = []
 cryosupps = []
 cryoplots = []
-cryonames = ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'ccidu01', 'ccidu02']
+cryonames = ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
+             'cci3he12', 'ccidu01', 'ccidu02']
 for cryo in cryonames:
     cryos.append(SetupBlock(cryo))
     cryosupps.append(SetupBlock(cryo, 'pressures'))

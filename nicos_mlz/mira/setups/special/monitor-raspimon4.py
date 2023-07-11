@@ -361,6 +361,8 @@ _column2 = Column(
     SetupBlock('cci3he02'), SetupBlock('cci3he02', 'pressures'),
     SetupBlock('cci3he03'), SetupBlock('cci3he03', 'pressures'),
     SetupBlock('cci3he10'), SetupBlock('cci3he10', 'pressures'),
+    SetupBlock('cci3he11'), SetupBlock('cci3he11', 'pressures'),
+    SetupBlock('cci3he12'), SetupBlock('cci3he12', 'pressures'),
     SetupBlock('ccidu01'), SetupBlock('ccidu01', 'pressures'),
     SetupBlock('ccidu02'), SetupBlock('ccidu02', 'pressures'),
     Block('Humidity Julabo', [

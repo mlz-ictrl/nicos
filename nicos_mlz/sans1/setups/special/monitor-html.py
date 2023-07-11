@@ -664,7 +664,8 @@ for i in range(10, 22 + 1):
 _ccrs = Column(*tuple(ccrs))
 
 cryos = []
-for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'ccidu01', 'ccidu02']:
+for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
+             'cci3he12', 'ccidu01', 'ccidu02']:
     cryos.append(SetupBlock(cryo))
 _cryos = Column(*tuple(cryos))
 

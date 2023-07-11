@@ -148,7 +148,7 @@ monitor_blocks = dict(
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
                   plotwindow=300, width=25, height=25,
-                  devices=[f't_{setupname}/setpoint', f't_{setupname}'],
+                  devices=[f't_{setupname}_pot/setpoint', f't_{setupname}_pot'],
                   names=['Setpoint', 'Regulation'],
                   ),
         ),
