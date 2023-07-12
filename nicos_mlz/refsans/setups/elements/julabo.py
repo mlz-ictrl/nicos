@@ -31,4 +31,9 @@ devices = dict(
         poly = [0, 30.10],  #10V = 100L/min Spannungsteiler 10V/(5110+2200)*2200=3,01V
         unit = 'L/min',
     ),
+    julabo_flow_avg = device(code_base + 'avg.BaseAvg',
+        description = 'avg for flow',
+        dev = 'julabo_flow',
+        unit = 'L/min',
+    ),
 )
