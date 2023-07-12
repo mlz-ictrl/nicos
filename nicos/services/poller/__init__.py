@@ -348,7 +348,7 @@ class Poller(Device):
             if fn[0] is None:
                 return
         else:
-            fn = session._setup_info[setupname]['filenames']
+            fn = session._setup_info[setupname]['_filenames_']
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting poller process')
         self.quit()

@@ -261,10 +261,11 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
         'startupcode': ns.get('startupcode', ''),
         'display_order': ns.get('display_order', 50),
         'extended': ns.get('extended', {}),
-        'filenames': [filepath] + list(ns.get('_dep_files', ())),
         'monitor_blocks': ns.get('monitor_blocks', {}),
         'watch_conditions': ns.get('watch_conditions', []),
         'help_topics': ns.get('help_topics', {}),
+        # internal value, not to be set by setups
+        '_filenames_': [filepath] + list(ns.get('_dep_files', ())),
     }
     if info['group'] not in SETUP_GROUPS:
         logger.warning('Setup %s has an invalid group (valid groups '
@@ -290,10 +291,10 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
         oldinfo['display_order'] = ns.get('display_order',
                                           oldinfo['display_order'])
         oldinfo['extended'].update(info['extended'])
-        oldinfo['filenames'].extend(info['filenames'])
         oldinfo['monitor_blocks'].update(info['monitor_blocks'])
         oldinfo['watch_conditions'].extend(info['watch_conditions'])
         oldinfo['help_topics'].update(info['help_topics'])
+        oldinfo['_filenames_'].extend(info['_filenames_'])
         logger.debug('%r setup partially merged with version '
                      'from parent directory', modname)
     else:
