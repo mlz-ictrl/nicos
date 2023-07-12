@@ -53,12 +53,8 @@ _column1 = Column(
         BlockRow(
             Field(name='Power Divider', dev='cbox_0a_power_divider'),
         ),
-        BlockRow(
-            Field(name='T Coil 1', dev='T_arm0a_coil1'),
-            Field(name='T Coil 2', dev='T_arm0a_coil2'),
-        ),
         ],
-        setups='static_flippers and resonance_flippers and cbox_0a and arm_0a',
+        setups='static_flippers and resonance_flippers and cbox_0a and arm_0',
     ),
 )
 
@@ -91,12 +87,8 @@ _column2 = Column(
         BlockRow(
             Field(name='Power Divider', dev='cbox_0b_power_divider'),
         ),
-        BlockRow(
-            Field(name='T Coil 1', dev='T_arm0b_coil1'),
-            Field(name='T Coil 2', dev='T_arm0b_coil2'),
-        ),
         ],
-        setups='static_flippers and resonance_flippers and cbox_0b and arm_0b',
+        setups='static_flippers and resonance_flippers and cbox_0b and arm_0',
     ),
 )
 
@@ -139,7 +131,7 @@ _column3 = Column(
             Field(name='T Coil 4', dev='T_arm1_coil4'),
         ),
         ],
-        setups='static_flippers and resonance_flippers and cbox_1 and arm_1',
+        setups='static_flippers and resonance_flippers and cbox_1a and arm_1',
     ),
 )
 
