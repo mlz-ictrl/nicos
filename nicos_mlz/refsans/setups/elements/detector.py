@@ -2,6 +2,8 @@ description = 'all values for detector positon'
 
 group = 'lowlevel'
 
+includes = ['ana4gpio02']
+
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 
