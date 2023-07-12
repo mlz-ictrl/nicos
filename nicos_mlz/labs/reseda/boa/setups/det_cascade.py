@@ -1,6 +1,6 @@
 description = 'CASCADE detector'
 group = 'lowlevel'
-# includes = ['det_base']
+includes = ['det_base']
 includes = ['filesavers']
 excludes = ['det_3he', 'det_cascade2']
 
@@ -54,9 +54,6 @@ ARMING_STRING = (':TRIG1:SOUR BUS;'
 TRG_STRING = ('*TRG')
 
 devices = dict(
-    timer = device('nicos.devices.generic.VirtualTimer',
-        # visibility = (),
-    ),
     # scandet = device('nicos_mlz.reseda.devices.ScanningDetector',
     #     description = 'Scanning detector for scans per echotime',
     #     scandev = 'nse0',
