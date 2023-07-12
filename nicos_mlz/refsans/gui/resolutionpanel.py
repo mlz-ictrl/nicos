@@ -48,7 +48,7 @@ class ResolutionPanel(NicosWidget, Panel):
 
         self.wLmin.valueChanged['double'].connect(self.recalculate)
         self.wLmax.valueChanged['double'].connect(self.recalculate)
-        self.gap.valueChanged['double'].connect(self.recalculate)
+        self.duty_cycle.valueChanged['double'].connect(self.recalculate)
         self.D.valueChanged['double'].connect(self.recalculate)
         self.disc2_pos.valueChanged['int'].connect(self.recalculate)
         self.SC2_mode.currentIndexChanged.connect(self.recalculate)

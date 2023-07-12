@@ -69,37 +69,48 @@ class ChopperMaster(CanReference, BaseSequencer):
     valuetype = dictwith(
         wlmin=floatrange(0, 30),
         wlmax=floatrange(0, 30),
-        gap=floatrange(0, 100),
-        chopper2_pos=intrange(1, 6),
+        duty_cycle=floatrange(0, 1),
+        disc2_pos=intrange(1, 6),
         D=float,
-        manner=oneof('normal', 'parasitic'),
+        suppress_overlap=bool,
     )
 
     parameters = {
         'mode': Param('Chopper operation mode (normal, virtual6)',
                       type=oneof('normal_mode', 'virtual_disc2_pos_6'),
                       settable=False, category='status'),
-        'manner': Param('Chopper interface mode (normal, parasitic)',
-                        type=oneof('normal', 'parasitic'),
-                        settable=True, category='status', default='normal'),
+        'suppress_overlap': Param('Chopper interface mode suppress_overlap',
+                                  type=bool, settable=True, category='status',
+                                  default=True),
         'delay': Param('Delay for start signal in deg',
                        type=floatrange(-360, 360), settable=True,
                        userparam=True),
-        'wlmin': Param('Mimimum of wavelength',
+        'wlmin': Param('Mimimum of wavelength desired value',
                        type=floatrange(0, 30), settable=True, userparam=True,
                        unit='AA', category='status'),
-        'wlmax': Param('Maximum of wavelength',
+        'wlmax': Param('Maximum of wavelength desired value',
                        type=floatrange(0, 30), settable=True, userparam=True,
                        unit='AA', category='status'),
+        'chopper_wlmin': Param('Mimimum of wavelength real value',
+                               type=floatrange(0, 30), settable=True,
+                               userparam=False, unit='AA', category='status'),
+        'chopper_wlmax': Param('Maximum of wavelength real value',
+                               type=floatrange(0, 30), settable=True,
+                               userparam=False, unit='AA', category='status'),
         'dist': Param('flight path (distance chopper disc 1 to detector)',
                       type=floatrange(0), settable=True, userparam=True,
                       unit='m', category='status'),
-        'gap': Param('Gap ... ',
-                     type=floatrange(0, 100), settable=True, userparam=True,
-                     unit='%', category='status'),
-        'speed': Param('Chopper1 speed ... ',
-                       type=floatrange(0), settable=False, userparam=True,
-                       mandatory=False, volatile=True, category='status'),
+        'duty_cycle': Param('duty_cycle for puls ... ',
+                            type=floatrange(0, 1), settable=True,
+                            userparam=True, unit='', category='status'),
+        'chopper_rpm_setpoint': Param('Chopper1 speed setpoint',
+                                      type=floatrange(0, 6000), settable=True,
+                                      userparam=False, mandatory=False,
+                                      volatile=False, category='status'),
+        'disc2_pos': Param('disc2 desired value even virtuel 6',
+                           type=floatrange(1, 6), settable=True,
+                           userparam=False, mandatory=False, volatile=False,
+                           category='status'),
     }
 
     _max_disks = 6
@@ -124,50 +135,72 @@ class ChopperMaster(CanReference, BaseSequencer):
         self.wlmin, self.wlmax = limits((target.get('wlmin', self.wlmin),
                                          target.get('wlmax', self.wlmax)))
         self.dist = target.get('D', self.dist)
-        self.gap = target.get('gap', self.gap)
-        self.manner = target.get('manner', self.manner)
-        chopper2_pos = target.get('chopper2_pos')
+        self.duty_cycle = target.get('duty_cycle', self.duty_cycle)
+        self.suppress_overlap = target.get('suppress_overlap',
+                                           self.suppress_overlap)
+        self.disc2_pos = target.get('disc2_pos')
 
-        self.log.info('analysis manner = %s', self.manner)
-        suppress_parasitic = self.manner == 'normal'
-        self.log.info('suppress_parasitic = %s', suppress_parasitic)
+        self.log.info('suppress_overlap = %s', self.suppress_overlap)
 
-        speed, angles, disc2_out, D_o, wl_min_o, wl_max_o = chopper_config(
-            self.wlmin, self.wlmax, self.dist, chopper2_pos, gap=self.gap,
-            suppress_parasitic=suppress_parasitic)
-        if speed is None:
+        line_test = '('
+        line_test += '%4.2f, ' % self.wlmin
+        line_test += '%4.2f, ' % self.wlmax
+        line_test += '%4.2f, ' % self.dist
+        line_test += '%d, ' % self.disc2_pos
+        line_test += '%3.1f, ' % self.duty_cycle
+        line_test += '%s, ' % str(self.suppress_overlap)
+        self.log.info(line_test)
+        self.chopper_rpm_setpoint, angles, disc2_out, D_o, self.chopper_wlmin, self.chopper_wlmax = chopper_config(
+            self.wlmin, self.wlmax, self.dist, disk2_pos=int(self.disc2_pos),
+            gap=1-self.duty_cycle,
+            # duty_cycle=self.duty_cycle,
+            # suppress_overlap=self.suppress_overlap
+            suppress_parasitic=self.suppress_overlap)
+        self.log.warning((self.chopper_rpm_setpoint, angles, disc2_out, D_o,
+                         self.chopper_wlmin, self.chopper_wlmax))
+        if self.chopper_rpm_setpoint is None or disc2_out is None:
             line = 'None'
+            self.log.error('deny parasitic neutrons try suppress_overlap=False')
+            line_test += "'FAIL'),"
+            self.log.info(line_test)
+            return []
         else:
-            line = 'speed: %d, ' % speed
+            line = 'chopper_rpm_setpoint: %d, ' % self.chopper_rpm_setpoint
             line += 'disc2_out = %d,' % disc2_out
             line += 'angles = %s ' % angles
             line += 'D: %f, ' % D_o
-            line += 'wl_min: %f, ' % wl_min_o
-            line += 'wl_max: %f, ' % wl_max_o
+            line += 'wl_min: %f, ' % self.chopper_wlmin
+            line += 'wl_max: %f, ' % self.chopper_wlmax
+            line_test += '('
+            line_test += f'{round(int(self.chopper_rpm_setpoint)):d}, ('
+            for p in angles[:-1]:
+                line_test += '%.2f, ' % p
+            line_test += '%.2f ' % angles[-1]
+            line_test += '), %d, ' % disc2_out
+            line_test += '%4.2f, ' % self.chopper_wlmin
+            line_test += '%4.2f)), ' % self.chopper_wlmax
+            self.log.info(line_test)
         self.log.info(line)
 
         seq = []
-        self.log.warning('BLOCKED')
-        # return seq
         shutter_pos = self._attached_shutter.read(0)
         shutter_ok = self._attached_shutter.status(0)[0] == status.OK
-        # if chopper2_pos == 6:
-        if self.manner == 'parasitic':
+        if not self.suppress_overlap:
             self._setROParam('mode', 'virtual_disc2_pos_6')
         else:
-            if chopper2_pos != disc2_out:
-                self.log.info('automatic changing chopper2_pos from %d to %d',
-                              chopper2_pos, disc2_out)
-                chopper2_pos = disc2_out
+            if self.disc2_pos != disc2_out:
+                self.log.info('automatic changing disc2_pos from %d to %d',
+                              self.disc2_pos, disc2_out)
+                # self.disc2_pos = disc2_out
             self._setROParam('mode', 'normal_mode')
-            chopper2_pos_akt = self._attached_chopper2.pos
-            if chopper2_pos_akt != chopper2_pos:
+            disc2_pos_akt = self._attached_chopper2.pos
+            if disc2_pos_akt != disc2_out:
                 if shutter_ok:
                     seq.append(SeqDev(self._attached_shutter, 'closed',
                                       stoppable=True))
                 seq.append(SeqDev(self._attached_chopper1, 0, stoppable=True))
                 seq.append(SeqSlowParam(self._attached_chopper2, 'pos',
-                                        chopper2_pos))
+                                        disc2_out))
 
         for dev, t in zip(self._choppers[1:], angles[1:]):
             # The Chopper measures the phase in the opposite direction
@@ -175,14 +208,15 @@ class ChopperMaster(CanReference, BaseSequencer):
             # sign conversion to the doWritePhase function
             # dev.phase = -t  # sign by history
             seq.append(SeqFuzzyParam(dev, 'phase', t, 0.5))
-        seq.append(SeqDev(self._attached_chopper1, speed, stoppable=True))
+        seq.append(SeqDev(self._attached_chopper1, self.chopper_rpm_setpoint,
+                   stoppable=True))
         if shutter_ok:
             seq.append(SeqDev(self._attached_shutter, shutter_pos,
                               stoppable=True))
-        # for line in seq:
-        #     self.log.info(line)
-        # self.log.warning('BLOCKED Debug MP only')
-        # return []
+        for line in seq:
+            self.log.info('%s', line)
+        self.log.warning('BLOCKED Debug MP only, NO HW acces yet! disc2_pos def 2026-02-27')
+        seq = []
         return seq
 
     def doRead(self, maxage=0):
@@ -191,11 +225,11 @@ class ChopperMaster(CanReference, BaseSequencer):
             'D': self.dist,
             'wlmin': self.wlmin,
             'wlmax': self.wlmax,
-            'gap': self.gap,
-            'chopper2_pos':
+            'duty_cycle': self.duty_cycle,
+            'disc2_pos':
                 self._attached_chopper2.pos
                 if self.mode == 'normal_mode' else 6,
-            'manner': self.manner,
+            'suppress_overlap': self.suppress_overlap,
         }
         return value
 

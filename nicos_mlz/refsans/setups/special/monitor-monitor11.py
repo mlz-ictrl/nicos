@@ -25,7 +25,7 @@ _chconfigcol = Column(
                   width=14, unit='(1 - 6)'),
             Field(name='disk 1 - detector distance', key='chopper/dist',
                   width=14, format='%.3f', unit='(m)'),
-            Field(name='gap', key='chopper/gap', width=10, format='%.2f'),
+            Field(name='duty_cycle', key='chopper/duty_cycle', width=10, format='%.2f'),
         ),
         BlockRow(
             Field(name='angular speed', key='chopper/speed', width=10,
@@ -47,7 +47,7 @@ _chconfigcol = Column(
     Block(' Chopper Settings ', [
         BlockRow(
             Field(name='disk 2 mode', key='chopper/mode', width=20),
-            Field(name='disk 2 position', dev='chopper2_pos', width=10,
+            Field(name='disk 2 position', dev='disc2_pos', width=10,
                   unit='(1 - 5)'),
             # it is not the flight path. I don't know why somebody called it
             # real_flight_path
@@ -84,7 +84,7 @@ _tididiagcol = Column(
     Block(' Time/Distance Diagram', [
         BlockRow(
             Field(widget='nicos_mlz.refsans.gui.monitorwidgets.TimeDistance',
-                  chopper1='chopper_speed', disc2_pos='chopper2_pos'),
+                  chopper1='chopper_speed', disc2_pos='disc2_pos'),
                   # width=30, height=11),
         ),
         ],

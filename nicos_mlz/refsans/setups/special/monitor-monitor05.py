@@ -64,9 +64,9 @@ _chopper_row_1_1 = Column(
     ),
     Block('disc2 pos real', [
         BlockRow(
-            Field(name='chopper2_pos', dev='chopper2_pos', width=10),
-            Field(name='enc X', dev='chopper2_pos_x', width=10),
-            Field(name='enc Y', dev='chopper2_pos_y', width=10),
+            Field(name='disc2_pos', dev='disc2_pos', width=10),
+            Field(name='enc X', dev='disc2_pos_x', width=10),
+            Field(name='enc Y', dev='disc2_pos_y', width=10),
         ),
         ],
     ),

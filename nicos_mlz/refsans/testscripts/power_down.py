@@ -38,7 +38,7 @@ Liste = [
     ],
     [
         b2s_motor, b2s_motor.usermin,  # TODO: check if really user limits!!
-        chopper2_pos, 1,
+        disc2_pos, 1,
         disc3, disc3.usermin,
         disc4, disc4.usermin,
         sc2, sc2.usermax,

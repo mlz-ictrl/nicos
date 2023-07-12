@@ -267,20 +267,20 @@ def chopper_full_state(
         res = res and (fatal == 'ok')
         lines.append('%14s fatal    %s %s' % (chopper.name, fatal, chopper.status(0)[1]))
 
-        aktchopper2 = chopper2_pos.read(0)
-        statchopper2 = chopper2_pos.status(0)[1]
+        aktchopper2 = disc2_pos.read(0)
+        statchopper2 = disc2_pos.status(0)[1]
         if statchopper2 == '':
             statchopper2 = 'ok'
         elif statchopper2 == 'device not referenced':
             res = False
         else:
-            lines.append('running chopper2_pos')
+            lines.append('running disc2_pos')
             res = False
         line = 'deep '
-        line += 'Y %12d ' % session.devices['chopper2_pos_y'].read(0)
-        line += 'X %12d ' % session.devices['chopper2_pos_x'].read(0)
+        line += 'Y %12d ' % session.devices['disc2_pos_y'].read(0)
+        line += 'X %12d ' % session.devices['disc2_pos_x'].read(0)
         lines.append(line)
-        lines.append('%14s          %d %s' % (chopper2_pos.name, aktchopper2, statchopper2))
+        lines.append('%14s          %d %s' % (disc2_pos.name, aktchopper2, statchopper2))
         res = res and not (aktchopper2 == 0)
 
         speed = []
@@ -444,21 +444,21 @@ def chopper_reference(
 
     def chopper_deep_XY_line():
         line = ''
-        line += 'Y %12d ' % session.devices['chopper2_pos_y'].read(0)
-        line += 'X %12d ' % session.devices['chopper2_pos_x'].read(0)
+        line += 'Y %12d ' % session.devices['disc2_pos_y'].read(0)
+        line += 'X %12d ' % session.devices['disc2_pos_x'].read(0)
         return line
 
-    def chopper2_pos_maw(pos=None):
+    def disc2_pos_maw(pos=None):
         menachem = time.time()
         if pos is None:
-            printinfo('chopper2_pos_maw wait')
+            printinfo('disc2_pos_maw wait')
         else:
-            printinfo('chopper2_pos_maw %d' % pos)
-            chopper2_pos.move(pos)
+            printinfo('disc2_pos_maw %d' % pos)
+            disc2_pos.move(pos)
         sleep(1)
         while True:
             line = chopper_deep_XY_line()
-            std = chopper2_pos.status(0)
+            std = disc2_pos.status(0)
             line += '%d %s ' % (std[0], std[1])
             line += str(std[0] == 200)
             printinfo(line)
@@ -545,8 +545,8 @@ def chopper_reference(
                 return 'timeout > 30sec'
             if ready:
                 if verbose:
-                    printinfo('chopper_reference chopper2_pos_maw(1)')
-                res = chopper2_pos_maw(1)
+                    printinfo('chopper_reference disc2_pos_maw(1)')
+                res = disc2_pos_maw(1)
                 printinfo(chopper_deep_XY_line())
                 if res != 'ok':
                     return res
@@ -685,7 +685,7 @@ def chopper_reference(
         if disc2_pos != 1:
             if verbose:
                 printinfo('chopper_reference final disc2_pos %d' % disc2_pos)
-            chopper2_pos_maw(disc2_pos)
+            disc2_pos_maw(disc2_pos)
         if delay_automatic:
             printinfo('chopper_reference accelerate')
             chopper_speed.maw(speed)

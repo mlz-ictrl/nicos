@@ -49,7 +49,7 @@ class Resolution(Readable):
 
     def doRead(self, maxage=0):
         return chopper_resolution(
-            self._attached_chopper.read(maxage).get('chopper2_pos', 5),
+            self._attached_chopper.read(maxage).get('disc2_pos', 5),
             self._attached_flightpath.read(maxage))
 
     def doReadUnit(self):
