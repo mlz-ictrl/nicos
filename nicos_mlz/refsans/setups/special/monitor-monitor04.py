@@ -9,6 +9,7 @@ _tempcol = Column(
             Field(name='target temperature ', key='julabo_temp.target', width=10,  format='%.2f', unit='(\u2103)'),
             Field(name='internal bath temperature ', dev='julabo_int', width=10,  format='%.2f', unit='(\u2103)'),
             Field(name='external sensor temperature ', dev='julabo_ext', width=10,  format='%.2f', unit='(\u2103)'),
+            Field(name='external sensor flow ', dev='julabo_flow', width=10,  format='%.1f', unit='(L/min)'),
             # Field(name='Cryostat', dev='temp_cryo', width=14, unit='(K)'),
         ),
         ],
@@ -69,7 +70,7 @@ _nima = Column(
 _ubahn = Column(
     Block('U6 Subway to Klinikum Gro\u00dfhadern', [
         BlockRow(
-                 Field(name='Next trips in', dev='Ubahn', istext=True, unit = '(min)'),
+                 Field(name='Next trips in', dev='Ubahn', istext=True, unit = 'min'),
         ),
         ],
     ),
