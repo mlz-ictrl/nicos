@@ -194,6 +194,7 @@ class SecNodeDevice(Readable):
     the following keys:
     name -> remapped name of the device
     mixins -> list of names of mixin classes that should be added to the class
+    parameters -> list of parameters for configuration of the mixins
 
     For example, from a secnode with the modules examplemodule and barcodes,
     among others:
@@ -213,7 +214,10 @@ class SecNodeDevice(Readable):
                 'barcodes': {
                     'mixins':
                         ['nicos_mlz.devices.barcodes.BarcodeInterpreterMixin'],
-                }
+                },
+                'parameters': {
+                    'commandmap': {},
+                },
             },
             allow_list = ['barcodes', 'examplemodule'],
         ),
@@ -252,7 +256,7 @@ class SecNodeDevice(Readable):
                 try:
                     self._connect()
                 except Exception:
-                    pass
+                    self.log.exception("during initial connect")
 
     def get_setup_info(self):
         if self._mode == SIMULATION:
@@ -513,6 +517,8 @@ class SecNodeDevice(Readable):
                         'datainfo': props['datainfo']}
                 for cname, props in mod_desc['commands'].items()}
             mixins = self.device_mapping.get(module, {}).get('mixins', [])
+            kwds.update(self.device_mapping.get(
+                module, {}).get('parameters', []))
             cls = class_from_interface(module_properties)
             if isinstance(cls, SecopReadable):
                 kwds.setdefault('unit', '')  # unit is mandatory on Readables
