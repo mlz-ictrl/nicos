@@ -169,7 +169,12 @@ _column3 = Column(
     ),
 )
 
-_column2 = Column(
+cryoblocks = []
+for cryo in configdata('config_frm2.all_ccis'):
+    cryoblocks.append(SetupBlock(cryo))
+    cryoblocks.append(SetupBlock(cryo, 'pressures'))
+
+_column2 = Column(*[
     Block('Slits', [
         BlockRow(
             Field(dev='ss1', name='Sample slit 1 (ss1)', width=24, istext=True),
@@ -276,14 +281,7 @@ _column2 = Column(
         ],
         setups='htf20',
     ),
-    SetupBlock('cci3he01'), SetupBlock('cci3he01', 'pressures'),
-    SetupBlock('cci3he02'), SetupBlock('cci3he02', 'pressures'),
-    SetupBlock('cci3he03'), SetupBlock('cci3he03', 'pressures'),
-    SetupBlock('cci3he10'), SetupBlock('cci3he10', 'pressures'),
-    SetupBlock('cci3he11'), SetupBlock('cci3he11', 'pressures'),
-    SetupBlock('cci3he12'), SetupBlock('cci3he12', 'pressures'),
-    SetupBlock('ccidu01'), SetupBlock('ccidu01', 'pressures'),
-    SetupBlock('ccidu02'), SetupBlock('ccidu02', 'pressures'),
+    ] + cryoblocks + [
     SetupBlock('ccm5v5'), SetupBlock('ccm5v5', 'temperatures'),
     SetupBlock('ccm5h'), SetupBlock('ccm5h', 'temperatures'),
     Block('TTi + Huber', [
@@ -307,6 +305,7 @@ _column2 = Column(
         ],
         setups='relay',
     ),
+    ]
 )
 
 _column1 = Column(

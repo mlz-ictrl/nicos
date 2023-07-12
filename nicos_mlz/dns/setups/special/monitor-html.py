@@ -49,7 +49,7 @@ _secondcolumn = Column(
 
 )
 
-_thirdcolumn = Column(
+cryos = [
     Block('Cryostat (cct3)', [
         BlockRow(Field(name='Temp. setpoint', key='T_cct3_tube/setpoint',
                        unitkey='T_cct3_tube/unit', format='%.2f'),
@@ -61,15 +61,12 @@ _thirdcolumn = Column(
         ],
         setups='cct3',
     ),
-    SetupBlock('cci3he01'), SetupBlock('cci3he01', 'pressures'),
-    SetupBlock('cci3he02'), SetupBlock('cci3he02', 'pressures'),
-    SetupBlock('cci3he03'), SetupBlock('cci3he03', 'pressures'),
-    SetupBlock('cci3he10'), SetupBlock('cci3he10', 'pressures'),
-    SetupBlock('cci3he11'), SetupBlock('cci3he11', 'pressures'),
-    SetupBlock('cci3he12'), SetupBlock('cci3he12', 'pressures'),
-    SetupBlock('ccidu01'), SetupBlock('ccidu01', 'pressures'),
-    SetupBlock('ccidu02'), SetupBlock('ccidu02', 'pressures'),
-)
+]
+for cryo in configdata('config_frm2.all_ccis'):
+    cryos.append(SetupBlock(cryo))
+    cryos.append(SetupBlock(cryo, 'pressures'))
+
+_thirdcolumn = Column(*cryos)
 
 _plotcolumn = Column(
     Block('Temperature plots', [

@@ -171,31 +171,6 @@ _sanscolumn = Column(
     ),
 )
 
-# _birmag = Column(
-#     Block('17T Magnet', [
-#         BlockRow(
-#                  Field(name='helium level', dev='helevel_birmag', width=13),
-#                  Field(name='field birmag', dev='field_birmag', width=13),
-#                 ),
-#         BlockRow(
-#                  Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
-#                  Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),
-#                 ),
-#         BlockRow(
-#                  Field(name='Temp a birmag', dev='ta_birmag', width=13),
-#                  Field(name='Temp b birmag', dev='tb_birmag', width=13),
-#                 ),
-#         ],
-#         setups='birmag',
-#     ),
-# )
-
-_miramagnet = SetupBlock('miramagnet')
-_miramagnet_plot = SetupBlock('miramagnet', 'plot')
-
-_amagnet = SetupBlock('amagnet')
-_amagnet_plot = SetupBlock('amagnet', 'plot')
-
 _sc1 = Column(
     Block('Sample Changer 1', [
          BlockRow(
@@ -245,142 +220,6 @@ _ccmsanssc = Column(
     ),
 )
 
-_htf03 = Column(
-    Block('HTF03', [
-        BlockRow(
-            Field(name='Temperature', dev='T_htf03', format='%.2f'),
-            Field(name='Target', key='t_htf03/target', format='%.2f'),
-        ),
-        BlockRow(
-            Field(name='Setpoint', key='t_htf03/setpoint', format='%.1f'),
-            Field(name='Heater Power', key='t_htf03/heaterpower', format='%.1f'),
-        ),
-        ],
-        setups='htf03',
-    ),
-)
-
-_htf03_plot = Column(
-    Block('HTF03 plot', [
-        BlockRow(
-                 Field(plot='30 min htf03', name='30 min', dev='T_htf03',
-                       width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min htf03', name='Setpoint',
-                       dev='T_htf03/setpoint'),
-                 Field(plot='30 min htf03', name='Target', dev='T_htf03/target'),
-                 Field(plot='12 h htf03', name='12 h', dev='T_htf03', width=60,
-                       height=40, plotwindow=12*3600),
-                 Field(plot='12 h htf03', name='Setpoint',
-                       dev='T_htf03/setpoint'),
-                 Field(plot='12 h htf03', name='Target', dev='T_htf03/target'),
-        ),
-        ],
-        setups='htf03',
-    ),
-)
-
-_irf01 = Column(
-    Block('IRF01', [
-        BlockRow(
-            Field(name='Temperature', dev='T_irf01', format='%.2f'),
-            Field(name='Target', key='t_irf01/target', format='%.2f'),
-        ),
-        BlockRow(
-            Field(name='Setpoint', key='t_irf01/setpoint', format='%.1f'),
-            Field(name='Heater Power', key='t_irf01/heaterpower', format='%.1f'),
-        ),
-        ],
-        setups='irf01',
-    ),
-)
-
-_irf01_plot = Column(
-    Block('IRF01 plot', [
-        BlockRow(
-                 Field(plot='30 min irf01', name='30 min', dev='T_irf01',
-                       width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min irf01', name='Setpoint',
-                       dev='T_irf01/setpoint'),
-                 Field(plot='30 min irf01', name='Target', dev='T_irf01/target'),
-                 Field(plot='12 h irf01', name='12 h', dev='T_irf01', width=60,
-                       height=40, plotwindow=12*3600),
-                 Field(plot='12 h irf01', name='Setpoint',
-                       dev='T_irf01/setpoint'),
-                 Field(plot='12 h irf01', name='Target', dev='T_irf01/target'),
-        ),
-        ],
-        setups='irf01',
-    ),
-)
-
-_irf10 = Column(
-    Block('IRF10', [
-        BlockRow(
-            Field(name='Temperature', dev='T_irf10', format='%.2f'),
-            Field(name='Target', key='t_irf10/target', format='%.2f'),
-        ),
-        BlockRow(
-            Field(name='Setpoint', key='t_irf10/setpoint', format='%.1f'),
-            Field(name='Heater Output', key='t_irf10/heateroutput', format='%.1f'),
-        ),
-        ],
-        setups='irf10',
-    ),
-)
-
-_irf10_plot = Column(
-    Block('IRF10 plot', [
-        BlockRow(
-                 Field(plot='30 min irf10', name='30 min', dev='T_irf10',
-                       width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min irf10', name='Setpoint',
-                       dev='T_irf10/setpoint'),
-                 Field(plot='30 min irf10', name='Target', dev='T_irf10/target'),
-                 Field(plot='12 h irf10', name='12 h', dev='T_irf10', width=60,
-                       height=40, plotwindow=12*3600),
-                 Field(plot='12 h irf10', name='Setpoint',
-                       dev='T_irf10/setpoint'),
-                 Field(plot='12 h irf10', name='Target', dev='T_irf10/target'),
-        ),
-        ],
-        setups='irf10',
-    ),
-)
-
-_htf01 = Column(
-    Block('HTF01', [
-        BlockRow(
-            Field(name='Temperature', dev='T_htf01', format='%.2f'),
-            Field(name='Target', key='t_htf01/target', format='%.2f'),
-        ),
-        BlockRow(
-            Field(name='Setpoint', key='t_htf01/setpoint', format='%.1f'),
-            Field(name='Heater Power', key='t_htf01/heaterpower', format='%.1f'),
-        ),
-        ],
-        setups='htf01',
-    ),
-)
-
-_htf01_plot = Column(
-    Block('HTF01 plot', [
-        BlockRow(
-                 Field(plot='30 min htf01', name='30 min', dev='T_htf01',
-                       width=60, height=40, plotwindow=1800),
-                 Field(plot='30 min htf01', name='Setpoint',
-                       dev='T_htf01/setpoint'),
-                 Field(plot='30 min htf01', name='Target', dev='T_htf01/target'),
-                 Field(plot='12 h htf01', name='12 h', dev='T_htf01', width=60,
-                       height=40, plotwindow=12*3600),
-                 Field(plot='12 h htf01', name='Setpoint',
-                       dev='T_htf01/setpoint'),
-                 Field(plot='12 h htf01', name='Target', dev='T_htf01/target'),
-        ),
-        ],
-        setups='htf01',
-    ),
-)
-
 _p_filter = Column(
     Block('Pressure Water Filter FAK40', [
         BlockRow(
@@ -389,28 +228,6 @@ _p_filter = Column(
                  Field(name='P diff', dev='p_diff_filter', width=12, unit='bar'),
                 ),
         ],
-    ),
-)
-
-_ccm5h = Column(SetupBlock('ccm5h'))
-_ccm5h_temperature = Column(SetupBlock('ccm5h', 'temperatures'))
-_ccm5h_plot = Column(SetupBlock('ccm5h', 'plot'))
-
-_ccm2a2 = Column(SetupBlock('ccm2a2'))
-_ccm2a2_temperature = Column(SetupBlock('ccm2a2', 'temperatures'))
-_ccm2a2_plot = Column(SetupBlock('ccm2a2', 'plot'))
-
-_ccr19_plot = Column(
-    Block('30min T and Ts plot', [
-        BlockRow(
-                 Field(plot='30 min ccr19', name='T', dev='T', width=60,
-                       height=40, plotwindow=1800),
-                 Field(plot='30 min ccr19', name='Ts', dev='Ts'),
-                 Field(plot='30 min ccr19', name='Setpoint', key='T/setpoint'),
-                 Field(plot='30 min ccr19', name='Target', key='T/target'),
-        ),
-        ],
-        setups='ccr19',
     ),
 )
 
@@ -435,44 +252,6 @@ _spinflipper = Column(
         setups='spinflip',
     ),
 )
-
-rscs = []
-for k in [1,2,3,10,11,12]:
-    rscs.append(Block('NewPort%02d' % k, [
-        BlockRow(
-            Field(name='Position', dev='sth_rsc%02d' % k,
-                   unitkey='t/unit', width=12),
-        ),
-        ],
-        setups='rsc%02d' % k,
-    ))
-_rscs = Column(*tuple(rscs))
-
-ccrs = []
-for i in range(10, 25 + 1):
-    if i == 13:
-        continue
-    ccrs.append(SetupBlock(f'ccr{i}'))
-_ccrs = Column(*tuple(ccrs))
-
-cryos = []
-for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
-             'cci3he12', 'ccidu01', 'ccidu02']:
-    cryos.append(Block(cryo.title(), [
-        BlockRow(
-                 Field(name='Setpoint', key='t_%s/setpoint' % cryo,
-                       unitkey='t/unit'),
-                 Field(name='Manual Heater Power', key='t_%s/heaterpower' % cryo,
-                       unitkey='t/unit'),
-                ),
-        BlockRow(
-             Field(name='A', dev='T_%s_A' % cryo),
-             Field(name='B', dev='T_%s_B' % cryo),
-        ),
-        ],
-        setups=cryo,
-    ))
-_cryos = Column(*tuple(cryos))
 
 _julabo = Column(
     Block('Julabo', [
@@ -585,15 +364,10 @@ devices = dict(
             Row(_sans1general, _table2, _table1, _sans1det),
             Row(_meteocolumn, _pressurecolumn, _p_filter),
             Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
-            Row(_ccm5h, _ccm5h_temperature,
-                _ccm2a2, _ccm2a2_temperature,
-                _spinflipper, _ccrs, _cryos, _sc1, _sc2,
-                _sc_t, _ccmsanssc, _miramagnet, _amagnet,
-                _htf03, _htf01, _irf01, _irf10, _rscs, _julabo,
+            Row(_spinflipper, _sc1, _sc2,
+                _sc_t, _ccmsanssc, _julabo,
                 _tisane_counts, _tisane_fc, _helios01),
-            Row(_ccm5h_plot, _ccm2a2_plot, _ccr19_plot,
-                _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
-                _miramagnet_plot, _amagnet_plot),
+            Row(_julabo_plot),
             Row(_live),
         ],
     ),

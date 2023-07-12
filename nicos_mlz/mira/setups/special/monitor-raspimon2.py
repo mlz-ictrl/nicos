@@ -158,7 +158,12 @@ _column1 = Column(
     ),
 )
 
-_column2 = Column(
+cryoblocks = []
+for cryo in configdata('config_frm2.all_ccis'):
+    cryoblocks.append(SetupBlock(cryo))
+    cryoblocks.append(SetupBlock(cryo, 'pressures'))
+
+_column2 = Column(*[
     Block('Eulerian cradle', [
         BlockRow(
             Field(dev='echi'),
@@ -295,14 +300,6 @@ _column2 = Column(
         ],
         setups='irf01',
     ),
-    SetupBlock('cci3he01'), SetupBlock('cci3he01', 'pressures'),
-    SetupBlock('cci3he02'), SetupBlock('cci3he02', 'pressures'),
-    SetupBlock('cci3he03'), SetupBlock('cci3he03', 'pressures'),
-    SetupBlock('cci3he10'), SetupBlock('cci3he10', 'pressures'),
-    SetupBlock('cci3he11'), SetupBlock('cci3he11', 'pressures'),
-    SetupBlock('cci3he12'), SetupBlock('cci3he12', 'pressures'),
-    SetupBlock('ccidu01'), SetupBlock('ccidu01', 'pressures'),
-    SetupBlock('ccidu02'), SetupBlock('ccidu02', 'pressures'),
     Block('Humidity Julabo', [
         BlockRow(
             Field(name='Setpoint', key='t_julabo/setpoint', unitkey='t/unit',
@@ -312,6 +309,7 @@ _column2 = Column(
         ],
         setups='julabo',
     ),
+    ] + cryoblocks
 )
 
 _column3 = Column(

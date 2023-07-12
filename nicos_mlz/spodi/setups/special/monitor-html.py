@@ -65,17 +65,11 @@ _frm = Column(
     ),
 )
 
-# generic CCR-stuff
-ccrs = []
-ccrplots = []
-for i in [6] + list(range(10, 25 + 1)):
-    if i == 13:
-        continue
-    ccrs.append(SetupBlock(f'ccr{i}'))
-    ccrplots.append(SetupBlock(f'ccr{i}', 'plots'))
-
-
-_cryo = Column(*ccrs)
+# generic CCR-stuff, not in use
+# ccrs = [SetupBlock(ccr) for ccr in configdata('config_frm2.all_ccrs')]
+# ccrplots = [SetupBlock(ccr, 'plots')
+#             for ccr in configdata('config_frm2.all_ccrs')]
+# _ccrs = Column(*ccrs)
 
 _htf = Column(
     Block('HTF', [

@@ -314,13 +314,10 @@ for k in [1,2,3,10,11,12]:
         setups='rsc%02d' % k,
     ))
 
-ccrs = []
-T_Ts_plot = []
-for i in range(10, 25 + 1):
-    if i == 13:
-        continue
-    ccrs.append(SetupBlock(f'ccr{i}'))
-    T_Ts_plot.append(Block('30min T and Ts plot', [
+ccrs = [SetupBlock(ccr) for ccr in configdata('config_frm2.all_ccrs')]
+
+T_Ts_plot = [
+    Block('30min T and Ts plot', [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
                   width=35, height=20, plotwindow=30*60,
@@ -329,15 +326,11 @@ for i in range(10, 25 + 1):
                   legend=True),
         ),
         ],
-        setups=f'ccr{i}',
-    ))
+        setups='ccr*',
+    )
+]
 
-_ccrs = Column(*tuple(ccrs))
-
-cryos = []
-for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
-             'cci3he12', 'ccidu01', 'ccidu02']:
-    cryos.append(SetupBlock(cryo))
+cryos = [SetupBlock(cryo) for cryo in configdata('config_frm2.all_ccis')]
 
 _birmag = Block('17 T Magnet', [
     BlockRow(

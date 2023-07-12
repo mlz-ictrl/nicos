@@ -91,15 +91,9 @@ _column2 = Column(
     ),
 )
 
-ccrs = []
-for i in range(10, 25 + 1):
-    if i == 13:
-        continue
-    ccrs.append(SetupBlock(f'ccr{i}'))
+ccrs = [SetupBlock(ccr) for ccr in configdata('config_frm2.all_ccrs')]
 
-cryos = []
-for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'ccidu01', 'ccidu02']:
-    cryos.append(SetupBlock(cryo))
+cryos = [SetupBlock(cryo) for cryo in configdata('config_frm2.all_ccis')]
 
 _ccm5h = SetupBlock('ccm5h')
 

@@ -445,20 +445,13 @@ for k in [1,2,3,10,11,12]:
         ],
         setups='rsc%02d' % k,
     ))
-_rscs = Column(*tuple(rscs))
+_rscs = Column(*rscs)
 
-ccrs = []
-for i in range(10, 25 + 1):
-    if i == 13:
-        continue
-    ccrs.append(SetupBlock(f'ccr{i}'))
-_ccrs = Column(*tuple(ccrs))
+ccrs = [SetupBlock(ccr) for ccr in configdata('config_frm2.all_ccrs')]
+_ccrs = Column(*ccrs)
 
-cryos = []
-for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
-             'cci3he12', 'ccidu01', 'ccidu02']:
-    cryos.append(SetupBlock(cryo))
-_cryos = Column(*tuple(cryos))
+cryos = [SetupBlock(cryo) for cryo in configdata('config_frm2.all_ccis')]
+_cryos = Column(*cryos)
 
 _julabo = Column(
     Block('Julabo', [

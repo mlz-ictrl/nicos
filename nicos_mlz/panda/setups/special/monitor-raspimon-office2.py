@@ -171,22 +171,16 @@ lakeshoreplot = Block('LakeShore', [
 cryos = []
 cryosupps = []
 cryoplots = []
-cryonames = ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
-             'cci3he12', 'ccidu01', 'ccidu02']
-for cryo in cryonames:
+for cryo in configdata('config_frm2.all_ccis'):
     cryos.append(SetupBlock(cryo))
     cryosupps.append(SetupBlock(cryo, 'pressures'))
     cryoplots.append(SetupBlock(cryo, 'plots'))
 
 
 # generic CCR-stuff
-ccrs = []
-ccrplots = []
-for i in range(10, 25 + 1):
-    if i == 13:
-        continue
-    ccrs.append(SetupBlock(f'ccr{i}'))
-    ccrplots.append(SetupBlock(f'ccr{i}', 'plots'))
+ccrs = [SetupBlock(ccr) for ccr in configdata('config_frm2.all_ccrs')]
+ccrplots = [SetupBlock(ccr, 'plots')
+            for ccr in configdata('config_frm2.all_ccrs')]
 
 miramagnet = SetupBlock('miramagnet')
 
