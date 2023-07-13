@@ -28,7 +28,7 @@ from nicos.core.errors import HardwareError
 from nicos.core.params import Attach, Override, Param, floatrange, limits, \
     none_or, oneof, tupleof
 from nicos.core.utils import multiReset
-from nicos.devices.abstract import CanReference, Coder
+from nicos.devices.abstract import CanReference, Coder, TransformedReadable
 from nicos.devices.entangle import Sensor
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SequenceItem, \
@@ -40,8 +40,8 @@ from nicos_mlz.refsans.devices.mixins import PolynomFit, PseudoNOK
 MODES = ['ng', 'rc', 'vc', 'fc']
 
 
-class NOKMonitoredVoltage(Sensor):
-    """Return a scaled and monitored Analogue value.
+class NOKMonitoredVoltage(TransformedReadable, Sensor):
+    """Return a scaled and monitored analogue value.
 
     Also checks the value to be within certain limits, if not, complain.
     """
@@ -54,19 +54,22 @@ class NOKMonitoredVoltage(Sensor):
         'scale': Param('Scaling factor', type=float, settable=False,
                        default=1.),
     }
+
     parameter_overrides = {
         'unit': Override(default='V', mandatory=False),
     }
 
-    def doInit(self, mode):
-        if self.reflimits is not None:
-            if not (0 <= self.reflimits[0] <= self.reflimits[1] <=
-                    self.reflimits[2]):
+    def doUpdateReflimits(self, limits):
+        if limits is not None:
+            if not (0 <= limits[0] <= limits[1] <= limits[2]):
                 raise ConfigurationError(self, 'reflimits must be in ascending'
                                          ' order!')
 
-    def doRead(self, maxage=0):
-        value = self.scale * Sensor.doRead(self, maxage)
+    def _readRaw(self, maxage=0):
+        return Sensor.doRead(self, maxage)
+
+    def _mapReadValue(self, value):
+        value *= self.scale
         if self.reflimits is not None:
             if abs(value) > self.reflimits[2]:
                 raise HardwareError(self, 'Reference voltage (%.2f) above '
@@ -81,13 +84,6 @@ class NOKMonitoredVoltage(Sensor):
                                  'should be above %.2f', value,
                                  self.reflimits[1])
         return value
-
-    def doStatus(self, maxage=0):
-        try:
-            self.doRead(maxage)
-            return Sensor.doStatus(self, maxage)
-        except HardwareError as err:
-            return status.ERROR, repr(err)
 
 
 class NOKPosition(PolynomFit, Coder):
