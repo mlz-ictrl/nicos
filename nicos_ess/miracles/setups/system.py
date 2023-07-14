@@ -19,7 +19,7 @@ devices = dict(
         responsible='A Person <a.person@ess.eu>',
         website='https://europeanspallationsource.se/instruments/miracles'),
     Sample=device(
-        'nicos.devices.sample.Sample',
+        'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
     Exp=device(

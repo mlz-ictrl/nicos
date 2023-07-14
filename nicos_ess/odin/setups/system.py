@@ -21,7 +21,7 @@ devices = dict(
         responsible='Manuel Morgano <manuel.morgano@ess.eu>',
         website='https://europeanspallationsource.se/instruments/odin'),
     Sample=device(
-        'nicos.devices.sample.Sample',
+        'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
     Exp=device(

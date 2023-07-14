@@ -21,7 +21,7 @@ devices = dict(
         responsible='Artur Glavic <artur.glavic@psi.ch>',
     ),
     Sample=device(
-        'nicos.devices.sample.Sample',
+        'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
     Exp=device('nicos_ess.devices.experiment.EssExperiment',

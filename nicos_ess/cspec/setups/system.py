@@ -29,7 +29,7 @@ devices = dict(
             'Technische Universität München (TUM)',
         ]),
     Sample=device(
-        'nicos.devices.sample.Sample',
+        'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
     Exp=device('nicos_ess.devices.experiment.EssExperiment',

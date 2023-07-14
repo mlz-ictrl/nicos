@@ -22,7 +22,7 @@ devices = dict(
         responsible='Rasmus Toft-Petersen <rasmus.toft-petersen@ess.eu>',
         website='https://europeanspallationsource.se/instruments/bifrost'),
     Sample=device(
-        'nicos.devices.sample.Sample',
+        'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
     Exp=device('nicos_ess.devices.experiment.EssExperiment',
