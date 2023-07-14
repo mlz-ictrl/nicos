@@ -204,7 +204,7 @@ class FileWriterStatus(KafkaStatusHandler):
         if self._jobs[job_id].error_msg:
             session.log.error(
                 'Job #%s failed to write successfully, '
-                'run `list_jobs` for more details',
+                'run `list_filewriting_jobs` for more details',
                 self._jobs[job_id].job_number)
         del self._jobs[job_id]
 
