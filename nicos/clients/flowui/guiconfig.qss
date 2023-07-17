@@ -524,23 +524,6 @@ QMessageBox > QLabel {
 }
 
 /* ----------------------------------------- */
-
-CommandLineEdit[state="DEFAULT"] {
-    font-size: 20;
-    min-height: 22px;
-    border: 2px solid #0094ca;
-    border-radius: 5px;
-    background-color: white;
-}
-
-CommandLineEdit[state="BUSY"] {
-    font-size: 20;
-    min-height: 22px;
-    border: 2px solid #0094ca;
-    border-radius: 5px;
-    background-color: #ffdddd;
-}
-
 Panel[panel='DevicesPanel'] QComboBox {
     background-color: white;
 }
@@ -576,6 +559,23 @@ Panel[panel='CommandPanel'] QPushButton {
 Panel[panel='CommandPanel'] * {
     background-color: white;
 }
+
+CommandLineEdit[state="DEFAULT"] {
+    font-size: 20;
+    min-height: 22px;
+    border: 2px solid #0094ca;
+    border-radius: 5px;
+    background-color: white;
+}
+
+CommandLineEdit[state="BUSY"] {
+    font-size: 20;
+    min-height: 22px;
+    border: 2px solid #0094ca;
+    border-radius: 5px;
+    background-color: #ffdddd;
+}
+
 
 LiveWidgetWrapper:title {
     subcontrol-origin: margin;
