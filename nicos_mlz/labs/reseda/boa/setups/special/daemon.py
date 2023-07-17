@@ -16,3 +16,7 @@ devices = dict(
         authenticators = ['Auth', ],
     ),
 )
+
+startupcode = '''
+import nicos.devices.epics
+'''
