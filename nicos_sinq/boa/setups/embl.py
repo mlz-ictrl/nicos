@@ -29,7 +29,7 @@ devices = dict(
         presetpv = pvprefix + '.PR2',
     ),
     monitorval = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Monitor for nutron beam',
+        description = 'Monitor for neutron beam',
         type = 'monitor',
         readpv = pvprefix + '.S2',
     ),
