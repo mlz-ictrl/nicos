@@ -1,6 +1,6 @@
 description = 'CASCADE detector'
 group = 'lowlevel'
-includes = ['det_base']
+includes = ['det_base', 'monitors']
 includes = ['filesavers']
 excludes = ['det_3he', 'det_cascade2']
 
@@ -88,8 +88,11 @@ devices = dict(
     ),
     psd = device('nicos.devices.generic.Detector',
         description = 'CASCADE detector',
-        timers = ['timer'],
-        # monitors = ['monitor1'],
+        # timers = ['timepreset', ]
+        timers = ['timer', ],
+        # monitors = ['monitorpreset', ],
+        # counters = ['monitorval', 'protoncurr', 'elapsedtime', ],
+        # monitors = ['monitor1', ],
         images = ['psd_channel'],
     ),
     psd_distance = device('nicos.devices.generic.ManualMove',
