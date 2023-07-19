@@ -43,18 +43,13 @@ devices = dict(
     sdet = device('nicos_mlz.labs.physlab.xresd.devices.detector.MovingDetector',
         description = 'Moving detector ... ',
         motor = 'ctt',
-        detector = 'adet',
+        detector = 'det',
     ),
     fileformat = device('nicos.devices.datasinks.raw.SingleRawImageSink',
         # filenametemplate = ['%(proposal)s_%(pointcounter)08d.txt']
     ),
     textsink = device('nicos.devices.datasinks.text.NPFileSink',
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.dat']
-    ),
-    caresssink = device('nicos_mlz.stressi.datasinks.CaressScanfileSink',
-        filenametemplate = ['xresd%(scancounter)08d.dat'],
-        detectors = ['adet'],
-        # flipimage = True,
     ),
 )
 
