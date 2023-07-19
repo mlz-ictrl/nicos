@@ -17,7 +17,7 @@ devices = dict(
         description = 'timer for detector',
         tangodevice = tango_base + 'box/dectris/timer',
     ),
-    image = device('nicos_mlz.labs.physlab.xresd.devices.dectris.Detector',
+    image = device('nicos_mlz.labs.physlab.devices.dectris.Detector',
         description = 'image for detector',
         tangodevice = tango_base + 'box/dectris/image',
         pixel_size = 50 / 1000.0, # mm
@@ -40,7 +40,7 @@ devices = dict(
     #     alias = 'adet',
     #     visibility = {'metadata', 'namespace'},
     # ),
-    sdet = device('nicos_mlz.labs.physlab.xresd.devices.detector.MovingDetector',
+    sdet = device('nicos_mlz.labs.physlab.devices.detector.MovingDetector',
         description = 'Moving detector ... ',
         motor = 'ctt',
         detector = 'adet',

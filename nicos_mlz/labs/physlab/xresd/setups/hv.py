@@ -15,7 +15,7 @@ devices = dict(
         tangodevice = tango_base + 'gen_current',
         fmtstr = '%.0f',
     ),
-    hv = device('nicos_mlz.labs.physlab.xresd.devices.hv_generator.HighVoltagePowerSupply',
+    hv = device('nicos_mlz.labs.physlab.devices.hv_generator.HighVoltagePowerSupply',
         description = 'High voltage device',
         tangodevice = tango_base + 'generator',
         fmtstr = '(%.0f, %.0f)',

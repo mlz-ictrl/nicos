@@ -22,7 +22,7 @@ devices = dict(
     #     unit = '',
     #     copy_status = False,
     # ),
-    d8 = device('nicos_mlz.labs.physlab.xresd.devices.d8.D8',
+    d8 = device('nicos_mlz.labs.physlab.devices.d8.D8',
         description = 'D8 device ...',
         registers = 'd8_reg',
         unit = '',

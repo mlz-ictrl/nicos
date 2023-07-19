@@ -38,7 +38,7 @@ devices = dict(
     #     alias = 'omgs',
     #     visibility = {'metadata', 'namespace'},
     # ),
-    ctt = device('nicos_mlz.labs.physlab.xresd.devices.coupled.CoupledMotor',
+    ctt = device('nicos_mlz.labs.physlab.devices.coupled.CoupledMotor',
         description = 'Coupled Theta / 2Theta axis',
         maxis = 'ttheta',
         caxis = 'theta',
