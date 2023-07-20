@@ -205,7 +205,8 @@ class NXLink(NexusElementBase):
         self.target = target
 
     def structure(self, name, metainfo):
-        return [{'type': 'link', 'name': name, 'target': self.target}]
+        return [{'module': 'link', 'config': {'name': name,
+                                              'source': self.target}}]
 
 
 class KafkaStream(NexusElementBase):
