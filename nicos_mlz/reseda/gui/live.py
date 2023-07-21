@@ -77,6 +77,9 @@ class CascadeControls(QWidget):
 
 class CascadeLiveDataPanel(LiveDataPanel):
 
+    def __init__(self, parent, client, options):
+        LiveDataPanel.__init__(self, parent, client, options)
+
     def _initControlsGUI(self):
         self.controls = CascadeControls()
         self.splitter.addWidget(self.controls)
@@ -101,20 +104,41 @@ class CascadeLiveDataPanel(LiveDataPanel):
         # copy to avoid modifications of original data
         self.controls.setFoilsOrder(
             self.client.eval('psd_channel.foilsorder', []))
-        arrs = [self.controls.handleData(array) for array in arrays]
 
         # if multiple datasets have to be displayed in one widget, they have
         # the same dimensions, so we only need the dimensions of one set
         self.controls.initControls(arrays[0])
-        self._initLiveWidget(arrs[0])
+        self._initLiveWidget(self.controls.handleData(arrays[0]))
         self.applyPlotSettings()
 
-        for widget in self._get_all_widgets():
-            widget.setData(arrs, labels)
-            widget.setTitles(titles)
+        self._setData(arrays, labels, titles)
 
         if self.unzoom and self.widget:
             self.on_actionUnzoom_triggered()
 
+    def _setData(self, arrays, labels, titles):
+        arrs = [self.controls.handleData(array) for array in arrays]
+        for widget in self._get_all_widgets():
+            widget.setData(arrs, labels)
+            widget.setTitles(titles)
+
     def _show(self, params=None, data=None):
         self.showData()
+
+    def setData(self, arrays, labels=None, titles=None, uid=None, display=True):
+        """Dispatch data array to corresponding live widgets.
+        Cache array based on uid parameter. No caching if uid is ``None``.
+        """
+        if uid:
+            if uid not in self._datacache:
+                self.log.debug('add to cache: %s', uid)
+                self._datacache[uid] = {}
+            self._datacache[uid]['dataarrays'] = arrays
+        if display:
+            if uid:
+                if titles is None:
+                    titles = self._datacache[uid].get('titles')
+                if labels is None:
+                    labels = self._datacache[uid].get('labels')
+            self._initLiveWidget(arrays[0])
+            self._setData(arrays, labels, titles)

@@ -97,6 +97,8 @@ class FoilWidget(QWidget):
         # data contains a list [avg, avgErr, contrast, contrastErr,
         # freq, freErr, phase, phaseErr, 16 * counts]
         popt, perr, counts = data[int(roi) * 4:(int(roi) + 1) * 4][1:]
+        if len(perr) > 4:
+            return
         avg, contrast, phase, freq = popt
         davg, dcontrast, dphase, dfreq = perr
 
