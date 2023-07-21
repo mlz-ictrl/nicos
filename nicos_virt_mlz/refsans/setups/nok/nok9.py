@@ -23,7 +23,8 @@ devices = dict(
             'rc': global_values['ng'],
             'vc': global_values['vc'],
             'fc': global_values['fc'],
-        }
+        },
+        mode = 'ng',
     ),
     nok9r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK9, reactor side',

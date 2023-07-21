@@ -69,5 +69,5 @@ devices = dict(
 )
 
 alias_config = {
-    'primary_aperture': {'b1.height': 100},
+    'primary_aperture': {'b1.opening': 100},
 }

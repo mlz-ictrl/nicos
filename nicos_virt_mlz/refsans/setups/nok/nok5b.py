@@ -51,5 +51,6 @@ devices = dict(
             'vc': global_values['vc'],
             'fc': global_values['fc'],
         },
+        mode = 'ng',
     ),
 )

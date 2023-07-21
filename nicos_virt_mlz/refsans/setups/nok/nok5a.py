@@ -51,5 +51,6 @@ devices = dict(
             'fc': global_values['fc'],
             # 'pola': global_values['pola'],
         },
+        mode = 'ng',
     ),
 )

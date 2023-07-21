@@ -65,5 +65,5 @@ devices = dict(
 )
 
 alias_config = {
-    'last_aperture': {'b2': 100},
+    'last_aperture': {'b2.opening': 100},
 }

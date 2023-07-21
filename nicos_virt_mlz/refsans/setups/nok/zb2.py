@@ -11,6 +11,7 @@ devices = dict(
             abslimits = (-215.69, 93.0),
             unit = 'mm',
             speed = 1.,
+            curvalue = -2,
         ),
         nok_start = 7633.5,  # 7591.5
         nok_end = 7639.5,  # 7597.5

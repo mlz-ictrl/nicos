@@ -49,6 +49,7 @@ devices = dict(
             abslimits = (-393.0, 330.0),
             speed = 1.,
             unit = 'mm',
+            curvalue = 36.32,
         ),
         offset = 0.0,
         precision = 0.01,
@@ -60,6 +61,7 @@ devices = dict(
             abslimits = (-102.0, 170.0),
             speed = 1.,
             unit = 'mm',
+            curvalue = 36.404,
         ),
         offset = 0.0,
         precision = 0.01,
@@ -102,6 +104,7 @@ devices = dict(
             abslimits = (-393.0, 330.0),
             speed = 1.,
             visibility = (),
+            curvalue = 136,
         ),
         precision = 0.03,
         visibility = (),
@@ -113,6 +116,7 @@ devices = dict(
             abslimits = (-102.0, 170.0),
             speed = 1.,
             visibility = (),
+            curvalue = 63,
         ),
         precision = 0.03,
         visibility = (),
@@ -120,5 +124,5 @@ devices = dict(
 )
 
 alias_config = {
-    'last_aperture': {'b3': 100},
+    'last_aperture': {'b3.opening': 100},
 }

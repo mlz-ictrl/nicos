@@ -3,7 +3,7 @@ description = 'Virtual REFSANS basic setup'
 group = 'basic'
 
 includes = [
-    # 'autocollimator',
+    'autocollimator',
     # 'b3h3',
     'backguard',
     'beamstop',
@@ -13,7 +13,7 @@ includes = [
     'detector',
     # 'fak40',
     'gonio',
-    # 'gonio_top',
+    'gonio_top',
     # 'guidehall',
     # 'h2',
     # 'height',
@@ -25,10 +25,11 @@ includes = [
     # 'pumpstand',
     # 'qmesydaq',
     'reactor',
+    'resolution',
     # 'safedetectorsystem',
     # 'safetysystem',
     # 'sample',
-    # 'samplechanger',
+    'samplechanger',
     'shutter',
     'shutter_gamma',
     # 'vsd',
