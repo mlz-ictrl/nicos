@@ -67,7 +67,7 @@ class EpicsActiveChannel(ESSEpicsActiveChannel):
         return False
 
 
-class EpicsTimerActiveChannel(EpicsActiveChannel):
+class EpicsTimerActiveChannel(TimerChannelMixin, EpicsActiveChannel):
     """
     Manages time presets
     """
@@ -77,7 +77,7 @@ class EpicsTimerActiveChannel(EpicsActiveChannel):
         return (Value('timepreset', unit='sec', fmtstr='%s'), )
 
 
-class EpicsCounterActiveChannel(EpicsActiveChannel):
+class EpicsCounterActiveChannel(CounterChannelMixin, EpicsActiveChannel):
     """
     Manages monitor presets
     """

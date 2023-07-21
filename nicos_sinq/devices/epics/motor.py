@@ -22,17 +22,16 @@
 #
 # *****************************************************************************
 from nicos import session
-from nicos.core import MAIN, Param, pvname, status, usermethod
+from nicos.core import MAIN, Param, status
 
 from nicos_ess.devices.epics import EpicsMotor as EssEpicsMotor
 from nicos.devices.epics.pyepics import pvget
 
 
-
 class EpicsMotor(EssEpicsMotor):
     parameters = {
         'can_disable': Param('Whether the motor can be enabled/disabled using '
-                             'a PV or not.', type=pvname, mandatory=False,
+                             'a PV or not.', type=bool, mandatory=False,
                              settable=False, userparam=False),
         'auto_enable': Param('Automatically enable the motor when the setup is'
                              ' loaded', type=bool, default=False,
@@ -45,6 +44,13 @@ class EpicsMotor(EssEpicsMotor):
         if self.can_disable:
             self._record_fields['enable'] = ':Enable'
             self._record_fields['enable_rbv'] = ':Enable_RBV'
+        else:
+            if 'enable' in self._record_fields:
+                # NICOS seems to cache the record_fields somewhere.
+                # This solves a bug encountered when changing the
+                # can_disable flag
+                del self._record_fields['enable']
+                del self._record_fields['enable_rbv']
         EssEpicsMotor.doPreinit(self, mode)
 
     def _get_pv_name(self, pvparam):

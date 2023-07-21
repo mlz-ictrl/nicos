@@ -184,6 +184,8 @@ class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
 
     _timedout = False
 
+    _channels = []
+
     def presetInfo(self):
         return {'t', 'timer', 'm', 'monitor'}
 
