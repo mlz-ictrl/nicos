@@ -25,6 +25,7 @@
 import numpy as np
 
 from nicos import session
+from nicos.core import status
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Moveable
 from nicos.core.params import ArrayDesc, Attach, Param, Value, oneof, tupleof
@@ -32,8 +33,7 @@ from nicos.core.status import BUSY, ERROR, OK
 from nicos.core.utils import usermethod
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin
 
-from nicos_sinq.devices.imagesink import\
-                HistogramDesc, HistogramDimDesc
+from nicos_sinq.devices.imagesink import HistogramDesc, HistogramDimDesc
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
 
@@ -47,6 +47,26 @@ class CCDWWWConnector(HttpConnector):
     def doInit(self, mode):
         # ccdwww hangs up on the doInit() in HttpConnector
         pass
+
+    def _com_return(self, result, info):
+        # Check if the communication was successful
+        response = result.status_code
+        # This is for debugging the communication with CCDWWW
+        if 'text/plain' in result.headers['Content-Type']:
+            data = result.content.decode('utf-8')
+        else:
+            data = 'Image data'
+        session.log.debug('URL %s returned code %d, data: %s',
+                         result.request.url, response, data)
+        if response in self.status_code_msg:
+            session.log.warn('CCDWWW Communication problem %s with %s',
+                             self.status_code_msg.get(response),
+                             result.content.decode('utf-8'))
+        elif response != 200:
+            self.log.warn('Error while connecting to server! %s',
+                          result.content.decode('utf-8'))
+        self._setROParam('curstatus', (status.OK, ''))
+        return result
 
 
 class CCDWWWImageChannel(ImageChannelMixin, ActiveChannel):
@@ -115,6 +135,9 @@ class CCDWWWImageChannel(ImageChannelMixin, ActiveChannel):
                                  req.status_code, req.text)
                 stat, mes = self.doStatus()
                 session.log.info('Camera state = %d, %s', stat, mes)
+                self._data = np.zeros(self.shape, dtype='uint32')
+                self.readresult = 0
+                return self._data
             order = '<' if self.connector.byteorder == 'little' else '>'
             dt = np.dtype('uint32')
             dt = dt.newbyteorder(order)
