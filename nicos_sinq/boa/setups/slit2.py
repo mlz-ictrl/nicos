@@ -1,4 +1,4 @@
-description = 'BOA Slit 1'
+description = 'BOA Slit 2'
 
 pvprefix = 'SQ:BOA:sl2:'
 
