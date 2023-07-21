@@ -6,7 +6,7 @@ instrument_values = configdata('instrument.values')
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'XReSD',
+    instrument = 'xresd',
     experiment = 'Exp',
     datasinks = [
         'conssink',
@@ -25,7 +25,7 @@ includes = [
 ]
 
 devices = dict(
-    XReSD = device('nicos.devices.instrument.Instrument',
+    xresd = device('nicos.devices.instrument.Instrument',
         description = 'X-ray Residual Stress Diffractometer',
         instrument = 'XReSD',
         responsible = 'Bastian Veltel <bastian.veltel@frm2.tum.de>',

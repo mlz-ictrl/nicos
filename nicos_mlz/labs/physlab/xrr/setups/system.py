@@ -1,16 +1,10 @@
-# A detailed description of the setup file structure and it's elements is
-# available here: https://forge.frm2.tum.de/nicos/doc/nicos-stable/setups/
-#
-# Please remove these lines after copying this file.
-
 description = 'system setup'
 
 group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    # Adapt this name to your instrument's name (also below).
-    instrument = 'XRR',
+    instrument = 'xrr',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
     notifiers = [],  # ['email'],
@@ -19,17 +13,11 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 includes = [
-    # 'notifiers',
-    # 'incident',
-    # 'shutter',
-    # 'dectris',
-    # 'sample',
-    # 'd8',
-    # 'hv',
+    'notifiers',
 ]
 
 devices = dict(
-    XRR = device('nicos.devices.instrument.Instrument',
+    xrr = device('nicos.devices.instrument.Instrument',
         description = 'X-ray reflectormeter',
         instrument = 'XRR',
         responsible = 'Bastian Veltel <bastian.veltel@frm2.tum.de>',
