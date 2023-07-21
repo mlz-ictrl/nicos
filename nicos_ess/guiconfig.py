@@ -41,7 +41,7 @@ main_window = docked(
             ),  # hsplit
         ),
         (
-            'Batch file generation',
+            'Scripting',
             panel('nicos.clients.flowui.panels.editor.EditorPanel',
                   tools=None),
         ),
