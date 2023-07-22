@@ -132,7 +132,7 @@ class Optic(Moveable):
                     line += ' debug'
                 else:
                     post = []
-                    if ele in ['nok5a', 'nok5b', 'zb0', 'zb1',]:
+                    if ele in ['nok5a', 'nok5b', 'zb0', 'zb1']:
                         post.append(ele)
                     else:
                         f.move(self.setting[target][ele])
@@ -155,7 +155,7 @@ class Optic(Moveable):
                     line += ' debug'
                 else:
                     post = []
-                    if ele in ['nok5a', 'nok5b', 'zb0', 'zb1',]:
+                    if ele in ['nok5a', 'nok5b', 'zb0', 'zb1']:
                         post.append(ele)
                     else:
                         f.mode = self.masks[target][ele]

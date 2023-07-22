@@ -25,8 +25,8 @@
 
 import requests
 
-from nicos.core import HasPrecision, Moveable, Override, Param, Readable, \
-    intrange, oneof, status, usermethod
+from nicos.core import HasPrecision, Override, Param, Readable, intrange, \
+    oneof, status, usermethod
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError
 from nicos.core.mixins import HasOffset
