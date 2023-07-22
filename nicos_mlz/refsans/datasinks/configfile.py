@@ -216,7 +216,7 @@ safetysystem = [
     'personalkey',
     'Freigabe_Taster',
     'techOK',
-    'Safedetectrosystem',
+    'Safedetectorsystem',
     'user',
 ]
 
