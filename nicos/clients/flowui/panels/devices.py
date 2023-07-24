@@ -58,7 +58,6 @@ class DevicesPanel(DefaultDevicesPanel):
         self.titleLbl.setText('Devices')
 
         self.errorOnly = QCheckBox('show only the errors', self)
-        print(self.errorOnly.styleSheet())
         self.errorOnly.setStyleSheet('QCheckBox { '
                                      'background: #f5e042;'
                                      'border-radius: 5px'
