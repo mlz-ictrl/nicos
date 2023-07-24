@@ -30,8 +30,8 @@ from copy import deepcopy
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, combineUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core import ADMIN
-from nicos.guisupport.qt import QDialogButtonBox, QHeaderView, QIntValidator, \
-    QListWidgetItem, Qt, pyqtSlot
+from nicos.guisupport.qt import QAbstractItemView, QDialogButtonBox, \
+    QHeaderView, QIntValidator, QListWidgetItem, Qt, pyqtSlot
 from nicos.guisupport.tablemodel import TableModel
 from nicos.utils import decodeAny, findResource
 
@@ -88,7 +88,7 @@ class ExpPanel(PanelBase):
         self.users_model.data_updated.connect(self._check_for_changes)
         self.userTable.setModel(self.users_model)
         self.userTable.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.Interactive)
+            QHeaderView.ResizeMode.Stretch)
 
         self.contacts_model = TableModel(['name', 'email', 'affiliation'])
         self.contacts_model.insert_row(0)
@@ -193,13 +193,9 @@ class ExpPanel(PanelBase):
         self._update_users_model(self.old_settings.users)
         self._update_contacts_model(self.old_settings.local_contacts)
         self._format_sample_table()
-        self._format_user_table()
 
     def _format_sample_table(self):
         self._format_table(self.sampleTable, self.samples_model)
-
-    def _format_user_table(self):
-        self._format_table(self.userTable, self.users_model)
 
     def _format_table(self, table, model):
         width = table.width() - table.verticalHeader().width()
@@ -218,9 +214,18 @@ class ExpPanel(PanelBase):
         self.queryDBButton.setEnabled(available)
         self.proposalNum.setReadOnly(available)
         self.propTitle.setReadOnly(available)
-        self.userTable.setEnabled(not available)
         self.addUserButton.setVisible(not available)
         self.deleteUserButton.setVisible(not available)
+        self.set_table_read_only(self.userTable, available)
+
+    def set_table_read_only(self, table, read_only):
+        if read_only:
+            table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        else:
+            table.setEditTriggers(
+                    QAbstractItemView.EditTrigger.AnyKeyPressed
+                    | QAbstractItemView.EditTrigger.EditKeyPressed
+                    | QAbstractItemView.EditTrigger.DoubleClicked)
 
     def on_client_disconnected(self):
         for control in self._text_controls:
@@ -242,7 +247,7 @@ class ExpPanel(PanelBase):
         for control in self._text_controls:
             control.setEnabled(not viewonly)
         for table in self._tables:
-            table.setEnabled(not viewonly)
+            self.set_table_read_only(table, viewonly)
         self.notifEmails.setEnabled(not viewonly)
         self.errorAbortBox.setEnabled(not viewonly)
         self.queryDBButton.setEnabled(not viewonly)
@@ -363,7 +368,6 @@ class ExpPanel(PanelBase):
                 self._update_users_model(result.get('users', []))
                 self._update_contacts_model(result.get('localcontacts', []))
                 self._update_samples_model(result['samples'])
-                self._format_user_table()
                 self._format_sample_table()
             else:
                 self.showError('No proposals found')
