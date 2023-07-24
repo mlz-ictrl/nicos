@@ -94,6 +94,7 @@ devices = dict(
         # counters = ['monitorval', 'protoncurr', 'elapsedtime', ],
         # monitors = ['monitor1', ],
         images = ['psd_channel'],
+        liveinterval = 1,
     ),
     psd_distance = device('nicos.devices.generic.ManualMove',
         description = 'Sample-Detector Distance L_sd',
