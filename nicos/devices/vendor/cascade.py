@@ -234,8 +234,10 @@ class CascadeDetector(ImageChannel):
             foil_roi = shaped[foil, :, y1:y2, x1:x2].sum((1, 2))
             tres = self.fitter.run(x, foil_tot, None)
             rres = self.fitter.run(x, foil_roi, None)
-            payload.append([tres._pars[1], tres._pars[2], foil_tot.tolist(),
-                            rres._pars[1], rres._pars[2], foil_roi.tolist()])
+            if not tres._failed and not rres._failed:
+                payload.append([
+                    tres._pars[1], tres._pars[2], foil_tot.tolist(),
+                    rres._pars[1], rres._pars[2], foil_roi.tolist()])
         self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
         return data
 
