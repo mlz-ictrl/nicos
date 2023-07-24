@@ -238,6 +238,9 @@ class CascadeDetector(ImageChannel):
                 payload.append([
                     tres._pars[1], tres._pars[2], foil_tot.tolist(),
                     rres._pars[1], rres._pars[2], foil_roi.tolist()])
+            else:
+                payload.append([[0.] * 4, [0.] * 4, foil_tot.tolist(),
+                                [0.] * 4, [0.] * 4, foil_roi.tolist()])
         self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
         return data
 
