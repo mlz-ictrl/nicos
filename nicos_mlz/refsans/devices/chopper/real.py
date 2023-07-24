@@ -80,10 +80,6 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
                        userparam=True),
     }
 
-    parameter_overrides = {
-        'resolution': Override(type=intrange(0, 6)),
-    }
-
     def doWriteDelay(self, delay):
         self._write_controller('m4079=%dm4080=%%d' % 1,
                                int(round(delay * 100)))
