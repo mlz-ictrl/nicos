@@ -594,16 +594,6 @@ LiveWidgetWrapper[state="UNSELECTED"] {
     border-radius: 5px;
 }
 
-QScrollBar:vertical {
-    width: 10px;
-    background-color: none;
-}
-
-QScrollBar:horizontal {
-    width: 10px;
-    background-color: none;
-}
-
 /* For Auth Dialog */
 QDialog QComboBox {
     color: black;
