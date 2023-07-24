@@ -90,15 +90,12 @@ class FoilWidget(QWidget):
         self.plotwidget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
                                       QSizePolicy.Policy.MinimumExpanding)
         self.verticalLayout.insertWidget(0, self.plotwidget)
-        self.do_update([['avg', 'contrast', 'phase', 'freq'],
-                        (0, 0, 0, 0), (0, 0, 0, 0), [0] * 16] * 2)
+        self.do_update([[0.] * 4, [0.] * 4, [0] * 16] * 2)
 
     def do_update(self, data, roi=False):
         # data contains a list [avg, avgErr, contrast, contrastErr,
         # freq, freErr, phase, phaseErr, 16 * counts]
-        popt, perr, counts = data[int(roi) * 4:(int(roi) + 1) * 4][1:]
-        if len(perr) > 4:
-            return
+        popt, perr, counts = data[int(roi) * 3:(int(roi) + 1) * 3]
         avg, contrast, phase, freq = popt
         davg, dcontrast, dphase, dfreq = perr
 
