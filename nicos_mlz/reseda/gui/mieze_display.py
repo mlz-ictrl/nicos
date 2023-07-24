@@ -62,6 +62,7 @@ class MiniPlot(LiveWidget1D):
                            markertype=DOT_MARKER),
         ]
         self._curves[0].markersize = 3
+        self._curves[0].markertype = GRMARKS['circle']
         for curve in self._curves:
             self.axes.addCurves(curve)
         # Disable creating a mouse selection to zoom
