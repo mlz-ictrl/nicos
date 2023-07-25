@@ -29,8 +29,8 @@ from yuos_query.exceptions import BaseYuosException
 from yuos_query.yuos_client import YuosCacheClient
 
 from nicos import session
-from nicos.core import SIMULATION, Override, Param, UsageError, \
-    absolute_path, listof, mailaddress
+from nicos.core import SIMULATION, Override, Param, UsageError, listof, \
+    mailaddress
 from nicos.devices.experiment import Experiment
 from nicos.utils import createThread
 
@@ -43,10 +43,6 @@ class EssExperiment(Experiment):
                   category='experiment',
                   mandatory=True,
                   userparam=False),
-        'filewriter_root':
-            Param('Root data path on the file writer server under which all '
-                  'proposal specific paths exist.', mandatory=True,
-                  type=absolute_path),
         'update_interval':
             Param('Time interval (in hrs.) for cache updates',
                   default=1.0,
@@ -131,7 +127,10 @@ class EssExperiment(Experiment):
         Experiment.update(self, title, users, localcontacts)
 
     def proposalpath_of(self, proposal):
-        return path.join(self.filewriter_root, time.strftime('%Y'), proposal)
+        instrument_name = ''
+        if session.instrument:
+            instrument_name = session.instrument.name.lower()
+        return path.join(instrument_name, time.strftime('%Y'), proposal)
 
     def _check_users(self, users):
         if not users:
