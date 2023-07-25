@@ -4,6 +4,8 @@ includes = [
     'detector',
 ]
 
+group = 'lowlevel'
+
 devices = dict(
     lower_connector = device('nicos_sinq.devices.sinqhm.connector.HttpConnector',
         description = "Connector for Histogram Memory Server",

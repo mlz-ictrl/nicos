@@ -4,8 +4,6 @@ includes = [
     'upperbank_config',
 ]
 
-group = 'lowlevel'
-
 devices = dict(
     upper_histogrammer = device('nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description = "Upper bank HM Channel",

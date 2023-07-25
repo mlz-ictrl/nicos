@@ -42,11 +42,11 @@ class ChopperMoveable(WindowMoveable):
     def doStatus(self, maxage=0):
         tg = self._get_pv('targetpv')
         if self._starting:
-            if abs(tg - self._target) < self.window:
+            if abs(tg - self._target) < self.precision:
                 self._starting = False
             return status.BUSY, 'starting'
         pos = self.read(0)
-        if abs(pos - tg) < self.window:
+        if abs(pos - tg) < self.precision:
             return status.OK, 'At target'
         return status.BUSY, 'Moving ...'
 

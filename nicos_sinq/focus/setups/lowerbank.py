@@ -4,8 +4,6 @@ includes = [
     'lowerbank_config',
 ]
 
-group = 'lowlevel'
-
 devices = dict(
     lower_histogrammer = device('nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description = "Lower bank HM Channel",
