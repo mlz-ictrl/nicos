@@ -21,18 +21,19 @@
 #
 # *****************************************************************************
 
-
 import pika
 import pika.exceptions
+from nicos.utils.loggers import NicosLogger
 
 
 class RabbitProducer:
-    HEADER_KEYS = {'proposal', 'subject', 'new_note', 'attachment', 'file',
-                   'patch_lines', 'line_count'}
+    HEADER_KEYS = {'proposal', 'subject', 'note', 'attachment', 'file',
+                   'line_count', 'img_rows'}
 
     def __init__(self, rabbit_url, rabbit_port, rabbit_virtual_host,
                  rabbit_username, rabbit_password, rabbit_static_queue):
 
+        self.log = NicosLogger('rabbit_producer')
         self.rabbit_url = rabbit_url
         self.rabbit_port = rabbit_port
         self.virtual_host = rabbit_virtual_host
@@ -45,7 +46,7 @@ class RabbitProducer:
         self._params = pika.connection.ConnectionParameters(
             host=self.rabbit_url, port=self.rabbit_port,
             virtual_host=self.virtual_host,
-            heartbeat=60, blocked_connection_timeout=30,
+            heartbeat=600, blocked_connection_timeout=300,
             credentials=self.credentials)
 
         self._conn = None
@@ -76,17 +77,21 @@ class RabbitProducer:
     def produce(self, headers, message):
         """reconnecting if necessary."""
         if self.HEADER_KEYS.issubset(headers.keys()):
-            try:
-                self._produce(headers, message)
-            except pika.exceptions.ChannelWrongStateError:
-                self.connect()
-                self._produce(headers, message)
-            except pika.exceptions.StreamLostError:
-                self.connect()
-                self._produce(headers, message)
-            except AttributeError:
-                self.connect()
-                self._produce(headers, message)
+            exc = None
+            for retry in range(3):
+                try:
+                    if retry > 0:  # reconnect
+                        self.connect()
+                    self._produce(headers, message)
+                    return
+                except (pika.exceptions.ChannelWrongStateError,
+                        pika.exceptions.StreamLostError,
+                        pika.exceptions.AMQPHeartbeatTimeout,
+                        pika.exceptions.AMQPConnectionError,
+                        AttributeError) as e:
+                    self.log.debug('reconnect #%d due to %r', retry + 1, e)
+                    exc = e
+            raise exc
 
     def close(self):
         if self._conn and self._conn.is_open:

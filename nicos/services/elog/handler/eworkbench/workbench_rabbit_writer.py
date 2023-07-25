@@ -20,17 +20,15 @@
 #   Josef Baudisch <josef.baudisch@frm2.tum.de>
 #
 # *****************************************************************************
-
-
 import io
-import numpy as np
-from scipy.signal import argrelmax, argrelmin
 from PIL import Image
+from html import escape
+from logging import ERROR
+from datetime import datetime
 
 from nicos.core import Param
 from nicos.services.elog.handler import Handler as BaseHandler
 from nicos.services.elog.utils import formatMessage
-from nicos.services.elog.utils import formatMessagePlain
 
 from nicos.services.elog.handler.eworkbench.rabbit_producer import \
     RabbitProducer
@@ -38,17 +36,9 @@ from nicos.services.elog.handler.eworkbench.rabbit_producer import \
 
 class RabbitWriter:
     def __init__(self):
-        self.note_id = None
-        self.element_pk = None
         self.proposal = ''
-        self.title = ''
         self.instr = ''
-        self.dir = ''
-        self.note_title = ''
-        self.last_action = 'Init'
-        self.last_global_action = 'Init'
-        self.line_count = 0
-        self.elist = []
+        self.logdir = ''
         self.rabbit_producer = None
 
     def close(self):
@@ -114,277 +104,335 @@ class Handler(BaseHandler):
     def handle_directory(self, time, data):
         BaseHandler.handle_directory(self, time, data)
         self.log.info('workbench_writer: handle directory')
-        self._out.last_action = 'Directory'
-        self._out.last_global_action = 'Directory'
-        # get proposal name here
-        self._out.dir, self._out.instr, self._out.proposal = data
+
+        # get proposal here
+        self._out.logdir, self._out.instr, self._out.proposal = data
+        if not self._out.instr:
+            self._out.instr = 'NICOS'
+
+        wb_text = wb_format(
+            f'Opened new output files in:   {self._out.logdir}') + wb_format(
+            f'Instrument:   {self._out.instr}') + wb_format(
+            f'Proposal:   {self._out.proposal}')
+
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Directory  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=3)
+
+        self._out.rabbit_producer.produce(headers=headers, message=wb_text)
 
     def handle_newexperiment(self, time, data):
         self.log.info('workbench_writer: handle newexperiment')
-        self._out.last_action = 'NewExperiment'
-        self._out.last_global_action = 'NewExperiment'
 
-        # get proposal name also here if proposal name in handle directory
-        # was missing
+        # get proposal here if proposal name in handle directory was missing
+        self._out.proposal, title = data
 
-        self._out.proposal, self._out.title = data
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject='NewExperiment  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_format(
+                                              f'New Experiment is: {title}'))
 
     def handle_setup(self, time, setupnames):
         self.log.info('workbench_writer: handle setup')
-        self._out.last_action = 'Setup'
-        self._out.last_global_action = 'Setup'
+
+        wb_text = wb_format(
+            f'Setup Components:  {escape(", ".join(setupnames))}')
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Setup  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
+        self._out.rabbit_producer.produce(headers=headers, message=wb_text)
 
     def handle_entry(self, time, data):
         self.log.info('workbench_writer: handle entry')
-        self._out.last_action = 'Entry'
-        self._out.last_global_action = 'Entry'
 
-        headers = {
-            'proposal': self._out.proposal,
-            'subject': 'Comment',
-            'new_note': 1,
-            'attachment': 0,
-            'file': 0,
-            'patch_lines': 1,
-            'line_count': self._out.line_count,
-        }
-        self._out.rabbit_producer.produce(headers=headers, message='')
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Entry  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
 
-        headers['new_note'] = 0
-        headers['patch_lines'] = 0
-        headers['line_count'] = 0
-        self._out.rabbit_producer.produce(headers=headers, message=str(data))
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_format(f'{escape(data)}'))
 
     def handle_remark(self, time, remark):
         self.log.info('workbench_writer: handle remark')
-        self._out.last_action = 'AfterRemark'
-        self._out.last_global_action = 'Afterremark'
 
-        headers = {
-            'proposal': self._out.proposal,
-            'subject': 'Remark %s' % remark,
-            'new_note': 1,
-            'attachment': 0,
-            'file': 0,
-            'patch_lines': 1,
-            'line_count': self._out.line_count,
-        }
-        self._out.rabbit_producer.produce(headers=headers, message='')
-        remark_content = '<pre style="margin: 0px !important;">%s' % remark
-        headers['new_note'] = 0
-        headers['patch_lines'] = 0
-        headers['line_count'] = 0
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Remark  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
         self._out.rabbit_producer.produce(headers=headers,
-                                          message=remark_content)
+                                          message=wb_format(f'{remark}'))
 
     def handle_scriptend(self, time, script):
         self.log.info('workbench_writer: handle scriptend')
 
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Scriptend  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_format(
+                                              f'{escape(script)}'))
+
+    def handle_scriptbegin(self, time, script):
+        self.log.info('workbench_writer: handle scriptbegin')
+
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Scriptbegin  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_format(
+                                              f'{escape(script)}'))
+
     def handle_sample(self, time, sample):
         self.log.info('workbench_writer: handle sample')
-        self._out.last_action = 'Sample'
-        self._out.last_global_action = 'Sample'
+
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Sample  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_format(
+                                              f'Sample:   {escape(sample)}'))
 
     def handle_detectors(self, time, dlist):
         self.log.info('workbench_writer: handle detectors')
-        self._out.last_action = 'Detectors'
-        self._out.last_global_action = 'Detectors'
+
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Detectors  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_format(
+                                              f'Detectors:   '
+                                              f'{escape(", ".join(dlist))}'))
 
     def handle_environment(self, time, elist):
         self.log.info('workbench_writer: handle environment')
-        self._out.elist = elist
-        self._out.last_action = 'Environment'
-        self._out.last_global_action = 'Environment'
+
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Environment  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_format(
+                                              f'Environment:   '
+                                              f'{escape(", ".join(elist))}'))
 
     def handle_offset(self, time, data):
         self.log.info('workbench_writer: handle offset')
-        self._out.last_action = 'Offset'
-        self._out.last_global_action = 'Offset'
+
+        dev, old, new = data
+        offset_info = escape('Offset of %s changed from %s to %s' %
+                             (dev, old, new))
+
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Offset  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=1)
+
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_format(f'{offset_info}'))
+
+    def handle_attachment(self, time, data):
+        self.log.info('workbench_writer: handle attachment as file')
+
+        description, fpaths, names = data
+        for fpath, name in zip(fpaths, names):
+            with open(fpath, 'rb') as opened_file:
+                data = opened_file.read()
+                self._out.rabbit_producer.handle_file(
+                    headers={'proposal': self._out.proposal,
+                             'subject': f'{self._out.proposal}  '
+                                        f'{description} {name}  '
+                                        f'{wb_timestring_1(time)}',
+                             'note': 0,
+                             'attachment': 0,
+                             'file': 1,
+                             'line_count': 0,
+                             'img_rows': 0}, file_stream=data)
 
     def handle_image(self, time, data):
         self.log.info('workbench_writer: handle attachment as image')
-        self._out.last_action = 'AfterAttachment'
-        self._out.last_global_action = 'Attachment'
-        description, fpaths, extensions, names = data  # pylint: disable=unused-variable
+
+        description, fpaths, extensions, names = data
 
         pngs = [(p, n) for (p, n, e) in zip(fpaths, names, extensions)
                 if e.lower() == '.png']
+        svgs = [(p, n) for (p, n, e) in zip(fpaths, names, extensions) if
+                e.lower() == '.svg']
+        if svgs:
+            svg_fpaths, svg_names = zip(*svgs)
+            self.handle_attachment(time, [description, svg_fpaths, svg_names])
 
         if pngs:
             for png_path, name in pngs:
                 with open(png_path, 'rb') as opened_file:
                     basewidth = 1200
+                    baseheight = 900
                     img = Image.open(opened_file)
                     wpercent = (basewidth / float(img.size[0]))
                     hsize = int((float(img.size[1]) * float(wpercent)))
+                    if hsize > baseheight:
+                        hpercent = (baseheight / hsize)
+                        basewidth = int(basewidth * float(hpercent))
+                        hsize = baseheight
                     res = img.resize((basewidth, hsize))
+                    img_rows = int(hsize / 32) + 1
                     byteIO = io.BytesIO()
                     res.save(byteIO, format='PNG')
-                    data = byteIO.getvalue()
+                    finalimg = byteIO.getvalue()
                     self._out.rabbit_producer.handle_attachment(
                         headers={
                             'proposal': self._out.proposal,
-                            'subject': name,
-                            'new_note': 0,
+                            'subject': f'{self._out.proposal}  '
+                                       f'{description} {name}  '
+                                       f'{wb_timestring_1(time)}',
+                            'note': 0,
                             'attachment': 1,
                             'file': 0,
-                            'patch_lines': 0,
                             'line_count': 0,
-                        }, png_stream=data)
+                            'img_rows': img_rows
+                        }, png_stream=finalimg)
 
     def handle_message(self, time, message):
+        formatted = formatMessage(message)
+        if not formatted:
+            return
+        if message[2] == ERROR:
+            self.log.info('workbench_writer: handle error message')
+            headers = rb_headers_note(proposal=self._out.proposal,
+                                      subject=f'ERROR   '
+                                              f'{wb_timestring_1(time)}',
+                                      line_count=1)
 
-        headers = {
-            'proposal': self._out.proposal,
-            'subject': self._out.last_action,
-            'new_note': 0,
-            'attachment': 0,
-            'file': 0,
-            'patch_lines': 1,
-            'line_count': self._out.line_count,
-        }
+            self._out.rabbit_producer.produce(headers=headers,
+                                              message=wb_format(f'{formatted}'))
 
-        if self._out.last_action == 'scanbegin':
-            self._out.rabbit_producer.produce(headers=headers, message='')
-
-        if self._out.last_global_action != 'scanbegin':
-            if self._out.last_action != 'message':
-                self._out.note_title = self._out.last_action
-
-                headers['new_note'] = 1
-                self._out.rabbit_producer.produce(headers=headers, message='')
-
-                # we want to create a new note only if it is not a scanrun
-                self._out.line_count = 0
-
-            self.log.info('workbench_writer: handle message')
-            self._out.last_action = 'message'
-            self._out.line_count += 1
-
-            formatted = formatMessage(message)
-            rabbit_formatted = formatMessagePlain(message)
-            if not formatted:
-                return
-
-            content = '<pre style="margin: 0px !important;">' + formatted
-
-            if not rabbit_formatted:
-                return
-
-            headers['new_note'] = 0
-            headers['patch_lines'] = 0
-            headers['line_count'] = 0
-            self._out.rabbit_producer.produce(headers=headers, message=content)
+        return
 
     def handle_scanbegin(self, time, dataset):
         self.log.info('workbench_writer: handle scanbegin')
-        self._out.last_action = 'scanbegin'
-        self._out.last_global_action = 'scanbegin'
+
+        wb_text = wb_format(f'Starting scan:   {dataset.info}') + \
+                  wb_format(f'Started at:   '
+                            f'{wb_timestring_2(dataset.started)}')
+
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Scanbegin  '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=4)
+
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=wb_text)
 
     def handle_scanend(self, time, dataset):
         self.log.info('workbench_writer: handle scanend')
-        self._out.last_action = 'AfterScanend'
-        self._out.last_global_action = 'scanend'
-
-        xresults_t = np.array(dataset.xresults).transpose()
-
-        env_indices = []
-        max_dict = {}
-        for env_name in self._out.elist:
-            env_indices.append([dataset.xnames.index(env_name), env_name])
-        for env_idx in env_indices:
-            _max = max(xresults_t[env_idx[0]])
-
-            max_dict[env_idx[1]] = '%s at point: %s' % (
-                _max, (xresults_t[env_idx[0]].argmax() + 1))
 
         scannumber = dataset.counter or -1
-        yresults_t = np.array(dataset.yresults).transpose()
-
-        loc_line_count = 0
         scan_end_results = ''
 
-        scan_end_results += '<pre style="margin: 0px !important;">' + \
-                            '------NUMBER OF POINTS ------' + '\n'
+        scan_end_results += wb_format(f'Starting scan:   {dataset.scaninfo}')
+        scan_end_results += wb_format(
+            f'Started  at:   {datetime(*dataset.started[:6])}')
+        scan_end_results += wb_format(
+            f'Finished at:   '
+            f'{wb_timestring_2(time)}')
+        for file_name in dataset.filepaths:
+            scan_end_results += wb_format(f'Filename:   {file_name}')
 
-        scan_end_results += '<pre style="margin: 0px !important;">%d' % len(
-            dataset.xresults)
+        # empty lines
+        scan_end_results += '<br><br>'
 
-        scan_end_results = scan_end_results + '<br>'
-        loc_line_count += 2
+        npoints = len(dataset.xresults)
+        dataset_names = []
+        dateset_range_vals = []
 
-        scan_end_results += '<pre style="margin: 0px !important;">' + \
-                            '------ENVIRONMENT MAXIMUM------' + '\n'
+        if dataset.xresults:
+            for i in range(len(dataset.xnames)):
+                if i < len(dataset.xnames) - dataset.envvalues:
+                    first = dataset.xresults[0][i]
+                    last = dataset.xresults[-1][i]
+                else:
+                    first = min(
+                        (dataset.xresults[j][i] for j in range(npoints)),
+                        key=lambda x: x or 0)
+                    last = max((dataset.xresults[j][i] for j in range(npoints)),
+                               key=lambda x: x or 0)
+                dataset_names.append(
+                    dataset.xnames[i] + '(' + dataset.xunits[i] + ')')
+                if first == last:
+                    dateset_range_vals.append(f'{first:.3f}')
+                else:
+                    dateset_range_vals.append(f'{first:.3f} - <br>{last:.3f}')
 
-        loc_line_count += 1
-        for k, v in max_dict.items():
-            scan_end_results += '<pre style="margin: 0px !important;">' \
-                                '%s : %s\n' % (k, v)
+            cell_width = '%s' % (round(100 / (len(dataset_names) + 2), 3))
+            scan_end_results += '<table style="border-collapse: collapse; ' \
+                                'width: 90%; height: 100px;" border="1"> <tbody>'
+            scan_end_results += '<tr>'
+            scan_end_results += f'<td style="width: {cell_width} ;">' \
+                                f'{wb_format("SCAN")}</td>'
+            scan_end_results += f'<td style="width: {cell_width} ;">' \
+                                f'{wb_format("POINTS")}</td></td>'
+            for i in range(len(dataset_names)):
+                scan_end_results += f'<td style="width: {cell_width} ;">' \
+                                    f'{wb_format(dataset_names[i])}</td>'
+            scan_end_results += '</tr>'
+            scan_end_results += '<tr>'
+            scan_end_results += f'<td style="width: {cell_width} ;">' \
+                                f'{wb_format(scannumber)}</td>'
+            scan_end_results += f'<td style="width: {cell_width} ;">' \
+                                f'{wb_format(npoints)}</td>'
 
-            loc_line_count += 1
+            for i in range(len(dateset_range_vals)):
+                scan_end_results += f'<td style="width: {cell_width} ;">' \
+                                    f'{wb_format(dateset_range_vals[i])}</td>'
 
-        scan_end_results += '<br>'
-        scan_end_results += '<pre style="margin: 0px !important;">' + \
-                            '-------Y-RESULTS MIN/MAX-------' + '\n'
+            scan_end_results += '</tr>'
+            scan_end_results += '</tbody></table>'
 
-        for i in range(len(yresults_t)):
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'Scanresults {scannumber}   '
+                                          f'{wb_timestring_1(time)}',
+                                  line_count=15)
 
-            scan_end_results += '<pre style="margin: 0px !important;"> %s' \
-                                '      begin: %s  end: %s\n' % (
-                                    dataset.yvalueinfo[i], yresults_t[i][0],
-                                    yresults_t[i][-1])
-
-            loc_line_count += 1
-            max_arr = argrelmax(yresults_t[i])[0]
-            min_arr = argrelmin(yresults_t[i])[0]
-
-            if len(max_arr) > 0:
-                scan_end_results += '<pre style="margin: 0px !important;">' \
-                                    '---MAXIMA---\n'
-                loc_line_count += 1
-            for j in range(len(max_arr)):
-                scan_end_results += '<pre style="margin: 0px !important;">' \
-                                    'Point: %s Val: %s\n' % (
-                                        1 + int(max_arr[j]),
-                                        yresults_t[i][max_arr[j]])
-                loc_line_count += 1
-
-            if len(min_arr) > 0:
-                scan_end_results += '<pre style="margin: 0px !important;">' \
-                                    '---MINIMA---\n'
-                loc_line_count += 1
-
-            for j in range(len(min_arr)):
-                scan_end_results += '<pre style="margin: 0px !important;">' \
-                                    'Point: %s Val: %s\n' % (
-                                        1 + int(min_arr[j]),
-                                        yresults_t[i][min_arr[j]])
-                loc_line_count += 1
-
-            scan_end_results += '<pre style="margin: 0px !important;">\n'
-            scan_end_results += '<br>'
-            loc_line_count += 2
-
-        headers = {
-            'proposal': self._out.proposal,
-            'subject': 'Scanresults %s Maxima-Minima' % scannumber,
-            'new_note': 1,
-            'attachment': 0,
-            'file': 0,
-            'patch_lines': 1,
-            'line_count': self._out.line_count,
-        }
-
-        self._out.rabbit_producer.produce(headers=headers, message='')
-
-        headers['new_note'] = 0
-        headers['patch_lines'] = 0
-        headers['line_count'] = 0
         self._out.rabbit_producer.produce(headers=headers,
                                           message=scan_end_results)
 
-        headers['patch_lines'] = 1
-        headers['line_count'] = loc_line_count
-        self._out.rabbit_producer.produce(headers=headers, message='')
 
-        self._out.line_count = loc_line_count
+def wb_format(wb_line):
+    return f'<pre style="margin: 0px !important;">{wb_line}</pre>'
+
+
+def wb_timestring_1(time):
+    return datetime.fromtimestamp(time).strftime("%b %d %Y %H:%M:%S")
+
+
+def wb_timestring_2(time):
+    return datetime.fromtimestamp(time).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def rb_headers_note(proposal, subject, line_count):
+    return {
+        'proposal': proposal,
+        'subject': subject,
+        'note': 1,
+        'attachment': 0,
+        'file': 0,
+        'line_count': line_count,
+        'img_rows': 0
+    }
