@@ -10,7 +10,7 @@ devices = {
             pollinterval = 30,
             fmtstr = '%.4g',
             unit = 'Hz',
-            abslimits = (35000, 400000),
+            abslimits = (1, 5000000),
             default = 35000,
         ),
      '%s_reg_amp' % setupname:
