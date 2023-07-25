@@ -55,7 +55,7 @@ devices = dict(
     ),
     emergency = device('nicos.devices.epics.EpicsReadable',
         description = 'Emergency stop indicator',
-        readpv = 'SQ:ICON:b1io1:EmergencyRBV',
+        readpv = 'SQ:ICON:b2io1:EmergencyRBV',
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     asciisink = device('nicos.devices.datasinks.AsciiScanfileSink',
