@@ -39,8 +39,10 @@ devices = dict(
         filenametemplate = ['eiger%(year)sn%(scancounter)06d.scn'],
         scaninfo = ['mon1', 'mon2', 'ctr1', 'elapsedtime', 'protoncount'],
         varia = [
-            'a1',
-            'a2',
+            'vsl', 'vsr', 'a1', 'a2', 'a2rot', 'mch', 'mcv', 'mg', 'mt', 'a3',
+            'a4', 'sgl', 'sgu', 'a5'
+            'a6', 'ach', 'ag', 'atl', 'atu', 'd1l'
+            'd1r', 'd2l', 'd2r', 'msb', 'mst', 'msr', 'msl'
         ],
     ),
 )

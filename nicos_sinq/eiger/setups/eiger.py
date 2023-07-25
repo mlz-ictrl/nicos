@@ -64,13 +64,18 @@ devices = dict(
         precision = 0.02,
         can_disable = True,
     ),
-    a3 = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    a3_st = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Sample rotation',
         motorpv = mcu3prefix + 'a3',
         errormsgpv = mcu3prefix + 'a3-MsgTxt',
         precision = 0.02,
         auto_enable = True,
         can_disable = True,
+    ),
+    a3 = device('nicos.core.device.DeviceAlias',
+        description = 'Alias for a3',
+        alias = 'a3_st',
+        devclass = 'nicos.core.device.Moveable'
     ),
     sslit = device('nicos.devices.generic.slit.Slit',
         description = 'Sample slilit with left, right, bottom and '
@@ -96,7 +101,6 @@ devices = dict(
         motorpv = mcu3prefix + 'a4',
         errormsgpv = mcu3prefix + 'a4-MsgTxt',
         precision = 0.02,
-        auto_enable = True,
         can_disable = True,
     ),
     sgl = device('nicos_sinq.devices.epics.motor.EpicsMotor',
@@ -243,6 +247,7 @@ devices = dict(
         alias = 'ana',
     ),
 )
+alias_config = {'a3': {'a3_st': 10}}  # , 'se_om': 20}}
 startupcode = """
 SetDetectors(counter)
 """

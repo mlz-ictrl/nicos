@@ -102,13 +102,11 @@ class EigerMonochromator(SinqMonochromator):
             curve = vfocuspars[0] + vfocuspars[1]/math.sin(math.radians(
                 abs(th)))
             focusv.move(curve)
-            self.log.info('Moving %s to %8.4f', focusv.name, curve)
         focush = self._attached_focush
         if focush:
             hcurve = hfocuspars[0] + hfocuspars[1]*math.sin(math.radians(
                 abs(th)))
             focush.move(hcurve)
-            self.log.info('Moving %s to %8.4f', focush.name, hcurve)
         mt = self._attached_mt
         if mt:
             mtpos = self.translation_pars[0] + self.translation_pars[1] * pow(
@@ -119,14 +117,11 @@ class EigerMonochromator(SinqMonochromator):
             if mtpos >= limits[1]:
                 mtpos = limits[1] - .1
             mt.start(mtpos)
-            self.log.info('Moving %s to %8.4f', mt.name, mtpos)
 
     def doStart(self, target):
         th, tt = self._calc_angles(to_k(target, self.unit))
         self._attached_twotheta.start(tt)
-        self.log.info('Moving %s to %8.4f', self._attached_twotheta.name, tt)
         self._attached_theta.start(th)
-        self.log.info('Moving %s to %8.4f', self._attached_theta.name, th)
         self._movefoci(self.focmode, th, self.hfocuspars, self.vfocuspars)
         self._sim_setValue(target)
 
