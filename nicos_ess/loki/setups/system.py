@@ -28,7 +28,6 @@ devices = dict(
         'nicos_ess.devices.experiment.EssExperiment',
         description='experiment object',
         dataroot='/opt/nicos-data',
-        filewriter_root='/ess/data/loki',
         sample='Sample',
         cache_filepath='/opt/nicos-data/loki/cached_proposals.json'),
     conssink=device(

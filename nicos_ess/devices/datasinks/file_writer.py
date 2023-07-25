@@ -361,7 +361,7 @@ class FileWriterSinkHandler(DataSinkHandler):
             proposal_path = session.experiment.proposalpath_of(
                 session.experiment.propinfo.get('proposal')
             )
-            file_path = path.join(proposal_path, 'raw', filename)
+            file_path = path.join(proposal_path, filename)
         else:
             file_path = path.join(self.sink.subdir, filename)
 
