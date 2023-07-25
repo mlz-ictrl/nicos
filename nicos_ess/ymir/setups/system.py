@@ -35,7 +35,7 @@ devices = dict(
         'nicos_ess.devices.experiment.EssExperiment',
         description='experiment object',
         dataroot='/opt/nicos-data',
-        filewriter_root='/ess/data/ymir',
+        filewriter_base='ymir',
         sample='Sample',
         cache_filepath='/opt/nicos-data/ymir/cached_proposals.json'),
     conssink=device(
