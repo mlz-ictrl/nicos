@@ -100,7 +100,7 @@ devices = dict(
     ),
     temp_4=device(
         'nicos.devices.epics.pva.EpicsReadable',
-        description='Fourth emperature sensor',
+        description='Fourth temperature sensor',
         readpv='ESTIA-ETALON-001:TempSensorS4-R',
         pollinterval=None,
         monitor=True,
