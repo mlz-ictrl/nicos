@@ -544,7 +544,7 @@ class FileWriterControlSink(FileSink):
             self.brokers, self.pool_topic, self._attached_status.statustopic,
             self.timeoutinterval)
         if mode != SIMULATION:
-            self._consumer = KafkaConsumer.create(self.pool_topic)
+            self._consumer = KafkaConsumer.create(self.brokers)
             self._consumer.subscribe(self.pool_topic)
 
     def start_job(self):
