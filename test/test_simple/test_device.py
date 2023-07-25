@@ -47,7 +47,7 @@ class Dev2(HasLimits, HasOffset, CanDisable, Moveable):
         'attached':  Attach('Test attached device', Dev1),
         'attlist':   Attach('Test list of attached devices', Dev1,
                             multiple=True, optional=True),
-        'missingok': Attach('Test missing attached devices', Dev1,
+        'missingok': Attach('Test missing attached devices', Moveable,
                             missingok=True, optional=True),
     }
     parameters = {
@@ -199,6 +199,7 @@ def test_initialization(session, log):
             "'intparam' is configured in a setup file although declared as "
             "internal parameter"):
         session.getDevice('dev4')
+
 
 def test_special_methods(session):
     dev = session.getDevice('dev2_1')
@@ -401,6 +402,30 @@ def test_fix_and_release(session, log):
         dev2.release()
     dev2.stop()
     assert dev2.status()[0] == status.OK
+
+
+def test_fix_superdev(session, log):
+    dev = session.getDevice('dev2_6')
+    adev = dev._attached_missingok
+    adev.maw(0)
+    dev.fix('fix superdevice')
+    adev.maw(1)
+    assert adev.read() == 0
+    dev.release()
+    adev.maw(1)
+    assert adev.read() == 1
+
+
+def test_fix_recursive_superdev(session, log):
+    dev = session.getDevice('dev2_7')
+    mot = dev._attached_missingok._attached_motor
+    mot.maw(0)
+    dev.fix('fix supersuperdevice')
+    mot.maw(1)
+    assert mot.read() == 0
+    dev.release()
+    mot.maw(1)
+    assert mot.read() == 1
 
 
 def test_limits(session, log):

@@ -454,6 +454,16 @@ class Device(metaclass=DeviceMeta):
             self.__dict__['_attached_%s' % aname] = self._adevs[aname] = \
                 devlist[0] if entry.single else devlist
 
+    def _iterAdevDefinitions(self):
+        """Yield (attached_dev_name, Attach instance, actual attached dev)."""
+        for adevname, attinfo in self.attached_devices.items():
+            devs = self._adevs[adevname]
+            if isinstance(devs, list):
+                for entry in devs:
+                    yield adevname, attinfo, entry
+            else:
+                yield adevname, attinfo, devs
+
     def init(self):
         """Initialize the object; this is called by the NICOS system when the
         device instance has been created.
@@ -1753,6 +1763,12 @@ class Moveable(Waitable):
         """Fix the device: don't allow movement anymore.
 
         This blocks :meth:`start` or :meth:`stop` when called on the device.
+
+        .. method:: doFix(reason)
+
+           This method must be present and is called in addition to fixing
+           the current device.  By default, it also fixes all attached devices
+           whose `dontfix` attribute is not set to True.
         """
         eu = session.getExecutingUser()
         if self.fixedby and not session.checkUserLevel(self.fixedby[1], eu):
@@ -1763,16 +1779,34 @@ class Moveable(Waitable):
             if self.status()[0] == status.BUSY:
                 self.log.warning('device appears to be busy')
             if reason:
-                reason += ' (fixed by %r)' % eu.name
+                suffix = ' (fixed by %r)' % eu.name
+                if not reason.endswith(suffix):
+                    reason += suffix
             else:
                 reason = 'fixed by %r' % eu.name
+            # handle self
             self._setROParam('fixed', reason)
             self._setROParam('fixedby', (eu.name, eu.level))
+            # handle recursive fixes
+            self.doFix(reason)
             return True
+
+    def doFix(self, reason):
+        for name, attinfo, dev in self._iterAdevDefinitions():
+            if not attinfo.dontfix:
+                if isinstance(dev, Moveable):
+                    dev.fix(reason)
 
     @usermethod
     def release(self):
-        """Release the device, i.e. undo the effect of fix()."""
+        """Release the device, i.e. undo the effect of fix().
+
+        .. method:: doRelease()
+
+           This method must be present and is called in addition to releasing
+           the current device.  By default, it also releases all attached
+           devices whose `dontfix` attribute is not set to True.
+        """
         eu = session.getExecutingUser()
         if self.fixedby and not session.checkUserLevel(self.fixedby[1], eu):
             # fixed and not enough rights
@@ -1780,9 +1814,18 @@ class Moveable(Waitable):
                            'to release it', self.fixedby[0])
             return False
         else:
+            # handle recursive releases
+            self.doRelease()
+            # handle self
             self._setROParam('fixed', '')
             self._setROParam('fixedby', None)
             return True
+
+    def doRelease(self):
+        for name, attinfo, dev in self._iterAdevDefinitions():
+            if not attinfo.dontfix:
+                if isinstance(dev, Moveable):
+                    dev.release()
 
     def doEstimateTime(self, elapsed):
         """return the estimated time until end of movement or return None"""
