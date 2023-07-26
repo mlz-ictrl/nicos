@@ -4,7 +4,7 @@ import os
 
 group = 'configdata'
 
-KAFKA_BROKERS = ['ess01.psi.ch:9092']
+KAFKA_BROKERS = ['linkafka01.psi.ch:9092']
 
 HISTOGRAM_MEMORY_URL = 'http://dmchm:80/admin'
 HISTOGRAM_MEMORY_ENDIANESS = 'little'

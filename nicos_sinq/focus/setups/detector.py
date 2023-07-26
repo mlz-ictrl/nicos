@@ -138,7 +138,7 @@ devices = dict(
         readpv = 'SQ:FOCUS:EMMI:AW_RBV',
         writepv = 'SQ:FOCUS:EMMI:AW',
         precision = 5,
-        abslimits = (0, 5000)
+        abslimits = (0, 20000)
     ),
 )
 startupcode = """

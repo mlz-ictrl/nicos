@@ -2,9 +2,11 @@ description = 'Installs the Triple Axis Calculations into MORPHEUS'
 
 # WARNING 555: This is a test version for development
 
-requires = ['morpheus', 'monochromator']
+group = 'basic'
 
-excludes = ['euler']
+requires = ['morpheus', 'monochromator', 'a34_aliases', 'slits']
+
+excludes = ['euler', 'pnr', 'diffraction']
 
 devices = dict(
     mess = device('nicos_sinq.sxtal.reflist.ReflexList',

@@ -4,8 +4,6 @@ includes = [
     'middlebank_config',
 ]
 
-group = 'lowlevel'
-
 devices = dict(
     middle_histogrammer = device('nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description = "Middle bank HM Channel",

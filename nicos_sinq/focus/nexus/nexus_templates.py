@@ -24,14 +24,14 @@ from copy import deepcopy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, NamedImageDataset, NexusSampleEnv, \
+    DeviceAttribute, DeviceDataset, NamedImageDataset, \
     NXAttribute, NXLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_sinq.focus.nexus.focus import FocusCoordinates, ScaledImage, \
     SliceTofImage, SumImage
 from nicos_sinq.nexus.specialelements import ConfArray, FixedArray, \
-    TwoThetaArray
+    TwoThetaArray, SaveSampleEnv
 
 focus_default = {"NeXus_Version": "4.4.0",
                  "instrument": "FOCUS at SINQ",
@@ -54,9 +54,7 @@ focus_default = {"NeXus_Version": "4.4.0",
                     },
                     "sample:NXsample": {
                         "name": DeviceDataset("Sample", "samplename"),
-                        "temperature": DeviceDataset("temperature", "value",
-                                                     defaultval=0.0),
-                        "hugo": NexusSampleEnv(),
+                        "hugo": SaveSampleEnv(),
                         "distance": ConstDataset(499.7, "float32",
                                                  units=NXAttribute("mm",
                                                                    "string")),

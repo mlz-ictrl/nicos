@@ -184,6 +184,6 @@ class VSLambda(Moveable):
 
     def doRead(self, maxage=0):
         speed = self._attached_speed.read(maxage)
-        if speed >= 5:
+        if speed >= 6:
             return 1./(2.801839E-3*speed + 7.865861E-3)
         return 0

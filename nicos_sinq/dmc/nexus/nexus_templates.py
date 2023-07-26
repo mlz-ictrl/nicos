@@ -23,8 +23,9 @@
 import copy
 
 from nicos import session
-from nicos.nexus.elements import DetectorDataset, DeviceAttribute, \
-    DeviceDataset, EndTime, ImageDataset, NXAttribute, NXLink, StartTime
+from nicos.nexus.elements import ConstDataset, DetectorDataset, \
+    DeviceAttribute, DeviceDataset, EndTime, ImageDataset, NXAttribute, \
+    NXLink, StartTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_ess.nexus import EventStream, NXDataset
@@ -42,7 +43,7 @@ dmc_base = {
         'user:NXuser': {
             'name': DeviceDataset('Exp', 'users'),
             'email': DeviceDataset('Exp', 'localcontact')
-        },
+            },
         'proposal_id':
             DeviceDataset('Exp', 'proposal'),
         'start_time':
@@ -50,12 +51,14 @@ dmc_base = {
         'end_time':
             EndTime(),
         'definition':
-            NXDataset(
+            ConstDataset(
                 'NXmonopd',
                 dtype='string',
-                url=
-                'https://raw.githubusercontent.com/nexusformat/definitions/main/applications/NXmonopd.nxdl.xml'
-            ),
+                url=NXAttribute(
+                    'https://raw.githubusercontent.com/nexusformat/'
+                    'definitions/main/applications/NXmonopd.nxdl.xml',
+                    'string'),
+                ),
         'monitor:NXmonitor': {
             'mode':
                 DetectorDataset('mode', 'string'),
@@ -77,12 +80,13 @@ dmc_base = {
                 DetectorDataset('proton_charge',
                                 dtype='float32',
                                 units=NXAttribute('uC', 'string')),
-        },
+                },
         'DMC:NXinstrument': {
             'SINQ:NXSource': {
-                'name': 'SINQ',
-                'type': 'Continuous flux spallation source',
-                'probe': 'neutron',
+                'name': ConstDataset('SINQ', dtype='string'),
+                'type': ConstDataset('Continuous flux spallation source',
+                                     dtype='string'),
+                'probe': ConstDataset('neutron', dtype='string'),
             },
             'monochromator:NXmonochromator': {
                 'curvature':
@@ -122,12 +126,12 @@ dmc_base = {
                                   dtype='float32',
                                   units=NXAttribute('degree', 'string')),
             },
-        },
+                },
         'data:NXdata': {
             'signal': NXAttribute('data', 'string'),
             'data': NXLink('/entry/DMC/detector/data'),
             'summed_counts': NXLink('/entry/DMC/detector/summed_counts'),
-        }
+                }
     }
 }
 
@@ -370,14 +374,14 @@ def makeDetector():
         content['time_stamp'] = AbsoluteTime(),
 
     if 'det' in session.experiment.detlist:
-        content['summed_counts'] = DetectorDataset('ccdwww',
+        content['summed_counts'] = DetectorDataset('det_image',
                                                    dtype='int32',
                                                    units=NXAttribute(
                                                        'det_image', 'string'))
         content['detector_position'] = DeviceDataset('a4',
                                                      dtype='float32',
                                                      units=NXAttribute(
-                                                         'degree', 'string')),
+                                                         'degree', 'string'))
 
     return 'detector', content
 
