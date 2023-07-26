@@ -32,7 +32,7 @@ devices = dict(
     # Configure dataroot here (usually /data).
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
-        dataroot = '/data/02_XRR/',
+        dataroot = '/data',
         sendmail = True,
         serviceexp = 'service',
         sample = 'Sample',
@@ -43,7 +43,7 @@ devices = dict(
     livesink = device('nicos_mlz.labs.physlab.datasinks.LiveViewSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = '/data/02_XRR/',
+        path = '/data',
         warnlimits = (5., None),
         minfree = 5,
     ),
