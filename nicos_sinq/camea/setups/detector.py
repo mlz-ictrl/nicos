@@ -58,9 +58,9 @@ devices = dict(
         readpv = pvprefix + '.S5',
     ),
     protoncount = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Fourth scalar counter channel',
+        description = 'Fifth scalar counter channel',
         type = 'monitor',
-        readpv = pvprefix + '.S5',
+        readpv = pvprefix + '.S6',
     ),
     histogrammer = device('nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description = "Histogram Memory Channel",
@@ -114,4 +114,6 @@ devices = dict(
 )
 startupcode = """
 SetDetectors(cameadet)
+cter1.execute('DR 2')
+cter1.execute('DL 2 100')
 """

@@ -76,7 +76,7 @@ devices = dict(
         description = 'Monochromator curvature',
         motorpv = pvmcu3 + 'mcv',
         errormsgpv = pvmcu3 + 'mcv-MsgTxt',
-        precision = 0.02,
+        precision = 5,
         can_disable = True,
         auto_enable = True,
     ),
@@ -84,7 +84,7 @@ devices = dict(
         description = 'Monochromator curvature',
         motorpv = pvmcu3 + 'mch',
         errormsgpv = pvmcu3 + 'mch-MsgTxt',
-        precision = 0.02,
+        precision = 5,
         can_disable = True,
         auto_enable = True,
     ),
@@ -92,7 +92,7 @@ devices = dict(
         description = 'Monochromator rotation',
         motorpv = pvmcu3 + 'omm',
         errormsgpv = pvmcu3 + 'omm-MsgTxt',
-        precision = 0.02,
+        precision = 0.05,
         can_disable = True,
         auto_enable = True,
     ),
@@ -137,13 +137,13 @@ devices = dict(
         crystalside = 1,
         unit = 'meV',
         focmode = 'vertical',
-        vfocuspars = [24.4, 85.1],
-        abslimits = [2.75, 20],
+        vfocuspars = [3.72, 102.79],
+        abslimits = [2.75, 17],
         focusv = 'mcv',
         focush = 'mch',
-        hfocuspars = [8.84, 218.4],
-        upper_trans = [-0.1613, 6.1206],
-        lower_trans = [-.0987, 9.5896],
+        hfocuspars = [10.06, 271.57],
+        upper_trans = [0.0, 0.0],
+        lower_trans = [0.0, 0.0],
         lower = 'tlm',
         upper = 'tum',
     ),
@@ -234,7 +234,7 @@ devices = dict(
 )
 
 # when se_om (the sample stick rotation) is present, use this for a3
-alias_config = {'a3': {'som': 10}}  # , 'se_om': 20}}
+alias_config = {'a3': {'som': 10, }}
 
 startupcode = """
 sgl.alias = 'gl_sim'
