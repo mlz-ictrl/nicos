@@ -108,7 +108,10 @@ class Axis(CanReference, AbstractAxis):
                              'position' % (
                                  self.motor.format(self.motor.read()),
                                  self.coder.format(self.coder.read())))
-            self.motor.setPosition(self._getReading())
+            self._updateMotorPosition()
+
+    def _updateMotorPosition(self):
+        self.motor.setPosition(self._getReading())
 
     # legacy properties for users, DO NOT USE lazy_property here!
 
@@ -255,7 +258,7 @@ class Axis(CanReference, AbstractAxis):
             obs.reset()
         if self.status(0)[0] != status.BUSY:
             self._errorstate = None
-        self._attached_motor.setPosition(self._getReading())
+        self._updateMotorPosition()
         if not self._hascoder:
             self.log.info('reset done; use %s.reference() to do a reference '
                           'drive', self)
@@ -480,7 +483,7 @@ class Axis(CanReference, AbstractAxis):
 
         # enforce initial good agreement between motor and coder
         if not self._checkDragerror():
-            self._attached_motor.setPosition(self._getReading())
+            self._updateMotorPosition()
             self._errorstate = None
 
         self._lastdiff = abs(target - self.read(0))
@@ -540,7 +543,7 @@ class Axis(CanReference, AbstractAxis):
                     # motor to this position and restart it. _getReading is the
                     # 'real' value, may ask the coder again (so could slow
                     # down!)
-                    self._attached_motor.setPosition(self._getReading())
+                    self._updateMotorPosition()
                     self._attached_motor.start(target + self.offset)
                     tries -= 1
                 else:
