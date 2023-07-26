@@ -40,6 +40,3 @@ class PivotPoint(ManualSwitch):
     parameter_overrides = {
         'requires': Override(default={'level': ADMIN}, settable=False),
     }
-
-    def doStart(self, target):
-        ManualSwitch.doStart(self, target)
