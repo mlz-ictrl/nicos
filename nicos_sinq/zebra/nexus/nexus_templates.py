@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -29,7 +28,7 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_sinq.nexus.specialelements import ArrayParam, CellArray, \
-    FixedArray, OutSampleEnv, SaveSampleEnv
+    FixedArray, SaveSampleEnv
 
 
 class ZEBRATemplateProvider(NexusTemplateProvider):
@@ -96,7 +95,7 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
             'type': ConstDataset('Continuous flux spallation source',
                                  'string')
         },
-        'collimator:NXcollimator': {
+        'collimator_before_mono:NXcollimator': {
             'cex1': DeviceDataset('cex1', units=NXAttribute('degree',
                                                             'string')),
             'cex2': DeviceDataset('cex2', units=NXAttribute('degree',
@@ -113,15 +112,7 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
             'two_theta': ConstDataset(40.2, 'float',
                                       unit=NXAttribute('degree', 'string')),
         },
-        'detector:NXslit': {
-            'top': DeviceDataset('s2vt'),
-            'bottom': DeviceDataset('s2vb'),
-            'left': DeviceDataset('s2hl'),
-            'right': DeviceDataset('s2hr'),
-            'y_gap': DeviceDataset('s2v'),
-            'x_gap': DeviceDataset('s2h'),
-        },
-        'pre_sample:NXslit': {
+        'slits_s1:NXslit': {
             'top': DeviceDataset('s1vt'),
             'bottom': DeviceDataset('s1vb'),
             'left': DeviceDataset('s1hl'),
@@ -129,7 +120,15 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
             'y_gap': DeviceDataset('s1v'),
             'x_gap': DeviceDataset('s1h'),
         },
-        'nose:NXattenuator': {
+        'slits_s2:NXslit': {
+            'top': DeviceDataset('s2vt'),
+            'bottom': DeviceDataset('s2vb'),
+            'left': DeviceDataset('s2hl'),
+            'right': DeviceDataset('s2hr'),
+            'y_gap': DeviceDataset('s2v'),
+            'x_gap': DeviceDataset('s2h'),
+        },
+        'slits_nose:NXslit': {
             'horizontal_position': DeviceDataset('snhm'),
             'vertical_position': DeviceDataset('snvm'),
         },
@@ -138,6 +137,7 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
             'distance': DeviceDataset('detdist'),
             'polar_angle': DeviceDataset('stt', dtype='float32'),
             'tilt_angle': DeviceDataset('nu', dtype='float32'),
+            'twotheta': DeviceDataset('stt', dtype='float32'),
             'x_pixel_offset': ConstDataset(128, 'float'),
             'y_pixel_offset': ConstDataset(64, 'float'),
             'x_pixel_size': ConstDataset(0.734, 'float',
@@ -162,8 +162,7 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
         'k': DeviceDataset('k'),
         'l': DeviceDataset('l'),
         'name': DeviceDataset('Sample', 'samplename'),
-        "hugo": OutSampleEnv(blocklist=_zebrablocklist, postfix='_log'),
-        "lieselotte": SaveSampleEnv(),
+        "lieselotte": SaveSampleEnv(blocklist=_zebrablocklist),
     }
 
     def getTemplate(self):
