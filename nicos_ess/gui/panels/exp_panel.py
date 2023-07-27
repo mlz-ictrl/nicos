@@ -38,6 +38,12 @@ from nicos.utils import decodeAny, findResource
 from nicos_ess.gui.panels.panel import PanelBase
 
 
+USER_FIELDS = ['name', 'email', 'affiliation']
+CONTACT_FIELDS = ['name', 'email', 'affiliation']
+SAMPLE_FIELDS = ['name', 'formula', 'number of', 'mass/volume', 'density']
+SAMPLE_MAPPINGS = {'number of': 'number_of', 'mass/volume': 'mass_volume'}
+
+
 class ProposalSettings:
 
     def __init__(self,
@@ -82,7 +88,7 @@ class ExpPanel(PanelBase):
         self.old_settings = ProposalSettings()
         self.new_settings = ProposalSettings()
 
-        self._user_fields = ['name', 'email', 'affiliation']
+        self._user_fields = USER_FIELDS
         self.to_monitor = ['sample/samples', 'exp/propinfo']
         self.users_model = TableModel(self._user_fields)
         self.users_model.data_updated.connect(self._check_for_changes)
@@ -90,20 +96,15 @@ class ExpPanel(PanelBase):
         self.userTable.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.Stretch)
 
-        self.contacts_model = TableModel(['name', 'email', 'affiliation'])
+        self.contacts_model = TableModel(CONTACT_FIELDS)
         self.contacts_model.insert_row(0)
         self.contacts_model.data_updated.connect(self._check_for_changes)
         self.contactsTable.setModel(self.contacts_model)
         self.contactsTable.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.Stretch)
 
-        self.samples_model = TableModel(
-            ['name', 'formula', 'number of', 'mass/volume', 'density'],
-            mappings={
-                'number of': 'number_of',
-                'mass/volume': 'mass_volume'
-            },
-            transposed=True)
+        self.samples_model = TableModel(SAMPLE_FIELDS, mappings=SAMPLE_MAPPINGS,
+                                        transposed=True)
         self.samples_model.data_updated.connect(self._check_for_changes)
         self.sampleTable.setModel(self.samples_model)
         self.sampleTable.horizontalHeader().setSectionResizeMode(
@@ -419,14 +420,23 @@ class ExpPanel(PanelBase):
             self.notifEmails.toPlainText().strip().splitlines()
         self._check_for_changes()
 
+    def _normalise_contacts(self, contacts):
+        return [{k: contact.get(k, '') for k in CONTACT_FIELDS}
+                for contact in contacts]
+
     def _check_for_changes(self):
-        has_changed = self.new_settings != self.old_settings
-        has_changed |= self.users_model.raw_data != self.old_settings.users
-        has_changed |= self.contacts_model.raw_data != \
-                       self.old_settings.local_contacts
-        if not self.hide_samples:
-            has_changed |= \
-                self.samples_model.raw_data != self.old_settings.samples
+        new_contacts = self._normalise_contacts(self.contacts_model.raw_data)
+        old_contacts = self._normalise_contacts(
+            self.old_settings.local_contacts)
+
+        has_changed = any((
+            self.new_settings != self.old_settings,
+            self.users_model.raw_data != self.old_settings.users,
+            new_contacts != old_contacts,
+            self.samples_model.raw_data != self.old_settings.samples
+            if not self.hide_samples else False,
+        ))
+
         self._set_buttons_and_warning_behaviour(has_changed)
 
     def discardChanges(self):
