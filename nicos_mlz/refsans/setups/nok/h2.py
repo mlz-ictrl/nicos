@@ -25,10 +25,12 @@ devices = dict(
         right = 'h2_motor2',
         opmode = 'offcentered',
     ),
-    h2_center = device('nicos.devices.generic.DeviceAlias'),
-    h2_width = device('nicos.devices.generic.DeviceAlias'),
+    h2_center = device('nicos.devices.generic.DeviceAlias',
+        devclass = 'nicos.devices.generic.slit.CenterGapAxis',
+        alias = 'h2.center',
+    ),
+    h2_width = device('nicos.devices.generic.DeviceAlias',
+        devclass = 'nicos.devices.generic.slit.SizeGapAxis',
+        alias = 'h2.width',
+    ),
 )
-alias_config = {
-    'h2_width':  {'h2.width': 100},
-    'h2_center': {'h2.center': 100},
-}
