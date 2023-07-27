@@ -23,7 +23,7 @@ devices = dict(
         description = 'humidity sensor temperature channel',
         device = '%s_ch4' % 'ana4gpio01',
         poly = [-66.875, 218.75 / Raspi_VDD],
-        unit = 'Cdeg',
+        unit = 'degC',
         visibility = visibility,
     ),
     humidity_yoke_rh = device(code_base + 'analogencoder.AnalogEncoder',
@@ -37,7 +37,7 @@ devices = dict(
         description = 'humidity sensor temperature channel',
         device = '%s_ch4' % 'ana4gpio02',
         poly = [-66.875, 218.75 / Raspi_VDD],
-        unit = 'Cdeg',
+        unit = 'degC',
         visibility = visibility,
     ),
 )

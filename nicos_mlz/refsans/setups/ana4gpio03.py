@@ -48,7 +48,7 @@ devices = {
         description = 'humidity sensor temperature channel',
         device = '%s_ch1' % 'ana4gpio03',
         poly = [-66.875, 218.75/Raspi_VDD],
-        unit = 'Cdeg',
+        unit = 'degC',
         visibility = lowlevel,
     ),
 }
