@@ -2,8 +2,6 @@ description = 'REFSANS setup for julabo01 Presto A40'
 
 group = 'optional'
 
-includes = ['ana4gpio01']
-
 instrument_values = configdata('instrument.values')
 
 tango_base = instrument_values['tango_base'] + 'refsans/julabo01/'
@@ -25,15 +23,14 @@ devices = dict(
         tangodevice = tango_base + 'extsensor',
         fmtstr = '%.2f',
     ),
-    julabo_flow = device(code_base + 'analogencoder.AnalogEncoder',
+    julabo_flow = device('nicos.devices.entangle.Sensor',
         description = 'flow of julabo at PO by Sensor',
-        device = 'ana4gpio01_ch2',
-        poly = [0, 30.10],  #10V = 100L/min Spannungsteiler 10V/(5110+2200)*2200=3,01V
-        unit = 'L/min',
+        tangodevice = 'tango://ana4gpio01:10000/test/ads/ch2',
+        unit = 'l/min',
     ),
     julabo_flow_avg = device(code_base + 'avg.BaseAvg',
         description = 'avg for flow',
         dev = 'julabo_flow',
-        unit = 'L/min',
+        unit = 'l/min',
     ),
 )

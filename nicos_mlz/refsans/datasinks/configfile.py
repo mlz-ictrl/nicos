@@ -171,7 +171,7 @@ PlanB_label = [
 ]
 
 ana4gpio = [
-    'ana4gpio01',
+    'humidity',
     'ana4gpio02',
 ]
 

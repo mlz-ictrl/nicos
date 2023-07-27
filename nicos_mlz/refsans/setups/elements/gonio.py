@@ -2,8 +2,6 @@ description = 'Sample table devices'
 
 group = 'lowlevel'
 
-includes = ['ana4gpio01']
-
 instrument_values = configdata('instrument.values')
 
 tango_base1 = instrument_values['tango_base'] + 'sample/phy_mo1/'
@@ -11,10 +9,9 @@ tango_base2 = instrument_values['tango_base'] + 'sample/phy_mo2/'
 code_base = instrument_values['code_base']
 
 devices = dict(
-    gonio_x = device(code_base + 'analogencoder.AnalogEncoder',
+    gonio_x = device('nicos.devices.entangle.Sensor',
         description = 'pos of goniometer in beamdirection, with respect to b3',
-        device = 'ana4gpio01_ch1',
-        poly = [-0.269211180059716, 381.122648733114],
+        tangodevice = 'tango://ana4gpio01:10000/test/ads/ch1',
         unit = 'mm',
     ),
     gonio_theta = device('nicos.devices.generic.Axis',
