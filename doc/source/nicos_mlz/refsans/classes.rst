@@ -37,11 +37,6 @@
 .. autoclass:: AnalogValue()
 .. autoclass:: DigitalValue()
 
-.. module:: nicos_mlz.refsans.devices.detector
-.. autoclass:: ComtecCounter()
-.. autoclass:: ComtecTimer()
-.. autoclass:: ComtecFilename()
-
 .. module:: nicos_mlz.refsans.devices.gkssjson
 .. autoclass:: SdsRatemeter()
 .. autoclass:: CPTReadout()
