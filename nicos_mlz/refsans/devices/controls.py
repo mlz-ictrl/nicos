@@ -91,9 +91,10 @@ class TemperatureControlled(BaseSequencer):
     parameters = {
         'maxtemp': Param('maximum temperature to move device',
                          type=floatrange(0), default=40),
-        'timeout': Param('Time limit for the device to reach its target'
-                         ', or None', unit='min', fmtstr='%.1f',
-                         type=floatrange(0), default=20,
+        'timeout': Param('Maximum time to wait until temperature is below the '
+                         'maximum temperature',
+                         type=floatrange(0), default=20, unit='min',
+                         fmtstr='%.1f',
                          settable=True, mandatory=False, chatty=True),
     }
 
@@ -111,7 +112,9 @@ class TemperatureControlled(BaseSequencer):
 
     def _generateSequence(self, target):
         return [
-            SeqWaitConditional(self._attached_temperature, self.timeout * 60,
-                               limit=self.maxtemp, reason='HW still HOT'),
+            SeqWaitConditional(
+                self._attached_temperature, self.timeout * 60,
+                limit=self.maxtemp,
+                reason=f'HW temperature is still above {self.maxtemp} degC'),
             SeqDev(self._attached_device, target, True),
         ]
