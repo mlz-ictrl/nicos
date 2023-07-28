@@ -29,7 +29,8 @@
 
 import time
 
-from nicos.core.device import HasPrecision, Override, Readable
+from nicos.core.device import Override, Readable
+from nicos.core.mixins import HasPrecision
 
 
 class WallTime(HasPrecision, Readable):
