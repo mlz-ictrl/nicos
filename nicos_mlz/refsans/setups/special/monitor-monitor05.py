@@ -757,7 +757,6 @@ Time_selection2 = [10,'min',60]
 Time_selection1 = [10,'day',24*60*60]
 Elemente1 = [
     'det_table',
-    'det_table_ctrl',
     'det_table_motor',
     'det_table_poti',
     'det_table_raw',

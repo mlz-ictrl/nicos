@@ -147,7 +147,7 @@ det_pos = [
     'det_pixsize',
     'det_table',
     'det_table_cab_temp',
-    'det_table_ctrl',
+    'det_table_motor',
     'det_table_motor_temp',
     'det_table_poti',
     'det_table_raw',
