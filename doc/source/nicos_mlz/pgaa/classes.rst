@@ -23,7 +23,7 @@
 Data sinks
 ----------
 
-.. module:: nicos_mlz.pgaa.devices.datasinks
+.. module:: nicos_mlz.pgaa.datasinks
 .. autoclass:: MCASink()
 .. autoclass:: CHNSink()
 .. autoclass:: CSVDataSink()
