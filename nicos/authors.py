@@ -34,10 +34,12 @@ NICOS is written and maintained by:
 Contributors:
 
 * Nikolas Arend <n.arend@fz-juelich.de>
+* Josef Baudisch <josef.baudisch@frm2.tum.de>
 * Nikhil Biyani <nikhil.biyani@psi.ch>
 * Pierre Boillat <pierre.boillat@psi.ch>
 * Matt Clarke <matt.clarke@ess.eu>
 * Robert Georgii <robert.georgii@frm2.tum.de>
+* Jonathan Haehne <jonathan.haehne@frm2.tum.de>
 * Moritz Hannemann <m.hannemann@fz-juelich.de>
 * Ümit Hardal <umit.hardal@ess.eu>
 * Michael Hart <michael.hart@stfc.ac.uk>
@@ -59,14 +61,17 @@ Contributors:
 * Tobias Unruh <tobias.unruh@krist.uni-erlangen.de>
 * Michael Wedel <michael.wedel@esss.se>
 * Wolfgang Wein <wein@informatik.tu-muenchen.de>
+* Alexander Zaft <a.zaft@fz-juelich.de>
 * Markus Zolliker <markus.zolliker@psi.ch>
-* Jonathan Haehne <jonathan.haehne@frm2.tum.de>
 
 Instrument-specific code was contributed by:
 
+* Stefanos Athanasopoul <stefanos.athanasopoulos@ess.eu>
 * Fabian Beule <f.beule@fz-juelich.de>
+* Alexander Book <alexander.book@frm2.tum.de>
 * Michele Brambilla <michele.brambilla@psi.ch>
 * Alexey Bykov <redi87@bk.ru>
+* Daniel Cacabelos <daniel.cacabelos@ess.eu>
 * Petr Čermák <cermak@mag.mff.cuni.cz>
 * Goetz Eckold <geckold@gwdg.de>
 * Artem Feoktystov <a.feoktystov@fz-juelich.de>
