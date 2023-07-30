@@ -1,0 +1,2 @@
+nicos/arm1_rot_mot/unit='deg'
+nicos/arm1_rot_enc/unit='deg'

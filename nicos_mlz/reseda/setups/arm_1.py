@@ -9,6 +9,7 @@ devices = dict(
     arm1_rot_mot = device('nicos.devices.entangle.Motor',
         description = 'Rotation arm 1 (motor)',
         tangodevice = '%s/arm1/2theta' % tango_base,
+        unit = 'deg',
         fmtstr = '%.3f',
         visibility = (),
     ),
