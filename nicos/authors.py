@@ -22,13 +22,12 @@
 # *****************************************************************************
 
 authors_list = '''\
-NICOS is written and maintained by:
+NICOS is maintained by:
 
 * Georg Brandl <g.brandl@fz-juelich.de>
 * Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 * Christian Felder <c.felder@fz-juelich.de>
 * Jens Krüger <jens.krueger@frm2.tum.de>
-* Alexander Lenz <alexander.lenz@frm2.tum.de>
 * Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 
 Contributors:
@@ -47,6 +46,7 @@ Contributors:
 * Lea Kleesattel <lea.kleesattel@frm2.tum.de>
 * Mark Könnecke <Mark.Koennecke@psi.ch>
 * Jakob Lass <jakob.lass@gmail.com>
+* Alexander Lenz <alexander.lenz@frm2.tum.de>
 * Peter Link <peter.link@frm2.tum.de>
 * Kenan Muric <kenan.muric@ess.eu>
 * Pascal Neubert <pascal.neubert@frm2.tum.de>
