@@ -30,6 +30,7 @@ from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw, move, stop, wait
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
+from nicos.core import NicosError
 
 __all__ = ['zero', 'setecho', 'set_cascade', 'pol', 'miezescan', 'miezetau']
 
@@ -48,21 +49,36 @@ def miezetau(wavelength, deltaFreq, distance):
     return (2*co.m_n**2/co.h**2 * (wavelength*1e-10)**3 * deltaFreq * distance *
             1e9)
 
+
 @usercommand
 def zero():
     """Shut down all (static) power supplies."""
     ps = ['hrf_0a', 'hrf_0b', 'hrf_1a', 'hrf_1b', 'hsf_0a', 'hsf_0b', 'hsf_1',
           'sf_0a', 'sf_0b', 'sf_1', 'gf1', 'gf2', 'gf4', 'gf5', 'gf6', 'gf7',
           'gf8', 'gf9', 'gf10', 'nse0', 'nse1']
+    # Devices at BOA
+    # ps = ['hrf_0a', 'hrf_0b', 'hsf_0a', 'hsf_0b',
+    #       'sf_0a', 'sf_0b', 'gf2', 'gf8', 'gf9', 'nse0']
     for powersupply in ps:
-        powersupply = session.getDevice(powersupply)
-        move(powersupply, 0.001)
+        try:
+            powersupply = session.getDevice(powersupply)
+            move(powersupply, 0.001)
+        except NicosError:
+            pass
     wait()
 
     # Stop regulation and turn fg_amp off
-    stop('cbox_0a_reg_amp', 'cbox_0b_reg_amp', 'cbox_1_reg_amp')
-    maw('cbox_0a_fg_amp', 0.001, 'cbox_0b_fg_amp', 0.001,
-        'cbox_1_fg_amp', 0.001)
+    reg_devs = ['cbox_0a_reg_amp', 'cbox_0b_reg_amp']
+    try:
+        session.getDevice('cbox_1_reg_amp')
+        reg_devs.append('cbox_1_reg_amp')
+    except NicosError:
+        pass
+    stop(*reg_devs)
+    maw(*[e for sub in zip(reg_devs, [0.001] * 3) for e in sub])
+    # maw('cbox_0a_fg_amp', 0.001, 'cbox_0b_fg_amp', 0.001)
+    # maw('cbox_0a_fg_amp', 0.001, 'cbox_0b_fg_amp', 0.001,
+    #     'cbox_1_fg_amp', 0.001)
 
 
 @usercommand
@@ -82,26 +98,37 @@ def set_flipper_off():
         stop(regulator)
 
 
-@helparglist('time')
+@helparglist('time[, f1, f2]')
 @usercommand
-def setecho(time):
-    """Wrap setting of an echotime."""
+def setecho(time, f1=None, f2=None):
+    """Wrap setting of an echotime.
+
+    If frequencies 'f1' and/or 'f2' are not given, they will be taken from
+    the echo time table to configure the cascade setup.
+    """
     echotime = session.getDevice('echotime')
     move(echotime, time)
-    set_cascade()
+    set_cascade(f1, f2)
     wait(echotime)
 
 
+@helparglist('[f1, f2]')
 @usercommand
-def set_cascade():
-    """Set Cascade Frequency Generator Freqs and Trigger."""
+def set_cascade(f1=None, f2=None):
+    """Set Cascade Frequency Generator Freqs and Trigger.i
+
+    If frequencies 'f1' and/or 'f2' are not given, they will be taken from
+    the echo time table.
+    """
     echotime = session.getDevice('echotime')
     psd_chop_freq = session.getDevice('psd_chop_freq')
     psd_timebin_freq = session.getDevice('psd_timebin_freq')
     fg_burst = session.getDevice('fg_burst')
     tau = echotime.target
-    f1 = echotime.currenttable[tau]['cbox_0a_fg_freq']
-    f2 = echotime.currenttable[tau]['cbox_0b_fg_freq']
+    if f1 is None:
+        f1 = echotime.currenttable[tau]['cbox_0a_fg_freq']
+    if f2 is None:
+        f2 = echotime.currenttable[tau]['cbox_0b_fg_freq']
     move(psd_chop_freq, 2 * (f2 - f1))
     move(psd_timebin_freq, 32 * (f2 - f1))
     move(fg_burst, 'arm')
@@ -146,7 +173,7 @@ def freqscan(device, start, step, numsteps, time=0.2):
     """
     with manualscan(device):
         for i in range(numsteps):
-            device.maw(start + step*i)
+            device.maw(start + step * i)
             session.delay(time)
             count(1)
 
