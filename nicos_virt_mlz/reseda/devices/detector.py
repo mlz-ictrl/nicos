@@ -272,10 +272,14 @@ class McStasImage(BaseImage):
             foil_roi = shaped[foil, :, y1:y2, x1:x2].sum((1, 2))
             tres = self.fitter.run(x, foil_tot, None)
             rres = self.fitter.run(x, foil_roi, None)
-            payload.append([
-                tres._pars[0], tres._pars[1], tres._pars[2], foil_tot.tolist(),
-                rres._pars[0], rres._pars[1], rres._pars[2], foil_roi.tolist(),
-            ])
+            if not tres._failed and not rres._failed:
+                payload.append([
+                    tres._pars[0], tres._pars[1], tres._pars[2], foil_tot.tolist(),
+                    rres._pars[0], rres._pars[1], rres._pars[2], foil_roi.tolist(),
+                ])
+            else:
+                payload.append([[0.] * 4, [0.] * 4, foil_tot.tolist(),
+                                [0.] * 4, [0.] * 4, foil_roi.tolist()])
         self.log.debug('payload: %r', payload)
         self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
 

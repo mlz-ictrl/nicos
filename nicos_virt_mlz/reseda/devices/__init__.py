@@ -29,7 +29,6 @@ from nicos.devices.generic import VirtualImage
 from nicos.protocols.cache import FLAG_NO_STORE
 
 from nicos_mlz.reseda.utils import MiezeFit
-from nicos_virt_mlz.reseda.devices.detector import McStasImage, McStasSimulation
 
 
 class CascadeDetector(VirtualImage):
@@ -148,8 +147,13 @@ class CascadeDetector(VirtualImage):
             foil_roi = shaped[foil, :, y1:y2, x1:x2].sum((1, 2))
             tres = self.fitter.run(x, foil_tot, None)
             rres = self.fitter.run(x, foil_roi, None)
-            payload.append([tres._pars[1], tres._pars[2], foil_tot.tolist(),
-                            rres._pars[1], rres._pars[2], foil_roi.tolist()])
+            if not tres._failed and not rres._failed:
+                payload.append([
+                    tres._pars[1], tres._pars[2], foil_tot.tolist(),
+                    rres._pars[1], rres._pars[2], foil_roi.tolist()])
+            else:
+                payload.append([[0.] * 4, [0.] * 4, foil_tot.tolist(),
+                                [0.] * 4, [0.] * 4, foil_roi.tolist()])
 
         self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
         return data
