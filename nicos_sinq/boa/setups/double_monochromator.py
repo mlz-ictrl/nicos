@@ -7,19 +7,19 @@ excludes = [
 ]
 
 devices = dict(
-    mth1 = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    mth1 = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Double Monochromator Blade 1 Rotation',
         motorpv = pvprefix + 'MTH1',
         errormsgpv = pvprefix + 'MTH1-MsgTxt',
         precision = 0.02,
     ),
-    mth2 = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    mth2 = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Double Monochromator Blade 2 Rotation',
         motorpv = pvprefix + 'MTH2',
         errormsgpv = pvprefix + 'MTH2-MsgTxt',
         precision = 0.02,
     ),
-    mtx = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    mtx = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Double Monochromator Translation',
         motorpv = pvprefix + 'MTX',
         errormsgpv = pvprefix + 'MTX-MsgTxt',

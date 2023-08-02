@@ -65,7 +65,7 @@ devices = dict(
         renable = pvprefix + 'I6:STATUS_RBV',
         precision = .1,
     ),
-    i7 = device('nicos_ess.devices.epics.base.EpicsAnalogMoveableEss',
+    i7 = device('nicos_sinq.devices.epics.base.EpicsAnalogMoveableSinq',
         epicstimeout = 3.0,
         description = 'Guide field',
         readpv = 'SQ:TASP:I7:CurRBV',

@@ -23,7 +23,7 @@
 
 
 from nicos.core import Param, pvname, status
-from nicos.devices.epics import EpicsAnalogMoveable
+from nicos.devices.epics.pyepics import EpicsAnalogMoveable
 
 from nicos_sinq.devices.epics.generic import WindowMoveable
 

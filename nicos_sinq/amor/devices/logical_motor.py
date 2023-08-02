@@ -39,7 +39,7 @@ from nicos.core.errors import PositionError
 from nicos.devices.abstract import Motor, TransformedMoveable
 from nicos.utils import number_types
 
-from nicos_ess.devices.epics.motor import EpicsMotor
+from nicos.devices.epics.pyepics.motor import EpicsMotor
 from nicos_sinq.amor.devices.component_handler import DistancesHandler
 from nicos_sinq.devices.logical_motor import InterfaceLogicalMotorHandler
 

@@ -23,9 +23,9 @@
 
 from nicos import session
 from nicos.core import Attach, Readable
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 
-from nicos_ess.devices.epics.extensions import HasDisablePv
+from nicos.devices.epics.pyepics.mixins import HasDisablePv
 
 
 class PfeifferReadable(HasDisablePv, EpicsDevice, Readable):

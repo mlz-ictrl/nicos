@@ -4,7 +4,7 @@ spsprefix = 'SQ:SANS-LLB:SPS:'
 hide = True
 
 devices = dict(
-    shbutton = device('nicos.devices.epics.EpicsDigitalMoveable',
+    shbutton = device('nicos.devices.epics.pyepics.EpicsDigitalMoveable',
         epicstimeout = 3.0,
         description = 'Shutter button',
         readpv = spsprefix + 'SHUTTER_BUTTON',

@@ -23,7 +23,7 @@
 
 from nicos.core import Override, Param, pvname, status
 
-from nicos_ess.devices.epics.detector import EpicsDetector
+from nicos_sinq.devices.epics.detector import EpicsDetector
 
 
 class EpicsScalerRecord(EpicsDetector):

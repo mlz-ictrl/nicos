@@ -22,7 +22,7 @@
 # *****************************************************************************
 
 from nicos.core import status
-from nicos.devices.epics import \
+from nicos.devices.epics.pyepics import \
     EpicsDigitalMoveable as EpicsCoreDigitalMoveable, \
     EpicsReadable as EpicsCoreReadable
 

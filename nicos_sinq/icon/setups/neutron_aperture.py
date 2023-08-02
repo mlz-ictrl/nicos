@@ -5,7 +5,7 @@ group = 'lowlevel'
 display_order = 5
 
 devices = dict(
-    na_selector_pos = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    na_selector_pos = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         description = 'Rotary position of neutron aperture selector',
         motorpv = 'SQ:ICON:board5:NA',
         errormsgpv = 'SQ:ICON:board5:NA-MsgTxt',

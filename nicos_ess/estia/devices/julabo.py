@@ -28,12 +28,11 @@ controller using EPICS.
 from nicos.core import ConfigurationError, HasPrecision, Override, Param, \
     pvname, status
 
-from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
-from nicos_ess.devices.epics.extensions import HasDisablePv
+from nicos.devices.epics.pyepics import EpicsAnalogMoveable
+from nicos.devices.epics.pyepics.mixins import HasDisablePv
 
 
-class TemperatureController(HasDisablePv, HasPrecision,
-                            EpicsAnalogMoveableEss):
+class TemperatureController(HasDisablePv, HasPrecision, EpicsAnalogMoveable):
     """
     Julabo devices with status and power switch.
 
@@ -157,7 +156,7 @@ class TemperatureController(HasDisablePv, HasPrecision,
             pvs.add('statusmsgpv')
 
         pvs |= HasDisablePv._get_pv_parameters(self)
-        pvs |= EpicsAnalogMoveableEss._get_pv_parameters(self)
+        pvs |= EpicsAnalogMoveable._get_pv_parameters(self)
 
         return pvs
 
@@ -191,7 +190,7 @@ class TemperatureController(HasDisablePv, HasPrecision,
         if not self.isEnabled:
             return status.WARN, 'Device is switched off'
 
-        return EpicsAnalogMoveableEss.doStatus(self, maxage)
+        return EpicsAnalogMoveable.doStatus(self, maxage)
 
     def doReadTarget(self, maxage=0):
         return self._get_pv('setpoint1')

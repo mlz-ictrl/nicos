@@ -14,7 +14,7 @@ includes = ['beam_monitor']
 # a name <setup-name>_image, for example simad_image
 
 devices = dict(
-    time_preset = device('nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
+    time_preset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Acquisition time preset',
         unit = 's',
         readpv = pvprefix + detector_channel + 'AcquireTime_RBV',

@@ -27,13 +27,13 @@ from collections import OrderedDict
 from nicos.core import ADMIN, Attach, ConfigurationError, HasPrecision, \
     Override, Param, Readable, UsageError, pvname, requires, status
 from nicos.core.constants import SIMULATION
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 
-from nicos_ess.devices.epics.base import EpicsDigitalMoveableEss, \
-    EpicsWindowTimeoutDeviceEss
+from nicos_sinq.devices.epics.base import EpicsDigitalMoveableSinq, \
+    EpicsWindowTimeoutDeviceSinq
 
 
-class EpicsChopperSpeed(EpicsWindowTimeoutDeviceEss):
+class EpicsChopperSpeed(EpicsWindowTimeoutDeviceSinq):
     """Used to represent speed setter for the chopper
     """
     valuetype = int
@@ -74,11 +74,11 @@ class EpicsChopperDisc(EpicsDevice, Readable):
 
     attached_devices = {
         'speed': Attach('Device to set the speed if master',
-                        EpicsWindowTimeoutDeviceEss, optional=True),
+                        EpicsWindowTimeoutDeviceSinq, optional=True),
         'phase': Attach('Device to set the phase if slave',
-                        EpicsWindowTimeoutDeviceEss, optional=True),
+                        EpicsWindowTimeoutDeviceSinq, optional=True),
         'ratio': Attach('Device to set the speed ratio if slave',
-                        EpicsDigitalMoveableEss, optional=True),
+                        EpicsDigitalMoveableSinq, optional=True),
     }
 
     # Represents all the associated property values of the disc,

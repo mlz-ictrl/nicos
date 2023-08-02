@@ -13,7 +13,7 @@ devices = dict(
             'closed': True
         },
     ),
-    sps1 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+    sps1 = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
         description = 'Controller of the SPS-S5',
         commandpv = 'SQ:SANS:spsdirect.AOUT',
         replypv = 'SQ:SANS:spsdirect.AINP',

@@ -3,7 +3,7 @@ description = 'Agilent frequency generator via EPICS'
 pvprefix = 'SQ:BOA:AGILENT:'
 
 devices = dict(
-    amp = device('nicos.devices.epics.EpicsWindowTimeoutDevice',
+    amp = device('nicos.devices.epics.pyepics.EpicsWindowTimeoutDevice',
         description = 'Amplitude of generated function in V.',
         readpv = pvprefix + 'AMP:RBV',
         writepv = pvprefix + 'AMP',
@@ -13,7 +13,7 @@ devices = dict(
         unit = 'V',
         abslimits = (-10, 10)
     ),
-    freq = device('nicos.devices.epics.EpicsWindowTimeoutDevice',
+    freq = device('nicos.devices.epics.pyepics.EpicsWindowTimeoutDevice',
         description = 'Frequency of generated function in Hz.',
         readpv = pvprefix + 'FREQ:RBV',
         writepv = pvprefix + 'FREQ',
@@ -23,7 +23,7 @@ devices = dict(
         unit = 'Hz',
         abslimits = (0, 200000)
     ),
-    offset = device('nicos.devices.epics.EpicsWindowTimeoutDevice',
+    offset = device('nicos.devices.epics.pyepics.EpicsWindowTimeoutDevice',
         description = 'Offset of generated function in volts.',
         readpv = pvprefix + 'OFF:RBV',
         writepv = pvprefix + 'OFF',
@@ -33,7 +33,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (0, 5)
     ),
-    phase = device('nicos.devices.epics.EpicsWindowTimeoutDevice',
+    phase = device('nicos.devices.epics.pyepics.EpicsWindowTimeoutDevice',
         description = 'Phase shift of generated function in degrees.',
         readpv = pvprefix + 'PHASE:RBV',
         writepv = pvprefix + 'PHASE',

@@ -29,7 +29,7 @@ from caproto.threading.client import Context
 
 from nicos.commands import helparglist, hiddenusercommand
 from nicos.core import CommunicationError, anytype, status
-from nicos.devices.epics import SEVERITY_TO_STATUS
+from nicos.devices.epics.status import SEVERITY_TO_STATUS
 
 FTYPE_TO_TYPE = {
     ChannelType.STRING: str,

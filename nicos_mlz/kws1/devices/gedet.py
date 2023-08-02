@@ -31,7 +31,7 @@ from nicos import session
 from nicos.core import Attach, Moveable, NicosTimeoutError, Override, Param, \
     Readable, dictof, status, tupleof, usermethod
 from nicos.devices.entangle import PowerSupply
-from nicos.devices.epics import EpicsAnalogMoveable, EpicsReadable
+from nicos.devices.epics.pyepics import EpicsAnalogMoveable, EpicsReadable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
 

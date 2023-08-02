@@ -41,7 +41,7 @@ from epics import PV
 from nicos.core import CommunicationError, status
 from nicos.core.constants import LIVE
 
-from nicos_ess.devices.epics.status import ADKafkaStatus
+from nicos_sinq.devices.epics.status import ADKafkaStatus
 
 from test.nicos_sinq.utils import create_hs00
 

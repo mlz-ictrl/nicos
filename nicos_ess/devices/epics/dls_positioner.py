@@ -22,11 +22,11 @@
 # *****************************************************************************
 
 from nicos.core import Attach, PositionError, Readable
-from nicos.devices.epics import EpicsMoveable, PVMonitor
+from nicos.devices.epics.pva import EpicsMoveable
 from nicos.devices.generic import ManualSwitch
 
 
-class DlsPositioner(PVMonitor, ManualSwitch, EpicsMoveable):
+class DlsPositioner(ManualSwitch, EpicsMoveable):
     """A device for controlling the Diamond Light Source's positioner for the
     EPICS motor.
 
@@ -42,8 +42,6 @@ class DlsPositioner(PVMonitor, ManualSwitch, EpicsMoveable):
 
     def doStart(self, target):
         self._put_pv('writepv', target)
-        if target != self.doRead():
-            self._wait_for_start()
 
     def doStatus(self, maxage=0):
         return self._attached_motor.doStatus(maxage)

@@ -1,7 +1,7 @@
 description = 'Setup for the picoscope flipper switched through the MCU'
 
 devices = dict(
-    pico_onoff = device('nicos.devices.epics.EpicsWindowTimeoutDevice',
+    pico_onoff = device('nicos.devices.epics.pyepics.EpicsWindowTimeoutDevice',
         description = 'Spin Flipper On/Off (On = 0, Off = 1)',
         writepv = 'SQ:BOA:pico:ONOFF',
         readpv = 'SQ:BOA:pico:ONOFF_RBV',
@@ -10,7 +10,7 @@ devices = dict(
         timeout = 20,
         precision = 0.1,
     ),
-    mcu2 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+    mcu2 = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
         description = 'Controller of the devices connected to MCU2',
         commandpv = 'SQ:BOA:MCU2.AOUT',
         replypv = 'SQ:BOA:MCU2.AINP',

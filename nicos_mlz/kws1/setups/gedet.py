@@ -49,7 +49,7 @@ devices = dict(
 )
 
 for (epname, epicsid) in eps: # + [('ep09x', 'GE-D7561E-EP')]:
-    devices[epname + '_T'] = device('nicos.devices.epics.EpicsReadable',
+    devices[epname + '_T'] = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = epname + ' FPGA temperature',
         readpv = epicsid + ':FpgaTemperature',
         visibility = (),
@@ -58,7 +58,7 @@ for (epname, epicsid) in eps: # + [('ep09x', 'GE-D7561E-EP')]:
         fmtstr = '%.1f',
         warnlimits = (25, 75),
     )
-    devices[epname + '_TB'] = device('nicos.devices.epics.EpicsReadable',
+    devices[epname + '_TB'] = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = epname + ' board temperature',
         readpv = epicsid + ':RsppTemperature',
         visibility = (),
@@ -79,7 +79,7 @@ for (epname, epicsid) in eps: # + [('ep09x', 'GE-D7561E-EP')]:
         abslimits = (0, 1600),
         warnlimits = (1520, 1540),
     )
-    devices[epname + '_HV_SP'] = device('nicos.devices.epics.EpicsReadable',
+    devices[epname + '_HV_SP'] = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = epname + ' HV setting',
         readpv = epicsid + ':HighVoltage_W',
         visibility = (),

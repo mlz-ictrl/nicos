@@ -28,7 +28,7 @@ import pytest
 from .utils import is_at_target, unit_value
 
 try:
-    from nicos_ess.devices.epics.extensions import HasDisablePv
+    from nicos.devices.epics.pyepics.mixins import HasDisablePv
 except ImportError:
     HasDisablePv = None
 

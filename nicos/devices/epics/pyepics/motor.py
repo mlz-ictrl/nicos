@@ -29,12 +29,11 @@ from nicos.core.device import requires
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
-from nicos.devices.epics import SEVERITY_TO_STATUS, PVMonitor
+from nicos.devices.epics.pyepics import EpicsAnalogMoveable, PVMonitor
+from nicos.devices.epics.status import SEVERITY_TO_STATUS
 
-from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
-
-class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
+class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                  Motor):
     """
     This device exposes some of the functionality provided by the EPICS motor
@@ -353,27 +352,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         self._put_pv('foff', 0)
 
 
-class HomingProtectedEpicsMotor(EpicsMotor):
-    """
-    The only thing that this class adds to EpicsMotor is that
-    the reference run can only happen with admin rights
-    """
-
-    @requires(level=ADMIN)
-    def doReference(self):
-        EpicsMotor.doReference(self)
-
-
-class AbsoluteEpicsMotor(EpicsMotor):
-    """
-    The instances of this class cannot be homed.
-    """
-
-    def doReference(self):
-        self.log.warning('This motor does not require '
-                         'homing - command ignored')
-
-
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):
 
     def doStart(self, target):
@@ -395,3 +373,14 @@ class EpicsMonitorMotor(PVMonitor, EpicsMotor):
         # the cache needs to be updated immediately.
         if pvparam in ['donemoving', 'moving']:
             self._cache.put(self._name, pvparam, value, currenttime())
+
+
+class HomingProtectedEpicsMotor(EpicsMotor):
+    """
+    The only thing that this class adds to EpicsMotor is that
+    the reference run can only happen with admin rights
+    """
+
+    @requires(level=ADMIN)
+    def doReference(self):
+        EpicsMotor.doReference(self)

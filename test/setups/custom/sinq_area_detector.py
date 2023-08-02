@@ -19,7 +19,7 @@ devices = dict(
     ),
 
     time_preset=device(
-        'nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
+        'nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description='Acquisition time preset',
         unit='s',
         readpv=pvprefix + detector_channel + 'AcquireTime_RBV',
@@ -27,7 +27,7 @@ devices = dict(
     ),
 
     time_remaining=device(
-        'nicos_ess.devices.epics.detector.EpicsTimerPassiveChannel',
+        'nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
         description='',
         unit='s',
         readpv=pvprefix + detector_channel + 'TimeRemaining_RBV',

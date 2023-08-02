@@ -5,13 +5,13 @@ pvprefix = 'SQ:SANS:mota:'
 excludes = ['sample']
 
 devices = dict(
-    mz = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    mz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Sample Table Height',
         motorpv = pvprefix + 'mz',
         errormsgpv = pvprefix + 'mz-MsgTxt',
         precision = 0.01,
     ),
-    mom = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    mom = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Sample table Rotation',
         motorpv = pvprefix + 'mom',
         errormsgpv = pvprefix + 'mom-MsgTxt',

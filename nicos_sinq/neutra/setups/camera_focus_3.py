@@ -7,7 +7,7 @@ group = 'lowlevel'
 display_order = 60
 
 devices = dict(
-    focus_maxi = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    focus_maxi = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         description = 'Camera Focusing Maxibox',
         motorpv = pvprefix + 'CMAX',
         errormsgpv = pvprefix + 'CMAX-MsgTxt',

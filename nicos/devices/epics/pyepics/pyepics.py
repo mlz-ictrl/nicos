@@ -35,7 +35,7 @@ from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
     floatrange, none_or, pvname, status
 from nicos.core.mixins import HasWindowTimeout
-from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
+from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.utils import HardwareStub
 
 # ca.clear_cache() only works from the main thread

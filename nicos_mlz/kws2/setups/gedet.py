@@ -55,7 +55,7 @@ devices = dict(
 )
 
 for (epname, epicsid) in eps:
-    devices[epname + '_T'] = device('nicos.devices.epics.EpicsReadable',
+    devices[epname + '_T'] = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = epname + ' FPGA temperature',
         readpv = epicsid + ':FpgaTemperature',
         visibility = (),
@@ -64,7 +64,7 @@ for (epname, epicsid) in eps:
         fmtstr = '%.1f',
         warnlimits = (25, 75),
     )
-    devices[epname + '_TB'] = device('nicos.devices.epics.EpicsReadable',
+    devices[epname + '_TB'] = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = epname + ' board temperature',
         readpv = epicsid + ':RsppTemperature',
         visibility = (),

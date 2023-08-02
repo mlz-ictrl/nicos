@@ -52,7 +52,7 @@ devices = dict(
         subprocess = 'nicos_sinq/boa/bin/restartboaioc.sh',
         args = []
     ),
-    mcu3 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+    mcu3 = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
         description = 'Controller of the devices connected to mcu3',
         commandpv = 'SQ:BOA:MCU3.AOUT',
         replypv = 'SQ:BOA:MCU3.AINP',

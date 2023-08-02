@@ -27,11 +27,11 @@ import numpy as np
 from nicos.core import Attach, CommunicationError, Override, Param, Readable, \
     limits, pvname, status
 
-from nicos_ess.devices.epics.base import EpicsReadableEss
-from nicos_ess.devices.epics.extensions import HasDisablePv
+from nicos.devices.epics.pyepics import EpicsReadable
+from nicos.devices.epics.pyepics.mixins import HasDisablePv
 
 
-class PilotLaser(HasDisablePv, EpicsReadableEss):
+class PilotLaser(HasDisablePv, EpicsReadable):
     parameters = {
         'uncertainty_fix':
             Param('Fixed contribution to uncertainty',
@@ -96,7 +96,7 @@ class PilotLaser(HasDisablePv, EpicsReadableEss):
         return 'Not Ready'
 
 
-class MultilineChannel(EpicsReadableEss):
+class MultilineChannel(EpicsReadable):
 
     parameters = {
         'channel':
@@ -139,7 +139,7 @@ class MultilineChannel(EpicsReadableEss):
 
     def doPreinit(self, mode):
         self._raw = np.zeros(16)
-        EpicsReadableEss.doPreinit(self, mode)
+        EpicsReadable.doPreinit(self, mode)
 
     def _readRaw(self):
         raw = self._get_pv('readpv')
@@ -196,7 +196,7 @@ EnvironmentalParameters = namedtuple('EnvironmentalParameters',
                                      ['temperature', 'pressure', 'humidity'])
 
 
-class MultilineController(EpicsReadableEss):
+class MultilineController(EpicsReadable):
 
     parameters = {
         'pvprefix':

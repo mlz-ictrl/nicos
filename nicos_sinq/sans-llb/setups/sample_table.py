@@ -3,14 +3,14 @@ description = 'Setup for the standard sample table'
 pvprefix = 'SQ:SANS-LLB:mcu2:'
 
 devices = dict(
-    stx = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    stx = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample table X',
         motorpv = pvprefix + 'stx',
         errormsgpv = pvprefix + 'stx-MsgTxt',
         precision = 0.01,
     ),
-    sty = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    sty = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample table Y',
         motorpv = pvprefix + 'sty',
@@ -22,14 +22,14 @@ devices = dict(
         unit = 'mm',
         abslimits = (0, 170)
     ),
-    stom = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    stom = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample table rotation',
         motorpv = pvprefix + 'stom',
         errormsgpv = pvprefix + 'stom-MsgTxt',
         precision = 0.01,
     ),
-    stgn = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    stgn = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample table goniometer',
         motorpv = pvprefix + 'stgn',

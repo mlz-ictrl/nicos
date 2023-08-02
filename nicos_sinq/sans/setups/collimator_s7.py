@@ -42,7 +42,7 @@ for col, colpv in segments.items():
             ontime = 1.5
         )
     for name in segread:
-        devices[col + '_' + name] = device('nicos.devices.epics.EpicsReadable',
+        devices[col + '_' + name] = device('nicos.devices.epics.pyepics.EpicsReadable',
             description = '%s %s readout' % (col, name),
             visibility = hide,
             readpv = pvprefix + colpv + ':' + name.upper() + '_RBV',

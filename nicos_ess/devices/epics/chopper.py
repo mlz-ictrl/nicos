@@ -26,8 +26,8 @@
 # *****************************************************************************
 from nicos.core import Attach, Override, Param, Readable, Waitable, status
 from nicos.devices.abstract import MappedMoveable, Moveable
-from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.epics.pva import EpicsDevice
+from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 
 
 class ChopperAlarms(EpicsDevice, Readable):

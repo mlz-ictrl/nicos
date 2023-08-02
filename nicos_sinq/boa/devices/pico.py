@@ -24,7 +24,7 @@
 from nicos.core import Attach
 from nicos.devices.abstract import MappedMoveable
 
-from nicos_ess.devices.epics.extensions import EpicsCommandReply
+from nicos_sinq.devices.epics.extensions import EpicsCommandReply
 
 
 class PicoSwitch(MappedMoveable):

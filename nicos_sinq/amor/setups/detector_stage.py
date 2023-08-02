@@ -3,12 +3,12 @@ description = 'Detector stage'
 pvprefix = 'SQ:AMOR:motserial:'
 
 devices = dict(
-    com = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    com = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Detector tilt',
         motorpv = pvprefix + 'com',
         errormsgpv = pvprefix + 'com-MsgTxt',
     ),
-    coz = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    coz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Detector height',
         motorpv = pvprefix + 'coz',
         errormsgpv = pvprefix + 'coz-MsgTxt',

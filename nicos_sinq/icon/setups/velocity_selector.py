@@ -24,14 +24,14 @@ vssetpwritable['setp'] = pvprefix + 'VSSP:Speed'
 hide = ()
 
 for name, pv in vsreadables.items():
-    devices['vs_' + name] = device('nicos.devices.epics.EpicsReadable',
+    devices['vs_' + name] = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'VS %s readout' % name,
         readpv = pv,
         visibility = hide,
     )
 
 for name, pv in vswritables.items():
-    devices['vs_' + name] = device('nicos.devices.epics.EpicsDigitalMoveable',
+    devices['vs_' + name] = device('nicos.devices.epics.pyepics.EpicsDigitalMoveable',
         description = 'VS %s switch' % name,
         readpv = pv,
         writepv = pv,
@@ -39,7 +39,7 @@ for name, pv in vswritables.items():
     )
 
 for name, pv in vssetpwritable.items():
-    devices['vs_' + name] = device('nicos.devices.epics.EpicsAnalogMoveable',
+    devices['vs_' + name] = device('nicos.devices.epics.pyepics.EpicsAnalogMoveable',
         description = 'VS %s analog' % name,
         readpv = pv,
         writepv = pv,

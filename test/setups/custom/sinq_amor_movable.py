@@ -7,7 +7,7 @@ def create_epics_motor(controller_id, device_id):
     name of the motor device. The motor pv will be used as follows:
     SQ:AMOR:mot<controller_id>:device_id
     '''
-    return device('nicos_ess.devices.epics.motor.EpicsMotor',
+    return device('nicos.devices.epics.pyepics.motor.EpicsMotor',
                   description='Test motor',
                   motorpv='SQ:AMOR:mot' + controller_id + ':' + device_id,
                   )

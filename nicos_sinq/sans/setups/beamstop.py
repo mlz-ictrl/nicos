@@ -3,13 +3,13 @@ description = 'Devices for the Beamstop'
 pvprefix = 'SQ:SANS:mota:'
 
 devices = dict(
-    bsy = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    bsy = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Beamstop Y Translation',
         motorpv = pvprefix + 'bsY',
         errormsgpv = pvprefix + 'bsY-MsgTxt',
         precision = 0.2,
     ),
-    bsx = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    bsx = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Beamstop Y Translation',
         motorpv = pvprefix + 'bsX',
         errormsgpv = pvprefix + 'bsX-MsgTxt',

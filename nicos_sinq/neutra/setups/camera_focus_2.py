@@ -7,14 +7,14 @@ group = 'lowlevel'
 display_order = 40
 
 devices = dict(
-    focus_midi_axis = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    focus_midi_axis = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         description = 'Axis Camera Positioning Midibox',
         motorpv = pvprefix + 'CMID',
         errormsgpv = pvprefix + 'CMID-MsgTxt',
         precision = 0.01,
         visibility = set(),
     ),
-    focus_midi_brake = device('nicos.devices.epics.EpicsDigitalMoveable',
+    focus_midi_brake = device('nicos.devices.epics.pyepics.EpicsDigitalMoveable',
         readpv = 'SQ:NEUTRA:b4io4:BrakeCMID',
         writepv = 'SQ:NEUTRA:b4io4:BrakeCMID',
         visibility = set(),

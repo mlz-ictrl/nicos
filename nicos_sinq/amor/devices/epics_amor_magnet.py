@@ -23,8 +23,8 @@
 
 from nicos.core import Attach, Override, Param, pvname, status
 
-from nicos_ess.devices.epics.base import EpicsWindowTimeoutDeviceEss
-from nicos_ess.devices.epics.extensions import EpicsMappedMoveable
+from nicos_sinq.devices.epics.base import EpicsWindowTimeoutDeviceSinq
+from nicos_sinq.devices.epics.extensions import EpicsMappedMoveable
 
 
 class EpicsAmorMagnetSwitch(EpicsMappedMoveable):
@@ -40,7 +40,7 @@ class EpicsAmorMagnetSwitch(EpicsMappedMoveable):
         return bool(self._readRaw())
 
 
-class EpicsAmorMagnet(EpicsWindowTimeoutDeviceEss):
+class EpicsAmorMagnet(EpicsWindowTimeoutDeviceSinq):
     """
     Magnets in the AMOR instrument
 
@@ -124,12 +124,12 @@ class EpicsAmorMagnet(EpicsWindowTimeoutDeviceEss):
         return getattr(self, pvparam)
 
     def doRead(self, maxage=0):
-        return EpicsWindowTimeoutDeviceEss.doRead(self, maxage) / self.fieldfactor
+        return EpicsWindowTimeoutDeviceSinq.doRead(self, maxage) / self.fieldfactor
 
     def doReadUnit(self):
         unit = self._params.get('unit')
         if not unit:
-            unit = EpicsWindowTimeoutDeviceEss.doReadUnit(self)
+            unit = EpicsWindowTimeoutDeviceSinq.doReadUnit(self)
         return unit
 
     def doReadTarget(self):
@@ -144,7 +144,7 @@ class EpicsAmorMagnet(EpicsWindowTimeoutDeviceEss):
         if not self._attached_switch.isEnabled:
             return status.OK, 'Off'
 
-        return EpicsWindowTimeoutDeviceEss.doStatus(self, maxage)
+        return EpicsWindowTimeoutDeviceSinq.doStatus(self, maxage)
 
     def doIsAllowed(self, position):
         if not self._attached_switch.isEnabled:
@@ -152,7 +152,7 @@ class EpicsAmorMagnet(EpicsWindowTimeoutDeviceEss):
         return True, ''
 
     def doStart(self, target):
-        EpicsWindowTimeoutDeviceEss.doStart(self, target * self.fieldfactor)
+        EpicsWindowTimeoutDeviceSinq.doStart(self, target * self.fieldfactor)
 
     def doReadAbslimits(self):
         absmin = self._get_pv('lowlimit') / self.fieldfactor

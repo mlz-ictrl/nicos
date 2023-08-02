@@ -27,12 +27,12 @@ from time import monotonic
 
 from nicos import session
 from nicos.core import Attach, Moveable, Param, Readable, Value, pvname, status
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 from nicos.devices.generic import Detector
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqSleep, \
     SequenceItem, SequencerMixin
 
-from nicos_ess.devices.epics.base import EpicsDigitalMoveable
+from nicos_sinq.devices.epics.base import EpicsDigitalMoveable
 
 
 class WaitPV(SequenceItem):

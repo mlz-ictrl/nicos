@@ -22,7 +22,7 @@
 # *****************************************************************************
 from nicos.core import Param, pvname, status
 
-from nicos_ess.devices.epics.base import EpicsReadableEss
+from nicos.devices.epics.pyepics import EpicsReadable
 
 error_bits = {
     'underrange': 0x1,
@@ -58,7 +58,7 @@ def get_pt100_status_message(value):
     return status.OK, ''
 
 
-class EpicsPT100Temperature(EpicsReadableEss):
+class EpicsPT100Temperature(EpicsReadable):
     """
     Device that reads one of the PT100 sensors.
     """
@@ -70,11 +70,11 @@ class EpicsPT100Temperature(EpicsReadableEss):
 
     def _get_pv_parameters(self):
         if self.statuspv:
-            return EpicsReadableEss._get_pv_parameters(self) | {'statuspv'}
-        return EpicsReadableEss._get_pv_parameters(self)
+            return EpicsReadable._get_pv_parameters(self) | {'statuspv'}
+        return EpicsReadable._get_pv_parameters(self)
 
     def doStatus(self, maxage=0):
-        mapped_status, status_message = EpicsReadableEss.doStatus(self, maxage)
+        mapped_status, status_message = EpicsReadable.doStatus(self, maxage)
         if mapped_status != status.OK:
             return mapped_status, status_message
 

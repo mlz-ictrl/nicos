@@ -20,11 +20,12 @@
 #   Michele Brambilla <mnichele.brambilla@psi.ch>
 #
 # *****************************************************************************
+from time import time as currenttime
 from nicos import session
 from nicos.core import MAIN, Param, status
 
-from nicos_ess.devices.epics.motor import EpicsMotor as EssEpicsMotor
-from nicos.devices.epics.pyepics import pvget
+from nicos.devices.epics.pyepics.motor import EpicsMotor as EssEpicsMotor
+from nicos.devices.epics.pyepics import PVMonitor, pvget
 
 
 class EpicsMotor(EssEpicsMotor):
@@ -100,3 +101,34 @@ class EpicsMotor(EssEpicsMotor):
         if not self.isEnabled:
             return False, 'Motor disabled'
         return True, ''
+
+class AbsoluteEpicsMotor(EpicsMotor):
+    """
+    The instances of this class cannot be homed.
+    """
+
+    def doReference(self):
+        self.log.warning('This motor does not require '
+                         'homing - command ignored')
+
+
+class EpicsMonitorMotor(PVMonitor, EpicsMotor):
+    def doStart(self, target):
+        try:
+            self._put_pv_blocking('writepv', target, timeout=5)
+        except Exception as e:
+            # Use a generic exception to handle any EPICS binding
+            self.log.warning(e)
+            return
+        if target != self.doRead():
+            self._wait_for_start()
+
+    def _on_status_change_cb(self, pvparam, value=None, char_value='', **kws):
+        self._check_move_state_changed(pvparam, value)
+        PVMonitor._on_status_change_cb(self, pvparam, value, char_value, **kws)
+
+    def _check_move_state_changed(self, pvparam, value):
+        # If the fields indicating whether the device is moving change then
+        # the cache needs to be updated immediately.
+        if pvparam in ['donemoving', 'moving']:
+            self._cache.put(self._name, pvparam, value, currenttime())

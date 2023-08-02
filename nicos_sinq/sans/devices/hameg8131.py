@@ -24,9 +24,9 @@
 from nicos.core import Attach, status
 from nicos.core.constants import SIMULATION
 from nicos.core.params import oneof
-from nicos.devices.epics import EpicsMoveable
+from nicos.devices.epics.pyepics import EpicsMoveable
 
-from nicos_ess.devices.epics.extensions import EpicsCommandReply
+from nicos_sinq.devices.epics.extensions import EpicsCommandReply
 
 
 class HAMEG8131(EpicsMoveable):

@@ -29,7 +29,7 @@ devices = dict(
         source = 'monitor2',
         type = 'monitor',
     ),
-    proton_current = device('nicos_ess.devices.epics.base.EpicsReadable',
+    proton_current = device('nicos_sinq.devices.epics.base.EpicsReadable',
         description = 'Proton current monitor',
         readpv = 'MHC6:IST:2',
         unit = 'uA',

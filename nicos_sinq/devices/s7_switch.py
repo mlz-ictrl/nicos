@@ -26,7 +26,7 @@ from time import time as currenttime
 from nicos import session
 from nicos.core import Attach, Override, Param, none_or, oneof, pvname, status
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 from nicos.devices.generic import Pulse
 
 

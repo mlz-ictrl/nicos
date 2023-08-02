@@ -3,22 +3,22 @@ description = 'Devices for the Pfeiffer vakuum measuring device'
 pvprefix = 'SQ:FOCUS:PFIFF:'
 
 devices = dict(
-    pf_flightpath = device('nicos.devices.epics.EpicsReadable',
+    pf_flightpath = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Vakuum value for flightpath',
         readpv = pvprefix + 'Flightpath',
         visibility = ()
     ),
-    pf_antitrumpet = device('nicos.devices.epics.EpicsReadable',
+    pf_antitrumpet = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Vakuum value for antitrumpet',
         readpv = pvprefix + 'Antitrumpet',
         visibility = ()
     ),
-    pf_sample = device('nicos.devices.epics.EpicsReadable',
+    pf_sample = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Vakuum value for sample chamber',
         readpv = pvprefix + 'SampleChamber',
         visibility = ()
     ),
-    pf_bef = device('nicos.devices.epics.EpicsReadable',
+    pf_bef = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Vakuum value for BE filter',
         readpv = pvprefix + 'BeFilter',
         visibility = ()

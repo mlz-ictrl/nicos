@@ -27,7 +27,7 @@ from time import monotonic
 from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError, PositionError
 from nicos.devices.abstract import MappedMoveable, MappedReadable
-from nicos.devices.epics import EpicsDevice, EpicsReadable
+from nicos.devices.epics.pyepics import EpicsDevice, EpicsReadable
 
 
 class S5Switch(EpicsDevice, MappedMoveable):

@@ -24,7 +24,7 @@ devices = dict(
         abslimits = (-5, 5),
         precision = .2,
     ),
-    flip_port = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+    flip_port = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
         description = 'Direct connection to spin flipper',
         commandpv = pvprefix + '.AOUT',
         replypv = pvprefix + '.AINP',

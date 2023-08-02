@@ -18,5 +18,5 @@ devices = dict(
 )
 
 startupcode = '''
-import nicos.devices.epics
+import nicos.devices.epics.pyepics
 '''

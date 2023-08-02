@@ -28,23 +28,23 @@ devices = dict(
         unit = 'A',
         fmtstr = '%.2f',
     ),
-    vs_vacuum = device('nicos.devices.epics.EpicsReadable',
+    vs_vacuum = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Velocity Selector Vaccum',
         readpv = selprefix + 'VAKUUM_RBV'
     ),
-    vs_vibration = device('nicos.devices.epics.EpicsReadable',
+    vs_vibration = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Velocity Selector Vibration',
         readpv = selprefix + 'Hz_RBV'
     ),
-    vs_rot_t = device('nicos.devices.epics.EpicsReadable',
+    vs_rot_t = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Velocity Rotor Temperature',
         readpv = selprefix + 'T_ROT_RBV'
     ),
-    vs_flow = device('nicos.devices.epics.EpicsReadable',
+    vs_flow = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Velocity Water Flow',
         readpv = selprefix + 'DURCHFL_RBV'
     ),
-    vs_water_t = device('nicos.devices.epics.EpicsReadable',
+    vs_water_t = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Velocity Water Temperature',
         readpv = selprefix + 'T_RUECK_RBV'
     ),

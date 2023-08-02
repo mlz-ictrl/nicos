@@ -24,7 +24,6 @@
 Status code definitions for EPICS ESS devices
 """
 
-
 class ADKafkaStatus:
     CONNECTED = 0
     CONNECTING = 1

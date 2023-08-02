@@ -32,7 +32,7 @@ from nicos.devices.epics.pyepics import EpicsDevice
 from nicos.devices.generic.sequence import SeqMethod, SeqSleep, SequenceItem, \
     SequencerMixin
 
-from nicos_ess.devices.epics.extensions import EpicsCommandReply
+from nicos_sinq.devices.epics.extensions import EpicsCommandReply
 
 
 class SetSPS(SequenceItem):

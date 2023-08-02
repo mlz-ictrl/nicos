@@ -7,7 +7,7 @@ display_order = 45
 pvprefix = 'SQ:ICON:usetup:'
 
 devices = dict(
-    focus_micro = device('nicos.devices.epics.EpicsWindowTimeoutDevice',
+    focus_micro = device('nicos.devices.epics.pyepics.EpicsWindowTimeoutDevice',
         description = 'Camera focus micro setup',
         writepv = pvprefix + 'SETP',
         readpv = pvprefix + 'POS',

@@ -22,11 +22,11 @@
 # *****************************************************************************
 
 from nicos.core import Param, Value, status
-from nicos.devices.epics import EpicsReadable
-from nicos.devices.epics.monitor import PyEpicsMonitor
+from nicos.devices.epics.pyepics import EpicsReadable
+from nicos.devices.epics.pyepics.monitor import PyEpicsMonitor
 from nicos.devices.generic.detector import CounterChannelMixin
 
-from nicos_ess.devices.epics.detector import EpicsPassiveChannel
+from nicos_sinq.devices.epics.detector import EpicsPassiveChannel
 
 
 class SINQProtonCurrent(PyEpicsMonitor, EpicsReadable):

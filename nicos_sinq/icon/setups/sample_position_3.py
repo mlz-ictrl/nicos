@@ -10,7 +10,7 @@ includes = [
 display_order = 50
 
 devices = dict(
-    sp3_allowed = device('nicos.devices.epics.EpicsReadable',
+    sp3_allowed = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Motion enabled for sample position 3',
         readpv = 'SQ:ICON:b2io1:MotionEnabledRBV',
     ),
@@ -29,7 +29,7 @@ devices = dict(
         lock = 'sp3_allowed',
         visibility = (),
     ),
-    sp3_ty_brake = device('nicos.devices.epics.EpicsDigitalMoveable',
+    sp3_ty_brake = device('nicos.devices.epics.pyepics.EpicsDigitalMoveable',
         description = 'Sample Position 3, Translation Y brake',
         readpv = 'SQ:ICON:b4io4:BrakeSP3TY',
         writepv = 'SQ:ICON:b4io4:BrakeSP3TY',
@@ -43,13 +43,13 @@ devices = dict(
         lockvalue = 0,
         unit = 'mm',
     ),
-    sp3_ry = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    sp3_ry = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         description = 'Sample Position 3, Rotation Y',
         motorpv = 'SQ:ICON:board6:SP3RY',
         errormsgpv = 'SQ:ICON:board6:SP3RY-MsgTxt',
         precision = 0.01,
     ),
-    sp3_rz = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
+    sp3_rz = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
         description = 'Sample Position 3, Rotation Z',
         motorpv = 'SQ:ICON:board6:SP3RZ',
         errormsgpv = 'SQ:ICON:board6:SP3RZ-MsgTxt',

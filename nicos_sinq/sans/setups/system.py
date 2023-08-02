@@ -40,7 +40,7 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
-    mcu1 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+    mcu1 = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
         description = 'Controller mcu1 direct access',
         commandpv = 'SQ:SANS:mcu1.AOUT',
         replypv = 'SQ:SANS:mcu1.AINP',

@@ -15,7 +15,7 @@ devices = dict(
         precision = .1,
         abslimits = (0, 5)
     ),
-    e3648a_chan = device('nicos.devices.epics.EpicsDigitalMoveable',
+    e3648a_chan = device('nicos.devices.epics.pyepics.EpicsDigitalMoveable',
         description = 'Channel selection on Agilent E3648A',
         writepv = 'SQ:BOA:e3648a:CHAN',
         readpv = 'SQ:BOA:e3648a:CHAN_RBV',

@@ -29,7 +29,7 @@ from p4p.client.thread import Context
 
 from nicos.commands import helparglist, hiddenusercommand
 from nicos.core import CommunicationError, status
-from nicos.devices.epics import SEVERITY_TO_STATUS
+from nicos.devices.epics.status import SEVERITY_TO_STATUS
 
 # Same context can be shared across all devices.
 # nt=False tells p4p not to try to map types itself

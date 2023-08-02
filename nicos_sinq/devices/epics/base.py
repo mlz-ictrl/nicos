@@ -25,12 +25,12 @@ This module contains ESS specific Base classes for EPICS.
 """
 
 from nicos.core import Override
-from nicos.devices.epics import EpicsAnalogMoveable, EpicsDigitalMoveable, \
-    EpicsMoveable, EpicsReadable, EpicsStringReadable, \
+from nicos.devices.epics.pyepics import EpicsAnalogMoveable, \
+    EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, EpicsStringReadable,\
     EpicsWindowTimeoutDevice
 
 
-class EpicsReadableEss(EpicsReadable):
+class EpicsReadableSinq(EpicsReadable):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
@@ -39,11 +39,11 @@ class EpicsReadableEss(EpicsReadable):
     }
 
 
-class EpicsStringReadableEss(EpicsStringReadable):
+class EpicsStringReadableSinq(EpicsStringReadable):
     parameter_overrides = {'readpv': Override(userparam=False)}
 
 
-class EpicsMoveableEss(EpicsMoveable):
+class EpicsMoveableSinq(EpicsMoveable):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
@@ -52,7 +52,7 @@ class EpicsMoveableEss(EpicsMoveable):
     }
 
 
-class EpicsAnalogMoveableEss(EpicsAnalogMoveable):
+class EpicsAnalogMoveableSinq(EpicsAnalogMoveable):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
@@ -61,7 +61,7 @@ class EpicsAnalogMoveableEss(EpicsAnalogMoveable):
     }
 
 
-class EpicsDigitalMoveableEss(EpicsDigitalMoveable):
+class EpicsDigitalMoveableSinq(EpicsDigitalMoveable):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
@@ -70,7 +70,7 @@ class EpicsDigitalMoveableEss(EpicsDigitalMoveable):
     }
 
 
-class EpicsWindowTimeoutDeviceEss(EpicsWindowTimeoutDevice):
+class EpicsWindowTimeoutDeviceSinq(EpicsWindowTimeoutDevice):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),

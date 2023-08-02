@@ -23,7 +23,7 @@
 
 from nicos.core.device import Attach, Readable
 
-from nicos_ess.devices.epics.extensions import EpicsCommandReply
+from nicos_sinq.devices.epics.extensions import EpicsCommandReply
 
 
 class EulerPresent(Readable):

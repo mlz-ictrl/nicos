@@ -34,15 +34,14 @@ from numpy import cos, pi
 from nicos import session
 from nicos.core import Attach, Measurable, Override, Param, Readable, status
 from nicos.core.params import oneof, pvname
-from nicos.devices.epics import EpicsReadable
+from nicos.devices.epics.pyepics import EpicsReadable
 
-from nicos_ess.devices.epics.base import EpicsMoveableEss
+from nicos_sinq.devices.epics.base import EpicsMoveable
 
 
 class IDS3010Axis(EpicsReadable):
     """Read interferometer inputs
     """
-
     parameters = {
         'axis':
             Param('Index of the axis to be read',
@@ -117,10 +116,9 @@ class IDS3010Axis(EpicsReadable):
         self._pollParam('absolute')
 
 
-class IDS3010Control(EpicsMoveableEss):
+class IDS3010Control(EpicsMoveable):
     """Control interferometer measurement and alignment options.
     """
-
     _modes = {
         'system idle': status.OK,
         'measurement starting': status.BUSY,
@@ -191,7 +189,7 @@ class IDS3010Control(EpicsMoveableEss):
     valuetype = int
 
     def _get_pv_parameters(self):
-        return EpicsMoveableEss._get_pv_parameters(self) | \
+        return EpicsMoveable._get_pv_parameters(self) | \
                set(self._get_record_fields())
 
     def doStatus(self, maxage=0):
@@ -199,7 +197,7 @@ class IDS3010Control(EpicsMoveableEss):
         return self._modes[mode], mode
 
     def doRead(self, maxage=0):
-        return 'on' if EpicsMoveableEss.doRead(self, maxage) == 'measurement ' \
+        return 'on' if EpicsMoveable.doRead(self, maxage) == 'measurement ' \
                                                                 'running' \
             else 'off'
 
@@ -272,7 +270,6 @@ class MirrorDistance(Measurable):
     """
     Use geometric parameters to calculate mirror distance from the IDS measurement.
     """
-
     parameters = {
         'angle':
             Param('Index of the axis to be read',

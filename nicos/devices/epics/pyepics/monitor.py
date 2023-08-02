@@ -29,7 +29,7 @@ import epics
 from nicos import session
 from nicos.core import POLLER, CommunicationError, DeviceMixinBase, Override, \
     status
-from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
+from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 
 
 class PyEpicsMonitor(DeviceMixinBase):

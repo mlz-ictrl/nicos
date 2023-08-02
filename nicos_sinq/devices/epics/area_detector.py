@@ -31,12 +31,12 @@ from nicos import session
 from nicos.core import LIVE, ArrayDesc, AutoDevice, HasAutoDevices, \
     Param, Value, listof, multiStatus, oneof, pvname, status, usermethod
 from nicos.core.device import Device
-from nicos.devices.epics import EpicsDevice, EpicsMoveable
+from nicos.devices.epics.pyepics import EpicsDevice, EpicsMoveable
 from nicos.devices.generic import Detector, ImageChannelMixin
 
-from nicos_ess.devices.epics.detector import EpicsDetector, \
+from nicos_sinq.devices.epics.detector import EpicsDetector, \
     EpicsPassiveChannel, EpicsTimerPassiveChannel
-from nicos_ess.devices.epics.status import ADKafkaStatus
+from nicos_sinq.devices.epics.status import ADKafkaStatus
 
 data_type_t = {
     'Int8': np.int8,

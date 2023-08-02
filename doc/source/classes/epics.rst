@@ -10,13 +10,13 @@ EPICS classes
    be accessed by any device.
    This can be achieved by adding the following line::
 
-      import nicos.devices.epics
+      import nicos.devices.epics.pyepics
 
    to the :ref:`startupcode <setup-startupcode>` section of the
    :ref:`daemon <daemon>` and :ref:`poller <poller>` setups.
 
 
-.. module:: nicos.devices.epics
+.. module:: nicos.devices.epics.pyepics
 
 Basic EPICS binding mixin (pyepics)
 -----------------------------------

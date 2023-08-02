@@ -36,7 +36,7 @@ devices = dict(
         bytelist = [(15, 7)],
         mapping = {'OFF': 0, 'ON': 1}
     ),
-    xlz = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    xlz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Counter z position distance laser motor',
         motorpv = 'SQ:AMOR:mota:xlz',
         errormsgpv = 'SQ:AMOR:mota:xlz-MsgTxt',

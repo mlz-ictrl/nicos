@@ -23,7 +23,7 @@
 
 from nicos.core import Moveable, Param, pvname
 from nicos.core.mixins import CanDisable
-from nicos.devices.epics import EpicsMoveable
+from nicos.devices.epics.pyepics import EpicsMoveable
 
 from nicos_sinq.devices.epics.generic import WindowMoveable
 

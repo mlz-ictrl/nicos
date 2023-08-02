@@ -25,14 +25,14 @@ This module contains EPICS and detector integration.
 """
 
 from nicos.core import Override, Param, pvname
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, Detector, PassiveChannel, TimerChannelMixin
 
-from nicos_ess.devices.epics.base import EpicsReadableEss
+from nicos_sinq.devices.epics.base import EpicsReadableSinq
 
 
-class EpicsPassiveChannel(EpicsReadableEss, PassiveChannel):
+class EpicsPassiveChannel(EpicsReadableSinq, PassiveChannel):
     """
     Class to represent EPICS channels.
 
@@ -41,7 +41,7 @@ class EpicsPassiveChannel(EpicsReadableEss, PassiveChannel):
     """
 
 
-class EpicsActiveChannel(EpicsReadableEss, ActiveChannel):
+class EpicsActiveChannel(EpicsReadableSinq, ActiveChannel):
     """
     Class to represent EPICS channels with preset.
 
@@ -66,7 +66,7 @@ class EpicsActiveChannel(EpicsReadableEss, ActiveChannel):
     }
 
     def _get_pv_parameters(self):
-        readable_params = EpicsReadableEss._get_pv_parameters(self)
+        readable_params = EpicsReadableSinq._get_pv_parameters(self)
         return readable_params | {'presetpv'}
 
     def doReadPreselection(self):

@@ -47,7 +47,7 @@ devices = dict(
         shutter = 'dls_shutter',
         wavelengthmap = {'': 650},
     ),
-    dls_trans_x = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    dls_trans_x = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'X axis via EPICS',
         unit = 'mm',
         fmtstr = '%.2f',
@@ -57,7 +57,7 @@ devices = dict(
         errorbitpv = pvprefix + 'm1-Err',
         reseterrorpv = pvprefix + 'm1-ErrRst'
     ),
-    dls_trans_y = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    dls_trans_y = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Y axis via EPICS',
         unit = 'mm',
         fmtstr = '%.2f',

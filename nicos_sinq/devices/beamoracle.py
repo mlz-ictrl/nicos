@@ -23,7 +23,7 @@
 
 from nicos.core import Param, Value
 from nicos.core.status import BUSY, OK
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 from nicos.devices.generic import Detector
 
 

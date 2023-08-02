@@ -30,7 +30,7 @@ from nicos.devices.generic.detector import CounterChannelMixin, \
     TimerChannelMixin
 from nicos.utils import uniq
 
-from nicos_ess.devices.epics.detector import \
+from nicos_sinq.devices.epics.detector import \
     EpicsActiveChannel as ESSEpicsActiveChannel
 from nicos_sinq.devices.epics.scaler_record import EpicsScalerRecord
 

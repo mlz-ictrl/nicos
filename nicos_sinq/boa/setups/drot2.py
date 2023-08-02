@@ -3,12 +3,12 @@ description = 'BOA rotation table 2'
 pvprefix = 'SQ:BOA:drot2:'
 
 devices = dict(
-    rd = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    rd = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Rotation table 2 bottom motor',
         motorpv = pvprefix + 'RD',
         errormsgpv = pvprefix + 'RD-MsgTxt',
     ),
-    re = device('nicos_ess.devices.epics.motor.EpicsMotor',
+    re = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Rotation table 2 top motor',
         motorpv = pvprefix + 'RE',
         errormsgpv = pvprefix + 'RE-MsgTxt',
