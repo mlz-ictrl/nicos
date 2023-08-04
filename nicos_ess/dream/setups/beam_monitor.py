@@ -3,12 +3,13 @@ prefix = "IOC"
 
 devices = dict(
     beam_monitor_1=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description="Beam monitor continuous position feedback",
         motorpv=f'{prefix}:m8',
         abslimits=(-10, 10),
         unit='mm',
-        speed=5
+        monitor=True,
+        pva=True,
     ),
     beam_monitor_switch=device(
         'nicos.devices.generic.Switcher',
