@@ -4,7 +4,8 @@ group = 'special'
 sysconfig = dict(
     # use only 'localhost' if the cache is really running on the same machine,
     # otherwise use the official computer name
-    cache='localhost')
+    cache='localhost'
+)
 
 devices = dict(
     Poller=device(
@@ -14,4 +15,5 @@ devices = dict(
         blacklist=[],  # DEVICES that should never be polled
         # (usually detectors or devices that have problems
         # with concurrent access from processes)
-    ), )
+    ),
+)

@@ -25,7 +25,9 @@ devices = dict(
         unit='MW',
         fmtstr='%.2f',
     ),
-    lightshutter=device('nicos.devices.generic.ManualSwitch',
-                        description='Shutter close to moderator',
-                        states=['open', 'closed']),
+    lightshutter=device(
+        'nicos.devices.generic.ManualSwitch',
+        description='Shutter close to moderator',
+        states=['open', 'closed'],
+    ),
 )

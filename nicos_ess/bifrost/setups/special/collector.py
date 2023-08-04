@@ -6,7 +6,8 @@ devices = dict(
         dev_ignore=['space', 'sample'],
         brokers=['localhost:9092'],
         output_topic="nicos_cache",
-        update_interval=10.),
+        update_interval=10.
+    ),
     Collector=device(
         'nicos.services.collector.Collector',
         cache='localhost:14869',

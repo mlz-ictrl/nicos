@@ -32,8 +32,12 @@ devices = dict(
         cache_filepath='/opt/nicos-data/odin/cached_proposals.json'),
     conssink=device(
         'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'),
-    daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
-    liveview=device('nicos.devices.datasinks.LiveViewSink', ),
+    daemonsink=device(
+        'nicos.devices.datasinks.DaemonSink'
+    ),
+    liveview=device(
+        'nicos.devices.datasinks.LiveViewSink'
+    ),
     KafkaForwarderStatus=device(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description='Monitors the status of the Forwarder',

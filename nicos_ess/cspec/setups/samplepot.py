@@ -14,7 +14,9 @@ devices = dict(
         fmtstr='%.2e',
         jitter=1.e-4,
     ),
-    potgate=device('nicos.devices.generic.ManualSwitch',
-                   description='Sample pot valve',
-                   states=['closed', 'open']),
+    potgate=device(
+        'nicos.devices.generic.ManualSwitch',
+        description='Sample pot valve',
+        states=['closed', 'open'],
+    ),
 )

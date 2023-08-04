@@ -3,8 +3,12 @@ description = 'Virtual cryostat'
 group = 'optional'
 
 devices = dict(
-    T=device('nicos.devices.generic.DeviceAlias'),
-    Ts=device('nicos.devices.generic.DeviceAlias'),
+    T=device(
+        'nicos.devices.generic.DeviceAlias'
+    ),
+    Ts=device(
+        'nicos.devices.generic.DeviceAlias'
+    ),
     T_cryo=device(
         'nicos.devices.generic.VirtualRealTemperature',
         description='A virtual (but realistic) temperature controller',

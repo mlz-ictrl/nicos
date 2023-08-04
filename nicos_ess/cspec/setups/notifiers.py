@@ -13,4 +13,5 @@ devices = dict(
         ],
         mailserver='mailserver.esss.se',  # please adapt!
         subject='NICOS at CSPEC',
-    ), )
+    ),
+)
