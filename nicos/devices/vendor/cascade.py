@@ -159,6 +159,10 @@ class CascadeDetector(ImageChannel):
                           fmtstr='%.1f'),
                     Value('fit.avgErr', unit='', type='error',
                           errors='none', fmtstr='%.1f'),
+                    Value('fit.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('fit.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'),
                     Value('roi.contrast', unit='', type='other',
                           errors='next', fmtstr='%.3f'),
                     Value('roi.contrastErr', unit='', type='error',
@@ -166,7 +170,11 @@ class CascadeDetector(ImageChannel):
                     Value('roi.avg', unit='', type='other', errors='next',
                           fmtstr='%.1f'),
                     Value('roi.avgErr', unit='', type='error',
-                          errors='none', fmtstr='%.1f'))
+                          errors='none', fmtstr='%.1f'),
+                    Value('roi.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('roi.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'))
         return (Value(self.name + '.roi', unit='cts', type='counter',
                       errors='sqrt', fmtstr='%d'),
                 Value(self.name + '.total', unit='cts', type='counter',
@@ -223,7 +231,9 @@ class CascadeDetector(ImageChannel):
         self.readresult = [
             roi, total,
             abs(tres.contrast), tres.dcontrast, tres.avg, tres.davg,
+            tres.phase, tres.dphase,
             abs(rres.contrast), rres.dcontrast, rres.avg, rres.davg,
+            rres.phase, rres.dphase,
         ]
 
         # also fit per foil data and pack everything together to be send
