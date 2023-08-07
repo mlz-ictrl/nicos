@@ -1,7 +1,6 @@
 description = 'CASCADE detector'
 group = 'lowlevel'
-includes = ['det_base', 'monitors']
-includes = ['filesavers']
+includes = ['det_base', 'monitors', 'filesavers']
 excludes = ['det_3he', 'det_cascade2']
 
 tango_base = 'tango://%s:10000/reseda/' % configdata('gconfigs.tango_host')
