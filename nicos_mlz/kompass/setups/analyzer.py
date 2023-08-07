@@ -59,19 +59,6 @@ devices = dict(
     ),
 )
 
-for key in ('left', 'right'):
-    devices['asb_cyl_' + key] = device('nicos.devices.entangle.NamedDigitalOutput',
-        description = '%s ana shielding blocks lifter' % key,
-        tangodevice = tango_base + 'asb_cyl_%s' % key,
-        mapping = dict(up=1, down=0),
-    )
-    devices['asb_cyl_%s_ofs' % key] = device('nicos.devices.entangle.AnalogOutput',
-        description = 'offset of %s ana shielding blocks lift' % key,
-        tangodevice = tango_base + 'asb_cyl_%s_ofs' % key,
-        fmtstr = '%.3f',
-    )
-
-
 # ath (A5)
 # ac (agx)
 # ax (atx)
