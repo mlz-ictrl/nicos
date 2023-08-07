@@ -242,6 +242,9 @@ class EchoTime(Moveable):
             echotime = float(echotime)
             result[echotime] = {}
             for tunedev, value in tunedevs.items():
-                result[echotime][tunedev] = self._tunedevs[tunedev].valuetype(value)
+                try:
+                    result[echotime][tunedev] = self._tunedevs[tunedev].valuetype(value)
+                except KeyError:  # device not configured
+                    pass
 
         return result
