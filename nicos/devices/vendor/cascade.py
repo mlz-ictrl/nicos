@@ -95,6 +95,9 @@ class CascadeDetector(ImageChannel):
             self.size + (self.tofchannels,))
         self._tres = (value == 'image') and 1 or self.tofchannels
 
+    def doReadSize(self):
+        return self._dev.detectorSize.tolist()[:-1]
+
     #
     # Device interface
     #
