@@ -62,7 +62,7 @@ devices = dict(
     mx = device('nicos.devices.generic.Axis',
         description = 'monochromator table X',
         motor = 'mx_m',
-        # coder = 'mx_c',
+        coder = 'mx_c',
         fmtstr = '%.2f',
         precision = 0.05,
     ),
