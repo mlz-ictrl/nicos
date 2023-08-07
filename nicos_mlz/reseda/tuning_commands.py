@@ -56,7 +56,7 @@ def ExportTuning(mode, wavelength, filename='tuning'):
 
     # build list of devices
     it = iter(table.values())
-    devices = sorted(it.next())
+    devices = sorted(it.__next__())
     for otherdevs in it:
         devices.extend(set(otherdevs) - set(devices))
 
