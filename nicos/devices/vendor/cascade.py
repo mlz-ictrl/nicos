@@ -258,6 +258,7 @@ class CascadeDetector(ImageChannel):
 class CascadePadSinkHandler(SingleRawImageSinkHandler):
 
     filetype = 'pad'
+    update_headerinfo = False
 
 
 class CascadePadSink(SingleRawImageSink):
@@ -276,6 +277,7 @@ class CascadePadSink(SingleRawImageSink):
 class CascadeTofSinkHandler(SingleRawImageSinkHandler):
 
     filetype = 'tof'
+    update_headerinfo = False
 
 
 class CascadeTofSink(SingleRawImageSink):
