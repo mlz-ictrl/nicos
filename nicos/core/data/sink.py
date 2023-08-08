@@ -209,7 +209,7 @@ class NicosMetaWriterMixin:
                     unit = device.unit
                     category = 'result'
                 bycategory.setdefault(category, []).append(
-                    ('%s_value' % devname, (str(val) + ' ' + unit).strip()))
+                    ('%s_value' % devname, device.format(val, True).strip()))
                 # refresh status as well
                 stat = device.status()
                 # also map stat[0] to a string
