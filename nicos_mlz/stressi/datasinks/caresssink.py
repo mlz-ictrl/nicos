@@ -548,6 +548,9 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         if self._detvalues is not None:
             # TODO: Pixel size
             if len(self._detvalues.shape) == 2:
+                d['NYS'] = (
+                    float(self._detvalues.shape[0]), self._detvalues.shape[0] / 2,
+                    0.85)
                 d['TTHS'] = (
                     float(self._detvalues.shape[1]), self._detvalues.shape[1] / 2,
                         0.85)
@@ -555,9 +558,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 d['TTHS'] = (
                     float(self._detvalues.shape[0]), self._detvalues.shape[0] / 2,
                         0.85)
-            d['NYS'] = (
-                float(self._detvalues.shape[0]), self._detvalues.shape[0] / 2,
-                0.85)
+                d['NYS'] = (1., 1 / 2, 0.85)
         self._write_rela(d)
 
         d.clear()
