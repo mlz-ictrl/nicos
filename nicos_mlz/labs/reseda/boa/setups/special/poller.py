@@ -15,3 +15,7 @@ devices = dict(
         ],
     ),
 )
+
+startupcode = '''
+import nicos.devices.epics
+'''
