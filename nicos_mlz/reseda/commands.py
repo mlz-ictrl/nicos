@@ -56,16 +56,15 @@ def zero():
     ps = ['hrf_0a', 'hrf_0b', 'hrf_1a', 'hrf_1b', 'hsf_0a', 'hsf_0b', 'hsf_1',
           'sf_0a', 'sf_0b', 'sf_1', 'gf1', 'gf2', 'gf4', 'gf5', 'gf6', 'gf7',
           'gf8', 'gf9', 'gf10', 'nse0', 'nse1']
-    # Devices at BOA
-    # ps = ['hrf_0a', 'hrf_0b', 'hsf_0a', 'hsf_0b',
-    #       'sf_0a', 'sf_0b', 'gf2', 'gf8', 'gf9', 'nse0']
+    waitlist = []
     for powersupply in ps:
         try:
             powersupply = session.getDevice(powersupply)
             move(powersupply, 0.001)
+            waitlist.append(powersupply)
         except NicosError:
             pass
-    wait()
+    wait(*waitlist)
 
     # Stop regulation and turn fg_amp off
     reg_devs = ['cbox_0a_reg_amp', 'cbox_0b_reg_amp']
