@@ -18,3 +18,7 @@ devices = dict(
         loglevel = 'info'
     ),
 )
+
+startupcode = '''
+import nicos.devices.epics
+'''
