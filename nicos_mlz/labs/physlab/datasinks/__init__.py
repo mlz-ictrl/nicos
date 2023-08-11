@@ -40,7 +40,7 @@ class LiveViewSinkHandler(BaseLiveViewSinkHandler):
         ttheta = ds.metainfo.get(('tths', 'value'), [0])[0]
         step = pixel_size / radius
         ttheta_range = ttheta + np.rad2deg(
-            np.arctan((np.arange(0, pixel_count) - pixel_count / 2 + 0.5) * step))
+            np.arctan((np.arange(0, pixel_count) - (pixel_count / 2 - 0.5)) * step))
         self.log.debug('start: %s, end: %s', ttheta_range[0], ttheta_range[-1])
         return [ttheta_range]
 
@@ -53,6 +53,9 @@ class LiveViewSinkHandler(BaseLiveViewSinkHandler):
                 'index': 0,
             },
         }
+
+    def processArrays(self, result):
+        return np.flip(np.copy(result[1]))
 
 
 class LiveViewSink(BaseLiveViewSink):
