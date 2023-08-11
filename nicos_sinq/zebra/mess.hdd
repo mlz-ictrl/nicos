@@ -2,42 +2,65 @@ CCL
 instrument             = ZEBRA
 title                  = !!VAR(Exp,title)!!
 comment                = !!VAR(Exp,remark)!!
-sample                 = !!VAR(Sample,samplename)!!
 user                   = !!VAR(Exp,users)!!
-ProposalID             = !!VAR(Exp,proposal)!!
+proposal_id            = !!VAR(Exp,proposal)!!
 original_filename      = !!FILE!!
 date                   = !!DATE!!
-mf                     = !!DRIV(magfield)!!
-zebra_mode              = !!VAR(zebramode)!!
+zebramode              = !!VAR(zebramode)!!
 
-# Parameters
-UB=!!VAR(Sample,ubmatrix)!!
+#sample
+sample_name            = !!VAR(Sample,samplename)!!
+UB	                   = !!VAR(Sample,ubmatrix)!!
 a                      = !!VAR(Sample,a)!!
 b                      = !!VAR(Sample,b)!!
 c                      = !!VAR(Sample,c)!!
 alpha                  = !!VAR(Sample,alpha)!!
 beta                   = !!VAR(Sample,beta)!!
 gamma                  = !!VAR(Sample,gamma)!!
-wavelength             = !!DRIV(wavelength)!!
+temperature            = !!DRIV(Ts)!!
+magnetic_field         = !!DRIV(B)!!
+
+#collimator_before_mono
 cex1                   = !!DRIV(cex1)!!
 cex2                   = !!DRIV(cex2)!!
+
+#monochromator
+wavelength             = !!DRIV(wavelength)!!
 mexz                   = !!DRIV(mexz)!!
 moml                   = !!DRIV(moml)!!
 mcvl                   = !!DRIV(mcvl)!!
 momu                   = !!DRIV(momu)!!
 mcvu                   = !!DRIV(mcvu)!!
-detectorDistance       = !!DRIV(detdist)!!
+
+#detector
+distance               = !!DRIV(detdist)!!
+
+#slits_nose
 snv                    = !!DRIV(snv)!!
 snh                    = !!DRIV(snh)!!
-snvm                    = !!DRIV(snvm)!!
-snhm                    = !!DRIV(snhm)!!
+snvm                   = !!DRIV(snvm)!!
+snhm                   = !!DRIV(snhm)!!
+
+#slits_s1
 s1vt                    = !!DRIV(s1vt)!!
 s1vb                    = !!DRIV(s1vb)!!
 s1hr                    = !!DRIV(s1hr)!!
 s1hl                    = !!DRIV(s1hl)!!
+
+#slits_s2
 s2vt                    = !!DRIV(s2vt)!!
 s2vb                    = !!DRIV(s2vb)!!
 s2hr                    = !!DRIV(s2hr)!!
 s2hl                    = !!DRIV(s2hl)!!
+
+#analyser
+distance_an             = !!DRIV(w2dist)!!
+a5                      = !!DRIV(a5)!!
+a6                      = !!DRIV(a6)!!
+a4t                     = !!DRIV(a4t)!!
+s2anl                   = !!DRIV(s2anl)!!
+s2anr                   = !!DRIV(s2anr)!!
+s2ant                   = !!DRIV(s2ant)!!
+s2anb                   = !!DRIV(s2anb)!!
 
 #data
