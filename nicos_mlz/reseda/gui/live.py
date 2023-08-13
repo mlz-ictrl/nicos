@@ -36,7 +36,7 @@ class CascadeControls(QWidget):
 
     controlsui = f'{uipath}/cascadecontrols.ui'
 
-    foilsnumber = 8
+    foilsnumber = 0
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -45,7 +45,7 @@ class CascadeControls(QWidget):
                   self.timeChannelBox):
             w.setHidden(True)
         self.singleSlidesBox.setDisabled(True)
-        self._foilsorder = list(range(self.foilsnumber))
+        self.setFoilsOrder(list(range(self.foilsnumber)))
 
     def initControls(self, data):
         imagedata = len(data.shape) < 3
@@ -60,12 +60,13 @@ class CascadeControls(QWidget):
         if len(data.shape) > 2:
             if self.singleSlidesBox.isChecked():
                 foil = self._foilsorder.index(self.foilBox.value() - 1)
-                timechannel = self.timeChannelBox.value()
-                if timechannel:
-                    idx = foil * self.foilsnumber + timechannel - 1
+                time_channel = self.timeChannelBox.value()
+                timechannels = data.shape[0] // self.foilsnumber
+                if time_channel:
+                    idx = foil * timechannels + time_channel - 1
                     return data[idx]
-                startfoil = foil * self.foilsnumber
-                return numpy.sum(data[startfoil:startfoil + self.foilsnumber],
+                startfoil = foil * timechannels
+                return numpy.sum(data[startfoil:startfoil + timechannels],
                                  axis=0)
             return numpy.sum(data, axis=0)
         return data
