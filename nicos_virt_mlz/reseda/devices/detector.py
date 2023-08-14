@@ -278,8 +278,8 @@ class McStasImage(BaseImage):
             rres = self.fitter.run(x, foil_roi, None)
             if not tres._failed and not rres._failed:
                 payload.append([
-                    tres._pars[0], tres._pars[1], tres._pars[2], foil_tot.tolist(),
-                    rres._pars[0], rres._pars[1], rres._pars[2], foil_roi.tolist(),
+                    tres._pars[1], tres._pars[2], foil_tot.tolist(),
+                    rres._pars[1], rres._pars[2], foil_roi.tolist(),
                 ])
             else:
                 payload.append([[0.] * 4, [0.] * 4, foil_tot.tolist(),
