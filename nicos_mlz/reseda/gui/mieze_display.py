@@ -157,7 +157,7 @@ class MiezePanel(Panel):
         for foil, x, y in zip(self.foils, self.rows * list(range(self.columns)),
                               sum([self.columns * [i] for i in
                                    range(self.rows)], [])):
-            foilwidget = FoilWidget(name='Foil %d' % foil, parent=self)
+            foilwidget = FoilWidget(name=f'Foil {foil + 1}', parent=self)
             self.mywidgets.append(foilwidget)
             self.gridLayout.addWidget(foilwidget, y, x)
         self.client.cache.connect(self.on_client_cache)
@@ -180,7 +180,8 @@ class MiezePanel(Panel):
 
     def do_update(self):
         if self._do_updates and self._data:
-            for d, w in zip(self._data, self.mywidgets):
+            for d, w in zip([self._data[i] for i in self.foils],
+                            self.mywidgets):
                 w.do_update(d, self.roiCheckBox.isChecked())
 
     def on_client_cache(self, data):
