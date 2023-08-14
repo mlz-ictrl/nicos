@@ -55,6 +55,10 @@ class MiezeFit(PredefinedFit):
         yavg = np.average(y)
         return [yavg, contrast, contrast, freq]
 
+    def run(self, x, y, dy):
+        self.parstart = []
+        return PredefinedFit.run(self, x, y, dy)
+
     def process_result(self, res):
         res.label_x = res.phase
         res.label_y = min(res.curve_x)
