@@ -66,10 +66,10 @@ class McStasSimulation(BaseSimulation):
         'detectorangle': Attach('Rotation of detector around the sample',
                                 Readable),
         'i_nse': Attach('Current of NSE-Coil', Readable),
-        'om0': Attach('Frequency of first rf-flipper',
-                      Readable, optional=True),
-        'om1': Attach('Frequency of second rf-flipper',
-                      Readable, optional=True),
+        'f1': Attach('Frequency of first rf-flipper', Readable),
+        'f2': Attach('Frequency of second rf-flipper', Readable),
+        'psd_distance': Attach('Distance between sample and detector',
+                               Readable),
     }
 
     def _dev(self, dev, scale=1):
@@ -91,13 +91,14 @@ class McStasSimulation(BaseSimulation):
             'detectorangle=%s' % self._dev(self._attached_detectorangle),
             'samplenum=%d' % self._attached_sample.sampletype,
             # Param: sourceopen=10
-            # Param: bin=1
-            # Param: int_array=0
-            # Param: tof_file=0
-            # Param: err_file=0
             # Param: foil_dist=0.0,0.00685,0.00455,-1,-1,0.0046,0.00455,0.00658
             # Param: coilrotation=0
             # Param: math_field=1
+            # Param: f1=4500
+            'f1=%s' % self._dev(self._attached_f1),
+            # Param: f2=6200
+            'f2=%s' % self._dev(self._attached_f2),
+            'psd_dist=%s' % self._dev(self._attached_psd_distance),
         ]
         # Param: l1=1.87
         if self._attached_l1:
@@ -109,12 +110,6 @@ class McStasSimulation(BaseSimulation):
         if self._attached_coil_nse_len:
             params.append('coilnselen=%s' % self._dev(
                 self._attached_coil_nse_len))
-        # Param: om0=4500
-        if self._attached_om0:
-            params.append('om0=%s' % self._dev(self._attached_om0))
-        # Param: om1=6200
-        if self._attached_om1:
-            params.append('om1=%s' % self._dev(self._attached_om1))
         return params
 
     def _getNeutronsToSimulate(self):
