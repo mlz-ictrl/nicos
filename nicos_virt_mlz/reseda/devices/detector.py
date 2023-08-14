@@ -218,17 +218,18 @@ class McStasImage(BaseImage):
                     return np.squeeze(np.fromfile(
                         str(p), dtype=np.dtype((np.double, self.size))))
                 self.log.warning('No file: %s', p)
-                return np.zeros((self.foils, self.tofchannels) + self.size)
+                return np.zeros((self.tofchannels, ) + self.size)
 
             factor = self._attached_mcstas._getScaleFactor()
             if hasattr(self._attached_mcstas, '_mcstasdirpath'):
                 buf = import_cascade_bin(self._attached_mcstas._mcstasdirpath)
                 self._buf = (buf * factor).astype(np.uint32)
             else:
-                self._buf = np.zeros((self.foils, self.tofchannels) + self.size)
+                self._buf = np.zeros((self.tofchannels, ) + self.size)
         except OSError:
             if quality != LIVE:
                 self.log.exception('Could not read result file', exc=1)
+
         total = self._buf.sum()
         if self.roi != (-1, -1, -1, -1):
             x1, y1, x2, y2 = self.roi
@@ -240,10 +241,11 @@ class McStasImage(BaseImage):
             self.readresult = [roi, total]
 
         # demux timing into foil + timing
+        nperfoil = self._datashape[0] // len(self.foilsorder)
         shaped = self._buf.reshape(
-            (self.foils, self.tofchannels) + self.size)
+            (len(self.foilsorder), nperfoil) + self._datashape[1:])
 
-        x = np.arange(self.tofchannels)
+        x = np.arange(nperfoil)
         ty = shaped[self.fitfoil].sum((1, 2))
         ry = shaped[self.fitfoil, :, y1:y2, x1:x2].sum((1, 2))
 
