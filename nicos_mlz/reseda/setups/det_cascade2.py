@@ -83,7 +83,7 @@ devices = dict(
         description = 'CASCADE detector channel',
         tangodevice = tango_base + 'cascade/tofchannel',
         tofchannels = 512,
-	foilsorder = [6, 5, 4, 3, 2, 1, 0, 7],  # last foil is dummy
+        foilsorder = [6, 5, 4, 3, 2, 1, 0, 7],  # last foil is dummy
     ),
     psd = device('nicos.devices.generic.Detector',
         description = 'CASCADE detector',
