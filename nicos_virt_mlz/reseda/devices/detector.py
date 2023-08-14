@@ -182,6 +182,10 @@ class McStasImage(BaseImage):
                           fmtstr='%.1f'),
                     Value('fit.avgErr', unit='', type='error',
                           errors='none', fmtstr='%.1f'),
+                    Value('fit.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('fit.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'),
                     Value('roi.contrast', unit='', type='other',
                           errors='next', fmtstr='%.3f'),
                     Value('roi.contrastErr', unit='', type='error',
@@ -189,7 +193,11 @@ class McStasImage(BaseImage):
                     Value('roi.avg', unit='', type='other', errors='next',
                           fmtstr='%.1f'),
                     Value('roi.avgErr', unit='', type='error',
-                          errors='none', fmtstr='%.1f'))
+                          errors='none', fmtstr='%.1f'),
+                    Value('roi.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('roi.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'))
         return (Value(self.name + '.roi', unit='cts', type='counter',
                       errors='sqrt', fmtstr='%d'),
                 Value(self.name + '.total', unit='cts', type='counter',
@@ -257,10 +265,10 @@ class McStasImage(BaseImage):
 
         self.readresult = [
             roi, total,
-            tres.avg, tres.davg, abs(tres.contrast), tres.dcontrast,
-            tres.phase, tres.dphase, tres.freq, tres.dfreq,
-            rres.avg, rres.davg, abs(rres.contrast), rres.dcontrast,
-            rres.phase, rres.dphase, rres.freq, rres.dfreq,
+            abs(tres.contrast), tres.dcontrast, tres.avg, tres.davg,
+            tres.phase, tres.dphase,  # tres.freq, tres.dfreq,
+            abs(rres.contrast), rres.dcontrast,rres.avg, rres.davg,
+            rres.phase, rres.dphase,  # rres.freq, rres.dfreq,
         ]
 
         # also fit per foil data and pack everything together to be send via
