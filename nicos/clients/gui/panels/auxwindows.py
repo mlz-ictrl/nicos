@@ -166,6 +166,8 @@ class AuxiliarySubWindow(QMainWindow):
             if isinstance(it, (Panel, QSplitter,)):
                 if isinstance(it, Panel):
                     it.hideTitle()
+                    for action in it.actions:
+                        action.setVisible(False)  # hide menu on first load
                 # if tab has its own setups overwrite panels setups
                 if setupSpec:
                     it.setSetups(setupSpec)

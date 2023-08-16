@@ -52,6 +52,7 @@ Contributors:
 * Pascal Neubert <pascal.neubert@frm2.tum.de>
 * Tobias Neuwirth <tobias.neuwirth@frm2.tum.de>
 * Konstantin Kholostov <k.kholostov@fz-juelich.de>
+* George O'Neill <george.oneill@ess.eu>
 * Adrian Potter <adrian.potter@tessella.com>
 * Jörg Pulz <joerg.pulz@frm2.tum.de>
 * Stefan Rainow <s.rainow@fz-juelich.de>
