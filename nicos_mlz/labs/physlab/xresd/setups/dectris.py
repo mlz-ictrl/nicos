@@ -6,7 +6,7 @@ tango_base = configdata('instrument.values')['tango_base']
 sysconfig = dict(
     datasinks = [
         # 'tiffformat',
-        # 'fileformat',
+        'rawfile',
         'caresssink'
         # 'textsink',
     ],
@@ -41,8 +41,8 @@ devices = dict(
         motor = 'ctt',
         detector = 'adet',
     ),
-    fileformat = device('nicos.devices.datasinks.raw.SingleRawImageSink',
-        # filenametemplate = ['%(proposal)s_%(pointcounter)08d.txt']
+    rawfile = device('nicos.devices.datasinks.raw.SingleRawImageSink',
+        filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw']
     ),
     textsink = device('nicos.devices.datasinks.text.NPFileSink',
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.dat']
@@ -50,7 +50,6 @@ devices = dict(
     caresssink = device('nicos_mlz.stressi.datasinks.CaressScanfileSink',
         filenametemplate = ['xresd%(scancounter)08d.dat'],
         detectors = ['adet'],
-        # flipimage = True,
     ),
 )
 
