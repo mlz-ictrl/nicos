@@ -50,7 +50,7 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
         'switchdelay': Param('time to switch between voltage and current '
                              'ramping, is needed to avoid cooling water '
                              'switching off',
-                             type=floatrange(1, 300), default=60,
+                             type=floatrange(1, 300), default=60, unit='s',
                              userparam=False, settable=True,),
     }
 
@@ -118,3 +118,8 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
 
     def doIsAtTarget(self, pos, target):
         return pos == target
+
+    def doTime(self, old_value, target):
+        return sum(dev.doTime(ov, t) for (dev, ov, t) in
+                   zip((self._attached_voltage, self._attached_current),
+                       old_value, target)) + self.switchdelay
