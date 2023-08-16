@@ -71,6 +71,8 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
         self._attached_current.ramp = ramp
 
     def _generateSequence(self, target):
+        if self.isAtTarget(target=target):
+            return []
         voltage, current = target
         vchannel = self._attached_voltage
         cchannel = self._attached_current
@@ -113,3 +115,6 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
     def doReset(self):
         BaseSequencer.doReset(self)
         PyTangoDevice.doReset(self)
+
+    def doIsAtTarget(self, pos, target):
+        return pos == target
