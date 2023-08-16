@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Attach, Moveable
+from nicos.core import Attach, Moveable, status
 from nicos.core.params import Param, floatrange
 from nicos.devices.entangle import PyTangoDevice
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
@@ -100,3 +100,13 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
     def doPoll(self, n, maxage):
         self._pollParam('heatercurrent', 1)
         self._pollParam('waterflow', 1)
+
+    def doStatus(self, maxage=0):
+        st = BaseSequencer.doStatus(self, maxage)
+        if st[0] != status.OK:
+            return st
+        return PyTangoDevice.doStatus(self, maxage)
+
+    def doReset(self):
+        BaseSequencer.doReset(self)
+        PyTangoDevice.doReset(self)
