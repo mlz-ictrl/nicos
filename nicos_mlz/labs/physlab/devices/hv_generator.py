@@ -22,13 +22,16 @@
 # *****************************************************************************
 
 from nicos.core import Attach, Moveable, status
-from nicos.core.params import Param, floatrange
+from nicos.core.params import Param, floatrange, tupleof
 from nicos.devices.entangle import PyTangoDevice
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
     SeqSleep
 
 
 class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
+
+    valuetype = tupleof(float, float)
+    hardware_access = True
 
     attached_devices = {
         'voltage': Attach('Voltage channel of the xray generator', Moveable),
