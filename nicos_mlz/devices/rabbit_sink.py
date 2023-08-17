@@ -33,14 +33,14 @@ from nicos.core.constants import SCAN
 
 
 class Message:
-    id: str
-    type: str
+    id: str  # pylint: disable=redefined-builtin
+    type: str  # pylint: disable=redefined-builtin
     attributes: dict
 
     def __init__(
             self,
-            id: uuid.UUID,
-            type: str,
+            id: uuid.UUID,  # pylint: disable=redefined-builtin
+            type: str,  # pylint: disable=redefined-builtin
             attributes: dict):
         self.id = str(id)
         self.type = type
@@ -77,9 +77,9 @@ class RabbitSinkHandler(DataSinkHandler):
                 else:
                     metadata.update({dev: {parm: value}})
         finally:
-            return {'experiment': experiment, 'metadata': metadata}
+            return {'experiment': experiment, 'metadata': metadata}  # pylint: disable=lost-exception
 
-    def _sendMessage(self, type: str):
+    def _sendMessage(self, type: str):  # pylint: disable=redefined-builtin
         """Sends the metainfo, if available, and other information to the
         Queue"""
         msg = Message(
@@ -129,7 +129,7 @@ class RabbitSink(DataSink):
 
     def _prepareExchange(self):
         """Declares the Exchange on the RabbitMQ instance"""
-        self._exchange = f'nicos.instrument'
+        self._exchange = f'{session.instrument.instrument}'
         self._channel.exchange_declare(
             self._exchange,
             # exchange_type=ExchangeType.direct,
