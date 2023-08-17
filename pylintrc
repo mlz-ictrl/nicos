@@ -82,7 +82,7 @@ disable=fixme
     ,eval-used
     ,exec-used
     ,missing-docstring
-    ,no-self-use
+#    ,no-self-use
     ,protected-access
     ,redefined-outer-name
     ,unused-argument
@@ -93,8 +93,8 @@ disable=fixme
     ,wrong-import-order
     ,wrong-import-position
     ### stylistic choices
-    ,bad-continuation
-    ,bad-whitespace
+#    ,bad-continuation
+#    ,bad-whitespace
     ,consider-using-enumerate
     ,consider-using-in
     ,consider-using-ternary
@@ -179,7 +179,7 @@ max-module-lines=2500
 # separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
 # `trailing-comma` allows a space between comma and closing bracket: (a, ).
 # `empty-line` allows space-only lines.
-no-space-check=trailing-comma,dict-separator
+#no-space-check=trailing-comma,dict-separator
 
 # Allow the body of a class to be on the same line as the declaration if body
 # contains single statement.
