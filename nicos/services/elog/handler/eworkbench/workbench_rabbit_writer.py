@@ -205,7 +205,7 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle attachment as image')
         self._out.last_action = 'AfterAttachment'
         self._out.last_global_action = 'Attachment'
-        description, fpaths, extensions, names = data
+        description, fpaths, extensions, names = data  # pylint: disable=unused-variable
 
         pngs = [(p, n) for (p, n, e) in zip(fpaths, names, extensions)
                 if e.lower() == '.png']
@@ -383,7 +383,7 @@ class Handler(BaseHandler):
         self._out.rabbit_producer.produce(headers=headers,
                                           message=scan_end_results)
 
-        headers['patch_lines'] = 1,
+        headers['patch_lines'] = 1
         headers['line_count'] = loc_line_count
         self._out.rabbit_producer.produce(headers=headers, message='')
 
