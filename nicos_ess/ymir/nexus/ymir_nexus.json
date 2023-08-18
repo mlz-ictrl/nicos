@@ -132,153 +132,6 @@
               ]
             },
             {
-              "name": "hama_camera",
-              "type": "group",
-              "required_devices": ["hama_camera", "area_detector_collector"],
-              "required_nexus": "NexusStructure_AreaDetector",
-              "attributes": [
-                {
-                  "name": "NX_class",
-                  "dtype": "string",
-                  "values": "NXdetector"
-                }
-              ],
-              "children": [
-                {
-                  "name": "image_key",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f144",
-                      "config": {
-                        "source": "hama_image_type",
-                        "topic": "ymir_nicos_devices",
-                        "dtype": "int16"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "name": "data",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "ADAr",
-                      "config": {
-                        "source": "hama_source",
-                        "topic": "ymir_camera",
-                        "array_size": "$AREADET$"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "name": "x_pixel_size",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f144",
-                      "config": {
-                        "source": "x_pixel_size_pv",
-                        "topic": "ymir_camera",
-                        "dtype": "double"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "name": "y_pixel_size",
-                  "type": "group",
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "dtype": "string",
-                      "values": "NXlog"
-                    }
-                  ],
-                  "children": [
-                    {
-                      "module": "f144",
-                      "config": {
-                        "source": "y_pixel_size",
-                        "topic": "ymir_camera",
-                        "dtype": "double"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "module": "dataset",
-                  "config": {
-                    "name": "depends_on",
-                    "values": "/entry/instrument/hama_camera/transformations/translation"
-                  }
-                },
-                {
-                  "type": "group",
-                  "name": "transformations",
-                  "children": [
-                    {
-                      "module": "dataset",
-                      "config": {
-                        "name": "translation",
-                        "values": 2.0,
-                        "type": "double"
-                      },
-                      "attributes": [
-                        {
-                          "name": "transformation_type",
-                          "dtype": "string",
-                          "values": "translation"
-                        },
-                        {
-                          "name": "units",
-                          "dtype": "string",
-                          "values": "m"
-                        },
-                        {
-                          "name": "vector",
-                          "dtype": "string",
-                          "values": [
-                            0.0,
-                            0.0,
-                            1.0
-                          ]
-                        }
-                      ]
-                    }
-                  ],
-                  "attributes": [
-                    {
-                      "name": "NX_class",
-                      "values": "NXtransformations"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
               "name": "mini_chopper",
               "type": "group",
               "attributes": [
@@ -1485,39 +1338,10 @@
               "module": "dataset",
               "config": {
                 "name": "name",
-                "values": "lego",
+                "values": "some sample",
                 "type": "string"
               }
             },
-            {
-              "name": "rotation_angle",
-              "type": "group",
-              "attributes": [
-                {
-                  "name": "NX_class",
-                  "dtype": "string",
-                  "values": "NXlog"
-                }
-              ],
-              "children": [
-                {
-                  "module": "f144",
-                  "config": {
-                    "source": "YMIR-SpRot:MC-Rz-01:m.RBV",
-                    "topic": "ymir_motion",
-                    "dtype": "double",
-                    "value_units": "deg"
-                  },
-                  "attributes": [
-                    {
-                      "name": "units",
-                      "dtype": "string",
-                      "values": "deg"
-                    }
-                  ]
-                }
-              ]
-            }
           ]
         },
         {
@@ -1536,20 +1360,6 @@
               "config": {
                 "name": "data",
                 "source": "/entry/instrument/detector/data"
-              }
-            },
-            {
-              "module": "link",
-              "config": {
-                "name": "rotation_angle",
-                "source": "/entry/sample/rotation_angle"
-              }
-            },
-            {
-              "module": "link",
-              "config": {
-                "name": "image_key",
-                "source": "/entry/instrument/detector/image_key"
               }
             }
           ]

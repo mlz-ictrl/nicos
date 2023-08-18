@@ -1,4 +1,6 @@
-description = 'The area detector for YMIR'
+description = 'The area detector for NIDO'
+
+KAFKA_BROKERS = ['10.102.80.32:8093']
 
 devices = dict(
     hama_kafka_plugin=device(
@@ -16,9 +18,9 @@ devices = dict(
         description='The light tomography Hama camera.',
         pv_root='Hama:cam1:',
         ad_kafka_plugin='hama_kafka_plugin',
-        image_topic='ymir_camera',
+        image_topic='nido_camera',
         unit='images',
-        brokers=['10.100.1.19:8093'],
+        brokers=KAFKA_BROKERS,
         pollinterval=None,
         pva=True,
         monitor=True,

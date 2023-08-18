@@ -1,9 +1,10 @@
-description = 'Stray motion stage(s) at YMIR.'
+description = 'Rotation stage'
 
-pv_root = 'YMIR-SpRot:MC-Rz-01:'
+pv_root = 'YMIR-4004:MC-Rz-01:'
+
 devices = dict(rotation_stage=device(
     'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-    description='Rotation stage in YMIR',
+    description='Rotation stage',
     motorpv=f'{pv_root}m',
     powerautopv=f'{pv_root}m-PwrAuto',
     errormsgpv=f'{pv_root}m-MsgTxt',
