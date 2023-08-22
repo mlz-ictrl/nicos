@@ -245,7 +245,7 @@
                   "module": "f144",
                   "config": {
                     "source": "YMIR-4004:MC-Rz-01:m.RBV",
-                    "topic": "nido_motion",
+                    "topic": "nido_devices",
                     "dtype": "double",
                     "value_units": "deg"
                   },
