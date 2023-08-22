@@ -25,8 +25,8 @@
 
 import pytest
 
-from nicos_mlz.refsans.lib.calculations import chopper_config, \
-    chopper_resolution
+from nicos_mlz.refsans.lib.calculations import angles_SC2, chopper_config, \
+    chopper_resolution, period
 
 from test.utils import approx
 
@@ -153,3 +153,9 @@ class TestBasicCalculations:
         ])
     def test_chopper_resolution(self, chopper2_pos, D, expected):
         assert chopper_resolution(chopper2_pos, D) == expected
+
+    def test_angles_SC2(self):
+        assert angles_SC2() == (approx(152.7922), 0.0)
+
+    def test_period(self):
+        assert period() == approx(0.094237562)
