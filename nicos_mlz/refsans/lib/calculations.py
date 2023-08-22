@@ -729,10 +729,8 @@ def chopper_parasitic(res,
                 phase_act = d_check[i] / vl_ang + deg0
                 phase_red = np.mod(phase_act, 360)
 
-                if (((phase_red >= phase_opaques[i][0]) and
-                     (phase_red <= phase_opaques[i][1])) or
-                    ((phase_red >= phase_opaques[i][2]) and
-                     (phase_red <= phase_opaques[i][3]))):
+                if ((phase_opaques[i][0] <= phase_red <= phase_opaques[i][1]) or
+                   (phase_opaques[i][2] <= phase_red <= phase_opaques[i][3])):
                     ierr = 1  # Blocked neutron
                     break  # It is not necessary to verify the other discs
 
