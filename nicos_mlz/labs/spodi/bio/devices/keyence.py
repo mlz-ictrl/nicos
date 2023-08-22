@@ -102,7 +102,7 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
            ) as r:
             arr = np.asarray(Image.open(io.BytesIO(r.read())))
         self.readresult = [arr.sum()]
-        host, port = parseHostPort(self.image_server, ftplib.FTP_PORT)
+        host, _port = parseHostPort(self.image_server, ftplib.FTP_PORT)
         with ftplib.FTP(host, 'anonymous') as ftp:
             ftp.delete(f'{self.image_path}/{self.image_name}')
             ftp.close()
