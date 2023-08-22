@@ -66,7 +66,7 @@ FILETAG = Qt.ItemDataRole.UserRole + 2
 FILEUID = Qt.ItemDataRole.UserRole + 3
 
 DEFAULTS = dict(
-    marks='omark',
+    marks='circle',
     offset=0,
     plotcount=1,
     colors='blue',
@@ -120,7 +120,7 @@ class LiveDataPanel(PlotPanel):
       Each entry will be applied to one of the detector's datasets.
 
       * ``plotcount`` (default 1) - Amount of plots in the dataset.
-      * ``marks`` (default 'omark') - Shape of the markers (if displayed).
+      * ``marks`` (default 'circle') - Shape of the markers (if displayed).
         Possible values are:
 
           'dot', 'plus', 'asterrisk', 'circle', 'diagonalcross', 'solidcircle',

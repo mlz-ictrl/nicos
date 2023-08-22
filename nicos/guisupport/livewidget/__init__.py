@@ -713,7 +713,7 @@ class LiveWidget1D(LiveWidgetBase):
         # self._axesrange = dict(x=(1, 1), y=(1, 1), z=(1, 1))
         self.setSymbols(False)
         self.setLines(False)
-        self.setMarks(['omark'])
+        self.setMarks(['circle'])
         self._labels = None
         self._markersize = 1.0
 
@@ -787,10 +787,10 @@ class LiveWidget1D(LiveWidgetBase):
 
     def setMarks(self, marktype):
         if isinstance(marktype, list):
-            self._marktype = GRMARKS.get(marktype[0] if marktype else 'omark',
-                                         GRMARKS['omark'])
+            self._marktype = GRMARKS.get(marktype[0] if marktype else 'circle',
+                                         GRMARKS['circle'])
         else:
-            self._marktype = GRMARKS.get(marktype, GRMARKS['omark'])
+            self._marktype = GRMARKS.get(marktype, GRMARKS['circle'])
 
     def setMarkerSize(self, size):
         self._markersize = size
