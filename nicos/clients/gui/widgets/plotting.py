@@ -725,7 +725,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.mouselocation = None
         self._cursor = self.cursor()
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
-        self._markertype = GRMARKS['omark']
+        self._markertype = GRMARKS['circle']
 
         dictPrintType = dict(gr.PRINT_TYPE)
         for prtype in [gr.PRINT_JPEG, gr.PRINT_TIF]:
