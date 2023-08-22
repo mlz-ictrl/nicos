@@ -724,7 +724,7 @@ class LiveWidget1D(LiveWidgetBase):
         ny = self.axes.getWindow()[3]
 
         # leave a visually equal padding on top for logscale and normal view
-        minupperedge = max([max(array) for array in self._arrays])
+        minupperedge = max(max(array) for array in self._arrays)
 
         if self._logscale:
             return max(ny, minupperedge * 2.15)
