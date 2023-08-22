@@ -38,8 +38,8 @@ from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgPresets, DlgUtils, dialogFromUi, loadUi
-from nicos.guisupport.plots import DATEFMT, TIMEFMT, MaskedPlotCurve, \
-    NicosPlotAxes, NicosTimePlotAxes
+from nicos.guisupport.plots import DATEFMT, GRMARKS, TIMEFMT, \
+    MaskedPlotCurve, NicosPlotAxes, NicosTimePlotAxes
 from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFont, QListWidgetItem, QMenu, QPoint, Qt
 from nicos.guisupport.qtgr import InteractiveGRWidget, LegendEvent, \
@@ -411,7 +411,7 @@ class NicosPlotCurve(MaskedPlotCurve):
     _parent = ''
 
     def __init__(self, x, y, errBar1=None, errBar2=None,
-                 linetype=gr.LINETYPE_SOLID, markertype=gr.MARKERTYPE_DOT,
+                 linetype=gr.LINETYPE_SOLID, markertype=GRMARKS['dot'],
                  linecolor=None, markercolor=1, legend=None, fillx=0, filly=0):
         MaskedPlotCurve.__init__(self, x, y, errBar1, errBar2,
                                  linetype, markertype, linecolor, markercolor,
@@ -725,7 +725,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.mouselocation = None
         self._cursor = self.cursor()
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
-        self._markertype = gr.MARKERTYPE_OMARK
+        self._markertype = GRMARKS['omark']
 
         dictPrintType = dict(gr.PRINT_TYPE)
         for prtype in [gr.PRINT_JPEG, gr.PRINT_TIF]:
@@ -862,7 +862,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.update()
 
     def setSymbols(self, on):
-        markertype = self._markertype if on else gr.MARKERTYPE_DOT
+        markertype = self._markertype if on else GRMARKS['dot']
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.markertype = markertype
@@ -963,7 +963,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             else:
                 color = plotcurve.linecolor
             plotcurve.markertype = self._markertype if self.hasSymbols \
-                else gr.MARKERTYPE_DOT
+                else GRMARKS['dot']
             if plotcurve.errorBar1:
                 plotcurve.errorBar1.markercolor = color
             if plotcurve.errorBar2:
@@ -1033,7 +1033,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                                      legend=fitter._title,
                                      linecolor=color, markercolor=color)
         self.addPlotCurve(resultcurve, True)
-        resultcurve.markertype = gr.MARKERTYPE_DOT
+        resultcurve.markertype = GRMARKS['dot']
         self.parent_window.statusBar.showMessage("Fitting complete")
 
         text = '\n'.join(
@@ -1296,7 +1296,7 @@ class DataSetPlot(NicosGrPlot):
         self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
         if curve.function:
-            plotcurve.markertype = gr.MARKERTYPE_DOT
+            plotcurve.markertype = GRMARKS['dot']
         return plotcurve
 
     def setCurveData(self, curve, plotcurve):
