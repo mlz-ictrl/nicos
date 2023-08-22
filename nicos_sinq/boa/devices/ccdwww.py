@@ -58,12 +58,12 @@ class CCDWWWConnector(HttpConnector):
         session.log.debug('URL %s returned code %d, data: %s',
                          result.request.url, response, data)
         if response in self.status_code_msg:
-            session.log.warn('CCDWWW Communication problem %s with %s',
-                             self.status_code_msg.get(response),
-                             result.content.decode('utf-8'))
+            session.log.warning('CCDWWW Communication problem %s with %s',
+                                self.status_code_msg.get(response),
+                                result.content.decode('utf-8'))
         elif response != 200:
-            self.log.warn('Error while connecting to server! %s',
-                          result.content.decode('utf-8'))
+            self.log.warning('Error while connecting to server! %s',
+                             result.content.decode('utf-8'))
         self._setROParam('curstatus', (status.OK, ''))
         return result
 

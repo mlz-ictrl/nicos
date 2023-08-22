@@ -140,7 +140,7 @@ class EpicsDevice(DeviceMixinBase):
         if is_connected:
             self.log.debug('%s connected!', name)
         else:
-            self.log.warn('%s disconnected!', name)
+            self.log.warning('%s disconnected!', name)
 
     def _get_cache_relation(self, param):
         # Returns the cache key associated with the parameter.

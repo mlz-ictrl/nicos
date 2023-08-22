@@ -133,7 +133,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         return ', '.join(msg)
 
     def _hot_off(self):
-        self.log.warn('chopper is shut down because of hot cores!')
+        self.log.warning('chopper is shut down because of hot cores!')
         self._shut_down()
 
     def _shut_down(self):

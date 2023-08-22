@@ -72,7 +72,7 @@ class EssExperiment(Experiment):
             self._client = YuosCacheClient.create(self.cache_filepath)
             self._update_cache_worker.start()
         except Exception as error:
-            self.log.warn('proposal look-up not available: %s', error)
+            self.log.warning('proposal look-up not available: %s', error)
 
     def doReadTitle(self):
         return self.propinfo.get('title', '')
