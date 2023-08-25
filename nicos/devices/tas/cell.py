@@ -30,10 +30,9 @@ from numpy import arccos, arcsin, arctan2, array, cos, cross, degrees, dot, \
     identity, pi, radians, sign, sin, sqrt, zeros
 from numpy.linalg import inv, norm
 
-from nicos.core import ComputationError, Device, NicosError, Param, anytype, \
-    vec3
+from nicos.core import ComputationError, Device, NicosError, Param, oneof, vec3
 from nicos.devices.sample import Sample
-from nicos.devices.tas.spacegroups import get_spacegroup
+from nicos.devices.tas.spacegroups import get_spacegroup, sg_by_hm
 
 # conversion from THz to A^-2
 K = 1.9958584
@@ -605,8 +604,20 @@ class Cell(CellBase, Device):
         #                          '-2 parallel -y.',
         #                          type=int, default=1, settable=True),
         'spacegroup': Param('Space group of the sample', settable=True,
-                            type=anytype, category='sample'),
+                            type=oneof(*range(1, 231), *sg_by_hm),
+                            category='sample'),
     }
+
+    parameters['spacegroup'].ext_desc = """
+The spacegroup is either the number between 1 and 230 or the Hermann–Mauguin
+(H-M) notation.
+
+.. seealso::
+
+   https://en.wikipedia.org/wiki/List_of_space_groups
+
+   https://en.wikipedia.org/wiki/Hermann%E2%80%93Mauguin_notation
+"""
 
     def doUpdateLattice(self, val):
         self._lattice = array(val, float)
