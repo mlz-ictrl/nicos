@@ -67,13 +67,6 @@ class Message:
     def __str__(self):
         return json.dumps({**self.__dict__})
 
-    def publish(self, exchange, channel, routing_key):
-        channel.basic_publish(
-            exchange=exchange,
-            routing_key=routing_key,
-            body=str(self),
-            properties=pika.BasicProperties(content_type='application/json'))
-
 
 class RabbitSinkHandler(DataSinkHandler):
 
@@ -83,6 +76,15 @@ class RabbitSinkHandler(DataSinkHandler):
         Queue"""
         started = (datetime.fromtimestamp(dataset.started, tz=timezone.utc)
                    .isoformat())
+
+        def publish(message: Message):
+            self.sink._channel.basic_publish(
+                exchange=self.sink._exchange,
+                routing_key=session.instrument.instrument,
+                body=str(message),
+                properties=pika.BasicProperties(
+                    content_type='application/json'))
+
         metadata = {}
         if dataset.settype != BLOCK:
             metadata = metainfo_to_json(dataset.metainfo)
@@ -103,10 +105,7 @@ class RabbitSinkHandler(DataSinkHandler):
             try:
                 if retry > 0:  # reconnect
                     self.sink._connect()
-                msg.publish(
-                    self.sink._exchange,
-                    self.sink._channel,
-                    session.instrument.instrument)
+                publish(msg)
                 break
             except (pika.exceptions.AMQPChannelError,
                     pika.exceptions.AMQPConnectionError) as e:
