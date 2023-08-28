@@ -37,7 +37,7 @@ devices = dict(
         description='experiment object',
         dataroot='/opt/nicos-data',
         sample='Sample',
-        cache_filepath='/opt/nicos-data/cspec/cached_proposals.json'
+        cache_filepath='/opt/nicos-data/cached_proposals.json'
     ),
     conssink=device(
         'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'
