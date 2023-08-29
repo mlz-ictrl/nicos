@@ -345,15 +345,21 @@ except the :ref:`description <setup-description>` entry:
 .. _setup-extended:
 
 ``extended``
-   A dictionary, reserved for future use.
+   A dictionary with the following entries being currently defined:
+
+     * *dynamic_loaded* - The setup isn't included in any other setup, but will
+       be loaded (normally) via the ``AddSetup`` command in a startup code
+       sequence.  The setup will not be added to the automatically reloaded
+       setups in case of a daemon restart or ``NewSetup()`` command call.
+     * *representative* - Device to show in the device tree when the setup is
+       collapsed.  The visibility of this device should have 'devlist' included!
+     * *poller_cache_reader* - List of devices for which in the poller process,
+       ``CacheReaders`` should be created if they are not found in the
+       configuration
 
    Example::
 
       extended = dict(dynamic_loaded = True)
-
-.. todo::
-
-   document "extended" more once we have use for it. PANDA uses it now !!!
 
 .. _setup-help_topics:
 
