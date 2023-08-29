@@ -33,10 +33,6 @@
 .. autoclass:: RefcountDigitalOutput()
 .. autoclass:: MultiDigitalOutput()
 
-.. module:: nicos_mlz.mira.devices.rfcircuit
-.. autoclass:: GeneratorDevice()
-.. autoclass:: RFCurrent()
-
 .. module:: nicos_mlz.mira.devices.shutter
 .. autoclass:: Shutter()
 
