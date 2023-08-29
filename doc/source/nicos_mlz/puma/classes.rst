@@ -74,9 +74,6 @@
 .. module:: nicos_mlz.puma.devices.deflector
 .. autoclass:: Deflector()
 
-.. module:: nicos_mlz.puma.devices.taco
-.. autoclass:: CycleCounter()
-
 .. module:: nicos_mlz.puma.devices.kineticdetector
 .. autoclass:: KineticDetector
 
