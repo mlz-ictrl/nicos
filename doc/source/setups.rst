@@ -193,18 +193,18 @@ except the :ref:`description <setup-description>` entry:
    example ``devices`` entries::
 
       devices = dict(
-          p   = device('nicos.devices.taco.AnalogInput',
-                       description = 'detector gas pressure',
-                       tacodevice = 'mira/ccr/pressure',
-                       unit = 'bar'),
+          p = device('nicos.devices.entangle.Sensor',
+                     description = 'detector gas pressure',
+                     tangodevice = 'tango://mira/ccr/pressure',
+                     unit = 'bar'),
 
-          mth_motor = device('nicos.devices.taco.Motor',
-                             tacodevice = 'mira/motor/mth',
+          mth_motor = device('nicos.devices.entangle.Motor',
+                             tangodevice = 'tango://mira/motor/mth',
                              visibility = (),
                              unit = 'deg'),
 
-          mth_coder = device('nicos.devices.taco.Coder',
-                             tacodevice = 'mira/coder/mth',
+          mth_coder = device('nicos.devices.entangle.Sensor',
+                             tangodevice = 'tango://mira/coder/mth',
                              visibility = (),
                              unit = 'deg'),
 
