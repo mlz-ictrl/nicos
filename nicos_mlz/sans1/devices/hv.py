@@ -73,7 +73,7 @@ class VoltageSwitcher(Switcher):
 
 
 class VoltageSupply(PowerSupply):
-    """work around a bug either in the taco server or in the hv supply itself
+    """work around a bug either in the Tango server or in the hv supply itself
 
     basically the idle status is returned at the end of the ramp,
     even if the output voltage is nowhere near the target value

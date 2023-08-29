@@ -48,8 +48,6 @@ class Shs(PyTangoDevice, Readable):
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
-        # if mode != SIMULATION:
-        #    self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
         pass
 
     def _readBuffer(self):

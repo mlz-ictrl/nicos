@@ -4,12 +4,12 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-nethost = setupname
+tango_base = f'tango://{setupname}:10000/'
 
 devices = {
-    f'T_{setupname}': device('nicos.devices.taco.TemperatureController',
+    f'T_{setupname}': device('nicos.devices.entangle.TemperatureController',
         description = 'The sample temperature',
-        tacodevice = f'//{nethost}/irf/eurotherm/control',
+        tangodevice = tango_base + 'irf/eurotherm/control',
         abslimits = (0, 1200),
         unit = 'C',
         fmtstr = '%.3f',

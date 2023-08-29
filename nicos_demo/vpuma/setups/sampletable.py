@@ -44,7 +44,6 @@ devices = dict(
         # alias = 'sth_m7T5_ccr',
         devclass = 'nicos.devices.generic.Axis',
         # when magnet is on :
-        # devclass = 'nicos.devices.taco.Axis',
     ),
     # Tilting
     st_sgx = device('nicos.devices.generic.VirtualMotor',

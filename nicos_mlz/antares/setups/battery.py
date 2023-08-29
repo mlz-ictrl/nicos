@@ -2,21 +2,21 @@ description = 'Heater for ZEBRA Battery'
 
 group = 'optional'
 
-nethost = '172.25.20.210'
+tango_base = 'tango://mpfc01.antares.frm2.tum.de:10000/'
 
 devices = dict(
-    T1 = device('nicos.devices.taco.TemperatureController',
+    T1 = device('nicos.devices.entangle.TemperatureController',
         description = 'The control device to the sample',
-        tacodevice = '//%s/mpfc/ls340/control1' % nethost,
+        tangodevice = tango_base + 'mpfc/ls340/control1',
         abslimits = (0, 800),
         unit = 'C',
         fmtstr = '%.3f',
         pollinterval = 5,
         maxage = 6,
     ),
-    T2 = device('nicos.devices.taco.TemperatureController',
+    T2 = device('nicos.devices.entangle.TemperatureController',
         description = 'The control device to the sample',
-        tacodevice = '//%s/mpfc/ls340/control2' % nethost,
+        tangodevice = tango_base + 'mpfc/ls340/control2',
         abslimits = (0, 800),
         unit = 'C',
         fmtstr = '%.3f',

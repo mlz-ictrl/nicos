@@ -90,7 +90,7 @@ class NOKPosition(PolynomFit, Coder):
     """Device to read the current Position of a NOK.
 
     The Position is determined by a ratiometric measurement between two
-    analogue voltages measured with i7000 modules via taco.
+    analogue voltages measured with i7000 modules via Tango.
 
     As safety measure, the reference voltage obtained is checked to be in some
     configurable limits.

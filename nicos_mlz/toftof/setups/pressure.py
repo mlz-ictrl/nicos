@@ -2,12 +2,12 @@ description = 'Setup for the pressure cell'
 
 group = 'optional'
 
-nethost = 'toftofsrv.toftof.frm2.tum.de'
+tango_base = 'tango://toftofsrv.toftof.frm2.tum.de:10000/'
 
 devices = dict(
-    P = device('nicos.devices.taco.AnalogInput',
+    P = device('nicos.devices.entangle.Sensor',
         description = 'Pressure cell device',
-        tacodevice = '//%s/toftof/pressure/value' % nethost,
+        tangodevice = tango_base + 'toftof/pressure/value',
         unit = 'bar',
         pollinterval = 120,
     ),
