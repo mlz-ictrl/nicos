@@ -16,6 +16,6 @@ devices = dict(
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         authenticators = ['Auth'],
-        server = 'localhost',
+        server = '',
     ),
 )
