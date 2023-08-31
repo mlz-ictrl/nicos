@@ -215,8 +215,8 @@ class DoubleSlit(PseudoNOK, Moveable):
             dev.poll(n, maxage)
 
     def valueInfo(self):
-        return (Value('%s.height' % self, unit=self.unit, fmtstr='%.2f'),
-                Value('%s.center' % self, unit=self.unit, fmtstr='%.2f'))
+        return (Value('%s.center' % self, unit=self.unit, fmtstr='%.2f'),
+                Value('%s.height' % self, unit=self.unit, fmtstr='%.2f'))
 
 
 class DoubleSlitSequence(SequencerMixin, DoubleSlit):
