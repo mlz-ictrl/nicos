@@ -167,7 +167,7 @@ class TableWidget(QTableWidget):
         if parent:
             self.log = parent.parent().log
         self.setShowGrid(False)
-        self.setSelectionBehavior(QAbstractItemView.SelectionMode.SelectRows)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         # self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
