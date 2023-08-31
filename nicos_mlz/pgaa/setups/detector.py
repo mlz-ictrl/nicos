@@ -2,7 +2,7 @@ description = 'PGAA detectors'
 
 group = 'lowlevel'
 
-tango_host = 'tango://silver.pgaa.frm2:10000/PGAA/MCA/'
+tango_host = 'tango://pgaahw.pgaa.frm2.tum.de:10000/PGAA/MCA/'
 
 devices = dict(
     _60p = device('nicos_mlz.pgaa.devices.DSPec',
