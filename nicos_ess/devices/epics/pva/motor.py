@@ -28,7 +28,7 @@
 
 import threading
 
-from nicos.core import Override, Param, oneof, pvname, status
+from nicos.core import Moveable, Override, Param, oneof, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasLimits, HasOffset
 from nicos.devices.abstract import CanReference, Motor
@@ -382,3 +382,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             return status.OK, ''
 
         return HasLimits._check_in_range(self, curval, userlimits)
+
+    def isAllowed(self, pos):
+        if self.userlimits == (0, 0) and self.abslimits == (0, 0):
+            # No limits defined
+            return True, ''
+
+        return Moveable.isAllowed(self, pos)
