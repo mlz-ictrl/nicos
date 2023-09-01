@@ -386,6 +386,13 @@ class SetupChecker:
                     'device name %s duplicate: also in %s', devname,
                     self.devs_seen[devname], extra=self.find_deventry(devname)
                 )
+        # check for "require" or "requires"
+        for req in ['require', 'requires']:
+            if req in self.ns:
+                self.log_error(
+                    f"{req!r} should be substituted by 'includes'",
+                    extra=self.find_global(req)
+                )
 
         # check for common misspelling of "includes"
         if 'include' in self.ns:
