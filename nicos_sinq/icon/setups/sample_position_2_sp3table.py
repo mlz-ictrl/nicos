@@ -1,7 +1,7 @@
 description = 'SP3 table mounted at sample position 2.'
 
 excludes = ['sample_position_3']
-requires = ['sample_position_2']
+includes = ['sample_position_2']
 
 display_order = 41
 

@@ -2,7 +2,7 @@ description = 'This setup is for using the MLZ triple axis calculations'
 
 excludes = ['tasub']
 
-requires = ['tasp']
+includes = ['tasp']
 
 sysconfig = dict(instrument = 'TASP',)
 

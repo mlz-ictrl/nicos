@@ -1,6 +1,6 @@
 description = 'Installs normal beam geometry into ZEBRA'
 
-requires = ['monochromator', 'sample']
+includes = ['monochromator', 'sample']
 
 excludes = ['zebraeuler', 'zebratas', 'zebrakappa']
 

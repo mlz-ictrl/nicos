@@ -4,7 +4,7 @@ description = 'Installs the Triple Axis Calculations into MORPHEUS'
 
 group = 'basic'
 
-requires = ['morpheus', 'monochromator', 'a34_aliases', 'slits']
+includes = ['morpheus', 'monochromator', 'a34_aliases', 'slits']
 
 excludes = ['euler', 'pnr', 'diffraction']
 

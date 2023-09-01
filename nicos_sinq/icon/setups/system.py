@@ -15,7 +15,7 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-requires = ['shutters']
+includes = ['shutters']
 
 display_order = 100
 

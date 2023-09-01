@@ -1,6 +1,6 @@
 description = 'Installs the Triple Axis Calculations into ZEBRA '
 
-requires = ['monochromator', 'sample']
+includes = ['monochromator', 'sample']
 
 excludes = ['zebraeuler', 'zebranb', 'zebrakappa']
 

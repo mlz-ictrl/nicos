@@ -2,7 +2,7 @@ description = 'This setup is for using the MLZ triple axis calculations'
 
 excludes = ['tasub']
 
-requires = ['eiger']
+includes = ['eiger']
 
 sysconfig = dict(instrument = 'EIGER',)
 

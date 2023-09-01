@@ -3,7 +3,7 @@ description = 'This initializes EIGER for the UB matrix triple axis ' \
 
 sysconfig = dict(instrument = 'EIGER',)
 
-requires = ['eiger']
+includes = ['eiger']
 excludes = ['tasmlz']
 
 modules = ['nicos_sinq.sxtal.commands']

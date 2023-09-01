@@ -2,7 +2,7 @@ description = 'Installs the Eulerian cradle into NICOS'
 
 excludes = ['zebratas', 'zebranb', 'zebrakappa']
 
-requires = ['monochromator', 'sample']
+includes = ['monochromator', 'sample']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 

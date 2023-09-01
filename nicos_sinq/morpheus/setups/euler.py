@@ -1,6 +1,6 @@
 description = 'Installs the Eulerian cradle into NICOS'
 
-requires = ['morpheus', 'monochromator']
+includes = ['morpheus', 'monochromator']
 
 excludes = ['tas']
 

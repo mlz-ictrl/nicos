@@ -2,7 +2,7 @@ description = 'This initializes TASP for the UB matrix triple axis calculation'
 
 sysconfig = dict(instrument = 'TASP',)
 
-requires = ['tasp']
+includes = ['tasp']
 
 excludes = ['tasmlz']
 

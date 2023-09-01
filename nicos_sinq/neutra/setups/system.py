@@ -15,7 +15,7 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-requires = ['shutters']
+includes = ['shutters']
 
 modules = [
     'nicos.commands.standard', 'nicos_sinq.commands.sics',

@@ -2,7 +2,7 @@ description = 'Installs the Kappa goniometer into NICOS'
 
 excludes = ['zebratas', 'zebranb', 'zebraeuler']
 
-requires = ['monochromator', 'sample']
+includes = ['monochromator', 'sample']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 
