@@ -26,7 +26,6 @@ instrument setups.
 """
 
 from logging import ERROR, LogRecord
-from os import path
 from pathlib import Path
 from uuid import uuid1
 
@@ -128,11 +127,11 @@ def test_dryrun(session, facility, instr, script):
     needs_modules = []
     timing_condition = None
     subdirs = custom_subdirs[f'{facility}.{instr}']
-    custom_dir = path.join(module_root, facility)
-    fullpath = path.join(custom_dir, instr, 'testscripts', script)
-    cachepath = path.join(custom_dir, instr, 'testscripts', 'cache')
+    custom_dir = Path(module_root).joinpath(facility)
+    fullpath = custom_dir.joinpath(instr, 'testscripts', script)
+    cachepath = custom_dir.joinpath(instr, 'testscripts', 'cache')
 
-    with open(fullpath, encoding='utf-8') as fp:
+    with fullpath.open(encoding='utf-8') as fp:
         for line in fp:
             if line.startswith('# test:'):
                 parts = line.split(None, 4)
@@ -164,7 +163,8 @@ def test_dryrun(session, facility, instr, script):
         except Exception:
             pytest.skip('required module %r is not available' % modname)
 
-    setup_subdirs = ','.join(path.join(custom_dir, sbd) for sbd in subdirs)
+    setup_subdirs = ','.join('%s' % Path(custom_dir).joinpath(sbd)
+                             for sbd in subdirs)
     uuid = uuid1()
     emitter = Emitter(uuid, code)
     supervisor = SimulationSupervisor(None, str(uuid), code, setups,
