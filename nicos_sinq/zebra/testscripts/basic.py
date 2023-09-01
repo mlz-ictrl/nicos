@@ -6,6 +6,9 @@
 # test: needs = confluent_kafka
 # test: subdirs = zebra
 # test: setups = zebranb, wagen1, sps, detector_single
+# test: setupcode = Sample.a=3.5
+# test: setupcode = Sample.b=3.5
+# test: setupcode = Sample.c=3.5
 
 checkzebra()
 zebraconf()
