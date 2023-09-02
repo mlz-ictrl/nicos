@@ -28,8 +28,9 @@ This module implements the EPICS area detector integration.
 import numpy as np
 
 from nicos import session
-from nicos.core import LIVE, ArrayDesc, AutoDevice, HasAutoDevices, \
-    Param, Value, listof, multiStatus, oneof, pvname, status, usermethod
+from nicos.core import LIVE, SIMULATION, ArrayDesc, AutoDevice, \
+    HasAutoDevices, Param, Value, listof, multiStatus, oneof, pvname, status, \
+    usermethod
 from nicos.core.device import Device
 from nicos.devices.epics.pyepics import EpicsDevice, EpicsMoveable
 from nicos.devices.generic import Detector, ImageChannelMixin
@@ -406,6 +407,8 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
 
     def doInit(self, mode):
         EpicsPassiveChannel.doInit(self, mode)
+        if mode == SIMULATION:
+            return
         self.doPrepare()
 
     def doPrepare(self):
