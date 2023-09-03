@@ -74,7 +74,7 @@ devices = dict(
         errormsgpv = pvmcu2 + 'mcv1-MsgTxt',
         precision = 0.5,
     ),
-    mono = device('nicos.devices.generic.Switcher',
+    mono = device('nicos_sinq.orion.devices.MonoSwitcher',
         description = 'monochromator',
         moveable = 'mom1',
         mapping = {
@@ -83,7 +83,7 @@ devices = dict(
             1.32: 21.25,
         },
         precision = .1,
-        unit = 'A'
+        unit = 'A',
     ),
     timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',
