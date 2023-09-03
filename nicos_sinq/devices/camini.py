@@ -292,6 +292,9 @@ class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
 
         return seq
 
+    def doSimulate(self, preset):
+        return ['', self._timestamp]
+
     def doRead(self, maxage=0):
         return [self._pvs['filepv'].get(timeout=self.epicstimeout,
                 as_string=True, count=256), self._timestamp]

@@ -80,6 +80,9 @@ class BeamOracle(EpicsDevice, Detector):
         self._put_pv('writepv', 0, True)
         self._running = False
 
+    def doSimulate(self, preset):
+        return [preset, ]
+
     def doRead(self, maxage=0):
         return [self._get_pv('readpv'), ]
 
