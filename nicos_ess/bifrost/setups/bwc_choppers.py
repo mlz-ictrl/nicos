@@ -1,8 +1,8 @@
 description = 'The choppers for BIFROST'
 
-pv_root_1 = 'BIFROST-ChpSy2:Chop-BWC-101:'
-pv_root_2 = 'BIFROST-ChpSy2:Chop-BWC-102:'
-chic_root = 'BIFROST-ChpSy2:Chop-CHIC-001:'
+pv_root_1 = 'BIFRO-ChpSy2:Chop-BWC-101:'
+pv_root_2 = 'BIFRO-ChpSy2:Chop-BWC-102:'
+chic_root = 'BIFRO-ChpSy2:Chop-CHIC-001:'
 
 devices = dict(
     bwc1_chopper_status=device(
