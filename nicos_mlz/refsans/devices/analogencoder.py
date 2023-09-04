@@ -26,9 +26,9 @@ Support code for any encoder with analog signal, like poti laser distance etc
 
 import numpy as np
 
-from nicos.core import HasPrecision, Moveable, Readable
+from nicos.core import HasPrecision, Moveable, Param, Readable
 from nicos.core.errors import ConfigurationError
-from nicos.core.params import Attach
+from nicos.core.params import floatrange, Attach
 from nicos.devices.abstract import TransformedMoveable, TransformedReadable
 
 from nicos_mlz.refsans.devices.mixins import PolynomFit
@@ -81,3 +81,51 @@ class AnalogMove(HasPrecision, PolynomFit, TransformedMoveable):
             self._fitter = None
             raise ConfigurationError('Only a linear correction is allowed')
         self._fitter = np.polynomial.Polynomial(poly)
+
+
+class Ohmmeter(TransformedReadable):
+    """Calculates a resistance from a simple voltagedivider"""
+
+    attached_devices = {
+        'device': Attach('Sensing device (ADC etc)', Readable),
+    }
+
+    parameters = {
+        'u_high': Param('upper Voltage',
+                        type=floatrange(0.), default=3.3),
+        'u_low': Param('lower Voltage',
+                       type=floatrange(0.), default=0.0),
+        'r_arb': Param('2. Resistor',
+                       type=floatrange(0.), default=1000.0),
+    }
+
+    def _readRaw(self, maxage=0):
+        return self._attached_device.read(maxage)
+
+    def _mapReadValue(self, value):
+        i = (self.u_high - value) / self.r_arb
+        R_ges = (self.u_high - self.u_low) / i
+        return R_ges - self.r_arb
+
+
+class PTxxlinearC(TransformedReadable):
+    """Calculates a resistance from a simple voltagedivider."""
+
+    attached_devices = {
+        'device': Attach('Sensing device a resistor', Readable),
+    }
+
+    parameters = {
+        'r0': Param('Resistance at 0 deg Celsius',
+                    type=floatrange(0.), default=1000),
+        'r_cable': Param('Resistance of cable 2 * wire',
+                         type=floatrange(0.), default=0.0),
+        'alpha': Param('alpha of PTs',
+                       type=floatrange(0.), default=0.003851),
+    }
+
+    def _readRaw(self, maxage=0):
+        return self._attached_device.read(maxage)
+
+    def _mapReadValue(self, value):
+        return (value - self.r0) / (self.alpha * self.r0)
