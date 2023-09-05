@@ -96,7 +96,7 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
         self.stop_pump()
 
     def doRead(self, maxage=0):
-        return self._attached_status.doRead(maxage)
+        return self._attached_status.read(maxage)
 
     def doReadMapping(self):
         return {cmd: i for i, cmd in enumerate(self._commands.keys())}
@@ -108,14 +108,14 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
         if device_msg:
             return status.ERROR, device_msg
 
-        return self._attached_status.doStatus(maxage)
+        return self._attached_status.status(maxage)
 
     @usermethod
     def start_pump(self):
         """Start pumping"""
         if self._mode == SIMULATION:
             return
-        curr_state = self._attached_status.doRead()
+        curr_state = self._attached_status.read(0)
         if curr_state != 'Stopped':
             raise InvalidValueError('Cannot start from the current state, '
                                     'please stop the pump first')
@@ -126,7 +126,7 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
         """Stop pumping"""
         if self._mode == SIMULATION:
             return
-        curr_state = self._attached_status.doRead()
+        curr_state = self._attached_status.read(0)
         if curr_state == 'Stopped':
             self.log.warning("Stop request ignored as pump already stopped")
             return
@@ -137,7 +137,7 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
         """Purge the pump"""
         if self._mode == SIMULATION:
             return
-        curr_state = self._attached_status.doRead()
+        curr_state = self._attached_status.read(0)
         if curr_state != 'Stopped':
             raise InvalidValueError('Cannot purge from the current state, '
                                     'please stop the pump first')
@@ -148,7 +148,7 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
         """Pause pumping"""
         if self._mode == SIMULATION:
             return
-        curr_state = self._attached_status.doRead()
+        curr_state = self._attached_status.read(0)
         if curr_state not in ['Infusing', 'Withdrawing']:
             raise InvalidValueError('Cannot pause from the current state '
                                     f'({curr_state})')
@@ -159,7 +159,7 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
         """Resume pumping"""
         if self._mode == SIMULATION:
             return
-        curr_state = self._attached_status.doRead()
+        curr_state = self._attached_status.read(0)
         if curr_state != 'Paused':
             self.log.warning("Resume request ignored as pump is not paused")
             return

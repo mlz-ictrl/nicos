@@ -158,7 +158,7 @@ class EssChopperController(MappedMoveable):
 
     def doStatus(self, maxage=0):
         if self._attached_alarms:
-            stat, msg = self._attached_alarms.doStatus(maxage)
+            stat, msg = self._attached_alarms.status(maxage)
             if stat != status.OK:
                 return stat, msg
         if self._attached_chic_conn.read() != 'Connected':

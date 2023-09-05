@@ -578,7 +578,7 @@ class AreaDetectorCollector(Detector):
         return []
 
     def doReadArrays(self, quality):
-        return [image.doReadArray(quality) for image in self._attached_images]
+        return [image.readArray(quality) for image in self._attached_images]
 
     def doReset(self):
         pass

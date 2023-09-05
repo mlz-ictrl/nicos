@@ -572,7 +572,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         ]
 
     def doReadArrays(self, quality):
-        return [image.doReadArray(quality) for image in self._attached_images]
+        return [image.readArray(quality) for image in self._attached_images]
 
     def _stop_histogramming(self):
         self._send_command(self.command_topic, b'{"cmd": "stop"}')

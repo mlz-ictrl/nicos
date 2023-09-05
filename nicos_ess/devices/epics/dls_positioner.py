@@ -44,7 +44,7 @@ class DlsPositioner(ManualSwitch, EpicsMoveable):
         self._put_pv('writepv', target)
 
     def doStatus(self, maxage=0):
-        return self._attached_motor.doStatus(maxage)
+        return self._attached_motor.status(maxage)
 
     def doRead(self, maxage=0):
         position = EpicsMoveable.doRead(self, maxage)

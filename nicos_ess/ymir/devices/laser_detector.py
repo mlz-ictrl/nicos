@@ -97,7 +97,7 @@ class LaserDetector(Measurable):
             count_until = time.monotonic() + duration
         while not self._stoprequest:
             session.delay(0.1)
-            max_pow = max(self._attached_laser.doRead(), max_pow)
+            max_pow = max(self._attached_laser.read(), max_pow)
             counter += 1
             value += max_pow
             self.answer = value / counter  # iterative average
