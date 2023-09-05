@@ -98,11 +98,11 @@ class MovingDetector(MeasureSequencer):
         return 2 * deg(arctan(px_size / 2 / radius))
 
     def doInfo(self):
-        return self._attached_detector.doInfo()
+        return self._attached_detector.info()
 
     def doPrepare(self):
         MeasureSequencer.doPrepare(self)
-        self._attached_detector.doPrepare()
+        self._attached_detector.prepare()
 
     def _pixel_size(self):
         return self._attached_detector._attached_images[0].pixel_size
@@ -230,7 +230,7 @@ class MovingDetector(MeasureSequencer):
                 self._ttheta_skip = int(preset.pop('ttheta_skip'))
             if 'ttheta_resolution' in preset:
                 self._ttheta_resol = int(preset.pop('ttheta_resolution'))
-        self._attached_detector.doSetPreset(**preset)
+        self._attached_detector.setPreset(**preset)
 
     def _read_value(self):
         ret = self._attached_detector.read()
@@ -321,19 +321,19 @@ class MovingDetector(MeasureSequencer):
         self._last_live = 0
         self._step = 0
         self._array_data.fill(0)
-        self._attached_detector.doReset()
+        self._attached_detector.reset()
         self._data = [0] * len(self._attached_detector.valueInfo())
         MeasureSequencer.doReset(self)
         # self._attached_motor.maw(self._startpos)
 
     def doPause(self):
-        self._attached_detector.doPause()
+        self._attached_detector.pause()
 
     def doResume(self):
-        self._attached_detector.doResume()
+        self._attached_detector.resume()
 
     def doFinish(self):
-        self._attached_detector.doFinish()
+        self._attached_detector.finish()
 
     def doSimulate(self, preset):
         return self._attached_detector.doSimulate(preset)
