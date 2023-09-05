@@ -49,7 +49,7 @@ class BeamStopAxis(Axis):
             self.userlimits = self.abslimits
         if mode not in (SIMULATION, SLAVE) and \
            self._attached_motor.status()[0] != status.BUSY:
-            self._attached_motor.doSetPosition(self._attached_coder.read())
+            self._attached_motor.setPosition(self._attached_coder.read())
             self._attached_motor.userlimits = self._attached_motor.abslimits
 
     def doReadOffset(self):
