@@ -91,6 +91,20 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                   settable=False,
                   userparam=False,
                   mandatory=False),
+        'position_deadband':
+            Param('Acceptable distance between target and final position.',
+                  type=float,
+                  settable=False,
+                  volatile=True,
+                  userparam=False,
+                  mandatory=False),
+        'epics_desc':
+            Param('The motor description defined at the EPICS level.',
+                  type=str,
+                  settable=False,
+                  volatile=True,
+                  userparam=False,
+                  mandatory=False),
     }
 
     parameter_overrides = {
@@ -132,7 +146,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'foff': 'FOFF',
         'units': 'EGU',
         'alarm_status': 'STAT',
-        'alarm_severity': 'SEVR'
+        'alarm_severity': 'SEVR',
+        'position_deadband': 'RDBD',
+        'description': 'DESC',
     }
 
     _cache_relations = {
@@ -382,6 +398,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             return status.OK, ''
 
         return HasLimits._check_in_range(self, curval, userlimits)
+
+    def doReadPosition_Deadband(self):
+        return self._get_pv('position_deadband')
+
+    def doReadEpics_Desc(self):
+        return self._get_pv('description')
 
     def isAllowed(self, pos):
         if self.userlimits == (0, 0) and self.abslimits == (0, 0):
