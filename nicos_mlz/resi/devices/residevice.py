@@ -161,7 +161,7 @@ class ResiVAxis(Moveable):
         'mapped_axis': Param('Mapped axis', type=str, mandatory=True)
     }
     def doStart(self, target):
-        self._attached_basedevice.doStart({self.mapped_axis:target})
+        self._attached_basedevice.start({self.mapped_axis:target})
     def doRead(self, maxage=0):
         return math.degrees(getattr(self._attached_basedevice.read(maxage), self.mapped_axis))
     def doIsCompleted(self):
