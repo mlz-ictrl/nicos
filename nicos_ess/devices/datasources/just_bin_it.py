@@ -33,7 +33,7 @@ from nicos.core.constants import LIVE, MASTER, SIMULATION
 from nicos.devices.generic import Detector, ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
-from nicos_ess.devices.kafka.consumer import KafkaSubscriber, KafkaConsumer
+from nicos_ess.devices.kafka.consumer import KafkaConsumer, KafkaSubscriber
 from nicos_ess.devices.kafka.producer import KafkaProducer
 from nicos_ess.devices.kafka.status_handler import DISCONNECTED_STATE, \
     KafkaStatusHandler
