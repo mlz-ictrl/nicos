@@ -44,6 +44,8 @@ class InterfaceLogicalMotorHandler(Moveable):
         'unit': Override(mandatory=False, default='degree'),
     }
 
+    valuetype = dict
+
     status_to_msg = {
         status.ERROR: 'Error in %s',
         status.BUSY: 'Moving: %s ...',
@@ -56,7 +58,6 @@ class InterfaceLogicalMotorHandler(Moveable):
     def doPreinit(self, mode):
         self._logical_motors = {}
         self._motortypes = []
-        self.valuetype = {}
 
     def register(self, motortype, motor):
         self._motortypes.append(motortype)
