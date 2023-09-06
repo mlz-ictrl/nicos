@@ -56,6 +56,7 @@ devices = dict(
         gonio_theta = 'gonio_theta',
         gonio_y = 'gonio_y',
         gonio_z = 'gonio_z',
+        gonio_top_z = 'gonio_top_z',
         chopper2 = 'chopper2',
         chopper3 = 'chopper3',
         chopper4 = 'chopper4',
