@@ -91,11 +91,9 @@ class InfluxDBWrapper:
             self._update_queue = []
         msg = f'''from(bucket:"{self._bucket}")
             |> range(start: 2007-01-01T00:00:00Z, stop: now())
-            |> filter(fn:(r) => r.expired == "False")
             |> last(column: "_time")
             |> drop(columns: ["_start", "_stop"])'''
-        tables = self._client.query_api().query(msg)
-        return tables
+        return self._client.query_api().query(msg)
 
     def queryHistory(self, measurement, field, fromtime, totime, interval):
         """
@@ -194,7 +192,7 @@ class InfluxDBCacheDatabase(CacheDatabase):
     def initDatabase(self):
         tables = self._client.query()
         for table in tables:
-            for record in table.records:
+            for record in table:
                 category = record['_measurement']
                 subkey = record['_field']
                 time = record['_time'].timestamp()
@@ -203,11 +201,11 @@ class InfluxDBCacheDatabase(CacheDatabase):
                         _, lock, db = self._recent[category]
                         with lock:
                             db[subkey] = CacheEntry(time, None, record['_value'])
-                            db[subkey].expired = record['expired']
+                            db[subkey].expired = record['expired'] == 'True'
                     else:
                         db = {}
                         db[subkey] = CacheEntry(time, None, record['_value'])
-                        db[subkey].expired = record['expired']
+                        db[subkey].expired = record['expired'] == 'True'
                         self._recent[category] = [None, threading.Lock(), db]
 
     def doShutdown(self):
@@ -260,5 +258,5 @@ class InfluxDBCacheDatabase(CacheDatabase):
             for record in records:
                 time = record['_time'].timestamp()
                 entry = CacheEntry(time, None, record['_value'])
-                entry.expired = record['expired']
+                entry.expired = record['expired'] == 'True'
                 yield entry
