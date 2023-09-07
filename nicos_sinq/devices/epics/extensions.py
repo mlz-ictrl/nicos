@@ -26,6 +26,7 @@
 This module contains specific EPICS devices.
 """
 from nicos.core import Device, Param, pvname, usermethod
+from nicos.core.constants import SIMULATION
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.epics.pyepics import EpicsDevice
 
@@ -123,6 +124,8 @@ class EpicsCommandReply(EpicsDevice, Device):
         Issue and execute the provided command
         Returns the reply if the replypv is set
         """
+        if self._mode == SIMULATION:
+            return ''
         # Send the command to the commandpv
         self._put_pv_blocking('commandpv', command)
 

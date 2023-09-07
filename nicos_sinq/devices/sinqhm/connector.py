@@ -62,9 +62,10 @@ class HttpConnector(HasCommunication, Readable):
 
     def doInit(self, mode):
         # Check if the base url is available
-        if mode != SIMULATION:
-            self._com_retry(None, requests.get, self.baseurl,
-                            headers=self._get_auth())
+        if mode == SIMULATION:
+            return
+        self._com_retry(None, requests.get, self.baseurl,
+                        headers=self._get_auth())
 
     def _get_auth(self):
         return {"Authorization": "Basic %s" % self.base64auth}

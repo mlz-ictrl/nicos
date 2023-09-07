@@ -25,6 +25,7 @@ import numpy as np
 from lxml import etree
 
 from nicos.core import Attach, Device, Override, Param, listof, oneof
+from nicos.core.constants import SIMULATION
 
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
@@ -143,6 +144,7 @@ class HistogramConfTofArray(HistogramConfArray):
         self.channel_width = tstep
 
 
+# pylint: disable=anomalous-backslash-in-string
 class HistogramConfAxis(HistogramConfElement):
     """This element describes an axis of the histogram memory.
     The axis tag has the following attributes:
@@ -347,6 +349,7 @@ class ConfiguratorBase(HistogramConfElement):
       </sinqhm>
 
     """
+
     parameters = {
         'filler': Param('Filler algorithm to be used',
                         type=oneof('dig', 'tof', 'tofmap', 'psd',
@@ -395,6 +398,8 @@ class ConfiguratorBase(HistogramConfElement):
     def updateConfig(self):
         """ Generate a new configuration XML file and send it to the server
         """
+        if self._mode == SIMULATION:
+            return
         xmldata = self.getXmlString(encoding='UTF-8', xml_declaration=True,
                                     pretty_print=True)
         req = self._attached_connector.post('configure.egi', data=xmldata)
