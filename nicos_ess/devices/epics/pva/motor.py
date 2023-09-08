@@ -98,8 +98,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                   volatile=True,
                   userparam=False,
                   mandatory=False),
-        'epics_desc':
-            Param('The motor description defined at the EPICS level.',
+        'pv_desc':
+            Param('The description defined at the EPICS level.',
                   type=str,
                   settable=False,
                   volatile=True,
@@ -402,7 +402,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     def doReadPosition_Deadband(self):
         return self._get_pv('position_deadband')
 
-    def doReadEpics_Desc(self):
+    def doReadPv_Desc(self):
         return self._get_pv('description')
 
     def isAllowed(self, pos):
