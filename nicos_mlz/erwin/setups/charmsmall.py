@@ -121,7 +121,7 @@ for i in range(1, 2):
     )
     devices['s_banode%s_c' % i] = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'Boundary anode %d current' % i,
-        device = 'b_banode%d' % i,
+        device = 's_banode%d' % i,
         parameter = 'current',
         copy_status = True,
         fmtstr = '%.6g',
