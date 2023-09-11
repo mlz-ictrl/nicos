@@ -39,6 +39,6 @@ devices = dict(
         pollinterval = None,
         liveinterval = 10.0,
         saveintervals = [30.],
-        detinfofile = '/toftofcontrol/nicos_mlz/toftof/detinfo.dat',
+        detinfofile = '/control/nicos_mlz/toftof/detinfo.dat',
     ),
 )
