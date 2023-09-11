@@ -57,6 +57,8 @@ class AmorLogicalMotorHandler(InterfaceLogicalMotorHandler):
     motor is to be moved.
     """
 
+    hardware_access = False
+
     parameter_overrides = {
         'fmtstr': Override(volatile=True),
         'unit': Override(mandatory=False, default='degree'),
@@ -221,6 +223,9 @@ class AmorLogicalMotor(Motor):
     type which can be one of the ath(analyzer theta), m2t(monochormator
     two theta) or s2t(sample two theta).
     """
+
+    hardware_access = False
+
     parameters = {
         'motortype': Param('Type of motor ath/m2t/s2t',
                            type=oneof(*motortypes), mandatory=True),
@@ -242,23 +247,23 @@ class AmorLogicalMotor(Motor):
         self._attached_controller.register(self.motortype, self)
 
     def doRead(self, maxage=0):
-        return self._attached_controller.doRead(maxage)[self.motortype]
+        return self._attached_controller.read(maxage)[self.motortype]
 
     def doReadTarget(self):
         return self._getFromCache('target', self.doRead)
 
     def doStatus(self, maxage=0):
         # Check for error and warning in the dependent devices
-        return self._attached_controller.doStatus(maxage)
+        return self._attached_controller.status(maxage)
 
     def doIsAllowed(self, pos):
-        return self._attached_controller.doIsAllowed({self.motortype: pos})
+        return self._attached_controller.isAllowed({self.motortype: pos})
 
     def doIsCompleted(self):
-        return self._attached_controller.doIsCompleted()
+        return self._attached_controller.isCompleted()
 
     def doStart(self, target):
-        self._attached_controller.doStart({self.motortype: target})
+        self._attached_controller.start({self.motortype: target})
 
     def doStop(self):
         if self.status(0)[0] == status.BUSY:
@@ -268,6 +273,8 @@ class AmorLogicalMotor(Motor):
 
 
 class DetectorAngleMotor(TransformedMoveable):
+
+    hardware_accesss = False
 
     # The real motors
     attached_devices = {
@@ -281,7 +288,7 @@ class DetectorAngleMotor(TransformedMoveable):
     }
 
     def doRead(self, maxage=0):
-        return -self._attached_com.doRead()
+        return -self._attached_com.read(maxage)
 
     def _mapTargetValue(self, target):
         return -target, \

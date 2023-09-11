@@ -39,6 +39,8 @@ class InterfaceLogicalMotorHandler(Moveable):
     This may be different from the list of attached devices when logical
     motors operate on conditional components.
     """
+    hardware_access = False
+
     parameter_overrides = {
         'fmtstr': Override(volatile=True),
         'unit': Override(mandatory=False, default='degree'),
@@ -176,6 +178,8 @@ class LogicalMotor(Motor):
     always the name of the logical device
     """
 
+    hardware_access = False
+
     parameter_overrides = {
         'unit': Override(mandatory=False, default='degree'),
         'target': Override(volatile=True),
@@ -192,23 +196,23 @@ class LogicalMotor(Motor):
         self._attached_controller.register(self.name, self)
 
     def doRead(self, maxage=0):
-        return self._attached_controller.doRead(maxage)[self.name]
+        return self._attached_controller.read(maxage)[self.name]
 
     def doReadTarget(self):
         return self._getFromCache('target', self.doRead)
 
     def doStatus(self, maxage=0):
         # Check for error and warning in the dependent devices
-        return self._attached_controller.doStatus(maxage)
+        return self._attached_controller.status(maxage)
 
     def doIsAllowed(self, pos):
-        return self._attached_controller.doIsAllowed({self.name: pos})
+        return self._attached_controller.isAllowed({self.name: pos})
 
     def doIsCompleted(self):
-        return self._attached_controller.doIsCompleted()
+        return self._attached_controller.isCompleted()
 
     def doStart(self, pos):
-        self._attached_controller.doStart({self.name: pos})
+        self._attached_controller.start({self.name: pos})
 
     def doStop(self):
         if self.status(0)[0] == status.BUSY:

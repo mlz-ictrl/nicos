@@ -55,10 +55,10 @@ class EigerA2Controller(InterfaceLogicalMotorHandler):
 
     def doRead(self, maxage=0):
         result = {}
-        result['a2'] = self._attached_reala2.doRead(maxage)
+        result['a2'] = self._attached_reala2.read(maxage)
         a2Target = self._attached_reala2.target
-        vall = self._attached_left.doRead(maxage)
-        valr = self._attached_right.doRead(maxage)
+        vall = self._attached_left.read(maxage)
+        valr = self._attached_right.read(maxage)
         d2ro = self.sizes[1] - a2Target
         d2lo = self.sizes[0] + a2Target
         a2w = (d2lo - vall) + (d2ro - valr)

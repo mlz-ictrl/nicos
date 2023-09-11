@@ -313,9 +313,9 @@ class ControlDetector(Detector):
                 return res
 
     def doInfo(self):
-        res = self._attached_trigger.doInfo()
+        res = self._attached_trigger.info()
         for det in self._attached_followers:
-            res = res + det.doInfo()
+            res = res + det.info()
         return res
 
     def presetInfo(self):
@@ -336,15 +336,15 @@ class ControlDetector(Detector):
         return res
 
     def doRead(self, maxage=0):
-        res = self._attached_trigger.doRead(maxage)
+        res = self._attached_trigger.read(maxage)
         for det in self._attached_followers:
-            res = res + det.doRead(maxage)
+            res = res + det.read(maxage)
         return res
 
     def doReadArrays(self, quality):
-        res = self._attached_trigger.doReadArrays(quality)
+        res = self._attached_trigger.readArrays(quality)
         for det in self._attached_followers:
-            res += det.doReadArrays(quality)
+            res += det.readArrays(quality)
         return res
 
     def doReset(self):

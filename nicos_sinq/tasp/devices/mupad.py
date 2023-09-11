@@ -33,6 +33,8 @@ class Mupad(Moveable):
     Device for the PSI mupad.
     """
 
+    hardware_access = False
+
     parameters = {
         'w1': Param('Weight 1', type=float, default=10.3,
                     settable=True, userparam=True),
@@ -198,7 +200,7 @@ class Mupad(Moveable):
         for mag, cur in zip(self._getWaiters(), self.last_currents):
             if not mag.isAtTarget(target=cur):
                 self.log.warning('Magnet current mismatch: should %f, is %f',
-                                 cur, mag.doRead(0))
+                                 cur, mag.read(maxage))
                 return (-99, ) * 6
         return self.target
 
@@ -207,6 +209,9 @@ class MuSwitch(TransformedMoveable):
     """
     Translates between the x, y ,z syntax and mupad
     """
+
+    hardware_access = False
+
     valuetype = tupleof(oneof('X', '-X', 'Y', '-Y', 'Z', '-Z'),
                         oneof('X', '-X', 'Y', '-Y', 'Z', '-Z'))
 
@@ -236,7 +241,7 @@ class MuSwitch(TransformedMoveable):
         return self._attached_mupad.start(target)
 
     def doStatus(self, maxage=0):
-        return self._attached_mupad.doStatus(maxage)
+        return self._attached_mupad.status(maxage)
 
     def _readRaw(self, maxage=0):
         return self._attached_mupad.read(maxage)

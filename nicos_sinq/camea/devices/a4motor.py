@@ -37,6 +37,8 @@ class CameaA4Motor(Moveable):
     instrument and the sample.
     """
 
+    hardware_access = False
+
     parameters = {
         'a4offset': Param('Special offset for CAMEA',
                           type=float, settable=True, userparam=True,
@@ -48,10 +50,10 @@ class CameaA4Motor(Moveable):
     }
 
     def doStart(self, target):
-        return self._attached_rawa4.doStart(target - self.a4offset)
+        return self._attached_rawa4.start(target - self.a4offset)
 
     def doRead(self, maxage=0):
-        return self._attached_rawa4.doRead(maxage) + self.a4offset
+        return self._attached_rawa4.read(maxage) + self.a4offset
 
     def isAllowed(self, pos):
         return self._attached_rawa4.isAllowed(pos - self.a4offset)

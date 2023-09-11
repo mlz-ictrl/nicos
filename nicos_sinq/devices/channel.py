@@ -34,6 +34,8 @@ from nicos.utils import lazy_property
 class SelectSliceImageChannel(ImageChannelMixin, PassiveChannel):
     """This channel extracts a slice of data from a 3D data array"""
 
+    hardware_access = False
+
     parameters = {
         'slice_no': Param('Index of the slice to select',
                           type=int, settable=True, default=0),
@@ -72,6 +74,8 @@ class ReadableToChannel(HasPrecision, ActiveChannel):
     channel.
     """
 
+    hardware_access = False
+
     attached_devices = {'dev': Attach('Device to use as a counter', Readable)}
 
     parameters = {
@@ -86,7 +90,7 @@ class ReadableToChannel(HasPrecision, ActiveChannel):
         self._preselection_reached = True
 
     def doRead(self, maxage=0):
-        return self._attached_dev.doRead()
+        return self._attached_dev.read(maxage)
 
     def doStart(self):
         if not self._preselection_reached and isinstance(self._attached_dev,
