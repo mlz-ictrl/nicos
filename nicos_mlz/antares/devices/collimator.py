@@ -90,8 +90,7 @@ class GeometricBlur(Readable):
                 float(self._attached_l.read(maxage))
             return 1000 * ret  # convert to um
         except ValueError:
-            ret = 0
-        return ret
+            return 0
 
     def doReadUnit(self):
         return 'um'
