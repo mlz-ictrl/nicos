@@ -33,6 +33,8 @@ class MonoBlock(Readable):
     """The MonoBlock is a device that allows the monochromator crystal
     to be moved in 3 directions: translation, inclination and curvature."""
 
+    hardware_access = False
+
     parameter_overrides = {
         'unit': Override(mandatory=False),
     }
