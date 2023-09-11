@@ -23,9 +23,9 @@
 
 """Monochromator Exchange."""
 
-from nicos.core import Readable, Moveable, usermethod, status, UsageError, \
-    multiWait
-from nicos.core.params import Override, Attach
+from nicos.core import Moveable, Readable, UsageError, multiWait, status, \
+    usermethod
+from nicos.core.params import Attach, Override
 from nicos.devices.generic import Switcher
 
 
