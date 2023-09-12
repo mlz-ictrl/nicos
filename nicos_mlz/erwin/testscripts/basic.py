@@ -1,7 +1,6 @@
 # pylint: skip-file
 
-# test: setups = detsmall
-# test: setups = charmsmall
+# test: setups = detsmall, charmsmall
 
 read()
 status()

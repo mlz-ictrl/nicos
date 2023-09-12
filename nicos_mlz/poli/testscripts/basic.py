@@ -1,8 +1,7 @@
 # pylint: skip-file
 
 # test: subdirs = poli
-# test: setups = diffraction
-# test: setups = mono
+# test: setups = diffraction, mono
 # test: setupcode = SetDetectors(det)
 # test: setupcode = maw(wavelength, 2.)
 
