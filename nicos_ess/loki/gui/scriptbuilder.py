@@ -122,6 +122,8 @@ class LokiScriptBuilderPanel(PanelBase):
             positions = []
             samples_by_position = {}
             for sample in samples.values():
+                if 'position' not in sample:
+                    continue
                 positions.append(sample['position'])
                 samples_by_position[sample['position']] = {
                     k: v
