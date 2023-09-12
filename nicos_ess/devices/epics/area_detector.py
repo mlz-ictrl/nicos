@@ -30,9 +30,9 @@ from streaming_data_types import deserialise_ADAr
 from streaming_data_types.utils import get_schema
 
 from nicos import session
-from nicos.core import LIVE, ArrayDesc, Attach, Measurable, Override, Param, \
-    Value, floatrange, host, listof, multiStatus, oneof, pvname, status, \
-    usermethod
+from nicos.core import LIVE, SIMULATION, ArrayDesc, Attach, CacheError, \
+    Measurable, Override, Param, Value, floatrange, host, listof, \
+    multiStatus, oneof, pvname, status, usermethod
 from nicos.devices.epics.pva import EpicsDevice
 from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.generic import Detector, ImageChannelMixin, ManualSwitch
@@ -106,10 +106,14 @@ class ImageType(ManualSwitch):
         return status.OK, self._image_key_to_image_type[self.target]
 
     def doStart(self, target):
-        curr_time = time.time()
-        self._cache.put(self._name, 'value', target, curr_time)
         ManualSwitch.doStart(self, target)
-        self._cache.put(self._name, 'status', self.doStatus(), curr_time)
+        if self._mode != SIMULATION:
+            if not self._cache:
+                raise CacheError(self, 'Detector requires a running cache for '
+                                 'full functionality. Please check its status.')
+            curr_time = time.time()
+            self._cache.put(self._name, 'value', target, curr_time)
+            self._cache.put(self._name, 'status', self.doStatus(), curr_time)
 
     @usermethod
     def set_to_projection(self):
@@ -537,6 +541,7 @@ class AreaDetectorCollector(Detector):
     }
 
     _presetkeys = set()
+    _hardware_access = False
 
     def doPreinit(self, mode):
         for image_channel in self._attached_images:
@@ -569,9 +574,6 @@ class AreaDetectorCollector(Detector):
         self._lastpreset = preset.copy()
 
     def doStatus(self, maxage=0):
-        curstatus = self._cache.get(self, 'status')
-        if curstatus and curstatus[0] == status.ERROR:
-            return curstatus
         return multiStatus(self._attached_images, maxage)
 
     def doRead(self, maxage=0):
