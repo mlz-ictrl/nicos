@@ -63,8 +63,18 @@ class InterfaceLogicalMotorHandler(Moveable):
         self._motortypes.append(motortype)
         self._logical_motors[motortype] = motor
 
+    def format(self, value, unit=False):
+        try:
+            fmtstr = ', '.join(f'{mt}=%({mt}).3f' for mt in value)
+            ret = fmtstr % value
+        except (TypeError, ValueError):
+            ret = str(value)
+        if unit and self.unit:
+            return ret + ' ' + self.unit
+        return ret
+
     def doReadFmtstr(self):
-        return ', '.join([mt + '=%(' + mt + ').3f' for mt in self._motortypes])
+        return ', '.join(mt + '=%(' + mt + ').3f' for mt in self._motortypes)
 
     def _get_dev(self, dev):
         return getattr(self, '_attached_%s' % dev, None)
