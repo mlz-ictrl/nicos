@@ -12,6 +12,8 @@ devices = dict(
         userbasedn = 'cn=users,cn=accounts,dc=iff,dc=kfa-juelich,dc=de',
         groupbasedn = 'cn=groups,cn=accounts,dc=iff,dc=kfa-juelich,dc=de',
         grouproles = {'ictrl': 'admin', 'jcns-all': 'user'},
+        userroles = {'paulin': 'admin', 'ruecker': 'admin',
+                     'zakalek': 'admin'},
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '',
