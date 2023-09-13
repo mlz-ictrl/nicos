@@ -2,6 +2,8 @@
 
 # test: subdirs = frm2
 # test: setups = ccd
+# test: setupcode = SetDetectors(ccddet)
+# test: skip
 
 # BioDiff has to be in the following setup:
 #

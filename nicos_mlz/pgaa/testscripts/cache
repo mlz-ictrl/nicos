@@ -1,0 +1,7 @@
+nicos/samplemotor/value=1
+nicos/samplemotor/abslimits=(1,15)
+nicos/samplemotor/userlimits=(1,15)
+nicos/att/value=100
+nicos/att1/value='out'
+nicos/att2/value='out'
+nicos/att3/value='out'

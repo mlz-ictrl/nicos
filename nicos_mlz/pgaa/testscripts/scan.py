@@ -2,7 +2,8 @@
 
 # test: subdirs = frm2
 # test: setups = pgaa
-# test: setupcode = SetDetectors(det)
+# test: setupcode = SetDetectors(_60p, LEGe)
+# test: setupcode = CreateDevice('samplemotor')
 
 # typical PGAA application
 
@@ -12,11 +13,10 @@ loaded_setups = session.loaded_setups
 
 if 'pgaa' in loaded_setups:
     printwarning('Execute PGAA specific tests')
-    sample_motor.status(0)
-    samplepos.status(0)
+    read(att)
+    sc.status(0)
     maw(shutter, 'open')
     read(shutter)
     shutter.read(0)
-    scan(sample_motor, [4, 74, 144, 214, 284, 354])
-    scan(sample_pos, [0, 1, 2, 3, 4, 5])
+    scan(sc, [1, 2, 3, 4, 5, 10, 15], TrueTime=1)
     maw(shutter, 'closed')

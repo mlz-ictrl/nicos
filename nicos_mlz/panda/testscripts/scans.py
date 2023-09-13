@@ -1,7 +1,7 @@
 # pylint: skip-file
 
 # test: subdirs = frm2
-# test: setups = panda
+# test: setups = panda, sat
 # test: setupcode = SetDetectors(det)
 
 sat(2)

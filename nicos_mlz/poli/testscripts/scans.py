@@ -1,7 +1,7 @@
 # pylint: skip-file
 
 # test: subdirs = frm2
-# test: setups = poli
+# test: setups = diffraction, mono
 # test: setupcode = SetDetectors(det)
 
 # Typical continuous scans over several axes.

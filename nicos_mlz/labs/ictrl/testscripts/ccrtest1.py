@@ -1,7 +1,8 @@
 # pylint: skip-file
 
-# test: subdirs = frm2
+# test: subdirs = labs/ictrl,frm2
 # test: setups = ccr21,ccrtestbox
+# test: skip
 
 from time import sleep as tsleep
 

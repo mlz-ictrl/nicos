@@ -1,8 +1,9 @@
 # pylint: skip-file
 
 # test: subdirs = frm2
-# test: setups = bruker-axs,detectors
+# test: setups = bruker_axs,pilatus_det
 # test: setupcode = SetDetectors(pilatus)
+# test: skip
 
 # conditioning and count with pilatus
 

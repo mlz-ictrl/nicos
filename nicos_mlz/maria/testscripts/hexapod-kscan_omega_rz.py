@@ -1,3 +1,7 @@
+# pylint: skip-file
+
+# test: setups = hexapod
+
 # move to initial position
 maw(tx, 0, ty, -4, tz, 0, rz, 0, rx, 0, ry, 0, omega, -1, detarm, 5)
 

@@ -3,6 +3,7 @@
 # test: subdirs = frm2
 # test: setups = robot
 # test: setupcode = SetDetectors(adet)
+# test: needs = CARESS
 
 # robot testing script
 

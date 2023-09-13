@@ -1,0 +1,7 @@
+nicos/ty/userlimits=(-50, 50)
+nicos/tx/userlimits=(-100, 100)
+nicos/rx/userlimits=(-100, 100)
+nicos/ry/userlimits=(-100, 100)
+nicos/rz/userlimits=(-10, 10)
+nicos/omega/userlimits=(-10, 10)
+nicos/detarm/userlimits=(-10, 10)

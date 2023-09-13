@@ -1,7 +1,7 @@
 # pylint: skip-file
 
 # test: subdirs = frm2
-# test: setups = puma, monochanger
+# test: setups = tas, monochanger
 # test: setupcode = SetDetectors(det)
 
 # Mono lift scan:

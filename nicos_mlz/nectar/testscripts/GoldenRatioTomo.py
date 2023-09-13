@@ -1,6 +1,10 @@
 # pylint: skip-file
 # GoldenRatioTomo 1.1
 
+# test: needs = astropy
+# test: setups = nectar, servostar, detector
+# test: setupcode = SetDetectors(det)
+
 import math
 
 printinfo('This tomo covers all angles for the golden ratio for 360 deg')
@@ -22,11 +26,7 @@ maw(stx, 10)
 maw(sty, 10)
 printinfo('aligned sample and start Tomo')
 
-with manualscan(sry):
-    for i in range(6):
-        # Calculate the angle
-        angle = (i*(1+math.sqrt(5))/2)*(math.pi*2) % (math.pi*2)
-        angledegrees = math.degrees(angle)
-        printinfo('Moving to angle: %.2f, Iteration Step: %d', (angledegrees, i))
-        maw(sry, angledegrees)
-        count(1)
+grtomo(10, sry, t=1)
+
+print('Tomo Finished!')
+print('Test finished')

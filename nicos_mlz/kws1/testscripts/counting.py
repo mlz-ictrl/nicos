@@ -1,5 +1,11 @@
 # pylint: skip-file
 
+# test: subdirs = kws1
+# test: setups = kws1, waterjulabo
+# test: setupcode = FinishExperiment()
+# test: setupcode = NewExperiment('0')
+# test: skip
+
 ClearSamples()
 SetSample(1, 'Alu1',  aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 208.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
 SetSample(2, 'Alu2',  aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 235.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')

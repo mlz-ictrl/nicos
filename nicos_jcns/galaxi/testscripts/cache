@@ -1,0 +1,2 @@
+nicos/pilatus_config/humidity=[50,60]
+nicos/pilatus/humidity=[50,60]

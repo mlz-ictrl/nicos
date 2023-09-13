@@ -1,8 +1,9 @@
 # pylint: skip-file
 
 # test: subdirs = frm2
-# test: setups = bruker-axs,detectors
+# test: setups = bruker_axs,pilatus_det,pindiodes
 # test: setupcode = SetDetectors(pilatus)
+# test: skip
 
 # sample scan with pilatus and pindioden
 

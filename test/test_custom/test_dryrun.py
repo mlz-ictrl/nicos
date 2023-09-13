@@ -112,10 +112,10 @@ def find_scripts():
                 custom_subdirs[full_instr] = subdirs
             for testscript in sorted(testdir.iterdir()):
                 # For now, only the "basic" scripts are run.
-                if testscript.name == 'basic.py':
+                if testscript.suffix == '.py':
                     yield pytest.param(
                         facility, instr, testscript,
-                        id=f'{facility}-{instr}-{testscript.name}')
+                        id=f'{facility}-{instr}-{testscript.stem}')
 
 
 @pytest.mark.parametrize('facility, instr, script', find_scripts())
