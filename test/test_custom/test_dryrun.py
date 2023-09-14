@@ -136,6 +136,8 @@ def test_dryrun(session, facility, instr, script):
             if line.startswith('# test:'):
                 parts = line.split(None, 4)
                 if len(parts) < 4:  # -> # test: name = value...
+                    if parts[2] == 'skip':
+                        pytest.skip('test should be skipped')
                     continue
                 if parts[2] == 'subdirs':
                     subdirs.extend(v.strip() for v in parts[4].split(','))
