@@ -22,7 +22,7 @@ devices = {
                 channel = 4,
                 regulator = device('nicos_mlz.reseda.devices.Regulator',
                     description = 'Auto regulating amplitude',
-                    sensor = '%s_coil1_rms' % setupname,
+                    sensor = '%s_coil_rms' % setupname,
                     moveable = '%s_fg_amp' % setupname,
                     loopdelay = 1.0,
                     maxage = 10.0,
@@ -79,7 +79,7 @@ devices = {
             pa_fwdp = '%s_fwdp' % setupname,
             pa_revp = '%s_revp' % setupname,
             fg = '%s_fg_freq' % setupname,
-            coil_amp = '%s_coil1_rms' % setupname,
+            coil_amp = '%s_coil_rms' % setupname,
             diplexer = device('nicos.devices.entangle.DigitalOutput',
                 description =
                 'Lowpass filter to smooth the signal (enable for low frequency, disable for high frequency)',
@@ -167,18 +167,11 @@ devices = {
                 fmtstr = '%d',
             ),
         ),
-    '%s_coil1_rms' % setupname:
+    '%s_coil_rms' % setupname:
         device('nicos_mlz.reseda.devices.RTE1104',
         description = 'rms Coil1 (Input channel 3)',
         io = 'rte1104_io',
         channel = 3,
-        unit = 'V',
-    ),
-    '%s_coil2_rms' % setupname:
-        device('nicos_mlz.reseda.devices.RTE1104',
-        description = 'rms Coil2 (Input channel 4)',
-        io = 'rte1104_io',
-        channel = 4,
         unit = 'V',
     ),
 }
