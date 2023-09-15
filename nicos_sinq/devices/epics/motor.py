@@ -21,11 +21,12 @@
 #
 # *****************************************************************************
 from time import time as currenttime
+
 from nicos import session
 from nicos.core import MAIN, Param, status
-
-from nicos.devices.epics.pyepics.motor import EpicsMotor as EssEpicsMotor
+from nicos.core.constants import SIMULATION
 from nicos.devices.epics.pyepics import PVMonitor, pvget
+from nicos.devices.epics.pyepics.motor import EpicsMotor as EssEpicsMotor
 
 
 class EpicsMotor(EssEpicsMotor):
@@ -88,7 +89,7 @@ class EpicsMotor(EssEpicsMotor):
     @property
     def isEnabled(self):
         """Shows if the motor is enabled or not"""
-        if self.can_disable:
+        if self._mode != SIMULATION and self.can_disable:
             # I need to read this value also in simulation
             # mode when the PV class has been replaced by a
             # hardware stub. This is why I read directly here
@@ -101,6 +102,7 @@ class EpicsMotor(EssEpicsMotor):
         if not self.isEnabled:
             return False, 'Motor disabled'
         return True, ''
+
 
 class AbsoluteEpicsMotor(EpicsMotor):
     """

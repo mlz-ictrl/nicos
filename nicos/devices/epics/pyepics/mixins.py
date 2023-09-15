@@ -27,6 +27,7 @@ This module contains EPICS related mixins.
 """
 from nicos.core import CanDisable, ConfigurationError, Param, anytype, \
     dictwith, pvname
+from nicos.core.constants import SIMULATION
 
 
 class HasDisablePv(CanDisable):
@@ -82,6 +83,8 @@ class HasDisablePv(CanDisable):
         """
         True if the device is switched on.
         """
+        if self._mode == SIMULATION:
+            return True
         raw_value = self._get_pv('switchpv:read')
 
         if raw_value not in self.switchstates.values():
