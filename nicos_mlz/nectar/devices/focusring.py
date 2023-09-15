@@ -37,7 +37,7 @@ class FocusRing(Axis):
                       type=str, userparam=True, settable=True, default=''),
     }
 
-    def doPreInit(self):
+    def doPreinit(self, mode):
         pass
 
     def doReference(self):
