@@ -29,6 +29,7 @@ import time
 from os import path
 
 import pytest
+import shutil
 
 from nicos import config
 from nicos.commands.scan import scan
@@ -74,6 +75,7 @@ class TestSinks:
         """Setup dataroot and generate a dataset by scanning"""
         exp = session.experiment
         dataroot = path.join(config.nicos_root, 'testdata')
+        shutil.rmtree(dataroot, ignore_errors=True)
         os.makedirs(dataroot)
 
         counter = path.join(dataroot, exp.counterfile)
