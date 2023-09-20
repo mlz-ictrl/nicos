@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 description = 'Oscilloscope RTE1104 for reading the RMS values of all 4RF coils'
 
 group = 'optional'
