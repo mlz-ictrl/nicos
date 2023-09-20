@@ -21,11 +21,10 @@
 #   Michele Brambilla <mnichele.brambilla@psi.ch>
 #
 # *****************************************************************************
-from nicos import session
-from nicos.core import MAIN, Param, status
+from nicos.core import MASTER, Device, Param, status
+from nicos.devices.epics.pyepics import pvget
 
 from nicos_ess.devices.epics import EpicsMotor as EssEpicsMotor
-from nicos.devices.epics.pyepics import pvget
 
 
 class EpicsMotor(EssEpicsMotor):
@@ -38,29 +37,19 @@ class EpicsMotor(EssEpicsMotor):
                              settable=False),
     }
 
-    def doPreinit(self, mode):
-        # We need to update the _record_field only if the motor has the PV,
-        # else the device will fail to create
-        if self.can_disable:
-            self._record_fields['enable'] = ':Enable'
-            self._record_fields['enable_rbv'] = ':Enable_RBV'
-        else:
-            if 'enable' in self._record_fields:
-                # NICOS seems to cache the record_fields somewhere.
-                # This solves a bug encountered when changing the
-                # can_disable flag
-                del self._record_fields['enable']
-                del self._record_fields['enable_rbv']
-        EssEpicsMotor.doPreinit(self, mode)
-
     def _get_pv_name(self, pvparam):
-        pv_name = EssEpicsMotor._get_pv_name(self, pvparam)
-        return pv_name.replace('.:', ':')
+        if pvparam == 'enable' and self.can_disable:
+            # If it is an ESS EpicsMotor enable points to .CNEN
+            return self.motorpv + ':Enable'
+        elif pvparam == 'enable_rbv':
+            return self.motorpv + ':Enable_RBV'
+        else:
+            return EssEpicsMotor._get_pv_name(self, pvparam)
 
-    def doInit(self, mode):
-        EssEpicsMotor.doInit(self, mode)
-        if session.sessiontype == MAIN and self.auto_enable:
+    def _setMode(self, mode):
+        if mode == MASTER and self.auto_enable:
             self.enable()
+        return Device._setMode(self, mode)
 
     def doStatus(self, maxage=0):
         if self.can_disable:
