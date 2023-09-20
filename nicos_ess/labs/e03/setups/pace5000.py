@@ -64,4 +64,15 @@ devices = dict(
         pollinterval=0.5,
         maxage=None,
     ),
+    pace_control=device(
+        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        description='Controls whether the pump is on or off',
+        readpv='{}Control_RBV'.format(pv_root),
+        writepv='{}Control'.format(pv_root),
+        visibility=(),
+        pva=True,
+        monitor=True,
+        pollinterval=0.5,
+        maxage=None,
+    ),
 )
