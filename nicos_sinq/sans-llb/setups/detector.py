@@ -1,8 +1,9 @@
 description = 'Devices for the detectors'
 
 pvprefix = 'SQ:SANS-LLB:rack14:'
-countprefix = 'SQ:SANS-LLB' \
-              ':counter'
+countprefix = 'SQ:SANS-LLB:counter'
+
+sysconfig = dict(datasinks = ['jbi_liveview'])
 
 devices = dict(
     dthx = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
@@ -100,27 +101,35 @@ devices = dict(
         type = 'monitor',
         readpv = countprefix + '.S5',
     ),
-    low_q_raw = device('nicos_sinq.devices.epics.area_detector.ADImageChannel',
-        description = 'Raw image data for low Q SANS detector',
-        pvprefix = 'SQ:SANS-LLB:counter:det1',
-        readpv = 'SQ:SANS-LLB:counter:det1:Image',
-        epicstimeout = 30.
+    det_image = device('nicos_sinq.devices.just_bin_it.JustBinItImage',
+        description = 'Detector image channel',
+        hist_topic = configdata('config.JUST_BIN_IT_HISTOGRAMS_TOPIC'),
+        data_topic = configdata('config.JUST_BIN_IT_DATA_TOPIC'),
+        command_topic = configdata('config.JUST_BIN_IT_COMMANDS_TOPIC'),
+        brokers = configdata('config.KAFKA_BROKERS'),
+        unit = 'evts',
+        hist_type = '2-D SANSLLB',
+        det_width = 512,
+        det_height = 160,
+        det_range = (0, 160 * 512),
     ),
-    low_q = device('nicos_sinq.sans-llb.devices.imagechannel.LLBCalibratedImage',
-        description = 'SANS Image calibrated and converted to 128x128',
-        calibration_file = 'Calib8.txt',
-        rawimage = 'low_q_raw',
+    main_det = device('nicos_sinq.sans-llb.devices.detector.RotateCutImage',
+        description = 'Cut main detector out of raw detector data',
+        raw_image = 'det_image',
+        x = 0,
+        ntubes = 128,
     ),
-    high_q_raw = device('nicos_sinq.devices.epics.area_detector.ADImageChannel',
-        description = 'Raw image data for high Q SANS detector',
-        pvprefix = 'SQ:SANS-LLB:counter:det2',
-        readpv = 'SQ:SANS-LLB:counter:det2:Image',
-        epicstimeout = 30.
+    lower_det = device('nicos_sinq.sans-llb.devices.detector.RotateCutImage',
+        description = 'Cut lower detector out of raw detector data',
+        raw_image = 'det_image',
+        x = 128,
+        ntubes = 16,
     ),
-    high_q = device('nicos_sinq.sans-llb.devices.imagechannel.XSummedImageChannel',
-        description = 'High Q SANS Image converted to 64*32',
-        sumstep = 4,
-        rawimage = 'high_q_raw',
+    side_det = device('nicos_sinq.sans-llb.devices.detector.CutImage',
+        description = 'Cut side detector out of raw detector data',
+        raw_image = 'det_image',
+        x = 144,
+        ntubes = 16,
     ),
     sansllbdet = device('nicos_sinq.devices.detector.SinqDetector',
         epicstimeout = 3.0,
@@ -132,11 +141,13 @@ devices = dict(
         timepreset = 'timepreset',
         timers = ['elapsedtime'],
         monitors = ['monitor1', 'monitor2', 'c3', 'protoncount'],
-        images = ['low_q', 'low_q_raw', 'high_q', 'high_q_raw'],
+        images = ['det_image', 'main_det', 'lower_det', 'side_det'],
         others = [],
         liveinterval = 20,
-        saveintervals = [120]
-    )
+        saveintervals = [120],
+    ),
+    jbi_liveview = device('nicos.devices.datasinks.LiveViewSink',
+    ),
 )
 
 startupcode = '''
