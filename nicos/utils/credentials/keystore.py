@@ -40,10 +40,10 @@ To set a password in the default store, run the keyring utility:
 
 import os.path
 
-from keyring.util import properties
 from keyrings.alt.file import EncryptedKeyring
 
 from nicos import config
+from nicos.utils.credentials import properties
 
 from . import NicosKeyStore
 
