@@ -406,22 +406,28 @@ try {
                             if (tries> 5) { error('could not start kafka') }
                         }
                     }
-                    def influxdbversion="0.0.2"
-                    docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/influxdb:${influxdbversion}").withRun() { influxdb ->
-                        token = sh (
-                            script: """
-                                docker exec ${influxdb.id} sh -c \"influx config ls --json | jq -r '.default.token'\"
-                            """,
-                            returnStdout: true
-                        ).trim()
-                        buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
+                    if (GERRIT_BRANCH == 'master' ){
+                        def influxdbversion="0.0.2"
+                        docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/influxdb:${influxdbversion}").withRun() { influxdb ->
+                            token = sh (
+                               script: """
+                                   docker exec ${influxdb.id} sh -c \"influx config ls --json | jq -r '.default.token'\"
+                               """,
+                               returnStdout: true
+                           ).trim()
+                           buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
                             sh """
                                 . \$NICOS3VENV/bin/activate
                                 ./bin/nicos-keystore add influxdb --storagepw nicos --password ${token}
                             """
                             runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
-                        } // image.inside
-                    } // influxdb.WithRun
+                           } // image.inside
+                       } // influxdb.WithRun
+                    } else {
+                           buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 --link ${kafka.id}:kafka") {
+                            runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
+                           } // image.inside
+                    } //elseif branch=master                        
                 } // kafka.WithRun
             } // ws
         } //stage
