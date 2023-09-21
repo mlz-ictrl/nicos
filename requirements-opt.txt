@@ -5,7 +5,7 @@ astropy>=3.0
 nicos-quickyaml>=1.2.1;sys_platform!='darwin'
 docutils>=0.12
 redbaron>=0.6.3
-keyring>=10.6
+keyring>=10.6,<24.0.0
 keyrings.alt>=4.0
 pycryptodomex>=3.4.7
 slackclient>=2.3.1
