@@ -7,3 +7,4 @@ HOWTOs
    plugplay
    restrictaccess
    influxdb
+   testscripts
