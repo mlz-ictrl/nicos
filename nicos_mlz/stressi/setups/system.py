@@ -33,7 +33,6 @@ devices = dict(
     Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'The currently used sample',
     ),
-
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'The currently running experiment',
         dataroot = '/data',
@@ -50,6 +49,7 @@ devices = dict(
             owner = 'nicd',
             group = 'stressi'
         ),
+        forcescandata = True,
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
     ),
@@ -78,7 +78,7 @@ devices = dict(
         filenametemplate = ['m2%(scancounter)08d.yaml'],
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass='nicos_mlz.nexus.nexus_templates.PowderTemplateProvider',
+        templateclass='nicos_mlz.stressi.nexus.StressiTemplateProvider',
         settypes = {'point',},
         filenametemplate = ['m2%(scancounter)08d.nxs'],
     ),
