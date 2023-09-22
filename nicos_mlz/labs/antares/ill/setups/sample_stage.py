@@ -2,7 +2,7 @@ description = 'Neutron Grating Interferometer at ICON'
 
 group = 'optional'
 
-excludes = ['ngi']
+excludes = ['ngi', 'neutrosense', ]
 
 # Local private subnet
 

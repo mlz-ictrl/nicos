@@ -3,7 +3,7 @@ group = 'optional'
 
 includes = []
 
-excludes = ['keysight_funcgen_ch1', 'toe_dc_voltage']
+excludes = ['keysight_funcgen_ch1', 'toe_dc_voltage', 'yoke_toe']
 
 tango_base = 'tango://localhost:10000/antares/funcgen/'
 
