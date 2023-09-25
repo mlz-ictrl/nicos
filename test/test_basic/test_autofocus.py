@@ -26,7 +26,6 @@
 
 import numpy as np
 import pytest
-import scipy.misc
 from scipy import ndimage
 
 pytest.importorskip('cv2')
@@ -36,9 +35,14 @@ from nicos.utils.gammafilter import gam_rem_adp_log, scharr_filter
 from test.utils import approx
 
 
-def test_sharpness():
-    img = scipy.misc.ascent().astype(np.uint16)
+@pytest.fixture(scope='function', autouse=True)
+def img():
+    with np.load('test/test_basic/data/ascent.npz') as data:
+        img = np.copy(data['arr_0'].astype(np.uint16))
+        yield img
 
+
+def test_sharpness(img):
     sharpvals = []
     sigmas = [-30, -11, -5, -3, 0, 3, 5, 11, 30]
     exp_sharpness = [15.34, 34.98, 63.92, 99.24, 271.84, 99.24, 63.92, 34.98,
@@ -52,14 +56,12 @@ def test_sharpness():
         sharpvals.append(sharp)
 
 
-def test_calculations():
+def test_calculations(img):
     white = 0xffff * np.ones([500, 500], dtype=np.uint16)
     assert scharr_filter(gam_rem_adp_log(white, 25, 100, 400, 0.8)) == 0
 
     black = np.zeros([500, 500], dtype=np.uint16)
     assert scharr_filter(gam_rem_adp_log(black, 25, 100, 400, 0.8)) == 0
-
-    img = scipy.misc.ascent().astype(np.uint16)
 
     assert scharr_filter(gam_rem_adp_log(img, 25, 100, 400, 0.8)) > \
         scharr_filter(gam_rem_adp_log(
