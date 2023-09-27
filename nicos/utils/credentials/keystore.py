@@ -48,6 +48,7 @@ except ImportError:
 from keyrings.alt.file import EncryptedKeyring
 
 from nicos import config
+from nicos.utils.credentials import properties
 
 from . import NicosKeyStore
 

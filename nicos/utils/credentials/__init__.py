@@ -25,6 +25,12 @@ Utility classes to access and store credentials
 
 """
 
+# pylint: disable=unused-import
+try:
+    from keyring.util import properties
+except ImportError:
+    from keyring._compat import properties
+
 
 class NicosKeyStore:
     '''Abstract base class for nicos key stores
