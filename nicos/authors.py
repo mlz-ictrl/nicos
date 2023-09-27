@@ -99,6 +99,7 @@ Instrument-specific code was contributed by:
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
 * Dominic Oram <dominic.oram@stfc.ac.uk>
+* Dominik Petz <dominik.petz@frm2.tum.de>
 * Ji Tae Park <jitae.park@frm2.tum.de>
 * Jonas Petersson <jonas.petersson@ess.eu>
 * Matthias Pomm <matthias.pomm@hereon.de>
