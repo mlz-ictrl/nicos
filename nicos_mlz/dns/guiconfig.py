@@ -34,9 +34,11 @@ main_window = tabbed(
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
     ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
     ('Live display', panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                           detectors=['det'])),
+                           detectors=['det'],
+                           filetypes=['dns'],)),
     ('Live display (PSD)', panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                           detectors=['qm_det'])),
+                           detectors=['qm_det'],
+                           filetypes=['dns'],)),
 )
 
 windows = []
@@ -60,3 +62,7 @@ tools = [
          runatstartup=False),
     cmdtool('Server control (Marche)', 'marche-gui'),
 ]
+
+options = {
+    'reader_classes': ['nicos_mlz.dns.devices.dnsfileformat.DNSFileReader'],
+}

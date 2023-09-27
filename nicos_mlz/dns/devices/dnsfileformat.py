@@ -34,7 +34,8 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Override
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
+    SingleFileSinkHandler
 
 
 class DNSFileSinkHandler(SingleFileSinkHandler):
@@ -221,3 +222,30 @@ class DNSFileSink(ImageSink):
                                               'filename)s.d_dat'],
                                      ),
     }
+
+
+class DNSFileReader(ImageFileReader):
+    filetypes = [('dns', 'DNS Data File (*.d_dat)')]
+
+    @classmethod
+    def fromfile(cls, filename):
+        img = None
+        data_section = False
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.startswith(
+                   '# DATA (number of detectors, number of TOF channels)'):
+                    data_section = True
+                    continue
+                if data_section and line.startswith('# '):
+                    channels, timechannels = list(map(int, line.split()[1:]))
+                    img = np.zeros(shape=(channels, timechannels), dtype=np.uint32)
+                    continue
+                if img is not None:
+                    vals = list(map(int, line.split()))
+                    img[vals[0]] = np.array(vals[1:], dtype=np.uint32)
+        if img is not None:
+            if img.shape[1] > 1:
+                return np.transpose(img)
+            return img.reshape((img.shape[0],))
+        return img
