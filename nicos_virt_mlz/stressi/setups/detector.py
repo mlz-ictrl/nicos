@@ -6,7 +6,7 @@ includes = ['tensile', 'primaryslit_manual', 'sampletable']
 
 devices = dict(
     mon = device('nicos.devices.generic.VirtualCounter',
-        description = 'Simulated MON',
+        description = 'Monitor (MON)',
         fmtstr = '%d',
         type = 'monitor',
         visibility = (),
@@ -19,7 +19,7 @@ devices = dict(
         visibility = (),
     ),
     t_mon = device('nicos.devices.generic.VirtualCounter',
-        description = 'HWB MON Transmission Monitor',
+        description = 'Transmission Monitor',
         fmtstr = '%d',
         type = 'monitor',
         countrate = 100,
