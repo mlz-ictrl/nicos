@@ -5,7 +5,7 @@ group = 'lowlevel'
 devices = dict(
     xsd = device('nicos.devices.generic.ManualMove',
         description = 'distance monochromator sample',
-        default = 500.,
+        default = 2300.,
         fmtstr = '%.2f',
         unit = 'mm',
         abslimits = (1700, 3000),
@@ -30,6 +30,7 @@ devices = dict(
         fmtstr = '%.2f',
         unit = 'deg',
         abslimits = (-60, 60),
+        curvalue = 30,
         speed = 1,
     ),
     xt = device('nicos.devices.generic.VirtualMotor',
