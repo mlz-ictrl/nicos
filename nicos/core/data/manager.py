@@ -151,19 +151,21 @@ class DataManager:
         block = self._stack.pop()
         self._finish(block)
 
-    def iterParents(self, dataset):
+    def iterParents(self, dataset, settypes=()):
         """Yield recursive parents of the given dataset, with the immediate
-        parent first.
+        parent first filtered by settypes. If the given dataset is None the
+        full stack is checked for settypes.
 
         If the dataset is not on the stack, nothing is yielded.
         """
         found = False
         for stackset in reversed(self._stack):
-            if not found:
+            if dataset and not found:
                 if dataset is stackset:
                     found = True
                 continue
-            yield stackset
+            if not settypes or stackset.settype in settypes:
+                yield stackset
 
     def _init(self, dataset, skip_handlers=False):
         """Initialize the dataset and put it on the stack.

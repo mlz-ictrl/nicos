@@ -114,19 +114,18 @@ class RabbitSinkHandler(DataSinkHandler):
         else:
             raise exc
 
-    def _getScanDatasetParents(self, it):
-        """Returns a tuple of `BlockDataset`, `ScanDataset` for a given
-        iterator if available.
+    def _getScanDatasetParents(self, dataset):
+        """Returns a tuple of `BlockDataset`, `ScanDataset` if available.
+
+        get parent `ScanDataset` (subscan) and `BlockDataset` for this
+        `ScanDataset` if available
         """
-        # get parent `ScanDataset` (subscan) and `BlockDataset` for this
-        # `ScanDataset` if available
-        while True:
-            scands = next(it, None)
-            if not scands or scands.settype != POINT:
-                break
-        blockds = next(it, scands)
-        if blockds == scands:  # not a subscan -> `BlockDataset` is first parent
-            return blockds, None
+        scands, blockds = None, None
+        for ds in self.manager.iterParents(dataset, settypes=(BLOCK, SCAN)):
+            if ds.settype == BLOCK:
+                blockds = ds
+            elif ds.settype == SCAN:
+                scands = ds
         return blockds, scands
 
     def addSubset(self, subset):
@@ -134,8 +133,7 @@ class RabbitSinkHandler(DataSinkHandler):
         # this is handled in `end()`.
         if subset.settype != POINT:
             return
-        blockds, scands = self._getScanDatasetParents(
-            self.manager.iterParents(self.dataset))
+        blockds, scands = self._getScanDatasetParents(self.dataset)
         if subset.number == 1:  # begin of ScanDataset including metainfo
             self._sendMessage(self.dataset.settype, self.dataset, scands,
                               blockds)
@@ -155,9 +153,8 @@ class RabbitSinkHandler(DataSinkHandler):
         if self.dataset.settype in (SCAN, SUBSCAN):
             # the `ScanDataset` has been popped from DataManager's stack before
             # dispatching `finish`. Parents are left on the stack, using
-            # `iter(self.manager.stack)` though.
-            blockds, scands = self._getScanDatasetParents(
-                reversed(self.manager._stack))
+            # `iter(self.manager._stack)` though.
+            blockds, scands = self._getScanDatasetParents(None)
         self._sendMessage(f'{self.dataset.settype}.end', self.dataset,
                           scands, blockds)
 
