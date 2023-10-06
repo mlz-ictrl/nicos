@@ -91,7 +91,9 @@ def parseScript(script, name=None, format=None, compilecode=True):
         def compiler(src):
             return compile(src + '\n', '<script>', 'single')
     else:
-        compiler = lambda src: src
+        def compiler(src):
+            return src
+
     time_sleep = False
     if '\n' not in script:
         # if the script is a single line, compile it like a line
@@ -294,10 +296,10 @@ class SizedQueue(queue.Queue):
 
     def _put(self, item):
         # size of the queue item should never be zero, so add one
-        self.nbytes += len(item[1]) + 1
+        self.nbytes += len(item[1]) + sum(len(x) for x in item[2]) + 1
         self.queue.append(item)
 
     def _get(self):
         item = self.queue.popleft()
-        self.nbytes -= len(item[1]) + 1
+        self.nbytes -= len(item[1]) + sum(len(x) for x in item[2]) + 1
         return item
