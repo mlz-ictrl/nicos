@@ -23,7 +23,7 @@
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pika
 
@@ -53,13 +53,14 @@ class Message:
             scanid: uuid.UUID,
             blockid: uuid.UUID,
             type: str,  # pylint: disable=redefined-builtin
+            started: str,
             mapping: dict,
             metainfo: dict):
         self.id = str(id)
         self.blockid = str(blockid) or None
         self.scanid = str(scanid) or None
         self.type = type
-        self.creation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.creation_timestamp = started
         self.mapping = mapping
         self.metadata = metainfo
 
@@ -80,6 +81,8 @@ class RabbitSinkHandler(DataSinkHandler):
                      scands: ScanDataset = None, blockds: BlockDataset = None):
         """Sends the metainfo, if available, and other information to the
         Queue"""
+        started = (datetime.fromtimestamp(dataset.started, tz=timezone.utc)
+                   .isoformat())
         metadata = {}
         if dataset.settype != BLOCK:
             metadata = metainfo_to_json(dataset.metainfo)
@@ -88,6 +91,7 @@ class RabbitSinkHandler(DataSinkHandler):
             scands.uid if scands else None,
             blockds.uid if blockds else None,
             type,
+            started,
             # DEVICE_INFO_MAPPING,
             {
                 'experiment': session.experiment.name,
