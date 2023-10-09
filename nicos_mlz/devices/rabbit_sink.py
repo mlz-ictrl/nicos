@@ -54,6 +54,7 @@ class Message:
             blockid: uuid.UUID,
             type: str,  # pylint: disable=redefined-builtin
             started: str,
+            filepaths: list,
             mapping: dict,
             metainfo: dict):
         self.id = str(id)
@@ -61,6 +62,7 @@ class Message:
         self.scanid = str(scanid) or None
         self.type = type
         self.creation_timestamp = started
+        self.filepaths = filepaths
         self.mapping = mapping
         self.metadata = metainfo
 
@@ -94,6 +96,7 @@ class RabbitSinkHandler(DataSinkHandler):
             blockds.uid if blockds else None,
             type,
             started,
+            dataset.filepaths,
             # DEVICE_INFO_MAPPING,
             {
                 'experiment': session.experiment.name,
