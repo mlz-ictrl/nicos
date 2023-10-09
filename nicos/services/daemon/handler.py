@@ -90,7 +90,7 @@ def command(needcontrol=False, needscript=None, name=None):
 
 
 # unique objects
-stop_queue = (object(), '')
+stop_queue = (object(), '', [])
 no_msg = object()
 
 
