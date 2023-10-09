@@ -23,7 +23,7 @@ devices = dict(
     ),
     LivePNGSink = device('nicos.devices.datasinks.PNGLiveFileSink',
         description = 'Saves live image as .png every now and then',
-        filename = '/kompasscontrol/webroot/live_lin.png',
+        filename = '/control/webroot/live_lin.png',
         log10 = False,
         interval = 15,
     ),
