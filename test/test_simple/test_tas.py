@@ -108,6 +108,16 @@ def test_mono_device(session):
     assert mono._calcurvature(1., 1., 1) == approx(1.058, abs=1e-3)
 
 
+def test_tas_mono_foci(session, tas):
+    mono = session.getDevice('t_mono')
+    mono._setROParam('target', None)
+    val = mono.read(0)
+    for mode in ['flat', 'vertical', 'double', 'manual']:
+        mono.focmode = mode
+        mono.wait()
+        assert mono.read(0) == val
+
+
 def test_tas_device(session, tas):
     mono = session.getDevice('t_mono')
     ana = session.getDevice('t_ana')
