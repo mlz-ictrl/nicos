@@ -28,7 +28,6 @@ from unittest import TestCase, mock
 
 import pytest
 
-pytest.importorskip('file_writer_control')
 pytest.importorskip('streaming_data_types')
 
 from streaming_data_types import serialise_answ, serialise_wrdn, serialise_x5f2
