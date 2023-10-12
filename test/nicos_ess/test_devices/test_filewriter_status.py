@@ -27,7 +27,6 @@ from unittest import TestCase, mock
 
 import pytest
 
-pytest.importorskip('file_writer_control')
 pytest.importorskip('streaming_data_types')
 pytest.importorskip('confluent_kafka')
 
