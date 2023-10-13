@@ -125,7 +125,7 @@ class JobRecord:
 
     def is_overdue(self, leeway):
         return self.state == JobState.STARTED \
-               and currenttime() > self.next_update + leeway
+            and currenttime() > self.next_update + leeway
 
     def stop_request(self, stop_time):
         self.stop_time = stop_time
@@ -503,18 +503,20 @@ class FileWriterControlSink(FileSink):
             ),
         'one_file_per_scan':
             Param(
-                'Whether to write all scan points to one file or a file per point',
+                'Whether to write all scan points to one file or a file per '
+                'point',
                 type=bool,
                 default=True,
                 settable=True,
                 userparam=False,
             ),
-        'use_instrument_directory': Param(
-            'Use the ESS instrument directory',
-            type=bool,
-            default=False,
-            settable=True,
-            userparam=False,
+        'use_instrument_directory':
+            Param(
+                'Use the ESS instrument directory',
+                type=bool,
+                default=False,
+                settable=True,
+                userparam=False,
             ),
     }
 
@@ -554,8 +556,8 @@ class FileWriterControlSink(FileSink):
         if self._mode == SIMULATION:
             self._active_sim_job = True
         else:
-            # Begin a point but remove it from the stack immediately to avoid an
-            # orphaned point.
+            # Begin a point but remove it from the stack immediately to avoid
+            # an orphaned point.
             # File-writing won't stop though.
             session.experiment.data.beginPoint()
             self._manual_start = True
@@ -583,8 +585,8 @@ class FileWriterControlSink(FileSink):
     def stop_job(self, job_number=None):
         """Stop a file-writing job.
 
-        :param job_number: the particular job to stop. Only required if there is
-            more than one job running.
+        :param job_number: the particular job to stop. Only required if there
+            is more than one job running.
         """
         if session.mode == SIMULATION:
             self._active_sim_job = False
@@ -634,8 +636,8 @@ class FileWriterControlSink(FileSink):
                                  'When performing the real run a proposal '
                                  'number is required to start writing.')
             else:
-                raise RuntimeError('cannot start writing as proposal number not '
-                                   'set')
+                raise RuntimeError('cannot start writing as proposal number '
+                                   'not set')
         active_jobs = self.get_active_jobs()
         if active_jobs:
             raise RuntimeError('cannot start writing as writing already in '
