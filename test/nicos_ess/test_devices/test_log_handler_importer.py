@@ -30,6 +30,7 @@ pytest.importorskip('kafka.errors')
 
 from kafka.errors import NoBrokersAvailable
 from mock import patch
+from pkg_resources import get_distribution, parse_version
 
 from nicos.core import ConfigurationError
 from nicos.utils.loggers import get_facility_log_handlers
@@ -79,6 +80,11 @@ class TestKafkaHandler:
     def test_logger_inherit_from_handler(self):
         assert issubclass(self.logger_type, Handler)
 
+    @pytest.mark.skipif(
+        parse_version(
+            get_distribution('kafka-logging-handler').version) >
+        parse_version('0.2.4'),
+        reason='kafka-logging-handler > 0.2.4 does not raise the exception')
     def test_kafka_logger_raises_if_no_broker_is_connected(self):
         # Since no kafka broker is present, raises NoBrokersAvailable
         with pytest.raises(NoBrokersAvailable):
