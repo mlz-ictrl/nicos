@@ -29,7 +29,7 @@ import pika
 
 from nicos import session
 from nicos.core import DataSink, DataSinkHandler, Param
-from nicos.core.constants import SCAN
+from nicos.core.constants import MASTER, SCAN
 
 
 class Message:
@@ -112,7 +112,7 @@ class RabbitSink(DataSink):
     _channel = None
 
     def doInit(self, mode):
-        if mode == 'master':
+        if mode == MASTER:
             self._connect()
             self._prepareExchange()
             self._prepareQueue()
