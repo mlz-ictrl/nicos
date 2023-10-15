@@ -122,8 +122,9 @@ class TestALogstashHandler:
         assert isinstance(handlers[0], self.logger_type)
 
     def test_create_graylog_or_kafka_logger_returns_none(self):
-        handlers = get_sinq_log_handlers(Config(graylog='//someserver:12201',
-                                                kafka_logger='//someserver:9092/log_topic'))
+        handlers = get_sinq_log_handlers(
+            Config(graylog='//someserver:12201',
+                   kafka_logger='//someserver:9092/log_topic'))
         assert not handlers
 
     def test_import_sinq_logstash(self):
