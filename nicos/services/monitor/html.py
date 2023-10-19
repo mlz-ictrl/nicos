@@ -78,7 +78,7 @@ table { font-family: inherit; font-size: 100%%; }
 .istext { font-family: '%(ff)s', sans-serif !important; }
 .unit   { color: #888888; }
 .fixed  { color: #0000ff; }
-.warnings { font-size: 120%%; }
+.warnings { font-size: 120%%; white-space: pre; font-family: monospace; }
 </style>
 <title>%(title)s</title>
 </head>
