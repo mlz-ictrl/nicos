@@ -2,7 +2,9 @@ description = 'Neutron Grating Interferometer'
 
 group = 'optional'
 
-tango_base = 'tango://192.168.20.64:10000/box/'
+tango_host = 'phytron3.antareslab'
+
+tango_base = f'tango://{tango_host}:10000/box/'
 
 devices = dict(
     sry = device('nicos.devices.entangle.Motor',

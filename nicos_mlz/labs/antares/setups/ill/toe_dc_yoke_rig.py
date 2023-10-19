@@ -36,7 +36,7 @@ devices = dict(
             # dcmode = True,
         ),
         piout_24v = device('nicos.devices.entangle.DigitalOutput',
-            tangodevice = 'tango://192.168.20.65:10000/box/piface/out_0',
+            tangodevice = 'tango://pibox.antareslab:10000/box/piface/out_0',
             visibility = (),
         ),
         yoke = device('nicos.devices.generic.Switcher',

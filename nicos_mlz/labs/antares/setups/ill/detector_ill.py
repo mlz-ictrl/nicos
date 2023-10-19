@@ -18,7 +18,7 @@ devices = dict(
         unit = '',
     ),
     trigger_hw = device('nicos.devices.entangle.DigitalOutput',
-        tangodevice = 'tango://192.168.20.65:10000/box/piface/out_1',
+        tangodevice = 'tango://pibox.antareslab:10000/box/piface/out_1',
         visibility = (),
     ),
     trigger = device('nicos.devices.generic.Pulse',

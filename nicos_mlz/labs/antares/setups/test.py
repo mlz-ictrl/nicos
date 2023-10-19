@@ -3,6 +3,8 @@ group = 'optional'
 
 includes = []
 
+excludes = ['hicamfluo_acquisition_trigger', 'detector_ill']
+
 tango_base = 'tango://localhost:10000/antares/funcgen_burst/'
 
 devices = dict(
@@ -15,7 +17,7 @@ devices = dict(
         tangodevice = tango_base + 'ch2_burst',
     ),
     trigger_hw = device('nicos.devices.entangle.DigitalOutput',
-        tangodevice = 'tango://192.168.20.65:10000/box/piface/out_1',
+        tangodevice = 'tango://pibox.antareslab:10000/box/piface/out_1',
         visibility = (),
     ),
     trigger = device('nicos.devices.generic.Pulse',
@@ -24,6 +26,6 @@ devices = dict(
         offvalue = 0,
         ontime = 0.1,
         moveable = 'trigger_hw',
-        visibility = {'namespace', 'metadata', 'devlist'},
+        visibility = ('metadata', 'devlist', 'namespace'),
     ),
 )

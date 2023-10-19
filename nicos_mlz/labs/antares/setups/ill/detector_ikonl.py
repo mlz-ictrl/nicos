@@ -3,7 +3,9 @@ group = 'optional'
 
 includes = ['filesavers']
 
-tango_base = 'tango://192.168.20.31:10000/antares/'
+tango_host = 'ccd01.antareslab'
+
+tango_base = f'tango://{tango_host}:10000/antares/'
 
 devices = dict(
     timer_ikonl = device('nicos.devices.vendor.lima.LimaCCDTimer',

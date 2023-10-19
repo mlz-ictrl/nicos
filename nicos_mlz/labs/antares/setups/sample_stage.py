@@ -6,13 +6,13 @@ excludes = ['ngi', 'neutrosense', ]
 
 # Local private subnet
 
-tango_host = '192.168.20.64'
+tango_host = 'phytron3.antareslab'
 
 # At PSI -> needs to be in ICON network
 # Phytron3 MAC: b8:27:eb:f3:31:b0
 # tango_host = '172.28.77.82'
 
-tango_base = 'tango://%s:10000/box/' % tango_host
+tango_base = f'tango://{tango_host}:10000/box/'
 
 devices = dict(
     stx = device('nicos.devices.entangle.Motor',

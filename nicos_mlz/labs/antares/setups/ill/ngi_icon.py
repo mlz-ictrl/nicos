@@ -5,7 +5,7 @@ group = 'optional'
 excludes = ['ngi']
 
 # Local private subnet
-tango_host = '192.168.20.64'
+tango_host = 'phytron3.antareslab'
 
 # At PSI -> needs to be in ICON network
 # Phytron3 MAC: b8:27:eb:f3:31:b0

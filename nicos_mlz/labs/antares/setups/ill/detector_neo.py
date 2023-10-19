@@ -3,7 +3,9 @@ group = 'optional'
 
 includes = ['filesavers']
 
-tango_base = 'tango://192.168.20.33:10000/antares/'
+tango_host = 'ccd02.antareslab'
+
+tango_base = f'tango://tango_host:10000/antares/'
 
 devices = dict(
     fastshutter_io = device('nicos.devices.generic.manual.ManualSwitch',
