@@ -475,7 +475,7 @@ class LokiScriptBuilderPanel(PanelBase):
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
         try:
-            self.tableView.setFocus(False)
+            self.tableView.clearFocus()
             if self.is_data_in_hidden_columns():
                 self.showError(
                     'There is data in unselected optional column(s) '

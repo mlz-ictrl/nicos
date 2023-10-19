@@ -39,7 +39,7 @@ class LimitsDelegate(QItemDelegate):
 
     def _create_widget(self, parent):
         spinbox = QDoubleSpinBox(parent)
-        spinbox.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        spinbox.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
         spinbox.setMinimum(self.limits[0])
         spinbox.setMaximum(self.limits[1])
         spinbox.setDecimals(self.precision)

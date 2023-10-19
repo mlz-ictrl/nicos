@@ -70,8 +70,8 @@ class LokiSampleHolderPanel(PanelBase):
         self.cell_spacings = {}
         self.number_cells = {}
         self.cartridges = {}
-        self.x_delegate = LimitsDelegate()
-        self.y_delegate = LimitsDelegate()
+        self.x_delegates = [LimitsDelegate() for _ in self.cartridge_tables]
+        self.y_delegates = [LimitsDelegate() for _ in self.cartridge_tables]
         self.labelWarning.setStyleSheet('color: red')
         self.labelWarning.setVisible(False)
         self._configure_combos()
@@ -202,10 +202,12 @@ class LokiSampleHolderPanel(PanelBase):
         self.saveButton.setVisible(False)
 
     def _edit_mode(self):
-        self.x_delegate.limits = self.client.eval(f'{self._dev_name}.xlimits',
-                                                  (0, 0))
-        self.y_delegate.limits = self.client.eval(f'{self._dev_name}.ylimits',
-                                                  (0, 0))
+        xlimits = self.client.eval(f'{self._dev_name}.xlimits', (0, 0))
+        ylimits = self.client.eval(f'{self._dev_name}.ylimits', (0, 0))
+        for x_delegate, y_delegate in zip(self.x_delegates, self.y_delegates):
+            x_delegate.limits = xlimits
+            y_delegate.limits = ylimits
+
         for combo in self.cartridge_combos:
             combo.setEnabled(True)
         for table in self.cartridge_tables:
@@ -253,20 +255,26 @@ class LokiSampleHolderPanel(PanelBase):
 
     def _set_table_height(self, num_rows):
         row_height = self.tableTopFirst.verticalHeader().defaultSectionSize()
-        for table in self.cartridge_tables:
-            table.setItemDelegateForColumn(0, self.x_delegate)
-            table.setItemDelegateForColumn(1, self.y_delegate)
+        for x_delegate, y_delegate, table in zip(self.x_delegates,
+                                                 self.y_delegates,
+                                                 self.cartridge_tables):
+            table.setItemDelegateForColumn(0, x_delegate)
+            table.setItemDelegateForColumn(1, y_delegate)
             # +1 for header
             table.setMinimumHeight(row_height * (num_rows + 1))
 
     def _connect_up_widgets(self):
-        for combo, table, button in zip(self.cartridge_combos,
-                                        self.cartridge_tables,
-                                        self.calculate_buttons):
+        for combo, table, button, x_delegate, y_delegate in zip(
+                self.cartridge_combos,
+                self.cartridge_tables,
+                self.calculate_buttons,
+                self.x_delegates,
+                self.y_delegates):
             combo.currentTextChanged.connect(
                 partial(self.on_cartridge_changed, table, button))
             button.clicked.connect(
-                partial(self.on_calculate_clicked, combo, table))
+                partial(self.on_calculate_clicked, combo, table, x_delegate,
+                        y_delegate))
 
     def _update_cartridges(self):
         if self._in_edit_mode or not self._dev_name:
@@ -296,27 +304,31 @@ class LokiSampleHolderPanel(PanelBase):
             self.set_enabled_controls()
         button.setEnabled(value != 'blank')
 
-    def on_calculate_clicked(self, combo, table):
-        table.setFocus(False)
+    def on_calculate_clicked(self, combo, table, x_delegate, y_delegate):
+        table.clearFocus()
         if not table.item(0, 0) or not table.item(0, 1):
             self.showError('Please enter x and y values for the first cell.')
             return
         x = float(table.item(0, 0).text())
         y = float(table.item(0, 1).text())
         num_cells = self.number_cells[combo.currentText()]
-        self._check_x_valid(x * num_cells)
-        self._check_y_range(y)
+        try:
+            self._check_x_valid(x * num_cells, x_delegate)
+            self._check_y_range(y, y_delegate)
+        except ConfigurationError as error:
+            self.showError(f'{error}')
+            return
 
         for i in range(1, num_cells):
             x += self.cell_spacings[combo.currentText()]
             table.setItem(i, 0, QTableWidgetItem(f'{x}'))
             table.setItem(i, 1, QTableWidgetItem(f'{y}'))
 
-    def _check_y_range(self, y):
-        self._check_in_range(y, self.y_delegate.limits, 'y')
+    def _check_y_range(self, y, delegate):
+        self._check_in_range(y, delegate.limits, 'y')
 
-    def _check_x_valid(self, x):
-        self._check_in_range(x, self.x_delegate.limits, 'x')
+    def _check_x_valid(self, x, delegate):
+        self._check_in_range(x, delegate.limits, 'x')
 
     def set_enabled_controls(self):
         is_rotation = False
@@ -352,7 +364,7 @@ class LokiSampleHolderPanel(PanelBase):
 
     @pyqtSlot()
     def on_saveButton_clicked(self):
-        self.saveButton.setFocus(True)
+        self.saveButton.setFocus()
         if not self._dev_name:
             return
         if self.mainwindow.current_status != 'idle':
@@ -367,7 +379,7 @@ class LokiSampleHolderPanel(PanelBase):
             self._write_cartridges(cartridges)
             self._write_samples(samples)
         except ConfigurationError as error:
-            self.showError(str(error))
+            self.showError(f'{error}')
             return
 
         self._in_edit_mode = False
@@ -380,7 +392,10 @@ class LokiSampleHolderPanel(PanelBase):
         all_positions = set()
         cartridges = []
         i = 0
-        for combo, table in zip(self.cartridge_combos, self.cartridge_tables):
+        for combo, table, x_delegate, y_delegate in zip(self.cartridge_combos,
+                                                        self.cartridge_tables,
+                                                        self.x_delegates,
+                                                        self.y_delegates):
             data = {'type': combo.currentText(), 'positions': [], 'labels': []}
             for r in range(table.rowCount()):
                 if not table.item(r, 0) or not table.item(r, 0).text() \
@@ -390,8 +405,8 @@ class LokiSampleHolderPanel(PanelBase):
                         f'{self.positions[i]} is not specified.')
                 x = float(table.item(r, 0).text())
                 y = float(table.item(r, 1).text())
-                self._check_x_valid(x)
-                self._check_y_range(y)
+                self._check_x_valid(x, x_delegate)
+                self._check_y_range(y, y_delegate)
                 if (x, y) in all_positions:
                     raise ConfigurationError('Duplicate cell-holder positions '
                                              'are not allowed. Position '
@@ -418,7 +433,7 @@ class LokiSampleHolderPanel(PanelBase):
 
     @pyqtSlot()
     def on_cancelButton_clicked(self):
-        self.cancelButton.setFocus(True)
+        self.cancelButton.setFocus()
         self._in_edit_mode = False
         self._update_cartridges()
         self._update_samples()
