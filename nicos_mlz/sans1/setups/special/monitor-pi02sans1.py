@@ -28,7 +28,7 @@ group = 'special'
 
 _sc1 = Block('Sample Changer 1', [
     BlockRow(
-        Field(name='sc1_y', dev='sc1_y'),
+        Field(name='sc_y', dev='sc_y'),
     ),
     BlockRow(
         Field(name='SampleChanger', dev='sc1'),
@@ -81,41 +81,27 @@ _ccm2a5 = SetupBlock('ccm2a5')
 _ccm2a5_temperature = SetupBlock('ccm2a5', 'temperatures')
 _ccm2a5_plot = SetupBlock('ccm2a5', 'plot')
 
-_st2 = Block('Sample Table 2', [
+_st = Block('Sample Table', [
     BlockRow(
-        Field(name='st2_z', dev='st2_z'),
+        Field(name='st_phi', dev='st_phi'),
     ),
     BlockRow(
-        Field(name='st2_y', dev='st2_y'),
+        Field(name='st_chi', dev='st_chi'),
     ),
     BlockRow(
-        Field(name='st2_x', dev='st2_x'),
-    ),
-    ],
-    setups='sample_table_2',
-)
-
-_st1 = Block('Sample Table 1', [
-    BlockRow(
-        Field(name='st1_phi', dev='st1_phi'),
+        Field(name='st_omg', dev='st_omg'),
     ),
     BlockRow(
-        Field(name='st1_chi', dev='st1_chi'),
+        Field(name='st_y', dev='st_y'),
     ),
     BlockRow(
-        Field(name='st1_omg', dev='st1_omg'),
+        Field(name='st_z', dev='st_z'),
     ),
     BlockRow(
-        Field(name='st1_y', dev='st1_y'),
-    ),
-    BlockRow(
-        Field(name='st1_z', dev='st1_z'),
-    ),
-    BlockRow(
-        Field(name='st1_x', dev='st1_x'),
+        Field(name='st_x', dev='st_x'),
     ),
     ],
-    setups='sample_table_1',
+    setups='sample_table',
 )
 
 _htf03 = Block('HTF03', [
@@ -756,7 +742,7 @@ devices = dict(
             Row(_sans1reactor, _sans1general, _sans1crane),
             Row(
                 Column(_ccmsanssc),
-                Column(_sc1, _sc2, _sc_t, _st2, _st1, *rscs),
+                Column(_sc1, _sc2, _sc_t, _st, *rscs),
                 Column(_tisane_counts, _fg1, _helios01),
                 Column(_fc, _fg2),
                 Column(_htf01, _htf03, _irf01, _irf10,

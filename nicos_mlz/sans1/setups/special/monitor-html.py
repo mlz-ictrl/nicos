@@ -71,38 +71,22 @@ _pressurecolumn = Column(
     ),
 )
 
-_table2 = Column(
-    Block('Sample Table 2', [
+_table = Column(
+    Block('Sample Table', [
         BlockRow(
-            Field(name='st2_z', dev='st2_z', width=13),
+            Field(name='st_phi', dev='st_phi', width=13),
+            Field(name='st_y', dev='st_y', width=13),
         ),
         BlockRow(
-            Field(name='st2_y', dev='st2_y', width=13),
+            Field(name='st_chi', dev='st_chi', width=13),
+            Field(name='st_z', dev='st_z', width=13),
         ),
         BlockRow(
-            Field(name='st2_x', dev='st2_x', width=13),
-        ),
-        ],
-        setups='sample_table_2',
-    ),
-)
-
-_table1 = Column(
-    Block('Sample Table 1', [
-        BlockRow(
-            Field(name='st1_phi', dev='st1_phi', width=13),
-            Field(name='st1_y', dev='st1_y', width=13),
-        ),
-        BlockRow(
-            Field(name='st1_chi', dev='st1_chi', width=13),
-            Field(name='st1_z', dev='st1_z', width=13),
-        ),
-        BlockRow(
-            Field(name='st1_omg', dev='st1_omg', width=13),
-            Field(name='st1_x', dev='st1_x', width=13),
+            Field(name='st_omg', dev='st_omg', width=13),
+            Field(name='st_x', dev='st_x', width=13),
         ),
         ],
-        setups='sample_table_1',
+        setups='sample_table',
     ),
 )
 
@@ -246,7 +230,7 @@ _amagnet = Column(
 _sc1 = Column(
     Block('Sample Changer 1', [
          BlockRow(
-            Field(name='Position', dev='sc1_y'),
+            Field(name='Position', dev='sc_y'),
             Field(name='SampleChanger', dev='sc1'),
         ),
         ],
@@ -773,7 +757,7 @@ devices = dict(
         fontsize = 17,
         layout = [
             Row(_expcolumn),
-            Row(_sans1general, _table2, _table1, _sans1det),
+            Row(_sans1general, _table, _sans1det),
             Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
             Row(_instrumentshutter, _selcolumn, _chop_phase, _col_slit, _atpolcolumn, _sanscolumn),
             Row(_ccm5h, _ccm5h_temperature,

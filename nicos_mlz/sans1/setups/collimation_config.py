@@ -6,13 +6,13 @@ excludes = ['collimation']
 
 group = 'lowlevel'  # should not be visible to users
 
-tangohost = 'tango://hw.sans1.frm2.tum.de:10000'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/col/'
 
 devices = dict(
     col_2_m = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
         description = 'CollimatorMotor 2',
         # IP-adresse: 172.16.17.7
-        tangodevice = '%s/coll/col-2m/modbus' % (tangohost, ),
+        tangodevice = tango_base + 'col-2m/modbus',
         address = 0x4020+1*10,
         slope = 200*4,  # FULL steps per turn * turns per mm
         microsteps = 8,
@@ -26,7 +26,7 @@ devices = dict(
     # at = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'Attenuator',
     #     # IP-adresse: 172.16.17.1
-    #     tangodevice='%s/coll/ng-pol/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'ng-pol/modbus',
     #     address = 0x4020+0*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -38,7 +38,7 @@ devices = dict(
     # ng_pol = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'Neutronguide polariser',
     #     # IP-adresse: 172.16.17.1
-    #     tangodevice='%s/coll/ng-pol/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'ng-pol/modbus',
     #     address = 0x4020+1*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -50,7 +50,7 @@ devices = dict(
     # col_20 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 20',
     #     # IP-adresse: 172.16.17.2
-    #     tangodevice='%s/coll/col-20m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-20m/modbus',
     #     address = 0x4020+0*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -62,7 +62,7 @@ devices = dict(
     # col_18 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 18',
     #     # IP-adresse: 172.16.17.2
-    #     tangodevice='%s/coll/col-20m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-20m/modbus',
     #     address = 0x4020+1*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -74,7 +74,7 @@ devices = dict(
     # bg1 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'Background slit1 motor',
     #     # IP-adresse: 172.16.17.3
-    #     tangodevice='%s/coll/col-16m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-16m/modbus',
     #     address = 0x4020+0*10,
     #     slope = 200*0.16, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -87,7 +87,7 @@ devices = dict(
     # col_16 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 16',
     #     # IP-adresse: 172.16.17.3
-    #     tangodevice='%s/coll/col-16m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-16m/modbus',
     #     address = 0x4020+1*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -99,7 +99,7 @@ devices = dict(
     # col_14 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 14',
     #     # IP-adresse: 172.16.17.3
-    #     tangodevice='%s/coll/col-16m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-16m/modbus',
     #     address = 0x4020+2*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -111,7 +111,7 @@ devices = dict(
     # col_12 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 12',
     #     # IP-adresse: 172.16.17.4
-    #     tangodevice='%s/coll/col-12m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-12m/modbus',
     #     address = 0x4020+0*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -123,7 +123,7 @@ devices = dict(
     # col_10 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 10',
     #     # IP-adresse: 172.16.17.4
-    #     tangodevice='%s/coll/col-12m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-12m/modbus',
     #     address = 0x4020+1*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -135,7 +135,7 @@ devices = dict(
     # bg2 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'Background slit2',
     #     # IP-adresse: 172.16.17.5
-    #     tangodevice='%s/coll/col-8m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-8m/modbus',
     #     address = 0x4020+0*10,
     #     slope = 200*0.16, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -148,7 +148,7 @@ devices = dict(
     # col_8 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 8',
     #     # IP-adresse: 172.16.17.5
-    #     tangodevice='%s/coll/col-8m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-8m/modbus',
     #     address = 0x4020+1*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -160,7 +160,7 @@ devices = dict(
     # col_6 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 6',
     #     # IP-adresse: 172.16.17.5
-    #     tangodevice='%s/coll/col-8m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-8m/modbus',
     #     address = 0x4020+2*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -172,7 +172,7 @@ devices = dict(
     # col_4 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 4',
     #     # IP-adresse: 172.16.17.6
-    #     tangodevice='%s/coll/col-4m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-4m/modbus',
     #     address = 0x4020+1*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -184,7 +184,7 @@ devices = dict(
     # col_3 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 3',
     #     # IP-adresse: 172.16.17.6
-    #     tangodevice='%s/coll/col-4m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-4m/modbus',
     #     address = 0x4020+2*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -196,7 +196,7 @@ devices = dict(
     # col_sa1 = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'attenuation slits',
     #     # IP-adresse: 172.16.17.7
-    #     tangodevice='%s/coll/col-2m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-2m/modbus',
     #     address = 0x4020+0*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -209,7 +209,7 @@ devices = dict(
     # col_2b = device('nicos_mlz.sans1.devices.collimotor.MotorAllParams',
     #     description = 'CollimatorMotor 2b',
     #     # IP-adresse: 172.16.17.7
-    #     tangodevice='%s/coll/col-2m/modbus'% (tangohost, ),
+    #     tangodevice = tango_base + 'col-2m/modbus',
     #     address = 0x4020+2*10,
     #     slope = 200*4, # FULL steps per turn * turns per mm
     #     microsteps = 8,
@@ -218,5 +218,5 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # pump devices of 172.17.17.10 are at modbus-tangodevice //sans1srv.sans.frm2/sans1/coll/pump
+    # pump devices of 172.17.17.10 are at modbus-tangodevice //sans1srv.sans.frm2/sans1/col/pump
 )

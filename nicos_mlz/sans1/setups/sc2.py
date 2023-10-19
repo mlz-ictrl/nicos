@@ -2,37 +2,12 @@ description = 'sample changer 2 devices'
 
 group = 'optional'
 
-includes = ['sample_changer', 'sample_table_1']
-
-tango_host = 'tango://hw.sans1.frm2.tum.de:10000/sans1/sample_changer/'
+includes = ['sample_changer', 'sample_table']
 
 devices = dict(
-    sc2_y = device('nicos.devices.generic.Axis',
-        description = 'Sample Changer 1/2 Axis',
-        pollinterval = 15,
-        maxage = 60,
-        fmtstr = '%.2f',
-        abslimits = (-0, 600),
-        precision = 0.01,
-        motor = 'sc2_ymot',
-        coder = 'sc2_yenc',
-    ),
-    sc2_ymot = device('nicos.devices.entangle.Motor',
-        description = 'Sample Changer 1/2 Axis motor',
-        tangodevice = tango_host + 'y_mot',
-        fmtstr = '%.2f',
-        abslimits = (-0, 600),
-        visibility = (),
-    ),
-    sc2_yenc = device('nicos.devices.entangle.Sensor',
-        description = 'Sample Changer 1/2 Axis encoder',
-        tangodevice = tango_host + 'y_enc',
-        fmtstr = '%.2f',
-        visibility = (),
-    ),
     sc2 = device('nicos.devices.generic.MultiSwitcher',
         description = 'Sample Changer 2 Huber device',
-        moveables = ['sc2_y', 'st1_z'],
+        moveables = ['sc_y', 'st_z'],
         mapping = {
             1: [592.5, -32],
             2: [533.5, -32],

@@ -7,7 +7,8 @@ description = 'attenuator'
 # included by sans1
 group = 'lowlevel'
 
-tangohost = 'tango://hw.sans1.frm2.tum.de:10000'
+# IP-adresse: 172.25.49.107
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/col/col-ng_pol/'
 
 devices = dict(
     att = device('nicos_mlz.sans1.devices.collimotor.Switcher',
@@ -31,8 +32,7 @@ devices = dict(
     ),
     att_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
         description = 'Attenuator motor',
-        # IP-adresse: 172.25.49.107
-        tangodevice='%s/coll/ng-pol/modbus'% (tangohost,),
+        tangodevice = tango_base + 'modbus',
         address = 0x4020+0*10,
         slope = 200*4, # FULL steps per turn * turns per mm
         microsteps = 8,
@@ -46,8 +46,7 @@ devices = dict(
     ),
     att_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
         description = 'Attenuator coder',
-        # IP-adresse: 172.25.49.107
-        tangodevice='%s/coll/ng-pol/modbus'% (tangohost,),
+        tangodevice = tango_base + 'modbus',
         address = 0x40c8,
         slope = 1000000, # resolution = nm, we want mm
         zeropos = -13.191 + 26.5861880569,

@@ -2,30 +2,30 @@ description = 'collimation slit'
 
 group = 'lowlevel'
 
-tango_base = 'tango://hw.sans1.frm2.tum.de:10000/sans1/'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/col/slit/'
 
 devices = dict(
     slit_top = device('nicos.devices.entangle.Motor',
         description = 'collimation slit top axis',
-        tangodevice = tango_base + 'slit_col/top',
+        tangodevice = tango_base + 'top',
         abslimits = (0, 25),
         precision = 0.05,
     ),
     slit_bottom = device('nicos.devices.entangle.Motor',
         description = 'collimation slit bottom axis',
-        tangodevice = tango_base + 'slit_col/bottom',
+        tangodevice = tango_base + 'bottom',
         abslimits = (0, 25),
         precision = 0.05,
     ),
     slit_left = device('nicos.devices.entangle.Motor',
         description = 'collimation slit left axis',
-        tangodevice = tango_base + 'slit_col/left',
+        tangodevice = tango_base + 'left',
         abslimits = (0, 25),
         precision = 0.05,
     ),
     slit_right = device('nicos.devices.entangle.Motor',
         description = 'collimation slit right axis',
-        tangodevice = tango_base + 'slit_col/right',
+        tangodevice = tango_base + 'right',
         abslimits = (0, 25),
         precision = 0.05,
     ),
