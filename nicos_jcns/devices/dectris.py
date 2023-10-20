@@ -200,7 +200,7 @@ class Detector2D(Detector):
         'temperature': Param(
             'Detector temperature in degree Celsius.',
             type=float,
-            unit='°C',
+            unit='degC',
             fmtstr='%.3f',
             volatile=True,
         ),
