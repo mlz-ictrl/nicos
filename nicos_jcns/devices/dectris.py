@@ -147,11 +147,11 @@ class Detector(GenericDetector):
         self._cfg_channel = self._attached_others[0]._dev
 
     def doPrepare(self):
-        # first detector in detector list is master
+        # first detector in detector list is controller
         first_det = session.experiment.detectors[0]
-        is_master = not first_det.has_gate or self.name == first_det.name
+        is_controller = not first_det.has_gate or self.name == first_det.name
         for dev in self._attached_timers:
-            dev.doWriteIsmaster(is_master)
+            dev.iscontroller = is_controller
         super().doPrepare()
 
 
@@ -199,7 +199,7 @@ class Detector2D(Detector):
         'temperature': Param(
             'Detector temperature in degree Celsius.',
             type=float,
-            unit=u'°C',
+            unit='degC',
             fmtstr='%.3f',
             volatile=True,
         ),
