@@ -224,15 +224,6 @@ class SecNodeDevice(Readable):
             self._value = ''
         return self._value
 
-    def doReset(self):
-        try:
-            self._call('reset')
-        except KeyError:
-            try:
-                self.clear_errors()
-            except AttributeError:
-                pass
-
     def doStatus(self, maxage=0):
         return self._status
 
@@ -582,7 +573,7 @@ class SecopDevice(Device):
     _cache = None
     _inside_read = False
     # overridden by a dict for the validators of 'value', 'status' and 'target':
-    _maintypes = None
+    _maintypes = ()
     __update_error_logged = False
 
     @classmethod
@@ -807,7 +798,7 @@ class SecopDevice(Device):
             if parameter == 'status':
                 return self.status(0)
             return getattr(self, parameter)  # trigger doRead<param>
-        except Exception as e:
+        except Exception:
             try:
                 if self._attached_secnode._secnode.cache[
                         self.secop_module, parameter].readerror:
@@ -872,7 +863,7 @@ class SecopDevice(Device):
         try:
             validator = self._maintypes.get(param) or self.parameters[param].type
         except KeyError:
-            raise KeyError(f'{param} is no parameter')
+            raise KeyError(f'{param} is no parameter') from None
         try:
             secnode = self._attached_secnode._secnode
         except AttributeError:
@@ -990,6 +981,15 @@ class SecopReadable(SecopDevice, Readable):
             st = self.doStatus(0)
             if st[0] in (status.DISABLED, status.ERROR):
                 raise NicosError(st[1]) from None
+
+    def doReset(self):
+        try:
+            self._call('reset')
+        except KeyError:
+            try:
+                self.clear_errors()
+            except AttributeError:
+                pass
 
     def doStatus(self, maxage=0):
         code, text = SecopDevice.doStatus(self)
