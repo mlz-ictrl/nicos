@@ -2,27 +2,28 @@ description = 'Detector devices'
 
 group = 'lowlevel'
 
-tango_host = 'tango://ps01.stressi.frm2:10000/box/det/'
-detector_base = 'tango://mesydaq.stressi.frm2.tum.de:10000/qm/qmesydaq/'
+includes = ['hv', ]
+
+tango_base = 'tango://mesydaq.stressi.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
     mon = device('nicos.devices.entangle.CounterChannel',
         description = 'MON',
-        tangodevice = detector_base + 'counter0',
+        tangodevice = tango_base + 'counter0',
         fmtstr = '%d',
         type = 'monitor',
         visibility = (),
     ),
     t_mon = device('nicos.devices.entangle.CounterChannel',
         description = 'Transmission monitor',
-        tangodevice = detector_base + 'counter4',
+        tangodevice = tango_base + 'counter4',
         fmtstr = '%d',
         type = 'monitor',
         visibility = (),
     ),
     tim1 = device('nicos.devices.entangle.TimerChannel',
         description = 'Timer',
-        tangodevice = detector_base + 'timer',
+        tangodevice = tango_base + 'timer',
         fmtstr = '%.2f',
         unit = 's',
         visibility = (),
@@ -37,7 +38,7 @@ devices = dict(
     # ),
     image = device('nicos.devices.vendor.qmesydaq.tango.ImageChannel',
         description = 'Image data device',
-        tangodevice = detector_base + 'image',
+        tangodevice = tango_base + 'image',
         fmtstr = '%d',
         pollinterval = None,
         visibility = (),
@@ -73,28 +74,6 @@ devices = dict(
         unit = 'mm',
         abslimits = (700, 1700),
         requires = {'level': 'admin'},
-    ),
-    hv1 = device('nicos.devices.entangle.PowerSupply',
-        description = 'HV power supply anode',
-        requires = {'level': 'admin'},
-        tangodevice = tango_host + 'hv1',
-        abslimits = (0, 3200),
-    ),
-    hv1_current = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'HV power supply anode current',
-        device = 'hv1',
-        parameter = 'current',
-    ),
-    hv2 = device('nicos.devices.entangle.PowerSupply',
-        description = 'HV power supply drift',
-        requires = {'level': 'admin'},
-        tangodevice = tango_host + 'hv2',
-        abslimits = (-2500, 0),
-    ),
-    hv2_current = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'HV power supply drift current',
-        device = 'hv2',
-        parameter = 'current',
     ),
 )
 
