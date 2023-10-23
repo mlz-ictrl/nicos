@@ -20,7 +20,7 @@ devices = dict(
     ),
     Exp = device('nicos.devices.experiment.ImagingExperiment',
         description = 'Antares Experiment',
-        dataroot = '/home/localadmin/data/FRM-II',
+        dataroot = '/data/FRM-II',
         sample = 'Sample',
         mailsender = 'antares@frm2.tum.de',
         propprefix = 'p',
