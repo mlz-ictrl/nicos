@@ -4,7 +4,7 @@ group = 'optional'
 
 excludes = ['tensile']
 
-nameservice = 'stressictrl.stressi.frm2'
+nameservice = 'stressictrl.stressi.frm2.tum.de'
 
 devices = dict(
     teload = device('nicos.devices.vendor.caress.Motor',

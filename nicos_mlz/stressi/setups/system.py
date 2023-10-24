@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'stressictrl.stressi.frm2',
+    cache = 'stressictrl.stressi.frm2.tum.de',
     instrument = 'Stressi',
     experiment = 'Exp',
     datasinks = [

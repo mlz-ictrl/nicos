@@ -14,7 +14,7 @@ sysconfig = dict(
 
 tangobase = 'tango://motorbox02.stressi.frm2.tum.de:10000/box/'
 
-nameservice = 'stressictrl.stressi.frm2'
+nameservice = 'stressictrl.stressi.frm2.tum.de'
 
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'

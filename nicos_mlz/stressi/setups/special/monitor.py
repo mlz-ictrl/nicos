@@ -185,7 +185,7 @@ devices = dict(
         # Use only 'localhost' if the cache is really running on
         # the same machine, otherwise use the hostname (official
         # computer name) or an IP address.
-        cache = 'stressictrl.stressi.frm2',
+        cache = 'stressictrl.stressi.frm2.tum.de',
         font = 'Luxi Sans',
         valuefont = 'Consolas',
         padding = 0,

@@ -71,7 +71,7 @@ devices = dict(
         # use only 'localhost' if the cache is really running on
         # the same machine, otherwise use the official computer
         # name
-        cache = 'stressictrl.stressi.frm2',
+        cache = 'stressictrl.stressi.frm2.tum.de',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
         watch = watch_conditions,

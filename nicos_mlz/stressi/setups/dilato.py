@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['alias_T']
 
-tango_base = 'tango://stressictrl.stressi.frm2:10000/stressi/dilato/'
+tango_base = 'tango://stressictrl.stressi.frm2.tum.de:10000/stressi/dilato/'
 
 devices = {
     'Ts_dil': device('nicos.devices.entangle.Sensor',

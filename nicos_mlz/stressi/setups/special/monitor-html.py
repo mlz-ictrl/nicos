@@ -195,7 +195,7 @@ devices = dict(
         # the same machine, otherwise use the hostname (official
         # computer name) or an IP address.
         filename = '/stressicontrol/status.html',
-        cache = 'stressictrl.stressi.frm2',
+        cache = 'stressictrl.stressi.frm2.tum.de',
         font = 'Luxi Sans',
         valuefont = 'Consolas',
         padding = 0,
