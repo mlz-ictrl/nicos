@@ -1124,6 +1124,7 @@ class SecopReadable(SecopDevice, Readable):
             st = self.doStatus(0)
             if st[0] in (status.DISABLED, status.ERROR):
                 raise NicosError(st[1]) from None
+            raise
 
     def doReset(self):
         try:
@@ -1188,7 +1189,7 @@ class SecopWritable(SecopReadable, Moveable):
 class SecopMoveable(SecopWritable):
 
     def doStop(self):
-        if self.status(0)[0] == status.BUSY:
+        if self.doStatus()[0] == status.BUSY:
             try:
                 self._attached_secnode._secnode.execCommand(
                     self.secop_module, 'stop')
