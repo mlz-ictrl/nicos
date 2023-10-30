@@ -542,23 +542,22 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._write_sl1(d)
 
         d.clear()
-        d['TTHS'] = (256., 128., 0.85)
-        d['NYS'] = (256., 128., 0.85)
+        # Get pixel size
+        xpix, ypix = point.metainfo.get(
+            ('image', 'pixel_size'), ((0.85, 0.85), ))[0]
+        d['TTHS'] = (256., 128., xpix)
+        d['NYS'] = (256., 128., ypix)
         d['YSD'] = (point.metainfo.get(('ysd', 'value'), [0])[0],)
         if self._detvalues is not None:
-            # TODO: Pixel size
             if len(self._detvalues.shape) == 2:
-                d['NYS'] = (
-                    float(self._detvalues.shape[0]), self._detvalues.shape[0] / 2,
-                    0.85)
-                d['TTHS'] = (
-                    float(self._detvalues.shape[1]), self._detvalues.shape[1] / 2,
-                        0.85)
+                d['NYS'] = (float(self._detvalues.shape[0]),
+                            self._detvalues.shape[0] / 2, xpix)
+                d['TTHS'] = (float(self._detvalues.shape[1]),
+                             self._detvalues.shape[1] / 2, ypix)
             elif len(self._detvalues.shape) == 1:
-                d['TTHS'] = (
-                    float(self._detvalues.shape[0]), self._detvalues.shape[0] / 2,
-                        0.85)
-                d['NYS'] = (1., 1 / 2, 0.85)
+                d['TTHS'] = (float(self._detvalues.shape[0]),
+                             self._detvalues.shape[0] / 2, xpix)
+                d['NYS'] = (1., 1 / 2, ypix)
         self._write_rela(d)
 
         d.clear()

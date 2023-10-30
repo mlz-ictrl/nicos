@@ -22,7 +22,7 @@
 # *****************************************************************************
 
 
-from nicos.core.params import Param
+from nicos.core.params import Param, tupleof
 from nicos.devices.entangle import ImageChannel
 
 
@@ -30,7 +30,8 @@ class Detector(ImageChannel):
 
     parameters = {
         'pixel_size': Param('Size of a single pixel (in mm)',
-                            type=float, volatile=False, settable=False,
+                            type=tupleof(float, float), volatile=False,
+                            settable=False, default=(0.05, 10), unit='mm',
                             category='instrument'),
         'pixel_count': Param('Number of detector pixels',
                              type=int, volatile=True, settable=False,

@@ -37,9 +37,9 @@ class LiveViewSinkHandler(BaseLiveViewSinkHandler):
         ds = self.dataset
         radius = ds.metainfo.get(('ysd', 'value'), [201.9])[0]
         pixel_count = ds.metainfo.get(('image', 'pixel_count'), [1280])[0]
-        pixel_size = ds.metainfo.get(('image', 'pixel_size'), [0.05])[0]
+        pixel_size = ds.metainfo.get(('image', 'pixel_size'), [0.05, 1])[0]
         ttheta = ds.metainfo.get(('tths', 'value'), [0])[0]
-        step = pixel_size / radius
+        step = pixel_size[0] / radius
         ttheta_range = ttheta + np.rad2deg(
             np.arctan((np.arange(0, pixel_count) - (pixel_count / 2 - 0.5)) * step))
         self.log.debug('start: %s, end: %s', ttheta_range[0], ttheta_range[-1])

@@ -20,7 +20,7 @@ devices = dict(
     image = device('nicos_mlz.labs.physlab.devices.dectris.Detector',
         description = 'image for detector',
         tangodevice = tango_base + 'box/dectris/image',
-        pixel_size = 50 / 1000.0, # mm
+        pixel_size = (50 / 1000.0, 10), # mm
         pixel_count = 1280,
     ),
     ysd = device('nicos.devices.generic.ManualMove',

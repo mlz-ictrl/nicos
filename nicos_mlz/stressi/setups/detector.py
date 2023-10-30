@@ -36,7 +36,7 @@ devices = dict(
     #     type = 'counter',
     #     visibility = (),
     # ),
-    image = device('nicos.devices.vendor.qmesydaq.tango.ImageChannel',
+    image = device('nicos_mlz.stressi.devices.ImageChannel',
         description = 'Image data device',
         tangodevice = tango_base + 'image',
         fmtstr = '%d',
