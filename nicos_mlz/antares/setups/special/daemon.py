@@ -35,6 +35,7 @@ devices = dict(
         grouproles = {
             'antares': 'admin',
             'ictrl': 'admin',
+            'nicosdev': 'guest',
             'se': 'guest',
         }
     ),
