@@ -65,7 +65,7 @@ devices = dict(
     ),
     DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free Space on the DataStorage',
-        path = '/home/localadmin/data',
+        path = '/data',
         minfree = 50,
     ),
     VarSpace = device('nicos.devices.generic.FreeSpace',
@@ -75,7 +75,7 @@ devices = dict(
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
-        path = '/home/localadmin/nicos/log',
+        path = '/control/log',
         warnlimits = (0.5, None),
     ),
 )
