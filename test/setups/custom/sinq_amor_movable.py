@@ -35,10 +35,10 @@ def create_epics_asyn_controller(device_id):
     """
     Creates an asyn controller with the given device id
     """
-    return device('nicos_sinq.devices.epics.extensions.EpicsAsynController',
+    return device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
                   description='Asyn controller for motors in serial1',
-                  commandpv='SQ:AMOR:' + device_id + '.AOUT',
-                  replypv='SQ:AMOR:' + device_id + '.AINP',
+                  commandpv=f'SQ:AMOR:{device_id}.AOUT',
+                  replypv=f'SQ:AMOR:{device_id}.AINP',
                   )
 
 
