@@ -188,7 +188,9 @@ html_theme_options = {
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = [alabaster.get_path()]
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+# don't add this  for rtd, see https://github.com/readthedocs/sphinx_rtd_theme/issues/1434#issuecomment-1472671651
+# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
