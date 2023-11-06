@@ -7,13 +7,13 @@ excludes = ['tensile']
 tango_base = 'tango://doli.antareslab:10000/test/doli/'
 
 devices = dict(
-    teload = device('nicos.devices.entangle.Actuator',
+    load = device('nicos.devices.entangle.Actuator',
         description = 'load value of the tensile machine',
-        tangodevice = tango_base + 'force',
+        tangodevice = tango_base + 'load',
         precision = 2,
         fmtstr = '%.1f',
     ),
-    tepos = device('nicos.devices.entangle.Sensor',
+    position = device('nicos.devices.entangle.Actuator',
         description = 'position value of the tensile machine',
         tangodevice = tango_base + 'position',
         fmtstr = '%.4f',
