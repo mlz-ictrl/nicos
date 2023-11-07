@@ -60,17 +60,31 @@ class McStasSimulation(BaseSimulation):
         'table_rotx': Attach('Sample goniometer x', Readable),
         'table_roty': Attach('Sample goniometer y', Readable),
         'table_rotz': Attach('Sample goniometer z', Readable),
-        'l1': Attach('Length between rf-flippers', Readable, optional=True),
-        'l2': Attach('Length between second rf-flipper and detector',
-                     Readable, optional=True),
-        'coil_nse_len': Attach('Length of nse-coil', Readable, optional=True),
-        'detectorangle': Attach('Rotation of detector around the sample',
-                                Readable),
-        'i_nse': Attach('Current of NSE-Coil', Readable),
-        'f1': Attach('Frequency of first rf-flipper', Readable),
-        'f2': Attach('Frequency of second rf-flipper', Readable),
+        'l1': Attach('Length between rf-flippers', Readable),
+        'l2': Attach('Length between second rf-flipper and detector', Readable),
+        'arm2_rot': Attach('Rotation of detector around the sample', Readable),
+        'nse0': Attach('Current of NSE0-Coil', Readable),
+        'cbox_0a_fg_freq': Attach('Frequency of first rf-flipper', Readable),
+        'cbox_0b_fg_freq': Attach('Frequency of second rf-flipper', Readable),
         'psd_distance': Attach('Distance between sample and detector',
                                Readable),
+        'mathmode': Attach('Select math mode', Readable),
+        'hrf_0a': Attach('Current of first rf-flipper static field', Readable),
+        'hrf_0b': Attach('Current of second rf-flipper static field', Readable),
+        'gf0'   : Attach('Current guid-field 0', Readable),
+        'gf1'   : Attach('Current guid-field 1', Readable),
+        'gf2'   : Attach('Current guid-field 2', Readable),
+        'gf4'   : Attach('Current guid-field 4', Readable),
+        'gf5'   : Attach('Current guid-field 5', Readable),
+        'gf6'   : Attach('Current guid-field 6', Readable),
+        'gf7'   : Attach('Current guid-field 7', Readable),
+        'gf8'   : Attach('Current guid-field 8', Readable),
+        'gf9'   : Attach('Current guid-field 9', Readable),
+        'gf10'  : Attach('Current guid-field 10', Readable),
+        'hsf_0a': Attach('Current static flipper 0a', Readable),
+        'hsf_0b': Attach('Current static flipper 0b', Readable),
+        'sf_0a' : Attach('Current static flipper 0a', Readable),
+        'sf_0b' : Attach('Current static flipper 0b', Readable),
     }
 
     def _dev(self, dev, scale=1):
@@ -87,30 +101,32 @@ class McStasSimulation(BaseSimulation):
             'table_rotx=%s' % self._dev(self._attached_table_rotx),
             'table_roty=%s' % self._dev(self._attached_table_roty),
             'table_rotz=%s' % self._dev(self._attached_table_rotz),
-            # Param: Inse=0
-            'Inse=%s' % self._dev(self._attached_i_nse),
-            'detectorangle=%s' % self._dev(self._attached_detectorangle),
+            'l1=%s' % self._dev(self._attached_l1),
+            'l2=%s' % self._dev(self._attached_l2),
+            'nse0=%s' % self._dev(self._attached_nse0),
+            'arm2_rot=%s' % self._dev(self._attached_arm2_rot),
             'samplenum=%d' % self._attached_sample.sampletype,
-            # Param: sourceopen=10
-            # Param: foil_dist=0.0,0.00685,0.00455,-1,-1,0.0046,0.00455,0.00658
-            # Param: coilrotation=0
-            # Param: math_field=1
-            # Param: f1=4500
-            'f1=%s' % self._dev(self._attached_f1),
-            # Param: f2=6200
-            'f2=%s' % self._dev(self._attached_f2),
+            'mathmode=%s' % self._dev(self._attached_mathmode),
+            'cbox_0a_fg_freq=%s' % self._dev(self._attached_cbox_0a_fg_freq),
+            'cbox_0b_fg_freq=%s' % self._dev(self._attached_cbox_0b_fg_freq),
             'psd_dist=%s' % self._dev(self._attached_psd_distance),
+            'hrf_0a=%s' % self._dev(self._attached_hrf_0a),
+            'hrf_0b=%s' % self._dev(self._attached_hrf_0b),
+            'gf0=%s' %    self._dev(self._attached_gf0),
+            'gf1=%s' %    self._dev(self._attached_gf1),
+            'gf2=%s' %    self._dev(self._attached_gf2),
+            'gf4=%s' %    self._dev(self._attached_gf4),
+            'gf5=%s' %    self._dev(self._attached_gf5),
+            'gf6=%s' %    self._dev(self._attached_gf6),
+            'gf7=%s' %    self._dev(self._attached_gf7),
+            'gf8=%s' %    self._dev(self._attached_gf8),
+            'gf9=%s' %    self._dev(self._attached_gf9),
+            'gf10=%s' %   self._dev(self._attached_gf10),
+            'hsf_0a=%s' % self._dev(self._attached_hsf_0a),
+            'hsf_0b=%s' % self._dev(self._attached_hsf_0b),
+            'sf_0a=%s' %  self._dev(self._attached_sf_0a),
+            'sf_0b=%s' %  self._dev(self._attached_sf_0b),
         ]
-        # Param: l1=1.87
-        if self._attached_l1:
-            params.append('l1=%s' % self._dev(self._attached_l1))
-        # Param: l2=4.95
-        if self._attached_l2:
-            params.append('l2=%s' % self._dev(self._attached_l2))
-        # Param: coilnselen=1
-        if self._attached_coil_nse_len:
-            params.append('coilnselen=%s' % self._dev(
-                self._attached_coil_nse_len))
         return params
 
     def _getNeutronsToSimulate(self):
