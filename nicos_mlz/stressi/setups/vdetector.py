@@ -30,7 +30,10 @@ devices = dict(
     mcstas = device('nicos_virt_mlz.stressi.devices.detector.McStasSimulation',
         description = 'McStas simulation',
         mcstasprog = 'stressi_fast',
-        neutronspersec = 1.12e5,
+        neutronspersec = {
+            'stressictrl': 1.12e5,
+            'localhost': 1.12e5,
+        },
         intensityfactor = 1e14,
         sample = 'Sample',
         xprime = 'pst',
