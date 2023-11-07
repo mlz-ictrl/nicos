@@ -132,6 +132,7 @@ class TestFileWriterStatus(TestCase):
         self._add_job(job_id_1, 42)
 
         assert job_id_1 in self.filewriter_status.jobs_in_progress
+        assert self.filewriter_status._jobs[job_id_1].state == JobState.NOT_STARTED
 
     def test_status_message_received_changes_next_update_time(self):
         job_id_1 = 'job id 1'
@@ -154,7 +155,51 @@ class TestFileWriterStatus(TestCase):
         assert job_id_1 in self.filewriter_status.jobs_in_progress
         assert self.filewriter_status._jobs[job_id_1].state == JobState.STARTED
 
-    def test_on_failed_start_job_kept_but_state_marked_as_not_started(self):
+    def test_job_stopped_before_filewriting_picks_it_up_successfully_completes(self):
+        job_id_1 = 'job id 1'
+        self._add_job(job_id_1, 42)
+
+        self.filewriter_status.mark_for_stop(job_id_1, stop_time=12345678)
+
+        assert job_id_1 in self.filewriter_status.marked_for_stop
+        assert job_id_1 in self.filewriter_status.jobs_in_progress
+        assert self.filewriter_status._jobs[job_id_1].state == JobState.NOT_STARTED
+
+        start_request = [(456, create_start_request_message(job_id_1,
+                                                            success=True))]
+        self.filewriter_status.new_messages_callback(start_request)
+
+        assert job_id_1 in self.filewriter_status.jobs_in_progress
+        assert self.filewriter_status._jobs[job_id_1].state == JobState.STARTED
+
+        stop_confirm = [(567, create_stop_confirmed_message(job_id_1))]
+        self.filewriter_status.new_messages_callback(stop_confirm)
+
+        assert job_id_1 not in self.filewriter_status.jobs_in_progress
+
+    def test_queued_job_starts_after_a_delay(self):
+        job_id_1 = 'job id 1'
+        self._add_job(job_id_1, 42)
+
+        # Force timeouts in the status reporting
+        old_timeout = self.filewriter_status.timeoutinterval
+        self.filewriter_status.timeoutinterval = -10
+        self.filewriter_status.no_messages_callback()
+
+        assert job_id_1 in self.filewriter_status.jobs_in_progress
+        assert self.filewriter_status._jobs[job_id_1].state == JobState.NOT_STARTED
+
+        start_request = [(456, create_start_request_message(job_id_1,
+                                                            success=True))]
+        self.filewriter_status.new_messages_callback(start_request)
+
+        assert job_id_1 in self.filewriter_status.jobs_in_progress
+        assert self.filewriter_status._jobs[job_id_1].state == JobState.STARTED
+
+        # Clean up
+        self.filewriter_status.timeoutinterval = old_timeout
+
+    def test_on_failed_start_job_kept_but_state_marked_as_rejected(self):
         job_id_1 = 'job id 1'
         self._add_job(job_id_1, 42)
 
@@ -163,7 +208,16 @@ class TestFileWriterStatus(TestCase):
         self.filewriter_status.new_messages_callback(start_request)
 
         assert job_id_1 in self.filewriter_status.jobs_in_progress
-        assert self.filewriter_status._jobs[job_id_1].state == JobState.NOT_STARTED
+        assert self.filewriter_status._jobs[job_id_1].state == JobState.REJECTED
+
+    def test_if_not_yet_started_then_can_mark_for_stop_but_still_in_progress(self):
+        job_id_1 = 'job id 1'
+        self._add_job(job_id_1, 42)
+
+        self.filewriter_status.mark_for_stop(job_id_1, stop_time=12345678)
+
+        assert job_id_1 in self.filewriter_status.marked_for_stop
+        assert job_id_1 in self.filewriter_status.jobs_in_progress
 
     def test_if_started_then_can_mark_for_stop_but_still_in_progress(self):
         job_id_1 = 'job id 1'
@@ -189,6 +243,17 @@ class TestFileWriterStatus(TestCase):
 
         assert job_id_1 not in self.filewriter_status.marked_for_stop
         assert job_id_1 not in self.filewriter_status.jobs_in_progress
+
+    def test_answer_to_stop_message_does_not_modify_job_state(self):
+        job_id_1 = 'job id 1'
+        self._add_job(job_id_1, 42)
+        self.filewriter_status.mark_for_stop(job_id_1, stop_time=12345678)
+        messages = [(123, create_status_message(job_id_1)),
+                    (125, create_stop_request_message(job_id_1))]
+        self.filewriter_status.new_messages_callback(messages)
+
+        assert job_id_1 in self.filewriter_status.jobs_in_progress
+        assert self.filewriter_status._jobs[job_id_1].state == JobState.STARTED
 
     def test_on_stop_confirmed_job_is_not_in_progress(self):
         job_id_1 = 'job id 1'

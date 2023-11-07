@@ -60,7 +60,7 @@ class JobState(Enum):
     STARTED = 0,
     NOT_STARTED = 1,
     WRITTEN = 2,
-    NOT_WRITTEN = 3,
+    REJECTED = 3,
     FAILED = 4
 
 
@@ -113,10 +113,10 @@ class JobRecord:
             self.error_msg = error_msg
 
     def no_start_ack(self, error_msg):
-        self.state = JobState.NOT_STARTED
+        self.state = JobState.REJECTED
         self.set_error_msg(error_msg)
 
-    def on_stop_ack(self):
+    def on_stop(self):
         self.state = JobState.WRITTEN
 
     def on_lost(self, error_msg):
@@ -220,7 +220,7 @@ class FileWriterStatus(KafkaStatusHandler):
                 # User requested a stop and something went wrong
                 self._job_stopped(result.job_id)
         else:
-            self._jobs[result.job_id].on_stop_ack()
+            self._jobs[result.job_id].on_stop()
             self._job_stopped(result.job_id)
         self._update_cached_jobs()
         self._update_status()
@@ -253,7 +253,6 @@ class FileWriterStatus(KafkaStatusHandler):
         if result.outcome == ActionOutcome.Success:
             self.log.debug('request to stop writing succeeded for job %s',
                            result.job_id)
-            self._jobs[result.job_id].on_stop_ack()
         else:
             self.log.debug('request to stop writing failed for job %s',
                            result.job_id)
@@ -311,7 +310,8 @@ class FileWriterStatus(KafkaStatusHandler):
         with self._lock:
             if job_id in self._jobs:
                 self._jobs[job_id].stop_request(stop_time)
-                if self._jobs[job_id].state != JobState.STARTED:
+                if self._jobs[job_id].state not in (JobState.NOT_STARTED,
+                                                    JobState.STARTED):
                     self._job_stopped(job_id)
                 self._update_cached_jobs()
 
@@ -354,21 +354,19 @@ class FileWriterSinkHandler(DataSinkHandler):
             self.dataset.filenames = [self._current_file]
             return
 
-        filename, _ = self.manager.getFilenames(
-            self.dataset, self.sink.filenametemplate, self.sink.subdir
-        )
+        filename, _ = self.manager.getFilenames(self.dataset,
+                                                self.sink.filenametemplate,
+                                                self.sink.subdir)
         if self.sink.use_instrument_directory:
             proposal_path = session.experiment.proposalpath_of(
-                session.experiment.propinfo.get('proposal')
-            )
+                session.experiment.propinfo.get('proposal'))
             file_path = path.join(proposal_path, filename)
         else:
             file_path = path.join(self.sink.subdir, filename)
 
         if hasattr(self.dataset, 'replay_info'):
             # Replaying previous job
-            self.sink._start_job(file_path,
-                                 self.dataset.counter,
+            self.sink._start_job(file_path, self.dataset.counter,
                                  self.dataset.replay_info['structure'],
                                  self.dataset.replay_info['start_time'],
                                  self.dataset.replay_info['stop_time'],
@@ -377,13 +375,14 @@ class FileWriterSinkHandler(DataSinkHandler):
 
         datetime_now = datetime.now()
         job_id = str(uuid.uuid1())
-        self.dataset.metainfo[('Exp', 'job_id')] = (
-            job_id, job_id, '', 'experiment'
-        )
-        structure = self.sink._attached_nexus.get_structure(
-            self.dataset)
-        self.sink._start_job(file_path, self.dataset.counter,
-                             structure, datetime_now, job_id=job_id)
+        self.dataset.metainfo[('Exp', 'job_id')] = (job_id, job_id, '',
+                                                    'experiment')
+        structure = self.sink._attached_nexus.get_structure(self.dataset)
+        self.sink._start_job(file_path,
+                             self.dataset.counter,
+                             structure,
+                             datetime_now,
+                             job_id=job_id)
         self._current_file = filename
 
     def end(self):
@@ -424,7 +423,12 @@ class FileWriterController:
         self.timeout_interval = timeout_interval * 2
         self.command_channel = None
 
-    def request_start(self, filename, structure, start_time, stop_time=None, job_id=None):
+    def request_start(self,
+                      filename,
+                      structure,
+                      start_time,
+                      stop_time=None,
+                      job_id=None):
 
         if not job_id:
             job_id = str(uuid.uuid1())
@@ -453,7 +457,8 @@ class FileWriterController:
             delivery_info = (message.partition(), message.offset())
 
         producer = KafkaProducer.create(self.brokers)
-        producer.produce(self.pool_topic, message,
+        producer.produce(self.pool_topic,
+                         message,
                          on_delivery_callback=on_delivery)
 
         while not delivered:
@@ -564,15 +569,16 @@ class FileWriterControlSink(FileSink):
             session.experiment.data.finishPoint()
         self.log.info('Filewriting started')
 
-    def _start_job(self,
-                   filename,
-                   counter,
-                   structure,
-                   start_time=None,
-                   stop_time=None,
-                   replay_of=None,
-                   job_id=None,
-                   ):
+    def _start_job(
+        self,
+        filename,
+        counter,
+        structure,
+        start_time=None,
+        stop_time=None,
+        replay_of=None,
+        job_id=None,
+    ):
         self.check_okay_to_start()
         start_time = start_time if start_time else datetime.now()
         job_id, commit_info = self._controller.request_start(
@@ -704,7 +710,9 @@ class FileWriterControlSink(FileSink):
                                'for that job')
 
         partition, offset = job_to_replay.kafka_offset
-        self._consumer.seek(self.pool_topic, partition=partition, offset=offset)
+        self._consumer.seek(self.pool_topic,
+                            partition=partition,
+                            offset=offset)
         poll_start = time.monotonic()
         data = self._consumer.poll(timeout_ms=5)
         time_out_s = 5

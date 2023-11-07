@@ -126,7 +126,8 @@ class TestFileWriterControl(TestCase):
         self.filewriter_control.stop_job()
 
         self.mock_controller.request_stop.assert_called_once()
-        assert not self.filewriter_status.jobs_in_progress
+        assert self.filewriter_status.jobs_in_progress
+        assert self.filewriter_status.marked_for_stop
 
     def test_stop_job_ignored_if_existing_job_is_already_stopping(self):
         self.mock_controller.request_start.return_value = ('job id 1', "")
