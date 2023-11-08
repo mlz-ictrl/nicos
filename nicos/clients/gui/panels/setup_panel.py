@@ -32,7 +32,7 @@ from nicos.core.params import mailaddress, vec3
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 from nicos.guisupport import typedvalue
 from nicos.guisupport.qt import QComboBox, QDialog, QDialogButtonBox, QFrame, \
-    QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, QSize, \
+    QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, QSizeF, \
     QStyle, QStyledItemDelegate, Qt, QTextDocument, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 
@@ -114,7 +114,7 @@ class ProposalDelegate(QStyledItemDelegate):
         document = QTextDocument()
         document.setDefaultFont(option.font)
         document.setHtml(html)
-        return QSize(document.idealWidth(), int(document.size().height()))
+        return QSizeF(document.idealWidth(), document.size().height()).toSize()
 
 
 class ExpPanel(Panel):
