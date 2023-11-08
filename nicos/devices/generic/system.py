@@ -27,7 +27,7 @@ import ctypes
 import os
 
 from nicos import session
-from nicos.core import Override, Param, Readable, none_or, status
+from nicos.core import Override, Param, Readable, none_or, oneof, status
 from nicos.core.errors import ConfigurationError, NicosError
 
 units = {'B': 1,
@@ -36,7 +36,7 @@ units = {'B': 1,
          'GiB': 1024. ** 3,
          'TiB': 1024. ** 4,
          'PiB': 1024. ** 5,
-        }
+         }
 
 
 class FreeSpace(Readable):
@@ -58,7 +58,8 @@ class FreeSpace(Readable):
     }
 
     parameter_overrides = {
-        'unit':         Override(default='GiB', mandatory=False),
+        'unit':         Override(default='GiB', mandatory=False,
+                                 type=oneof(*units)),
         'pollinterval': Override(default=300),  # every 5 minutes is sufficient
         'maxage':       Override(default=330),
     }
