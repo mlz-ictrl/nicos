@@ -927,7 +927,7 @@ class SecopDevice(Device):
             if parameter == 'status':
                 return self.status(0)
             return getattr(self, parameter)  # trigger doRead<param>
-        except Exception as e:
+        except Exception:
             try:
                 if self._attached_secnode._secnode.cache[
                         self.secop_module, parameter].readerror:
@@ -1054,7 +1054,6 @@ class SecopDevice(Device):
             secnode = self._adevs.pop('secnode', None)
             if secnode:
                 secnode._sdevs.discard(self._name)
-            self._adevs = {}
             self._attached_secnode = None
             self._cache = None
         self.updateStatus()
@@ -1063,7 +1062,7 @@ class SecopDevice(Device):
         self._defunct = False
         self._cache = secnode._cache
         self._attached_secnode = secnode
-        self._adevs = {'secnode': secnode}
+        self._adevs.update({'secnode': secnode})
         secnode._sdevs.add(self._name)
         secnode.registerDevice(self)
         # clear defunct status
