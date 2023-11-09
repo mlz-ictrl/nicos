@@ -1185,6 +1185,10 @@ class SecopWritable(SecopReadable, Moveable):
         except AttributeError:
             raise self._defunct_error() from None
 
+    def _getWaiters(self):
+        """do not return attached secnode"""
+        return {k: v for k, v in self._adevs.items() if k != 'secnode'}
+
 
 class SecopMoveable(SecopWritable):
 
