@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'ErWIN',
+    instrument = 'erwin',
     experiment = 'Exp',
     datasinks = ['conssink', 'dmnsink', 'filesink', 'livesink'],
     notifiers = [],
@@ -13,12 +13,13 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    ErWIN = device('nicos.devices.instrument.Instrument',
-        description = 'ErWIN instrument',
-        instrument = 'ErWIN',
-        responsible = 'Michael Heere <michael.heere@kit.edu>',
+    erwin = device('nicos.devices.instrument.Instrument',
+        description = 'ErwiN instrument',
+        instrument = 'ErwiN',
+        responsible = 'Markus Hölzel <markus.hoelzel@frm2.tum.de>',
         website = 'https://mlz-garching.de/erwin',
         operators = [
+            'Technische Universität München (TUM)',
             'Karlsruhe Institute of Technology (KIT)',
         ],
     ),
