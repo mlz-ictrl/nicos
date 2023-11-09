@@ -34,6 +34,8 @@ from nicos.core import SIMULATION, Override, Param, UsageError, listof, \
 from nicos.devices.experiment import Experiment
 from nicos.utils import createThread
 
+from nicos_ess.devices.datamanager import DataManager
+
 
 class EssExperiment(Experiment):
     parameters = {
@@ -61,6 +63,8 @@ class EssExperiment(Experiment):
         'title': Override(settable=True),
         'elog': Override(default=False, settable=False),
     }
+
+    datamanager_class = DataManager
 
     def doInit(self, mode):
         Experiment.doInit(self, mode)
