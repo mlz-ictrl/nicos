@@ -247,7 +247,8 @@ class McStasSimulation(Readable):
             for line in out.splitlines():
                 self.log.debug('[McStas out] %s', line.decode('utf-8', 'ignore'))
             for line in err.splitlines():
-                self.log.debug('[McStas err] %s', line.decode('utf-8', 'ignore'))
+                func = self.log.warning if b'Error' in line else self.log.debug
+                func('[McStas err] %s', line.decode('utf-8', 'ignore'))
         except OSError as e:
             self.log.error('Execution failed: %s', e)
         if self._process:
