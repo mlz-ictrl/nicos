@@ -1,0 +1,23 @@
+# KWS sample file for NICOS
+# Written: Tue Feb 22 12:40:07 2022
+
+ClearSamples()
+SetSample(1, 'EmptyBeam', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 0.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(2, 'EmptyCell', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 20.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(3, 'Buffer', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 40.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(4, 'Polymer-M2000', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 60.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='Polymer with Mw=2000 g/mol (very weak)')
+SetSample(5, 'Polymer-M1000000', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 80.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='Polymer with Mw = 1e6 g/mol')
+SetSample(6, 'Microemulsion', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 100.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(7, 'WormlikeMicelle', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 120.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(8, 'Sphere-R25', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 140.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='Spheres with R = 25 AA')
+SetSample(9, 'Sphere-R500', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 160.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='Spheres with R = 500 AA')
+SetSample(10, 'PolymerBlend', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 180.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(11, 'DiblockPolymer', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 200.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(12, 'MultilaminarVesicles', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 220.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(13, 'Peaks', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 240.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='Log-spaced sharp peaks')
+SetSample(14, 'DeltaPeaks', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 260.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='Log-spaced sharp delta peaks')
+SetSample(15, 'Lysozyme', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 280.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='Lysozyme (Praktikum)')
+SetSample(16, 'PolymericWLMicelle', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 300.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='Polymeric wormlike micelle (old praktikum)')
+SetSample(17, '16-empty', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 320.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(18, '17-empty', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 340.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
+SetSample(19, '18-empty', aperture=(0.0, 0.0, 10.0, 10.0), position={'sam_trans_x': 360.0, 'sam_trans_y': 0.0}, timefactor=1.0, thickness=1.0, detoffset=-335.0, comment='')
