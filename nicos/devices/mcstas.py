@@ -268,7 +268,7 @@ class DetectorMixin:
     }
 
     def duringMeasureHook(self, elapsed):
-        quality = super().duringMeasureHook(self, elapsed)
+        quality = super().duringMeasureHook(elapsed)
         if quality == LIVE:
             self._attached_mcstas._saveIntermediate()
         return quality
