@@ -152,6 +152,12 @@ class FileWriterStatus(KafkaStatusHandler):
                   default=10,
                   internal=True,
                   settable=True),
+        'jobs_in_progress':
+            Param('Holds the number of current running jobs',
+                  type=set, internal=True, volatile=True, settable=False),
+        'marked_for_stop':
+            Param('Holds the number of jobs marked to be stopped',
+                  type=set, internal=True, volatile=True, settable=False),
     }
 
     def doPreinit(self, mode):
@@ -296,13 +302,11 @@ class FileWriterStatus(KafkaStatusHandler):
                 self._cache.put(self._name, 'status', new_status,
                                 currenttime())
 
-    @property
-    def jobs_in_progress(self):
+    def doReadJobs_In_Progress(self):
         with self._lock:
             return set(self._jobs.keys())
 
-    @property
-    def marked_for_stop(self):
+    def doReadMarked_For_Stop(self):
         with self._lock:
             return {k for k, v in self._jobs.items() if v.stop_requested}
 
