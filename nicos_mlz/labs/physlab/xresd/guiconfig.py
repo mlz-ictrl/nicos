@@ -40,7 +40,7 @@ windows = [
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Live data', 'live',
-           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+           panel('nicos_mlz.labs.physlab.xresd.gui.live.AutoScaleLiveDataPanel')),
 ]
 
 tools = [
