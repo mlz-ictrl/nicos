@@ -56,7 +56,9 @@ class Message:
             started: str,
             filepaths: list,
             mapping: dict,
-            metainfo: dict):
+            metainfo: dict,
+            statistics: dict,
+    ):
         self.id = str(id)
         self.blockid = str(blockid) or None
         self.scanid = str(scanid) or None
@@ -65,6 +67,7 @@ class Message:
         self.filepaths = filepaths
         self.mapping = mapping
         self.metadata = metainfo
+        self.statistics = statistics
 
     def __str__(self):
         return json.dumps({**self.__dict__})
@@ -88,8 +91,11 @@ class RabbitSinkHandler(DataSinkHandler):
                     content_type='application/json'))
 
         metadata = {}
+        statistics = {}
         if dataset.settype != BLOCK:
             metadata = metainfo_to_json(dataset.metainfo)
+            if dataset.settype == POINT:
+                statistics = dataset.valuestats
         msg = Message(
             dataset.uid,
             scands.uid if scands else None,
@@ -103,7 +109,9 @@ class RabbitSinkHandler(DataSinkHandler):
                 'sample': session.experiment.sample.name,
                 'instrument': session.instrument.name,
             },
-            metainfo=metadata)
+            metainfo=metadata,
+            statistics=statistics,
+        )
         for retry in range(3):
             try:
                 if retry > 0:  # reconnect
