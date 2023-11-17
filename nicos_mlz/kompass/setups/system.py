@@ -12,7 +12,10 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
-includes = ['notifiers']
+includes = [
+    'notifiers',
+    'guidehall',
+]
 
 devices = dict(
     Kompass = device('nicos.devices.tas.TAS',
