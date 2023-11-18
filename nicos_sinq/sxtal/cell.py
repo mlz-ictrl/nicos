@@ -130,6 +130,11 @@ def cellFromUBX(UB):
     return Cell(a=a, b=b, c=c, alpha=alpha, beta=beta, gamma=gamma)
 
 
+def scatteringVectorLength(B, hkl):
+    psi = B.dot(np.array(hkl, dtype='float64'))
+    return np.sqrt(psi.dot(psi))
+
+
 class Cell():
     """Cell object to hold information about crystal cell structures"""
 
