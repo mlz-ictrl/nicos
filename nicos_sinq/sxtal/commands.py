@@ -1162,13 +1162,21 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
     counts per point.
 
     """
+    def hasFourVariables():
+        if isinstance(session.instrument, TASSXTal):
+            return True
+        if isinstance(session.instrument, EulerSXTal)\
+                and session.instrument.use_psi:
+            return True
+        return False
+
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
         _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numpoints > 1:
         raise UsageError('scanning with zero step width')
-    if isinstance(session.instrument, TASSXTal):
+    if hasFourVariables():
         values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                   for i in range(numpoints)]
     else:

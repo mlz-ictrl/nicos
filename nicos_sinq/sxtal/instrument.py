@@ -28,19 +28,19 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Attach, AutoDevice, HasAutoDevices, LimitError, \
-    Moveable, Override, Param, Value, dictof, intrange, listof, oneof, \
-    tupleof, vec3, nicosdev
-from nicos.core.errors import InvalidValueError
-from nicos.devices.generic.mono import Monochromator, from_k, to_k
+    Moveable, Override, Param, Value, dictof, intrange, listof, nicosdev, \
+    oneof, tupleof, vec3
+from nicos.core.errors import InvalidValueError, UsageError
+from nicos.devices.generic.mono import Monochromator, from_k
 from nicos.devices.instrument import Instrument
 
 from nicos_sinq.sxtal.singlexlib import calcNBUBFromCellAndReflections, \
-    calcTheta, calcUBFromCellAndReflections, rotatePsi, z1FromAngles, \
-    z1FromNormalBeam, z1ToBisecting, z1ToNormalBeam, eulerian_to_kappa, \
-    kappa_to_eulerian
-from nicos_sinq.sxtal.tasublib import calcPlaneNormal, calcTasQAngles, \
-    calcTasQH, calcTasUBFromTwoReflections, energyToK, tasAngles, \
-    tasQEPosition, tasReflection
+    calcTheta, calcUBFromCellAndReflections, eulerian_to_kappa, \
+    kappa_to_eulerian, rotatePsi, z1FromAngles, z1FromNormalBeam, \
+    z1ToBisecting, z1ToNormalBeam
+from nicos_sinq.sxtal.tasublib import KToEnergy, calcPlaneNormal, \
+    calcTasQAngles, calcTasQH, calcTasUBFromTwoReflections, energyToK, \
+    tasAngles, tasQEPosition, tasReflection
 
 
 class SXTalBase(HasAutoDevices, Instrument, Moveable):
@@ -303,12 +303,42 @@ class EulerSXTal(SXTalBase):
         't2angle': Param('Two theta angle when to switch to t2t mode',
                          type=float, settable=True, userparam=True,
                          default=60.),
+        'use_psi': Param('If to use the psi angle in calculations', type=bool,
+                         settable=True, userparam=True, default=False),
+        'psi_target': Param('Target for the PSI angle', type=float,
+                            internal=True, settable=True),
     }
+
+    valuetype = tupleof(float, float, float)
+
+    def doInit(self, mode):
+        SXTalBase.doInit(self, mode)
+        self.add_autodevice('psi', SXTalPSI, namespace='global',
+                            unit='degree', mtstr='%.3f',
+                            visibility=self.autodevice_visibility, sxtal=self)
+        if self.use_psi:
+            self.fmtstr = '[%6.4f, %6.4f, %6.4f, %6.4f]'
+            self.valuetype = tupleof(float, float, float, float)
+        self.psi_target = 0
+
+    def _calcPos(self, hkl, wavelength=None):
+        """Calculate the Z1 vector for a given HKL position."""
+        if len(hkl) < 3:
+            raise UsageError('Need at least three reciprocal space'
+                             ' coordinates')
+        if len(hkl) > 3:
+            self.psi_target = hkl[3]
+            hkl = hkl[0:3]
+        ub = session.experiment.sample.getUB()
+        return ub.dot(np.array(list(hkl), dtype='float64'))
 
     def _extractPos(self, pos):
         om, chi, phi = z1ToBisecting(self.wavelength,
                                      pos)
         tth = 2. * om
+        if self.use_psi:
+            om, chi, phi = rotatePsi(om, chi, phi,
+                                     np.deg2rad(self.psi_target))
         poslist = [
             ('ttheta', np.rad2deg(tth)),
             ('omega', np.rad2deg(om)),
@@ -319,7 +349,8 @@ class EulerSXTal(SXTalBase):
         # If the calculated position violates limits, try to rotate
         # through the psi cone in order to find a working solutions.
         # This does not make sense though if we hit a limit in ttheta
-        if not ok and self._attached_ttheta.isAllowed(np.rad2deg(tth)):
+        if not ok and self._attached_ttheta.isAllowed(np.rad2deg(tth))\
+                and not self.use_psi:
             for psi in range(0, 360, 10):
                 ompsi, chipsi, phipsi = rotatePsi(om, chi, phi,
                                                   np.deg2rad(psi))
@@ -332,6 +363,7 @@ class EulerSXTal(SXTalBase):
                 psiok, _ = self._checkPosList(psilist)
                 if psiok:
                     poslist = psilist
+                    self.psi_target = psi
                     break
         return poslist
 
@@ -377,6 +409,28 @@ class EulerSXTal(SXTalBase):
         r2d = self._refl_to_dict(r2)
         return calcUBFromCellAndReflections(cell, r1d, r2d)
 
+    def doRead(self, maxage=0):
+        hkl = SXTalBase.doRead(self, maxage)
+        if self.use_psi:
+            hkl.append(self.psi_target)
+        return hkl
+
+    def doWriteUse_psi(self, val):
+        if val:
+            self.fmtstr = '[%6.4f, %6.4f, %6.4f, %6.4f]'
+            self.valuetype = tupleof(float, float, float, float)
+        else:
+            self.fmtstr = '[%6.4f, %6.4f, %6.4f]'
+            self.valuetype = tupleof(float, float, float)
+
+    def valueInfo(self):
+        if self.use_psi:
+            return Value('h', unit='rlu', fmtstr='%.4f'), \
+                Value('k', unit='rlu', fmtstr='%.4f'), \
+                Value('l', unit='rlu', fmtstr='%.4f'), \
+                Value('psi', unit='degree', fmtstr='%.4f')
+        return SXTalBase.valueInfo(self)
+
 
 class LiftingSXTal(SXTalBase):
 
@@ -385,6 +439,11 @@ class LiftingSXTal(SXTalBase):
         'omega':  Attach('omega device', Moveable),
         'nu':     Attach('nu device (counter lifting axis)', Moveable),
     }
+
+    def doInit(self, mode):
+        # for pseudo two theta scans to work
+        self._attached_ttheta = self._attached_gamma
+        SXTalBase.doInit(self, mode)
 
     def _extractPos(self, pos):
         gamma, omega, nu = z1ToNormalBeam(self.wavelength, pos)
@@ -619,8 +678,8 @@ class TASSXTal(SXTalBase):
                 kf = ki - pos[3]
             else:
                 ki = kf + pos[3]
-        ki = to_k(ki, self._attached_mono.unit)
-        kf = to_k(kf, self._attached_ana.unit)
+        ki = energyToK(ki)
+        kf = energyToK(kf)
         qepos = tasQEPosition(ki, kf, pos[0], pos[1], pos[2], 0)
         ub = session.experiment.sample.getUB()
         try:
@@ -646,18 +705,20 @@ class TASSXTal(SXTalBase):
         return poslist
 
     def _readPos(self, maxage=0):
-        ki = to_k(self._attached_mono.read(maxage),
-                  self._attached_mono.unit)
-        kf = to_k(self._attached_ana.read(maxage),
-                  self._attached_ana.unit)
+        ki = energyToK(self._attached_mono.read(maxage))
+        kf = energyToK(self._attached_ana.read(maxage))
         a3 = self._attached_a3.read(maxage)
         sample_two_theta = self._attached_a4.read(maxage)
-        sgu = self._attached_sgu.read(maxage)
-        sgl = self._attached_sgl.read(maxage)
+        if self.out_of_plane:
+            sgu = self._attached_sgu.read(maxage)
+            sgl = self._attached_sgl.read(maxage)
+        else:
+            sgu = 0
+            sgl = 0
         return ki, kf, a3, sample_two_theta, sgu, sgl
 
     def _createPos(self, ei, ef, a3, a4, sgu, sgl):
-        return to_k(ei, 'meV'), to_k(ef, 'meV'), a3, a4, sgu, sgl
+        return energyToK(ei), energyToK(ef), a3, a4, sgu, sgl
 
     def _convertPos(self, pos, wavelength=None):
         ki = pos[0]
@@ -665,12 +726,12 @@ class TASSXTal(SXTalBase):
         a = tasAngles(0, pos[2], pos[3], pos[5], pos[4], 0)
         ub = session.experiment.sample.getUB()
         q = calcTasQH(ub, a, ki, kf)
-        en = from_k(ki, 'meV') - from_k(kf, 'meV')
+        en = KToEnergy(ki) - KToEnergy(kf)
         return q[0], q[1], q[2], en
 
     def doRead(self, maxage=0):
         pos = self._readPos(maxage)
-        return self._convertPos(pos)
+        return list(self._convertPos(pos))
 
     def get_motors(self):
         return [
@@ -700,7 +761,15 @@ class TASSXTal(SXTalBase):
         tref1 = self._rfl_to_reflection(r1)
         tref2 = self._rfl_to_reflection(r2)
         self.plane_normal = calcPlaneNormal(tref1, tref2)
-        return calcTasUBFromTwoReflections(cell, tref1, tref2)/(np.pi * 2.)
+        return calcTasUBFromTwoReflections(cell, tref1, tref2)
+
+    def valueInfo(self):
+        if self.inelastic:
+            return Value('h', unit='rlu', fmtstr='%.4f'), \
+                Value('k', unit='rlu', fmtstr='%.4f'), \
+                Value('l', unit='rlu', fmtstr='%.4f'), \
+                Value('en', unit='mev', fmtstr='%.4f')
+        return SXTalBase.valueInfo(self)
 
 
 class SXTalIndex(AutoDevice, Moveable):
@@ -726,4 +795,31 @@ class SXTalIndex(AutoDevice, Moveable):
     def doStart(self, target):
         current = list(self._attached_sxtal.read(0.5))
         current[self.index] = target
+        self._attached_sxtal.start(current)
+
+
+class SXTalPSI(AutoDevice, Moveable):
+    """
+    "Partial" device  for the PSI angle of a eulerian cradle instrument
+    """
+
+    attached_devices = {
+        'sxtal': Attach('The spectrometer to control', EulerSXTal),
+    }
+
+    valuetype = float
+
+    hardware_access = False
+
+    def doRead(self, maxage=0):
+        return self._attached_sxtal.psi_target
+
+    def doIsAllowed(self, target):
+        if not self._attached_sxtal.use_psi:
+            return False, 'Can only use PSI when use_psi is enabled on %s' \
+                    % self._attached_sxtal.name
+
+    def doStart(self, target):
+        current = list(self._attached_sxtal.read(0.5))
+        current[3] = target
         self._attached_sxtal.start(current)
