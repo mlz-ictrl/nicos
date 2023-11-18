@@ -395,7 +395,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self.log.debug('def prepare: configobj')
             if self._data is None:
                 self._data = configobj.ConfigObj()
-            self.log.debug('def prepare: configobj %s' % type(self._data))
+            self.log.debug('def prepare: configobj %s', type(self._data))
             self._number = self.manager.assignCounter(self.dataset)
             fp = self.manager.createDataFile(self.dataset, self._template[0])
             self._data.filename = fp.filepath
