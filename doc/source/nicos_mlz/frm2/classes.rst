@@ -35,7 +35,7 @@
 .. module:: nicos_mlz.devices.helios
 .. autoclass:: HePolarizer()
 
-.. module:: nicos_mlz.devices.qmesydaqsinks
+.. module:: nicos_mlz.devices.datasinks.qmesydaq
 .. autoclass:: QMesyDAQSink()
 .. autoclass:: HistogramSink()
 .. autoclass:: ListmodeSink()
@@ -49,7 +49,7 @@
 .. module:: nicos_mlz.devices.wmirfgen
 .. autoclass:: Frequency()
 
-.. module:: nicos_mlz.devices.rabbit_sink
+.. module:: nicos_mlz.devices.datasinks.rabbitmq
 .. autoclass:: RabbitSink()
 
 .. module:: nicos_mlz.devices.cetoni

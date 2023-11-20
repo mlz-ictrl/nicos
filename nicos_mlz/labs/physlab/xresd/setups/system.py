@@ -47,7 +47,7 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos_mlz.labs.physlab.datasinks.LiveViewSink'),
-    rabbitsink = device('nicos_mlz.devices.rabbit_sink.RabbitSink',
+    rabbitsink = device('nicos_mlz.devices.datasinks.rabbitmq.RabbitSink',
         rabbit_url = 'amqp://localhost',
     ),
     Space = device('nicos.devices.generic.FreeSpace',

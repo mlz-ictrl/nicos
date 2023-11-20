@@ -38,7 +38,7 @@ devices = dict(
         timers = ['timer'],
         liveinterval = 1.0,
     ),
-    histogram = device('nicos_mlz.devices.qmesydaqsinks.HistogramSink',
+    histogram = device('nicos_mlz.devices.datasinks.qmesydaq.HistogramSink',
         description = 'Histogram data written via QMesyDAQ',
         image = 'image',
         subdir = 'mtxt',

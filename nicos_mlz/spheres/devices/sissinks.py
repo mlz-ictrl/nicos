@@ -39,7 +39,7 @@ from nicos.core.params import Param
 from nicos.devices.datasinks import special
 from nicos.devices.datasinks.image import ImageSink
 
-from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
+from nicos_mlz.devices.datasinks.yamlbase import YAMLBaseFileSinkHandler
 from nicos_mlz.spheres.utils import getSisDetector
 
 timesteptime = 2e-5  # =20µs

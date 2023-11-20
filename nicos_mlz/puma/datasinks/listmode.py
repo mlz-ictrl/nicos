@@ -28,7 +28,7 @@ from nicos.core.params import Attach, Override
 from nicos.devices.datasinks.file import FileSink
 from nicos.devices.vendor.qmesydaq import Image
 
-from nicos_mlz.devices.qmesydaqsinks import ListmodeSinkHandler
+from nicos_mlz.devices.datasinks.qmesydaq import ListmodeSinkHandler
 
 
 class ListmodeSink(FileSink):

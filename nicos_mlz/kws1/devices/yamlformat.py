@@ -36,7 +36,7 @@ from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
     SingleFileSinkHandler
 from nicos.utils import byteBuffer
 
-from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
+from nicos_mlz.devices.datasinks.yamlbase import YAMLBaseFileSinkHandler
 
 
 class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):

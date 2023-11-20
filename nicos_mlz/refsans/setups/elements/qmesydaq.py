@@ -19,7 +19,7 @@ devices = dict(
     #     ],
     #     subdir = 'bersans',
     # ),
-    Listmode = device('nicos_mlz.devices.qmesydaqsinks.ListmodeSink',
+    Listmode = device('nicos_mlz.devices.datasinks.qmesydaq.ListmodeSink',
         description = 'Listmode data written via QMesyDAQ',
         image = 'image',
         subdir = 'list',

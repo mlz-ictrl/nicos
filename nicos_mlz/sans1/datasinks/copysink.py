@@ -31,7 +31,7 @@ from os import path
 from nicos.core import DataSinkHandler, Override, Param
 from nicos.core.params import absolute_path
 
-from nicos_mlz.devices.qmesydaqsinks import QMesyDAQSink
+from nicos_mlz.devices.datasinks.qmesydaq import QMesyDAQSink
 
 
 class CopySinkHandler(DataSinkHandler):
