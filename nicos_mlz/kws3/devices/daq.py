@@ -82,7 +82,7 @@ class ConvolutionMax(PostprocessPassiveChannel):
         'fmtstr': Override(default='%d'),
     }
 
-    def setReadResult(self, arrays):
+    def setReadResult(self, arrays, results, quality):
         kern = numpy.ones((self.npixels, self.npixels))
         self.readresult = [convolve2d(a, kern, mode='valid').max()
                            if a is not None else 0
