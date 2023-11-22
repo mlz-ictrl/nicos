@@ -26,6 +26,7 @@ devices = dict(
             description = 'Configuration channel of the DECTRIS MYTHEN R 1K detector.',
             tangodevice = tango_base + 'box/dectris/config',
         ),
+        flip = True,
     ),
     ysd = device('nicos.devices.generic.ManualMove',
         description = 'Distance sample to detector',

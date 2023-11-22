@@ -21,7 +21,6 @@
 #
 # *****************************************************************************
 
-
 from nicos.core.params import Attach, Param, floatrange, intrange, oneof, \
     tupleof
 from nicos.devices.entangle import ImageChannel
@@ -56,7 +55,17 @@ class Detector(ImageChannel):
                        type=oneof(*anode_mapping),
                        settable=True, userparam=True, category='instrument',
                        volatile=True),
+        'flip': Param('Flipping spectrum',
+                      type=bool, settable=False,
+                      volatile=False, default=False,
+                      category='general'),
     }
+
+    def doReadArray(self, quality):
+        narray = ImageChannel.doReadArray(self, quality)
+        if self.flip:
+            narray = narray[::-1]
+        return narray
 
     def doReadPixel_Count(self):
         if self.arraydesc:

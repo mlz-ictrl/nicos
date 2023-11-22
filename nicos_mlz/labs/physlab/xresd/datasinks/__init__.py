@@ -23,7 +23,6 @@
 
 """Live sink for XRESD instrument."""
 
-import copy
 import numpy as np
 
 from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
@@ -54,9 +53,6 @@ class LiveViewSinkHandler(BaseLiveViewSinkHandler):
                 'index': 0,
             },
         }
-
-    def processArrays(self, result):
-        return [copy.deepcopy(np.flipud(r)) for r in result[1]]
 
 
 class LiveViewSink(BaseLiveViewSink):
