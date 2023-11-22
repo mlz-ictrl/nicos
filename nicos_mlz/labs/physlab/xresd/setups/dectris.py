@@ -22,6 +22,10 @@ devices = dict(
         tangodevice = tango_base + 'box/dectris/image',
         pixel_size = (50 / 1000.0, 10), # mm
         pixel_count = 1280,
+        config = device('nicos_jcns.devices.dectris.ConfigurationChannel',
+            description = 'Configuration channel of the DECTRIS MYTHEN R 1K detector.',
+            tangodevice = tango_base + 'box/dectris/config',
+        ),
     ),
     ysd = device('nicos.devices.generic.ManualMove',
         description = 'Distance sample to detector',
