@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-# test: setups = detsmall, charmsmall
+# test: setups = detector, charmsmall
 
 read()
 status()

@@ -2,43 +2,43 @@ description = 'Small charm detector'
 
 group = 'optional'
 
-tango_host = 'qmesydaq-test.del.frm2.tum.de'
+tango_host = 'erwindet.erwin.frm2.tum.de'
 
-tango_base = 'tango://%s:10000/qm/qmesydaq/' % tango_host
+tango_base = f'tango://{tango_host}:10000/qm/qmesydaq/'
 
 sysconfig = dict(
-    datasinks = ['ds_histogram',],
+    datasinks = ['histogram',],
 )
 
 devices = dict(
-    ds_mon1 = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
+    mon1 = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
         description = 'Monitor 1 at small charm detector',
         tangodevice = tango_base + 'counter0',
         type = 'monitor',
     ),
-    ds_events = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
+    events = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
         description = 'Event counter at small charm detector',
         tangodevice = tango_base + 'events',
         type = 'other',
     ),
-    ds_image = device('nicos.devices.vendor.qmesydaq.tango.ImageChannel',
+    image = device('nicos.devices.vendor.qmesydaq.tango.ImageChannel',
         description = 'Image at small charm detector',
         tangodevice = tango_base + 'image',
     ),
-    ds_timer = device('nicos.devices.vendor.qmesydaq.tango.TimerChannel',
+    timer = device('nicos.devices.vendor.qmesydaq.tango.TimerChannel',
         description = 'Timer at small charm detector',
         tangodevice = tango_base + 'timer',
     ),
-    ds_det = device('nicos.devices.generic.Detector',
+    det = device('nicos.devices.generic.Detector',
         description = 'Small charm detector',
-        images = ['ds_image'],
-        monitors = ['ds_mon1'],
-        timers = ['ds_timer'],
+        images = ['image'],
+        monitors = ['mon1'],
+        timers = ['timer'],
         liveinterval = 1.0,
     ),
-    ds_histogram = device('nicos_mlz.devices.qmesydaqsinks.HistogramSink',
+    histogram = device('nicos_mlz.devices.qmesydaqsinks.HistogramSink',
         description = 'Histogram data written via QMesyDAQ',
-        image = 'ds_image',
+        image = 'image',
         subdir = 'mtxt',
         filenametemplate = ['%(pointcounter)07d.mtxt'],
     ),
