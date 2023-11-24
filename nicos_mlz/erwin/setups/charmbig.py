@@ -2,9 +2,9 @@ description = 'ErWIN detector devices'
 
 group = 'optional'
 
-tango_host = 'taco6.ictrl.frm2.tum.de'
+tango_host = 'erwinhw.erwin.frm2.tum.de'
 
-tango_base = 'tango://%s:10000/test/bcharm/' % tango_host
+tango_base = f'tango://{tango_host}:10000/test/bcharm/'
 
 devices = dict(
     b_window = device('nicos.devices.entangle.PowerSupply',
@@ -36,8 +36,8 @@ devices = dict(
     ),
     b_hv = device('nicos_mlz.erwin.devices.HVSwitch',
         description = 'HV supply big detector',
-        anodes = ['b_anode%d' % i for i in range(1, 10)],
-        banodes = ['b_banode%d' % i for i in range(1, 9)],
+        anodes = [f'b_anode{i}' for i in range(1, 10)],
+        banodes = [f'b_banode{i}' for i in range(1, 9)],
         cathodes = ['b_cathode1', 'b_cathode2'],
         window = 'b_window',
         trip = 'b_tripped',
@@ -117,16 +117,16 @@ devices = dict(
 )
 
 for i in range(1, 3):
-    devices['b_cathode%d' % i] = device('nicos.devices.entangle.PowerSupply',
-        description = 'Cathode %d' % i,
-        tangodevice = tango_base + 'cathode%d' % i,
+    devices[f'b_cathode{i}'] = device('nicos.devices.entangle.PowerSupply',
+        description = f'Cathode {i}',
+        tangodevice = tango_base + f'cathode{i}',
         fmtstr = '%.1f',
         visibility = (),
         precision = 1,
     )
-    devices['b_cathode%d_c' % i] = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'Cathode %d current' % i,
-        device = 'b_cathode%d' % i,
+    devices[f'b_cathode{i}_c'] = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = f'Cathode {i} current',
+        device = f'b_cathode{i}',
         parameter = 'current',
         copy_status = True,
         fmtstr = '%.6g',
@@ -135,16 +135,16 @@ for i in range(1, 3):
     )
 
 for i in range(1, 10):
-    devices['b_anode%d' % i] = device('nicos.devices.entangle.PowerSupply',
-        description = 'Anode %d HV' % i,
-        tangodevice = tango_base + 'anode%d' % (i - 1),
+    devices[f'b_anode{i}'] = device('nicos.devices.entangle.PowerSupply',
+        description = f'Anode {i} HV',
+        tangodevice = tango_base + f'anode{i - 1}',
         fmtstr = '%.1f',
         visibility = (),
         precision = 1,
     )
-    devices['b_anode%s_c' % i] = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'Anode %d current' % i,
-        device = 'b_anode%d' % i,
+    devices[f'b_anode{i}_c'] = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = f'Anode {i} current',
+        device = f'b_anode{i}',
         parameter = 'current',
         copy_status = True,
         fmtstr = '%.6g',
@@ -153,16 +153,16 @@ for i in range(1, 10):
     )
 
 for i in range(1, 9):
-    devices['b_banode%d' % i] = device('nicos.devices.entangle.PowerSupply',
-        description = 'Boundary anode %d HV' % i,
-        tangodevice = tango_base + 'banode%d' % (i - 1),
+    devices[f'b_banode{i}'] = device('nicos.devices.entangle.PowerSupply',
+        description = f'Boundary anode {i} HV',
+        tangodevice = tango_base + f'banode{i - 1}',
         fmtstr = '%.1f',
         visibility = (),
         precision = 1,
     )
-    devices['b_banode%s_c' % i] = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'Boundary anode %d current' % i,
-        device = 'b_banode%d' % i,
+    devices[f'b_banode{i}_c'] = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = f'Boundary anode {i} current',
+        device = f'b_banode{i}',
         parameter = 'current',
         copy_status = True,
         fmtstr = '%.6g',
