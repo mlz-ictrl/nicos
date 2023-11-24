@@ -200,7 +200,7 @@ class McStasSimulation(Readable):
         """Return elapsed time for simulation."""
         if self._started:
             if self._start_time is None:
-                # MsStas about to be started, preparations still in progress
+                # McStas about to be started, preparation still in progress
                 return 0
             # McStas already running
             return min(monotonic() - self._start_time, self.preselection)
