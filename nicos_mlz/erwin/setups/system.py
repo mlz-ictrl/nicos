@@ -7,10 +7,12 @@ sysconfig = dict(
     instrument = 'erwin',
     experiment = 'Exp',
     datasinks = ['conssink', 'dmnsink', 'filesink', 'livesink'],
-    notifiers = [],
+    notifiers = ['email'],
 )
 
 modules = ['nicos.commands.standard']
+
+includes = ['notifiers']
 
 devices = dict(
     erwin = device('nicos.devices.instrument.Instrument',
