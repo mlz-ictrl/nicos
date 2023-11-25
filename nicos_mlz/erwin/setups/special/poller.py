@@ -7,8 +7,8 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('nicos.services.poller.Poller',
-        alwayspoll = ['charmsmall'],
-        neverpoll = ['detector', 'erwindet'],
+        alwayspoll = [],  # ['charmsmall'],
+        neverpoll = ['detector', ],
         blacklist = ['adet', 'image', 'events', 'det'],
         loglevel = 'debug',
     ),
