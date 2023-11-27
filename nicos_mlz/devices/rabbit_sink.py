@@ -75,6 +75,8 @@ class Message:
 
 class RabbitSinkHandler(DataSinkHandler):
 
+    ordering = 80
+
     def _sendMessage(self, type: str, dataset: BaseDataset,  # pylint: disable=redefined-builtin
                      scands: ScanDataset = None, blockds: BlockDataset = None):
         """Sends the metainfo, if available, and other information to the
