@@ -494,11 +494,12 @@ def stop(*devlist):
                    if isinstance(session.devices[devname],
                                  (Moveable, Measurable))]
     finished = []
+    printmsg = ()
 
     def stopdev(dev):
         try:
             dev.stop()
-            if not stop_all:
+            if not stop_all or dev in printmsg:
                 dev.log.info('stopped')
         except AccessError:
             # do not warn about devices we cannot access if they were not
@@ -508,6 +509,11 @@ def stop(*devlist):
             dev.log.warning('error while stopping', exc=1)
         finally:
             finished.append(dev)
+
+    if stop_all:
+        printmsg = {dev for dev in devlist
+                    if session.cache.get_explicit(dev, 'status',
+                                                  (None,))[2][0] == BUSY}
     for dev in devlist:
         dev = session.getDevice(dev)
         createThread('device stopper %s' % dev, stopdev, (dev,))
