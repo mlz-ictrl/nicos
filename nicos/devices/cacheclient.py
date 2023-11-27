@@ -783,7 +783,8 @@ class CacheClient(BaseCacheClient):
         with self._dblock:
             self._db.pop(dbkey, None)
 
-    def history(self, dev, key, fromtime, totime, interval=None):
+    def history(self, dev,  # pylint: disable=arguments-renamed
+                key, fromtime, totime, interval=None):
         """History query: opens a separate connection since it is otherwise not
         possible to determine which response lines belong to it.
         """
@@ -801,7 +802,7 @@ class CacheClient(BaseCacheClient):
                 ret.append((float(time), cache_load(value)))
         return ret
 
-    def query_db(self, query, tries=3):
+    def query_db(self, query):
         with self._dblock:
             # pylint: disable=consider-using-dict-items
             if isinstance(query, str):
