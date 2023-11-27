@@ -40,7 +40,8 @@ from nicos.devices.generic.oscillator import Oscillator
 from nicos.devices.generic.paramdev import ParamDevice, ReadonlyParamDevice
 from nicos.devices.generic.pulse import Pulse
 from nicos.devices.generic.sequence import BaseSequencer, LockedDevice
-from nicos.devices.generic.slit import Slit, TwoAxisSlit
+from nicos.devices.generic.slit import HorizontalGap, Slit, TwoAxisSlit, \
+    VerticalGap
 from nicos.devices.generic.switcher import MultiSwitcher, ReadonlySwitcher, \
     Switcher
 from nicos.devices.generic.system import FreeSpace
