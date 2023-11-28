@@ -40,7 +40,7 @@ from nicos.utils.fitting import Fit
 
 
 class CalibratedMagnet(HasLimits, Moveable):
-    """Base clase for magnet supplies having an bipolar current source.
+    """Base class for magnet supplies having a bipolar current source.
 
     Use this for magnets which can be calibrated, i.e. where::
 
@@ -75,7 +75,7 @@ class CalibratedMagnet(HasLimits, Moveable):
     def _current2field(self, current, *coefficients):
         """Return field in T for given current in A.
 
-        Should be monotonic and asymetric or _field2current will fail!
+        Should be monotonic and asymmetric or _field2current will fail!
 
         Note: This may be overridden in derived classes.
         """
@@ -209,12 +209,12 @@ class CalibratedMagnet(HasLimits, Moveable):
 
 class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
     """
-    Base clase for magnet supplies having an unipolar current source
+    Base class for magnet supplies having a unipolar current source
     and a switching box for reversing the current (or not).
 
     Details of the switching need to be implemented in subclasses.
     This class contains the sequencing logic needed to reverse the field.
-    Also a non-linear relationship between field and current
+    Also, a non-linear relationship between field and current
     is possible (see :class:`.CalibratedMagnet`).
     """
 
