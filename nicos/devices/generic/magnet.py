@@ -26,16 +26,27 @@ Class for magnets powered by unipolar power supplies.
 """
 
 import math
+import time
 
+import numpy
 from scipy.optimize import fsolve
+try:
+    # pylint: disable=import-error
+    from uncertainties.core import AffineScalarFunc, Variable, ufloat
+    WITH_UNCERTAINTIES = True
+except Exception:
+    WITH_UNCERTAINTIES = False
 
 from nicos import session
 from nicos.core import Attach, HasLimits, LimitError, Moveable, NicosError, \
-    status, usermethod
-from nicos.core.params import Override, Param, tupleof
+    Readable, status, usermethod
+from nicos.core.params import Override, Param, oneof, tupleof
+from nicos.core.sessions.utils import MASTER
 from nicos.core.utils import multiStop
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev
-from nicos.utils import clamp
+from nicos.utils import clamp, createThread
+from nicos.utils.curves import curve_from_two_temporal, curves_from_series, \
+    get_xvy, get_yvx, incr_decr_curves, mean_curves
 from nicos.utils.fitting import Fit
 
 
@@ -302,3 +313,250 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
         # all Ok, set source to max of pos/neg field current
         maxcurr = max(abs(self._field2current(i)) for i in value)
         currentsource.userlimits = (0, maxcurr)
+
+
+class MagnetWithCalibrationCurves(Magnet):
+    """Base class for a magnet, which relies on current-to-field curves
+    obtained experimentally for different power supply ramps through a
+    calibration procedure. Calibration curves are stored in a cached parameter.
+    Requires an external magnetic field sensing nicos device attached as
+    `magsensor`.
+    """
+
+    attached_devices = {
+        'magsensor': Attach('Sensor of magnetic field', Readable),
+    }
+
+    parameters = {
+        'calibration': Param(
+            'Magnetic field fitting curves',
+            type=dict, settable=True
+        ),
+        'fielddirection': Param(
+            'Direction in which magnetic field should change',
+            type=oneof('increasing', 'decreasing'), settable=True
+        ),
+        'mode': Param(
+            'Measurement mode: stepwise or continuous',
+            type=oneof('stepwise', 'continuous'), default='stepwise',
+            settable=True
+        ),
+        'ramp': Param(
+            'Ramp of the currentsource',
+            unit='A/min', type=float, settable=True
+        ),
+        'maxramp': Param(
+            'Maximal ramp value',
+            unit='A/min', type=float, mandatory=True
+        ),
+    }
+
+    def _check_calibration(self, mode, ramp):
+        if not self.calibration:
+            raise NicosError(self, 'Magnet must be calibrated.')
+        if mode not in self.calibration.keys():
+            raise NicosError(self, 'Magnet not calibrated in %s mode.' % mode)
+        if str(float(ramp)) not in self.calibration[mode].keys():
+            raise NicosError(self, 'Magnet not calibrated for %s A/min '
+                                   'currensource ramp.' % ramp)
+        if len(self.calibration[mode][str(float(ramp))]) != 2:
+            raise NicosError(self, 'Error reading calibration in %s mode for %s'
+                                   ' A/min ramp. Performing new calibration '
+                                   'might help.' % (mode, ramp))
+
+    def _current2field(self, current):
+        """Returns field in T for given current in A.
+        """
+        self._check_calibration(self.mode, self.ramp)
+        curve0, curve1 = self.calibration[self.mode][str(float(self.ramp))]
+        incr_curve = curve0 if curve0[-1][1] > curve0[0][1] else curve1
+        decr_curve = curve0 if curve0[-1][1] < curve0[0][1] else curve1
+        return get_yvx(current, incr_curve) if self.fielddirection == 'increasing' \
+            else get_yvx(current, decr_curve)
+
+    def _field2current(self, field):
+        """Returns required current in A for requested field in T.
+        """
+        self._check_calibration(self.mode, self.ramp)
+        curve0, curve1 = self.calibration[self.mode][str(float(self.ramp))]
+        incr_curve = curve0 if curve0[-1][1] > curve0[0][1] else curve1
+        decr_curve = curve0 if curve0[-1][1] < curve0[0][1] else curve1
+        return get_xvy(field, incr_curve) if self.fielddirection == 'increasing' \
+            else get_xvy(field, decr_curve)
+
+    def doInit(self, mode):
+        if mode == MASTER:
+            self._cycling, self._measuring = False, False
+            self._cycling_thread = None
+            self._Ivt, self._cycling_steps = [], []
+            self._calibration_updated = False
+            self._progress, self._maxprogress = 0, 0
+            self._stop_requested = False
+
+    def doRead(self, maxage=0):
+        return self._attached_magsensor.doRead(maxage)
+
+    def doStart(self, target):
+        current = self._field2current(target)
+        current = current.n if WITH_UNCERTAINTIES else current[0]
+        self._attached_currentsource.doStart(current)
+
+    def doStop(self):
+        if self._cycling:
+            self._stop_requested = True
+        session.delay(1)
+        self.ramp = self.maxramp
+        self._attached_currentsource.doStop()
+
+    def doStatus(self, maxage=0):
+        cs = self._attached_currentsource.doStatus(maxage)
+        ms = self._attached_magsensor.doStatus(maxage)
+        return max(cs, ms)
+
+    def doReset(self):
+        cs = self._attached_currentsource.reset()
+        ms = self._attached_magsensor.reset()
+        return max(cs, ms)
+
+    def doReadAbslimits(self):
+        try:
+            self._check_calibration(self.mode, self.ramp)
+            limits = [self._current2field(I)
+                      for I in self._attached_currentsource.abslimits]
+        except Exception:
+            limits = [0, 0]
+        if WITH_UNCERTAINTIES:
+            if isinstance(limits[0], (AffineScalarFunc, Variable)):
+                limits = [limits[0].n, limits[1].n]
+        return min(limits), max(limits)
+
+    def doReadRamp(self):
+        return self._attached_currentsource.ramp
+
+    def doWriteRamp(self, value):
+        if value > self.maxramp:
+            raise NicosError(self, 'Currentsource ramp should not exceed %s'
+                             % self.maxramp)
+        self._attached_currentsource.ramp = value
+
+    def cycle_currentsource(self, val1, val2, ramp, n):
+        """Cycles current source from val1 [A] to val2 [A] n times at a given
+        ramp in [A/min].
+        """
+        self._measuring = True
+        self._Ivt, self._cycling_steps = [], []
+        temp = self.ramp
+        self.ramp = 0
+        # at least 100 measurement points if time between measurements is >0.5s
+        # or as many as possible but the time between measurements is 0.5s
+        num = 100
+        dI = (val2 - val1) / num
+        dt = dI / (ramp / 60) if dI / (ramp / 60) > 0.5 else 0.5
+        dI = dt * ramp / 60 * abs(val2 - val1) / (val2 - val1)
+        ranges = [(val1, val2, dI), (val2, val1, -dI)]
+        self._progress = 0
+        self._maxprogress = sum(len(numpy.arange(*r)) for r in ranges) * n
+        for r in ranges * n:
+            self._cycling_steps.append(len(numpy.arange(*r)))
+            for i in numpy.arange(*r):
+                self._progress += 1
+                self._attached_currentsource.doStart(i)
+                self._Ivt.append((time.time(), i))
+                session.delay(dt)
+                if self._stop_requested:
+                    break
+            if self._stop_requested:
+                break
+        self._measuring = False
+
+        self.doStop()
+        self.ramp = temp
+        self._cycling = False
+
+    @usermethod
+    def calibrate(self, mode, ramp, n):
+        """Measures B(I) calibration curves.
+        Calibration curves are stored in self.calibration as a dict:
+        self.calibration = {'continuous': _ramps_, 'stepwise': _ramps_}
+        Ramps are ramps of the currentsource and are also dicts:
+        _ramps_ = {'200.0': _curves_, '400.0': _curves_}
+        Curves must be a set of two curves:
+        _curves_ = (_increasing_curve_, _decreasing_curve_)
+        Increasing and decreasing curves must be lists of (X, Y(X)) tuples:
+        _increasing_curve_ = [(0, 1), (1, 2), (2, 4),]
+        X and Y values can be also uncertainties.core.ufloat.
+        """
+        absmin = self._attached_currentsource.absmin
+        absmax = self._attached_currentsource.absmax
+        self.mode = mode
+        self.ramp = float(ramp)
+        self._attached_currentsource.doStart(self._attached_currentsource.absmin)
+        self._hw_wait()
+
+        if mode == 'continuous':
+            if self._cycling_thread is None:
+                self._cycling = True
+                self._cycling_thread = createThread('',
+                                                    self.cycle_currentsource,
+                                                    (absmin, absmax, float(ramp), n,))
+            else:
+                raise NicosError(self, 'Power supply is busy.')
+            bvt = []
+            while self._cycling and not self._stop_requested:
+                try:
+                    B = self._attached_magsensor.doRead()
+                except Exception:
+                    B = None
+                if B:
+                    if WITH_UNCERTAINTIES and hasattr(self._attached_magsensor, 'readStd'):
+                        bvt.append((time.time(),
+                                    ufloat(B, self._attached_magsensor.readStd(B))))
+                    else:
+                        bvt.append((time.time(), B))
+                session.delay(0.5)
+            self._cycling_thread.join()
+            self._cycling_thread = None
+            bvi = curve_from_two_temporal(self._Ivt, bvt)
+        elif mode == 'stepwise':
+            num = 100
+            dI = (absmax - absmin) / num
+            dt = dI / (ramp / 60) if dI / (ramp / 60) > 0.5 else 0.5
+            dI = dt * ramp / 60
+            ranges = [(absmin, absmax, dI), (absmax, absmin, -dI)]
+            bvi, self._cycling_steps = [], []
+            for r in ranges * n:
+                self._cycling_steps.append(len(numpy.arange(*r)))
+                for i in numpy.arange(*r):
+                    self._attached_currentsource.doStart(i)
+                    # hardcoded 10 secs to reach quasi steady state condition
+                    session.delay(10)
+                    B = None
+                    while B is None:
+                        try:
+                            B = self._attached_magsensor.doRead()
+                        except Exception:
+                            B = None
+                    if WITH_UNCERTAINTIES and hasattr(self._attached_magsensor, 'readStd'):
+                        bvi.append((i,
+                                    ufloat(B, self._attached_magsensor.readStd(B))))
+                    else:
+                        bvi.append((i, B))
+                    if self._stop_requested:
+                        break
+                if self._stop_requested:
+                    break
+        self.doStop()
+
+        curves = curves_from_series(bvi, self._cycling_steps)
+        incr, decr = incr_decr_curves(curves)
+        calibration = (mean_curves(incr), mean_curves(decr))
+        temp = {}
+        temp[mode] = {}
+        if 'continuous' in self.calibration.keys():
+            temp['continuous'] = dict(self.calibration['continuous'])
+        if 'stepwise' in self.calibration.keys():
+            temp['stepwise'] = dict(self.calibration['stepwise'])
+        temp[mode][str(float(ramp))] = calibration
+        self.calibration = temp
+        self._calibration_updated = True
+        self._stop_requested = False
