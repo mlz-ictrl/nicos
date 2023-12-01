@@ -39,7 +39,30 @@ from nicos.utils import clamp
 from nicos.utils.fitting import Fit
 
 
-class CalibratedMagnet(HasLimits, Moveable):
+class Magnet(HasLimits, Moveable):
+    """Base class for magnets.
+    """
+
+    attached_devices = {
+        'currentsource': Attach('bipolar Powersupply', Moveable),
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default='T'),
+        'abslimits': Override(mandatory=False, volatile=True),
+    }
+
+    def doReadAbslimits(self):
+        raise NotImplementedError('implement doReadAbslimits')
+
+    def _current2field(self, current):
+        raise NotImplementedError('implement _current2field')
+
+    def _field2current(self, field):
+        raise NotImplementedError('implement _field2current')
+
+
+class CalibratedMagnet(Magnet):
     """Base class for magnet supplies having a bipolar current source.
 
     Use this for magnets which can be calibrated, i.e. where::
@@ -49,10 +72,6 @@ class CalibratedMagnet(HasLimits, Moveable):
     works reasonably well.
     Coefficients c0..c4 are given as 'calibration' parameter.
     """
-
-    attached_devices = {
-        'currentsource': Attach('bipolar Powersupply', Moveable),
-    }
 
     parameters = {
         'ramp': Param('Target rate of field change per minute',
@@ -65,11 +84,6 @@ class CalibratedMagnet(HasLimits, Moveable):
                              type=tupleof(float, float, float, float, float),
                              default=(1.0, 0.0, 0.0, 0.0, 0.0), settable=True,
                              chatty=True),
-    }
-
-    parameter_overrides = {
-        'unit': Override(mandatory=False, default='T'),
-        'abslimits': Override(mandatory=False, volatile=True),
     }
 
     def _current2field(self, current, *coefficients):
