@@ -76,12 +76,12 @@ devices = dict(
     ltz_sim = device('nicos.devices.generic.manual.ManualMove',
         description = 'Deflector vertical translation',
         unit = 'mm',
-        abslimits = (00, 5000),
+        abslimits = (-40, 200),
         default = 0
     ),
     lom_sim = device('nicos.devices.generic.manual.ManualMove',
         description = 'Deflector rotation',
-        unit = 'mm',
+        unit = 'deg',
         abslimits = (-10, 10),
         default = 0,
     ),
@@ -94,7 +94,7 @@ devices = dict(
         description = 'Alias for ltz',
         alias = 'ltz_sim',
         devclass = 'nicos.core.device.Moveable'
-    ),
+        ),
 )
 alias_config = {'lom': {'lom_sim': 10}, 'ltz': {'ltz_sim': 10}}
 

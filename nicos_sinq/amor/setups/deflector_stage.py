@@ -9,6 +9,7 @@ devices = dict(
         description = 'Lift (z translation) of deflector & flight tube',
         motorpv = pvprefix + 'ltz',
         errormsgpv = pvprefix + 'ltz-MsgTxt',
+        unit = 'mm',
         visibility = ('devlist', 'metadata', 'namespace'),
         precision = .1,
         can_disable = True,
@@ -18,10 +19,11 @@ devices = dict(
         description = 'Tilt (pitch) of deflector & flight tube',
         motorpv = pvprefix + 'lom',
         errormsgpv = pvprefix + 'lom-MsgTxt',
+        unit = 'deg',
         visibility = ('devlist', 'metadata', 'namespace'),
         precision = .01,
         can_disable = True,
         auto_enable = False,
     ),
 )
-alias_config = {'lom': {'lom_r': 10}, 'ltz': {'ltz_r': 10}}
+alias_config = {'lom': {'lom_r': 20}, 'ltz': {'ltz_r': 20}}

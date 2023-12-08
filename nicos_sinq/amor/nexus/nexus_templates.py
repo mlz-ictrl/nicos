@@ -50,7 +50,7 @@ amor_streaming = {
         "comment": DeviceDataset("Exp", "remark"),
         # measurement data
         "area_detector:NXData": {
-            "data": NXLink("Amor/detector/data"),
+            "data": NXLink("/entry1/Amor/detector/data"),
         },
         # experimental configuration
         "Amor:NXinstrument": {
@@ -366,7 +366,7 @@ amor_streaming = {
                     "units": "deg",
                 },
                 "data:NXevent_data": {
-                    "data": EventStream(topic="amor_detector",
+                    "data": EventStream(topic="amor_ev44",
                                         mod="ev44",
                                         source="multiblade",
                                         dtype="uint32"),

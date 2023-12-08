@@ -9,11 +9,13 @@ devices = dict(
         description = 'Detector tilt',
         motorpv = pvprefix + 'com',
         errormsgpv = pvprefix + 'com-MsgTxt',
+        unit = 'deg',
     ),
     cz = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Detector height',
         motorpv = pvprefix + 'coz',
         errormsgpv = pvprefix + 'coz-MsgTxt',
+        unit = 'mm'
     ),
     det_park = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Detector parking motor',

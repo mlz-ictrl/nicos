@@ -29,44 +29,5 @@ devices = dict(
         can_disable = True,
         visibility = ('devlist', 'metadata', 'namespace'),
     ),
-    sph = device('nicos_sinq.devices.epics.motor.EpicsMotor',
-        description = 'Sample phi rotation',
-        motorpv = pvprefix + 'sph',
-        errormsgpv = pvprefix + 'sph-MsgTxt',
-        precision = .01,
-        can_disable = True,
-        visibility = (),
-    ),
-    sim_temp = device('nicos.devices.generic.manual.ManualMove',
-        description = 'Simulated temperature',
-        unit = 'K',
-        abslimits = (-1000, 10000),
-        default = -9999,
-        visibility = (),
-    ),
-    sim_field = device('nicos.devices.generic.manual.ManualMove',
-        description = 'Simulated magnetic field',
-        unit = 'A',
-        abslimits = (-1000, 10000),
-        default = -9999,
-        visibility = (),
-    ),
-    temperature = device('nicos.core.device.DeviceAlias',
-        description = 'Sample temperature',
-        alias = 'sim_temp',
-        visibility = (),
-    ),
-    magnetic_field = device('nicos.core.device.DeviceAlias',
-        description = 'Magnetic field at sample',
-        alias = 'sim_field',
-        visibility = (),
-    ),
 )
-alias_config = {
-    'temperature': {
-        'sim_temp': 10
-    },
-    'magnetic_field': {
-        'sim_field': 10
-    }
-}
+
