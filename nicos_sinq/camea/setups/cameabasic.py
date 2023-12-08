@@ -14,7 +14,6 @@ devices = dict(
         errormsgpv = pvmcu1 + '2t-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     m2t = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Monochromator two theta',
@@ -22,7 +21,6 @@ devices = dict(
         errormsgpv = pvmcu1 + '2tm-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     som = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Sample rotation',
@@ -30,7 +28,6 @@ devices = dict(
         errormsgpv = pvmcu1 + 'som-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     tl_sim = device('nicos.devices.generic.ManualMove',
         description = 'Simulated tl motor',
@@ -70,7 +67,6 @@ devices = dict(
         errormsgpv = pvmcu3 + 'gm-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     mcv = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Monochromator curvature',
@@ -78,7 +74,6 @@ devices = dict(
         errormsgpv = pvmcu3 + 'mcv-MsgTxt',
         precision = 5,
         can_disable = True,
-        auto_enable = True,
     ),
     mch = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Monochromator curvature',
@@ -86,7 +81,6 @@ devices = dict(
         errormsgpv = pvmcu3 + 'mch-MsgTxt',
         precision = 5,
         can_disable = True,
-        auto_enable = True,
     ),
     omm = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Monochromator rotation',
@@ -94,7 +88,6 @@ devices = dict(
         errormsgpv = pvmcu3 + 'omm-MsgTxt',
         precision = 0.05,
         can_disable = True,
-        auto_enable = True,
     ),
     tlm = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Monochromator lower translation',
@@ -102,7 +95,6 @@ devices = dict(
         errormsgpv = pvmcu3 + 'tlm-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     tum = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Monochromator upper translation',
@@ -110,7 +102,6 @@ devices = dict(
         errormsgpv = pvmcu3 + 'tum-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     vsl = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Virtual slit left',
@@ -118,7 +109,6 @@ devices = dict(
         errormsgpv = pvmcu4 + 'vsl-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     vsr = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Virtual slit rright',
@@ -126,7 +116,6 @@ devices = dict(
         errormsgpv = pvmcu4 + 'vsr-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     mono = device('nicos_sinq.camea.devices.cameamono.CameaMono',
         description = 'Camea monochromator',
@@ -231,10 +220,26 @@ devices = dict(
         unit = 'number',
         abslimits = (0, 8)
     ),
+    eis2tcontroller = device('nicos_sinq.camea.devices.eis2tcontroller.EIS2TController',
+        description = 'Controller to protect CAMEA moving into the wall',
+        ei = 'mono',
+        s2t = 's2t',
+        ei_values = [
+            2, 3.6, 3.8, 5.0, 5.5, 6.4, 6.6, 6.8, 6.9, 7.0, 8.0, 8.2, 8.45, 8.6,
+            8.7, 9.5, 9.8, 9.9, 10.5, 11.4, 11.7, 12.0, 12.2, 12.9, 13.5, 13.8,
+            14, 15, 16, 17
+        ],
+        s2t_values = [
+            -79.5, -79.5, -79.5, -79, -79, -79, -79, -78, -78, -76.5, -73.0,
+            -71, -70, -66, -64, -64, -62, -60, -54, -54, -52, -51, -51, -48,
+            -47, -46.5, -46.5, -44, -41.5, -39.5
+        ],
+        visibility = {},
+    ),
 )
 
 # when se_om (the sample stick rotation) is present, use this for a3
-alias_config = {'a3': {'som': 10, }}
+alias_config = {'a3': {'som': 10,}}
 
 startupcode = """
 sgl.alias = 'gl_sim'

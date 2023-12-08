@@ -20,7 +20,7 @@ modules = [
     'nicos_sinq.commands.epicscommands',
     'nicos_sinq.camea.commands.camea',
     'nicos.commands.tas',
-    'nicos_sinq.sxtal.commands',
+    'nicos_sinq.sxtal.commands'
 ]
 
 devices = dict(
@@ -46,23 +46,23 @@ devices = dict(
     h = device('nicos.core.device.DeviceAlias',
         description = 'Alias for the h of hkl',
         alias = 'CAMEA.h',
-        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
+        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
     ),
     k = device('nicos.core.device.DeviceAlias',
         description = 'Alias for the k of hkl',
         alias = 'CAMEA.k',
-        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
+        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
     ),
     l = device('nicos.core.device.DeviceAlias',
         description = 'Alias for the l of hkl',
         alias = 'CAMEA.l',
-        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
-    ),
+        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
+   ),
     en = device('nicos.core.device.DeviceAlias',
         description = 'Alias for the en of hkle',
         alias = 'CAMEA.en',
-        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
-    ),
+        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
+  ),
     ublist = device('nicos_sinq.sxtal.reflist.ReflexList',
         description = 'Reflection list for '
         'UB matrix refinement',

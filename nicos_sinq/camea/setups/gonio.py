@@ -14,7 +14,6 @@ devices = dict(
         errormsgpv = pvmcu1 + 'gl-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     gu = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Sample table upper goniometer',
@@ -22,7 +21,6 @@ devices = dict(
         errormsgpv = pvmcu1 + 'gu-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     tl = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Sample table lower translation',
@@ -30,7 +28,6 @@ devices = dict(
         errormsgpv = pvmcu1 + 'tl-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
     tu = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Sample table upper translation',
@@ -38,7 +35,6 @@ devices = dict(
         errormsgpv = pvmcu1 + 'tu-MsgTxt',
         precision = 0.02,
         can_disable = True,
-        auto_enable = True,
     ),
 )
 startupcode = """
