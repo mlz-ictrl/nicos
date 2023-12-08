@@ -9,10 +9,11 @@ excludes = ['andor', 'andorccd', 'embl', 'fastcomtec']
 includes = ['single_el737']
 
 devices = dict(
-    dccdatz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    dccdatz = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Andor focus motor',
         motorpv = motprefix,
         errormsgpv = motprefix + '-MsgTxt',
+        can_disable = True,
     ),
     cam_shut = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Camera shutter open',
