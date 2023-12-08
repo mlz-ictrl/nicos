@@ -1,6 +1,7 @@
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -21,18 +22,20 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, Value, status
+from nicos.core import Override, Param, Value, status
 from nicos.devices.epics.pyepics import EpicsReadable
 from nicos.devices.epics.pyepics.monitor import PyEpicsMonitor
 from nicos.devices.generic.detector import CounterChannelMixin
 
-from nicos_sinq.devices.epics.detector import EpicsPassiveChannel
+from nicos_sinq.devices.epics.detector import EpicsActiveChannel, \
+    EpicsPassiveChannel
 
 
 class SINQProtonCurrent(PyEpicsMonitor, EpicsReadable):
     """
-    The proton accelerator team provides a PV with the proton charge sent to SINQ. Unfortunately the
-    PV causes a non-empty error message that is meaningful for us. This device handles it.
+    The proton accelerator team provides a PV with the proton
+    charge sent to SINQ. Unfortunately the PV causes a non-empty error
+    message that is meaningful for us. This device handles it.
     """
 
     def doStatus(self, maxage=0):
@@ -41,8 +44,9 @@ class SINQProtonCurrent(PyEpicsMonitor, EpicsReadable):
 
 class SINQProtonCharge(CounterChannelMixin, EpicsPassiveChannel):
     """
-    The SINQ proton charge can be accumulated and used as a counter. An EPICS PV takes care of it.
-    This device triggers the start, stop of reset of the PV.
+    The SINQ proton charge can be accumulated and used as a counter.
+    An EPICS PV takes care of it. This device triggers the start,
+    stop of reset of the PV.
     """
 
     parameters = {
@@ -72,6 +76,62 @@ class SINQProtonCharge(CounterChannelMixin, EpicsPassiveChannel):
         self._put_pv('readpv', 0)
 
     def doStart(self):
+        self._put_pv('startpv', 1)
+
+    def doStop(self):
+        self._put_pv('startpv', 0)
+
+    def doFinish(self):
+        self._put_pv('startpv', 0)
+
+    def doIsCompleted(self):
+        return not self._get_pv('startpv')
+
+    def valueInfo(self):
+        return Value(self.name, unit=self.unit, fmtstr=self.fmtstr),
+
+
+class SINQProtonMonitor(CounterChannelMixin, EpicsActiveChannel):
+    """
+    The SINQ proton charge can be accumulated and used as a counter.
+    An EPICS PV takes care of it. This device triggers the start,
+    stop of reset of the PV.
+    """
+
+    parameters = {
+        'pvprefix': Param('Prefix for the summing DB', type=str),
+    }
+
+    parameter_overrides = {
+        'readpv': Override(mandatory=False),
+        'presetpv': Override(mandatory=False),
+        'startpv': Override(mandatory=False),
+    }
+
+    _presetmap = {'p', 'counter'}
+
+    _pv_map = {'startpv': 'SWITCH', 'readpv': 'ACCINT', 'presetpv': 'PRESET'}
+
+    def _get_pv_parameters(self):
+        return self._pv_map.keys()
+
+    def _get_pv_name(self, pvparam):
+        return self.pvprefix + self._pv_map[pvparam]
+
+    def doStatus(self, maxage=0):
+        general_epics_status, affected_pvs = EpicsActiveChannel.doStatus(self)
+        if general_epics_status == status.ERROR:
+            return status.ERROR, affected_pvs or 'Unknown problem in record'
+
+        if self._get_pv('startpv'):
+            return status.BUSY, 'counting'
+        return status.OK, ''
+
+    def doPrepare(self):
+        self._put_pv('presetpv', self.preselection)
+
+    def doStart(self):
+        self.doPrepare()
         self._put_pv('startpv', 1)
 
     def doStop(self):

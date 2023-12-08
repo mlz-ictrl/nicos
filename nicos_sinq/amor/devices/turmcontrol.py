@@ -1,6 +1,7 @@
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -17,21 +18,26 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-
-from nicos.core import Param
-
-from nicos_sinq.devices.epics.astrium_chopper import EpicsAstriumChopper
+from nicos.core import Attach, Device, IsController, Moveable
 
 
-class AmorChopper(EpicsAstriumChopper):
-    """ Additional settings for chopper in AMOR
+class DetectorController(IsController, Device):
+    """
+    COM and COZ shall not be moved when the detector is in parking position
     """
 
-    parameters = {
-        'indexphase': Param('Chopper discs index phase', type=float,
-                            mandatory=True, userparam=False,
-                            category='general')
+    attached_devices = {
+        'com': Attach('detector tilt', Moveable),
+        'coz': Attach('detector offset', Moveable),
+        'park': Attach('detector park motor', Moveable),
     }
+
+    def isAdevTargetAllowed(self, adev, adevtarget):
+        if adev in [self._attached_com, self._attached_coz]:
+            if self._attached_park.read(0) < -90:
+                return False, "Cannot move %s when in park position"\
+                    % (adev.name)
+        return True, ''
