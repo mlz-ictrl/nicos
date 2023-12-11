@@ -508,7 +508,7 @@ class EditorPanel(Panel):
                 editor.setMarginsForegroundColor(colors.text)
                 editor.setFoldMarginColors(colors.palette.window().color(),
                                            colors.palette.window().color())
-                editor.setFolding(editor.PlainFoldStyle)
+                editor.setFolding(editor.FoldStyle.PlainFoldStyle)
         else:
             editor = QScintillaCompatible(self)
         # editor.setFrameStyle(0)
