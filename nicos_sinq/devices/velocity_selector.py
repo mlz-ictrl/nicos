@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -35,11 +35,11 @@ class VSForbiddenMoveable(WindowMoveable):
 
     parameters = {
         'forbidden_regions': Param('List of forbidden regions',
-                                   type=listof(tupleof(float, float)),
+                                   type=listof(tupleof(int, int)),
                                    mandatory=True)
     }
 
-    valuetype = float
+    valuetype = int
 
     def doIsAllowed(self, value):
         for region in self.forbidden_regions:

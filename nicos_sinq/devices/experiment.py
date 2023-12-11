@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -151,6 +151,11 @@ class SinqExperiment(Experiment):
         if 'proposal_title' in kwds:
             self.proposal_title = kwds['proposal_title']
         return kwds
+
+    def newSample(self, parameters):
+        # Do not try to create unwanted directories as
+        # in nicos/devices/experiment
+        pass
 
 
 class TomoSinqExperiment(SinqExperiment):

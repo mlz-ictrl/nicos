@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -23,6 +23,7 @@
 # *****************************************************************************
 import queue
 import socket
+from datetime import datetime
 from os import path
 from time import monotonic as currenttime
 
@@ -32,11 +33,14 @@ from streaming_data_types import serialise_hs01
 from nicos import session
 from nicos.core import SIMULATION, Attach, DataSink, DataSinkHandler, \
     Override, Param
+from nicos.core.constants import SCAN
 from nicos.core.errors import ProgrammingError
 from nicos.devices.generic.manual import ManualSwitch
 from nicos.nexus.nexussink import NexusSink
 from nicos.utils import createThread, readFileCounter, updateFileCounter
 
+from nicos_ess.devices.datasinks.file_writer import FileWriterControlSink, \
+    FileWriterSinkHandler
 from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink, \
     NexusFileWriterSinkHandler
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
@@ -113,7 +117,6 @@ class SinqNexusFileSinkHandler(NexusFileWriterSinkHandler):
         delete_keys_from_dict(self.template, delete_keys)
 
     def prepare(self):
-        self._assignCounter()
         NexusFileWriterSinkHandler.prepare(self)
 
 
@@ -249,3 +252,57 @@ class ImageForwarderSink(ProducesKafkaMessages, DataSink):
             value = self._queue.get()
             self.send(self.output_topic, value)
             self._queue.task_done()
+
+
+class SinqFileWriterSinkHandler(FileWriterSinkHandler):
+
+    def prepare(self):
+        # At SINQ counter assignement works only for scan
+        oldtype = self.dataset.countertype
+        if oldtype != SCAN and self.sink.one_file_per_scan:
+            self.dataset.countertype = 'scan'
+            FileWriterSinkHandler.prepare(self)
+            self.dataset.countertype = oldtype
+            return
+        FileWriterSinkHandler.prepare(self)
+
+    def begin(self):
+        if self.sink._manual_start:
+            return
+
+        if self._scan_set and self.dataset.number > 1:
+            return
+
+        _, filepaths = self.manager.getFilenames(
+            self.dataset, self.sink.filenametemplate, self.sink.subdir
+        )
+        filename = filepaths[0]
+        if hasattr(self.dataset, 'replay_info'):
+            # Replaying previous job
+            self.sink._start_job(filename,
+                                 self.dataset.counter,
+                                 self.dataset.replay_info['structure'],
+                                 self.dataset.replay_info['start_time'],
+                                 self.dataset.replay_info['stop_time'],
+                                 self.dataset.replay_info['replay_of'])
+            return
+
+        datetime_now = datetime.now()
+        structure = self.sink._attached_nexus.get_structure(self.dataset,
+                                                            datetime_now)
+        self.sink._start_job(filename, self.dataset.counter,
+                             structure, datetime_now)
+
+
+class SinqFileWriterControlSink(FileWriterControlSink):
+    parameters = {
+        'file_output_dir': Param('The directory where data files are written',
+                                 type=str, settable=False, default=None,
+                                 userparam=False),
+    }
+
+    handlerclass = SinqFileWriterSinkHandler
+
+    def get_output_file_dir(self):
+        return path.join(self.file_output_dir, str(datetime.now().year),
+                         str(session.experiment.proposal))

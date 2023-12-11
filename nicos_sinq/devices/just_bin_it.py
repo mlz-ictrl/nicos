@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -30,13 +30,47 @@ from confluent_kafka import Consumer, KafkaError, KafkaException, Producer
 from streaming_data_types.utils import get_schema
 
 from nicos import session
-from nicos.core import POLLER, SIMULATION, Override, Param, Value, host, \
-    listof, oneof, status, tupleof
+from nicos.core import POLLER, SIMULATION, ArrayDesc, Override, Param, Value, \
+    host, listof, oneof, status, tupleof
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
-from nicos_ess.devices.datasources.just_bin_it import deserialiser_by_schema, \
-    hist_type_by_name
+from nicos_ess.devices.datasources.just_bin_it import Hist1dTof, Hist2dDet, \
+    Hist2dRoi, Hist2dTof, deserialiser_by_schema
+
+
+class Hist2dSANSLLB:
+    name = 'hist2dsansllb'
+
+    @classmethod
+    def get_array_description(cls, name, det_width, det_height, **ignored):
+        return ArrayDesc(name, shape=(det_width, det_height), dtype=np.float64)
+
+    @classmethod
+    def get_zeroes(cls, det_width, det_height, **ignored):
+        return cls.transform_data(
+            np.zeros(shape=(det_width, det_height), dtype=np.float64))
+
+    @classmethod
+    def transform_data(cls, data, rotation=None):
+        # For the ESS detector orientation, pixel 0 is at top-left
+        if rotation:
+            return np.rot90(data, k=rotation // 90)
+        return data
+
+    @classmethod
+    def get_info(cls, name, det_width, det_height, **ignored):
+        return [(f'{name} width', det_width, str(det_width), '', 'general'),
+                (f'{name} height', det_height, str(det_height), '', 'general')]
+
+
+hist_type_by_name = {
+    '1-D TOF': Hist1dTof,
+    '2-D TOF': Hist2dTof,
+    '2-D DET': Hist2dDet,
+    '2-D ROI': Hist2dRoi,
+    '2-D SANSLLB': Hist2dSANSLLB,
+}
 
 
 def create_kafka_consumer(broker):

@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -127,7 +127,7 @@ class ILLAsciiHandler(DataSinkHandler):
         count = 0
         for name in self.sink.varia:
             val = self._findValue(name, 'value')
-            if val != 'UNKNOWN':
+            if val != 'UNKNOWN' and val is not None:
                 self._header += ' %-8s=%8.4f,' % (name.upper(), float(val))
                 count += 1
                 if count == 3:
@@ -140,7 +140,7 @@ class ILLAsciiHandler(DataSinkHandler):
         count = 0
         for name in self.sink.varia:
             val = self._findValue(name, 'offset')
-            if val != 'UNKNOWN':
+            if val != 'UNKNOWN' and val is not None:
                 self._header += ' %-8s=%8.4f,' % (name.upper(), float(val))
                 count += 1
                 if count == 3:
@@ -186,13 +186,13 @@ class ILLAsciiHandler(DataSinkHandler):
                     # This happens in qscans
                     names = ['QH', 'QK', 'QL', 'EN']
                     for name, s, n in zip(names, start, pnext):
-                        self._header += 'D%s= %8.4f ' % (name, n - s)
+                        self._header += 'D%s= %8.4f, ' % (name, n - s)
                     devidx += 1
                     continue
                 step = pnext - start
             else:
                 step = .0
-            self._header += 'D%s= %8.4f ' % (dev.name.upper(), step)
+            self._header += 'D%s= %8.4f, ' % (dev.name.upper(), step)
             devidx += 1
         self._header += '\n'
         cryst = self._getCrystData()
