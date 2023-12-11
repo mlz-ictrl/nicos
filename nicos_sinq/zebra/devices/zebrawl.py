@@ -21,6 +21,7 @@
 #
 # *****************************************************************************
 
+from nicos.core import status
 from nicos.core.device import Attach, Moveable, oneof
 from nicos.core.utils import multiStatus
 from nicos.devices.generic.mono import Monochromator
@@ -90,4 +91,6 @@ class ZebraWavelength(Monochromator):
             self._wait_dev.append(self._adevs[mot])
 
     def doStatus(self, maxage=0):
-        return multiStatus(self._wait_dev, maxage)
+        if self._wait_dev:
+            return multiStatus(self._wait_dev, maxage)
+        return status.OK, ''
