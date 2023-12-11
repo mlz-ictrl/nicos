@@ -2,6 +2,8 @@ description = 'Setup for the FOCUS chopper'
 
 pref = 'SQ:FOCUS:CH'
 
+excludes = ['chopper_manual',]
+
 devices = dict(
     ch1_speed = device('nicos_sinq.focus.devices.chopper.ChopperMoveable',
         description = 'Master chopper speed',
@@ -12,6 +14,10 @@ devices = dict(
         unit = 'rpm',
         abslimits = (0, 20000)
     ),
+    ch1vacuum = device('nicos_sinq.devices.epics.EpicsReadable',
+        description = 'Chopper 1 Vaccum',
+        readpv = pref + '1:VAKUUM_RBV'
+    ),
     ch2_speed = device('nicos_sinq.focus.devices.chopper.ChopperMoveable',
         description = 'Slave chopper speed',
         precision = 10.,
@@ -20,6 +26,10 @@ devices = dict(
         writepv = pref + '2:Speed',
         unit = 'rpm',
         abslimits = (0, 20000)
+    ),
+    ch2vacuum = device('nicos_sinq.devices.epics.EpicsReadable',
+        description = 'Chopper 2 Vaccum',
+        readpv = pref + '2:VAKUUM_RBV'
     ),
     ch_phase = device('nicos_sinq.focus.devices.chopper.ChopperPhase',
         description = 'Slave chopper phase offset',

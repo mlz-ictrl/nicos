@@ -87,7 +87,7 @@ devices = dict(
     ),
     delay = device('nicos.devices.generic.manual.ManualMove',
         description = 'A place to keep the delay value',
-        abslimits = (0, 10000),
+        abslimits = (0, 20000),
         unit = 'ms'
     ),
     merged_image = device('nicos_sinq.focus.devices.detector.MergedImageChannel',
@@ -131,7 +131,7 @@ devices = dict(
         readpv = 'SQ:FOCUS:EMMI:TD_RBV',
         writepv = 'SQ:FOCUS:EMMI:TD',
         precision = 10,
-        abslimits = (0, 100000)
+        abslimits = (0, 200000)
     ),
     em_aw = device('nicos_sinq.devices.epics.generic.WindowMoveable',
         description = 'Emmenegger acceptance window',
