@@ -109,7 +109,7 @@ Before starting NICOS again perform a check the syntax of the changed
 setup file.  The script :ref:`check-setups <check-setups>` tool is designed
 to check your newly written or modified setups::
 
-    INSTRUMENT=nicos_hynes.woni tools/check_setup  nicos_hynes/woni/setups/system.py
+    INSTRUMENT=nicos_hynes.woni tools/check_setups nicos_hynes/woni/setups/system.py
 
 If you don't get any error messages you may start NICOS again, otherwise you
 have to fix the problem(s) and try the check again.
