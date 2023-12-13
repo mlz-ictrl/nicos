@@ -2,10 +2,11 @@ description = 'Langmuir trough'
 
 group = 'optional'
 
-includes = ['gonio', 'height']
+includes = ['gonio', 'height', 'nimaana4']
 
 instrument_values = configdata('instrument.values')
-lowlevel_devel = ('namespace', 'devlist', 'metadata')
+lowlevel_devel = {'namespace', 'devlist', 'metadata'}
+lowlevel_superuser = {'namespace', 'devlist', 'metadata'}
 
 tango_host = instrument_values['tango_base'] + 'test/nima_nima/io'
 code_base = instrument_values['code_base']
