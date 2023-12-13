@@ -448,6 +448,10 @@ QTreeView {
     color: black;
 }
 
+QTreeView::item {
+    color: black;
+}
+
 QTreeView::item:!selected:hover,
 QListView::item:!selected:hover {
     outline: 0;
