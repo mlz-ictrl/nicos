@@ -19,6 +19,6 @@ Devices
 Data sinks
 ----------
 
-.. module:: nicos_mlz.labs.physlab.datasinks
+.. module:: nicos_mlz.labs.physlab.xresd.datasinks
 .. autoclass:: LiveViewSink()
 
