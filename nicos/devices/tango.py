@@ -70,7 +70,7 @@ FATAL_REASONS = {
     'API_DeviceNotExported',
 }
 
-if not tango.constants.NUMPY_SUPPORT:
+if not getattr(tango.constants, 'NUMPY_SUPPORT', True):
     raise NicosError('Tango does not have numpy support, but it is required '
                      'by NICOS')
 
