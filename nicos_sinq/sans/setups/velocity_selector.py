@@ -2,16 +2,18 @@ description = 'Devices for the velocity selector'
 
 selprefix = 'SQ:SANS:velsel:'
 
-forbidden = [(3600, 4600), (7600, 9600)]
+forbidden = [(1, 1600), (3300, 5200), (6600, 10000), (28300, 30000)]
 
 devices = dict(
     vs_speed = device('nicos_sinq.devices.velocity_selector.VSForbiddenMoveable',
         description = 'Velocity Selector Speed',
-        writepv = selprefix + 'Speed',
-        readpv = selprefix + 'I_DREH_RBV',
-        abslimits = (3000, 28800),
+        writepv = selprefix + 'req_speed',
+        readpv = selprefix + 'speed_filtered_rbv',
+        epicstimeout = 3.0,
+        abslimits = (1600, 28300),
         precision = 20,
         forbidden_regions = forbidden,
+        unit = 'rpm',
     ),
     vs_tilt = device('nicos_sinq.devices.velocity_selector.VSTiltMotor',
         description = 'Velocity Selector Tilt',
@@ -29,23 +31,31 @@ devices = dict(
         fmtstr = '%.2f',
     ),
     vs_vacuum = device('nicos.devices.epics.pyepics.EpicsReadable',
-        description = 'Velocity Selector Vaccum',
-        readpv = selprefix + 'VAKUUM_RBV'
+        description = 'Velocity Selector Vacuum',
+        readpv = selprefix + 'vacuum_rbv'
     ),
     vs_vibration = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Velocity Selector Vibration',
-        readpv = selprefix + 'Hz_RBV'
+        readpv = selprefix + 'vibration_rbv'
     ),
     vs_rot_t = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Velocity Rotor Temperature',
-        readpv = selprefix + 'T_ROT_RBV'
+        readpv = selprefix + 'rotor_temp_rbv'
     ),
     vs_flow = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Velocity Water Flow',
-        readpv = selprefix + 'DURCHFL_RBV'
+        readpv = selprefix + 'cw_flow_rate_rbv'
     ),
-    vs_water_t = device('nicos.devices.epics.pyepics.EpicsReadable',
-        description = 'Velocity Water Temperature',
-        readpv = selprefix + 'T_RUECK_RBV'
+    vs_water_tin = device('nicos.devices.epics.pyepics.EpicsReadable',
+        description = 'Velocity Water Temperature inlet',
+        readpv = selprefix + 'cw_temp_inlet_rbv'
+    ),
+    vs_water_tout = device('nicos.devices.epics.pyepics.EpicsReadable',
+        description = 'Velocity Water Temperature outlet',
+        readpv = selprefix + 'cw_temp_outlet_rbv'
+    ),
+    vs_cbv = device('nicos.devices.epics.pyepics.EpicsReadable',
+        description = 'Characterestic Bearing Value, front bearing',
+        readpv = selprefix + 'cbv_rbv'
     ),
 )
