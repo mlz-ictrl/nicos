@@ -17,6 +17,9 @@ devices = dict(
         bindmethod = 'tls_before_bind',
         userbasedn = 'ou=People,dc=pgaa,dc=frm2,dc=tum,dc=de',
         groupbasedn = 'ou=Group,dc=pgaa,dc=frm2,dc=tum,dc=de',
+        userroles = {
+            'kbrenner': 'user',
+        },
         grouproles = {
             'pgaa': 'admin',
         },
