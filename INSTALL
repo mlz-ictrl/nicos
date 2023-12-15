@@ -90,7 +90,7 @@ Development and documentation build dependencies can be installed with::
 
 pip can be obtained from https://pip.pypa.io/en/stable/
 
-For Ubuntu::
+For Debian/Ubuntu::
 
   sudo apt-get install python3-pip
 
@@ -105,18 +105,31 @@ https://software.opensuse.org/download.html?project=science:gr-framework&package
 Generic Debian/Ubuntu
 ^^^^^^^^^^^^^^^^^^^^^
 
-The `nicos-pyctl` and `lttb` packages are available in the MLZ repositories
-linked at:
-https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
+Please at the local repository via:
+
+     echo "deb [trusted=yes] https://forge.frm2.tum.de/repos distro/"| sudo tee /etc/apt/sources.list.d/mlz.list
+     sudo apt update
+
+where 'distro' stands for:
+
+     - bionic (Ubuntu 18.04)
+     - focal (Ubuntu 20.04)
+     - jammy (Ubunut 22.04)
+     - buster (Debian 10)
+     - bullseye (Debian 11)
+     - bookworm (Debian 12)
 
 * Basic system::
 
      apt-get install python3-{dev,zmq,numpy,scipy,psutil,rsa,systemd,toml} gnuplot
-     apt-get install python3-{keyring,keyrings.alt,html2text,lttb,nicos-pyctl}
+     apt-get install python3-{keyring,keyrings.alt,html2text}
+     apt-get install python3-{lttb,nicos-pyctl,nicos-quickyaml}
 
 * Optional components::
 
-     apt-get install python3-{ldap3,docutils,serial,matplotlib,astropy,h5py,markdown}
+     apt-get install python3-{ldap3,docutils,serial,matplotlib,astropy,h5py,markdown,opencv,pika}
+     apt-get install frappy-core
+     apt-get install python3-{kafka,confluent-kafka,pyepics}
 
 * GUI and status monitor::
 
@@ -125,12 +138,18 @@ https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 
 * Development and documentation build::
 
-     apt-get install python3-{sip-dev,pytest,pytest-cov,mock,coverage,sphinx}
+     apt-get install python3-{sip-dev,pytest,pytest-cov,mock,coverage,sphinx,sphsphinx-rtd-theme,inxcontrib.seqdiag}
      apt-get install python3-pyqt5-{dev,dev-tools}
 
+* GR library repository
 
-Debian 11 (Bullseye)
-^^^^^^^^^^^^^^^^^^^^
+     To add the GR repository the gpg and curl tools are needed
+
+     apt-get install gpg curl
+
+
+Debian 11/12 (Bullseyer/Bookworm)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 An additional plugin for pytest is required (which was formerly included).
 
