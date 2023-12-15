@@ -694,6 +694,11 @@
     <string>Ctrl+ALT+W</string>
    </property>
   </action>
+  <action name="actionAttachElog">
+    <property name="text">
+      <string>Attach to electronic log</string>
+    </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
