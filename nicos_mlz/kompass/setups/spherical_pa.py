@@ -1,4 +1,4 @@
-description = 'Kompass setup for longitudinal polarisation analysis mode'
+description = 'Kompass setup for spherical polarisation analysis mode'
 
 group = 'optional'
 
