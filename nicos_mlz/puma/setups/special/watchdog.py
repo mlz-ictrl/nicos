@@ -39,7 +39,7 @@ includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = 'pumahw.puma.frm2:14869',
+        cache = 'pumahw.puma.frm2.tum.de:14869',
         notifiers = {'default': ['email'],
                      'critical': ['email', 'smser']},
         watch = watch_conditions,

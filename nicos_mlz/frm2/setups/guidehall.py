@@ -2,7 +2,7 @@ description = 'FRM II Neutron guide hall west infrastructure devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://ictrlfs.ictrl.frm2:10000/'
+tango_base = 'tango://ictrlfs.ictrl.frm2.tum.de:10000/'
 
 devices = dict(
     Sixfold = device('nicos.devices.entangle.NamedDigitalInput',

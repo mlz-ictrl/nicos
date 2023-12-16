@@ -2,9 +2,9 @@ description = 'Substraction coils'
 group = 'lowlevel'
 display_order = 26
 
-tango_base = 'tango://heinzinger.reseda.frm2:10000/box/heinzinger'
+tango_base = 'tango://heinzinger.reseda.frm2.tum.de:10000/box/heinzinger'
 
-coil_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+coil_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 
 devices = dict(
     nse0 = device('nicos.devices.entangle.PowerSupply',

@@ -33,12 +33,12 @@ class RadMon(Readable):
     def doInit(self, mode):
         h = urllib.request.HTTPBasicAuthHandler()
         h.add_password(realm='Administrator or User',
-                       uri='http://miracam.mira.frm2/IMAGE.JPG',
+                       uri='http://miracam.mira.frm2.tum.de/IMAGE.JPG',
                        user='mira', passwd='mira')
         self._op = urllib.request.build_opener(h)
 
     def doRead(self, maxage=0):
-        img = self._op.open('http://miracam.mira.frm2/IMAGE.JPG').read()
+        img = self._op.open('http://miracam.mira.frm2.tum.de/IMAGE.JPG').read()
         with open('/tmp/radmon.jpg', 'wb') as f:
             f.write(img)
         p1 = createSubprocess('/usr/local/bin/ssocr -d 3 -i 1 -t 50 -l maximum '

@@ -1,7 +1,7 @@
 description = 'Aux Motor setup'
 group = 'optional'
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 
 devices = dict(
     aux1_mot = device('nicos.devices.entangle.Motor',

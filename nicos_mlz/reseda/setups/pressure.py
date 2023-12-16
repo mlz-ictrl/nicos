@@ -3,7 +3,7 @@ group = 'optional'
 
 #includes = ['alias_T']
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 
 devices = dict(
     P_ng_elements = device('nicos.devices.entangle.Sensor',

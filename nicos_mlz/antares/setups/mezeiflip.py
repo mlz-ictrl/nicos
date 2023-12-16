@@ -1,7 +1,7 @@
 description = 'Mezei spin flipper using Lambda Genesys power supply'
 group = 'optional'
 
-tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
 
 devices = dict(
     dct1 = device('nicos.devices.entangle.PowerSupply',

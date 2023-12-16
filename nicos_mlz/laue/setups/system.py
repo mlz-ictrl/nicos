@@ -2,7 +2,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'lauectrl.laue.frm2',
+    cache = 'lauectrl.laue.frm2.tum.de',
     instrument = 'Laue',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'dmnsink'],

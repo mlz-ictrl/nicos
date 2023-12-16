@@ -2,7 +2,7 @@ description = 'Tensile machine'
 
 group = 'optional'
 
-nameservice = 'antaresctrl.antares.frm2'
+nameservice = 'antaresctrl.antares.frm2.tum.de'
 
 devices = dict(
     teload = device('nicos.devices.vendor.caress.Motor',

@@ -3,7 +3,7 @@ description = 'NICOS system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'sehw.se.frm2',
+    cache = 'sehw.se.frm2.tum.de',
     instrument = 'SE',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'dmnsink'],

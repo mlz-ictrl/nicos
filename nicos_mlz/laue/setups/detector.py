@@ -8,7 +8,7 @@ sysconfig = dict(
 devices = dict(
     image = device('nicos_mlz.laue.devices.psldetector.PSLDetector',
         description = 'PSL detector image',
-        address = 'lauedet.laue.frm2',
+        address = 'lauedet.laue.frm2.tum.de',
         port = 50000,
     ),
     live = device('nicos.devices.datasinks.LiveViewSink',

@@ -5,7 +5,7 @@ includes = ['system']
 
 devices = dict(
     # gs1bus    = device('nicos.devices.vendor.ipc.IPCModBusTCP',
-    #                    host = 'mirars7.mira.frm2',
+    #                    host = 'mirars7.mira.frm2.tum.de',
     #                    port = 4001,
     #                    visibility = (),
     #                   ),

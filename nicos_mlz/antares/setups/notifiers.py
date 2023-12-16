@@ -26,6 +26,6 @@ devices = dict(
     smser = device('nicos.devices.notifiers.SMSer',
         description = 'SMS notifier',
         receivers = ['015121100909'],
-        server = 'triton.admin.frm2',
+        server = 'triton.admin.frm2.tum.de',
     ),
 )

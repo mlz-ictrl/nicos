@@ -2,7 +2,7 @@ description = 'High voltage devices'
 
 group = 'lowlevel'
 
-tango_host = 'tango://ps01.stressi.frm2:10000/box/det/'
+tango_host = 'tango://ps01.stressi.frm2.tum.de:10000/box/det/'
 
 devices = dict(
     hv1 = device('nicos.devices.entangle.PowerSupply',

@@ -1,7 +1,7 @@
 description = 'Attenuators'
 group = 'optional'
 display_order = 2
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/iobox'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda/iobox'
 
 devices = dict(
     att0 = device('nicos.devices.entangle.NamedDigitalOutput',

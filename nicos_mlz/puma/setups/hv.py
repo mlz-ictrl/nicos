@@ -2,7 +2,7 @@ description = 'High voltage power supplies'
 
 group = 'lowlevel'
 
-tango_base = 'tango://puma5.puma.frm2:10000/puma/'
+tango_base = 'tango://puma5.puma.frm2.tum.de:10000/puma/'
 
 devices = dict(
     hvmonitor = device('nicos.devices.entangle.PowerSupply',

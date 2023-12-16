@@ -5,7 +5,7 @@ includes = [
 ]
 
 sysconfig = dict(
-    cache = 'resedactrl.reseda.frm2',
+    cache = 'resedactrl.reseda.frm2.tum.de',
     instrument = 'reseda',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink', 'LiveImgSink'],

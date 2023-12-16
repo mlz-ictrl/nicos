@@ -4,7 +4,7 @@ group = 'optional'
 includes = ['base']
 excludes = ['mono1']
 
-tango_base = 'tango://miractrl.mira.frm2:10000/mira/euler/'
+tango_base = 'tango://miractrl.mira.frm2.tum.de:10000/mira/euler/'
 
 devices = dict(
     co_ephi = device('nicos.devices.entangle.Sensor',

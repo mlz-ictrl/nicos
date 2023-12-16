@@ -6,7 +6,7 @@ includes = ['cascade', 'guidehall', 'nl6', 'cbox1', 'cbox2',
             'rte1104', 'tuning']
 excludes = ['guidefield']
 
-tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2.tum.de:10000/mira/'
 
 devices = dict(
     hsf1 = device('nicos.devices.entangle.PowerSupply',

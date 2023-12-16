@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'sehw.se.frm2'
+    cache = 'sehw.se.frm2.tum.de'
 )
 
 devices = dict(

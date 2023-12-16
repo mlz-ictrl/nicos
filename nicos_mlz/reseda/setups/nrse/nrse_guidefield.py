@@ -1,7 +1,7 @@
 description = 'Guide field for NRSE mode'
 group = 'lowlevel'
 
-tango_base = 'tango://heinzinger.reseda.frm2:10000/box/heinzinger1'
+tango_base = 'tango://heinzinger.reseda.frm2.tum.de:10000/box/heinzinger1'
 
 devices = dict(
     guidefield = device('nicos.devices.entangle.PowerSupply',

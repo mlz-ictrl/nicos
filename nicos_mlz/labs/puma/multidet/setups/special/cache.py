@@ -7,7 +7,7 @@ devices = dict(
     ),
     Server = device('nicos.services.cache.server.CacheServer',
         db = 'DB',
-        server = 'pumadma.puma.frm2',
+        server = 'pumadma.puma.frm2.tum.de',
         loglevel = 'info'
     ),
 )

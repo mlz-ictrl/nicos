@@ -40,7 +40,7 @@ devices = dict(
         # use only 'localhost' if the cache is really running on
         # the same machine, otherwise use the official computer
         # name
-        cache = 'lauectrl.laue.frm2',
+        cache = 'lauectrl.laue.frm2.tum.de',
         notifiers = notifiers,
         mailreceiverkey = 'wemail/receivers',
         watch = watch_conditions,

@@ -2,7 +2,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'antareshw.antares.frm2',
+    cache = 'antareshw.antares.frm2.tum.de',
     instrument = 'ANTARES',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -80,7 +80,7 @@ devices = dict(
     ),
     BarcodeReader = device('nicos_mlz.devices.barcodes.BarcodeInterpreter',
         description = 'Receives and processes barcodes from a reader',
-        tangodevice = 'tango://antareshw.antares.frm2:10000/antares/barcodes/reader',
+        tangodevice = 'tango://antareshw.antares.frm2.tum.de:10000/antares/barcodes/reader',
         commandmap = {
         },
     ),

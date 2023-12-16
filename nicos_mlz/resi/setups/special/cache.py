@@ -11,7 +11,7 @@ devices = dict(
     ),
     Server = device('nicos.services.cache.server.CacheServer',
         db = 'DBfile',
-        server = 'resictrl.resi.frm2',
+        server = 'resictrl.resi.frm2.tum.de',
         loglevel = 'info',
     ),
 )

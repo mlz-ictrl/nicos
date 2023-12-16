@@ -30,7 +30,7 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
     ),
     # smser = device('nicos.devices.notifiers.SMSer',
-    #     server = 'triton.admin.frm2',
+    #     server = 'triton.admin.frm2.tum.de',
     #     receivers = ['01719251564', '01782979497'],
     # ),
 )

@@ -3,7 +3,7 @@ group = 'optional'
 includes = ['det_base', 'coderbus']
 excludes = ['det_cascade']
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 
 devices = dict(
     scandet = device('nicos_mlz.reseda.devices.ScanningDetector',

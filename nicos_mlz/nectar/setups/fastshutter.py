@@ -1,7 +1,7 @@
 description = 'Fast Shutter'
 group = 'optional'
 
-tango_base = 'tango://nectarhw.nectar.frm2:10000/nectar'
+tango_base = 'tango://nectarhw.nectar.frm2.tum.de:10000/nectar'
 
 devices = dict(
     fastshutter_io = device('nicos.devices.entangle.DigitalOutput',

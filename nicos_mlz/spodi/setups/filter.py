@@ -2,7 +2,7 @@ description = 'Graphite filter devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://%s:10000/spodi/filterbox/' % 'spodictrl.spodi.frm2'
+tango_base = 'tango://%s:10000/spodi/filterbox/' % 'spodictrl.spodi.frm2.tum.de'
 
 devices = dict(
     filter = device('nicos.devices.entangle.NamedDigitalOutput',

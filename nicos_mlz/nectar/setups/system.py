@@ -2,7 +2,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'nectarhw.nectar.frm2',
+    cache = 'nectarhw.nectar.frm2.tum.de',
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],

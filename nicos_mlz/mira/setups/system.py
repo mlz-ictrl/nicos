@@ -2,7 +2,7 @@ description = 'system setup only'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'miractrl.mira.frm2',
+    cache = 'miractrl.mira.frm2.tum.de',
     instrument = 'mira',
     experiment = 'Exp',
     notifiers = ['email', 'smser'],

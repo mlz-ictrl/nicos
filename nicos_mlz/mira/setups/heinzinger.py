@@ -2,7 +2,7 @@ description = 'Heinzinger power supplies for MIEZE'
 
 group = 'optional'
 
-tango_base = 'tango://heinzinger.mira.frm2:10000/box/'
+tango_base = 'tango://heinzinger.mira.frm2.tum.de:10000/box/'
 
 devices = dict(
     hrf1 = device('nicos.devices.entangle.PowerSupply',

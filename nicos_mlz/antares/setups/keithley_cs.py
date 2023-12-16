@@ -1,7 +1,7 @@
 description = 'Keithley 6221 current source, for susceptometer measurements'
 group = 'optional'
 
-tango_base = 'tango://antareshw.antares.frm2:10000/antares/keithley_currentsource/'
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/keithley_currentsource/'
 
 devices = dict(
     cs_curr = device('nicos.devices.entangle.AnalogOutput',

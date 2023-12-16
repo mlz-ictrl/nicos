@@ -1,7 +1,7 @@
 description = 'Beckhoff02 supported auxiliary devices'
 group = 'optional'
 
-tango_base = 'tango://antareshw.antares.frm2:10000/antares/beckhoff02/beckhoff02_'
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/beckhoff02/beckhoff02_'
 
 devices = {}
 

@@ -1,6 +1,6 @@
 description = 'LakeShore LS336 controller N1'
 
-tango_base = 'tango://seplot.se.frm2:10000/se/%s' % setupname
+tango_base = 'tango://seplot.se.frm2.tum.de:10000/se/%s' % setupname
 
 devices = {
     'T_%s_control1' % setupname : device('nicos.devices.entangle.TemperatureController',

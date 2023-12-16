@@ -2,7 +2,7 @@ description = 'Double Crystal Monochromator'
 
 group = 'optional'
 
-tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
 
 devices = dict(
     mono = device('nicos_mlz.antares.devices.Monochromator',

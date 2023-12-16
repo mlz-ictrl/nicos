@@ -1,7 +1,7 @@
 description = 'sample table (external control)'
 group = 'lowlevel'
 
-tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2.tum.de:10000/mira/'
 
 devices = dict(
     co_stt = device('nicos.devices.entangle.Sensor',

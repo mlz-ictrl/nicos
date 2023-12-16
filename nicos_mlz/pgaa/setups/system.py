@@ -1,7 +1,7 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = 'tequila.pgaa.frm2',
+    cache = 'tequila.pgaa.frm2.tum.de',
     instrument = 'PGAA',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],

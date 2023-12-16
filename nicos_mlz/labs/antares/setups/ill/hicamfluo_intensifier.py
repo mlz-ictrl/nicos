@@ -3,7 +3,7 @@ group = 'optional'
 
 includes = []
 
-tango_base = 'tango://antareslamcam.office.frm2:10000/antares/hicamfluo/'
+tango_base = 'tango://antareslamcam.office.frm2.tum.de:10000/antares/hicamfluo/'
 
 devices = dict(
     MCP_Voltage = device('nicos.devices.entangle.AnalogOutput',

@@ -3,7 +3,7 @@ description = 'system setup only'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'resictrl.resi.frm2',
+    cache = 'resictrl.resi.frm2.tum.de',
     instrument = 'resiInstrument',
     experiment = 'Exp',
     notifiers = ['email'],

@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'antareshw.antares.frm2'
+    cache = 'antareshw.antares.frm2.tum.de'
 )
 
 devices = dict(

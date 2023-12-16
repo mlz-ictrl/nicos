@@ -3,7 +3,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'resictrl.resi.frm2',
+    cache = 'resictrl.resi.frm2.tum.de',
 )
 
 devices = dict(

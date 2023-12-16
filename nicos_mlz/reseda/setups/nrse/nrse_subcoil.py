@@ -2,7 +2,7 @@ description = 'Substraction coil for NRSE mode'
 group = 'lowlevel'
 excludes = ['mieze_subcoil']
 
-tango_base = 'tango://heinzinger.reseda.frm2:10000/box/heinzinger'
+tango_base = 'tango://heinzinger.reseda.frm2.tum.de:10000/box/heinzinger'
 
 devices = dict(
     subcoil_ps2 = device('nicos.devices.entangle.PowerSupply',

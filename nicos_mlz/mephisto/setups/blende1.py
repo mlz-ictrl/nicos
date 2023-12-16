@@ -2,7 +2,7 @@ description = 'sample slit devices'
 
 includes = ['system']
 
-tango_base = 'tango://mephistosrv.mephisto.frm2:10000/mephisto/aperture1/'
+tango_base = 'tango://mephistosrv.mephisto.frm2.tum.de:10000/mephisto/aperture1/'
 
 devices = dict(
     edge1 = device('nicos.devices.entangle.Motor',

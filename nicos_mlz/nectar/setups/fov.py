@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = ['frr']
 
-tango_base = 'tango://phytron01.nectar.frm2:10000/'
+tango_base = 'tango://phytron01.nectar.frm2.tum.de:10000/'
 
 devices = dict(
     fov_mot = device('nicos.devices.entangle.Motor',

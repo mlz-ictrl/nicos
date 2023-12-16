@@ -38,7 +38,7 @@ notifiers = {
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = 'tequila.pgaa.frm2:14869',
+        cache = 'tequila.pgaa.frm2.tum.de:14869',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
         watch = watch_conditions,

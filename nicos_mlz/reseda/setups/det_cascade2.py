@@ -3,7 +3,7 @@ group = 'lowlevel'
 includes = ['det_base']
 excludes = ['det_3he', 'det_cascade']
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda/'
 
 sysconfig = dict(
     datasinks = ['psd_padformat', 'psd_tofformat', 'psd_liveview', 'HDF5FileSaver'],

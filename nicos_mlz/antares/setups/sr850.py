@@ -1,7 +1,7 @@
 description = 'Stanford SR-850 lock-in amplifier, for susceptibility measurements'
 group = 'optional'
 
-tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
 
 devices = dict(
     sr850 = device('nicos_mlz.mira.devices.sr850.Amplifier',

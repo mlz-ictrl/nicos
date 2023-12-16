@@ -4,7 +4,7 @@ group = 'lowlevel'
 includes = ['alias_sth']
 excludes = ['sample_ext']
 
-tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2.tum.de:10000/mira/'
 
 devices = dict(
     co_stt = device('nicos.devices.entangle.Sensor',

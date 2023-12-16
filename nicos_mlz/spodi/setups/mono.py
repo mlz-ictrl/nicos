@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 # servername = 'VMESPODI'
 
-# nameservice = 'spodisrv.spodi.frm2'
+# nameservice = 'spodisrv.spodi.frm2.tum.de'
 
 tango_base = 'tango://motorbox02.spodi.frm2.tum.de:10000/box/'
 

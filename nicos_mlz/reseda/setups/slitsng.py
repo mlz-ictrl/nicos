@@ -1,7 +1,7 @@
 description = 'New phytron based slits'
 group = 'optional'
 display_order = 6
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/slit'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda/slit'
 
 devices = dict(
     slit1_top_mot = device('nicos.devices.entangle.Motor',

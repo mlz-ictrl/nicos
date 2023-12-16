@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['alias_T']
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 
 devices = dict(
     # T_ccr = device('nicos_mlz.devices.ccr.CCRControl',

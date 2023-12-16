@@ -3,7 +3,7 @@ group = 'optional'
 
 includes = []
 
-tango_base = 'tango://antareshw.antares.frm2:10000/antares/fg/'
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/fg/'
 
 devices = dict(
     funcgen_amp = device('nicos.devices.entangle.AnalogOutput',

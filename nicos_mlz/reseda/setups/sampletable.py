@@ -1,7 +1,7 @@
 description = 'Sample table (translation)'
 group = 'optional'
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 
 devices = dict(
     srz_mot = device('nicos.devices.entangle.Motor',

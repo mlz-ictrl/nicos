@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'spodictrl.spodi.frm2',
+    cache = 'spodictrl.spodi.frm2.tum.de',
     instrument = 'Spodi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'spodilivesink',

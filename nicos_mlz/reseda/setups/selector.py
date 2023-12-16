@@ -1,7 +1,7 @@
 description = 'setup for the velocity selector'
 group = 'lowlevel'
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/selector'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda/selector'
 
 devices = dict(
    # selector_speed_fake = device('nicos.devices.generic.virtual.VirtualMotor',

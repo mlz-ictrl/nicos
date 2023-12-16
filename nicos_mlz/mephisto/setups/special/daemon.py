@@ -10,7 +10,7 @@ devices = dict(
                   ('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin')],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = 'mephisto17.office.frm2',
+        server = 'mephisto17.office.frm2.tum.de',
         authenticators = ['Auth'],
         loglevel = 'debug',
     ),

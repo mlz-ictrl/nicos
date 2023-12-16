@@ -2,7 +2,7 @@ description = 'Pulsed magnet'
 
 group = 'optional'
 
-tango_host = 'tango://puma5.puma.frm2:10000/puma/'
+tango_host = 'tango://puma5.puma.frm2.tum.de:10000/puma/'
 
 includes = ['nanovoltmeter']
 

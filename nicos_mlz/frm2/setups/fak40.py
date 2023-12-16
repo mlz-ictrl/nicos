@@ -1,7 +1,7 @@
 description = 'FRM II FAK40 information (cooling water system)'
 
 group = 'lowlevel'
-tango_base = 'tango://ictrlfs.ictrl.frm2:10000/frm2/'
+tango_base = 'tango://ictrlfs.ictrl.frm2.tum.de:10000/frm2/'
 
 
 devices = dict(

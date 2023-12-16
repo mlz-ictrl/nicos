@@ -6,7 +6,7 @@ excludes = ['tensile']
 
 servername = 'VMESPODI'
 
-nameservice = 'spodisrv.spodi.frm2'
+nameservice = 'spodisrv.spodi.frm2.tum.de'
 
 devices = dict(
     chit = device('nicos.devices.vendor.caress.EKFMotor',

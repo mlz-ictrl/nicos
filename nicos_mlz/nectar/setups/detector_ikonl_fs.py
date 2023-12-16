@@ -4,7 +4,7 @@ group = 'optional'
 includes = ['filesavers']
 excludes = ['detector', 'detector_ikonl', 'detector_neo']
 
-tango_base = 'tango://nectarccd01.nectar.frm2:10000/nectar/'
+tango_base = 'tango://nectarccd01.nectar.frm2.tum.de:10000/nectar/'
 
 devices = dict(
     timer = device('nicos.devices.vendor.lima.LimaCCDTimer',

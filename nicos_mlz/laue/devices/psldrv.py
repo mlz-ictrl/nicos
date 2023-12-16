@@ -31,7 +31,7 @@ import zlib
 
 
 class PSLdrv:
-    def __init__(self, address='lauedet.laue.frm2', port=50000):
+    def __init__(self, address='lauedet.laue.frm2.tum.de', port=50000):
         self.address = address
         self.port = port
 

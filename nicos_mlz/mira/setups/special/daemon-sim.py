@@ -10,7 +10,7 @@ devices = dict(
         ]
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = 'miractrl:1302',
+        server = 'miractrl.mira.frm2.tum.de:1302',
         loglevel = 'info',
         simmode = True,
         authenticators = ['Auth']

@@ -2,7 +2,7 @@ description = 'Tensile machine (CORBA) setup'
 
 group = 'optional'
 
-nameservice = 'spodictrl.spodi.frm2'
+nameservice = 'spodictrl.spodi.frm2.tum.de'
 
 tango_base = 'tango://motorbox01.spodi.frm2.tum.de:10000/box/'
 

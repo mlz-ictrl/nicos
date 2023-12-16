@@ -2,7 +2,7 @@ description = 'Vacuum sensors of sample chamber'
 
 group = 'lowlevel'
 
-tango_base = 'tango://pgaahw.pgaa.frm2:10000/pgaa/sample/'
+tango_base = 'tango://pgaahw.pgaa.frm2.tum.de:10000/pgaa/sample/'
 
 devices = dict(
     chamber_pressure = device('nicos.devices.entangle.Sensor',

@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 excludes = ['sampletable']
 
-tango_base = 'tango://pgaahw.pgaa.frm2:10000/pgaa/'
+tango_base = 'tango://pgaahw.pgaa.frm2.tum.de:10000/pgaa/'
 
 devices = dict(
     sensort = device('nicos.devices.entangle.DigitalInput',

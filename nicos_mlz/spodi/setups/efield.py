@@ -2,7 +2,7 @@ description = 'Electric field sample stick'
 
 group = 'optional'
 
-tango_base = 'tango://spodisrv.spodi.frm2:10000/spodi/hcp/'
+tango_base = 'tango://spodisrv.spodi.frm2.tum.de:10000/spodi/hcp/'
 
 devices = dict(
     E = device('nicos.devices.entangle.PowerSupply',

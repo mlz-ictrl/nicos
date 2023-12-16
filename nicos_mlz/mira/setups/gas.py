@@ -1,7 +1,7 @@
 description = 'Gas flow for the (Cascade) PSD detector'
 group = 'lowlevel'
 
-tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
+tango_base = 'tango://miractrl.mira.frm2.tum.de:10000/mira/'
 
 devices = dict(
     ar = device('nicos.devices.entangle.AnalogOutput',

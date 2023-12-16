@@ -39,7 +39,7 @@ devices = dict(
         }
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = 'miractrl.mira.frm2',
+        server = 'miractrl.mira.frm2.tum.de',
         loglevel = 'info',
         authenticators = ['UserDBAuth', 'LDAPAuth', 'LDAPAuthBU',],
     ),

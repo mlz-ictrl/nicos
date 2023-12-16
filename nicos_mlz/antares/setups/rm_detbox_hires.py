@@ -4,7 +4,7 @@ group = 'optional'
 
 excludes = ['scintillatortx']
 
-tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
 
 devices = dict(
     scintillatortx = device('nicos.devices.entangle.Motor',

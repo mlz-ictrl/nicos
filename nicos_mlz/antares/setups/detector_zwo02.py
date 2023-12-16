@@ -2,7 +2,7 @@ description = 'ZWO CCD camera 2 devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://zwo02:10000/lima/zwo/'
+tango_base = 'tango://zwo02.antares.frm2.tum.de:10000/lima/zwo/'
 
 devices = dict(
     zwo02 = device('nicos.devices.vendor.lima.GenericLimaCCD',

@@ -2,7 +2,7 @@ description = 'QMesyDAQ detector devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://spodictrl.spodi.frm2:10000/spodi/'
+tango_base = 'tango://spodictrl.spodi.frm2.tum.de:10000/spodi/'
 detector_base = 'tango://mesydaq.spodi.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(

@@ -5,7 +5,7 @@ includes = ['shutters', 'filesavers']
 
 excludes = ['detector_neo']
 
-tango_base = 'tango://dhcp02.antares.frm2:10000/pgaa/'
+tango_base = 'tango://dhcp02.antares.frm2.tum.de:10000/pgaa/'
 
 devices = dict(
     timer_neo = device('nicos.devices.vendor.lima.LimaCCDTimer',
@@ -41,7 +41,7 @@ devices = dict(
     ),
     socket_neo = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Powersocket 01 (Neo Camera attached)',
-        tangodevice = 'tango://antareshw.antares.frm2:10000/antares/'
+        tangodevice = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
         'fzjdp_digital/Socket01',
         mapping = dict(on = 1, off = 0),
     )

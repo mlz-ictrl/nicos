@@ -6,6 +6,6 @@ devices = dict(
     LogbookText = device('nicos.services.elog.handler.text.Handler'),
     Logbook = device('nicos.services.elog.Logbook',
         handlers = ['LogbookHtml', 'LogbookText'],
-        cache = 'resedactrl.reseda.frm2',
+        cache = 'resedactrl.reseda.frm2.tum.de',
     ),
 )

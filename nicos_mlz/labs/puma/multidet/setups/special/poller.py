@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'pumadma.puma.frm2'
+    cache = 'pumadma.puma.frm2.tum.de'
 )
 
 devices = dict(

@@ -2,7 +2,7 @@ description = 'Devices for the CCR test box'
 
 group = 'optional'
 
-tangohost = 'ictrlsrv.ictrl.frm2:10000'
+tangohost = 'ictrlsrv.ictrl.frm2.tum.de:10000'
 
 dev_prefix = 'tango://%s/ccrtest/plc' % tangohost
 

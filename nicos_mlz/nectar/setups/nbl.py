@@ -2,7 +2,7 @@ description = 'Small Beam Limiter in Experimental Chamber 1'
 
 group = 'optional'
 
-tango_base = 'tango://phytron01.nectar.frm2:10000/'
+tango_base = 'tango://phytron01.nectar.frm2.tum.de:10000/'
 
 devices = dict(
     nbl_l = device('nicos.devices.entangle.Motor',

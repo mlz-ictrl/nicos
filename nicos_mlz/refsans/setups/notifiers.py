@@ -18,7 +18,7 @@ devices = dict(
 
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
-        server = 'triton.admin.frm2',
+        server = 'triton.admin.frm2.tum.de',
         receivers = [
             #'015123629866',
             '01799553828',

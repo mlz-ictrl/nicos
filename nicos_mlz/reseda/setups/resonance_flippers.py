@@ -2,7 +2,7 @@ description = 'Resonance flippers'
 group = 'lowlevel'
 display_order = 24
 
-tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 
 devices = dict(
     hrf_0a = device('nicos.devices.entangle.PowerSupply',

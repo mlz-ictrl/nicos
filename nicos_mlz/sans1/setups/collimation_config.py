@@ -218,5 +218,5 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # pump devices of 172.17.17.10 are at modbus-tangodevice //sans1srv.sans.frm2/sans1/col/pump
+    # pump devices of 172.17.17.10 are at modbus-tangodevice //sans1srv.sans.frm2.tum.de/sans1/col/pump
 )
