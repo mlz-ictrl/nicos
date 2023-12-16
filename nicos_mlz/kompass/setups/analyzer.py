@@ -2,7 +2,7 @@ description = 'Analyzer tower devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/aircontrol/plc_'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/aircontrol/plc_'
 
 devices = dict(
     # att (A6)

@@ -51,7 +51,7 @@ devices = dict(
         # use only 'localhost' if the cache is really running on
         # the same machine, otherwise use the official computer
         # name
-        cache = 'kompassctrl.kompass.frm2',
+        cache = 'kompassctrl.kompass.frm2.tum.de',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
         watch = watch_conditions,

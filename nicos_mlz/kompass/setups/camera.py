@@ -1,7 +1,7 @@
 description = 'neutron camera'
 group = 'optional'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
 sysconfig = dict(
     datasinks = ['tifformat'],

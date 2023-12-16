@@ -1,7 +1,7 @@
 description = 'JJ XRAY sample slits'
 group = 'lowlevel'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
 devices = dict(
     ss1r = device('nicos.devices.entangle.Motor',

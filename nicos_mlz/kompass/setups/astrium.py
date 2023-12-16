@@ -2,7 +2,7 @@ description = 'setup for the astrium velocity selector'
 
 group = 'lowlevel'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
 devices = dict(
     selector_rpm = device('nicos.devices.entangle.WindowTimeoutAO',

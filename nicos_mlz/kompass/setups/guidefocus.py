@@ -2,7 +2,7 @@ description = 'Neutron guide focussing devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
 devices = dict(
     lguide_m = device('nicos.devices.entangle.Motor',

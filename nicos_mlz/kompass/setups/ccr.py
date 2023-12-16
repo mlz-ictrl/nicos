@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['alias_T']
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/ls336'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/ls336'
 
 devices = dict(
     # T_ccr = device('nicos_mlz.frm2.devices.ccr.CCRControl',

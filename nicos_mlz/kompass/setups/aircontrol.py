@@ -2,7 +2,7 @@ description = 'Aircontrol PLC devices'
 
 group = 'optional'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/aircontrol/plc_'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/aircontrol/plc_'
 
 devices = dict(
     spare_motor_x2 = device('nicos.devices.entangle.Motor',

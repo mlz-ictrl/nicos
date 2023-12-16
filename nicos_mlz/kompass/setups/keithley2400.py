@@ -2,7 +2,7 @@ description = 'Keithley 2400 SourceMeter'
 
 group = 'optional'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
 devices = dict(
     keithley_current = device('nicos.devices.entangle.PowerSupply',

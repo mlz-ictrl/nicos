@@ -3,7 +3,7 @@ description = 'Sample table devices'
 group = 'lowlevel'
 includes = ['sampleslit']
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
 devices = dict(
     # A3
