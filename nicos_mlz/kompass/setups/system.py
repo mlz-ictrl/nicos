@@ -22,7 +22,6 @@ devices = dict(
         description = 'instrument object',
         instrument = 'KOMPASS',
         responsible = 'Dmitry Gorkov <dmitry.gorkov@frm2.tum.de>',
-        # doi = 'http://dx.doi.org/10.17815/jlsrf-1-25',
         website = 'http://www.mlz-garching.de/kompass',
         operators = [
             'Technische Universität München (TUM)',
