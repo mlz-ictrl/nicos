@@ -58,7 +58,7 @@ from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
     HasOffset, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, Moveable, Readable
-from nicos.core.errors import ConfigurationError
+from nicos.core.errors import ConfigurationError, CommunicationError
 from nicos.core.params import anytype, dictof, floatrange, intrange, listof
 from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
@@ -155,6 +155,27 @@ def secop_base_class(cls):
         if b in ALL_IF_CLASSES:
             return b
     raise TypeError('secop_base_class argument must inherit from SecopDevice')
+
+
+def get_exc_name(exc):
+    # get name of SECoPError, NicosError or other error
+    return getattr(exc, 'name', 0) or getattr(exc, 'category', 0) or type(exc).__name__
+
+
+def make_nicos_error(exc, category=None):
+    """convert SECoP error to nicos error
+
+    nicer logging compared to NicosError(str(exc)):
+    "<secop-error-class> - <str(exc)>" instead of "Error - <str(exc>)>"
+    """
+    if isinstance(exc, NicosError):
+        return exc
+    if category is None:
+        category = get_exc_name(exc)
+    # do not repeat category when contained already at start
+    text = re.sub(f'^{category} ?[-:]? ', '', str(exc))
+    # NicosLogger needs category to be a class attribute
+    return type('NicosSecopError', (NicosError,), {'category': category})(text)
 
 
 class SecNodeDevice(Readable):
@@ -693,7 +714,6 @@ class SecopDevice(Device):
     _inside_read = False
     # overridden by a dict for the validators of 'value', 'status' and 'target':
     _maintypes = ()
-    __update_error_logged = False
 
     @classmethod
     def makeDevClass(cls, name, **config):
@@ -879,6 +899,7 @@ class SecopDevice(Device):
         self._attached_secnode = None
         self._read_lock = RLock()
         self._pending_updates = {}
+        self._param_errors = {}
         Device.__init__(self, name, **self._modified_config)
         del self.__class__._modified_config
 
@@ -922,29 +943,33 @@ class SecopDevice(Device):
         # trigger nicos cache update and trigger doRead<param>/doRead/doStatus
         # respecting methods of mixins
         try:
-            if parameter == 'value':
-                return self.read(0)
             if parameter == 'status':
                 return self.status(0)
-            return getattr(self, parameter)  # trigger doRead<param>
-        except Exception:
+            if parameter == 'value':
+                result = self.read(0)
+            else:
+                result = getattr(self, parameter)  # trigger doRead<param>
+            if parameter in self._param_errors:
+                self._param_errors.pop(parameter)
+                self.status(0)  # modifying _param_errors affects status
+            return result
+        except Exception as e:
+            if self._cache:
+                self._cache.invalidate(self, parameter)
             try:
-                if self._attached_secnode._secnode.cache[
-                        self.secop_module, parameter].readerror:
-                    return  # the error is already handled
+                param_item = self._attached_secnode._secnode.cache[
+                        self.secop_module, parameter]
+                if not param_item.readerror:  # the error is not handled yet
+                    # this may happen when a value of a settable parameter
+                    # is updated to a value outside the range
+                    param_item.readerror = e
             except Exception:
                 pass
-            if not self.__update_error_logged:
-                # just log once per device, avoid flooding log
-                self.__update_error_logged = True
-                self.log.exception('error when updating %s', parameter)
+            self._param_errors[parameter] = make_nicos_error(e)
+            self.status(0)
 
     def _update(self, module, parameter, item):
         if parameter not in self.parameters and parameter not in self._maintypes:
-            return
-        if item.readerror:
-            if self._cache:
-                self._cache.invalidate(self, parameter)
             return
         if self._inside_read:
             # this thread is inside secnode.getParameter.
@@ -975,8 +1000,10 @@ class SecopDevice(Device):
                        indicated by maxage
         :return: the validated value, after doRead<param> machinery
         """
-        self._read(param, maxage, True)
-        return self._cache_update(param)
+        try:
+            return self._read(param, maxage, True)
+        finally:
+            self._cache_update(param)
 
     def _read(self, param, maxage=0, fromhw=True):
         """read from hw or get from secnode cache
@@ -998,7 +1025,7 @@ class SecopDevice(Device):
         except AttributeError:
             raise self._defunct_error() from None
         if not secnode.online:
-            raise NicosError('no SECoP connection')
+            raise CommunicationError('no SECoP connection')
         if maxage is None:
             fromhw = False
         elif fromhw is None and not self._attached_secnode.async_only:
@@ -1023,7 +1050,7 @@ class SecopDevice(Device):
                         self._cache_update(pname)
 
         if readerror:
-            raise NicosError(str(readerror)) from None
+            raise make_nicos_error(readerror) from None
         try:
             return validator(value)
         except Exception:
@@ -1072,12 +1099,32 @@ class SecopDevice(Device):
         if not self._defunct:
             self.setDefunct()
 
-    def doStatus(self, maxage=0):
+    def connectionStatus(self):
         if not self._attached_secnode:
             return status.ERROR, 'defunct'
         if not self._attached_secnode._secnode.online:
             return status.ERROR, 'no SECoP connection'
+        return None
+
+    def paramWarning(self):
+        n = len(self._param_errors)
+        if n == 1:
+            param, exc = list(self._param_errors.items())[0]
+            return status.WARN, f'param {param}: {get_exc_name(exc)} - {exc}'
+        return status.WARN, f'errors in {n} parameters: see {self.name}.showerrors()'
+
+    def doStatus(self, maxage=0):
+        st = self.connectionStatus()
+        if st:
+            return st
+        if self._param_errors:
+            return self.paramWarning()
         return status.OK, ''
+
+    def showerrors(self):
+        for param, exc in self._param_errors.items():
+            prefix = '' if param in str(exc) else f'{param}: '
+            session.log.info('%s.%s%s: %s', self.name, prefix, get_exc_name(exc), exc)
 
     def updateStatus(self):
         """get the status and update status in cache"""
@@ -1121,8 +1168,8 @@ class SecopReadable(SecopDevice, Readable):
             return self._read('value', maxage, None)
         except NicosError:
             st = self.doStatus(0)
-            if st[0] in (status.DISABLED, status.ERROR):
-                raise NicosError(st[1]) from None
+            if st[0] == status.DISABLED:
+                raise make_nicos_error(st[1], 'disabled') from None
             raise
 
     def doReset(self):
@@ -1135,18 +1182,30 @@ class SecopReadable(SecopDevice, Readable):
                 pass
 
     def doStatus(self, maxage=0):
-        code, text = SecopDevice.doStatus(self)
-        if code != status.OK:
-            return code, text
+        st = self.connectionStatus()
+        if st:
+            return st
         try:
             code, text = self._read('status', maxage, None)
         except NicosError as e:
             return status.ERROR, str(e)
         if 390 <= code < 400:  # SECoP status finalizing
             return status.OK, text
+        if self._param_errors:
+            exc = self._param_errors.get('value')
+            if exc and code < 300:  # error reading value and status < ERROR
+                return status.ERROR, f'can not read value: {get_exc_name(exc)} - {exc}'
+            if code < 200:  # error in any other parameter and status < WARNING
+                return self.paramWarning()
         # treat SECoP code 401 (unknown) as error - should be distinct from
         # NICOS status unknown
         return self.STATUS_MAP.get(code // 100, status.UNKNOWN), text
+
+    def showerrors(self):
+        st = self.status()
+        if st[0] == status.ERROR:
+            session.log.info('%s.status(): %s', self.name, st[1])
+        super().showerrors()
 
     def updateStatus(self):
         """status update without SECoP read"""
@@ -1155,7 +1214,7 @@ class SecopReadable(SecopDevice, Readable):
     def info(self):
         # override the default NICOS behaviour here:
         # a disabled SECoP module should be ignored silently
-        st = self.status()
+        st = self.doStatus()
         if st[0] == status.DISABLED:
             # do not display info in data file when disabled
             return []
