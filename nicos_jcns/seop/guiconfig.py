@@ -26,22 +26,8 @@ main_window = docked(
 )
 
 windows = [
-    window('Editor', 'editor',
-        vsplit(
-            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-            panel('nicos.clients.gui.panels.editor.EditorPanel',
-              tools = [
-                  tool('Scan Generator',
-                       'nicos.clients.gui.tools.scan.ScanTool')
-              ]))),
-    window('Scans', 'plotter',
-           panel('nicos.clients.gui.panels.scans.ScansPanel')),
-    window('History', 'find',
-           panel('nicos.clients.gui.panels.history.HistoryPanel')),
-    window('Errors', 'errors',
-           panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-    window('Watchdog', 'errors',
-           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
+    window('Seop Quick Buttons', 'polarization',
+           panel('nicos_jcns.seop.gui.seop.SeopControlPanel')),
     window('Spectrum', 'plotter',
             panel('nicos_jcns.seop.gui.seop.SeopPlotPanel',
             plotconf={'title':'Processed NMR Spectrum', 'xlabel':'Frequency', 'ylabel':'Intensity'},
@@ -74,8 +60,22 @@ windows = [
             command = 'get_phase',
             xtime = True,
                   )),
-    window('Seop Quick Buttons', 'polarization',
-           panel('nicos_jcns.seop.gui.seop.SeopControlPanel')),
+    window('Editor', 'editor',
+        vsplit(
+            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+            panel('nicos.clients.gui.panels.editor.EditorPanel',
+              tools = [
+                  tool('Scan Generator',
+                       'nicos.clients.gui.tools.scan.ScanTool')
+              ]))),
+    window('Scans', 'plotter',
+           panel('nicos.clients.gui.panels.scans.ScansPanel')),
+    window('History', 'find',
+           panel('nicos.clients.gui.panels.history.HistoryPanel')),
+    window('Errors', 'errors',
+           panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+    window('Watchdog', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [
