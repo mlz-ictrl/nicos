@@ -147,6 +147,7 @@ Measuring commands
 
 .. autofunction:: count
 .. autofunction:: preset
+.. autofunction:: live
 
 .. autofunction:: SetDetectors
 .. autofunction:: AddDetector
