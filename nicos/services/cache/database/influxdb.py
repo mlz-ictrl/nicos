@@ -22,14 +22,21 @@
 # *****************************************************************************
 
 import ast
+import asyncio
 import csv
-from datetime import datetime
 import threading
+from datetime import datetime
 
-from influxdb_client import InfluxDBClient, BucketRetentionRules, Point
+import influxdb_client
+from influxdb_client import BucketRetentionRules, InfluxDBClient, Point
+
+try:
+    from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
+except ImportError:
+    pass
 from influxdb_client.client.write_api import SYNCHRONOUS as write_option
 
-from nicos.core import Param, ConfigurationError
+from nicos.core import ConfigurationError, Param
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.utils.credentials.keystore import nicoskeystore
@@ -42,22 +49,21 @@ class InfluxDBWrapper:
     """Wrapper for InfluxDB API 2.0.
     """
 
-    def __init__(self, url, token, org, bucket):
+    def __init__(self, url, token, org, bucket, bucket_latest):
         self._update_queue = []
         self._update_lock = threading.Lock()
         self._url = url
         self._token = token
         self._org = org
         self._bucket = bucket
+        self._bucket_latest = bucket_latest
         self._client = InfluxDBClient(url=self._url, token=self._token,
                                       org=self._org, timeout=30_000)
         self._write_api = self._client.write_api(write_options=write_option)
         self.addNewBucket(self._bucket)
 
     def disconnect(self):
-        with self._update_lock:
-            self._write(self._update_queue)
-            self._update_queue = []
+        self._update()
         self._client.close()
 
     def getBucketNames(self):
@@ -75,8 +81,101 @@ class InfluxDBWrapper:
                 bucket_name=bucket_name,
                 retention_rules=retention_rules, org=self._org)
 
-    def query(self):
+    def readLastValues(self):
+        """Queries InfluxDB for a last value of every existing key/subkey
+        asyncronously, since thus the fastest response is obtained.
+        For large DB this query can take minutes, therefore the last values
+        are generally stored in a separate bucket. If the bucket with the latest
+        values is empty for any reason this function shall be called.
+        """
+
+        def readKeys():
+            msg = f'''import "influxdata/influxdb/schema"
+                schema.measurements(bucket: "{self._bucket}",
+                start: 2007-01-01T00:00:00Z, stop: now())'''
+            tables = self._client.query_api().query(msg)
+            keys = [record['_value'] for record in tables[0].records]
+            return sorted(keys)
+
+        def readSubkeys(client, key):
+            msg = f'''import "influxdata/influxdb/schema"
+                schema.measurementFieldKeys(bucket: "{self._bucket}",
+                measurement: "{key}",
+                start: 2007-01-01T00:00:00Z, stop: now())'''
+            tables = client.query_api().query(msg)
+            subkeys = [record['_value'] for table in tables for record in table]
+            return sorted(subkeys)
+
+        async def readSubkeysAsync(client, key):
+            msg = f'''import "influxdata/influxdb/schema"
+                schema.measurementFieldKeys(bucket: "{self._bucket}",
+                measurement: "{key}",
+                start: 2007-01-01T00:00:00Z, stop: now())'''
+            tables = await client.query_api().query(msg)
+            subkeys = [record['_value'] for table in tables for record in table]
+            return sorted(subkeys)
+
+        def readLastValue(client, key, subkey):
+            result = []
+            year = datetime.now().year
+            while not result:
+                if year < 2007:
+                    break
+                msg = f'''from(bucket:"{self._bucket}")
+                    |> range(start: {year}-01-01T00:00:00Z, stop: now())
+                    |> filter(fn:(r) => r._measurement == "{key}")
+                    |> filter(fn:(r) => r._field == "{subkey}")
+                    |> last(column: "_time")
+                    |> drop(columns: ["_start", "_stop"])'''
+                result = client.query_api().query(msg)
+                year -= 1
+            return result
+
+        async def readLastValueAsync(client, key, subkey):
+            result = []
+            year = datetime.now().year
+            while not result and year >= 2007:
+                msg = f'''from(bucket:"{self._bucket}")
+                    |> range(start: {year}-01-01T00:00:00Z, stop: now())
+                    |> filter(fn:(r) => r._measurement == "{key}")
+                    |> filter(fn:(r) => r._field == "{subkey}")
+                    |> last(column: "_time")
+                    |> drop(columns: ["_start", "_stop"])'''
+                result = await client.query_api().query(msg)
+                year -= 1
+            return result
+
+        def queryValues(client, keys):
+            subkeys = [readSubkeys(client, key) for key in keys]
+            keys = dict(zip(keys, subkeys))
+            res = []
+            for key, subkeys in keys.items():
+                for subkey in subkeys:
+                    res.append(readLastValue(client, key, subkey))
+            return res
+
+        async def queryValuesAsync(keys):
+            async with InfluxDBClientAsync(url=self._url, token=self._token,
+                                           org=self._org, timeout=300_000) as \
+                    client:
+                tasks = [readSubkeysAsync(client, key) for key in keys]
+                keys = dict(zip(keys, await asyncio.gather(*tasks)))
+                tasks = [readLastValueAsync(client, key, subkey)
+                         for key, subkeys in keys.items() for subkey in subkeys]
+                return await asyncio.gather(*tasks)
+
+        keys = readKeys()
+        result = asyncio.run(queryValuesAsync(keys)) \
+                if hasattr(influxdb_client.client, 'influxdb_client_async') \
+            else queryValues(self._client, keys)
+        return result
+
+    def init_query(self):
         """Returns last value for every key/subkey.
+        Queries the DB for the latest values from a dedicated bucket. Compares
+        number of entries, if they match queries the cache bucket for any newer
+        values. If there is no match or there are no values, queries the cache
+        bucket for the latest values.
         _start and _stop columns do not contain any valuable information, yet
         the influxdb-client module still parses them into datetime object.
         Dropping these columns saves 66% of computation time on the
@@ -85,23 +184,47 @@ class InfluxDBWrapper:
         module is installed.
         """
 
-        with self._update_lock:
-            self._write(self._update_queue)
-            self._update_queue = []
-        msg = f'''from(bucket:"{self._bucket}")
-            |> range(start: 2007-01-01T00:00:00Z, stop: now())
-            |> last(column: "_time")
-            |> drop(columns: ["_start", "_stop"])'''
-        return self._client.query_api().query(msg)
+        self._update()
+        result = []
+        # query bucket with the latest values if exists and check if is complete
+        last_ts, n_records = 0, 0
+        if self._bucket_latest in self.getBucketNames():
+            msg = f'''from(bucket:"{self._bucket_latest}")
+                |> range(start: 2007-01-01T00:00:00Z, stop: now())
+                |> drop(columns: ["_start", "_stop"])'''
+            for table in self._client.query_api().query(msg):
+                for record in table:
+                    if record['_measurement'] == 'signing':
+                        n_records = record['_value']
+                        continue
+                    last_ts = max(last_ts, record['_time'].timestamp())
+                    result.append(record)
+        if n_records != len(result):
+            result = []
+
+        # query the cache bucket for any newer values
+        if last_ts and result:
+            t1 = datetime.utcfromtimestamp(last_ts).strftime("%Y-%m-%dT%H:%M:%SZ")
+            msg = f'''from(bucket:"{self._bucket}")
+                |> range(start: {t1}, stop: now())
+                |> last(column: "_time")
+                |> drop(columns: ["_start", "_stop"])'''
+            for table in self._client.query_api().query(msg):
+                for record in table:
+                    result.append(record)
+
+        # query the cache bucket for the latest values
+        if not result:
+            for tables in self.readLastValues():
+                for table in tables:
+                    for record in table:
+                        result.append(record)
+        return result
 
     def queryHistory(self, measurement, field, fromtime, totime, interval):
+        """Queries history from InfluxDB.
         """
-        Queries history from InfluxDB.
-        """
-
-        with self._update_lock:
-            self._write(self._update_queue)
-            self._update_queue = []
+        self._update()
         t1 = datetime.utcfromtimestamp(fromtime).strftime("%Y-%m-%dT%H:%M:%SZ")
         t2 = datetime.utcfromtimestamp(totime).strftime("%Y-%m-%dT%H:%M:%SZ")
         msg = f'''from(bucket:"{self._bucket}")
@@ -125,12 +248,39 @@ class InfluxDBWrapper:
             self._update_queue.append(point)
             if value_float:
                 self._update_queue.append(point_float)
-            if len(self._update_queue) > 100:
-                self._write(self._update_queue)
-                self._update_queue = []
+        if len(self._update_queue) > 100:
+            self._update()
 
-    def _write(self, points):
-        self._write_api.write(bucket=self._bucket, record=points)
+    def _update(self):
+        with self._update_lock:
+            self._write(self._bucket, self._update_queue)
+            self._update_queue = []
+
+    def writeLastValues(self, recent):
+        bucket_id = \
+            self._client.buckets_api().find_bucket_by_name(self._bucket_latest)
+        if bucket_id:
+            self._client.buckets_api().delete_bucket(bucket_id)
+
+        points = []
+        for measurement, (_, _, db) in recent.items():
+            for field, entry in db.items():
+                points.append(
+                    Point(measurement)
+                    .time(datetime.utcfromtimestamp(entry.time))
+                    .field(field, entry.value)
+                    .tag('expired', entry.expired)
+                )
+        if not self._bucket_latest in self.getBucketNames():
+            self.addNewBucket(self._bucket_latest)
+        self._write(self._bucket_latest, points)
+        # signing
+        self._write(self._bucket_latest, Point('signing')
+                    .time(datetime.utcnow()).field('N_records', len(points)))
+
+
+    def _write(self, bucket, points):
+        self._write_api.write(bucket=bucket, record=points)
 
     def _convert_to_float(self, value):
         try:
@@ -169,14 +319,25 @@ class InfluxDBCacheDatabase(CacheDatabase):
     """
 
     parameters = {
-        'url': Param('URL of InfluxDB instance', type=str, mandatory=True),
-        'keystoretoken': Param('Id used in the keystore for InfluxDB API token',
-                               type=str, default='influxdb', mandatory=True),
-        'org': Param('Corresponding organization name created during '
-                     'initialization of InfluxDB instance',
-                     type=str, mandatory=True),
-        'bucket': Param('Name of the bucket where data should be stored',
-                        type=str, default='nicos-cache', mandatory=True),
+        'url': Param(
+            'URL of InfluxDB instance', type=str, mandatory=True
+        ),
+        'keystoretoken': Param(
+            'Id used in the keystore for InfluxDB API token',
+            type=str, default='influxdb', mandatory=True
+        ),
+        'org': Param(
+            'Corresponding organization name created during initialization of '
+            'InfluxDB instance', type=str, mandatory=True
+        ),
+        'bucket': Param(
+            'Name of the bucket where data should be stored',
+            type=str, default='nicos-cache', mandatory=False
+        ),
+        'bucket_latest': Param(
+            'Name of the bucket where data should be stored',
+            type=str, default='nicos-cache-latest-values', mandatory=False
+        ),
     }
 
     def doInit(self, mode):
@@ -186,28 +347,30 @@ class InfluxDBCacheDatabase(CacheDatabase):
         token = nicoskeystore.getCredential(self.keystoretoken)
         if not token:
             raise ConfigurationError('InfluxDB API token missing in keyring')
-        self._client = InfluxDBWrapper(self.url, token, self.org, self.bucket)
+        self._client = InfluxDBWrapper(self.url, token, self.org, self.bucket,
+                                       self.bucket_latest)
+        self._time = datetime.now().timestamp()
 
     def initDatabase(self):
-        tables = self._client.query()
-        for table in tables:
-            for record in table:
-                category = record['_measurement']
-                subkey = record['_field']
-                time = record['_time'].timestamp()
-                with self._recent_lock:
-                    if category in self._recent:
-                        _, lock, db = self._recent[category]
-                        with lock:
-                            db[subkey] = CacheEntry(time, None, record['_value'])
-                            db[subkey].expired = record['expired'] == 'True'
-                    else:
-                        db = {}
+        records = self._client.init_query()
+        for record in records:
+            category = record['_measurement']
+            subkey = record['_field']
+            time = record['_time'].timestamp()
+            with self._recent_lock:
+                if category in self._recent:
+                    _, lock, db = self._recent[category]
+                    with lock:
                         db[subkey] = CacheEntry(time, None, record['_value'])
                         db[subkey].expired = record['expired'] == 'True'
-                        self._recent[category] = [None, threading.Lock(), db]
+                else:
+                    db = {}
+                    db[subkey] = CacheEntry(time, None, record['_value'])
+                    db[subkey].expired = record['expired'] == 'True'
+                    self._recent[category] = [None, threading.Lock(), db]
 
     def doShutdown(self):
+        self._client.writeLastValues(self._recent)
         self._client.disconnect()
 
     def getEntry(self, dbkey):
@@ -226,6 +389,10 @@ class InfluxDBCacheDatabase(CacheDatabase):
                     yield (cat, subkey), entry
 
     def updateEntries(self, categories, subkey, no_store, entry):
+        if entry.time - self._time > 86400:
+            self._client.writeLastValues(self._recent)
+            self._time = entry.time
+
         real_update = True
         for cat in categories:
             with self._recent_lock:

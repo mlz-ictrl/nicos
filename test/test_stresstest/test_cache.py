@@ -26,8 +26,8 @@
 import os
 from time import sleep, time
 
-import pytest
 import numpy
+import pytest
 
 from nicos.devices.cacheclient import CacheError
 from nicos.protocols.cache import FLAG_NO_STORE
@@ -155,3 +155,34 @@ def test_history_interval(session, setup):
         killSubprocess(cache)
         for interval, mean, result in results:
             assert result, f'interval of {interval}s resulted in {mean}s'
+
+
+@pytest.mark.parametrize('setup', all_setups())
+def test_init(session, setup):
+    unsupported = ['cache_mem', 'cache_mem_hist']
+    if setup in unsupported:
+        pytest.skip('n/a')
+    unimplemented = ['cache_kafka']
+    if setup in unimplemented:
+        pytest.skip('not implemented')
+    cache = startCache(alt_cache_addr, setup)
+    cc = session.cache
+    while not cc.is_connected():
+        sleep(0.02)
+    time0 = time()
+    keys = [f'test{i}' for i in range(10)]
+    n = 2
+    for key in keys:
+        for i in range(n):
+            cc.put(f'init_{key}', 'value', i, time0 - (n - i) * 0.1)
+    sleep(1)
+    killSubprocess(cache)
+    cache = startCache(alt_cache_addr, setup)
+    cc = session.cache
+    while not cc.is_connected():
+        sleep(0.02)
+    results = []
+    for key in keys:
+        results.append(cc.get(f'init_{key}', 'value'))
+    killSubprocess(cache)
+    assert results == [n - 1] * len(keys)
