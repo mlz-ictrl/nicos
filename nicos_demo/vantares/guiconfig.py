@@ -1,10 +1,18 @@
 """NICOS GUI configuration for ANTARES."""
 
 main_window = docked(
-    vsplit(panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-           # panel('nicos.clients.gui.panels.watch.WatchPanel'),
-           panel('nicos.clients.gui.panels.console.ConsolePanel',
-                 watermark='nicos_mlz/antares/gui/watermark.png'),
+    vsplit(
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+              modules=['nicos.clients.gui.cmdlets'],
+        ),
+        panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
+              eta=True,
+              ),
+        # panel('nicos.clients.gui.panels.watch.WatchPanel'),
+        panel('nicos.clients.gui.panels.console.ConsolePanel',
+              watermark='nicos_mlz/antares/gui/watermark.png',
+              hasinput=False,
+              ),
     ),
     ('Experiment info',
      panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),

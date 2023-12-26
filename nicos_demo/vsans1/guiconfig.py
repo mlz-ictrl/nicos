@@ -2,10 +2,17 @@
 
 main_window = docked(
     vsplit(
-        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-        # panel('watch.WatchPanel'),
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+              modules=['nicos.clients.gui.cmdlets'],
+        ),
+        panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
+              eta=True,
+              ),
+        # panel('nicos.clients.gui.panels.watch.WatchPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel',
-              watermark='nicos_mlz/sans1/gui/watermark.png'),
+              watermark='nicos_mlz/sans1/gui/watermark.png',
+              hasinput=False,
+              ),
     ),
     # ('Watch Expressions',panel('watch.WatchPanel')),
     ('NICOS devices',

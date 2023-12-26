@@ -1,9 +1,18 @@
 """NICOS GUI configuration for NRS (North Radiography Station)."""
 
 main_window = docked(
-    vsplit(panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-           # panel('nicos.clients.gui.panels.watch.WatchPanel'),
-           panel('nicos.clients.gui.panels.console.ConsolePanel' ),
+    vsplit(
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+              modules=['nicos.clients.gui.cmdlets'],
+        ),
+        panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
+              eta=True,
+              ),
+        # panel('nicos.clients.gui.panels.watch.WatchPanel'),
+        panel('nicos.clients.gui.panels.console.ConsolePanel',
+              watermark='nicos_demo/demo/gui/nicos-watermark.png',
+              hasinput=False,
+              ),
     ),
     ('Experiment info',
      panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
