@@ -190,9 +190,6 @@ class Move(Cmdlet):
         if 'moveto' in values:
             self.multiList.entry(0).target.setValue(values['moveto'])
 
-    def isValid(self):
-        return True
-
     def generate(self, mode):
         cmd = 'maw' if self.waitBox.isChecked() else 'move'
         if mode == 'simple':
@@ -645,7 +642,7 @@ def register(cmdlet, priority=None, cat_priority=None):
             if issubclass(cmdlet, old):
                 # replace if priority is the same
                 if prio == priority or priority is None:
-                    all_cmdlets[prio][i] = cmdlet
+                    all_cmdlets[prio][i] = cmdlet  # pylint: disable=unnecessary-dict-index-lookup
                     register_category(cmdlet.category, cat_priority)
                     return
                 # remove to add to the right priority later
