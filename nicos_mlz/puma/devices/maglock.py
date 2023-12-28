@@ -33,7 +33,7 @@ class MagLock(Moveable):
     """Puma specific magnetic lock device."""
 
     attached_devices = {
-        'magazine': Attach('The monochromator magazine', Moveable),
+        'magazine': Attach('The monochromator magazine', Readable),
         'io_open': Attach('readout for the status', Readable),
         'io_closed': Attach('readout for the status', Readable),
         'io_set': Attach('output to set', Moveable),
@@ -45,53 +45,36 @@ class MagLock(Moveable):
         'states': Param('List of state names', type=listof(str),
                         mandatory=True),
     }
-#    parameters = {
-#        'values':    Param('List of values to move to', type=listof(anytype),
-#                           mandatory=True),
-#        'io_values': Param('List of values to move to', type=listof(anytype),
-#                           mandatory=True),
-#        'precision': Param('Precision for comparison', mandatory=True),
-#    }
 
     def _bitmask(self, num):
         return 1 << num
 
     def doStart(self, target):
-        magpos = self._magpos
-        if magpos not in [0, 1, 2, 3]:
-            raise NicosError(self, 'depot at unknown position')
-
-        if target == self.read(0):
+        if target == self.doRead(0):
             return
 
         if target == 'closed':
             self._attached_io_set.move(0)
         elif target == 'open':
-            self._attached_io_set.move(self._bitmask(magpos))
-        else:
-            self.log.info('Maglock: illegal input')
-            return
+            self._attached_io_set.move(self._bitmask(self._magpos()))
 
         session.delay(2)  # XXX!
 
-        if self.read(0) != target:
-            raise NicosError(self, 'maglock returned wrong position!')
-        else:
-            self.log.info('Maglock: %s', self.read(0))
+        pos = self.doRead(0)
+        if pos != target:
+            raise NicosError(self, f'did not reach target! {pos}')
+        self.log.debug('Maglock: %s', pos)
 
     def _read(self):
         """Return internal string repr. of the right sensing switches."""
-        magpos = self._magpos
-
-#        if magpos == 4:
-#            raise NicosError(self, 'depot at unknown position')
-#            return
-        bitmask = self._bitmask(magpos)
-        val = list(map(str,
-                       [(self._attached_io_open.read(0) & bitmask) // bitmask,
-                        (self._attached_io_closed.read(0) & bitmask) //
-                        bitmask],
-                       ))
+        bitmask = self._bitmask(self._magpos())
+        val = list(
+            map(str,
+                [(self._attached_io_open.read(0) & bitmask) // bitmask,
+                 (self._attached_io_closed.read(0) & bitmask) // bitmask,
+                 ],
+                )
+            )
         self.log.debug('Sensing switches are in State %s', val)
         return ''.join(val)
 
@@ -99,29 +82,23 @@ class MagLock(Moveable):
         s = self._read()
         if s == '01':
             return 'closed'
-        elif s == '10':
+        if s == '10':
             return 'open'
-        elif s == '00':
+        if s == '00':
             return 'UNKNOWN'
-        else:
-            raise NicosError(self, 'Depot magnet switches in undefined status '
-                             '%s check switches' % s)
+        raise NicosError(self, 'Depot magnet switches in undefined status '
+                         '{s} check switches')
 
     def doStatus(self, maxage=0):
         s = self._read()
-        if s == '01':
+        if s in ['01', '10']:
             return status.OK, 'idle'
-        elif s == '10':
-            return status.OK, 'idle'
-        elif s == '00':
+        if s == '00':
             return status.BUSY, 'Moving'  # '? or Error!'
-        else:
-            return status.ERROR, 'maglock is in error state'
+        return status.ERROR, 'maglock is in error state'
 
-    @property
     def _magpos(self):
-        s = self._attached_magazine.read(0)
-        for i, k in enumerate(self.states):
-            if s == k:
-                return i
-        return 4
+        try:
+            return self.states.index(self._attached_magazine.read(0))
+        except ValueError as exc:
+            raise NicosError(self, 'depot at unknown position') from exc

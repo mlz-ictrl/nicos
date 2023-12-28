@@ -25,8 +25,8 @@
 
 import pytest
 
-from nicos.core.errors import LimitError, PositionError
 from nicos.core import status
+from nicos.core.errors import LimitError, NicosError, PositionError
 
 from test.utils import approx, raises
 
@@ -193,6 +193,19 @@ class TestMagLock:
         assert maglock.status(0)[0] == status.OK
 
         maglock.maw('closed')  # test target == read(0)
+
+    def test_failures(self, maglock, session):
+        assert maglock.read(0) == 'closed'
+        assert session.getDevice('mlock_op').read(0) == 0
+        assert session.getDevice('mlock_cl').read(0) == 0b1111
+        session.getDevice('mag').maw(340)
+        assert session.getDevice('mlock_op').read(0) == 0
+        assert session.getDevice('mlock_cl').read(0) == 0b1111
+        assert raises(NicosError, maglock._magpos)
+        assert raises(NicosError, maglock._read)
+        assert raises(NicosError, maglock.read, 0)
+        session.getDevice('mag').maw(315.4)
+        assert maglock.read(0) == 'closed'
 
 
 class TestVirtual:
