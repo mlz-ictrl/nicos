@@ -29,15 +29,17 @@ session_setup = 'secop'
 
 pytest.importorskip('frappy')
 
-from nicos.core.params import dictwith, floatrange, intrange, listof, \
-    nonemptystring, oneofdict, string, tupleof
+from frappy.datatypes import get_datatype
+
+from nicos.core.params import anytype, dictwith, floatrange, intrange, \
+    listof, nonemptystring, oneofdict, string, tupleof
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
-from frappy.datatypes import get_datatype
 
 from test.utils import raises
 
 simple_types = [
+    (None, anytype),
     (dict(type='double'), float),
     (dict(type='int', min=-0x8000, max=0x7fff), int),
     (dict(type='bool'), bool),
@@ -189,10 +191,11 @@ class TestPickleNotNeeded:
                 'funny_param': funny_desc,
             },
             'commands': {
-                'communicate': desc('command',
-                                    argument={'type': 'string'},
-                                    result={'type': 'string'},
-                )
+                'communicate': desc(
+                    'command',
+                    argument={'type': 'string'},
+                    result={'type': 'string'},
+                    )
             }
         }
     }
