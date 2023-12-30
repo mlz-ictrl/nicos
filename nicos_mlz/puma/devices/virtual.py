@@ -118,15 +118,18 @@ class VirtualLogoFeedback(VirtualDigitalInput):
         'inverted': Param('Has the input to be inverted',
                           type=bool, default=False, userparam=False,
                           settable=False),
+        'numbits': Param('Number of bits',
+                         type=intrange(1, 8), default=4, userparam=False,
+                         settable=False),
     }
 
     def doRead(self, maxage=0):
         v = self._attached_input.read(maxage)
         if self.inverted:
-            return sum((0x2 if not ((1 << (i + 1)) & v) else 0x0) << (2 * i)
-                       for i in range(8))
-        return sum((0x2 if ((1 << (i + 1)) & v) else 0x0) << (2 * i)
-                   for i in range(8))
+            return sum((0x1 if not ((1 << i) & v) else 0x0) << i
+                       for i in range(self.numbits))
+        return sum((0x1 if ((1 << i) & v) else 0x0) << i
+                   for i in range(self.numbits))
 
 
 class VirtualDigitalOutput(VirtualDigitalInput):

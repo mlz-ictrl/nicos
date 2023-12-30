@@ -165,3 +165,26 @@ class TestCad:
         th.userlimits = 0, 50
         assert raises(LimitError, cad.maw, -60)
         th.userlimits = th.abslimits
+
+
+class TestVirtual:
+
+    @pytest.fixture(scope='function')
+    def mlockset(self, session):
+        mlock_set = session.getDevice('mlock_set')
+
+        yield mlock_set
+
+        mlock_set.maw(0)
+
+    def test_basics(self, mlockset, session):
+        mlock_op = session.getDevice('mlock_op')
+        mlock_cl = session.getDevice('mlock_cl')
+
+        assert mlock_op.read(0) == 0
+        assert mlock_cl.read(0) == 0b1111
+
+        mlockset.maw(1)
+
+        assert mlock_op.read(0) == 1
+        assert mlock_cl.read(0) == 0b1110
