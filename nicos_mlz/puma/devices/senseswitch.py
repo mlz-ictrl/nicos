@@ -31,4 +31,5 @@ class SenseSwitch(HasTimeout, MultiSwitcher):
     parameter_overrides = {
         'timeout': Override(default=13),
     }
+
     hardware_access = False
