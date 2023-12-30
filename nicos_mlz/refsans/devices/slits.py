@@ -30,7 +30,7 @@ from nicos.core import Attach, AutoDevice, Moveable, Override, Param, Value, \
 from nicos.core.mixins import HasOffset
 from nicos.core.utils import devIter
 from nicos.devices.generic import ManualSwitch
-from nicos.devices.generic.sequence import SeqDev, SequencerMixin
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev
 from nicos.utils import lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PseudoNOK
@@ -219,7 +219,7 @@ class DoubleSlit(PseudoNOK, Moveable):
                 Value('%s.height' % self, unit=self.unit, fmtstr='%.2f'))
 
 
-class DoubleSlitSequence(SequencerMixin, DoubleSlit):
+class DoubleSlitSequence(BaseSequencer, DoubleSlit):
 
     attached_devices = {
         'adjustment': Attach('positioning Frame of b3h3', ManualSwitch),
@@ -227,7 +227,7 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
 
     def doStatus(self, maxage=0):
         self.log.debug('DoubleSlitSequence status')
-        st = SequencerMixin.doStatus(self, maxage)
+        st = BaseSequencer.doStatus(self, maxage)
         if st[0] != status.OK:
             return st
         st = DoubleSlit.doStatus(self, maxage=maxage)
@@ -287,7 +287,7 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
         else:
             targets = self._calculate_slits(target, False)
             if dif < 0:
-                self.log.info('DoubleSlitSequence Seq swap')
+                self.log.debug('swap sequence')
                 sequence = [
                     SeqDev(self._attached_slit_s, targets[1],
                            stoppable=True),
@@ -295,7 +295,7 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
                            stoppable=True),
                 ]
             else:
-                self.log.info('DoubleSlitSequence Seq org')
+                self.log.debug('orginal sequence')
                 sequence = [
                     SeqDev(self._attached_slit_r, targets[0],
                            stoppable=True),

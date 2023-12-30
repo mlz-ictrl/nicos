@@ -290,3 +290,27 @@ class TestAccuracy:
 
     def test_status(self, session):
         assert session.getDevice('table_acc').status() == (status.OK, '')
+
+
+class TestDoubleSlitSequence:
+
+    @pytest.fixture(scope='function', autouse=True)
+    def slit(self, session):
+        slit = session.getDevice('b3')
+
+        yield slit
+
+    def test_read(self, slit, session):
+        assert slit.read(0) == [0, 12]
+
+    def test_status(self, slit, session):
+        assert slit.status() == (status.OK, 'b3')
+
+    def test_move(self, slit, session):
+        assert slit.center.read(0) == 0
+        slit.maw([2, 0])
+        assert slit.read(0) == [2, 0]
+        assert slit.center.read(0) == 2
+        slit.maw([0, 0])
+        assert slit.read(0) == [0, 0]
+        assert slit.center.read(0) == 0
