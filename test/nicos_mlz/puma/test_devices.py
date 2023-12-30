@@ -26,6 +26,7 @@
 import pytest
 
 from nicos.core.errors import LimitError, PositionError
+from nicos.core import status
 
 from test.utils import approx, raises
 
@@ -165,6 +166,33 @@ class TestCad:
         th.userlimits = 0, 50
         assert raises(LimitError, cad.maw, -60)
         th.userlimits = th.abslimits
+
+
+class TestMagLock:
+    """Test class for the MagLock device."""
+
+    @pytest.fixture(scope='function')
+    def maglock(self, session):
+        maglock = session.getDevice('mlock')
+        session.getDevice('mlock_set').maw(0)
+
+        yield maglock
+
+    def test_basics(self, maglock, session):
+        assert maglock.read(0) == 'closed'
+        assert maglock.status(0)[0] == status.OK
+
+        maglock.maw('open')
+
+        assert maglock.read(0) == 'open'
+        assert maglock.status(0)[0] == status.OK
+
+        maglock.maw('closed')
+
+        assert maglock.read(0) == 'closed'
+        assert maglock.status(0)[0] == status.OK
+
+        maglock.maw('closed')  # test target == read(0)
 
 
 class TestVirtual:
