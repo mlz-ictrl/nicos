@@ -72,6 +72,7 @@ class TestMonochromator:
         mono.maw(None)
         assert mono.read(0) is None
 
+
 class TestCollimator:
 
     @pytest.fixture(scope='function')
