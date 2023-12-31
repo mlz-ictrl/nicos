@@ -24,23 +24,24 @@
 """The PGAA attentuator."""
 
 from nicos.core import Override, multiWait
-from nicos.core.errors import ConfigurationError, InvalidValueError
+from nicos.core.errors import InvalidValueError
+from nicos.core.device import Moveable
+from nicos.core.params import Attach
 from nicos.devices.generic.switcher import MultiSwitcher
 
 
 class Attenuator(MultiSwitcher):
     """Attentuator with 3 elements."""
 
+    attached_devices = {
+        'moveables': Attach('The 3 devices which are controlled', Moveable,
+                            multiple=3),
+    }
+
     parameter_overrides = {
         'unit': Override(default='%', settable=False, mandatory=False, ),
         'fmtstr': Override(default='%.f', mandatory=False, ),
     }
-
-    def doInit(self, mode):
-        if len(self._attached_moveables) != 3:
-            raise ConfigurationError('I need exactly 3 attached moveables, %d '
-                                     'given' % len(self._attached_moveables))
-        MultiSwitcher.doInit(self, mode)
 
     def _startRaw(self, target):
         """Target is the raw value, i.e. a list of positions."""
@@ -53,8 +54,8 @@ class Attenuator(MultiSwitcher):
         # only check and move the moveables, which are first in self.devices
         for d, t in zip(moveables, target):
             if not d.isAllowed(t):
-                raise InvalidValueError(self, 'target value %r not accepted '
-                                        'by device %s' % (t, d.name))
+                raise InvalidValueError(self, f'target value {t!r} not '
+                                        f'accepted by device {t.name}')
         # Move first in all needed blades into the beam to reduce the
         # activation of sample and/or save the detector and them move out the
         # not needed ones
