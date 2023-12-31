@@ -298,6 +298,7 @@ class TestDoubleSlitSequence:
     @pytest.fixture(scope='function', autouse=True)
     def slit(self, session):
         slit = session.getDevice('b3')
+        slit.maw([0, 12])
 
         yield slit
 
