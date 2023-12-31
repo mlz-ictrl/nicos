@@ -86,6 +86,7 @@ def test_beamstop(session):
 
 def test_skewmotor(session):
     bg = session.getDevice('backguard')
+    assert bg.isAtTarget()  # test, if target is still 'None'
     assert bg.skew == 2
     assert bg.precision == 0.1
     assert bg.read(0) == 0
