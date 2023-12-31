@@ -19,7 +19,6 @@ devices = dict(
         sample = 'Sample',
         dataroot = '/localdata/nicos',
         serviceexp = 'p0',
-        sendmail = False,
         mailsender = 'karl.zeitelhack@frm2.tum.de',
     ),
     Sample = device('nicos.devices.sample.Sample',

@@ -32,8 +32,6 @@ devices = dict(
         description = 'experiment',
         dataroot = 'data',
         sample = 'Sample',
-        sendmail = False,
-        # mailsender = 'sans1@frm2.tum.de',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),

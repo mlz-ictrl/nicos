@@ -49,7 +49,6 @@ devices = dict(
         propprefix = 'p',
         templates = path.join(module_root, 'test', 'script_templates'),
         zipdata = True,
-        serviceexp = 'service',
     ),
     Instr = device('nicos.devices.instrument.Instrument',
         instrument = 'INSTR',

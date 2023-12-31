@@ -32,7 +32,6 @@ devices = dict(
                  description = 'experiment object',
                  dataroot = 'data',
                  sendmail = True,
-                 serviceexp = 'service',
                  sample = 'Sample',
                  ),
 

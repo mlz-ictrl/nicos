@@ -27,7 +27,6 @@ devices = dict(
         description = 'experiment object',
         dataroot = '/home/localadmin/data',
         sendmail = True,
-        serviceexp = 'service',
         sample = 'Sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),

@@ -34,7 +34,6 @@ devices = dict(
         description = 'my experiment',
         dataroot = 'data',
         sendmail = True,
-        serviceexp = 'service',
         sample = 'Sample',
         forcescandata = True,
     ),

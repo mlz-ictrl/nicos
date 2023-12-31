@@ -32,8 +32,6 @@ devices = dict(
             group = 'mlzinstr'
         ),
         sample = 'Sample',
-        serviceexp = 'service',
-        sendmail = False,
     ),
     dns = device('nicos.devices.instrument.Instrument',
         description = 'DNS Diffuse scattering neutron ' +

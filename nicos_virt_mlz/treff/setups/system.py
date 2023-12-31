@@ -51,7 +51,6 @@ devices = dict(
         mailsender='c.felder@fz-juelich.de',
         sendmail = True,
         zipdata = True,
-        serviceexp = 'service',
         sample = 'Sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

@@ -25,8 +25,6 @@ devices = dict(
         'in the IFF sample database.',
         dataroot = '/data',
         sample = 'Sample',
-        serviceexp = 'service',
-        sendmail = False,
         zipdata = False,
         managerights = dict(
             enableDirMode = 0o775,

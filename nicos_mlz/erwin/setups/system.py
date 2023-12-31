@@ -33,7 +33,6 @@ devices = dict(
         dataroot = 'data',
         sample = 'Sample',
         reporttemplate = '',
-        sendmail = False,
         serviceexp = 'p0',
         mailsender = 'erwin@frm2.tum.de',
         mailserver = 'mailhost.frm2.tum.de',

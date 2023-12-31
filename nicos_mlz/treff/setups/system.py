@@ -44,7 +44,6 @@ devices = dict(
         mailsender = 'treff@frm2.tum.de',
         sendmail = True,
         zipdata = True,
-        serviceexp = 'service',
         sample = 'Sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

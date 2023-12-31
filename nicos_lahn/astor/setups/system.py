@@ -35,7 +35,6 @@ devices = dict(
                description='experiment object',
                dataroot='/mnt/nfs/astor/data',
                sendmail=True,
-               serviceexp='service',
                sample='Sample',
                ),
     filesink=device('nicos.devices.datasinks.AsciiScanfileSink'),

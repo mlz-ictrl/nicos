@@ -44,7 +44,6 @@ devices = dict(
         description = 'The currently running experiment',
         dataroot = '/data',
         sample = 'Sample',
-        serviceexp = 'service',
         sendmail = True,
         mailsender = 'kompass@frm2.tum.de',
         managerights = dict(

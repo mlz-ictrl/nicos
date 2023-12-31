@@ -35,7 +35,6 @@ devices = dict(
         description = 'experiment object',
         dataroot = '/mnt/nfs/andes/data',
         sendmail = True,
-        serviceexp = 'service',
         sample = 'Sample',
         forcescandata = True,
     ),

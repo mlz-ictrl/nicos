@@ -40,7 +40,6 @@ devices = dict(
         mailsender = 'biodiff@frm2.tum.de',
         sendmail = True,
         zipdata = True,
-        serviceexp = 'service',
         sample = 'Sample',
     ),
     biodiff = device('nicos.devices.instrument.Instrument',

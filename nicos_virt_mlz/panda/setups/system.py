@@ -29,7 +29,6 @@ devices = dict(
         zipdata = True,
         mailserver = 'mailhost.frm2.tum.de',
         mailsender = 'vpanda@frm2.tum.de',
-        serviceexp = 'service',
     ),
     panda = device('nicos.devices.instrument.Instrument',
         description = 'Virtual McStas-backed PANDA spectrometer',

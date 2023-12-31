@@ -46,7 +46,6 @@ devices = dict(
         propprefix = 'p',
         templates = path.join(module_root, 'test', 'script_templates'),
         zipdata = True,
-        serviceexp = 'service',
     ),
     img_index = device('nicos.devices.generic.manual.ManualMove',
         description = 'Keeps the index of the last measured image',

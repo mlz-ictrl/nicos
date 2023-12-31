@@ -43,7 +43,6 @@ devices = dict(
         propprefix = 'p',
         templates = path.join(module_root, 'test', 'script_templates'),
         zipdata = True,
-        serviceexp = 'service',
     ),
     motor = device('nicos.devices.generic.VirtualMotor',
         unit = 'deg',

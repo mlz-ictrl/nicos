@@ -33,7 +33,6 @@ devices = dict(
         mailsender = 'maria@frm2.tum.de',
         sendmail = True,
         zipdata = True,
-        serviceexp = 'service',
         sample = 'Sample',
     ),
     maria = device('nicos.devices.instrument.Instrument',

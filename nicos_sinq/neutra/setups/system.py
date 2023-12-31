@@ -41,7 +41,6 @@ devices = dict(
     Exp = device('nicos_sinq.devices.experiment.SinqExperiment',
         description = 'experiment object',
         dataroot = configdata('config.DATA_PATH'),
-        sendmail = False,
         serviceexp = 'Service',
         sample = 'Sample',
     ),

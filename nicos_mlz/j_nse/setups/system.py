@@ -36,7 +36,6 @@ devices = dict(
         # cannot use /data until main instrument control is switched to NICOS
         dataroot = '/home/jcns/nicos-data',
         sendmail = True,
-        serviceexp = 'service',
         sample = 'Sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
