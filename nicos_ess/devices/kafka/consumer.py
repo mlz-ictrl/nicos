@@ -76,9 +76,9 @@ class KafkaConsumer:
         """
         try:
             metadata = self._consumer.list_topics(topic_name, timeout=5)
-        except KafkaException:
+        except KafkaException as exc:
             raise ConfigurationError('could not obtain metadata for topic '
-                                     f'{topic_name}')
+                                     f'{topic_name}') from exc
 
         if topic_name not in metadata.topics:
             raise ConfigurationError(f'provided topic {topic_name} does '
