@@ -35,7 +35,7 @@ import time
 
 class Benchmarker:
     def udp(self):
-        mains, subs = self.connect(1)
+        mains, _subs = self.connect(1)
         mains[0].sendall(b''.join(self.all_msg))
         mains[0].sendall(b'ben/%s/k*\n' % self.rnd_key)
         msg_set = self.recvall(mains[0])
@@ -90,7 +90,7 @@ class Benchmarker:
         return t1
 
     def ask_only(self):
-        mains, subs = self.connect(1, 0)
+        mains, _subs = self.connect(1, 0)
 
         mains[0].sendall(b''.join(self.all_msg))
         mains[0].sendall(b'ben/%s/k*\n' % self.rnd_key)
@@ -120,7 +120,7 @@ class Benchmarker:
             assert msg_set == set(m.strip() for m in hist_msg)
         return t1
 
-    benches = {n: f for (n ,f) in locals().items() if hasattr(f, '__name__')}
+    benches = {n: f for (n, f) in locals().items() if hasattr(f, '__name__')}
 
     def create_socket(self, tp=socket.SOCK_STREAM):
         s = socket.socket(socket.AF_INET, tp)
@@ -129,10 +129,10 @@ class Benchmarker:
 
     def connect(self, nmain, nsub=None):
         mains = []
-        for i in range(nmain):
+        for _ in range(nmain):
             mains.append(self.create_socket())
         subs = []
-        for i in range(self.nclients if nsub is None else nsub):
+        for _ in range(self.nclients if nsub is None else nsub):
             sub = self.create_socket()
             sub.sendall(b'ben/%s/k:\n' % self.rnd_key)
             subs.append(sub)
