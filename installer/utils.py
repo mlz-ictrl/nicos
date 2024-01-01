@@ -56,7 +56,7 @@ def find_custom():
 # find resource files
 def find_resources():
     res = []
-    for root, dirs, files in os.walk(path.join(rootdir,  'resources')):
+    for root, _dirs, files in os.walk(path.join(rootdir,  'resources')):
         targetdir = root[len(rootdir) + 1:]
         for fn in files:
             res.append((path.join(root, fn), targetdir))
