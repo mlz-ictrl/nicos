@@ -927,7 +927,7 @@ class SecopDevice(Device):
             if parameter == 'status':
                 return self.status(0)
             return getattr(self, parameter)  # trigger doRead<param>
-        except Exception as e:
+        except Exception:
             try:
                 if self._attached_secnode._secnode.cache[
                         self.secop_module, parameter].readerror:
