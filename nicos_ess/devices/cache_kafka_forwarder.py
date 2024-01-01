@@ -200,4 +200,3 @@ class CacheKafkaForwarder(ForwarderBase, Device):
     def _send_to_kafka(self, buffer, name):
         self._producer.produce(self.output_topic, buffer,
                                key=name.encode('utf-8'))
-
