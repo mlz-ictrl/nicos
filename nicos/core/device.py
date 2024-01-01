@@ -1792,7 +1792,7 @@ class Moveable(Waitable):
             return True
 
     def doFix(self, reason):
-        for name, attinfo, dev in self._iterAdevDefinitions():
+        for _name, attinfo, dev in self._iterAdevDefinitions():
             if not attinfo.dontfix:
                 if isinstance(dev, Moveable):
                     dev.fix(reason)
@@ -1822,7 +1822,7 @@ class Moveable(Waitable):
             return True
 
     def doRelease(self):
-        for name, attinfo, dev in self._iterAdevDefinitions():
+        for _name, attinfo, dev in self._iterAdevDefinitions():
             if not attinfo.dontfix:
                 if isinstance(dev, Moveable):
                     dev.release()
