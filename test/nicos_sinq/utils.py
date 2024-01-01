@@ -26,7 +26,6 @@ Utilities for serializing a hs00 flatbuffer
 """
 
 import time
-from unittest.mock import patch
 
 import pytest
 
@@ -157,4 +156,3 @@ def create_hs00(data=None, timestamp=None, source='test_device'):
                                       labels=labels,
                                       dtype=data.dtype.type)
     return encoder.encode(ts, arraydesc, data, source)
-

@@ -133,7 +133,7 @@ def test_attach_class():
 
 def test_listof():
     assert listof(int)([0., 1, '2']) == [0, 1, 2]
-    assert listof(int)() == []
+    assert listof(int)() == []  # pylint: disable=use-implicit-booleaness-not-comparison
     # should also accept tuples
     assert listof(int)((1, 2, 3)) == [1, 2, 3]
     assert raises(ValueError, listof(int), 10)
@@ -183,7 +183,7 @@ def test_boolean():
 
 def test_dictof():
     assert dictof(int, str)({1: 0, 2: 1}) == {1: '0', 2: '1'}
-    assert dictof(int, str)() == {}
+    assert dictof(int, str)() == {}  # pylint: disable=use-implicit-booleaness-not-comparison
     assert raises(ValueError, dictof(int, str), ('a', 'b'))
     assert raises(ValueError, dictof(int, str), {'x': 'y'})
     # test that the dict is read-only

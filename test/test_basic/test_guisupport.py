@@ -24,7 +24,7 @@
 
 import pytest
 
-from nicos.guisupport.qt import QLocale, QValidator
+from nicos.guisupport.qt import QValidator
 from nicos.guisupport.utils import DoubleValidator
 
 idmap = {
