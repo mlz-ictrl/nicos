@@ -63,12 +63,12 @@ class Flux(VectorInput):
 
         self._fluxvalues = [cElast, cInelast, cDir]
 
-        elast = [sum([x for i, x in enumerate(cElast) if i in rDets]),
-                 sum([x for i, x in enumerate(tElast) if i in rDets])]
-        inelast = [sum([x for i, x in enumerate(cInelast) if i in rDets]),
-                   sum([x for i, x in enumerate(tInelast) if i in rDets])]
-        direct = [sum([x for i, x in enumerate(cDir) if i in rDets]),
-                  sum([x for i, x in enumerate(tDir) if i in rDets])]
+        elast = [sum(x for i, x in enumerate(cElast) if i in rDets),
+                 sum(x for i, x in enumerate(tElast) if i in rDets)]
+        inelast = [sum(x for i, x in enumerate(cInelast) if i in rDets),
+                   sum(x for i, x in enumerate(tInelast) if i in rDets)]
+        direct = [sum(x for i, x in enumerate(cDir) if i in rDets),
+                  sum(x for i, x in enumerate(tDir) if i in rDets)]
 
         if not elast[1]:
             elastic = 0

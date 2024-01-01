@@ -905,7 +905,7 @@ class DoubleMotorBeckhoff(PseudoNOK, BeckhoffMotorBase):
         self.log.debug('Status: %s', akt)
         msg = [st[1] for st in akt]
         self.log.debug('Status: %s', msg)
-        return (max([st[0] for st in akt]),
+        return (max(st[0] for st in akt),
                 ', '.join(msg) if msg.count(msg[0]) == 1 else msg[0])
 
     def _generateSequence(self, target, indexes, code):

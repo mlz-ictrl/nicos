@@ -196,7 +196,7 @@ def rectangle_values(w, h, rot, cl=3, space=2):
     rect = Rectangle(0, 0, w, h)
     square = Square(0, 0, cl, 45.)
     r = square.path()
-    cl = abs(max([x for x, y in r]) - min([x for x, y in r]))
+    cl = abs(max(x for x, y in r) - min(x for x, y in r))
     d = space / math.cos(math.radians(45))
     nw = int((w + d) / (cl + d))
     nh = int((h + d) / (cl + d))

@@ -95,7 +95,7 @@ class MultiCounter(BaseChannel, PassiveChannel):
         if len(res) >= expected:
             data = res[3:]
             # ch is 1 based, data is 0 based
-            total = sum([data[ch - 1] for ch in self.channels])
+            total = sum(data[ch - 1] for ch in self.channels)
         else:
             self.log.warning('not enough data returned, check config! '
                              '(got %d elements, expected >=%d)',
