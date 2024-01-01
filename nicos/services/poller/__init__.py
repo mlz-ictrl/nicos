@@ -163,7 +163,7 @@ class Poller(Device):
                             continue
                         elif event == 'adev_value':  # one of our attached_devices changed value
                             maxage = POLL_BUSY_INTERVAL / 2
-                            pass  # just poll
+                            # just poll
                         elif event == 'dev_busy':  # our device went busy
                             interval = POLL_BUSY_INTERVAL
                             maxage = interval / 2.
