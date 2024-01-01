@@ -120,7 +120,7 @@ class ElogPanel(Panel):
         except LogbookMessageRejected as e:
             self.log.error(e)
             return
-        except AttributeError as e:
+        except AttributeError:
             self.log.error('Client not connected')
             return
 
@@ -137,7 +137,7 @@ class ElogPanel(Panel):
 
     def editMessage(self):
         try:
-            msg_id = self.logbook.post(
+            _msg_id = self.logbook.post(
                 self.messageText.toPlainText(),
                 msg_id=self.message_selected,
                 author=self.messageAuthor.text(),
@@ -148,7 +148,7 @@ class ElogPanel(Panel):
             self.messageText.clear()
         except LogbookMessageRejected as e:
             self.log.error(e)
-        except AttributeError as e:
+        except AttributeError:
             self.log.errornt('Client not connected')
 
     def updateMessagesTable(self):
