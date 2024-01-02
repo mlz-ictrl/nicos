@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -281,6 +281,7 @@ class ConsoleSession(Session):
     def run(cls, setup='startup', simulate=False):
         # Assign the correct class to the session singleton.
         session.__class__ = cls
+        # pylint: disable=unnecessary-dunder-call
         session.__init__('nicos')
         session._stoplevel = 0
         session._in_sigint = False

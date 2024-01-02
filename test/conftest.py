@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -64,6 +64,7 @@ def session(request):
     """Test session fixture"""
 
     nicos_session.__class__ = TestSession
+    # pylint: disable=unnecessary-dunder-call
     nicos_session.__init__(request.module.__name__)
     # override the sessionid: test module, and a finer resolved timestamp
     nicos_session.sessionid = '%s-%s' % (request.module.__name__, time.time())
