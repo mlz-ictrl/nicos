@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -47,7 +47,6 @@ def ExportTuning(mode, wavelength, filename='tuning'):
         tables = echotime.tables[mode]
     except KeyError:
         printerror('Need a valid mode (mieze or nrse)')
-        return
     try:
         table = tables[wavelength]
     except KeyError:
@@ -56,7 +55,7 @@ def ExportTuning(mode, wavelength, filename='tuning'):
 
     # build list of devices
     it = iter(table.values())
-    devices = sorted(it.__next__())
+    devices = sorted(next(it))
     for otherdevs in it:
         devices.extend(set(otherdevs) - set(devices))
 
@@ -65,7 +64,6 @@ def ExportTuning(mode, wavelength, filename='tuning'):
     printinfo('Exporting to %s' % filename)
     if path.exists(filename):
         printerror('File already exists. Please select another name.')
-        return
     with open(filename, 'w', encoding='utf-8') as fp:
         writer = csv.writer(fp)
         writer.writerow(['echotime'] + devices)
@@ -93,15 +91,14 @@ def ImportTuning(mode, wavelength, filename='tuning'):
     filename = path.join(exp.dataroot, filename + '_%s_%sA.csv' % (mode, wavelength))
     printinfo('Importing from %s' % filename)
     if not path.exists(filename):
-        printerror('File does not exist. Please select another name.')
-        return
+        printerror(f'File {filename!r} does not exist. '
+                   'Please select another name.')
     newtable = {}
     with open(filename, 'r', encoding='utf-8') as fp:
         reader = iter(csv.reader(fp))
-        headers = reader.__next__()
+        headers = next(reader)
         if headers[0] != 'echotime':
             printerror('This does not appear to be a tuning table.')
-            return
         devices = headers[1:]
         for row in reader:
             etime = try_float(row[0])

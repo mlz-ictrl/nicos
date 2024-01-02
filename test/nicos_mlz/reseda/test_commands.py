@@ -23,9 +23,12 @@
 
 """RESEDA MIEZE calculation tests."""
 
-from nicos_mlz.reseda.commands import img, miezetau, pol, tof
+from pathlib import Path
 
-from test.utils import approx, raises
+from nicos_mlz.reseda.commands import img, miezetau, pol, tof
+from nicos_mlz.reseda.tuning_commands import ExportTuning, ImportTuning
+
+from test.utils import ErrorLogged, approx, raises
 
 session_setup = 'reseda'
 
@@ -51,3 +54,24 @@ class TestCommands:
         assert pol(2, 1) == approx(0.3333, abs=0.0001)
 
         assert raises(ZeroDivisionError, pol, 0, 0)
+
+    def test_tuning(self, session):
+        assert raises(ErrorLogged, ImportTuning, 'mieze', 6, '1020_02_07_mcstas')
+        assert raises(ErrorLogged, ImportTuning, 'mieze', 6, '2019_02_07_fail')
+        ImportTuning('mieze', 6, filename='2019_02_07_mcstas')
+        table = session.getDevice('echotime').getTable('mieze', 6)
+        assert list(table.keys()) == [
+            6.85e-06, 3.42e-05, 6.85e-05, 0.000205, 0.000685, 0.00123, 0.00219,
+            0.00301, 0.00411, 0.00473, 0.00534, 0.00685, 0.0076, 0.00836,
+            0.00932, 0.0103, 0.0112, 0.012, 0.0137, 0.0155, 0.0173, 0.0195,
+            0.0216, 0.0235, 0.0253, 0.0296, 0.0329, 0.0371, 0.0501, 0.0707,
+            0.0891, 0.109, 0.148, 0.182, 0.215, 0.249, 0.283, 0.327, 0.372,
+            0.417, 0.462, 0.531, 0.582, 0.634, 0.685, 0.728, 0.771, 0.805,
+            0.908, 0.939, 1.06, 1.17, 1.28, 1.37, 1.49, 1.6, 1.67, 2.71, 3.95,
+            5.95, 11.7, 13.4, 2.48]
+        ExportTuning('mieze', 6, filename='2019_02_07_2_mcstas')
+        assert raises(ErrorLogged, ExportTuning, 'miez', 6, '2019_02_07_2_mcstas')
+        assert raises(ErrorLogged, ExportTuning, 'mieze', 16, '2019_02_07_2_mcstas')
+        assert raises(ErrorLogged, ExportTuning, 'mieze', 6, '2019_02_07_2_mcstas')
+        Path('test/nicos_mlz/reseda/data/'
+             '2019_02_07_2_mcstas_mieze_6A.csv').unlink()
