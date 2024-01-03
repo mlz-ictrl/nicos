@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -479,7 +479,7 @@ class ADControl(QWidget):
         self.binning_combo.setCurrentText(str(param_info.get('binning')))
 
     def _update_start_acq_button_style(self, status):
-        if status == '':
+        if status == '':  # pylint: disable=compare-to-empty-string
             return
         elif 'Done' in status or 'Idle' in status:
             self.start_acq_button.setStyleSheet(
@@ -496,7 +496,7 @@ class ADControl(QWidget):
 
     def _highlight_differing_readback_values(self):
         for input_field, readback_field in self.fields:
-            if input_field.text() == '':
+            if input_field.text() == '':  # pylint: disable=compare-to-empty-string
                 continue
 
             if float(input_field.text()) != float(readback_field.text()):
