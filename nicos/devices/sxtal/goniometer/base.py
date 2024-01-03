@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -103,7 +103,7 @@ class PositionBase:
 
     def asType(self, newtype, wavelength=None):
         if newtype.lower() in typelist:
-            return self.__getattribute__('as%s' % newtype.upper())(wavelength)
+            return getattr(self, 'as%s' % newtype.upper())(wavelength)
         raise TypeError("unknown position type")
 
 
