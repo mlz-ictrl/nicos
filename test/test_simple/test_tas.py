@@ -264,6 +264,13 @@ def test_tas_commands(session, log, tas):
     assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
 
 
+def test_qmodulus(session, log):
+    qmod = session.getDevice('Qmod')
+    assert qmod.unit == 'A-1'
+    assert qmod.status(0) == (status.OK, '')
+    assert qmod.read(0) == approx(10.8822, abs=1e-4)
+
+
 def test_setalign(session, tas):
     pos(.5, .5, .5)
     setalign((-.5, .5, .5))

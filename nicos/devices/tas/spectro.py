@@ -588,9 +588,6 @@ class QModulus(Readable):
 
     hardware_access = False
 
-    def _getWaiters(self):
-        return []
-
     def doStatus(self, maxage=0):
         return status.OK, ''
 
