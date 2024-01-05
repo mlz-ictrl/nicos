@@ -21,8 +21,10 @@
 #
 # *****************************************************************************
 
+from math import radians
+
 import pytest
-from numpy import allclose, dot, pi, sqrt
+from numpy import allclose, dot, sqrt
 
 from nicos.commands.measure import count
 from nicos.commands.tas import Q, _resmat_args, acc_bragg, alu, calpos, \
@@ -367,17 +369,16 @@ def test_virtualgonios(session, tas):
     assert raises(LimitError, v2.maw, 3)
 
     # make sure the calculations match intent
-    D2R = pi / 180
     tas._attached_cell.psi0 = 64
     v1.maw(1.5)
     v2.maw(-2)
 
     # extract angles in radians
-    psi = 64 * D2R
-    x1 = 1.5 * D2R
-    y1 = -2 * D2R
-    x2 = gx.read(0) * D2R
-    y2 = gy.read(0) * D2R
+    psi = radians(64)
+    x1 = radians(1.5)
+    y1 = radians(-2)
+    x2 = radians(gx.read(0))
+    y2 = radians(gy.read(0))
 
     # these two matrices should deliver the same rotation
     m1 = dot(Xrot(x1), Yrot(y1))
