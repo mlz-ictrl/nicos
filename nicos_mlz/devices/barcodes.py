@@ -31,7 +31,7 @@ from collections import namedtuple
 import tango
 
 from nicos import session
-from nicos.core import SIMULATION, Param, dictof
+from nicos.core import SIMULATION, Param, dictof, intrange
 from nicos.core.utils import USER, User
 from nicos.devices.entangle import StringIO
 from nicos.services.daemon.script import RequestError, ScriptRequest
@@ -207,6 +207,10 @@ class BarcodeInterpreter(BarcodeInterpreterMixin, StringIO):
     parameters = {
         'commandmap': Param('Mapping of short commands to Python code',
                             type=dictof(str, str), mandatory=True),
+        'pollinterval': Param('Polling interval for attributes',
+                              unit='ms', fmtstr='%d',
+                              default=100, settable=False,
+                              type=intrange(1, 24 * 3600 * 1000)),
     }
 
     _availablelines_id = None
@@ -219,12 +223,13 @@ class BarcodeInterpreter(BarcodeInterpreterMixin, StringIO):
 
     def _registerAvailableLines(self):
         """Register 'availableLines' events"""
-        al = self._dev.get_attribute_config('availableLines')
+        attr_name = 'availableLines'
+        self._dev.poll_attribute(attr_name, self.pollinterval)
+        al = self._dev.get_attribute_config(attr_name)
         al.events.ch_event.abs_change = '1'
         self._dev.set_attribute_config(al)
         self._availablelines_id = self._dev.subscribe_event(
-            'availableLines',
-            tango.EventType.CHANGE_EVENT,
+            attr_name, tango.EventType.CHANGE_EVENT,
             TangoAvailableLinesCb(self, self._daemon))
 
     def _unregisterAvailableLines(self):
