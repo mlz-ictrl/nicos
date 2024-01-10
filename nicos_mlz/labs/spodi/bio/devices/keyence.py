@@ -78,8 +78,8 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
         return Value(self.name, unit='a.u.', type='other', fmtstr=self.fmtstr),
 
     def doStart(self):
+        self._deleteLastImage()
         self._trigger()
-        session.delay(2)
 
     def _trigger(self):
         #  Send cmd to send the trigger
@@ -93,6 +93,7 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
                     'Wrong reply from Keyence was received: %s', msg)
         except socket.error:
             self.log.error('Failed to send data!')
+        session.delay(2)
 
     def doReadArray(self, quality):
         if quality != FINAL:
@@ -102,8 +103,10 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
            ) as r:
             arr = np.asarray(Image.open(io.BytesIO(r.read())))
         self.readresult = [arr.sum()]
+        return arr
+
+    def _deleteLastImage(self):
         host, _port = parseHostPort(self.image_server, ftplib.FTP_PORT)
         with ftplib.FTP(host, 'anonymous') as ftp:
             ftp.delete(f'{self.image_path}/{self.image_name}')
             ftp.close()
-        return arr
