@@ -12,7 +12,10 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard']
+modules = [
+    'nicos.commands.standard',
+    'nicos_mlz.labs.spodi.bio.commands',
+]
 
 includes = [
     'notifiers',
