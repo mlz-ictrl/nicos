@@ -1,0 +1,13 @@
+##SICS ASCII at FOCUS
+*************************** FOCUS Data File ********************************
+Original Filename = !!FILE!!
+Title = !!VAR(Exp,title)!!
+User  = !!VAR(Exp,users)!!
+Proposal_ID  = !!VAR(Exp,proposal)!!
+Sample Name = !!VAR(Sample,samplename)!!
+File Creation Stardate = !!DATE!!
+****************************************************************************
+Monochromator Lambda = !!DRIV(wavelength)!!
+Monochromator A1    = !!DRIV(mth)!!
+Monochromator A2    = !!DRIV(mtt)!!
+**************************** DATA ******************************************

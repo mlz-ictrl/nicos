@@ -2,12 +2,12 @@ from copy import deepcopy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, ImageDataset, NexusSampleEnv, \
+    DeviceAttribute, DeviceDataset, ImageDataset, \
     NXAttribute, NXLink, NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_sinq.nexus.specialelements import FixedArray, \
-    OptionalDeviceDataset, ScanSampleEnv
+from nicos_sinq.nexus.specialelements import AbsoluteTime, FixedArray, \
+    OptionalDeviceDataset, SaveSampleEnv
 
 sans_detector = {
         "count_mode": DetectorDataset("mode", "string"),
@@ -72,7 +72,7 @@ sans_default = {"NeXus_Version": "4.4.0",
                         "monochromator:NXmonochromator": {
                           "wavelength": NXLink(
                               "/entry1/SANS/Dornier-VS/lambda"),
-                          "wavelength_spread": ConstDataset(.2, "float"),
+                          "wavelength_spread": ConstDataset(.1, "float"),
                         },
                         "SINQ:NXsource": {
                             "name": ConstDataset(
@@ -120,8 +120,20 @@ sans_default = {"NeXus_Version": "4.4.0",
                                                                   "counts",
                                                                   "string")),
                         },
+                        "monitor4:NXmonitor": {
+                            "counts": DetectorDataset("monitor4", "int32",
+                                                      units=NXAttribute(
+                                                                  "counts",
+                                                                  "string")),
+                        },
                         "monitor_5:NXmonitor": {
-                            "counts": DetectorDataset("protoncount", "int32",
+                            "counts": DetectorDataset("monitor5", "int32",
+                                                      units=NXAttribute(
+                                                                  "counts",
+                                                                  "string")),
+                        },
+                        "monitor_6:NXmonitor": {
+                            "counts": DetectorDataset("monitor6", "int32",
                                                       units=NXAttribute(
                                                                   "counts",
                                                                   "string")),
@@ -150,6 +162,7 @@ sans_default = {"NeXus_Version": "4.4.0",
                     },  # instrument
                     "control:NXmonitor": {
                         "preset": DetectorDataset("preset", "float32"),
+                        "absolute_time": AbsoluteTime(),
                         "mode": DetectorDataset("mode", "string"),
                         "integral": DetectorDataset("monitor1", "int32",
                                                     units=NXAttribute(
@@ -171,11 +184,10 @@ sans_default = {"NeXus_Version": "4.4.0",
 
 sample_common = {
     "name": DeviceDataset("Sample", "samplename"),
-    "hugo": NexusSampleEnv(postfix='_log'),
     "aequatorial_angle": ConstDataset(0, "float",
                                       units=NXAttribute("degree", "string")),
     "stick_rotation": OptionalDeviceDataset("dom"),
-    "lieselotte": ScanSampleEnv(),
+    "lieselotte": SaveSampleEnv(),
 }
 
 sample_std = {
@@ -187,10 +199,10 @@ sample_std = {
     "y_null": DeviceDataset("yo", "offset"),
     "z_position": DeviceDataset("z"),
     "z_null": DeviceDataset("z", "offset"),
-    "omega": DeviceDataset("sg"),
-    "omega_null": DeviceDataset("sg", "offset"),
-    "a3": DeviceDataset("a3"),
-    "a3_null": DeviceDataset("a3", "offset"),
+    "omega": DeviceDataset("a3"),
+    "omega_null": DeviceDataset("a3", "offset"),
+    "goniometer_theta": DeviceDataset("sg"),
+    "goniometer_theta_null": DeviceDataset("sg", "offset"),
     "position": DeviceDataset("spos"),
     "position_null": DeviceDataset("spos", "offset"),
 }

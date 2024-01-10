@@ -2,13 +2,9 @@ description = 'Neutron Grating Interferometer at ICON'
 
 group = 'optional'
 
-# excludes = ['ngi']
+tango_host = 'pcp080468.psi.ch'
 
-# tango_base = 'tango://129.129.138.111:10000/box/'
-# tango_base = 'tango://172.28.77.82:10000/box/'
-
-#tango_base = 'tango://pcp080466.psi.ch:10000/box/'
-tango_base = 'tango://129.129.138.202:10000/box/'
+tango_base = f'tango://{tango_host}:10000/box/'
 
 devices = dict(
     G0rz = device('nicos.devices.entangle.Motor',

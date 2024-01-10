@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
@@ -110,9 +111,9 @@ class Beamstop(BeamstopSequencer):
         else:
             seq.append(SeqMethod(self, '_release'))
 
-            seq.append(SeqLimDev(self._attached_y, self._in_y, -450))
-
             seq.append(SeqDev(self._attached_x, self._in_x))
+
+            seq.append(SeqLimDev(self._attached_y, self._in_y, -450))
 
         return seq
 
