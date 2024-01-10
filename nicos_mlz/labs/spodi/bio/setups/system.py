@@ -1,18 +1,14 @@
-# A detailed description of the setup file structure and it's elements is
-# available here: https://forge.frm2.tum.de/nicos/doc/nicos-stable/setups/
-#
-# Please remove these lines after copying this file.
-
 description = 'system setup'
 
 group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    # Adapt this name to your instrument's name (also below).
-    instrument = 'BIO',
+    instrument = 'bio',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink', 'rawsink', ],
+    datasinks = [
+        'conssink', 'filesink', 'daemonsink', 'livesink',  # 'rawsink',
+    ],
     notifiers = [],
 )
 
@@ -23,7 +19,7 @@ includes = [
 ]
 
 devices = dict(
-    BIO = device('nicos.devices.instrument.Instrument',
+    bio = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
         instrument = 'BIO',
         responsible = 'Anatoliy Senyshyn <anatoliy.senyshyn@frm2.tum.de>',
@@ -34,8 +30,6 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
     ),
-
-    # Configure dataroot here (usually /data).
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = 'data',
