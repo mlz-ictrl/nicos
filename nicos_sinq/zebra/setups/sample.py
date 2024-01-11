@@ -9,7 +9,6 @@ devices = dict(
         errormsgpv = pvpref + '1:SOM-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = True,
     ),
     om = device('nicos.core.device.DeviceAlias',
         description = 'Alias for om',
@@ -22,7 +21,6 @@ devices = dict(
         errormsgpv = pvpref + '1:SX-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = True,
     ),
     sy = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Sample Y translation',
@@ -30,7 +28,6 @@ devices = dict(
         errormsgpv = pvpref + '1:SY-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = True,
     ),
     sz = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Sample lift',
@@ -38,7 +35,6 @@ devices = dict(
         errormsgpv = pvpref + '1:SZ-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = True,
     ),
     stt = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Two Theta detector',
@@ -46,7 +42,6 @@ devices = dict(
         errormsgpv = pvpref + '1:STT-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = True,
     ),
 )
 """
@@ -57,7 +52,6 @@ devices = dict(
         errormsgpv = pvpref + '1:SGL-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = True,
     ),
     sgu = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Sample upper goniometer',
@@ -65,7 +59,6 @@ devices = dict(
         errormsgpv = pvpref + '1:SGU-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = True,
     ),
 """
 alias_config = {'om': {'om_raw': 10}}

@@ -21,13 +21,13 @@
 #
 # *****************************************************************************
 
-""" Module to implement monito counters from a Kafka stream """
+""" Module to implement monitor counters from a Kafka stream """
 
 import uuid
 
 from confluent_kafka import Consumer
 from streaming_data_types import deserialise_ev42, deserialise_ev43, \
-    deserialise_f142
+    deserialise_ev44, deserialise_f142
 from streaming_data_types.utils import get_schema
 
 from nicos.core import MASTER, Override, Param, Value, host, listof, oneof, \
@@ -38,7 +38,8 @@ from nicos.utils import createThread
 deserialiser_by_schema = {
     'f142': deserialise_f142,
     'ev42': deserialise_ev42,
-    'ev43': deserialise_ev43
+    'ev43': deserialise_ev43,
+    'ev44': deserialise_ev44
 }
 
 
@@ -123,6 +124,8 @@ class KafkaChannel(ActiveChannel):
             if msg.source_name == self.source:
                 if schema == 'f142':
                     self.curvalue += msg.value
+                elif schema == 'ev44':
+                    self.curvalue += len(msg.pixel_id)
                 else:
                     self.curvalue += len(msg.detector_id)
 

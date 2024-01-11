@@ -28,6 +28,7 @@ from nicos.core import Override, Param, listof, nicosdev, tupleof
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
 from nicos.devices.datasinks import FileSink
+
 from nicos_sinq.sxtal.instrument import SXTalBase
 
 
@@ -123,8 +124,9 @@ class SINQAsciiSinkHandler(DataSinkHandler):
         for i in range(len(self.dataset.devices)):
             dev = self.dataset.devices[i]
             if isinstance(dev, SXTalBase):
+                datalen = len(dev.valueInfo())
                 self.scanvalues[dev.name].append(tuple(subset.devvaluelist[
-                                                       i:i+3]))
+                                                       i:i+datalen]))
             else:
                 self.scanvalues[dev.name].append(subset.devvaluelist[i])
 
@@ -145,7 +147,9 @@ class SINQAsciiSinkHandler(DataSinkHandler):
             for dev in self.dataset.devices:
                 vals = self.scanvalues[dev.name]
                 if isinstance(dev, SXTalBase):
-                    out.write('h, k, l,')
+                    valinfo = dev.valueInfo()
+                    for v in valinfo:
+                        out.write(v.name + ',')
                 else:
                     out.write(dev.name + ',')
                 if len(vals) > 1:
@@ -179,7 +183,8 @@ class SINQAsciiSinkHandler(DataSinkHandler):
             out.write('%-4s' % 'NP')
             for dev in self.dataset.devices:
                 if isinstance(dev, SXTalBase):
-                    out.write('    H       K       L ')
+                    for v in dev.valueInfo():
+                        out.write('%-9s' % v.name)
                 else:
                     out.write('%-9s' % dev.name)
             for cter, _ in self.sink.scaninfo:
@@ -193,7 +198,8 @@ class SINQAsciiSinkHandler(DataSinkHandler):
                 for dev in self.dataset.devices:
                     val = self.scanvalues[dev.name][np]
                     if isinstance(val, tuple):
-                        out.write('%-7.3f %-7.3f %-7.3f ' % val)
+                        for v in val:
+                            out.write('%-7.3f  ' % v)
                     else:
                         out.write('%-9.4f ' % val)
                 for _, cter in self.sink.scaninfo:

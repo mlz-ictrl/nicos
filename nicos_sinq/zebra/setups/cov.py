@@ -7,6 +7,5 @@ devices = dict(
         errormsgpv = 'SQ:ZEBRA:mcu1:COV-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = False,
     ),
 )

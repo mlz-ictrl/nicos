@@ -152,6 +152,11 @@ class SinqExperiment(Experiment):
             self.proposal_title = kwds['proposal_title']
         return kwds
 
+    def newSample(self, parameters):
+        # Do not try to create unwanted directories as
+        # in nicos/devices/experiment
+        pass
+
 
 class TomoSinqExperiment(SinqExperiment):
     """

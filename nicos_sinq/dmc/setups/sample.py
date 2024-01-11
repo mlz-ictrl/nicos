@@ -8,7 +8,6 @@ devices = dict(
         motorpv = f'{pvprefix}A3',
         errormsgpv = f'{pvprefix}A3-MsgTxt',
         can_disable = True,
-        auto_enable = True,
     ),
     a3 = device('nicos.core.device.DeviceAlias',
         description = 'Alias for sample rotation',

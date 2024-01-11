@@ -35,11 +35,11 @@ class VSForbiddenMoveable(WindowMoveable):
 
     parameters = {
         'forbidden_regions': Param('List of forbidden regions',
-                                   type=listof(tupleof(float, float)),
+                                   type=listof(tupleof(int, int)),
                                    mandatory=True)
     }
 
-    valuetype = float
+    valuetype = int
 
     def doIsAllowed(self, value):
         for region in self.forbidden_regions:

@@ -10,7 +10,6 @@ devices = dict(
         motorpv = 'SQ:DMC:mcu1:A4',
         errormsgpv = 'SQ:DMC:mcu1:A4-MsgTxt',
         can_disable = True,
-        auto_enable = True,
     ),
     det_timer = device('nicos.devices.generic.VirtualTimer',
         description = 'Detector timer',
@@ -29,7 +28,7 @@ devices = dict(
         source = 'monitor2',
         type = 'monitor',
     ),
-    proton_current = device('nicos_sinq.devices.epics.base.EpicsReadable',
+    proton_current = device('nicos_sinq.devices.epics.EpicsReadable',
         description = 'Proton current monitor',
         readpv = 'MHC6:IST:2',
         unit = 'uA',
@@ -55,7 +54,8 @@ devices = dict(
         images = ['det_image'],
         monitors = ['m1', 'm2'],
     ),
-    jbi_liveview = device('nicos.devices.datasinks.LiveViewSink',),
+    jbi_liveview = device('nicos.devices.datasinks.LiveViewSink',
+    ),
 )
 
 startupcode = '''

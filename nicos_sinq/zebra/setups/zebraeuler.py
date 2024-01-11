@@ -15,7 +15,6 @@ devices = dict(
         errormsgpv = pvpref + '2:SCH-MsgTxt',
         precision = 0.5,
         can_disable = True,
-        auto_enable = True,
     ),
     phi = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'PHI rotation',
@@ -24,7 +23,6 @@ devices = dict(
         precision = 0.5,
         userlimits = (-180, 180),
         can_disable = True,
-        auto_enable = True,
     ),
     ZEBRA = device('nicos_sinq.zebra.devices.sinqxtal.SinqEuler',
         description = 'instrument object',
@@ -57,6 +55,10 @@ devices = dict(
         description = 'Alias for the l of hkl',
         alias = 'ZEBRA.l',
         devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
+    ),
+    cone = device('nicos_sinq.sxtal.cone.Cone',
+        description = 'Cone angle for cone scans',
+        unit = 'degree'
     ),
 )
 
