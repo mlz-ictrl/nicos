@@ -505,7 +505,7 @@ class LiveDataPanel(PlotPanel):
             # update with current data
             data = self.getDataFromItem(self.fileList.currentItem())
             if data is not None:
-                widget.setData(data['dataarrays'], data['labels'])
+                widget.setData(data['dataarrays'], data.get('labels'))
 
             for name, roi in self.rois.items():
                 widget.setROI(name, roi)
@@ -781,12 +781,15 @@ class LiveDataPanel(PlotPanel):
                 self.log.debug('add to cache: %s', uid)
                 self._datacache[uid] = {}
             self._datacache[uid]['dataarrays'] = arrays
+            if titles is None:
+                titles = self._datacache[uid].get('titles')
+            else:
+                self._datacache[uid]['titles'] = titles
+            if labels is None:
+                labels = self._datacache[uid].get('labels')
+            else:
+                self._datacache[uid]['labels'] = labels
         if display:
-            if uid:
-                if titles is None:
-                    titles = self._datacache[uid].get('titles')
-                if labels is None:
-                    labels = self._datacache[uid].get('labels')
             self._initLiveWidget(arrays[0])
             for widget in self._get_all_widgets():
                 widget.setData(arrays, labels)
