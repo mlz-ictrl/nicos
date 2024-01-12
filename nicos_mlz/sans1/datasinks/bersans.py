@@ -35,7 +35,7 @@ from nicos.utils import toAscii
 # not a good solution: BerSANS keys are fixed, but devicenames
 # (and their existence) is instrument specific...
 #
-# Since this used only on SANS1 it will be used like this for the time beeing....
+# Since this used only on SANS1 it will be used like this for the time beeing ...
 BERSANSHEADER = """
 %%File
 FileName=%(fileName)s
@@ -219,23 +219,23 @@ ChannelCenter=
 %%Comment
 """
 
-#TISANEHEADER = """
-#tisane_counts=%(tisane_det_pulses)s
-#tisane_fc=%(tisane_fc)s
+# TISANEHEADER = """
+# tisane_counts=%(tisane_det_pulses)s
+# tisane_fc=%(tisane_fc)s
 #
-#tisane_fg1_sample_frequency=%(tisane_fg1_sample.frequency)s
-#tisane_fg1_sample_amplitude=%(tisane_fg1_sample.amplitude)s
-#tisane_fg1_sample_offset=%(tisane_fg1_sample.offset)s
-#tisane_fg1_sample_shape=%(tisane_fg1_sample.shape)s
-#tisane_fg1_sample_dutycycle=%(tisane_fg1_sample.duty)s
+# tisane_fg1_sample_frequency=%(tisane_fg1_sample.frequency)s
+# tisane_fg1_sample_amplitude=%(tisane_fg1_sample.amplitude)s
+# tisane_fg1_sample_offset=%(tisane_fg1_sample.offset)s
+# tisane_fg1_sample_shape=%(tisane_fg1_sample.shape)s
+# tisane_fg1_sample_dutycycle=%(tisane_fg1_sample.duty)s
 #
-#tisane_fg2_sample_frequency=%(tisane_fg2_det.frequency)s
-#tisane_fg2_sample_amplitude=%(tisane_fg2_det.amplitude)s
-#tisane_fg2_sample_offset=%(tisane_fg2_det.offset)s
-#tisane_fg2_sample_shape=%(tisane_fg2_det.shape)s
-#tisane_fg2_sample_dutycycle=%(tisane_fg2_det.duty)s
+# tisane_fg2_sample_frequency=%(tisane_fg2_det.frequency)s
+# tisane_fg2_sample_amplitude=%(tisane_fg2_det.amplitude)s
+# tisane_fg2_sample_offset=%(tisane_fg2_det.offset)s
+# tisane_fg2_sample_shape=%(tisane_fg2_det.shape)s
+# tisane_fg2_sample_dutycycle=%(tisane_fg2_det.duty)s
 #
-#"""
+# """
 
 TISANEHEADER_old = """
 tisane_counts=%(tisane_det_pulses)s
@@ -282,25 +282,21 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
                              "using 0.0 instead", exc=1)
 
         try:
-            # Setupfile = session.getDevice('det1_image').histogramfile
             Histfile = metainfo['det1_image', 'histogramfile'][1]
         except Exception:
             Histfile = ''
 
         try:
-            # Listfile = session.getDevice('det1_image').listmodefile.split('\'')[1]
             Listfile = metainfo['det1_image', 'listmodefile'][1].split('\'')[1]
         except Exception:
             Listfile = ''
 
         try:
-            # Setupfile = session.getDevice('det1_image').configfile
             Setupfile = metainfo['det1_image', 'configfile'][1]
         except Exception:
             Setupfile = 'setup'
 
         try:
-            # LookUpTable = session.getDevice('det1_image').calibrationfile
             LookUpTable = metainfo['det1_image', 'calibrationfile'][1]
         except Exception:
             LookUpTable = 'lookup'
@@ -375,9 +371,6 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
 
 
 class BerSANSImageSink(ImageSink):
-
-    parameters = {
-    }
 
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
