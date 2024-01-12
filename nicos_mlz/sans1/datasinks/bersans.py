@@ -24,12 +24,16 @@
 """Bersans file format saver, exclusively used at SANS1"""
 
 import os
+import re
 from time import localtime, strftime, time as currenttime
+
+import numpy as np
 
 from nicos import session
 from nicos.core import Override
 from nicos.core.utils import DeviceValueDict
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
+    SingleFileSinkHandler
 from nicos.utils import toAscii
 
 # not a good solution: BerSANS keys are fixed, but devicenames
@@ -382,3 +386,25 @@ class BerSANSImageSink(ImageSink):
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
+
+
+class BerSANSImageFileReader(ImageFileReader):
+
+    filetypes = [
+        ('bersans', 'BerSANS File (*.001)'),
+    ]
+
+    @classmethod
+    def fromfile(cls, filename):
+        cts_found = False
+        linenr = 0
+        data = np.zeros(shape=(128, 128), dtype='int16')
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.startswith('%Counts'):
+                    cts_found = True
+                    continue
+                elif cts_found:
+                    data[linenr] = [int(s) for s in re.findall(r'\d+', line)]
+                    linenr += 1
+        return data
