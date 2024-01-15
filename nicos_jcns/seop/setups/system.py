@@ -37,7 +37,7 @@ devices = dict(
     # Configure dataroot here (usually /data).
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
-        dataroot = 'data',
+        dataroot = '/data',
         sendmail = True,
         serviceexp = 'service',
         sample = 'Sample',
