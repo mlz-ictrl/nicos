@@ -90,11 +90,11 @@ class Andor2LimaCCD(GenericLimaCCD):
     def _specialInit(self):
         # set some dummy roi to avoid strange lima rotation behaviour
         # (not at 0, 0 to avoid possible problems with strides)
-        self._writeRawRoi((8, 8, 8, 8))
+        self._dev.image_roi = (8, 8, 8, 8)
         # ensure NO rotation
         self._dev.image_rotation = 'NONE'
         # set full detector size as roi
-        self._writeRawRoi((0, 0, 0, 0))
+        self._dev.image_roi = (0, 0, 0, 0)
 
 
 class Andor2TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
