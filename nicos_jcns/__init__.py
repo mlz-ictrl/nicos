@@ -38,6 +38,8 @@ def determine_instrument(setup_package_path):
             instrument = hostname[1]
         elif hostname[0] in ('tr1-phys',):
             instrument = 'testrack'
+        elif hostname[0].startswith('seop'):
+            instrument = 'seop'
         else:
             instrument = hostname[0]
     except (ValueError, IndexError, OSError):
