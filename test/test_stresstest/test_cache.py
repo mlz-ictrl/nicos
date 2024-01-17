@@ -186,3 +186,28 @@ def test_init(session, setup):
         results.append(cc.get(f'init_{key}', 'value'))
     killSubprocess(cache)
     assert results == [n - 1] * len(keys)
+
+
+@pytest.mark.parametrize('setup', all_setups())
+def test_history_value_for_empty_interval(session, setup):
+    unsupported = ['cache_mem']
+    if setup in unsupported:
+        pytest.skip('n/a')
+    unimplemented = ['cache_kafka']
+    if setup in unimplemented:
+        pytest.skip('not implemented')
+    cache = startCache(alt_cache_addr, setup)
+    cc = session.cache
+    while not cc.is_connected():
+        sleep(0.02)
+    time0 = time()
+    n = 49
+    for i in range(n):
+        cc.put('test_value', 'value', i, time0 - (n - i) * 0.01)
+    sleep(2)
+    cc.put('test_value', 'value', 42, time())
+    sleep(1)
+    history = cc.history('test_value', 'value', time0 + 1, time0 + 2)
+    killSubprocess(cache)
+    assert len(history) == 1
+    assert history[0][1] == n - 1

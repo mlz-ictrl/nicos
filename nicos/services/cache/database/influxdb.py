@@ -221,6 +221,17 @@ class InfluxDBWrapper:
                         result.append(record)
         return result
 
+    def queryLastValue(self, measurement, field, totime):
+        self._update()
+        t = datetime.utcfromtimestamp(totime).strftime("%Y-%m-%dT%H:%M:%SZ")
+        msg = f'''from(bucket:"{self._bucket}")
+                |> range(start: 2007-01-01T00:00:00Z, stop: {t})
+                |> filter(fn:(r) => r._measurement == "{measurement}")
+                |> filter(fn:(r) => r._field == "{field}")
+                |> last(column: "_time")
+                |> drop(columns: ["_start", "_stop"])'''
+        yield self._client.query_api().query_stream(msg)
+
     def queryHistory(self, measurement, field, fromtime, totime, interval):
         """Queries history from InfluxDB.
         """
@@ -228,12 +239,11 @@ class InfluxDBWrapper:
         t1 = datetime.utcfromtimestamp(fromtime).strftime("%Y-%m-%dT%H:%M:%SZ")
         t2 = datetime.utcfromtimestamp(totime).strftime("%Y-%m-%dT%H:%M:%SZ")
         msg = f'''from(bucket:"{self._bucket}")
-            |> range(start: {t1}, stop: {t2})
-            |> filter(fn:(r) => r._measurement == "{measurement}")
-            |> filter(fn:(r) => r._field == "{field}")'''
-        if interval:
-            msg += f'|> aggregateWindow(every: {interval}s, fn: last, createEmpty: false)'
-        msg += '|> drop(columns: ["_start", "_stop"])'
+                |> range(start: {t1}, stop: {t2})
+                |> filter(fn:(r) => r._measurement == "{measurement}")
+                |> filter(fn:(r) => r._field == "{field}")
+                {f'|> aggregateWindow(every: {interval}s, fn: last, createEmpty: false)' if interval else ''}
+                |> drop(columns: ["_start", "_stop"])'''
         yield self._client.query_api().query_stream(msg)
 
     def update(self, measurement, ts, field, value, expired):
@@ -418,11 +428,20 @@ class InfluxDBCacheDatabase(CacheDatabase):
         return real_update
 
     def queryHistory(self, dbkey, fromtime, totime, interval):
+        empty = True
         category, subkey = dbkey
         for records in self._client.queryHistory(category, subkey, fromtime,
                                                  totime, interval):
             for record in records:
+                empty = False
                 time = record['_time'].timestamp()
                 entry = CacheEntry(time, None, record['_value'])
                 entry.expired = record['expired'] == 'True'
                 yield entry
+        if empty:
+            for records in self._client.queryLastValue(category, subkey, fromtime):
+                for record in records:
+                    time = record['_time'].timestamp()
+                    entry = CacheEntry(time, None, record['_value'])
+                    entry.expired = record['expired'] == 'True'
+                    yield entry

@@ -106,5 +106,8 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
                     inrange = True
                 elif not inrange and entry.value and entry.time < fromtime:
                     last_before = entry
+            # return at least the last value before empty range
+            if not inrange and last_before is not None:
+                yield last_before
         except Exception:
             self.log.exception('error reading store for history query')
