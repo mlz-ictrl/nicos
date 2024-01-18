@@ -55,5 +55,5 @@ class CameaA4Motor(Moveable):
     def doRead(self, maxage=0):
         return self._attached_rawa4.read(maxage) + self.a4offset
 
-    def isAllowed(self, pos):
+    def doIsAllowed(self, pos):
         return self._attached_rawa4.isAllowed(pos - self.a4offset)
