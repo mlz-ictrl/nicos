@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
@@ -17,21 +18,17 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-
-from nicos.core import Param
-
-from nicos_sinq.devices.epics.astrium_chopper import EpicsAstriumChopper
+from nicos.core.device import Param
+from nicos.devices.sample import Sample
 
 
-class AmorChopper(EpicsAstriumChopper):
-    """ Additional settings for chopper in AMOR
-    """
-
+class AmorSample(Sample):
+    """AMOR sample with an additional parameter"""
     parameters = {
-        'indexphase': Param('Chopper discs index phase', type=float,
-                            mandatory=True, userparam=False,
-                            category='general')
+        'orsomodel': Param('Sample description following ORSO standard',
+                           type=str, settable=True, userparam=True,
+                           category='sample'),
     }

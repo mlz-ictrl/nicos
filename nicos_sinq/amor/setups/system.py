@@ -10,7 +10,7 @@ sysconfig = dict(
 )
 
 modules = [
-    'nicos.commands.standard', 'nicos_sinq.amor.commands',
+    'nicos.commands.standard',
     'nicos_sinq.commands.sics'
 ]
 

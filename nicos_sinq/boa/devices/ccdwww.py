@@ -56,7 +56,7 @@ class CCDWWWConnector(HttpConnector):
         else:
             data = 'Image data'
         session.log.debug('URL %s returned code %d, data: %s',
-                         result.request.url, response, data)
+                          result.request.url, response, data)
         if response in self.status_code_msg:
             session.log.warning('CCDWWW Communication problem %s with %s',
                                 self.status_code_msg.get(response),

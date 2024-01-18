@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
@@ -22,6 +23,8 @@
 #
 # *****************************************************************************
 
+import copy
+import json
 from os import path
 from time import time as currenttime
 
@@ -31,9 +34,11 @@ from nicos import session
 from nicos.core import FINAL, LIVE
 from nicos.utils import byteBuffer, safeName
 
+from nicos_ess.devices.datasinks.nexus_structure import NexusStructureTemplate
+from nicos_ess.nexus.converter import NexusTemplateConverter
+from nicos_sinq.devices.datasinks import SinqNexusFileSink
 from nicos_sinq.devices.imagesink import ImageKafkaDataSink, \
     ImageKafkaDataSinkHandler
-from nicos_sinq.devices.datasinks import SinqNexusFileSink
 
 
 class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
@@ -121,3 +126,50 @@ class AmorNexusFileSink(SinqNexusFileSink):
     def get_output_file_dir(self):
         return path.join(self.file_output_dir,
                          to_snake(session.experiment.title))
+
+
+class AmorStructureTemplate(NexusStructureTemplate):
+    """
+    A template provider which massages the template in an AMOR
+    specific way:
+
+    1) Remove optional components from the template
+    2) Puts the distances offset in
+    """
+    def _delete_keys_from_dict(self, dict_del, keys):
+        for key in list(keys):
+            if key in dict_del.keys():
+                del dict_del[key]
+
+        for val in dict_del.values():
+            if isinstance(val, dict):
+                self._delete_keys_from_dict(val, keys)
+            if isinstance(val, list):
+                for elem in val:
+                    self._delete_keys_from_dict(elem, keys)
+
+    def _remove_optional_components(self, template):
+        # Remove from the NeXus structure the components not present
+        delete_keys = []
+        if 'deflector' not in session.loaded_setups:
+            delete_keys.append('deflector:NXmirror')
+        if 'polariser' not in session.loaded_setups:
+            delete_keys.append('polarizer:NXpolariser')
+        if 'diaphragm2' not in session.loaded_setups:
+            delete_keys.append('diaphragm2:NXslit')
+        if 'diaphragm3' not in session.loaded_setups:
+            delete_keys.append('diaphragm3:NXslit')
+        if 'diaphragm4' not in session.loaded_setups:
+            delete_keys.append('diaphragm4:NXslit')
+        if 'stz_table' not in session.loaded_setups:
+            delete_keys.append('height_offset')
+        self._delete_keys_from_dict(template, delete_keys)
+        return template
+
+    def get_structure(self, dataset, start_time):
+        template = copy.deepcopy(self._template)
+        template = self._remove_optional_components(template)
+        self._add_start_time(dataset)
+        converter = NexusTemplateConverter()
+        structure = converter.convert(template, dataset.metainfo)
+        return json.dumps(structure)

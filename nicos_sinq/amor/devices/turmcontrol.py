@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
@@ -17,36 +18,26 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-
-from nicos.core import Param
-
-from nicos_sinq.devices.sinqhm.channel import HistogramImageChannel
+from nicos.core import Attach, Device, IsController, Moveable
 
 
-class AmorSingleDetectorImageChannel(HistogramImageChannel):
-    """ The three single detectors in AMOR write the data on second
-    bank in the histogram memory with each row representing the TOF
-    data from a particular detector
+class DetectorController(IsController, Device):
     """
-    parameters = {
-        'detectorid': Param('ID of the single detector', type=int),
+    COM and COZ shall not be moved when the detector is in parking position
+    """
+
+    attached_devices = {
+        'com': Attach('detector tilt', Moveable),
+        'coz': Attach('detector offset', Moveable),
+        'park': Attach('detector park motor', Moveable),
     }
 
-    def _dimDesc(self):
-        desc = HistogramImageChannel._dimDesc(self)
-        return [desc[1]]
-
-    @property
-    def startid(self):
-        return self.detectorid * self.bank.shape[1]
-
-    @property
-    def endid(self):
-        return (self.detectorid + 1) * self.bank.shape[1]
-
-    @property
-    def shape(self):
-        return [self.bank.shape[1]]
+    def isAdevTargetAllowed(self, adev, adevtarget):
+        if adev in [self._attached_com, self._attached_coz]:
+            if self._attached_park.read(0) < -90:
+                return False, "Cannot move %s when in park position"\
+                    % (adev.name)
+        return True, ''

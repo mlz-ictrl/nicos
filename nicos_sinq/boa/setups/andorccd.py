@@ -6,10 +6,11 @@ motprefix = 'SQ:BOA:mcu1:DCCDATZ'
 counterprefix = 'SQ:BOA:counter'
 
 devices = dict(
-    dccdatz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    dccdatz = device('nicos_sinq.devices.epics.motor.EpicsMotor',
         description = 'Andor focus motor',
         motorpv = motprefix,
         errormsgpv = motprefix + '-MsgTxt',
+        can_disable = True,
     ),
     el737_preset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',

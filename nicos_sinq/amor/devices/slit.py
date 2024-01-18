@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
@@ -31,8 +32,8 @@ from nicos.core import Attach, Device, HasAutoDevices, HasPrecision, \
 from nicos.core.utils import multiStatus
 from nicos.devices.generic.slit import Slit, SlitAxis as DefaultSlitAxis
 
-from nicos_sinq.amor.devices.logical_motor import AmorLogicalMotor, \
-    InterfaceLogicalMotorHandler
+from nicos_sinq.devices.logical_motor import InterfaceLogicalMotorHandler, \
+    LogicalMotor
 
 
 class SlitOpening(HasPrecision, DefaultSlitAxis):
@@ -100,7 +101,7 @@ def read_divergence(distance, slit):
     s = arctan(top / distance)
     d = arctan(bottom / distance)
     h = 2 * arctan((left+right) / distance)
-    return{
+    return {
         'div': degrees(s+d),
         'did': degrees((s-d)/2),
         'dih': degrees(h)
@@ -230,7 +231,7 @@ class AmorSlitHandler(InterfaceLogicalMotorHandler):
 motortypes = ['div', 'dih', 'did', 'd2v', 'd2h', 'd2d', 'd3v', 'd3h', 'd3d']
 
 
-class AmorSlitLogicalMotor(AmorLogicalMotor):
+class AmorSlitLogicalMotor(LogicalMotor):
     """ Class to represent the logical slit motors in AMOR.
     """
     parameters = {

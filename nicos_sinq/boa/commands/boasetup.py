@@ -99,7 +99,7 @@ def boadiscover():
     table_config = {2: [], 3: [], 4: [], 5: [], 6: []}
     for comp in table_presence:
         idx = epics.caget(comp[0], False)
-        if idx < 2:
+        if idx in [0, 1]:
             if comp[1] in loaded_setups:
                 to_remove.append(comp[1])
         else:
