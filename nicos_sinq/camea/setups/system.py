@@ -57,12 +57,12 @@ devices = dict(
         description = 'Alias for the l of hkl',
         alias = 'CAMEA.l',
         devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
-   ),
+    ),
     en = device('nicos.core.device.DeviceAlias',
         description = 'Alias for the en of hkle',
         alias = 'CAMEA.en',
         devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
-  ),
+    ),
     ublist = device('nicos_sinq.sxtal.reflist.ReflexList',
         description = 'Reflection list for '
         'UB matrix refinement',
@@ -97,7 +97,6 @@ devices = dict(
         description = 'Sink for forwarding live data to the GUI',
     ),
     quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
-        description = 'Sink for sending UDP datafile '
-        'notifications'
+        description = 'Sink for sending UDP datafile notifications',
     ),
 )

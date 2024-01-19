@@ -1,0 +1,6 @@
+nicos/s2t/userlimits=(0, 2)
+nicos/m2t/userlimits=(0, 180)
+nicos/m2t/value=45
+nicos/omm/userlimits=(0, 100)
+nicos/mcv/userlimits=(0, 160)
+nicos/mch/userlimits=(0, 270)
