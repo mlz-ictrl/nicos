@@ -27,10 +27,8 @@ from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import ADDSCANHELP0, ADDSCANHELP2, _handleScanArgs, \
     _infostr
-from nicos.core.errors import ConfigurationError
 from nicos.core.spm import Bare, spmsyntax
 
-from nicos_sinq.amor.devices.hm_config import AmorTofArray
 from nicos_sinq.amor.scan import WallTimeScan
 from nicos_sinq.devices.detector import SinqDetector
 
@@ -107,37 +105,3 @@ def spin(state):
         flipper.maw('SPIN UP')
     elif state == '-':
         flipper.maw('SPIN DOWN')
-
-
-@usercommand
-@helparglist('scheme, [value]')
-def UpdateTimeBinning(scheme, value=None):
-    """Change the time binning for histogramming the data.
-
-    Time binning schemes:
-        c/q/t <argument>
-        c means Delta q / q = constant = <argument>
-        q means Delta q = constant, <argument> is the number of bins/channels
-        qq assumes two spectra per pulse
-        t means Delta t = constant, <argument> is the number of bins/channels
-
-    Example:
-
-    Following command uses the scheme c with resolution of 0.005
-
-    >>> UpdateTimeBinning('c', 0.005)
-
-    Following command uses the scheme q with 250 channels
-
-    >>> UpdateTimeBinning('q', 250)
-
-    """
-    # Get the configurator device
-    try:
-        configurator = session.getDevice('hm_configurator')
-        for arr in configurator.arrays:
-            if isinstance(arr, AmorTofArray):
-                arr.applyBinScheme(scheme, value)
-        configurator.updateConfig()
-    except ConfigurationError:
-        session.log.error('The configurator device not found. Cannot proceed')

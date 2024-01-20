@@ -2,8 +2,10 @@ description = 'AMOR reduced parameter choice'
 
 group = 'basic'
 
-includes = ['master_devices']
+includes = ['director_devices']
+
+excludes = ['universal', 'deflector']
 
 startupcode = '''
-Exp.mode = 'simple'
+amor_director.mode = 'simple'
 '''
