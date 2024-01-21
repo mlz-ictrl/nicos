@@ -37,7 +37,7 @@ class SinqTAS(TAS):
     }
 
     def doReadScanconstant(self):
-        if self.scanmode == 'CKI' or self.scanmode == 'DIFF':
+        if self.scanmode in ['CKI', 'DIFF']:
             return to_k(self._attached_mono.read(0),
                         self._attached_mono.unit)
         elif self.scanmode == 'CKF':
@@ -47,8 +47,7 @@ class SinqTAS(TAS):
             return self._attached_psi.read()
         elif self.scanmode == 'CPHI':
             return self._attached_phi.read(0)
-        else:
-            raise ProgrammingError()
+        raise ProgrammingError()
 
     def _calpos(self, pos, printout=True, checkonly=True):
         """
@@ -68,8 +67,7 @@ class SinqTAS(TAS):
             if checkonly:
                 self.log.error('cannot calculate position: %s', err)
                 return
-            else:
-                raise
+            raise
         if not printout:
             return angles
         ok, why = True, ''
@@ -93,7 +91,7 @@ class SinqTAS(TAS):
         self.log.info('A1: %8.3f', th)
         self.log.info('A2: %8.3f', tth)
         self.log.info('A3: %8.3f deg', angles[3])
-        self.log.info('A4:  %8.3f deg', angles[2])
+        self.log.info('A4: %8.3f deg', angles[2])
         th, tth = self._attached_ana._calc_angles(angles[1])
         self.log.info('A5: %8.3f', th)
         self.log.info('A6: %8.3f', tth)
