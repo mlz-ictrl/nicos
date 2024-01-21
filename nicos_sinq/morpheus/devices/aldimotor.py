@@ -78,6 +78,8 @@ class AldiController(SequencerMixin, EpicsDevice, Moveable):
                          userparam=False),
     }
 
+    hardware_access = True
+
     valuetype = oneof(1, 2, 3)
 
     _aldimotors = [('d1b', 'd1t'), ('d2b', 'd2t'), ('d3b', 'd3t')]

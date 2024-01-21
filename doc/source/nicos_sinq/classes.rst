@@ -146,3 +146,6 @@ SINQ classes
 
 .. module:: nicos_sinq.devices.wall_time
 .. autoclass:: WallTime
+
+.. module:: nicos_sinq.devices.noptic
+.. autoclass:: NODirector
