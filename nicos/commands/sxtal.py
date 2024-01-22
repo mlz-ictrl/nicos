@@ -92,7 +92,7 @@ def ScanDataset(dmin, dmax, preset=1., scanmode=None):
 
 
 @usercommand
-@helparglist('hkl')
+@helparglist('hkl, [preset], [subscan]')
 def ScanOmega(hkl, preset=1., subscan=False):
     instr = session.instrument
     if not isinstance(instr, SXTalBase):
@@ -106,7 +106,7 @@ def ScanOmega(hkl, preset=1., subscan=False):
 
 
 @usercommand
-@helparglist('hkl')
+@helparglist('hkl, [preset], [subscan]')
 def ScanT2T(hkl, preset=1., subscan=False):
     instr = session.instrument
     if not isinstance(instr, SXTalBase):
