@@ -525,7 +525,7 @@ def omscan(hkl, width=None, speed=None, timedelta=None, **kwds):
 
     Examples:
 
-    >>> omscan((1, 0, 0))     # with default with, speed and timedelta
+    >>> omscan((1, 0, 0))     # with default width, speed and timedelta
     >>> omscan((1, 0, 0), 5)  # with a width of 5 degrees
     >>> omscan((1, 0, 0), 5, 0.1, 1)   # with width, speed and timedelta
     """
