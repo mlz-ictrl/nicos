@@ -92,7 +92,7 @@ pip can be obtained from https://pip.pypa.io/en/stable/
 
 For Debian/Ubuntu::
 
-  sudo apt-get install python3-pip
+  apt-get install python3-pip
 
 
 Packages to install for common distributions
@@ -105,17 +105,15 @@ https://software.opensuse.org/download.html?project=science:gr-framework&package
 Generic Debian/Ubuntu
 ^^^^^^^^^^^^^^^^^^^^^
 
-Please at the local repository via:
+Please add the local repository via:
 
      echo "deb [trusted=yes] https://forge.frm2.tum.de/repos distro/"| sudo tee /etc/apt/sources.list.d/mlz.list
-     sudo apt update
+     apt update
 
 where 'distro' stands for:
 
-     - bionic (Ubuntu 18.04)
      - focal (Ubuntu 20.04)
      - jammy (Ubunut 22.04)
-     - buster (Debian 10)
      - bullseye (Debian 11)
      - bookworm (Debian 12)
 
@@ -148,8 +146,8 @@ where 'distro' stands for:
      apt-get install gpg curl
 
 
-Debian 11/12 (Bullseyer/Bookworm)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Debian 11/12 (Bullseye/Bookworm)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 An additional plugin for pytest is required (which was formerly included).
 
