@@ -30,6 +30,8 @@ import numpy as np
 from nicos.devices.sxtal.goniometer.base import PositionFactory, typelist
 from nicos.devices.sxtal.goniometer.posutils import equal
 
+from test.utils import raises
+
 session_setup = 'sxtalpositions'
 
 
@@ -62,17 +64,23 @@ def test_positions(session):
                 # Set up a range of interesting positions
                 type1 = type1.upper()
                 if type1 in ['C', 'B', 'L'] and getattr(p, 'theta', None) == 0:
-                    return
+                    continue
                 if type1 in ['L'] and hasattr(p, 'chi') and p.chi == np.pi/2:
-                    return
+                    continue
 
                 p1 = p.asType(type1)
 
                 type2 = type2.upper()
                 if type2 in ['C', 'B', 'L'] and getattr(p, 'theta', None) == 0:
-                    return
+                    continue
                 if type2 in ['L'] and hasattr(p, 'chi') and p.chi == np.pi/2:
-                    return
+                    continue
                 p2 = p.asType(type2).asType(type1)
 
                 assert equal(p1, p2)
+
+def test_position_factory():
+    assert raises(TypeError, PositionFactory, 'z')
+    p = PositionFactory('n')
+    assert raises(TypeError, p.asType, 'z')
+    assert equal(p, PositionFactory('', p=p))

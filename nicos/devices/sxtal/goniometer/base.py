@@ -75,8 +75,7 @@ def PositionFactory(ptype, **kwds):
         return p.__class__(p)
     elif ptype in typelist:
         return typelist[ptype](_rad=radians, **kwds)
-    else:
-        raise TypeError("unknown ptype specified in PositionFactory()")
+    raise TypeError('unknown ptype specified in PositionFactory()')
 
 
 class PositionBase:
@@ -96,15 +95,13 @@ class PositionBase:
         if not _rad:
             if val is not None:
                 return np.deg2rad(val)
-            else:
-                return 0.0
-        else:
-            return val
+            return 0.0
+        return val
 
     def asType(self, newtype, wavelength=None):
         if newtype.lower() in typelist:
             return getattr(self, 'as%s' % newtype.upper())(wavelength)
-        raise TypeError("unknown position type")
+        raise TypeError('unknown position type')
 
 
 from nicos.devices.sxtal.goniometer.bisect import Bisecting  # isort:skip
