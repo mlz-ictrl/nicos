@@ -1,0 +1,13 @@
+nicos/sth/abslimits=(-10,10)
+nicos/sth/userlimits=(-10,10)
+nicos/mth/value=-20
+nicos/mtt/value=-40
+nicos/mfv/value=0
+nicos/d1l/abslimits=(0, 10)
+nicos/d1l/userlimits=(0, 10)
+nicos/d1r/abslimits=(-10, 20)
+nicos/d1r/userlimits=(-10, 20)
+nicos/dxt/abslimits=(0, 20)
+nicos/dxt/userlimits=(0, 20)
+nicos/slit1_width/abslimits=(0, 10)
+nicos/slit1_width/userlimits=(0, 10)
