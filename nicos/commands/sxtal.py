@@ -94,6 +94,17 @@ def ScanDataset(dmin, dmax, preset=1., scanmode=None):
 @usercommand
 @helparglist('hkl, [preset], [subscan]')
 def ScanOmega(hkl, preset=1., subscan=False):
+    """Perform a centered omega scan at the specified Q point.
+
+    The default scan width is calculated from the instrumental resolution.  The
+    number of steps is taken from the instrument parameter ``scansteps``.
+
+    Examples:
+
+    >>> ScanOmega((1, 0, 0))     # with default preset and no subscan
+    >>> ScanOmega((1, 0, 0), 1)  # with 1 second counting time and no subscan
+    >>> ScanOmega((1, 0, 0), 1, True)   # with 1 s count and subscan
+    """
     instr = session.instrument
     if not isinstance(instr, SXTalBase):
         raise NicosError('your instrument device is not a SXTAL device')
@@ -108,6 +119,17 @@ def ScanOmega(hkl, preset=1., subscan=False):
 @usercommand
 @helparglist('hkl, [preset], [subscan]')
 def ScanT2T(hkl, preset=1., subscan=False):
+    """Perform a centered 'omega/two theta' scan at the specified Q point.
+
+    The default scan width is calculated from the instrumental resolution.  The
+    number of steps is taken from the instrument parameter ``scansteps``.
+
+    Examples:
+
+    >>> ScanT2T((1, 0, 0))     # with default preset and no subscan
+    >>> ScanT2T((1, 0, 0), 1)  # with 1 second counting time and no subscan
+    >>> ScanT2T((1, 0, 0), 1, True)   # with 1 s count and subscan
+    """
     instr = session.instrument
     if not isinstance(instr, SXTalBase):
         raise NicosError('your instrument device is not a SXTAL device')
