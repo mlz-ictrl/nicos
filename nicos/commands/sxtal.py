@@ -137,6 +137,8 @@ def ScanT2T(hkl, preset=1., subscan=False):
         raise NicosError('your instrument device is not a SXTAL device')
     if not hasattr(instr, '_attached_omega'):
         raise NicosError('your instrument device has no attached "omega"')
+    if not hasattr(instr, '_attached_ttheta'):
+        raise NicosError('your instrument device has no attached "ttheta"')
     width = instr.getScanWidthFor(hkl)
     sps = instr.scansteps
     sw = width / sps
