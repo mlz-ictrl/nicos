@@ -27,12 +27,12 @@
 import numpy as np
 
 from nicos import session
-from nicos.core import Attach, AutoDevice, HasAutoDevices, LimitError, \
-    Moveable, Override, Param, Value, dictof, intrange, listof, nicosdev, \
-    oneof, tupleof, vec3
+from nicos.core import Attach, AutoDevice, LimitError, Moveable, Override, \
+    Param, Value, dictof, listof, nicosdev, oneof, tupleof
 from nicos.core.errors import InvalidValueError, UsageError
 from nicos.devices.generic.mono import Monochromator, from_k
-from nicos.devices.instrument import Instrument
+from nicos.devices.sxtal.instrument import SXTalBase as NicosSXTalBase, \
+    SXTalIndex
 
 from nicos_sinq.sxtal.singlexlib import calcNBUBFromCellAndReflections, \
     calcTheta, calcUBFromCellAndReflections, eulerian_to_kappa, \
@@ -43,27 +43,15 @@ from nicos_sinq.sxtal.tasublib import KToEnergy, calcPlaneNormal, \
     tasAngles, tasQEPosition, tasReflection
 
 
-class SXTalBase(HasAutoDevices, Instrument, Moveable):
+class SXTalBase(NicosSXTalBase):
     """An instrument class that can move in q space.
 
     When setting up a single xtal configuration, use a subclass that reflects
     the instrument geometry as your instrument device.
     """
 
-    attached_devices = {
-        'mono': Attach('Monochromator device', Moveable),
-    }
 
     parameters = {
-        'wavelength': Param('Wavelength', type=float,
-                            volatile=True, settable=False),
-        'scanmode':   Param('Scanmode', type=oneof('omega', 't2t'),
-                            userparam=True, settable=True,
-                            default='omega'),
-        'scansteps':  Param('Scan steps', type=intrange(10, 999),
-                            userparam=True, settable=True, default=40),
-        'scan_uvw':   Param('U,V,W Param', type=vec3, userparam=True,
-                            settable=True, default=[1.0, 1.0, 1.0]),
         'scan_width_multiplier': Param('Multiplier for the scan width '
                                        'calculated from scan_uvw',
                                        type=float, userparam=True,
@@ -90,61 +78,10 @@ class SXTalBase(HasAutoDevices, Instrument, Moveable):
                                        default=(0, 0)),
     }
 
-    parameter_overrides = {
-        'fmtstr':     Override(default='[%6.4f, %6.4f, %6.4f]'),
-        'unit':       Override(default='rlu', mandatory=False,
-                               settable=True),
-        'visibility': Override(default={'metadata', 'namespace', 'devlist'}),
-    }
-
-    valuetype = tupleof(float, float, float)
-    hardware_access = False
-    _last_calpos = None
-
-    def doInit(self, mode):
-        self.add_autodevice('h', SXTalIndex, namespace='global',
-                            unit='rlu', fmtstr='%.3f', index=0,
-                            visibility=self.autodevice_visibility, sxtal=self)
-        self.add_autodevice('k', SXTalIndex, namespace='global',
-                            unit='rlu', fmtstr='%.3f', index=1,
-                            visibility=self.autodevice_visibility, sxtal=self)
-        self.add_autodevice('l', SXTalIndex, namespace='global',
-                            unit='rlu', fmtstr='%.3f', index=2,
-                            visibility=self.autodevice_visibility, sxtal=self)
-        self._last_calpos = None
-
     def _calcPos(self, hkl, wavelength=None):
         """Calculate the Z1 vector for a given HKL position."""
         ub = session.experiment.sample.getUB()
         return ub.dot(np.array(list(hkl), dtype='float64'))
-
-    def _extractPos(self, pos):
-        """
-        Calculates the settings angles from the Z1 vector pos
-        Returns a list of tuples of devicename, angle
-        """
-        raise NotImplementedError
-
-    def _convertPos(self, pos, wavelength=None):
-        """Converts from angles for the given geometry to the Z1
-        vector.
-        Must be implemented in subclasses.
-        """
-        raise NotImplementedError
-
-    def _readPos(self, maxage=0):
-        """Create a position object with the current values of the attached
-        devices.  Must be implemented in subclasses. Returns the Z1 vector
-        calculated from the positions read
-        """
-        raise NotImplementedError
-
-    def _createPos(self, **kwds):
-        """Create a position object with the values of the given devices.
-        Must be implemented in subclasses. **kwds contains angles. This returns
-        the Z1 vector calculated from the angles given.
-        """
-        raise NotImplementedError
 
     def _checkPosList(self, poslist):
         """
@@ -206,47 +143,12 @@ class SXTalBase(HasAutoDevices, Instrument, Moveable):
         if np.allclose([p[1] for p in poslist], zero):
             return False, 'Failed to calculate angles for ' + str(hkl)
         if self._isToClose(poslist):
-            return False, 'Reflection %s to close to incoming beam'\
-                           % (str(hkl))
+            return False, 'Reflection %s to close to incoming beam %s' % hkl
         # check limits for the individual axes
         ok, why = self._checkPosList(poslist)
         if not ok:
             return ok, why
         return True, ''
-
-    def _sim_getMinMax(self):
-        ret = []
-        if self._sim_min is not None:
-            for i, name in enumerate(['h', 'k', 'l']):
-                ret.append((name, '%.4f' % self._sim_value[i],
-                            '%.4f' % self._sim_min[i],
-                            '%.4f' % self._sim_max[i]))
-        return ret
-
-    def _sim_setValue(self, pos):
-        self._sim_old_value = self._sim_value
-        self._sim_value = pos
-        self._sim_min = tuple(map(min, pos, self._sim_min or pos))
-        self._sim_max = tuple(map(max, pos, self._sim_max or pos))
-
-    def doStart(self, target):
-        poslist = self._extractPos(self._calcPos(target))
-        for (devname, devvalue) in poslist:
-            dev = self._adevs[devname]
-            dev.start(devvalue)
-        # store the min and max values of h,k,l, and E for simulation
-        self._sim_setValue(target)
-
-    def doFinish(self):
-        # make sure index members read the latest value
-        for index in (self.h, self.k, self.l):
-            if index._cache:
-                index._cache.invalidate(index, 'value')
-
-    def valueInfo(self):
-        return Value('h', unit='rlu', fmtstr='%.4f'), \
-            Value('k', unit='rlu', fmtstr='%.4f'), \
-            Value('l', unit='rlu', fmtstr='%.4f')
 
     def doRead(self, maxage=0):
         pos = self._readPos(maxage)
@@ -255,17 +157,6 @@ class SXTalBase(HasAutoDevices, Instrument, Moveable):
         ubinv = np.linalg.inv(ub)
         hkl = ubinv.dot(pos)
         return list(hkl)
-
-    def doReadWavelength(self, maxage=0):
-        # ensure using correct unit
-        oldunit = None
-        if self._attached_mono.unit != 'A':
-            oldunit = self._attached_mono.unit
-            self._attached_mono.unit = 'A'
-        result = float(self._attached_mono.read(0))
-        if oldunit:
-            self._attached_mono.unit = oldunit
-        return result
 
     def getScanWidthFor(self, hkl):
         """Get scanwidth as ``sqrt(u + v *tan Theta + w * tan² Theta)``."""
@@ -308,8 +199,6 @@ class EulerSXTal(SXTalBase):
         'psi_target': Param('Target for the PSI angle', type=float,
                             internal=True, settable=True),
     }
-
-    valuetype = tupleof(float, float, float)
 
     def doInit(self, mode):
         SXTalBase.doInit(self, mode)
@@ -355,10 +244,10 @@ class EulerSXTal(SXTalBase):
                 ompsi, chipsi, phipsi = rotatePsi(om, chi, phi,
                                                   np.deg2rad(psi))
                 psilist = [
-                  ('ttheta', np.rad2deg(tth)),
-                  ('omega', np.rad2deg(ompsi)),
-                  ('chi', np.rad2deg(chipsi)),
-                  ('phi', np.rad2deg(phipsi)),
+                    ('ttheta', np.rad2deg(tth)),
+                    ('omega', np.rad2deg(ompsi)),
+                    ('chi', np.rad2deg(chipsi)),
+                    ('phi', np.rad2deg(phipsi)),
                 ]
                 psiok, _ = self._checkPosList(psilist)
                 if psiok:
@@ -772,35 +661,9 @@ class TASSXTal(SXTalBase):
         return SXTalBase.valueInfo(self)
 
 
-class SXTalIndex(AutoDevice, Moveable):
-    """
-    "Partial" devices for the H, K, L indices of the SXTAL instrument.
-    """
-
-    parameters = {
-        'index': Param('The index into the SXTAL value', type=int),
-    }
-
-    attached_devices = {
-        'sxtal': Attach('The spectrometer to control', SXTalBase),
-    }
-
-    valuetype = float
-
-    hardware_access = False
-
-    def doRead(self, maxage=0):
-        return self._attached_sxtal.read(maxage)[self.index]
-
-    def doStart(self, target):
-        current = list(self._attached_sxtal.read(0.5))
-        current[self.index] = target
-        self._attached_sxtal.start(current)
-
-
 class SXTalPSI(AutoDevice, Moveable):
     """
-    "Partial" device  for the PSI angle of a eulerian cradle instrument
+    "Partial" device for the PSI angle of a eulerian cradle instrument
     """
 
     attached_devices = {
@@ -817,7 +680,7 @@ class SXTalPSI(AutoDevice, Moveable):
     def doIsAllowed(self, target):
         if not self._attached_sxtal.use_psi:
             return False, 'Can only use PSI when use_psi is enabled on %s' \
-                    % self._attached_sxtal.name
+                % self._attached_sxtal.name
 
     def doStart(self, target):
         current = list(self._attached_sxtal.read(0.5))

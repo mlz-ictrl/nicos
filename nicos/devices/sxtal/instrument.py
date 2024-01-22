@@ -26,14 +26,14 @@
 import numpy as np
 
 from nicos import session
-from nicos.core import Attach, AutoDevice, LimitError, Moveable, Override, \
-    Param, Value, intrange, oneof, tupleof, vec3
+from nicos.core import Attach, AutoDevice, HasAutoDevices, LimitError, \
+    Moveable, Override, Param, Value, intrange, oneof, tupleof, vec3
 from nicos.devices.generic.mono import Monochromator
 from nicos.devices.instrument import Instrument
 from nicos.devices.sxtal.goniometer.base import PositionFactory
 
 
-class SXTalBase(Instrument, Moveable):
+class SXTalBase(HasAutoDevices, Instrument, Moveable):
     """An instrument class that can move in q space.
 
     When setting up a single xtal configuration, use a subclass that reflects
@@ -68,12 +68,15 @@ class SXTalBase(Instrument, Moveable):
     _last_calpos = None
 
     def doInit(self, mode):
-        self.__dict__['h'] = SXTalIndex('h', unit='rlu', fmtstr='%.3f',
-                                        index=0, visibility=(), sxtal=self)
-        self.__dict__['k'] = SXTalIndex('k', unit='rlu', fmtstr='%.3f',
-                                        index=1, visibility=(), sxtal=self)
-        self.__dict__['l'] = SXTalIndex('l', unit='rlu', fmtstr='%.3f',
-                                        index=2, visibility=(), sxtal=self)
+        self.add_autodevice('h', SXTalIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=0,
+                            visibility=self.autodevice_visibility, sxtal=self)
+        self.add_autodevice('k', SXTalIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=1,
+                            visibility=self.autodevice_visibility, sxtal=self)
+        self.add_autodevice('l', SXTalIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=2,
+                            visibility=self.autodevice_visibility, sxtal=self)
         self._last_calpos = None
 
     def doShutdown(self):
