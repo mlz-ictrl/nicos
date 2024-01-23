@@ -10,14 +10,14 @@ tango_base = 'tango://nimaana4.refsans.frm2.tum.de:10000/test/ads/'
 Vadd = 2.5
 
 devices = dict(
-    nimaana_SHT3x_Temp = device(code_base + 'analogencoder.AnalogEncoder',
+    nimaana_air_temp = device(code_base + 'analogencoder.AnalogEncoder',
         description = 'nima temperature SHT3x',
         device = 'nimaana4_ch2',
         poly = [-66.875, 218.75 / Vadd],
         unit = 'degC',
         pollinterval = 50,
     ),
-    nimaana_SHT3x_Humidity = device(code_base + 'analogencoder.AnalogEncoder',
+    nimaana_air_rh = device(code_base + 'analogencoder.AnalogEncoder',
         description = 'nima humidity SHT3x',
         device = 'nimaana4_ch1',
         poly = [-12.5, 125. / Vadd],
@@ -47,7 +47,7 @@ for i in range(1, 3):
         unit = 'Ohm',
         pollinterval = None,
     )
-    devices[f'nimaana_pt1000_{i}'] = device(code_base + 'analogencoder.PTxxlinearC',
+    devices[f'nimaana_pool_{i}_temp'] = device(code_base + 'analogencoder.PTxxlinearC',
         description = f'Pool Temperature PT1000 {i}',
         device = f'nimaana_resistor_{i}',
         alpha = 0.003851,
@@ -57,4 +57,4 @@ for i in range(1, 3):
         pollinterval = 50,
     )
 
-devices[f'nimaana_pt1000_2'].r_cable = 0.42
+devices[f'nimaana_pool_2_temp'].r_cable = 0.42
