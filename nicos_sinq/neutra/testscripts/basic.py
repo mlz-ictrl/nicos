@@ -4,10 +4,8 @@
 # test: needs = epics
 # test: needs = streaming_data_types>=0.16.0
 # test: needs = confluent_kafka
-# test: subdirs = sans
-# test: setups = detector, asyncontroller
+# test: subdirs = neutra
+# test: setups = sample_position_2
 
 read()
 status()
-tofel()
-antitofel()
