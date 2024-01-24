@@ -226,18 +226,20 @@ class DataManager:
         self._current.dispatch('putMetainfo', metainfo)
 
     def putValues(self, values):
-        """Put some values into the topmost (point) dataset.
+        """Put some values into the topmost point dataset and all parent
+        datasets.
 
         *values* is a dictionary of the form ``{devname: (timestamp, value)}``.
 
         If *timestamp* is None, this value is the "canonical" position of the
         device for the point.
         """
-        if self._current.settype != POINT:
-            self.log.warning('No current point dataset, ignoring values')
-            return
         self._current._addvalues(values)
         self._current.dispatch('putValues', values)
+        for ds in self.iterParents(self._current, settypes=(BLOCK, SUBSCAN,
+                                                            SCAN)):
+            ds._addvalues(values)
+            ds.dispatch('putValues', values)
 
     def putResults(self, quality, results):
         """Put some detector results into the topmost (point) dataset.

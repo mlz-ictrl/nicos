@@ -94,6 +94,14 @@ class BaseDataset:
         # Preset for this dataset.
         self.preset = {}
 
+        # Latest values of "interesting" devices.
+        self.values = {}
+        # More stats about "interesting" devices (to allow statistics).
+        self._valuestats = {}
+        # Values of "interesting" devices taken at a "canonical time".
+        # Used as *the* position for scanned over devices.
+        self.canonical_values = {}
+
         # Subsets of this dataset.  (Empty for point datasets.)
         self.subsets = []
 
@@ -108,6 +116,55 @@ class BaseDataset:
         self._statslock = Lock()
 
         self.__dict__.update(kwds)
+
+    def _addvalues(self, values):
+        with self._statslock:
+            for devname, (timestamp, value) in values.items():
+                self.values[devname] = value
+                if timestamp is None:
+                    self.canonical_values[devname] = value
+                    continue
+                elif isinstance(value, number_types):
+                    # collect statistics
+                    current = self._valuestats.setdefault(devname, [])
+                    if not current:
+                        # first value: record timestamp and value
+                        current.extend([0, 0, 0, value, value, timestamp, value])
+                    else:
+                        oldtime, oldvalue = current[-2:]
+                        dt = timestamp - oldtime
+                        if dt >= 0:
+                            current[0] += dt  # t0
+                            current[1] += dt * oldvalue  # t1
+                            current[2] += dt * oldvalue ** 2  # t2
+                            current[3] = min(current[3], value)  # mini
+                            current[4] = max(current[4], value)  # maxi
+                            current[5] = timestamp  # _
+                            current[6] = value  # lastv
+
+                    # mean = t1 / t0
+                    # stdev = sqrt(abs(t2 / t0 - t1 ** 2 / t0 ** 2))
+
+    @property
+    def valuestats(self):
+        """Value statistics.
+
+        The value statistics is a dictionary where the key is the device name
+        and the value is a tuple of mean value, standard deviation, minimum
+        value and maximum value.
+        """
+        res = {}
+        with self._statslock:
+            for devname, (t0, t1, t2,
+                          mini, maxi, _, lastv) in self._valuestats.items():
+                if t0 > 0:
+                    mean = t1 / t0
+                    stdev = sqrt(abs(t2 / t0 - t1 ** 2 / t0 ** 2))
+                else:
+                    mean = lastv
+                    stdev = float('inf')
+                res[devname] = mean, stdev, mini, maxi
+        return res
 
     def __str__(self):
         return '<%s dataset %s..%s>' % (self.settype, str(self.uid)[:3],
@@ -156,45 +213,12 @@ class PointDataset(BaseDataset):
         # Point results: values of detectors.
         self.results = {}
 
-        # Latest values of "interesting" devices.
-        self.values = {}
-        # Values of "interesting" devices taken at a "canonical time".
-        # Used as *the* position for scanned over devices.
-        self.canonical_values = {}
-        # More stats about "interesting" devices (to allow statistics).
-        self._valuestats = {}
-
         #: Instrument metainfo ("header data").
         #: A dictionary of (devname, key) -> (value, str_value, unit, category).
         #: Keys are usually parameters or 'value', 'status'.
         self.metainfo = {}
 
         BaseDataset.__init__(self, **kwds)
-
-    def _addvalues(self, values):
-        with self._statslock:
-            for devname, (timestamp, value) in values.items():
-                self.values[devname] = value
-                if timestamp is None:
-                    self.canonical_values[devname] = value
-                    continue
-                elif isinstance(value, number_types):
-                    # collect statistics
-                    current = self._valuestats.setdefault(devname, [])
-                    if not current:
-                        # first value: record timestamp and value
-                        current.extend([0, 0, 0, value, value, timestamp, value])
-                    else:
-                        oldtime, oldvalue = current[-2:]
-                        dt = timestamp - oldtime
-                        if dt >= 0:
-                            current[0] += dt
-                            current[1] += dt * oldvalue
-                            current[2] += dt * oldvalue ** 2
-                            current[3] = min(current[3], value)
-                            current[4] = max(current[4], value)
-                            current[5] = timestamp
-                            current[6] = value
 
     def _reslist(self, devices, resdict, index=-1):
         ret = []
@@ -221,27 +245,6 @@ class PointDataset(BaseDataset):
         for (key, value) in self.results.items():
             if value is not None:
                 self.results[key] = (value[0], [])
-
-    @property
-    def valuestats(self):
-        """Value statistics.
-
-        The value statistics is a dictionary where the key is the device name
-        and the value is a tuple of mean value, standard deviation, minimum
-        value and maximum value.
-        """
-        res = {}
-        with self._statslock:
-            for devname, (t0, t1, t2,
-                          mini, maxi, _, lastv) in self._valuestats.items():
-                if t0 > 0:
-                    mean = t1 / t0
-                    stdev = sqrt(abs(t2 / t0 - t1 ** 2 / t0 ** 2))
-                else:
-                    mean = lastv
-                    stdev = float('inf')
-                res[devname] = mean, stdev, mini, maxi
-        return res
 
     @finish_property
     def devvaluelist(self):

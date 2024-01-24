@@ -105,8 +105,8 @@ class TestSinks:
         assert len(handlers) == 1
         calls = handlers[0]._calls
         # this was called for a scan
-        assert calls == ['prepare', 'begin'] + ['addSubset'] * 5 + ['end']
-
+        assert calls == ['prepare', 'begin'] + 5 * (['putValues'] * 10 + [
+            'addSubset']) + ['end']
         pointsink = session.getDevice('testsink2')
         handlers = pointsink._handlers
         assert len(handlers) == 1

@@ -178,14 +178,16 @@ class NexusSinkHandler(DataSinkHandler):
                 self.log.warning('Cannot identify and append %r', key)
 
     def putValues(self, values):
-        try:
-            with H5File(self._filename, 'r+') as h5file:
-                h5obj = h5file['/']
-                if values:
+        if self.dataset.settype != POINT:
+            return
+        if values:
+            try:
+                with H5File(self._filename, 'r+') as h5file:
+                    h5obj = h5file['/']
                     self.updateValues(self.template, h5obj, values)
-        except BlockingIOError:
-            # This is not interesting to know
-            pass
+            except BlockingIOError:
+                # This is not interesting to know
+                pass
 
     def resultValues(self, dictdata, h5obj, results):
         for key, val in dictdata.items():

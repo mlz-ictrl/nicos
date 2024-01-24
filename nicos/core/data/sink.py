@@ -132,7 +132,7 @@ class DataSinkHandler:
         """
 
     def putValues(self, values):
-        """Called for point datasets when device values are updated.
+        """Called for datasets when device values are updated.
 
         The *values* parameter is a dictionary with device names as keys and
         ``(timestamp, value)`` as values.
