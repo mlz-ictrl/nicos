@@ -199,7 +199,7 @@ class Axes(PlotAxes):
 
     def drawGR(self):
         lwidth = gr.inqlinewidth()
-        gr.setlinewidth(0.)
+        gr.setlinewidth(1)
         PlotAxes.drawGR(self)
         if self.drawxylines:
             xmin, xmax, ymin, ymax = self.getWindow()
@@ -253,9 +253,12 @@ class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
     def drawGR(self):
         if self.visible:
             color = gr.inqlinecolorind()
+            lwidth = gr.inqlinewidth()
             gr.setlinecolorind(GRCOLORS['white'])
+            gr.setlinewidth(1)
             gr.polyline(self.x, self.y)
             gr.setlinecolorind(color)
+            gr.setlinewidth(lwidth)
 
 
 class LiveWidgetBase(QWidget):
