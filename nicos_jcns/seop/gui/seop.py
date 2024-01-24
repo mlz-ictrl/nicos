@@ -45,7 +45,7 @@ from nicos.utils import findResource
 
 
 class SeopPlot(LiveWidget1D):
-    def __init__(self, xlabel, ylabel, timeaxis, parent=None, **kwds):
+    def __init__(self, xlabel, ylabel, timeaxis, marker=False, parent=None, **kwds):
         super().__init__(parent, **kwds)
         # Replace GRWidget with InteractiveGRWidget
         self.layout().removeWidget(self.gr)
@@ -66,8 +66,11 @@ class SeopPlot(LiveWidget1D):
             self.axes.setXtickCallback(self.xtickCallBack)
             self.plot.viewport = [0.12, 0.98, 0.2, 0.98]
         self.setTitles({'x': xlabel, 'y': ylabel})
-        self._curves = [PlotCurve([0], [1], linewidth=2, legend='',
-                                  markertype=GRMARKS['diagonalcross'])]
+        self._curves = [PlotCurve([0], [1], linewidth=2, legend='')]
+        if marker:
+            self._curves[0].markertype=GRMARKS['diagonalcross'],
+            self._curves[0].markersize=5
+
         self.axes.addCurves(self._curves[0])
         self.setSizePolicy(QSizePolicy.MinimumExpanding,
                            QSizePolicy.MinimumExpanding)
@@ -81,9 +84,7 @@ class SeopPlot(LiveWidget1D):
         self.reset()
 
     def resetView(self):
-        self.axes.setWindow(self._curves[0].x[0], self._curves[0].x[-1],
-                            self._curves[0].y[0], self._curves[0].y[-1])
-        self.rescale()
+        self.axes.doAutoScale()
 
     def reset(self):
         self.plot.reset()
@@ -119,14 +120,14 @@ class SeopPlotPanel(Panel):
         self.statusBar = QStatusBar(self)
         self.layout().addWidget(self.statusBar)
         self.xtime = options.get('xtime', False)
+        opts['marker'] = self.xtime
         self.plot = SeopPlot(parent=self.widget, timeaxis=self.xtime, **opts)
         self.widget.layout().addWidget(self.plot)
         self.plot.setSizePolicy(QSizePolicy.Policy.Expanding,
                                 QSizePolicy.Policy.Expanding)
         self.plot.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
         if not self.xtime:
-            self.numPtsEdit.setEnabled(False)
-            self.setNumPtsButton.setEnabled(False)
+            self.numPtsWidgets.hide()
 
         cache = self.client.getCacheKey("nmr/value")
         if cache:
