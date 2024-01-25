@@ -49,6 +49,7 @@ from nicos.utils import createThread
 # via SIGUSR2.  If McStas is still in the initialization phase,
 # it can crash with SIGUSR2.
 MIN_RUNTIME = 0.5
+NEUTRONS_PER_SECOND_DEFAULT = 1e6
 
 
 class McStasSimulation(Readable):
@@ -76,12 +77,15 @@ class McStasSimulation(Readable):
                             settable=False),
         'mcsiminfo':  Param('Name for the McStas Siminfo file', settable=False,
                             type=str, default='mccode.sim'),
-        'neutronspersec':  Param('Approximate simulated neutrons per second '
-                                 'for machines running this device. Tune this '
-                                 'parameter according to your hardware for '
-                                 'realistic count times',
-                                 type=dictof(nonemptystring, floatrange(1e3)),
-                                 default={'localhost': 1.e6},),
+        'neutronspersec': Param('Approximate simulated neutrons per second '
+                                'for machines running this device. Tune this '
+                                'parameter according to your hardware for '
+                                'realistic count times',
+                                type=dictof(nonemptystring, floatrange(1e3)),
+                                default={
+                                    'localhost': NEUTRONS_PER_SECOND_DEFAULT,
+                                },
+                               ),
         'intensityfactor': Param('Constant multiplied with simulated McStas '
                                  'intensity to get simulated neutron counts '
                                  'per second', settable=True,
@@ -217,7 +221,8 @@ class McStasSimulation(Readable):
         default: neutronspersec['hostname -f'] * preselection
         """
         # get the default rate
-        default = self.parameters['neutronspersec'].default.get('localhost')
+        default = self.neutronspersec.get('localhost',
+                                          NEUTRONS_PER_SECOND_DEFAULT)
         # try first 'hostname -f' and then 'hostname -s' an then take
         # the default rate
         return self.neutronspersec.get(
