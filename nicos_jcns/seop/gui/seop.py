@@ -68,8 +68,8 @@ class SeopPlot(LiveWidget1D):
         self.setTitles({'x': xlabel, 'y': ylabel})
         self._curves = [PlotCurve([0], [1], linewidth=2, legend='')]
         if marker:
-            self._curves[0].markertype=GRMARKS['diagonalcross'],
-            self._curves[0].markersize=5
+            self._curves[0].markertype=GRMARKS['diagonalcross']
+            self.changeMarkerSize(1.5)
 
         self.axes.addCurves(self._curves[0])
         self.setSizePolicy(QSizePolicy.MinimumExpanding,
@@ -82,9 +82,6 @@ class SeopPlot(LiveWidget1D):
         self.make_xticks()
         self.update()
         self.reset()
-
-    def resetView(self):
-        self.axes.doAutoScale()
 
     def reset(self):
         self.plot.reset()
@@ -160,7 +157,8 @@ class SeopPlotPanel(Panel):
         self.plot.setPlotData(x, y)
 
     def on_resetViewButton_pressed(self):
-        self.plot.resetView()
+        self.plot.reset()
+        self.plot.update()
 
     def on_mouseMove(self, event):
         if event.getWindow():  # inside plot
