@@ -797,7 +797,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         if self._mythread and self._mythread.is_alive():
             self._stopflag = True
             self._mythread.join()
-            self._mythread = None
+        self._mythread = None
         self._buf = self._generate(0).astype('<u4')
 
     def doStart(self):
