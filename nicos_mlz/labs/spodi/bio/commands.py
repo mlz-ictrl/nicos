@@ -30,6 +30,7 @@ from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.device import rmaw
 from nicos.commands.measure import count
+from nicos.commands.scan import manualscan
 
 __all__ = ['AdjustCapillary']
 
@@ -49,8 +50,11 @@ def imgFit(im):
                 (1 - mu3) * (sqrt(4 * log(2)) / (sqrt(pi) * w3)) *
                 np.exp(-(4 * log(2) / w3**2) * (x - xc3)**2))
 
-    lower_limit = 750
-    upper_limit = 1250
+    roi = session.getDevice('roi').roi
+    # roi = [0, 0, 500, 1000]
+    lower_limit = roi[0]
+    upper_limit = lower_limit + roi[2]
+    mid = (lower_limit + upper_limit) / 2
     psdVgt_bounds = ([1500, 0, 0, lower_limit,
                       -100, 0, 0, lower_limit,
                       1500, 0, 0, lower_limit, 0],
@@ -58,17 +62,16 @@ def imgFit(im):
                       2500, 1, 10, upper_limit,
                       2500, 1, 10, upper_limit, 10])
 
-    mid = (lower_limit + upper_limit) / 2
     p0_init = (2500, 1, 5, mid,
                500, 1, 5, mid,
                2500, 1, 5, mid, 0)
 
     x_fit = []
     y_fit = []
-    for xline in range(500, 1500, 10):
-        x_data = np.linspace(lower_limit, upper_limit,
-                             (upper_limit - lower_limit))
-        max_y = max(im[lower_limit:upper_limit, xline])
+    x_data = np.linspace(lower_limit, upper_limit,
+                         (upper_limit - lower_limit))
+    for xline in range(roi[1], roi[1] + roi[3], 10):
+        max_y = im[lower_limit:upper_limit, xline].max()
         y_data = max_y - im[lower_limit:upper_limit, xline]
 
         try:
@@ -100,10 +103,6 @@ def imgFit(im):
     return m, t, x_fit
 
 
-def grab_data():
-    return session.getDevice('det').readArrays('final')[0]
-
-
 @helparglist('')
 @usercommand
 def AdjustCapillary():
@@ -121,33 +120,41 @@ def AdjustCapillary():
     In a final step the sample table rotation will be moved to 0 (zero) deg.
     """
 
+    def grab_data(roi=None):
+        if roi is None:
+            roi = session.getDevice('roi').roi
+        return session.getDevice('det').readArrays('final')[0]
+        # return session.getDevice('det').readArrays('final')[0][
+        #     roi[0]:roi[0] + roi[1], roi[2]:roi[2] + roi[3]]
+
     def calcAngle(im, angle):
         m, _t, _x_fit = imgFit(im)
         alpha = degrees(np.arctan(m))
-        session.log.info('Gradient %.2f°: %.3f', angle, alpha)
+        session.log.debug('Gradient %.2f°: %.3f', angle, alpha)
         return alpha
 
     def calcPos(im, angle):
         m, t, x_fit = imgFit(im)
         pos = m * (min(x_fit) + max(x_fit)) / 2 + t
-        session.log.info('Position %.2f°: %.3f', angle, pos)
+        session.log.debug('Position %.2f°: %.3f', angle, pos)
         return pos
 
     def scan(func, angles):
         number_of_frames = len(angles)
         fitted_values = [0] * number_of_frames
         omgs = session.getDevice('omgs')
-        omgs.maw(angles[0])  # move to first angle
-        for i in range(number_of_frames):
-            omgs.wait()  # wait for moving device
-            session.log.info('%d/%d %.2f', i, number_of_frames, omgs.read())
-            # The detector hardware has a fixed exposure time which can't be
-            # changed (for now). There is a 100 us exposure time + 2 s of
-            # transfer time
-            count(t=0)
-            if i < (number_of_frames - 1):
-                omgs.move(angles[i + 1])  # move to next angle to save time
-            fitted_values[i] = func(grab_data(), angles[i])
+        roi = session.getDevice('roi').roi
+        with manualscan(omgs):
+            omgs.maw(angles[0])  # move to first angle
+            for i in range(number_of_frames):
+                omgs.wait()  # wait for moving device
+                # The detector hardware has a fixed exposure time which can't
+                # be changed (for now). There is a 100 us exposure time + 2 s
+                # of transfer time
+                count(t=0)
+                if i < (number_of_frames - 1):
+                    omgs.move(angles[i + 1])  # move to next angle to save time
+                fitted_values[i] = func(grab_data(roi), angles[i])
         return fitted_values
 
     number_of_frames = 4
@@ -155,11 +162,15 @@ def AdjustCapillary():
     angles = scan(calcAngle, np.linspace(0, 270, number_of_frames))
     ry_value = (angles[0] - angles[2]) / 2
     rx_value = (angles[3] - angles[1]) / 2
-    session.log.info('result: rmaw(ry, %f, rx, %f)', ry_value, rx_value)
-    rmaw(session.getDevice('ry'), ry_value, session.getDevice('rx'), rx_value)
+    session.log.info("Adjust 'ry' by %s, 'rx' by %s)",
+                     session.getDevice('ry').format(ry_value, True),
+                     session.getDevice('rx').format(rx_value, True))
+    rmaw('ry', ry_value, 'rx', rx_value)
 
     positions = scan(calcPos, np.linspace(270, 0, number_of_frames))
-    ry_value = ((positions[3] - positions[1]) / 2) * 75 / 2048
-    rx_value = ((positions[0] - positions[2]) / 2) * 75 / 2048
-    session.log.info('result: rmaw(y, %f, x, %f)', -ry_value, -rx_value)
-    rmaw(session.getDevice('y'), -ry_value, session.getDevice('x'), -rx_value)
+    ry_value = -((positions[3] - positions[1]) / 2) * 75 / 2048
+    rx_value = -((positions[0] - positions[2]) / 2) * 75 / 2048
+    session.log.info("Adjust: 'y' by %s, 'x' by %s)",
+                     session.getDevice('y').format(ry_value, True),
+                     session.getDevice('x').format(rx_value, True))
+    rmaw('y', ry_value, 'x', rx_value)
