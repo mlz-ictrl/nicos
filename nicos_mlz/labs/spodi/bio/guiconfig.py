@@ -1,13 +1,23 @@
 """NICOS GUI default configuration."""
 
 main_window = docked(
-    vsplit(
-        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-              modules=['nicos.clients.gui.cmdlets'],
+    tabbed(
+        ('Sample Adjustment',
+         vsplit(
+            panel('nicos.clients.gui.panels.commandline.CommandLinePanel'),
+            panel('nicos.clients.gui.panels.live.LiveDataPanel'),
+         ),
         ),
-        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-        panel('nicos.clients.gui.panels.console.ConsolePanel',
-              hasinput=False),
+        ('Command line',
+         vsplit(
+            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+                  modules=['nicos.clients.gui.cmdlets'],
+            ),
+            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+            panel('nicos.clients.gui.panels.console.ConsolePanel',
+                  hasinput=False),
+         ),
+        ),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
@@ -23,7 +33,7 @@ windows = [
         vsplit(
            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
            panel('nicos.clients.gui.panels.editor.EditorPanel',
-           ))),
+        ))),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
