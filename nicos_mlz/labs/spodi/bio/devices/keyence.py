@@ -33,7 +33,7 @@ from PIL import Image
 from nicos import session
 from nicos.core.constants import FINAL, MASTER
 from nicos.core.params import ArrayDesc, Param, Value, absolute_path, host, \
-    intrange, tupleof
+    intrange, oneof, tupleof
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin
 from nicos.utils import parseHostPort
 
@@ -56,6 +56,9 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
                       type=tupleof(intrange(1, 2048),
                                    intrange(1, 2048)),
                       settable=False, default=(2048, 2048)),
+        'rotation': Param('Rotation of the original read out image',
+                          type=oneof(0, 90, 180, 270), settable=True,
+                          default=0, category='general'),
     }
 
     def doInit(self, mode):
@@ -101,7 +104,8 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
         with urllib.request.urlopen(
            f'ftp://{self.image_server}/{self.image_path}/{self.image_name}'
            ) as r:
-            arr = np.asarray(Image.open(io.BytesIO(r.read())))
+            arr = np.rot90(np.asarray(Image.open(
+                io.BytesIO(r.read()))), self.rotation // 90)
         self.readresult = [arr.sum()]
         return arr
 

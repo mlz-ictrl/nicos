@@ -4,6 +4,7 @@ group = 'lowlevel'
 
 devices = dict(
     keyence = device('nicos_mlz.labs.spodi.bio.devices.keyence.KeyenceImage',
+        rotation = 90,
         visibility = {'metadata', 'namespace'},
     ),
     tim1 = device('nicos.devices.generic.VirtualTimer',
