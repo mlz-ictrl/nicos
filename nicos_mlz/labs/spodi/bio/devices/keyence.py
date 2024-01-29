@@ -111,6 +111,9 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
 
     def _deleteLastImage(self):
         host, _port = parseHostPort(self.image_server, ftplib.FTP_PORT)
-        with ftplib.FTP(host, 'anonymous') as ftp:
-            ftp.delete(f'{self.image_path}/{self.image_name}')
-            ftp.close()
+        try:
+            with ftplib.FTP(host, 'anonymous') as ftp:
+                ftp.delete(f'{self.image_path}/{self.image_name}')
+                ftp.close()
+        except Exception:
+            pass
