@@ -32,8 +32,8 @@ from PIL import Image
 
 from nicos import session
 from nicos.core.constants import FINAL, MASTER
-from nicos.core.params import ArrayDesc, Param, Value, absolute_path, host, \
-    intrange, oneof, tupleof
+from nicos.core.params import ArrayDesc, Param, Value, absolute_path, \
+    floatrange, host, intrange, oneof, tupleof
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin
 from nicos.utils import parseHostPort
 
@@ -59,6 +59,11 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
         'rotation': Param('Rotation of the original read out image',
                           type=oneof(0, 90, 180, 270), settable=True,
                           default=0, category='general'),
+        'pixel_size': Param('Size of a single pixel (in mm)',
+                            type=tupleof(floatrange(0), floatrange(0)),
+                            volatile=False, settable=False, unit='mm',
+                            default=(75 / 2048, 75 / 2028),
+                            category='instrument'),
     }
 
     def doInit(self, mode):
