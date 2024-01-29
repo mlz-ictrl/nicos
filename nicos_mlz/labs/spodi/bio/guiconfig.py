@@ -5,7 +5,8 @@ main_window = docked(
         ('Sample Adjustment',
          vsplit(
             panel('nicos.clients.gui.panels.commandline.CommandLinePanel'),
-            panel('nicos.clients.gui.panels.live.LiveDataPanel'),
+            panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                  xscale='decimal', yscale='decimal'),
          ),
         ),
         ('Command line',
