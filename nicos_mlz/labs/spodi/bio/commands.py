@@ -35,7 +35,7 @@ from nicos.commands.scan import manualscan
 __all__ = ['AdjustCapillary']
 
 
-def imgFit(im):
+def imgFit(im, rotation):
     def psdVgt(x, A1, mu1, w1, xc1, A2, mu2, w2, xc2, A3, mu3, w3, xc3, y0):
         return y0 + A1 * (
             mu1 * (2 / pi) * (w1 / (4 * (x - xc1)**2 + w1**2)) +
@@ -51,10 +51,13 @@ def imgFit(im):
                 np.exp(-(4 * log(2) / w3**2) * (x - xc3)**2))
 
     roi = session.getDevice('roi').roi
-    # roi = [0, 0, 500, 1000]
+    if rotation in [90, 270]:
+        roi = [roi[1], roi[0], roi[3], roi[2]]
+    session.log.debug('ROI: %s (%s)', roi, session.getDevice('roi').roi)
     lower_limit = roi[0]
     upper_limit = lower_limit + roi[2]
     mid = (lower_limit + upper_limit) / 2
+    session.log.debug('%s - %s, %s', lower_limit, upper_limit, mid)
     psdVgt_bounds = ([1500, 0, 0, lower_limit,
                       -100, 0, 0, lower_limit,
                       1500, 0, 0, lower_limit, 0],
@@ -68,9 +71,10 @@ def imgFit(im):
 
     x_fit = []
     y_fit = []
-    x_data = np.linspace(lower_limit, upper_limit,
+    x_data = np.linspace(lower_limit, upper_limit - 1,
                          (upper_limit - lower_limit))
-    for xline in range(roi[1], roi[1] + roi[3], 10):
+    stepsize = 10
+    for xline in range(roi[1], roi[1] + roi[3], stepsize):
         max_y = im[lower_limit:upper_limit, xline].max()
         y_data = max_y - im[lower_limit:upper_limit, xline]
 
@@ -83,12 +87,13 @@ def imgFit(im):
             ss_res = np.sum(residuals**2)
             ss_tot = np.sum((y_data - np.mean(y_data))**2)
             r_squared = 1 - ss_res / ss_tot
-
-            if r_squared >= 0.98:
+            if r_squared >= 0.95:
                 x_fit.append(xline)
                 y_fit.append((popt[3] + popt[7] + popt[11]) / 3)
                 p0_init = popt
             else:
+                session.log.debug('xline: %s, len y_data %s, r_squared: %s',
+                                  xline, len(y_data), r_squared)
                 y_data = np.ndarray.tolist(y_data)
                 p0_init = (
                     2500, 1, 5, x_data[int(y_data.index(max(y_data)))],
@@ -110,31 +115,35 @@ def AdjustCapillary():
 
     First the rotation will be adjusted. There are 4 pictures (at 0, 90, 180,
     and 270 deg) taken by rotating the sample table rotation device `omgs`.
-    From these pictures the corrections of the tilting angle device `rx` and
+    From these pictures the corrections of the tilting angle devices `rx` and
     `ry` are calculated and both devices will be moved.
 
-    In the next step again 4 pictures will be take at the same angles as
+    In a next step again 4 pictures will be taken at the same angles as
     before and from them the correction of the translation devices 'x' and 'y'
-    will be calculated and the devices moved to these positions.
+    will be calculated and the devices will be moved to these positions.
 
     In a final step the sample table rotation will be moved to 0 (zero) deg.
     """
 
+    imgrot = session.getDevice('keyence').rotation
+    pixsize = session.getDevice('keyence').pixel_size[0]
+
     def grab_data(roi=None):
         if roi is None:
             roi = session.getDevice('roi').roi
-        return session.getDevice('det').readArrays('final')[0]
-        # return session.getDevice('det').readArrays('final')[0][
-        #     roi[0]:roi[0] + roi[1], roi[2]:roi[2] + roi[3]]
+        det = session.getDevice('det')
+        if imgrot == 0:
+            return det.readArrays('final')[0]
+        return np.rot90(det.readArrays('final')[0], (4 - imgrot // 90) % 4)
 
     def calcAngle(im, angle):
-        m, _t, _x_fit = imgFit(im)
+        m, _t, _x_fit = imgFit(im, imgrot)
         alpha = degrees(np.arctan(m))
         session.log.debug('Gradient %.2f°: %.3f', angle, alpha)
         return alpha
 
     def calcPos(im, angle):
-        m, t, x_fit = imgFit(im)
+        m, t, x_fit = imgFit(im, imgrot)
         pos = m * (min(x_fit) + max(x_fit)) / 2 + t
         session.log.debug('Position %.2f°: %.3f', angle, pos)
         return pos
@@ -168,9 +177,11 @@ def AdjustCapillary():
     rmaw('ry', ry_value, 'rx', rx_value)
 
     positions = scan(calcPos, np.linspace(270, 0, number_of_frames))
-    ry_value = -((positions[3] - positions[1]) / 2) * 75 / 2048
-    rx_value = -((positions[0] - positions[2]) / 2) * 75 / 2048
+    ry_value = -((positions[3] - positions[1]) / 2) * pixsize
+    rx_value = -((positions[0] - positions[2]) / 2) * pixsize
     session.log.info("Adjust: 'y' by %s, 'x' by %s)",
                      session.getDevice('y').format(ry_value, True),
                      session.getDevice('x').format(rx_value, True))
     rmaw('y', ry_value, 'x', rx_value)
+    session.getDevice('omgs').maw(0)
+    count(t=0)
