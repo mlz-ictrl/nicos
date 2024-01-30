@@ -119,15 +119,15 @@ def set_cascade(f1=None, f2=None):
     If frequencies 'f1' and/or 'f2' are not given, they will be taken from
     the echo time table.
     """
-    echotime = session.getDevice('echotime')
     psd_chop_freq = session.getDevice('psd_chop_freq')
     psd_timebin_freq = session.getDevice('psd_timebin_freq')
     fg_burst = session.getDevice('fg_burst')
-    tau = echotime.target
     if f1 is None:
-        f1 = echotime.currenttable[tau]['cbox_0a_fg_freq']
+        et = session.getDevice('echotime')
+        f1 = et.currenttable[et.target]['cbox_0a_fg_freq']
     if f2 is None:
-        f2 = echotime.currenttable[tau]['cbox_0b_fg_freq']
+        et = session.getDevice('echotime')
+        f2 = et.currenttable[et.target]['cbox_0b_fg_freq']
     move(psd_chop_freq, 2 * (f2 - f1))
     move(psd_timebin_freq, 32 * (f2 - f1))
     move(fg_burst, 'arm')
