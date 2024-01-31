@@ -2,7 +2,7 @@ description = 'Setup for New Era Syringe pumps'
 
 group = 'plugplay'
 
-tango_base = 'tango://syring01.refsans.frm2.tum.de:10000/box/syringe/'
+tango_base = 'tango://syringe01.refsans.frm2.tum.de:10000/box/syringe/'
 
 devices = dict(
     pump0_diameter = device('nicos.devices.entangle.AnalogOutput',
