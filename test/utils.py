@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -606,9 +606,10 @@ def startElog(wait=2):
         logfile = path.join(runtime_root, 'cacheserver.log')
         while monotonic() < start + wait:
             # elog started successfully when it has locked itself in the cache
-            if path.isfile(logfile) and \
-               'lock request logbook/elog' in open(logfile).read():
-                break
+            if path.isfile(logfile):
+                with open(logfile, encoding='utf-8') as fp:
+                    if 'lock request logbook/elog' in fp.read():
+                        break
             sleep(0.02)
         else:
             raise Exception('elog failed to start within %s sec' % wait)
