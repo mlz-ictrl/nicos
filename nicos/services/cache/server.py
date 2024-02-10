@@ -236,8 +236,8 @@ class CacheWorker:
             else:
                 self.updates_on.discard(key)
         elif op == OP_TELLOLD:
-            # the server shouldn't get TELLOLD, ignore it
-            pass
+            # doesn't happen with normal clients, but e.g. the cache collector
+            self.db.tell(key, value, time, 0.01, self)
         elif op == OP_LOCK:
             return self.db.lock(key, value, time, ttl)
         elif op == OP_REWRITE:

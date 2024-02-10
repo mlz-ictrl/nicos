@@ -90,7 +90,7 @@ class ForwarderBase(CacheKeyFilter, DeviceMixinBase):
     def _startWorker(self):
         pass
 
-    def _putChange(self, timestamp, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, op, value):
         pass
 
 
@@ -112,14 +112,13 @@ class CacheForwarder(ForwarderBase, BaseCacheClient):
     def _startWorker(self):
         self._worker.start()
 
-    def _putChange(self, timestamp, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, op, value):
         if not self._checkKey(key):
             return
         if value is None:
-            msg = '%s@%s%s%s\n' % (timestamp, self._prefix, key, OP_TELLOLD)
+            msg = '%s@%s%s%s\n' % (timestamp, self._prefix, key, OP_TELL)
         else:
-            msg = '%s@%s%s%s%s\n' % (timestamp, self._prefix, key, OP_TELL,
-                                     value)
+            msg = '%s@%s%s%s%s\n' % (timestamp, self._prefix, key, op, value)
         self._queue.put(msg)
 
     def _handle_msg(self, _time, _ttlop, _ttl, _tsop, _key, _op, _value):
@@ -136,17 +135,17 @@ class MappingCacheForwarder(CacheForwarder):
                      mandatory=True),
     }
 
-    def _putChange(self, timestamp, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, op, value):
         if not self._checkKey(key):
             return
         dev, slash, sub = key.partition('/')
         dev = self.map.get(dev, dev)
         if value is None:
             msg = '%s@%s%s%s\n' % (timestamp, self._prefix, dev + slash + sub,
-                                   OP_TELLOLD)
+                                   OP_TELL)
         else:
             msg = '%s@%s%s%s%s\n' % (timestamp, self._prefix,
-                                     dev + slash + sub, OP_TELL, value)
+                                     dev + slash + sub, op, value)
         self._queue.put(msg)
 
 
@@ -174,11 +173,11 @@ class WebhookForwarder(ForwarderBase, Device):
         self._queue = queue.Queue(1000)
         self._processor = createThread('webhookprocessor', self._processQueue)
 
-    def _putChange(self, timestamp, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, op, value):
         if not self._checkKey(key):
             return
         pdict = dict(time=timestamp, ttl=ttl, key=self._prefix + key,
-                     value=value)
+                     op=op, value=value)
         retry = 2
         while retry:
             try:
@@ -236,10 +235,6 @@ class Collector(CacheKeyFilter, BaseCacheClient):
         key = key[len(self._prefix):]
         if not self._checkKey(key):
             return
-        if op == OP_TELL:
-            value = value or None
-        elif op == OP_TELLOLD:
-            value = None
         ttl = '+' + ttl if ttlop == '+' else ''
         for service in self._attached_forwarders:
-            service._putChange(time, ttl, key, value)
+            service._putChange(time, ttl, key, op, value)
