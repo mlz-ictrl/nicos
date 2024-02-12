@@ -95,4 +95,7 @@ class RabbitProducer:
 
     def close(self):
         if self._conn and self._conn.is_open:
-            self._conn.close()
+            try:
+                self._conn.close()
+            except Exception:
+                pass
