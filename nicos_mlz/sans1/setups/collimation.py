@@ -785,7 +785,7 @@ monitor_blocks = dict(
             BlockRow(
                 Field(dev='col', name='col'),
             ),
-        ],
+        ], setups='collimation',
     ),
     html = Block('Collimation',
         [
@@ -798,6 +798,6 @@ monitor_blocks = dict(
             BlockRow(
                 Field(dev='col', name='col', unit='m', format = '%.1f', width=12),
             ),
-        ],
+        ], setups='collimation',
     ),
 )
