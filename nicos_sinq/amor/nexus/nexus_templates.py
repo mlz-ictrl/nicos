@@ -1,508 +1,552 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#  Mark Koennecke <make.koennecke@psi.ch>
+#  Jochen Stahn <jochen.stahn@psi.ch>
+#
+# *****************************************************************************
+
 from nicos_ess.nexus import DeviceAttribute, DeviceDataset, EventStream, \
     NXDataset, NXLink
-from nicos_sinq.amor.nexus.placeholder import DistancesPlaceholder, \
-    UserEmailPlaceholder
+from nicos_sinq.amor.nexus.placeholder import UserEmailPlaceholder
 
-from .instrument_components import detectors, instrument, \
-    instrument_removable, sample
+# chopper settings
+_ch1_sp = 500
+_ch2_ph = -12.5
 
-# Default template for AMOR including most of the devices
-amor_default = {
-    "NeXus_Version": "4.3.0",
-    "instrument": "AMOR",
-    "owner": DeviceAttribute('Amor', 'responsible'),
-    "entry1:NXentry": {
-        "comment": DeviceDataset('Exp', 'remark'),
-        "title": DeviceDataset('Exp', 'title'),
-        "amor_mode": DeviceDataset('Exp', 'mode'),
-        "proposal_id": DeviceDataset('Exp', 'proposal'),
-        "start_time": DeviceDataset('dataset', 'starttime'),
-        "user:NXuser": {
-            "email": NXDataset(UserEmailPlaceholder('Exp', 'users', True)),
-            "name": NXDataset(UserEmailPlaceholder('Exp', 'users', False)),
-        },
-        "area_detector": NXLink('AMOR/area_detector'),
-        "single_detector_1": NXLink('AMOR/single_detector_1'),
-        "single_detector_2": NXLink('AMOR/single_detector_2'),
-        "AMOR:NXinstrument": {
-            "name": DeviceDataset('Amor', 'instrument'),
-            "definition": NXDataset(
-                'TOFNREF', dtype='string',
-                url="http://www.neutron.anl.gov/nexus/xml/NXtofnref.xml"),
-            "SINQ:NXSource": {
-                "name": NXDataset('SINQ'),
-                "type": NXDataset('Continuous flux spallation source')
-            }
-        },
-        "sample:NXsample": {}
-    }
-}
-
-# Template that saves only the detector data
-detector_only = {
-    "entry1:NXentry": {
-        "area_detector": NXLink('AMOR/area_detector'),
-        "AMOR:NXinstrument": {
-            "name": DeviceAttribute("Amor", "instrument")
-        },
-    }
-}
-
-# Template that saves only the sample data
-sample_only = {
-    "entry1:NXentry": {
-        "sample:NXsample": {}
-    }
-}
-
-
-amor_default["entry1:NXentry"]["AMOR:NXinstrument"].update(detectors)
-amor_default["entry1:NXentry"]["AMOR:NXinstrument"].update(instrument)
-amor_default["entry1:NXentry"]["AMOR:NXinstrument"].update(
-    instrument_removable)
-
-detector_only["entry1:NXentry"]["AMOR:NXinstrument"].update(detectors)
-
-amor_default["entry1:NXentry"]["sample:NXsample"].update(sample)
-
-sample_only["entry1:NXentry"]["sample:NXsample"].update(sample)
-
-
-amor_commissioning = {
-    'instrument:NXentry': {
-        'name': 'amor',
-        'facility': NXDataset('SINQ'),
-        'stages:NXcollection': {
-            'som:NXevent_data': {
-                'position': EventStream(
-                    topic='AMOR_metadata',
-                    source='SQ:AMOR:motc:som.RBV',
-                    mod='f142',
-                    dtype='double',
-                ),
-                'unit': 'deg',
-            },
-            'soz:NXevent_data': {
-                'position': EventStream(
-                    topic='AMOR_metadata',
-                    source='SQ:AMOR:motc:soz.RBV',
-                    mod='f142',
-                    dtype='double',
-                ),
-                'units': 'mm',
-            },
-            'com:NXevent_data': {
-                'position': EventStream(
-                    topic='AMOR_metadata',
-                    source='SQ:AMOR:motc:com.RBV',
-                    mod='f142',
-                    dtype='double',
-                ),
-                'units': 'deg',
-            },
-            'coz:NXevent_data': {
-                'position': EventStream(
-                    topic='AMOR_metadata',
-                    source='SQ:AMOR:motc:coz.RBV',
-                    mod='f142',
-                    dtype='double',
-                ),
-                'units': 'mm',
-            },
-        },
-        'diaphragms:NXcollection': {
-            'virtual source:NXcollection': {
-                'vertical:NXevent_data': {
-                    'position': EventStream(
-                        topic='AMOR_metadata',
-                        source='SQ:AMOR:motd:dvv.RBV',
-                        mod='f142',
-                        dtype='double',
-                    ),
-                    'units': 'mm',
-                },
-                'horizontal:NXevent_data': {
-                    'position': EventStream(
-                        topic='AMOR_metadata',
-                        source='SQ:AMOR:motd:dvh.RBV',
-                        mod='f142',
-                        dtype='double',
-                    ),
-                    'units': 'mm',
-                },
-            },
-            'middle focus:NXcollection': {
-                'slot:NXevent_data': {
-                    'position': EventStream(
-                        topic='AMOR_metadata',
-                        source='SQ:AMOR:motd:dmf.RBV',
-                        mod='f142',
-                        dtype='double',
-                    ),
-                    'units': 'mm',
-                },
-            },
-        },
-        'chopper:NXcollection': {
-            'comment': 'Frequency means pulse frequency. The discs have 2 openings each.',
-            'master:NXcollection': {
-                'frequency:NXevent_data': {
-                    'position': EventStream(
-                        topic='AMOR_metadata',
-                        source='SQ:AMOR:chopper:DCU1:Speed',
-                        mod='f142',
-                        dtype='double',
-                    ),
-                    'units': 'Hz',
-                },
-                'position:NXevent_data': {
-                    'position': EventStream(
-                        topic='AMOR_metadata',
-                        source='SQ:AMOR:chopper:DCU1:Position',
-                        mod='f142',
-                        dtype='double',
-                    ),
-                    'units': 'deg',
-                },
-            },
-            'slave:NXcollection': {
-                'frequency:NXevent_data': {
-                    'position': EventStream(
-                        topic='AMOR_metadata',
-                        source='SQ:AMOR:chopper:DCU2:Speed',
-                        mod='f142',
-                        dtype='double',
-                    ),
-                    'units': 'Hz',
-                },
-                'position:NXevent_data': {
-                    'position': EventStream(
-                        topic='AMOR_metadata',
-                        source='SQ:AMOR:chopper:DCU2:Position',
-                        mod='f142',
-                        dtype='double',
-                    ),
-                    'units': 'deg',
-                },
-            },
-        },
-    },
-    #     'user and data identifier:NXentry': {
-    #         'owner': DeviceAttribute('Amor', 'responsible'),
-    #         'facility': '<value>',
-    #         'affiliation': None,
-    #         'experiment ID': DeviceDataset('Exp', 'proposal'),
-    #         'experiment date': '<value>',
-    #         'title': DeviceDataset('Exp', 'title'),
-    #     },
-    'experiment:NXcollection': {
-        # 'instrument': 'neutron reflectometer Amor',
-        # 'probe': 'neutrons',
-        # 'polarisation': '<value>',
-        'measurement:NXcollection': {
-            #     'scheme': 'angle- and energy-dispersive',
-            #     'wavelength': {
-            #         'min': '<value>',
-            #         'max': '<value>',
-            #         'resolution': {'type': 'prop', 'sigma': 0.02},
-            #         'units': 'angstrom',
-            #     },
-            'angle:NXcollection': {
-                'mu': DeviceDataset('mu', dtype='float'),
-                'nu': DeviceDataset('nu', dtype='float'),
-            },
-            #     'count mode': {
-            #         'mode': DeviceDataset('Exp', 'mode'),
-            #         'preset': '<value>',
-        },
-        "title": DeviceDataset('Exp', 'title'),
-        "user:NXuser": {
-            "name": DeviceDataset('Exp', 'users'),
-            "email": DeviceDataset('Exp', 'localcontact'),
-        },
-        "proposal_id": DeviceDataset('Exp', 'proposal'),
-        "start_time": DeviceDataset('dataset', 'starttime'),
-        "data:NXevent_data": {
-            "data": EventStream(topic='FREIA_detector',
-                                mod='ev42',
-                                source='multiblade',
-                                dtype='uint32'),
-        },
-        'proton_current:NXevent_data': {
-            'value': EventStream(
-                topic='AMOR_metadata',
-                source='MHC6:IST:2',
-                mod='f142',
-                dtype='double',
-            ),
-            'units': 'mC',
-        },
-
-    },
-}
-
-_dv = 9999.9
+metaMod = "f144"
+metaTopic = "AMOR_nicosForwarder"
 
 amor_streaming = {
     "NeXus_Version": "4.3.0",
-    "instrument": "AMOR",
-    "owner": DeviceAttribute('Amor', 'responsible'),
+    "instrument": "Amor",
+    "owner": DeviceAttribute("Amor", "responsible"),
     "entry1:NXentry": {
-        "comment": DeviceDataset('Exp', 'remark'),
-        "title": DeviceDataset('Exp', 'title'),
-        "amor_mode": DeviceDataset('Exp', 'mode'),
-        "proposal_id": DeviceDataset('Exp', 'proposal'),
-        "start_time": DeviceDataset('dataset', 'starttime'),
+        # ownership and origin
+        "title": DeviceDataset("Exp", "title"),
         "user:NXuser": {
-            "email": NXDataset(UserEmailPlaceholder('Exp', 'users', True)),
-            "name": NXDataset(UserEmailPlaceholder('Exp', 'users', False)),
+            "name": NXDataset(UserEmailPlaceholder("Exp", "users", False)),
+            "email": NXDataset(UserEmailPlaceholder("Exp", "users", True)),
+            "role": NXDataset("principal_investigator", dtype="string"),
         },
+        "proposal_id": DeviceDataset("Exp", "proposal"),
+        "start_time": DeviceDataset("dataset", "starttime"),
+        "comment": DeviceDataset("Exp", "remark"),
+        # measurement data
         "area_detector:NXData": {
-            "data": NXLink('AMOR/area_detector'),
+            "data": NXLink("Amor/detector/data"),
         },
-        "AMOR:NXinstrument": {
-            "name": "SINQ AMOR",
+        # experimental configuration
+        "Amor:NXinstrument": {
+            # general instrument info
+            "name": NXDataset("Amor", dtype="string"),
             "definition": NXDataset(
-                'TOFNREF', dtype='string',
+                "TOFNREF", dtype="string",
                 url="http://www.neutron.anl.gov/nexus/xml/NXtofnref.xml"),
-            "SINQ:NXSource": {
-                "name": NXDataset('SINQ'),
-                "type": NXDataset('Continuous flux spallation source')
+            # source
+            "source:NXSource": {
+                "name": NXDataset("SINQ", dtype="string"),
+                "type": NXDataset("Continuous flux spallation source",
+                                  dtype="string"),
+                "probe": NXDataset("neutron", dtype="string"),
             },
-            "amor_mode": DeviceDataset('Exp', 'mode'),
-            "chopper1:NXdisk_chopper": {
-                "type": "Chopper type single",
+            "amor_mode": DeviceDataset("amormode"),
+            # master parameters
+            "master_parameters:NXcollection": {
+                "description:NXcollection": {
+                    "mu": NXDataset("Angle between instrument horizon and"
+                                    " sample surface"),
+                    "nu": NXDataset("Angle between instrument horizon and"
+                                    " sample-detector"),
+                    "kap": NXDataset("Angle between instrument horizon"
+                                     " and beam center at the sample."
+                                     " Depends on the deflector angle 'lom'"
+                                     " and the first diaphragm vertical "
+                                     " opening."),
+                    "div": NXDataset("Vertical divergence of the beam incident"
+                                     " on the sample. Defined by the first"
+                                     " diaphragm vertical opening."),
+                    "kad": NXDataset("Offset of the actual beam center with "
+                                     " respect to full beam center. Defined"
+                                     " by the first diaphragm vertical opening"
+                                     " and probably by the deflector position"
+                                     " 'ltz' and angle 'lom'."),
+                },
+                "mu:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="mu",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "deg",
+                },
+                "nu:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="nu",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "deg",
+                },
+                "kap:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="kap",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "deg",
+                },
+                "kad:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="kad",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "deg",
+                },
+                "div:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="div",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "deg",
+                },
+            },
+            # beam line components
+            # diaphragms
+            "virtual_source:NXslit": {
+                "x_gap": DeviceDataset("dvv"),
+                "y_gap": DeviceDataset("dvh"),
+            },
+            "middle_focus:NXslit": {
+                "x_gap": DeviceDataset("dmf"),
+            },
+            "diaphragm_1:NXslit": {
+                "bottom:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d1b",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "top:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d1t",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "left:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d1l",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "right:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d1r",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "distance":  DeviceDataset("distances", "diaphragm1",
+                                           vector=(0, 0, 1),
+                                           transformation_type="translation",
+                                           offset=DeviceAttribute("distances",
+                                                                  "nxoffset")),
+            },
+            "diaphragm_2:NXslit": {
+                "bottom:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d2b",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "top:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d2t",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "left:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d2l",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "right:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d2r",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "vertical_lift:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d2z",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "distance":  DeviceDataset("distances",
+                                           parameter="diaphragm2",
+                                           vector=(0, 0, 1),
+                                           transformation_type="translation",
+                                           offset=DeviceAttribute("distances",
+                                                                  "nxoffset")),
+            },
+            "diaphragm_3:NXslit": {
+                "bottom:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d3b",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "top:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d3t",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "left:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d3l",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "right:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d3r",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "vertical_lift:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d3z",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "distance": DeviceDataset("distances",
+                                          parameter="diaphragm3",
+                                          vector=(0, 0, 1),
+                                          transformation_type="translation",
+                                          offset=DeviceAttribute("distances",
+                                                                 "nxoffset")),
+            },
+            "diaphragm_4:NXslit": {
+                "vertical_gap:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d4v",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "horizontal_gap:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="d4h",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "distance": DeviceDataset("distances",
+                                          parameter="diaphragm4",
+                                          vector=(0, 0, 1),
+                                          transformation_type="translation",
+                                          offset=DeviceAttribute("distances",
+                                                                 "nxoffset")),
+            },
+            # chopper
+            "chopper:NXdisk_chopper": {
+                "type": "contra_rotating_pair",
+                "pair_separation": NXDataset(1000.0, dtype="float"),
+                "slits": "2",
                 "rotation_speed:NXevent_data": {
-                    'speed': EventStream(topic='AMOR_metadata',
-                                         source='SQ:AMOR:chopper:DCU1:Speed',
-                                         mod='f142',
-                                         dtype='double', ),
-                    'units': 'rpm',
+                    "speed": EventStream(topic=metaTopic,
+                                         source="ch1_speed",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "rpm",
                 },
                 "phase:NXevent_data": {
-                    'phase': EventStream(topic='AMOR_metadata',
-                                         source='SQ:AMOR:chopper:DCU1:Position',
-                                         mod='f142',
-                                         dtype='double', ),
-                    'units': 'deg',
-                },
-                "distance": {},
-            },
-            "chopper2:NXdisk_chopper": {
-                "type": "Chopper type single",
-                "rotation_speed:NXevent_data": {
-                    'speed': EventStream(topic='AMOR_metadata',
-                                         source='SQ:AMOR:chopper:DCU2:Speed',
-                                         mod='f142',
-                                         dtype='double', ),
-                    'units': 'Hz',
-                },
-                "phase:NXevent_data": {
-                    'phase': EventStream(topic='AMOR_metadata',
-                                         source='SQ:AMOR:chopper:DCU2:Position',
-                                         mod='f142',
-                                         dtype='double', ),
-                    'units': 'deg',
+                    "phase": EventStream(topic=metaTopic,
+                                         source="ch2_position",
+                                         mod=metaMod,
+                                         dtype="double",
+                                         units="deg"),
                 },
                 "ratio:NXevent_data": {
-                    'ratio': EventStream(topic='AMOR_metadata',
-                                         source='SQ:AMOR:chopper:DCU2:Position',
-                                         mod='f142',
-                                         dtype='double', ),
-                    'units': 'deg',
+                    "ratio": EventStream(topic=metaTopic,
+                                         source="ch2_gear_ratio",
+                                         mod=metaMod,
+                                         dtype="double", ),
                 },
-                "distance": {},
+                "distance": DeviceDataset("distances",
+                                          parameter="chopper",
+                                          vector=(0, 0, 1),
+                                          transformation_type="translation",
+                                          offset=DeviceAttribute("distances",
+                                                                 "nxoffset")),
             },
-            "pre_sample_slit1:NXslit": {
-                "bottom:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motd:d1b.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'mm',
-                },
-                "top:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motd:d1t.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'mm',
-                },
-                "left:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motd:d1l.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'mm',
-                },
-                "right:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motd:d1r.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'mm',
-                },
-                # "distance": NXDataset(
-                #     DistancesPlaceholder('slit1', _dv),
-                #     dtype='float'),
+            # polarizer & flipper
+            "polarizer:NXploariser": {
+                "type": "supermirror",
+                "geometry": "transmission",
+                "position_1": EventStream(topic=metaTopic,
+                                          source="pz1",
+                                          mod=metaMod,
+                                          dtype="double", ),
+                "position_2": EventStream(topic=metaTopic,
+                                          source="pz2",
+                                          mod=metaMod,
+                                          dtype="double", ),
             },
-            "pre_sample_slit2:NXslit": {
-                "bottom:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motc:d2b.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'mm',
-                },
-                "top:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motc:d2t.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'mm',
-                },
-                "left:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motc:d2l.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'mm',
-                },
-                "right:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motc:d2r.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'mm',
-                },
-                # "distance": NXDataset(
-                #     DistancesPlaceholder('slit2', _dv),
-                #     dtype='float'),
+            "spin_flipper:NXflipper": {
+                "type": "RF coil",
+                #    "spin_state": EventStream(topic=metaTopic,
+                #                              source="???",
+                #                              mod=metaMod,
+                #                              dtype="int", ),
             },
-            'virtual_source:NXslit': {
-                'vertical:NXevent_data': {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motd:dvv.RBV',
-                                            mod='f142',
-                                            dtype='int', ),
-                    },
-                'horizontal:NXevent_data': {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motd:dvh.RBV',
-                                            mod='f142',
-                                            dtype='int', ),
-                    },
-                'middle_focus:NXevent_data': {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motd:dmf.RBV',
-                                            mod='f142',
-                                            dtype='int', ),
-                    },
+            # analyser flipper !!!
+            # analyser !!!
+            # spin state .... !!!
+            # deflector
+            "deflector:NXmirror": {
+                "type": "single",
+                "inclination:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="lom",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "deg",
+                },
+                "vertical_position:NXevent_data": {
+                    "position": EventStream(topic=metaTopic,
+                                            source="ltz",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "mm",
+                },
+                "distance": DeviceDataset("distances",
+                                          parameter="deflector",
+                                          vector=(0, 0, 1),
+                                          transformation_type="translation",
+                                          offset=DeviceAttribute("distances",
+                                                                 "nxoffset")),
             },
-            # "polarizer:NXpolariser": {
-            #     "spin_state": DeviceDataset('SpinFlipper',
-            #                                 dtype='string')
-            # },
+            # detector
             "detector:NXdetector": {
-                # "chopper_detector_distance": NXDataset(
-                #     ComponentDistancePlaceholder('chopper',
-                #                                  'detector'),
-                #     dtype='float'),
                 "acquisition_mode": "event",
-                "distance": NXDataset(
-                    DistancesPlaceholder('detector', _dv),
-                    dtype='float'),
                 "polar_angle:NXevent_data": {
-                    'position': EventStream(topic='AMOR_metadata',
-                                            source='SQ:AMOR:motc:s2t.RBV',
-                                            mod='f142',
-                                            dtype='double', ),
-                    'units': 'deg',
+                    "position": EventStream(topic=metaTopic,
+                                            source="nu",
+                                            mod=metaMod,
+                                            dtype="double", ),
+                    "units": "deg",
                 },
                 "data:NXevent_data": {
-                    "data": EventStream(topic='FREIA_detector',
-                                        mod='ev42',
-                                        source='multiblade',
-                                        dtype='uint32'),
+                    "data": EventStream(topic="amor_detector",
+                                        mod="ev44",
+                                        source="multiblade",
+                                        dtype="uint32"),
                 },
-                'proton_current:NXevent_data': {
-                    'value': EventStream(topic='AMOR_metadata',
-                                         source='MHC6:IST:2',
-                                         mod='f142',
-                                         dtype='double', ),
-                    'units': 'mC',
+                "proton_current:NXevent_data": {
+                    "value": EventStream(topic=metaTopic,
+                                         source="MHC6:IST:2",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "mC",
                 },
-                # "x_pixel_size": "",
-                # "y_pixel_size": "",
-                "count_time":"",
+                "monitor:NXevent_data": {
+                    "monitor": EventStream(topic="amor_beam_monitor",
+                                           mod="ev44",
+                                           source="ttlmon0",
+                                           dtype="uint32"),
+                },
                 "depends_on": "transformation/distance",
                 "transformation:NXtransformations": {
-                    "distance:NXevent_data": {
-                        'vector': (0, 0, 1),
-                        'attributes': '',
-                        'depends_on': 'height',
-                        'transformation_type': 'translation',
-                        'value': EventStream(topic='AMOR_metadata',
-                                                source='SQ:AMOR:motc:cox.RBV',
-                                                mod='f142',
-                                                dtype='double', ),
-                        'units': 'mm', },
                     "height:NXevent_data": {
-                        'vector': (0, 1, 0),
-                        'attributes': '',
-                        'depends_on': 'rotation',
-                        'transformation_type': 'translation',
-                        'value': EventStream(topic='AMOR_metadata',
-                                                source='SQ:AMOR:motc:coz.RBV',
-                                                mod='f142',
-                                                dtype='double', ),
-                        'units': 'mm', },
+                        "vector": (0, 0, 1),
+                        "attributes": "",
+                        "depends_on": "rotation",
+                        "transformation_type": "translation",
+                        "value": EventStream(topic=metaTopic,
+                                             source="coz",
+                                             mod=metaMod,
+                                             dtype="double", ),
+                        "units": "mm",
+                    },
                     "rotation:NXevent_data": {
-                        'vector': (1, 0, 0),
-                        'attributes': '',
-                        'depends_on': '.',
-                        'transformation_type': 'rotation',
-                        'value': EventStream(topic='AMOR_metadata',
-                                                source='SQ:AMOR:motc:com.RBV',
-                                                mod='f142',
-                                                dtype='double', ),
-                        'units': 'deg', },
-                }
+                        "vector": (0, 1, 0),
+                        "attributes": "",
+                        "depends_on": ".",
+                        "transformation_type": "rotation",
+                        "value": EventStream(topic=metaTopic,
+                                             source="com",
+                                             mod=metaMod,
+                                             dtype="double", ),
+                        "units": "deg",
+                    },
+                    "distance":
+                        DeviceDataset("distances",
+                                      parameter="detector",
+                                      vector=(0, 0, 1),
+                                      transformation_type="translation",
+                                      offset=DeviceAttribute("distances",
+                                                             "nxoffset")),
+                },
             },
-            "sample:NXsample": {
-                "name": DeviceDataset('Sample', 'samplename'),
-                "distance": NXDataset(
-                    DistancesPlaceholder('sample', 0), 'float'),
-                "base_height": "",
-                "chi": "",
-                "temperature": "",
-                "magnetic_field": "",
-                "x_translation": 0,
+            # monitor !!!
+            # sample stage
+            "sample_stage:NXsample": {
+                "sch": DeviceDataset("sch"),
+                "mud": DeviceDataset("mud"),
+                "base_height": DeviceDataset("szoffset"),
                 "depends_on": "transformation/height",
                 "transformation:NXtransformations": {
                     "height:NXevent_data": {
-                        'offset': '', # stz
-                        'vector': (0, 1, 0),
-                        'attributes': '',
-                        'depends_on': 'rotation',
-                        'transformation_type': 'translation',
-                        'value': EventStream(topic='AMOR_metadata',
-                                             source='SQ:AMOR:motc:soz.RBV',
-                                             mod='f142',
-                                             dtype='double', ),
-                        'units': 'mm', },
+                        "offset": "",  # stz
+                        "vector": (0, 1, 0),
+                        "attributes": "",
+                        "depends_on": "rotation",
+                        "transformation_type": "translation",
+                        "value": EventStream(topic=metaTopic,
+                                             source="soz",
+                                             mod=metaMod,
+                                             dtype="double", ),
+                        "units": "mm",
+                    },
                     "rotation:NXevent_data": {
-                        'vector': (1, 0, 0),
-                        'attributes': '',
-                        'depends_on': '.',
-                        'transformation_type': 'rotation',
-                        'value': EventStream(topic='AMOR_metadata',
-                                             source='SQ:AMOR:motc:som.RBV',
-                                             mod='f142',
-                                             dtype='double', ),
-                        'units': 'deg', },
-                }
-            }
-        }
-    }
+                        "vector": (1, 0, 0),
+                        "attributes": "",
+                        "depends_on": ".",
+                        "transformation_type": "rotation",
+                        "value": EventStream(topic=metaTopic,
+                                             source="som",
+                                             mod=metaMod,
+                                             dtype="double", ),
+                        "units": "deg",
+                    },
+                },
+                "distance": DeviceDataset("distances", "sample",
+                                          vector=(0, 0, 1),
+                                          transformation_type="translation",
+                                          offset=DeviceAttribute("distances",
+                                                                 "nxoffset")),
+            },
+        },  # end of instrument
+        # sample description and environment
+        "sample:NXsample": {
+            # declaration
+            "name": DeviceDataset("Sample", "samplename"),
+            "model": DeviceDataset("Sample", "orsomodel"),
+            # beam geometry
+            "kappa:NXevent_data": {
+                "position": EventStream(topic=metaTopic,
+                                        source="kap",
+                                        mod=metaMod,
+                                        dtype="double", ),
+                "units": "deg",
+            },
+            "mu:NXevent_data": {
+                "position": EventStream(topic=metaTopic,
+                                        source="mu",
+                                        mod=metaMod,
+                                        dtype="double", ),
+                "units": "deg",
+            },
+            "div:NXevent_data": {
+                "position": EventStream(topic=metaTopic,
+                                        source="div",
+                                        mod=metaMod,
+                                        dtype="double", ),
+                "units": "deg",
+            },
+            "kad": DeviceDataset("kad"),
+            # alignment parameters !!! redundand, see sample_stage
+            "sch": DeviceDataset("sch"),
+            "mud": DeviceDataset("mud"),
+            "base_height": DeviceDataset("szoffset"),
+            "depends_on": "transformation/height",
+            "transformation:NXtransformations": {
+                "height:NXevent_data": {
+                    "offset": "",  # stz
+                    "vector": (0, 1, 0),
+                    "attributes": "",
+                    "depends_on": "rotation",
+                    "transformation_type": "translation",
+                    "value": EventStream(topic=metaTopic,
+                                         source="soz",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "mm",
+                },
+                "height_offset:NXevent_data": {
+                    "offset": "",  # stz
+                    "vector": (0, 1, 0),
+                    "attributes": "",
+                    "depends_on": "rotation",
+                    "transformation_type": "translation",
+                    "value": EventStream(topic=metaTopic,
+                                         source="stz",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "mm",
+                },
+                "rotation:NXevent_data": {
+                    "vector": (1, 0, 0),
+                    "attributes": "",
+                    "depends_on": ".",
+                    "transformation_type": "rotation",
+                    "value": EventStream(topic=metaTopic,
+                                         source="som",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "deg",
+                },
+            },
+            "temperature:NXevent_data": {
+                    "value": EventStream(topic=metaTopic,
+                                         source="temperature",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "K",
+            },
+            "magnetic_field:NXevent_data": {
+                    "value": EventStream(topic=metaTopic,
+                                         source="magnetic_field",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "A",
+            },
+            # geometry
+            "distance": DeviceDataset("distances", "sample",
+                                      vector=(0, 0, 1),
+                                      transformation_type="translation",
+                                      offset=DeviceAttribute("distances",
+                                                             "nxoffset")),
+        },  # end of sample
+    },  # end of entry1
 }

@@ -142,8 +142,11 @@ class AmorDirector(Waitable):
         value = self.szd
         diff = self._attached_distances.sample -\
             self._attached_distances.deflector
-        kappa = np.rad2deg(np.arctan(-value/(diff) +
-                           np.tan(np.deg2rad(self.ka0))))
+        if diff > 0:
+            kappa = np.rad2deg(np.arctan(-value/(diff) +
+                               np.tan(np.deg2rad(self.ka0))))
+        else:
+            kappa = np.tan(np.deg2rad(self.ka0))
         if kappa < self.ka0:
             kappa = self.ka0
         return kappa
@@ -159,14 +162,18 @@ class AmorDirector(Waitable):
         d1b = self._attached_d1b.read(0)
         sx = self._attached_distances.sample
         d1x = self._attached_distances.diaphragm1
-        return np.rad2deg(np.arctan((d1t+d1b)/(sx-d1x)))
+        if abs(sx-d1x) > 0:
+            return np.rad2deg(np.arctan((d1t+d1b)/(sx-d1x)))
+        return np.rad2deg(np.arctan((d1t+d1b)))
 
     def doReadKad(self):
         d1t = self._attached_d1t.read(0)
         d1b = self._attached_d1b.read(0)
         sx = self._attached_distances.sample
         d1x = self._attached_distances.diaphragm1
-        return np.rad2deg(np.arctan(0.5*(d1t-d1b)/(sx-d1x)))
+        if abs(sx-d1x) > 0:
+            return np.rad2deg(np.arctan(0.5*(d1t-d1b)/(sx-d1x)))
+        return np.rad2deg(np.arctan(0.5*(d1t-d1b)))
 
     def doReadZoffset(self):
         soz = self._attached_soz.read(0)

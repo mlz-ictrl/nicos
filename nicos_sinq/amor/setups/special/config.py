@@ -1,8 +1,9 @@
 description = 'Generic configuration settings for AMOR'
+import os
 
 group = 'configdata'
 
-KAFKA_BROKERS = ['ess01.psi.ch:9092']
+KAFKA_BROKERS = [os.environ.get('KAFKABROKERS', 'linkafka01.psi.ch:9092')]
 
 FILEWRITER_COMMAND_TOPIC = 'AMOR_filewriterConfig'
 FILEWRITER_STATUS_TOPIC = 'AMOR_filewriterStatus'
@@ -14,4 +15,4 @@ FORWARDER_DATA_TOPIC = 'AMOR_forwarderData'
 HISTOGRAM_MEMORY_URL = 'http://amorhm:80/admin'
 HISTOGRAM_MEMORY_ENDIANESS = 'big'
 
-DATA_PATH = '/home/nicos/amor'
+DATA_PATH = os.environ.get('NICOSDUMP', '.') + '/amor/'
