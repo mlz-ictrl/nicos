@@ -19,7 +19,7 @@ devices = dict(
                 hashing='sha1',
                 passwd=[('spy', '15346b593c4d0cf05fb6e67a5669d852e6550481',
                          'guest'),
-                        ('user', '0ecb08958ccdf087111e54131906b08a8b89be9a',
+                        ('user', 'ca84378fe2c214a2839436b59b73e22223b57c52',
                          'user'),
                         ('admin', '76702e9ada292df094a875e5f72e9f778099d477',
                          'admin'),
