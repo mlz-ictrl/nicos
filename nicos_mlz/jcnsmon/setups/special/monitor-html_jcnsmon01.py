@@ -4,7 +4,8 @@ group = 'special'
 ccm8v = SetupBlock('ccm8v', 'se')
 
 ccm8vplot = Block('ccm8v', [
-    BlockRow(Field(plot='ccm8v', name='B', key='se/b_ccm8v/value', plotwindow=3600, width=50, height=40),
+    BlockRow(Field(plot='ccm8v', name='B', key='se/b_ccm8v/value',
+                   plotwindow=3600, width=50, height=40),
              Field(plot='ccm8v', name='LHe', key='se/ccm8v_lhe/value'),
              Field(plot='ccm8v', name='LN2', key='se/ccm8v_ln2/value')),
 ])
