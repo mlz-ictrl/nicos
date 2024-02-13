@@ -33,6 +33,11 @@ from nicos.devices.generic.detector import DummyDetector
 from nicos.devices.sxtal.instrument import SXTalBase
 
 
+__all__ = [
+    'ScanList', 'ScanDataset', 'ScanOmega', 'ScanT2T',
+]
+
+
 class Intensity(DummyDetector):
     temporary = True
 

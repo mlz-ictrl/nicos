@@ -49,6 +49,14 @@ from nicos_sinq.sxtal.singlexlib import calcTheta
 from nicos_sinq.sxtal.tasublib import KToEnergy, makeAuxReflection
 from nicos_sinq.sxtal.util import window_integrate
 
+__all__ = [
+    'AddRef', 'DelRef', 'ListRef', 'SetRef', 'SetRefAng', 'ClearRef',
+    'AddAuxRef', 'CalcAng', 'CalcPos', 'ShowAng', 'Max', 'Center',
+    'CenterList', 'SaveRef', 'LoadRef', 'GenerateList', 'GenerateSuper',
+    'ScanOmega', 'ScanT2T', 'Measure', 'IndexTH', 'integrate', 'CalcUB',
+    'SearchPar', 'ShowSearchPar', 'PeakSearch', 'qscan', 'qcscan',
+]
+
 
 def getSampleInst():
     """

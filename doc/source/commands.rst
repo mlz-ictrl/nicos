@@ -210,6 +210,18 @@ one of your loaded setups.
 .. autofunction:: ho_spurions
 .. autofunction:: acc_bragg
 
+Single crystal commands
+-----------------------
+To use these commands, add ``'nicos.commands.sxtal'`` to the ``modules`` list of
+one of your loaded setups.
+
+.. module:: nicos.commands.sxtal
+
+.. autofunction:: ScanList
+.. autofunction:: ScanDataset
+.. autofunction:: ScanOmega
+.. autofunction:: ScanT2T
+
 Imaging commands
 ----------------
 
