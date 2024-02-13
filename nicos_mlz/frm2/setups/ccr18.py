@@ -166,7 +166,7 @@ monitor_blocks = dict(
         BlockRow(
             Field(dev=f'{setupname}_p1', name='P1'),
             Field(dev=f'{setupname}_p2', name='P2'),
-        )
+        ),
     ], setups=setupname),
     plots = Block(setupname, [
         BlockRow(
