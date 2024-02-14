@@ -35,23 +35,6 @@ _frm = Column(
     ),
 )
 
-_htf = Column(
-    Block('HTF', [
-        BlockRow(Field(dev='T'),
-                 Field(name='Power', key='T/heaterpower'),)
-    ],
-    setups='htf*',
-    ),
-)
-
-_magnet = Column(
-    Block('Magnet', [
-        BlockRow(Field(dev='B')),
-    ],
-    setups='ccm*',
-    ),
-)
-
 _sc = Column(
     Block('Sample Changer', [
         BlockRow(Field(dev='sams'),),
@@ -59,27 +42,6 @@ _sc = Column(
     setups='samplechanger',
     ),
 )
-
-_e = Column(
-    Block('E field', [
-        BlockRow(Field(dev='E')),
-    ],
-    setups='efield',
-    ),
-)
-
-_tension = Column(
-    Block('Tension rack', [
-        BlockRow(Field(dev='teload'),
-                 Field(dev='tepos'),
-                 Field(dev='teext'),
-                 Field(dev='topos'),
-                 Field(dev='tomom'),),
-    ],
-    setups='tensile',
-    ),
-)
-
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
@@ -96,9 +58,6 @@ devices = dict(
         layout = [
             Row(_expcolumn),
             Row(_frm, _instrument, _sampletable),
-            Row(_htf,),
-            Row(_tension),
-            Row(_magnet, _e,),
             Row(_sc),
         ],
     ),
