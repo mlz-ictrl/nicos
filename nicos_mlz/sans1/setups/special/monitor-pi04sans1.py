@@ -43,8 +43,8 @@ _sans1det = Column(
     Block('Detector', [
         BlockRow(
             Field(name='det1_z', dev='det1_z', width=9, unit='mm', format='%.0f'),
-            Field(name='t', dev='det1_t_ist', width=9),
-            Field(name='t pres.', key='det1_timer.preselection', width=9, unit='s', format='%i'),
+            Field(name='t', dev='det1_timer', width=9),
+            Field(name='t pres.', key='det1_timer/preselection', width=9, unit='s', format='%i'),
             Field(name='det1_hv', dev='det1_hv_ax', width=9, format='%i'),
             Field(name='events', dev='det1_ev', width=9),
             Field(name='bs1', dev='bs1', width=9),

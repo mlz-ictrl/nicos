@@ -108,8 +108,8 @@ _sans1general = Column(
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
-                 Field(name='t', dev='det1_t_ist', width=13),
-                 Field(name='t preset', key='det1_timer.preselection', width=13),
+                 Field(name='t', dev='det1_timer', width=13),
+                 Field(name='t preset', key='det1_timer/preselection', width=13),
                 ),
         BlockRow(
                  Field(name='det1_hv', dev='det1_hv_ax', width=13),

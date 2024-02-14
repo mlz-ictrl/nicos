@@ -5,13 +5,6 @@ group = 'lowlevel'
 BS1_X_OFS = -475.055
 
 devices = dict(
-    det1_t_ist = device('nicos.devices.generic.VirtualTimer',
-        description = 'measured time of detector 1',
-        fmtstr = '%.0f',
-        visibility = (),
-        maxage = 120,
-        pollinterval = 15,
-    ),
     det1_hv_interlock = device('nicos.devices.generic.ManualSwitch',
         description = 'interlock for detector 1 high voltage',
         visibility = (),
