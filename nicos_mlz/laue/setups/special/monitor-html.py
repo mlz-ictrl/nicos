@@ -35,7 +35,7 @@ _expcolumn = Column(
                     key = 'exp/action',
                     width = 30,
                     istext = True
-                ), Field(name = 'Last file', key = 'exp/lastimage')
+                ), Field(name = 'Last file', key = 'exp/lastpoint')
             ),
         ],
     ),

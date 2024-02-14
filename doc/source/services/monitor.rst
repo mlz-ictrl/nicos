@@ -93,7 +93,7 @@ A simple setup file for the monitor could look like this:
                        istext=True, maxlen=20),
                   Field(name='Current status', key='exp/action', width=30,
                         istext=True),
-                  Field(name='Last file', key='filesink/lastfilenumber'),
+                  Field(name='Last file', key='exp/lastpoint'),
                  ),
          ],
          # This block will always be displayed
