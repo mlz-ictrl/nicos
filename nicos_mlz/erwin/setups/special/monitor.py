@@ -9,10 +9,8 @@ _expcolumn = Column(
                   maxlen=20),
             Field(name='Current status', key='exp/action', width=40,
                   istext=True, maxlen=40),
-            Field(name='Last scan file', key='exp/lastscan',
-                  setups='tas'),
-            Field(name='Last image file', key='exp/lastpoint',
-                  setups='sans'),
+            Field(name='Last scan file', key='exp/lastscan'),
+            Field(name='Last image file', key='exp/lastpoint'),
         )
     ],
     ),
