@@ -31,15 +31,6 @@ _selcolumn = Column(
     ),
 )
 
-_meteocolumn = Column(
-    Block('Outside Temp', [
-        BlockRow(
-                 Field(name='Temp', dev='meteo', width=12),
-                ),
-        ],
-    ),
-)
-
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
@@ -231,28 +222,6 @@ _p_filter = Column(
     ),
 )
 
-_spinflipper = Column(
-    Block('Spin Flipper', [
-        BlockRow(
-             Field(name='P', dev='P_spinflipper'),
-        ),
-        BlockRow(
-             Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
-             Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
-        ),
-        BlockRow(
-             Field(name='Temperature', dev='T_spinflipper'),
-             Field(name='Voltage', dev='U_spinflipper'),
-        ),
-        BlockRow(
-             Field(name='A_spinflipper_hp', dev='A_spinflipper_hp'),
-             Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
-        ),
-        ],
-        setups='spinflip',
-    ),
-)
-
 _julabo = Column(
     Block('Julabo', [
         BlockRow(
@@ -280,16 +249,6 @@ _julabo_plot = Column(
         ),
         ],
         setups='julabo',
-    ),
-)
-
-_tisane_fc = Column(
-    Block('TISANE Frequency Counter', [
-        BlockRow(
-                Field(name='Frequency', dev='tisane_fc', format='%.2e', width=12),
-                ),
-        ],
-        setups='tisane',
     ),
 )
 
@@ -338,16 +297,6 @@ _col_slit = Column(
     ),
 )
 
-_helios01 = Column(
-    Block('Helios', [
-        BlockRow(
-                Field(name='spin', dev='flipper_helios01', width=12),
-                ),
-        ],
-        setups='helios01',
-    ),
-)
-
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
         title = 'SANS-1 Status monitor',
@@ -362,11 +311,9 @@ devices = dict(
         layout = [
             Row(_expcolumn),
             Row(_sans1general, _table2, _table1, _sans1det),
-            Row(_meteocolumn, _pressurecolumn, _p_filter),
+            Row(_pressurecolumn, _p_filter),
             Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
-            Row(_spinflipper, _sc1, _sc2,
-                _sc_t, _ccmsanssc, _julabo,
-                _tisane_counts, _tisane_fc, _helios01),
+            Row(_sc1, _sc2, _sc_t, _ccmsanssc, _julabo, _tisane_counts),
             Row(_julabo_plot),
             Row(_live),
         ],
