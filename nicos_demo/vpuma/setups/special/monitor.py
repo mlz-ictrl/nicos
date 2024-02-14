@@ -53,13 +53,13 @@ _slits = Block('Slits', [
 _detectorblock = Block('Detector', [
     BlockRow(Field(name='timer', dev='timer'),
              Field(name='mon1', dev='mon1'),
-             Field(name='Preset', key='mon1/preselection'), #'mon1/value'/'mon1/preselection'*'det2/value' 'mon1/preselection'
-             Field(name='hvmonitor', dev='hvmonitor'),
+             Field(name='Preset', key='mon1/preselection'),
+             # Field(name='hvmonitor', dev='hvmonitor'),
             ),
     BlockRow(Field(name='det1', dev='det1'),
              Field(name='det2', dev='det2'),
              Field(name='det3', dev='det3'),
-             Field(name='hvdetector', dev='hv1detector')
+             # Field(name='hvdetector', dev='hv1detector')
             ),
     ],
 )
@@ -91,66 +91,34 @@ _multiblock = Block('', [
     setups='not tas',
 )
 
-_shutterblock = Block('Shutter / Filters', [
-    BlockRow(Field(name='sapphire filter', dev='sapphire'),
-             Field(name='erbium filter', dev='erbium'),),
-    BlockRow(Field(name='attenuator', dev='atn'),
-             Field(name='PG filter 1', dev='fpg1'),
-             Field(name='PG filter 2', dev='fpg2'),
-            ),
-    ],
-)
+# _shutterblock = Block('Shutter / Filters', [
+#     BlockRow(Field(name='sapphire filter', dev='sapphire'),
+#              Field(name='erbium filter', dev='erbium'),),
+#     BlockRow(Field(name='attenuator', dev='atn'),
+#              Field(name='PG filter 1', dev='fpg1'),
+#              Field(name='PG filter 2', dev='fpg2'),
+#             ),
+#     ],
+# )
 
 _reactor = Block('Reactor power', [
     BlockRow(Field(dev='ReactorPower')),
     ],
 )
 
-_collimationblock = Block('Collimation', [
-    BlockRow(Field(name='alpha1', dev='alpha1'),
-             Field(name='alpha2', dev='alpha2'),
-             Field(name='alpha3', dev='alpha3'),
-             Field(name='alpha4', dev='alpha4'),
-            ),
-    ],
-)
+# _collimationblock = Block('Collimation', [
+#     BlockRow(Field(name='alpha1', dev='alpha1'),
+#              Field(name='alpha2', dev='alpha2'),
+#              Field(name='alpha3', dev='alpha3'),
+#              Field(name='alpha4', dev='alpha4'),
+#             ),
+#     ],
+# )
 
 _leftcolumn = Column(_tasblock, _multiblock, _detectorblock, _reactor)
 _middlecolumn = Column(_axisblock, _sampletable, _slits)
-_rightcolumn = Column(_shutterblock,_collimationblock,
-    Block('Temperature (LakeShore)', [
-        BlockRow(Field(name='Control',dev='t_ls340'),
-            Field(key='t_ls340/setpoint', name='Setpoint')),
-        BlockRow(Field(name='Ts',dev='t_ls340_b'),
-                 Field(name='Heater power', key='t_ls340/heaterpower')),
-        BlockRow(Field(dev='T', plot='T', plotwindow=1800, width=40),
-                 Field(key='ts', name='Sample T', plot='T', plotwindow=1800),
-                 Field(key='t/setpoint', name='SetP', plot='T', plotwindow=1800))
-    ], setups='lakeshore'),
-    Block('Temperature (CCR18)', [
-        BlockRow(Field(name='T_tube',dev='t_ccr18_tube'),
-                 Field(key='t_ccr18_tube/setpoint', name='Setpoint_tube'),
-                 Field(key='t_ccr18_tube/heaterpower',name='heaterpower_tube')),
-        BlockRow(Field(name='T_tube',key='T_ccr18_tube', plot='T',
-                       plotwindow=3600, width=40),
-                 Field(key='t_ccr18_tube/setpoint', name='SetP', plot='T',
-                       plotwindow=3600, width=40)),
-    ], setups='ccr18'),
-    Block('Temperature (CCR16)', [
-        BlockRow(Field(name='T_stick',dev='t_ccr16_stick'),
-                 Field(key='t_ccr16_stick/setpoint', name='Setpoint_stick'),
-                 Field(key='t_ccr16_stick/heaterpower',name='heaterpower_stick')),
-        BlockRow(Field(name='T_tube',dev='t_ccr16_tube'),
-                 Field(key='t_ccr16_tube/setpoint', name='Setpoint_tube'),
-                 Field(key='t_ccr16_tube/heaterpower',name='heaterpower_tube')),
-        BlockRow(Field(key='t_ccr16/regulationmode',name='Regulation'),
-                 Field(name='Coldhead',dev='T_ccr16_C'),
-                 Field(name='compressor',dev='ccr16_compressor'),
-                 Field(name='vacuum',dev='ccr16_vacuum_switch')),
-        BlockRow(Field(dev='T', plot='T', plotwindow=1800, width=40),
-                 Field(key='ts', name='Sample T', plot='T', plotwindow=1800),
-                 Field(key='t/setpoint', name='SetP', plot='T', plotwindow=1800))
-    ], setups='ccr16'),
+_rightcolumn = Column(
+    #_shutterblock, _collimationblock,
 )
 
 
