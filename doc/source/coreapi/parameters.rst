@@ -68,6 +68,20 @@ they return a converter.
 
        Param(..., type=floatrange(0, 10))
 
+.. function:: nonzero(converter, default=None)
+
+   Creates a converter that restricts the values that the inner *converter*
+   allows by disallowing zero.  Examples::
+
+       Param(..., type=nonzero(int, 1))
+       Param(..., type=nonzero(floatrange(-10, 10))
+
+   The *default* value is optional except if the *converter* defaults to 0.
+   If no *default* value is specified, it is derived from *converter* (if
+   nonzero) or the integer 1 (if accepted by *converter*).  If both fail, the
+   converter can't be created and raises an error indicating that a *default*
+   value needs to be specified, which is both valid for *converter* and nonzero.
+
 .. function:: none_or(converter)
 
    Create a converter that accepts only ``None`` or what the *converter*

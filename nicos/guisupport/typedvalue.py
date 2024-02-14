@@ -227,6 +227,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
             return OneofdictOrWidget(parent, inner, selector, buttons=False)
     elif isinstance(typ, params.none_or):
         return CheckWidget(parent, typ.conv, curvalue, client)
+    elif isinstance(typ, params.nonzero):
+        return NonzeroWidget(parent, typ.conv, curvalue, client)
     elif isinstance(typ, params.tupleof):
         return MultiWidget(parent, typ.types, curvalue, client,
                            allow_enter=allow_enter, valinfo=valinfo)
@@ -536,6 +538,25 @@ class ExprWidget(QLineEdit):
 
     def getValue(self):
         return cache_load(self.text())
+
+
+class NonzeroWidget(QWidget):
+
+    valueModified = pyqtSignal()
+    valueChosen = pyqtSignal(object)
+
+    def __init__(self, parent, inner, curvalue, client):
+        QWidget.__init__(self, parent)
+        self.inner = inner
+        layout = self._layout = QHBoxLayout()
+        self.inner_widget = create(self, inner, curvalue, client=client)
+        self.inner_widget.valueModified.connect(self.valueModified)
+        layout.addWidget(self.inner_widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+
+    def getValue(self):
+        return self.inner(self.inner_widget.getValue())
 
 
 class CheckWidget(QWidget):

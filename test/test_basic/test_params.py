@@ -29,8 +29,8 @@ from nicos.core.errors import ConfigurationError, ProgrammingError
 from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     anytype, boolean, dictof, dictwith, floatrange, host, intrange, ipv4, \
     limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
-    nonemptystring, oneof, oneofdict, oneofdict_or, pvname, relative_path, \
-    setof, string, subdir, tangodev, tupleof, vec3
+    nonemptystring, nonzero, oneof, oneofdict, oneofdict_or, pvname, \
+    relative_path, setof, string, subdir, tangodev, tupleof, vec3
 
 from test.utils import raises
 
@@ -453,3 +453,26 @@ def test_ArrayDesc():
     assert ad != ad2
     assert ad2.name == ad.name and ad2.shape == ad.shape \
        and ad2.dtype == ad.dtype and ad2.dimnames == ad.dimnames
+
+
+def test_nonzero():
+    assert nonzero(int)() == 1
+    assert nonzero(int, 5.0)() == 5
+    assert nonzero(int)(5.0) == 5
+    assert nonzero(float)(1) == 1
+    assert nonzero(intrange(-1, 1))(1) == 1
+    assert nonzero(intrange(-1, 1))() == -1
+    assert nonzero(intrange(-1, 1), -1)() == -1
+    assert nonzero(floatrange(0, 1))() == 1
+    assert nonzero(floatrange(0, 1), 0.01)() == 0.01
+    assert nonzero(floatrange(0, 1))(0.5) == 0.5
+    assert nonzero(floatrange(-1, 1))(1) == 1
+    assert nonzero(floatrange(-1, 1))() == -1
+    assert raises(TypeError, nonzero, 'x')
+    assert raises(ValueError, nonzero, floatrange(0, 0.1))
+    assert raises(ValueError, nonzero, floatrange(0, 0.1), 1)
+    assert raises(ValueError, nonzero(int), 0)
+    assert raises(ValueError, nonzero(float), 0)
+    assert raises(ValueError, nonzero(intrange(-1, 1)), 0)
+    assert raises(ValueError, nonzero(floatrange(-1, 1)), 0)
+    assert raises(ValueError, nonzero(floatrange(-1, 1)), 10)

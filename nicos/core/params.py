@@ -702,6 +702,32 @@ class floatrange:
         return val
 
 
+class nonzero:
+    """a nonzero number value"""
+
+    def __init__(self, conv, default=None):
+        self.__doc__ = 'Nonzero value of %s' % convdoc(conv)
+        self.conv = fixup_conv(conv)
+        # inital check for default value
+        try:
+            default_ = (default or conv()) or 1
+            self.default = conv(default_)
+        except ValueError as exc:
+            raise ValueError(f'{default} is no good default value for {conv}, '
+                              'please choose a valid nonzero value!') from exc
+
+    def __call__(self, val=None):
+        if val is None:
+            return self.default
+        if (val := self.conv(val)) == 0:
+            raise ValueError('value needs to be != 0')
+        return val
+
+
+# in case the impl. of nonzero ever changes, divisor defaults to 1 explicitly
+divisor = nonzero(float, 1)
+
+
 class setof:
 
     def __init__(self, *vals):
