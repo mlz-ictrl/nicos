@@ -140,7 +140,7 @@ devices = dict(
         unit = 'm',
         curvalue = 0,
     ),
-    det1_omega = device('nicos.devices.generic.VirtualMotor',
+    det1_omg = device('nicos.devices.generic.VirtualMotor',
         description = 'tilt of detector',
         abslimits = (-40, 40),
         speed = 0.5,

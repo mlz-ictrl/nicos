@@ -158,13 +158,13 @@ _collimationcolumn = Column(
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
-            Field(devices=['det1_z', 'det1_x','det1_omega', 'det_pos2'],
+            Field(devices=['det1_z', 'det1_x', 'det1_omg', 'det_pos2'],
                   widget='nicos_mlz.sans1.gui.monitorwidgets.Tube2', width=30, height=10)#, max=21000),
         ),
         BlockRow(
                  Field(name='det1_z', dev='det1_z', width=8, format='%i'),
                  Field(name='det1_x', dev='det1_x', width=8),
-                 Field(name='det1_omg', dev='det1_omega', width=8),
+                 Field(name='det1_omg', dev='det1_omg', width=8),
                  Field(name='t', dev='det1_t_ist', width=8),
                  Field(name='t pres.', dev='det_1_t_soll', width=8),
                  Field(name='voltage', dev='det1_hv', width=8, format='%i'),

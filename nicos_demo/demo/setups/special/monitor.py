@@ -116,7 +116,7 @@ _sansblock = Block('SANS', [
         # Field(dev='det_pos', name='Detector position',
         #       widget='nicos_mlz.sans1.gui.monitorwidgets.Tube', width=30,
         #       height=10)),
-        Field(devices=['det1_z', 'det1_x', 'det_pos1_tilt', 'det_pos2'],
+        Field(devices=['det1_z', 'det1_x', 'det1_omg', 'det_pos2'],
               name='Detector position',
               widget='nicos_mlz.sans1.gui.monitorwidgets.Tube2', width=30, height=10,
               posscale=21)
