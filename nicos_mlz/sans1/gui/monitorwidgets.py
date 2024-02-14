@@ -52,21 +52,22 @@ statusbrush = {
 
 
 class Tube2(NicosWidget, QWidget):
-    """Sans1Tube with two detectors..."""
+    """SANS-1 tube with detector(s)."""
 
     designer_description = 'SANS-1 tube with two detectors'
 
     def __init__(self, parent, designMode=False):
-        # det1pos, det1shift, det1tilt, det2pos
-        self._curval = [0, 0, 0, 0]
-        self._curstr = ['', '', '', '']
-        self._curstatus = [OK, OK, OK, OK]
+        # det1pos, det1shift, det1tilt
+        # Later: add det2pos
+        self._curval = [0, 0, 0]
+        self._curstr = ['', '', '']
+        self._curstatus = [OK, OK, OK]
 
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
 
     devices = PropDef('devices', 'QStringList', [], 'position, shift and '
-                      'tilt of det1, position of det2')
+                      'tilt of det1')
     height = PropDef('height', int, 10, 'Widget height in characters')
     width = PropDef('width', int, 30, 'Widget width in characters')
     name = PropDef('name', str, '', 'Display name')

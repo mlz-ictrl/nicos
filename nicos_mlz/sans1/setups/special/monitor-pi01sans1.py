@@ -210,7 +210,7 @@ _sampleaperture = Column(
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
-            Field(devices=['det1_z', 'det1_x', 'det1_omg', 'det_pos2'],
+            Field(devices=['det1_z', 'det1_x', 'det1_omg'],
                   widget='nicos_mlz.sans1.gui.monitorwidgets.Tube2', width=30, height=10)#, max=21000),
         ),
         BlockRow(

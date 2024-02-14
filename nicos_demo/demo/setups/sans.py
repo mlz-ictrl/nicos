@@ -148,13 +148,6 @@ devices = dict(
         curvalue = 0,
         fmtstr = '%.1f',
     ),
-    det_pos2 = device('nicos.devices.generic.VirtualMotor',
-        description = 'detector2 position in the tube',
-        abslimits = (1, 22),
-        speed = 0.5,
-        unit = 'm',
-        curvalue = 10,
-    ),
     BerSANSImageSink = device('nicos_mlz.sans1.datasinks.BerSANSImageSink',
         description = 'Saves image data in BerSANS format',
         filenametemplate = [
