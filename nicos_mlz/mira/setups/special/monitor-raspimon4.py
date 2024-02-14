@@ -175,7 +175,7 @@ _column2 = Column(*[
         ],
         setups='euler',
     ),
-    Block('Sample rotation (rsc03', [
+    Block('Sample rotation (rsc03)', [
         BlockRow(
             Field(dev='sth_rsc03'),
         ),

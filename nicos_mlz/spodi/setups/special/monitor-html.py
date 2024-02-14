@@ -126,20 +126,8 @@ _tension = Column(
     ),
 )
 
-_nps =[1,2,3,10,11,12]
-_npblocks = []
-
-for i in _nps:
-    _npblocks.append(
-        Block('Newport', [
-            BlockRow(
-                Field(dev='sth_rsc%02d' % i),
-            ),
-            ],
-            setups='rsc%02d' % i,
-        ),
-    )
-_rsc = Column(*_npblocks)
+rscs = [SetupBlock(rsc) for rsc in configdata('config_frm2.all_rscs')]
+_rsc = Column(*rscs)
 
 
 devices = dict(

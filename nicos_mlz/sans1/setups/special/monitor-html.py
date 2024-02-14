@@ -435,16 +435,7 @@ _spinflipper = Column(
     ),
 )
 
-rscs = []
-for k in [1,2,3,10,11,12]:
-    rscs.append(Block('RSC%02d' % k, [
-        BlockRow(
-            Field(name='Position', dev='sth_rsc%02d' % k,
-                  unitkey='t/unit', width=12),
-        ),
-        ],
-        setups='rsc%02d' % k,
-    ))
+rscs = [SetupBlock(rsc) for rsc in configdata('config_frm2.all_rscs')]
 _rscs = Column(*rscs)
 
 ccrs = [SetupBlock(ccr) for ccr in configdata('config_frm2.all_ccrs')]

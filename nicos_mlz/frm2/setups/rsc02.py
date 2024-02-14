@@ -22,3 +22,11 @@ alias_config = {
 extended = dict(
     representative = f'sth_{setupname}',
 )
+
+monitor_blocks = dict(
+    default = Block(f'RSC {setupname[3:]}', [
+        BlockRow(
+            Field(name='sth', dev=f'sth_{setupname}', width=12),
+        ),
+    ], setups=setupname),
+)
