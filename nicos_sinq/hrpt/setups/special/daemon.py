@@ -17,12 +17,7 @@ devices = dict(
     Auth=device('nicos.services.daemon.auth.list.Authenticator',
                 # the hashing maybe 'md5' or 'sha1'
                 hashing='sha1',
-                passwd=[('spy', '15346b593c4d0cf05fb6e67a5669d852e6550481',
-                         'guest'),
-                        ('user', 'ca84378fe2c214a2839436b59b73e22223b57c52',
-                         'user'),
-                        ('admin', '76702e9ada292df094a875e5f72e9f778099d477',
-                         'admin'),
+                passwd = configdata('config_sinq.passwds') + [
                         ('perl_client', '8aecf7021fe5212f5e4af74f3c075c2b875929fe',
                          'user'),
                         ],
