@@ -64,6 +64,10 @@ Section ``[nicos]``
     in the ``Service`` section.  For example, ``["LimitRSS=2G"]`` to limit the
     available memory for the process.
 
+  * ``keystorepaths`` -- a list of directories where the credential data
+    storage should be searched.  Default is
+    ``["/etc/nicos/keystore", "~/.config/nicos/keystore"]``.
+
 
 Section ``[environment]``
 -------------------------
