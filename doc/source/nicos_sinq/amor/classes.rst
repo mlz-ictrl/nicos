@@ -5,9 +5,6 @@
 .. autoclass:: EpicsAmorMagnet()
 .. autoclass:: EpicsAmorMagnetSwitch()
 
-.. module:: nicos_sinq.amor.devices.chopper
-.. autoclass:: AmorChopper()
-
 .. module:: nicos_sinq.amor.devices.dimetix
 .. autoclass:: EpicsDimetix()
 
@@ -18,19 +15,9 @@
 .. autoclass:: AmorShutter()
 .. autoclass:: SpsSwitch()
 
-.. module:: nicos_sinq.amor.devices.nexus_updater
-.. autoclass:: AmorNexusUpdater()
-
-.. module:: nicos_sinq.amor.devices.image_channel
-.. autoclass:: AmorSingleDetectorImageChannel()
-
 .. module:: nicos_sinq.amor.devices.logical_motor
 .. autoclass:: AmorLogicalMotorHandler()
 .. autoclass:: AmorLogicalMotor()
-
-.. module:: nicos_sinq.amor.devices.hm_config
-.. autoclass:: AmorHMConfigurator()
-.. autoclass:: AmorTofArray()
 
 .. module:: nicos_sinq.amor.devices.datasinks
 .. autoclass:: ImageKafkaWithLiveViewDataSink()
