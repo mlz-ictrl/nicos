@@ -1,7 +1,7 @@
 description = 'Erwin neutron guide sensors'
 group = 'optional'
 
-tango_base = 'tango://hw.erwin.frm2.tum.de:10000/erwin/center3/'
+tango_base = 'tango://nguidectrl.spodi.frm2.tum.de:10000/box/leybolde/'
 
 devices = dict(
     p1_nguide = device('nicos.devices.entangle.Sensor',
