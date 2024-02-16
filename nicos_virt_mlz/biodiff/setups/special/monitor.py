@@ -81,7 +81,7 @@ _selectorBlock = Block('Selector', [
 )
 
 _outsideWorldBlock = Block('Outside world', [
-    BlockRow(Field(name='Outside T', dev='meteo')),
+    BlockRow(Field(name='Outside T', dev='OutsideTemp')),
     ],
 )
 

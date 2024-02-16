@@ -52,7 +52,7 @@ _ubahncolumn = Column(
 _meteocolumn = Column(
     Block('Outside Temp', [
         BlockRow(
-            Field(name='Temp', dev='meteo', width=12),
+            Field(name='Temp', dev='OutsideTemp', width=12),
         ),
         ],
     ),

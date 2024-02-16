@@ -12,6 +12,8 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
+includes = ['ubahn']
+
 devices = dict(
     utg = device('nicos.devices.instrument.Instrument',
         description = 'UTG testing instrument',
@@ -42,11 +44,6 @@ devices = dict(
         description = 'The amount of free space for storing data',
         path = None,
         minfree = 5,
-    ),
-    UBahn = device('nicos_mlz.devices.mvg.MVG',
-        description = 'Next subway departures',
-        tangodevice='tango://ictrlfs.ictrl.frm2.tum.de:10000/mvg/U6/departures',
-        limit =3 ,
     ),
 )
 

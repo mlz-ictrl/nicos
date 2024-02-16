@@ -190,7 +190,7 @@ _sampleaperture = Column(
 _temp_garching = Column(
     Block('Temperature @ Garching', [
         BlockRow(
-            Field(name='Temperature', dev='meteo'),
+            Field(name='Temperature', dev='OutsideTemp'),
         ),
         ],
     ),

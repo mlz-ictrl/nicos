@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-includes = ['notifiers']
+includes = ['notifiers', 'ubahn', 'outerworld']
 
 modules = ['nicos.commands.standard']
 
@@ -53,15 +53,6 @@ devices = dict(
         description = 'The amount of free space for storing data',
         path = None,
         minfree = 5,
-    ),
-    UBahn = device('nicos_mlz.devices.mvg.MVG',
-        description = 'Next subway departures',
-        tangodevice='tango://ictrlfs.ictrl.frm2.tum.de:10000/mvg/U6/departures',
-        limit =3 ,
-    ),
-    OutsideTemp = device('nicos.devices.entangle.Sensor',
-        description = 'Outdoor air temperature',
-        tangodevice = 'tango://ictrlfs.ictrl.frm2:10000/frm2/meteo/temp',
     ),
 )
 

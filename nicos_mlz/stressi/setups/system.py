@@ -14,7 +14,7 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
-includes = ['notifiers']
+includes = ['notifiers', 'ubahn']
 
 devices = dict(
     Stressi = device('nicos.devices.instrument.Instrument',
@@ -69,11 +69,6 @@ devices = dict(
         path = '/control/log',
         minfree = 0.5,
         visibility = (),
-    ),
-    UBahn = device('nicos_mlz.devices.mvg.MVG',
-        description = 'Next subway departures',
-        tangodevice='tango://ictrlfs.ictrl.frm2.tum.de:10000/mvg/U6/departures',
-        limit =3 ,
     ),
     caresssink = device('nicos_mlz.stressi.datasinks.CaressScanfileSink',
         filenametemplate = ['m2%(scancounter)08d.dat'],

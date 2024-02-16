@@ -94,7 +94,7 @@ _selectorBlock = Block('Selector', [
 
 _outsideWorldBlock = Block('Outside world', [
     BlockRow(Field(name='Next U-Bahn U6', dev='ubahn', istext=True),
-             Field(name='Outside T', dev='meteo')),
+             Field(name='Outside T', dev='OutsideTemp')),
     ],
 )
 
