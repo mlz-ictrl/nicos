@@ -44,7 +44,7 @@ Contributors:
 * Michael Hart <michael.hart@stfc.ac.uk>
 * Klaudia Hradil <klaudia.hradil@tuwien.ac.at>
 * Lea Kleesattel <lea.kleesattel@frm2.tum.de>
-* Mark Könnecke <Mark.Koennecke@psi.ch>
+* Mark Könnecke <mark.koennecke@psi.ch>
 * Jakob Lass <jakob.lass@gmail.com>
 * Alexander Lenz <alexander.lenz@frm2.tum.de>
 * Peter Link <peter.link@frm2.tum.de>
@@ -83,11 +83,12 @@ Instrument-specific code was contributed by:
 * Weimin Gan <weimin.gan@hereon.de>
 * Holger Gibhardt <hgibhar@gwdg.de>
 * Artur Glavic <artur.glavic@psi.ch>
+* Jonathan Hähne <jonathan.haehne@frm2.tum.de>
 * Martin Haese <martin.haese@hereon.de>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
 * Markus Hölzel <markus.hoelzel@frm2.tum.de>
 * Stefan Huber <stefan.huber@frm2.tum.de>
-* Leonardo Ibanez <leoo.davinci@gmail.com>
+* Leonardo Ibáñez <leoo.davinci@gmail.com>
 * Johanna Jochum <johanna.jochum@frm2.tum.de>
 * Stefanie Keuler <s.keuler@fz-juelich.de>
 * Ebad Kamil <ebad.kamil@ess.eu>
