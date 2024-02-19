@@ -43,7 +43,8 @@ from nicos.commands.device import ListDevices, ListMethods, ListParams, \
     adjust, disable, drive, enable, finish, fix, get, getall, history, info, \
     limits, maw, move, read, reference, release, reset, resetlimits, rmaw, \
     rmove, setall, status, stop, switch, unfix, version, wait, waitfor
-from nicos.commands.measure import AddDetector, SetDetectors, count, preset
+from nicos.commands.measure import AddDetector, AddEnvironment, SetDetectors, \
+    SetEnvironment, avg, count, minmax, preset, stddev
 from nicos.commands.output import printdebug, printerror, printexception, \
     printinfo, printwarning
 from nicos.commands.sample import ClearSamples, ListSamples, NewSample, \
@@ -664,3 +665,25 @@ def test_notifiers(session, log):
     with log.assert_msg_matches([r'Email addresses',
                                  r'receiver@example.com']):
         ListDataReceivers()
+
+
+class TestEnvironment:
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session, log):
+        with log.assert_msg_matches([r'at the moment no standard environment '
+                                     r'is set']):
+            SetEnvironment()
+        yield
+
+    def test_SetEnvironment(self, session, log):
+        with log.assert_msg_matches([r'standard environment is: magnet']):
+            SetEnvironment('magnet')
+
+    def test_AddEnvironment(self, session, log):
+        with log.assert_msg_matches([r'standard environment is: magnet']):
+            SetEnvironment('magnet')
+        with log.assert_msg_matches([r'standard environment is: '
+                                     r'magnet, magnet:stddev, magnet:avg, '
+                                     r'magnet:minmax']):
+            AddEnvironment(stddev('magnet'), avg('magnet'), minmax('magnet'))
