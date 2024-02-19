@@ -2,6 +2,7 @@
 include =
 	nicos/*
 	nicos_*/*
+	nicos/guisupport/typedvalue.py
 omit =
 	nicos/_vendor/*
 	nicos/clients/gui/*
@@ -10,6 +11,8 @@ omit =
 	nicos/devices/tango.py
 	nicos/devices/tas/plotting.py
 	nicos/devices/vendor/*
-	nicos/guisupport/*
+	nicos/guisupport/elements/*
+	nicos/guisupport/tas/*
+	nicos/guisupport/livewidget/*
 	nicos/services/monitor/qt.py
 parallel = true

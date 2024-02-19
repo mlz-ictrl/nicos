@@ -38,6 +38,10 @@ from test.utils import TestSession, cache_addr, cleanup, killSubprocess, \
     startCache, startElog
 
 
+def pytest_configure(config):
+    os.environ['PYTEST_QT_API'] = 'pyqt%s' % os.environ.get('NICOS_QT', 5)
+
+
 # This fixture will run during the entire test suite.  Therefore, the special
 # cache stresstests must use a different port.
 @pytest.fixture(scope='session', autouse=True)
