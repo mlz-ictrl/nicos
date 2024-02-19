@@ -62,7 +62,7 @@ class TestTypedvalue:
 
     @pytest.mark.parametrize('add_other', [True, False])
     def test_ComboWidget(self, qtbot, add_other):
-        widget = ComboWidget(None, [1, 2, 4], 2, add_other=True)
+        widget = ComboWidget(None, [1, 2, 4], 2, add_other=add_other)
         qtbot.addWidget(widget)
         widget.show()
 
