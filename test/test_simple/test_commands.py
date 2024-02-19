@@ -43,7 +43,7 @@ from nicos.commands.device import ListDevices, ListMethods, ListParams, \
     adjust, disable, drive, enable, finish, fix, get, getall, history, info, \
     limits, maw, move, read, reference, release, reset, resetlimits, rmaw, \
     rmove, setall, status, stop, switch, unfix, version, wait, waitfor
-from nicos.commands.measure import count
+from nicos.commands.measure import AddDetector, SetDetectors, count, preset
 from nicos.commands.output import printdebug, printerror, printexception, \
     printinfo, printwarning
 from nicos.commands.sample import ClearSamples, ListSamples, NewSample, \
@@ -583,6 +583,18 @@ class TestDevice:
         motor = session.getDevice('motor')
         assert raises(UsageError, count, motor)
         count()
+
+    def test_preset(self, session, log):
+        """Check preset() command."""
+        det = session.getDevice('det')
+        AddDetector(det)
+        with log.assert_msg_matches([r'new preset: t=1, mon1=100', ]):
+            preset(t=1, mon1=100)
+        SetDetectors()
+        with log.assert_msg_matches([r'these preset keys were not recognized '
+                                     r'by any of the detectors: t -- '
+                                     r'detectors are']):
+            preset(t=1)
 
     def test_finish(self, session, log):
         """Check finish() command."""
