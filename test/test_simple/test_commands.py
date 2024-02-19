@@ -43,8 +43,9 @@ from nicos.commands.device import ListDevices, ListMethods, ListParams, \
     adjust, disable, drive, enable, finish, fix, get, getall, history, info, \
     limits, maw, move, read, reference, release, reset, resetlimits, rmaw, \
     rmove, setall, status, stop, switch, unfix, version, wait, waitfor
-from nicos.commands.measure import AddDetector, AddEnvironment, SetDetectors, \
-    SetEnvironment, avg, count, minmax, preset, stddev
+from nicos.commands.measure import AddDetector, AddEnvironment, \
+    ListDatasinks, SetDetectors, SetEnvironment, avg, count, minmax, preset, \
+    stddev
 from nicos.commands.output import printdebug, printerror, printexception, \
     printinfo, printwarning
 from nicos.commands.sample import ClearSamples, ListSamples, NewSample, \
@@ -687,3 +688,10 @@ class TestEnvironment:
                                      r'magnet, magnet:stddev, magnet:avg, '
                                      r'magnet:minmax']):
             AddEnvironment(stddev('magnet'), avg('magnet'), minmax('magnet'))
+
+
+class TestDatasinks:
+
+    def test_ListDatasinks(self, session, log):
+        with log.assert_msg_matches([r'At the moment no data sinks are set']):
+            ListDatasinks()

@@ -32,6 +32,7 @@ import pytest
 import shutil
 
 from nicos import config
+from nicos.commands.measure import ListDatasinks
 from nicos.commands.scan import scan
 from nicos.core import ScanDataset
 from nicos.devices.datasinks.scan import AsciiScanfileReader
@@ -293,6 +294,31 @@ class TestSinks:
         assert contents['experiment']['proposal'] == 'p1234'
         assert contents['measurement']['sample']['description']['name'] == \
             'mysample'
+
+
+class TestListDatasinks:
+
+    def test_ListDatasinks(self, session, log):
+        with log.assert_msg_matches(
+            [r'Currently used data sinks are:',
+             r'name         used for       active for detectors',
+             r'srawsink     point',
+             r'tiffsink     point',
+             r'livesink     point',
+             r'yamlsink     point',
+             r'fitssink     point',
+             r'bersanssink  point',
+             r'testsink1    scan',
+             r'testsink2    point          det',
+             r'rawsink      point',
+             # The order of the subsets isn't well defined so both options
+             # have to be checked
+             r'consolesink  (scan, subscan|subscan, scan)',
+             r'daemonsink   (scan, subscan|subscan, scan)',
+             r'asciisink    (scan, subscan|subscan, scan)',
+             r'serialsink   (scan, subscan|subscan, scan)',
+             ]):
+            ListDatasinks()
 
 
 def test_sink_ordering(session):
