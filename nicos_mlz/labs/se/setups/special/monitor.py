@@ -1,7 +1,7 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-_expcolumn = [
+_expcolumn = Column(
     Block('Experiment', [
         BlockRow(
             Field(name='Proposal', key='exp/proposal', width=7),
@@ -12,7 +12,7 @@ _expcolumn = [
         ),
         ],
     ),
-]
+)
 
 _reactorblock = Block('Reactor', [
     BlockRow(
@@ -21,9 +21,9 @@ _reactorblock = Block('Reactor', [
     ]
 )
 
-_col1 = [
+_col1 = Column(
     _reactorblock,
-]
+)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
