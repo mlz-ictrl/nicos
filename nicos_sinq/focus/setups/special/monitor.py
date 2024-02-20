@@ -33,7 +33,7 @@ _focuscolumn = Column(
                     width = 60
                 )
             ),
-            BlockRow(Field(name = 'Temperature', key = 'Ts/value', width = 20)),
+            # BlockRow(Field(name = 'Temperature', dev = 'Ts', width = 20)),
         ],
     ),
 )
