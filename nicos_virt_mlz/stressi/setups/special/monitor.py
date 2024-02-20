@@ -33,7 +33,7 @@ _sampletable = Column(
             Field(dev='tths'),
         ),
     ],
-    setups = 'sampletable or vstressi',
+    setups = 'sampletable or stressi',
     ),
     Block('Eulerian', [
         BlockRow(
@@ -90,7 +90,7 @@ _measurement = Column(
             Field(dev='psx'),
         ),
         ],
-        setups = 'primaryslit* or vstressi',
+        setups = 'primaryslit* or stressi',
     ),
     Block('Secondary optics', [
         BlockRow(
@@ -98,7 +98,7 @@ _measurement = Column(
             Field(dev='ssw'),
         ),
         ],
-        setups = 'secondaryslit or vstressi',
+        setups = 'secondaryslit or stressi',
     ),
     Block('Radial collimator', [
         BlockRow(
