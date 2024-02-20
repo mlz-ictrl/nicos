@@ -20,7 +20,6 @@ def make_blocks(name, setup, rows, setups=None):
         postfix = ''
     return [
         Block(name, rows, setups=setup + postfix),
-        Block('VIRTUAL ' + name, copy.deepcopy(rows), setups='virtual_' + setup + postfix),
     ]
 
 _selector = make_blocks('Selector', 'selector', [
@@ -37,10 +36,6 @@ _chopper = make_blocks('Chopper', 'chopper', [
 
 _collimation = make_blocks('Collimation', 'collimation', [
     BlockRow(Field(name='Preset', dev='collimation', istext=True, width=17)),
-    BlockRow(Field(devices=['coll_in', 'coll_out', 'aperture_20', 'aperture_14',
-                            'aperture_08', 'aperture_04', 'aperture_02'],
-                   widget='nicos_mlz.kws1.gui.monitorwidgets.Collimation',
-                   width=70, height=13)),
 ])
 
 _detector = make_blocks('Detector', 'detector', [
@@ -58,13 +53,6 @@ _polarizer = make_blocks('Polarizer', 'polarizer', [
              Field(name='Flipper', dev='flipper', istext=True)),
 ])
 
-_lenses = make_blocks('Lenses', 'lenses', [
-    BlockRow(
-        Field(devices=['lens_in', 'lens_out'],
-              widget='nicos_mlz.kws1.gui.monitorwidgets.Lenses', width=30, height=8)
-    ),
-])
-
 _shutter = make_blocks('Shutter / Outside', 'shutter', [
     BlockRow(Field(name='Shutter', dev='shutter', istext=True, width=9),
              Field(name='NL-3b', dev='nl3b_shutter', istext=True, width=9),
@@ -76,14 +64,7 @@ _sample = make_blocks('Sample', 'sample', [
              Field(name='Trans Y', dev='sam_trans_y'),
              Field(device='ap_sam', widget='nicos_mlz.kws1.gui.monitorwidgets.SampleSlit',
                    width=10, height=10)),
-], setups='not sample_rotation')
-
-_sample_withrot = make_blocks('Sample', 'sample', [
-    BlockRow(Field(name='Trans X', dev='sam_trans_x'),
-             Field(name='Trans Y', dev='sam_trans_y'),
-             Field(device='ap_sam', widget='nicos_mlz.kws1.gui.monitorwidgets.SampleSlit',
-                   width=10, height=10)),
-], setups='sample_rotation')
+])
 
 _daq = make_blocks('Data acquisition', 'daq', [
     BlockRow(Field(name='Timer', dev='timer'),
@@ -93,8 +74,8 @@ _daq = make_blocks('Data acquisition', 'daq', [
 
 _layout = [
     Row(Column(_experiment)),
-    Row(Column(*(_selector + _chopper + _polarizer + _lenses + _daq)),
-        Column(*(_shutter + _collimation + _detector + _sample + _sample_withrot))),
+    Row(Column(*(_selector + _chopper + _polarizer + _daq)),
+        Column(*(_shutter + _collimation + _detector + _sample))),
 ]
 
 
