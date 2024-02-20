@@ -6,7 +6,7 @@ group = 'special'
 _column1 = Column(
     Block('Heater long-term', [
         BlockRow(
-            Field(plot='TPower', dev='t/heaterpower', width=40, height=30,
+            Field(plot='TPower', key='t/heaterpower', width=40, height=30,
                   plotwindow=24*3600),
         ),
         ],
@@ -14,7 +14,7 @@ _column1 = Column(
     ),
     Block('Heater short-term', [
         BlockRow(
-            Field(plot='TPower2', dev='t/heaterpower', width=40, height=25,
+            Field(plot='TPower2', key='t/heaterpower', width=40, height=25,
                   plotwindow=1800),
         ),
         ],
@@ -85,30 +85,6 @@ _column1 = Column(
         ),
         ],
         setups='ccm12v',
-    ),
-    Block('3He cell', [
-        BlockRow(
-            Field(name='Polarization', dev='pol', width=7),
-            Field(name='Guide field', dev='He_GF'),
-        ),
-        ],
-        setups='helios',
-    ),
-    Block('Y-Z table axes', [
-        BlockRow(
-            Field(dev='dty'),
-            Field(dev='dtz'),
-        ),
-        ],
-        setups='yztable',
-    ),
-    Block('Auxiliary currents', [
-        BlockRow(
-            Field(dev='Ipol1'),
-            Field(dev='Ipol2'),
-        ),
-        ],
-        setups='hpesupply',
     ),
 
     Block('TTi + Huber', [
@@ -239,7 +215,7 @@ _column2 = Column(*[
         BlockRow(
             Field(name='Heater power', key='t_htf01/heaterpower', unit='%',
                   format='%.2f'),
-            Field(name='Vacuum', dev='htf01_p'),
+            Field(name='Vacuum', dev='htf01_p1'),
         ),
         ],
         setups='htf01',
@@ -258,7 +234,7 @@ _column2 = Column(*[
         BlockRow(
             Field(name='Heater output', key='t_htf20/heateroutput', unit='%',
                   format='%.2f'),
-            Field(name='Vacuum', dev='vacuum_htf20'),
+            Field(name='Vacuum', dev='htf20_vacuum'),
         ),
         ],
         setups='htf20',
@@ -277,7 +253,7 @@ _column2 = Column(*[
         BlockRow(
             Field(name='Heater power', key='t_htf03/heaterpower', unit='%',
                   format='%.2f'),
-            Field(name='Vacuum', dev='htf03_p'),
+            Field(name='Vacuum', dev='htf03_p1'),
         ),
         ],
         setups='htf03',

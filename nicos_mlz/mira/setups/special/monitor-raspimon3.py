@@ -129,7 +129,7 @@ _column2 = Column(
     Block('Sample table', [
         BlockRow(
             Field(dev='sth'),
-            Field(dev='phi'),
+            Field(dev='stt'),
         ),
         ],
         setups='sample_ext',
@@ -198,7 +198,7 @@ _column3 = Column(
             Field(dev='lam', name='lambda'),
             Field(dev='Ei')),
         ],
-        setups='diff or psd_diff',
+        setups='*diff',
     ),
     Block('TAS', [
         BlockRow(

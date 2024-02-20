@@ -73,14 +73,6 @@ _column3 = Column(
         setups='cascade',
     ),
     SetupBlock('ccm2a2'), SetupBlock('ccm2a2', 'temperatures'),
-    Block('3He cell', [
-        BlockRow(
-            Field(name='Polarization', dev='pol', width=7),
-            Field(name='Guide field', dev='He_GF'),
-        ),
-        ],
-        setups='helios',
-    ),
     Block('MIEZE', [
         BlockRow(
             Field(name='Echotime', dev='echotime', unit='ns', width=22),
@@ -153,8 +145,8 @@ _column3 = Column(
     ),
     Block('MIRA Magnet', [
         BlockRow(
-            Field(dev='I'),
-            Field(dev='B'),
+            Field(dev='I_miramagnet'),
+            Field(dev='B_miramagnet'),
         ),
         BlockRow(
             Field(name='T1', dev='miramagnet_T1', width=6, format='%.2f'),
@@ -276,7 +268,7 @@ _column2 = Column(*[
         BlockRow(
             Field(name='Heater output', key='t_htf20/heateroutput', unit='%',
                   format='%.2f'),
-            Field(name='Vacuum', dev='vacuum_htf20'),
+            Field(name='Vacuum', dev='htf20_vacuum'),
         ),
         ],
         setups='htf20',
@@ -295,7 +287,7 @@ _column2 = Column(*[
             Field(dev='tbl2'),
         ),
         ],
-        setups='tti',
+        setups='mezeiflip',
     ),
     Block('Relays', [
         BlockRow(
