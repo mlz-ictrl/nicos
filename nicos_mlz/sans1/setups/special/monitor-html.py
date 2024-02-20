@@ -166,25 +166,6 @@ _sanscolumn = Column(
     SetupBlock('collimation', 'html'),
 )
 
-# _birmag = Column(
-#     Block('17T Magnet', [
-#         BlockRow(
-#             Field(name='helium level', dev='helevel_birmag', width=13),
-#             Field(name='field birmag', dev='field_birmag', width=13),
-#         ),
-#         BlockRow(
-#             Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
-#             Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),
-#         ),
-#         BlockRow(
-#             Field(name='Temp a birmag', dev='ta_birmag', width=13),
-#             Field(name='Temp b birmag', dev='tb_birmag', width=13),
-#         ),
-#         ],
-#         setups='birmag',
-#     ),
-# )
-
 _miramagnet = Column(SetupBlock('miramagnet'))
 _miramagnet_plot = Column(SetupBlock('miramagnet', 'plot'))
 
@@ -205,7 +186,7 @@ _sc1 = Column(
 _sc2 = Column(
     Block('Sample Changer 2', [
          BlockRow(
-            Field(name='Position', dev='sc2_y'),
+            Field(name='Position', dev='sc_y'),
             Field(name='SampleChanger', dev='sc2'),
         ),
         ],
@@ -216,7 +197,7 @@ _sc2 = Column(
 _sc_t = Column(
     Block('Temperature Sample Changer', [
          BlockRow(
-            Field(name='Position', dev='sc_t_y'),
+            Field(name='Position', dev='sc_y'),
             Field(name='SampleChanger', dev='sc_t'),
         ),
         ],
@@ -261,13 +242,13 @@ _htf03_plot = Column(
             Field(plot='30 min htf03', name='30 min', dev='T_htf03',
                   width=60, height=40, plotwindow=1800),
             Field(plot='30 min htf03', name='Setpoint',
-                   dev='T_htf03/setpoint'),
-             Field(plot='30 min htf03', name='Target', dev='T_htf03/target'),
+                  key='T_htf03/setpoint'),
+             Field(plot='30 min htf03', name='Target', key='T_htf03/target'),
              Field(plot='12 h htf03', name='12 h', dev='T_htf03', width=60,
                    height=40, plotwindow=12*3600),
              Field(plot='12 h htf03', name='Setpoint',
-                   dev='T_htf03/setpoint'),
-             Field(plot='12 h htf03', name='Target', dev='T_htf03/target'),
+                   key='T_htf03/setpoint'),
+             Field(plot='12 h htf03', name='Target', key='T_htf03/target'),
         ),
         ],
         setups='htf03',
@@ -295,13 +276,13 @@ _irf01_plot = Column(
              Field(plot='30 min irf01', name='30 min', dev='T_irf01',
                    width=60, height=40, plotwindow=1800),
              Field(plot='30 min irf01', name='Setpoint',
-                   dev='T_irf01/setpoint'),
-             Field(plot='30 min irf01', name='Target', dev='T_irf01/target'),
+                   key='T_irf01/setpoint'),
+             Field(plot='30 min irf01', name='Target', key='T_irf01/target'),
              Field(plot='12 h irf01', name='12 h', dev='T_irf01', width=60,
                    height=40, plotwindow=12*3600),
              Field(plot='12 h irf01', name='Setpoint',
-                   dev='T_irf01/setpoint'),
-             Field(plot='12 h irf01', name='Target', dev='T_irf01/target'),
+                   key='T_irf01/setpoint'),
+             Field(plot='12 h irf01', name='Target', key='T_irf01/target'),
         ),
         ],
         setups='irf01',
@@ -329,13 +310,13 @@ _irf10_plot = Column(
              Field(plot='30 min irf10', name='30 min', dev='T_irf10',
                    width=60, height=40, plotwindow=1800),
              Field(plot='30 min irf10', name='Setpoint',
-                   dev='T_irf10/setpoint'),
-             Field(plot='30 min irf10', name='Target', dev='T_irf10/target'),
+                   key='T_irf10/setpoint'),
+             Field(plot='30 min irf10', name='Target', key='T_irf10/target'),
              Field(plot='12 h irf10', name='12 h', dev='T_irf10', width=60,
                    height=40, plotwindow=12*3600),
              Field(plot='12 h irf10', name='Setpoint',
-                   dev='T_irf10/setpoint'),
-             Field(plot='12 h irf10', name='Target', dev='T_irf10/target'),
+                   key='T_irf10/setpoint'),
+             Field(plot='12 h irf10', name='Target', key='T_irf10/target'),
         ),
         ],
         setups='irf10',
@@ -363,13 +344,13 @@ _htf01_plot = Column(
              Field(plot='30 min htf01', name='30 min', dev='T_htf01',
                    width=60, height=40, plotwindow=1800),
              Field(plot='30 min htf01', name='Setpoint',
-                   dev='T_htf01/setpoint'),
-             Field(plot='30 min htf01', name='Target', dev='T_htf01/target'),
+                   key='T_htf01/setpoint'),
+             Field(plot='30 min htf01', name='Target', key='T_htf01/target'),
              Field(plot='12 h htf01', name='12 h', dev='T_htf01', width=60,
                    height=40, plotwindow=12*3600),
              Field(plot='12 h htf01', name='Setpoint',
-                   dev='T_htf01/setpoint'),
-             Field(plot='12 h htf01', name='Target', dev='T_htf01/target'),
+                   key='T_htf01/setpoint'),
+             Field(plot='12 h htf01', name='Target', key='T_htf01/target'),
         ),
         ],
         setups='htf01',

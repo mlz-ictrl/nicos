@@ -4,8 +4,8 @@ group = 'special'
 
 _interfaceboxtop = Block('Interface Box (top)', [
         BlockRow(
-            Field(name='Humidity',    dev='tub_h1'),
-            Field(name='Temperature', dev='tub_t6'),
+            # Field(name='Humidity',    dev='tub_h1'),
+            # Field(name='Temperature', dev='tub_t6'),
         ),
     ],
 #
@@ -17,8 +17,8 @@ _interfaceboxtop = Block('Interface Box (top)', [
 
 _interfaceboxbottom = Block('Interface Box (bottom)', [
         BlockRow(
-            Field(name='Humidity', dev='tub_h2'),
-            Field(name='Temperature', dev='tub_t7'),
+            # Field(name='Humidity', dev='tub_h2'),
+            # Field(name='Temperature', dev='tub_t7'),
         ),
     ],
     # setups='tube_environment',
@@ -26,8 +26,8 @@ _interfaceboxbottom = Block('Interface Box (bottom)', [
 
 _nim_voltage = Block('Voltage Detector NIM', [
         BlockRow(
-            Field(name='+', dev='tub_v1'),
-            Field(name='-', dev='tub_v2'),
+            # Field(name='+', dev='tub_v1'),
+            # Field(name='-', dev='tub_v2'),
         ),
     ],
     # setups='tube_environment',
@@ -35,9 +35,9 @@ _nim_voltage = Block('Voltage Detector NIM', [
 
 _electronicsbox = Block('Temperature Electronics Box', [
          BlockRow(
-             Field(name='left', dev='tub_t1'),
-             Field(name='middle', dev='tub_t2'),
-             Field(name='right', dev='tub_t3'),
+             # Field(name='left', dev='tub_t1'),
+             # Field(name='middle', dev='tub_t2'),
+             # Field(name='right', dev='tub_t3'),
          )
     ],
     # setups='tube_environment',

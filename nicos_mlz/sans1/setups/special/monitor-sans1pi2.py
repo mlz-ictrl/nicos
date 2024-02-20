@@ -39,7 +39,7 @@ _sc1 = Block('Sample Changer 1', [
 
 _sc2 = Block('Sample Changer 2', [
     BlockRow(
-        Field(name='sc2_y', dev='sc2_y'),
+        Field(name='sc2_y', dev='sc_y'),
     ),
     BlockRow(
         Field(name='SampleChanger', dev='sc2'),
@@ -50,7 +50,7 @@ _sc2 = Block('Sample Changer 2', [
 
 _sc_t = Block('Temperature Sample Changer', [
     BlockRow(
-        Field(name='sc_t_y', dev='sc_t_y'),
+        Field(name='sc_t_y', dev='sc_y'),
     ),
     BlockRow(
         Field(name='SampleChanger', dev='sc_t'),
@@ -257,7 +257,7 @@ _irf10_plot = Block('IRF10 plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=70, height=35, plotwindow=1800,
-              devices=['T_irf10', 't_irf10/setpoint', 't_irf010/target'],
+              devices=['T_irf10', 't_irf10/setpoint', 't_irf10/target'],
               names=['30min', 'Setpoint', 'Target'],
               legend=True),
     ),
@@ -322,23 +322,6 @@ T_Ts_plot = [
 ]
 
 cryos = [SetupBlock(cryo) for cryo in configdata('config_frm2.all_ccis')]
-
-_birmag = Block('17 T Magnet', [
-    BlockRow(
-        Field(name='helium level', dev='helevel_birmag', width=13),
-        Field(name='field birmag', dev='field_birmag', width=13),
-    ),
-    BlockRow(
-        Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
-        Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),
-    ),
-    BlockRow(
-        Field(name='Temp a birmag', dev='ta_birmag', width=13),
-        Field(name='Temp b birmag', dev='tb_birmag', width=13),
-    ),
-    ],
-    setups='birmag',
-)
 
 _sans1reactor = Column(
     Block('Reactor', [
@@ -544,19 +527,19 @@ _pressure_box_plot = Block('Pressure plot', [
 
 _fg1 = Block('FG 1 - Sample', [
     BlockRow(
-        Field(name='On/Off', dev='tisane_fg1', width=12),
-        Field(name='Frequency', key='tisane_fg1/frequency', format='%.3f',
+        Field(name='On/Off', dev='tisane_fg1_sample', width=12),
+        Field(name='Frequency', key='tisane_fg1_sample/frequency', format='%.3f',
               unit='Hz', width=12),
     ),
     BlockRow(
-        Field(name='Amplitude', key='tisane_fg1/amplitude', format='%.2f',
+        Field(name='Amplitude', key='tisane_fg1_sample/amplitude', format='%.2f',
               unit='V', width=12),
-        Field(name='Offset', key='tisane_fg1/offset', format='%.2f',
+        Field(name='Offset', key='tisane_fg1_sample/offset', format='%.2f',
               unit='V', width=12),
     ),
     BlockRow(
-        Field(name='Shape', key='tisane_fg1/shape', width=12),
-        Field(name='Dutycycle', key='tisane_fg1/duty', format='%i',
+        Field(name='Shape', key='tisane_fg1_sample/shape', width=12),
+        Field(name='Dutycycle', key='tisane_fg1_sample/duty', format='%i',
               unit='%', width=12),
     ),
     ],
@@ -565,19 +548,19 @@ _fg1 = Block('FG 1 - Sample', [
 
 _fg2 = Block('FG 2 - Detector', [
     BlockRow(
-        Field(name='On/Off', dev='tisane_fg2', width=12),
-        Field(name='Frequency', key='tisane_fg2/frequency', format='%.3f',
+        Field(name='On/Off', dev='tisane_fg2_det', width=12),
+        Field(name='Frequency', key='tisane_fg2_det/frequency', format='%.3f',
               unit='Hz', width=12),
     ),
     BlockRow(
-        Field(name='Amplitude', key='tisane_fg2/amplitude', format='%.2f',
+        Field(name='Amplitude', key='tisane_fg2_det/amplitude', format='%.2f',
               unit='V', width=12),
-        Field(name='Offset', key='tisane_fg2/offset', format='%.2f',
+        Field(name='Offset', key='tisane_fg2_det/offset', format='%.2f',
               unit='V', width=12),
     ),
     BlockRow(
-        Field(name='Shape', key='tisane_fg2/shape', width=12),
-        Field(name='Dutycycle', key='tisane_fg2/duty', format='%i',
+        Field(name='Shape', key='tisane_fg2_det/shape', width=12),
+        Field(name='Dutycycle', key='tisane_fg2_det/duty', format='%i',
               unit='%', width=12),
     ),
     ],
@@ -650,7 +633,7 @@ devices = dict(
                        _irf01_plot, _irf10_plot,
                        _spinflipper, _julabo_plot,
                        _dilato_plot, _pressure_box_plot),
-                Column(*ccrs) + Column(_birmag),
+                Column(*ccrs),
                 Column(*cryos),
                 Column(*wuts),
             ),
