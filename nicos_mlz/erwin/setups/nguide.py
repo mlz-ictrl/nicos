@@ -29,13 +29,14 @@ devices = dict(
 
 display_order = 100
 
-monitor_blocks = [
-    Block('Neutron Guide', [
+monitor_blocks = dict(
+    default = Block('Neutron Guide', [
         BlockRow(
             Field(name='p1 N-Guide', dev='p1_nguide'),
             Field(name='p2 N-Guide', dev='p2_nguide'),
             Field(name='p3 N-Guide', dev='p3_nguide'),
             ),
         ],
+        setups=setupname,
     ),
-]
+)
