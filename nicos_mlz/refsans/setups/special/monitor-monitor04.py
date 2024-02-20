@@ -49,7 +49,7 @@ _syringepumps = Column(
             Field(name='[Pump 1] volume injected/withdrawn', dev='pump1_run', width=10, format='%.2f', unit='(ml)'),
         ),
         ],
-        setups = 'syringepump',
+        setups = 'syringe01',
     ),
 )
 

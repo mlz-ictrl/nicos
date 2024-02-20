@@ -79,12 +79,13 @@ _phase_array = [BlockRow(
     Field(name='pi', key='cpt01/pollinterval', width=5),
     )]
 for index in range(2,6+1):
-    _r=[
+    _r = [
         Field(name='cpt%d' % index, dev='cpt%d' % index, width=10),
-        Field(name='pi', key='cpt%d/pollinterval' % index, width=5),
-        Field(name='optic%d' % (index-1), dev='cptoptic%d' % (index-1), width=10),
-        Field(name='pi', key='cptoptic%d/pollinterval' % (index-1), width=5),
-        ]
+        Field(name='pi', key='cpt%d/pollinterval' % index, width=5)
+    ]
+    if index < 6:
+        _r.append(Field(name='optic%d' % (index-1), dev='cptoptic%d' % (index-1), width=10))
+        _r.append(Field(name='pi', key='cptoptic%d/pollinterval' % (index-1), width=5))
     _phase_array.append(BlockRow(*_r))
 _phasecolumn = Column(
     Block('phase',
@@ -216,7 +217,7 @@ _sds_plot =     Block('SDS wegen Brakes of disc34 %d%s' % (Time_selection2[0], T
         ],
     )
 Time_selection_core = [30] + Time_min
-Elemente2 = ['core1', 'core2', 'core3', 'core4', 'Temperatur2']
+Elemente2 = ['core1', 'core2', 'core3', 'core4', 'Temperature2']
 _cores_plot =     Block('cores %d%s' % (Time_selection_core[0], Time_selection_core[1]) , [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
