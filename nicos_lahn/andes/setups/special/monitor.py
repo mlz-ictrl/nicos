@@ -69,10 +69,10 @@ _exchangeblock = Block('Monochromator Exchange', [
               Field(dev='tran'),
               Field(dev='inc'),
               Field(dev='cur'),
-	      Field(dev='omgm'),
+              Field(dev='omgm'),
         ),
         ],
-        setups = 'monochromator_exchange',
+        setups = 'exchange*',
 )
 
 _armsblock = Block('Connecting Arms', [
@@ -98,7 +98,7 @@ _sampletableblock = Block('Sample Table', [
 )
 
 _leftcolumn = Column(
-        _shutterblock, 
+        _shutterblock,
         _andesblock,
 )
 
