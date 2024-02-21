@@ -7,3 +7,13 @@ devices = {
         tangodevice = f'tango://{setupname}:10000/box/helios/flipper',
     ),
 }
+
+monitor_blocks = dict(
+    default = Block('3He cell', [
+        BlockRow(
+            Field(name='Spin', dev=f'flipper_{setupname}', width=12),
+        ),
+        ],
+        setups=setupname
+    ),
+)

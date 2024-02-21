@@ -627,15 +627,7 @@ _col_slit = Column(
     ),
 )
 
-_helios01 = Column(
-    Block('Helios', [
-        BlockRow(
-            Field(name='spin', dev='flipper_helios01', width=12),
-        ),
-        ],
-        setups='helios01',
-    ),
-)
+_helios01 = Column(SetupBlock('helios01'))
 
 wuts = []
 for wut in ['wut-0-10-01', 'wut-0-10-02', 'wut-4-20-01', 'wut-4-20-02']:
