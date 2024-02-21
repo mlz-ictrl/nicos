@@ -629,18 +629,7 @@ _col_slit = Column(
 
 _helios01 = Column(SetupBlock('helios01'))
 
-wuts = []
-for wut in ['wut-0-10-01', 'wut-0-10-02', 'wut-4-20-01', 'wut-4-20-02']:
-    _wd = wut.replace('-', '_')
-    wuts.append(Block(wut, [
-        BlockRow(
-            Field(name='input 1', dev=_wd +'_1'),
-            Field(name='input 2', dev=_wd+'_2'),
-        ),
-        ],
-        setups=wut,
-    ))
-_wuts = Column(*tuple(wuts))
+_wuts = Column(*(SetupBlock(wut) for wut in ['wut-0-10-01', 'wut-0-10-02', 'wut-4-20-01', 'wut-4-20-02']))
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
