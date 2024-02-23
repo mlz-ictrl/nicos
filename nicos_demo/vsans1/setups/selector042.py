@@ -2,7 +2,7 @@ description = 'setup for the 10% velocity selector'
 
 group = 'optional'
 
-includes = ['resolution', 'alias_lambda']
+includes = ['resolution', 'alias_lambda', 'selector_spread']
 
 excludes = ['selector020']
 
