@@ -90,6 +90,10 @@ is needed to authenticate.
    strictly avoided. You should set the hash values instead of using the
    technique displayed in the setup taken from the Demo instrument.
 
+.. note::
+   There is a tool `mkpasswd` in the tools directory of the NICOS checkout,
+   which helps you to create the password hash.
+
 There are :class:`several other parameters <nicos.services.daemon.NicosDaemon>`
 that can be configured, but the standard setting is usually sufficient.
 
