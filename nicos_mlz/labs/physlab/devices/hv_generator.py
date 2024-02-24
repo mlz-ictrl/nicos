@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Attach, Moveable, status
+from nicos.core import SIMULATION, Attach, Moveable, status
 from nicos.core.params import Param, floatrange, tupleof
 from nicos.devices.entangle import PyTangoDevice
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
@@ -53,6 +53,12 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
 
     valuetype = tupleof(float, float)
     hardware_access = True
+
+    def doInit(self, mode):
+        if mode == SIMULATION and self._sim_value == 0:
+            self.log.warning('%r %r %r', self.valuetype, self._sim_value,
+                             self.valuetype())
+            self._sim_setValue(self.valuetype())
 
     def doRead(self, maxage=0):
         return (self._attached_voltage.read(maxage),
@@ -95,8 +101,7 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
 
         if cchannel.current > current:
             return seq[::-1]
-        else:
-            seq.insert(1, SeqSleep(self.switchdelay))
+        seq.insert(1, SeqSleep(self.switchdelay))
         return seq
 
     def _onseq(self, on):
