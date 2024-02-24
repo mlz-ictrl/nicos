@@ -4,5 +4,5 @@
 # test: setups = xresd
 # test: subdirs = labs/physlab/xresd
 
-read(hv, ctt)
+read(hv, ctt, 'gen_voltage', 'gen_current', 'gen_ramp_dev', generator)
 maw(ctt, 0)

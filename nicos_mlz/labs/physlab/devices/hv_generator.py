@@ -30,9 +30,6 @@ from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
 
 class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
 
-    valuetype = tupleof(float, float)
-    hardware_access = True
-
     attached_devices = {
         'voltage': Attach('Voltage channel of the xray generator', Moveable),
         'current': Attach('Current channel of the xray generator', Moveable),
@@ -53,6 +50,9 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
                              type=floatrange(1, 300), default=60, unit='s',
                              userparam=False, settable=True,),
     }
+
+    valuetype = tupleof(float, float)
+    hardware_access = True
 
     def doRead(self, maxage=0):
         return (self._attached_voltage.read(maxage),
