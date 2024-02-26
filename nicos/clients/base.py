@@ -48,7 +48,7 @@ class ErrorResponse(Exception):
 
 class ConnectionData:
     def __init__(self, host, port, user, password, viewonly=False,
-                 expertmode=False):
+                 expertmode=False, **extrakwds):
         self.host = host
         self.port = port
         self.user = user
