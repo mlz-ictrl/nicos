@@ -20,12 +20,23 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
+import locale
 import time
 from os.path import basename
+
+import pytest
 
 from nicos.utils import findResource
 
 from nicos_sinq.devices.illasciisink import ILLAsciiScanfileReader
+
+
+@pytest.fixture(scope='function', autouse=True)
+def setup():
+    loc = locale.getlocale()
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    yield
+    locale.setlocale(locale.LC_ALL, loc)
 
 
 def test_tasp_scan_data():
