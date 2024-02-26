@@ -66,9 +66,9 @@ _monochromatorblock = Block('Monochromator', [
 
 _exchangeblock = Block('Monochromator Exchange', [
         BlockRow(
-              Field(dev='tran'),
-              Field(dev='inc'),
-              Field(dev='cur'),
+              # Field(dev='tran'),
+              # Field(dev='inc'),
+              # Field(dev='cur'),
               Field(dev='omgm'),
         ),
         ],
