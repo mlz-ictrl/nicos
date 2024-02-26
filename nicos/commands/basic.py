@@ -897,7 +897,7 @@ def SetDataReceivers(*emails):
     """
     exp = session.experiment
     if not exp.mailserver or not exp.mailsender:
-        session.log.warning('experimental data retrieval has not been '
+        session.log.warning('experimental data retrieval by email has not been '
                             'configured in this setup')
     else:
         propinfo = dict(exp.propinfo)
