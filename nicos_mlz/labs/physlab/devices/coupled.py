@@ -28,6 +28,8 @@ from nicos.devices.abstract import Moveable
 
 class CoupledMotor(Moveable):
 
+    hardware_access = False
+
     attached_devices = {
         'maxis': Attach('Main axis to move', Moveable),
         'caxis': Attach('Coupled axis (to main axis) by the relation '

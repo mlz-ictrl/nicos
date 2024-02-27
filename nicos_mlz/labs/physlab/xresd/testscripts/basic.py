@@ -4,4 +4,5 @@
 # test: setups = xresd
 # test: subdirs = labs/physlab/xresd
 
-read(hv)
+read(hv, ctt)
+maw(ctt, 0)
