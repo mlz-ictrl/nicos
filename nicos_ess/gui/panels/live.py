@@ -1713,12 +1713,3 @@ class MultiLiveDataPanel(LiveDataPanel):
         for item in layout_iterator(self.scroll_content.layout()):
             item.widget().deleteLater()
             del item
-
-    def on_closed(self):
-        self._clear_previews()
-        LiveDataPanel.on_closed(self)
-
-    def _clear_previews(self):
-        for item in layout_iterator(self.scroll_content.layout()):
-            item.widget().deleteLater()
-            del item
