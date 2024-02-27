@@ -9,8 +9,11 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.basic', 'nicos.commands.standard',
-           'nicos_mlz.antares.commands', 'nicos_mlz.nectar.commands']
+modules = [
+    'nicos.commands.standard',
+    'nicos_mlz.antares.commands',
+    'nicos_mlz.nectar.commands',
+]
 
 includes = ['notifiers']
 
