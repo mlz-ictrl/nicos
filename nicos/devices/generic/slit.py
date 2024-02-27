@@ -426,12 +426,11 @@ class Slit(HorizontalGap, VerticalGap):
         return positions
 
     def _isAllowedSlitOpening(self, positions):
-        ok, why = True, ''
         if positions[1] < positions[0]:
-            ok, why = False, 'horizontal slit opening is negative'
+            return False, 'horizontal slit opening is negative'
         elif positions[3] < positions[2]:
-            ok, why = False, 'vertical slit opening is negative'
-        return ok, why
+            return False, 'vertical slit opening is negative'
+        return True, ''
 
     def _doStartPositions(self, positions):
         HorizontalGap._doStartPositions(self, positions[:2])
