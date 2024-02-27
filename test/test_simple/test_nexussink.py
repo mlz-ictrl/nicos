@@ -38,8 +38,8 @@ from nicos.commands.device import maw
 from nicos.commands.measure import count
 from nicos.commands.scan import scan
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
-    NXScanLink, NXTime
+    DeviceAttribute, DeviceDataset, EndTime, ImageDataset, NXAttribute, \
+    NXLink, NXScanLink, StartTime
 from nicos.utils import updateFileCounter
 
 from test.nexus.TestTemplateProvider import setTemplate
@@ -247,11 +247,11 @@ class TestNexusSink:
         fin.close()
 
     def test_times(self, session):
-        p = re.compile(r'^\d{4}(-\d{2}){2} \d{2}(:\d{2}){2}$')
+        p = re.compile(r'^\d{4}(-\d{2}){2} \d{2}(:\d{2}){2}.\d{3}$')
         template = {
             'entry:NXentry': {
-                'start_time': NXTime(),
-                'end_time': NXTime(),
+                'start_time': StartTime(),
+                'end_time': EndTime(),
             },
         }
         setTemplate(template)
@@ -262,8 +262,13 @@ class TestNexusSink:
 
         fin = h5py.File(path.join(session.experiment.datapath,
                                   'test%sn000052.hdf' % year), 'r')
+        times = {}
         for s in ['start_time', 'end_time']:
             ts = fin['entry/%s' % s][0].decode('utf-8')
             assert p.match(ts)  # check format
             assert datetime.datetime.strptime(
-                ts, '%Y-%m-%d %H:%M:%S').timetuple()  # check value
+                ts, '%Y-%m-%d %H:%M:%S.%f').timetuple()  # check value
+            times[s] = datetime.datetime.strptime(
+                ts, '%Y-%m-%d %H:%M:%S.%f').timestamp()
+
+        assert (times['end_time'] - times['start_time']) >= 0.1

@@ -503,7 +503,7 @@ class NXTime(NexusElementBase):
     """Placeholder for a NeXus compatible time entry."""
 
     def formatTime(self):
-        return datetime.now().isoformat(sep=' ', timespec='seconds')
+        return datetime.now().isoformat(sep=' ', timespec='milliseconds')
 
     def create(self, name, h5parent, sinkhandler):
         time_str = self.formatTime()
@@ -525,7 +525,8 @@ class StartTime(NXTime):
         self.time = 0
 
     def formatTime(self):
-        return datetime.fromtimestamp(self.time).isoformat(timespec='seconds')
+        return datetime.fromtimestamp(self.time).isoformat(
+            sep=' ', timespec='milliseconds')
 
     def create(self, name, h5parent, sinkhandler):
         self.time = sinkhandler.dataset.started
