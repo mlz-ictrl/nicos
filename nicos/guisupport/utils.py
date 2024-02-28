@@ -23,13 +23,14 @@
 
 """GUI support utilities."""
 
+import re
 from contextlib import contextmanager
 from os import path
 
 import gr
 
 from nicos.guisupport.qt import QApplication, QDoubleValidator, QFileDialog, \
-    QFont, QPalette, Qt, QValidator, QLocale
+    QFont, QLocale, QPalette, Qt, QValidator
 
 
 def savePlot(widget, default_file_type, old_file_path=None):
@@ -47,13 +48,17 @@ def savePlot(widget, default_file_type, old_file_path=None):
     default_file = 'untitled'
     if old_file_path:
         default_file = path.splitext(old_file_path)[0]
-    file_path, _ = QFileDialog.getSaveFileName(None, 'Save as...',
-                                               default_file, filter=save_types,
-                                               initialFilter=default_file_type)
+    file_path, selectedfilter = QFileDialog.getSaveFileName(
+        None, 'Save as...', default_file, filter=save_types,
+        initialFilter=default_file_type)
     if not file_path:
         return "" if not old_file_path else old_file_path
 
     file_ext = path.splitext(file_path)[1]
+    if not file_ext:
+        file_ext = re.search(
+            r'\((.+?)\)', selectedfilter).group(1).replace('*', '').split()[0]
+        file_path += file_ext
     if file_ext.lower()[1:] in gr_file_types:
         widget.save(file_path)
     else:
