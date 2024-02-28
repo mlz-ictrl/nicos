@@ -26,8 +26,12 @@
 
 import pytest
 
-from nicos.guisupport.typedvalue import ButtonWidget, ComboWidget, \
-    EditWidget, ExprWidget, MissingWidget, Qt, SpinBoxWidget
+from nicos.core.params import dictof, dictwith, limits, listof, none_or, \
+    setof, tupleof
+from nicos.guisupport.typedvalue import ButtonWidget, CheckWidget, \
+    ComboWidget, DictOfWidget, DictWithWidget, EditWidget, ExprWidget, \
+    LimitsWidget, ListOfWidget, MissingWidget, MultiWidget, Qt, SetOfWidget, \
+    SpinBoxWidget
 
 pytest.importorskip('pytestqt')
 
@@ -112,3 +116,134 @@ class TestTypedvalue:
         widget.clear()
         qtbot.keyClicks(widget, str(2))
         assert widget.getValue() == 2
+
+    @pytest.mark.parametrize('curvalue', [True, False])
+    def test_DictWithWidget(self, qtbot, curvalue):
+        typ = dictwith(key=bool)
+
+        widget = DictWithWidget(None, typ.convs.keys(), typ.convs.values(),
+                                {'key': curvalue}, None, allow_enter=True)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == {'key': curvalue}
+
+    def test_DictOfWidget(self, qtbot):
+        typ = dictof(str, float)
+
+        res = {'blah': 0.1}
+        widget = DictOfWidget(None, typ.keyconv, typ.valconv, res,
+                              None, allow_enter=True)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == res
+
+        for i, (k, v) in enumerate((('point', 1), ('slit', 2), ('gisans', 3))):
+            qtbot.mouseClick(widget.addBtn, Qt.LeftButton)
+            assert widget.getValue() == {**res, **{'': 0.0}}
+
+            widget.items[i + 1]._widgets[0].setText(k)
+            assert widget.getValue() == {**res, **{k: 0.0}}
+
+            widget.items[i + 1]._widgets[2].setText(f'{v}')
+            assert widget.getValue() == {**res, **{k: v}}
+
+            res.update({k: v})
+
+    def test_ListOfWidget(self, qtbot):
+        typ = listof(str)
+
+        widget = ListOfWidget(None, typ.conv, ('one', 'two', 'three', ), None,
+                              allow_enter=True)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == ['one', 'two', 'three']
+
+        arrow_up = 1
+        arrow_down = 2
+        delete = 3
+
+        # Last entry move up
+        qtbot.mouseClick(
+            widget.items[2].layout().itemAt(arrow_up).widget(), Qt.LeftButton)
+        assert widget.getValue() == ['one', 'three', 'two']
+
+        # Second entry move down
+        qtbot.mouseClick(
+            widget.items[1].layout().itemAt(arrow_down).widget(), Qt.LeftButton)
+        assert widget.getValue() == ['one', 'two', 'three']
+
+        # Remove last entry
+        qtbot.mouseClick(
+            widget.items[2].layout().itemAt(delete).widget(), Qt.LeftButton)
+        assert widget.getValue() == ['one', 'two']
+
+        # Move last entry down
+        qtbot.mouseClick(
+            widget.items[1].layout().itemAt(arrow_down).widget(), Qt.LeftButton)
+        assert widget.getValue() == ['one', 'two']
+
+        # Move first entry up
+        qtbot.mouseClick(
+            widget.items[0].layout().itemAt(arrow_up).widget(), Qt.LeftButton)
+        assert widget.getValue() == ['one', 'two']
+
+    def test_MultiWidget(self, qtbot):
+        typ = tupleof(int, int, int, int, int, int)
+
+        widget = MultiWidget(None, typ.types, (0, 1, 2, 4, 8, 16), None,
+                             allow_enter=True, valinfo=None)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == (0, 1, 2, 4, 8, 16)
+
+    def test_LimitsWidget(self, qtbot):
+        widget = LimitsWidget(None, limits((0, 1)), None, allow_enter=True)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == (0, 1)
+
+    def test_SetOfWidget(self, qtbot):
+        typ = setof('metadata', 'namespace', 'devlist')
+
+        widget = SetOfWidget(None, typ.vals, {'metadata', 'namespace'}, None)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == {'metadata', 'namespace'}
+
+        for w in widget.checkboxes:
+            w.setCheckState(Qt.CheckState.Checked)
+        assert widget.getValue() == {'metadata', 'namespace', 'devlist'}
+
+    @pytest.mark.parametrize('curvalue', [1, None])
+    def test_CheckWidget(self, qtbot, curvalue):
+        typ = none_or(int)
+
+        widget = CheckWidget(None, typ.conv, curvalue, None)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == curvalue
+
+        if curvalue is not None:
+            widget.checkbox.setCheckState(Qt.CheckState.Unchecked)
+            assert widget.getValue() is None
