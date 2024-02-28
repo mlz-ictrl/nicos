@@ -130,9 +130,12 @@ def floatrange(start, end, step=None, **kw):
 
 
 @usercommand
+@helparglist('start, end, [num]')
 @parallel_safe
 def RangeListLog(start, end, num=10):
     """Generate a log spaced list with specified number of steps.
+
+    The default number of steps (*num*) is 10.
 
     Example:
 
@@ -151,6 +154,7 @@ def identity(x):
 
 
 @usercommand
+@helparglist('start, end, [num, [func, [funcinv]]]')
 @parallel_safe
 def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
     """Generate a list spaced evenly in arbitrary functions.
@@ -158,6 +162,8 @@ def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
     *func* is a function taking one argument for the values should be spaced
     evenly, can also be a lambda function.  *funcinv* is the inverse function
     to *func*, can be omitted if identical to *func*.
+
+    The default number of steps (*num*) is 10.
 
     This function does less error checking and will raise an error on wrong
     input values (e.g. outside the domain of the used function)
