@@ -24,14 +24,18 @@
 """NICOS test lib: Test typed value widgets """
 
 
+import numpy as np
 import pytest
 
-from nicos.core.params import dictof, dictwith, limits, listof, none_or, \
-    setof, tupleof
-from nicos.guisupport.typedvalue import ButtonWidget, CheckWidget, \
-    ComboWidget, DeviceComboWidget, DictOfWidget, DictWithWidget, EditWidget, \
-    ExprWidget, LimitsWidget, ListOfWidget, MissingWidget, MultiWidget, Qt, \
-    SetOfWidget, SpinBoxWidget
+from nicos.core.params import anytype, dictof, dictwith, floatrange, host, \
+    intrange, limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
+    oneof, oneofdict, oneofdict_or, setof, tupleof, vec3
+from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
+from nicos.guisupport.typedvalue import AnnotatedWidget, ButtonWidget, \
+    CheckWidget, ComboWidget, DeviceComboWidget, DictOfWidget, \
+    DictWithWidget, EditWidget, ExprWidget, LimitsWidget, ListOfWidget, \
+    MissingWidget, MultiWidget, Qt, SetOfWidget, SpinBoxWidget, TableWidget, \
+    create
 
 pytest.importorskip('pytestqt')
 
@@ -256,3 +260,92 @@ class TestTypedvalue:
             pass
 
         assert widget.getValue() == 'device'
+
+    @pytest.mark.parametrize(
+        'typ,curvalue,allow_buttons,res',
+        [
+            (oneof('in', 'out'), 'in', False, 'in'),
+            (oneof('in', 'out'), 'in', True, Ellipsis),
+            (none_or(int), 1, False, 1),
+            (tupleof(int, int), (1, 2), False, (1, 2)),
+            (limits, (0, 1), False, (0, 1)),
+            (floatrange(0, 1), 0, False, 0),
+            (floatrange(0, 1), 2, False, 0),  # Test to set default value
+            (intrange(0, 1), 0, False, 0),
+            (bool, False, False, False),
+            (bool, False, True, Ellipsis),
+            (setof('metadata', 'namespace', 'devlist'),
+                {'metadata', 'namespace'}, False, {'metadata', 'namespace'}),
+            (listof(str), ['one', 'two', 'three', ], False,
+                ['one', 'two', 'three', ]),
+            (nonemptylistof(str), ['one', 'two', 'inifinity'], False,
+                ['one', 'two', 'inifinity']),
+            (none_or(int), 1, False, 1),
+            (none_or(int), None, False, None),
+            (float, 1, False, 1),
+            (vec3, (1, 1, 1), False, (1, 1, 1)),
+            (nicosdev, 'a', False, 'a'),
+            (mailaddress, 'nico@nicos-controls.org', False,
+                'nico@nicos-controls.org'),
+            (host('localhost', 1301), 'localhost:14768', False,
+                'localhost:14768'),
+            (oneofdict({1: 'disabled', 0: 'enabled'}), 1, False, 'disabled'),
+            (oneofdict({1: 'disabled', 0: 'enabled'}), 1, True, Ellipsis),
+            (oneofdict({1: 'disabled', 0: 'enabled'}), 'disabled', False,
+                'disabled'),
+            (oneofdict_or({'disabled': 1, 'enabled': 0}, intrange(0, 5)),
+                1, False, 'disabled'),
+            (oneofdict_or({'disabled': 1, 'enabled': 0}, intrange(0, 5)),
+                1, True, 1),
+            (oneofdict_or({'disabled': 1, 'enabled': 0}, intrange(0, 5)),
+                3, False, 3),
+            (list, [1, 2], False, [1, 2]),
+            (list, '', False, []),
+            (anytype, 'blah', False, 'blah'),
+            (dictof(str, float), {'blah': 0.1}, False, {'blah': 0.1}),
+            (dictwith(key=bool), {'key': False}, False, {'key': False}),
+        ]
+    )
+    def test_create(self, qtbot, typ, curvalue, allow_buttons, res):
+        widget = create(None, typ, curvalue, allow_buttons=allow_buttons,
+                        allow_enter=True)
+        assert not isinstance(widget, MissingWidget)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+        assert widget.getValue() == res
+
+    def test_create_SXTalCell(self, qtbot):
+        widget = create(None, SXTalCellType, SXTalCell.fromabc(5))
+
+        assert isinstance(widget, TableWidget)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert np.equal(widget.getValue(),
+                        np.array([[ 0.2, -0. , -0. ],
+                                  [ 0. ,  0.2, -0. ],
+                                  [ 0. ,  0. ,  0.2]])).all()
+
+    @pytest.mark.parametrize('typ,curvalue',
+                             [
+                                 (np.array, []),
+                                 (int, {}),
+                             ])
+    def test_create_fails(self, qtbot, typ, curvalue):
+        widget = create(None, typ, curvalue)
+        assert isinstance(widget, MissingWidget)
+
+    def test_create_annotated_via_unit(self, qtbot):
+        widget = create(None, floatrange(0, 1), 0, unit='au')
+        assert isinstance(widget, AnnotatedWidget)
+
+        # Test setFocus method as well
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+        widget.setFocus()
