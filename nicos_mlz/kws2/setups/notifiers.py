@@ -9,8 +9,7 @@ devices = dict(
         copies = [
             ('g.brandl@fz-juelich.de', 'all'),
             ('a.radulescu@fz-juelich.de', 'all'),
-            ('c.lang@fz-juelich.de', 'all'),
-            ('m.s.appavou@fz-juelich.de', 'all'),
+            ('j.kang@fz-juelich.de', 'all'),
             ('t.kohnke@fz-juelich.de', 'all'),
             ('s.staringer@fz-juelich.de', 'all'),
         ],
