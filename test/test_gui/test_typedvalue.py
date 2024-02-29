@@ -29,9 +29,9 @@ import pytest
 from nicos.core.params import dictof, dictwith, limits, listof, none_or, \
     setof, tupleof
 from nicos.guisupport.typedvalue import ButtonWidget, CheckWidget, \
-    ComboWidget, DictOfWidget, DictWithWidget, EditWidget, ExprWidget, \
-    LimitsWidget, ListOfWidget, MissingWidget, MultiWidget, Qt, SetOfWidget, \
-    SpinBoxWidget
+    ComboWidget, DeviceComboWidget, DictOfWidget, DictWithWidget, EditWidget, \
+    ExprWidget, LimitsWidget, ListOfWidget, MissingWidget, MultiWidget, Qt, \
+    SetOfWidget, SpinBoxWidget
 
 pytest.importorskip('pytestqt')
 
@@ -247,3 +247,12 @@ class TestTypedvalue:
         if curvalue is not None:
             widget.checkbox.setCheckState(Qt.CheckState.Unchecked)
             assert widget.getValue() is None
+
+    def test_DeviceComboWidget(self, qtbot):
+        widget = DeviceComboWidget(None, 'device', None, allow_enter=True)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == 'device'
