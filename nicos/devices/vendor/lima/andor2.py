@@ -44,6 +44,7 @@ class Andor2LimaCCD(GenericLimaCCD):
     HSSPEED_RE = re.compile(r'ADC0_(\d+\.\d+|\d+)MHZ')
     VSSPEED_RE = re.compile(r'(\d+(?:\.\d+)?)USEC')
     PGAIN_RE = re.compile(r'X(\d)')
+    CAPACITY_RE = re.compile(r'HIGH_(CAPACITY|SENSITIVITY)')
 
     parameters = {
         'hsspeed': Param('Horizontal shift speed',
@@ -55,6 +56,16 @@ class Andor2LimaCCD(GenericLimaCCD):
         'pgain':   Param('Preamplifier gain',
                          type=oneof(*PGAINS), settable=True, default=4,
                          volatile=True, category='general'),
+        'baseline_clamp': Param('Base line clamping',
+                                type=oneof('ON', 'OFF'), settable=True,
+                                volatile=True, category='general'),
+        'fan_mode': Param('Mode of the fan',
+                          type=oneof('OFF', 'LOW', 'FULL'), settable=True,
+                          volatile=True, category='general'),
+        'high_capacity': Param('High capacity behaviour: Capacity or '
+                               'sensitivity',
+                               oneof('CAPACITY', 'SENSITIVITY'), settable=True,
+                               volatile=True, category='general'),
     }
 
     parameter_overrides = {
@@ -86,6 +97,24 @@ class Andor2LimaCCD(GenericLimaCCD):
 
     def doWritePgain(self, value):
         self._hwDev._dev.p_gain = 'X%s' % value
+
+    def doReadBaseline_Clamp(self):
+        return self._hwDev._dev.baseline_clamp
+
+    def doWriteBaseline_Clamp(self, value):
+        self._hwDev._dev.baseline_clamp = value
+
+    def doReadFan_Mode(self):
+        return self._hwDev._dev.fan_mode
+
+    def doWriteFan_Mode(self, value):
+        self._hwDev._dev.fan_mode = value
+
+    def doReadHigh_Capacity(self):
+        return self.CAPACITY_RE.match(self._hwDev._dev.high_capacity).group(1)
+
+    def doWriteHigh_Capacity(self, value):
+        self._hwDev._dev.high_capacity = value
 
     def _specialInit(self):
         # set some dummy roi to avoid strange lima rotation behaviour
