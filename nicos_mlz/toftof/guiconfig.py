@@ -68,6 +68,8 @@ windows = [
     window('Planning', 'strategy',
            panel('nicos_mlz.toftof.gui.resolutionpanel.ResolutionPanel'),
            ),
+    window('Watchdog', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [
