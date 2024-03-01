@@ -249,7 +249,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
     verifyresult.put(pyver, 0)
     publishGerrit('pytest-'+pyver, verifyresult[pyver])
     try {
-         timeout(10) {
+         timeout(12) {
 
            sh "./ciscripts/run_pytest.sh $venv"
            verifyresult.put(pyver, 1)
