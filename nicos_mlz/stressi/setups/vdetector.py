@@ -81,3 +81,7 @@ devices = dict(
         abslimits = (0, 1100.),
     ),
 )
+
+startupcode = '''
+SetDetectors(adet)
+'''
