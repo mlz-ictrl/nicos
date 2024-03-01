@@ -23,7 +23,7 @@
 
 """VStressi sample device."""
 
-from nicos.core import Param, intrange
+from nicos.core import Override, Param, intrange
 from nicos.devices.sample import Sample as BaseSample
 
 
@@ -37,4 +37,8 @@ class Sample(BaseSample):
                             '4 - fully flexible sample',
                             type=intrange(1, 4), userparam=True,
                             settable=True),
+    }
+
+    parameter_overrides = {
+        'samples': Override(mandatory=True, settable=False, internal=False),
     }
