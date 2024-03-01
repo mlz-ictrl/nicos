@@ -3,7 +3,7 @@ description = 'Virtual STRESS-SPEC instrument'
 group = 'basic'
 
 includes = [
-    'standard', 'sampletable',
+    'standard', 'sampletable', 'eulerian',
 ]
 
 sysconfig = dict(

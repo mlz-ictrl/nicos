@@ -1,14 +1,6 @@
 description = 'STRESS-SPEC setup with Eulerian cradle'
 
-group = 'basic'
-
-includes = [
-    'standard', 'sampletable',
-]
-
-sysconfig = dict(
-        datasinks = ['caresssink'],
-)
+group = 'lowlevel'
 
 devices = dict(
     chis = device('nicos.devices.generic.Axis',
@@ -34,7 +26,3 @@ devices = dict(
         precision = 0.001,
     ),
 )
-
-startupcode = '''
-SetDetectors(adet)
-'''
