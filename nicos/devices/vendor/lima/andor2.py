@@ -114,7 +114,7 @@ class Andor2LimaCCD(GenericLimaCCD):
         return self.CAPACITY_RE.match(self._hwDev._dev.high_capacity).group(1)
 
     def doWriteHigh_Capacity(self, value):
-        self._hwDev._dev.high_capacity = value
+        self._hwDev._dev.high_capacity = f'HIGH_{value}'
 
     def _specialInit(self):
         # set some dummy roi to avoid strange lima rotation behaviour
