@@ -26,7 +26,7 @@
 import numpy
 
 from nicos.commands.utility import RangeListByCount, RangeListByStep, \
-    RangeListGeneral, RangeListLog, floatrange
+    RangeListGeneral, RangeListLog, FloatRange
 from nicos.core import UsageError
 
 from test.utils import approx, raises
@@ -98,24 +98,24 @@ def test_rangelistbycounts():
 def test_floatrange():
     # pylint: disable=unidiomatic-typecheck
 
-    l4 = floatrange(1, 2, step=0.5)
+    l4 = FloatRange(1, 2, step=0.5)
     assert len(l4) == 3
     assert l4[0] == 1.
     assert l4[-1] == 2.
     assert type(l4[0]) == float
     assert type(l4[-1]) == float
 
-    l4 = floatrange(1, 2, num=5)
+    l4 = FloatRange(1, 2, num=5)
     assert len(l4) == 5
     assert l4[0] == 1.
     assert l4[-1] == 2.
     assert type(l4[0]) == float
     assert type(l4[-1]) == float
 
-    assert raises(UsageError, floatrange, 1, 2, step=-0.5)
-    assert raises(UsageError, floatrange, 1, 2, step=0.5, num=2)
-    assert raises(UsageError, floatrange, 1, 2)
-    assert raises(UsageError, floatrange, 1, 2, num=1)
+    assert raises(UsageError, FloatRange, 1, 2, step=-0.5)
+    assert raises(UsageError, FloatRange, 1, 2, step=0.5, num=2)
+    assert raises(UsageError, FloatRange, 1, 2)
+    assert raises(UsageError, FloatRange, 1, 2, num=1)
 
 
 def test_rangelistlog():

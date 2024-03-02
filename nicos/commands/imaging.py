@@ -29,7 +29,7 @@ from nicos.commands import helparglist, usercommand
 from nicos.commands.device import reset
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
-from nicos.commands.utility import floatrange
+from nicos.commands.utility import FloatRange
 from nicos.core.device import Measurable, Moveable
 from nicos.core.errors import NicosError
 from nicos.core.scan import SkipPoint
@@ -108,7 +108,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, start=0,
     >>> tomo(500, sry, start=60)
     """
 
-    angles = floatrange(0.0, 360.0, num=nangles)
+    angles = FloatRange(0.0, 360.0, num=nangles)
     if isinstance(start, number_types) and start != 0:
         if ref_first is False:  # explicit check for ref_first=False
             angles = sorted([180.] + angles)

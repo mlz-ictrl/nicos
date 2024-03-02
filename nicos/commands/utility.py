@@ -36,7 +36,7 @@ import numpy
 from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.core import UsageError
 
-__all__ = ['floatrange', 'RangeListLog', 'RangeListGeneral']
+__all__ = ['FloatRange', 'RangeListLog', 'RangeListGeneral']
 
 
 def RangeListByStep(start, end=None, inc=None):
@@ -89,23 +89,23 @@ def RangeListByCount(start, end=None, num=2):
 @usercommand
 @helparglist('start, end, [step | num=n]')
 @parallel_safe
-def floatrange(start, end, step=None, **kw):
+def FloatRange(start, end, step=None, **kw):
     """Generate a linear range of values.
 
     Generate a linear range of values from *start* to *end*, with either a
     specified step width or number of values.
 
     *start* and *end* are the start and end values and always included.  *step*
-    is the stpewidth and should always be positive; *num* is the number of
+    is the stepwidth and should always be positive; *num* is the number of
     values desired.
 
     Examples:
 
-    >>> floatrange(1, 2, step=0.1)
+    >>> FloatRange(1, 2, step=0.1)
     [1.0, 1.1, 1.2 ... 1.9, 2.0]
-    >>> floatrange(2, 1, step=0.1)
+    >>> FloatRange(2, 1, step=0.1)
     [2.0, 1.9, 1.8 ... 1.1, 1.0]
-    >>> floatrange(1, 2, num=3)
+    >>> FloatRange(1, 2, num=3)
     [1.0, 1.5, 2.0]
     """
     start = float(start)
