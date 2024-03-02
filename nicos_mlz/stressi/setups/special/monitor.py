@@ -169,9 +169,9 @@ _eulerian = Column(
 _image = Column(
     Block('', [
         BlockRow(
-            Field(name='Data (linear)', picture='/stressicontrol/webroot/live_lin.png',
+            Field(name='Data (linear)', picture='/control/webroot/live_lin.png',
                   refresh=1, width=24, height=24),
-            Field(name='Data (log)', picture='/stressicontrol/webroot/live_log.png',
+            Field(name='Data (log)', picture='/control/webroot/live_log.png',
                   refresh=1, width=24, height=24),
         ),
         ],

@@ -194,7 +194,7 @@ devices = dict(
         # Use only 'localhost' if the cache is really running on
         # the same machine, otherwise use the hostname (official
         # computer name) or an IP address.
-        filename = '/stressicontrol/status.html',
+        filename = '/control/status.html',
         cache = 'stressictrl.stressi.frm2.tum.de',
         font = 'Luxi Sans',
         valuefont = 'Consolas',
