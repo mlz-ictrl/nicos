@@ -26,9 +26,6 @@
 .. module:: nicos_mlz.mira.devices.mieze
 .. autoclass:: MiezeMaster()
 
-.. module:: nicos_mlz.mira.devices.radmon
-.. autoclass:: RadMon()
-
 .. module:: nicos_mlz.mira.devices.refcountio
 .. autoclass:: RefcountDigitalOutput()
 .. autoclass:: MultiDigitalOutput()
