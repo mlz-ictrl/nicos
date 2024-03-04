@@ -35,7 +35,7 @@ from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QBrush, QByteArray, QComboBox, QCursor, \
     QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
     QMessageBox, QPalette, QPushButton, QRegularExpression, Qt, \
-    QTreeWidgetItem, pyqtSignal, pyqtSlot, sip
+    QTreeWidgetItem, pyqtSignal, pyqtSlot, sip, QGuiApplication
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.utils import AttrDict
@@ -1038,17 +1038,22 @@ class ControlDialog(QDialog):
             return
 
         menu = QMenu(self)
+        copyAction = menu.addAction('Copy value')
+        menu.addSeparator()
         refreshAction = menu.addAction('Refresh')
         menu.addAction('Refresh all')
 
         # QCursor.pos is more reliable then the given pos
         action = menu.exec(QCursor.pos())
 
-        if action:
+        if action == copyAction:
+            board = QGuiApplication.clipboard()
+            board.setText(item.text(1))
+        elif action:
             cmd = 'session.getDevice(%r).pollParams(volatile_only=False%s)' \
                   % (self.devname, ', param_list=[%r]' % item.text(0)
                      if action == refreshAction else '')
-            # poll even non volatile parameter as requested explicitely
+            # poll even non volatile parameters as requested explicitly
             self.client.eval(cmd, None)
 
     @pyqtSlot()
