@@ -33,8 +33,8 @@ import sys
 from logging import DEBUG, ERROR, WARNING, Formatter, StreamHandler
 from os import path
 from time import monotonic, sleep
+from unittest import mock
 
-import mock
 import pytest
 
 from nicos import config

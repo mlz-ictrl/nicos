@@ -23,7 +23,8 @@
 
 """NICOS generic devices test suite."""
 
-import mock
+from unittest import mock
+
 import pytest
 
 from nicos.commands.measure import count

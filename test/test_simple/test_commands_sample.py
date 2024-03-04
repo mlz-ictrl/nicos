@@ -25,8 +25,7 @@
 
 import json
 from io import StringIO
-
-import mock
+from unittest import mock
 
 from nicos.commands.sample import activation, powderfit
 from nicos.commands.scan import cscan
