@@ -23,7 +23,7 @@
 
 """NICOS generic devices test suite."""
 
-import mock
+from unittest import mock
 
 from nicos.core import ConfigurationError, InvalidValueError, LimitError, \
     NicosError, PositionError, status

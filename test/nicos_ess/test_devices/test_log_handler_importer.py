@@ -22,14 +22,15 @@
 # *****************************************************************************
 
 """Module to test custom log handlers."""
+
 from logging import Handler
+from unittest.mock import patch
 
 import pytest
 
 pytest.importorskip('kafka.errors')
 
 from kafka.errors import NoBrokersAvailable
-from mock import patch
 from pkg_resources import get_distribution, parse_version
 
 from nicos.core import ConfigurationError

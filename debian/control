@@ -30,8 +30,7 @@ Build-Depends: debhelper (>= 11~),
  python3-pil,
  python3-keyring,
  python3-keyrings.alt,
- python3-requests,
- python3-mock
+ python3-requests
 Standards-Version: 4.1.4
 
 Package: nicos

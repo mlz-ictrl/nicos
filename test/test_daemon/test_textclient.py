@@ -24,8 +24,7 @@
 """Test the text client."""
 
 from time import monotonic, sleep
-
-import mock
+from unittest import mock
 
 from nicos.clients.cli import NicosCmdClient, main as cli_main
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_RUNNING
