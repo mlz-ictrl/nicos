@@ -334,7 +334,7 @@ node('dockerhost') {
             buildimage_deb = u18
         }
 
-        buildimage_rocky = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:rockylinux8')
+        buildimage_rocky = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:rockylinux9')
         buildimage_rocky.pull()
     }
 
