@@ -1021,8 +1021,7 @@ class Readable(Device):
         if self._sim_min is not None:
             return [(self.name, self.format(self._sim_value),
                      self.format(self._sim_min), self.format(self._sim_max))]
-        else:
-            return []
+        return []
 
     def _sim_setValue(self, pos):
         self._sim_old_value = self._sim_value
