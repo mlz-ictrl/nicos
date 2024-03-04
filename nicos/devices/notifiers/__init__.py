@@ -145,9 +145,6 @@ class Mailer(Notifier):
                                                   oneof('all', 'important')))),
     }
 
-    def doInit(self, mode):
-        self._subject = self.subject
-
     def reset(self):
         self.log.info('mail receivers cleared')
         self.receivers = []
@@ -158,7 +155,7 @@ class Mailer(Notifier):
             if not receivers:
                 return
             ret = sendMail(self.mailserver, receivers, self.sender,
-                           self._subject + ' -- ' + subject, body,
+                           self.subject + ' -- ' + subject, body,
                            security=self.security, username=self.username)
             if not ret:  # on error, ret is a list of errors
                 self.log.info('%smail sent to %s',
@@ -178,11 +175,17 @@ class HostnameMailer(Mailer):
     This is done as there are multiple of these, in order to differentiate
     their notifications.
     """
-    def doInit(self, mode):
-        self._subject = socket.getfqdn()
+
+    parameter_overrides = {
+        'subject': Override(volatile=True),
+    }
+
+    def doReadSubject(self, mode):
+        return socket.getfqdn()
 
 # Implements the GSM03.38 encoding for SMS messages, including escape-encoded
 # chars, generated from ftp://ftp.unicode.org/Public/MAPPINGS/ETSI/GSM0338.TXT
+
 
 GSM0338_MAP = {
     '\x0c': '\x1b\n', ' ': ' ', '\xa3': '\x01', '$': '\x02', '\xa7': '_',
@@ -218,7 +221,7 @@ class SMSer(Notifier):
     """SMS notifications via smslink client program (sendsms)."""
 
     parameters = {
-        'server':    Param('Name of SMS server', type=str, mandatory=True),
+        'server': Param('Name of SMS server', type=str, mandatory=True),
     }
 
     parameter_overrides = {
