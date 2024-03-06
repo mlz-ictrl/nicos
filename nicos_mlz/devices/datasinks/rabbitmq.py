@@ -37,10 +37,16 @@ from nicos.core.data import BaseDataset, BlockDataset, DataSink, \
 
 
 def metainfo_to_json(metainfo):
+    """Prepare metadata in suitable json format"""
     metadata = {}
-    for (dev, parm), (value, _str_value, unit, _) in metainfo.items():
+
+    for (dev, parm), (value, _str_value, unit, category) in metainfo.items():
         metadata.setdefault(dev, {})
-        metadata[dev][parm] = value if not unit else (value, unit)
+        metadata[dev][parm] = {
+            'value': value,
+            'unit': unit,
+            'category': category
+        }
     return metadata
 
 
@@ -85,9 +91,10 @@ class RabbitSinkHandler(DataSinkHandler):
     ordering = 80
 
     def _handleMessage(self, event: str, dataset: BaseDataset,
-                     scands: ScanDataset = None, blockds: BlockDataset = None):
-        """Prepares the data and sends the metainfo, if available, and other information to the
-        Queue"""
+                       scands: ScanDataset = None,
+                       blockds: BlockDataset = None):
+        """Prepare the data and send the metainfo, if available, and other
+        information to the Queue"""
         started = (datetime.fromtimestamp(dataset.started, tz=timezone.utc)
                    .isoformat())
 
@@ -110,7 +117,6 @@ class RabbitSinkHandler(DataSinkHandler):
             statistics=valuestats_to_json(dataset.valuestats),
         )
         self.sink._sendMessage(msg)
-
 
     def _getScanDatasetParents(self, dataset):
         """Returns a tuple of `BlockDataset`, `ScanDataset` if available.
@@ -160,7 +166,7 @@ class RabbitSinkHandler(DataSinkHandler):
         blockds, scands = self._getScanDatasetParents(self.dataset)
         if subset.number == 1:  # begin of ScanDataset including metainfo
             self._handleMessage(self.dataset.settype, self.dataset, scands,
-                              blockds)
+                                blockds)
         self._handleMessage(subset.settype, subset, self.dataset, blockds)
 
     def begin(self):
@@ -180,7 +186,7 @@ class RabbitSinkHandler(DataSinkHandler):
             # `iter(self.manager._stack)` though.
             blockds, scands = self._getScanDatasetParents(None)
         self._handleMessage(f'{self.dataset.settype}.end', self.dataset,
-                          scands, blockds)
+                            scands, blockds)
 
 
 class RabbitSink(DataSink):
@@ -188,7 +194,7 @@ class RabbitSink(DataSink):
     and writes all metainfo synchronously into it for further processing.
     """
     parameters = {
-        'rabbit_url': Param('RabbitMQ server url', type=str, mandatory=True)
+        'rabbit_url': Param('RabbitMQ server url', type=str, mandatory=True),
     }
 
     parameter_overrides = {
