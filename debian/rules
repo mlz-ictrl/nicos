@@ -3,17 +3,11 @@
 # Sample debian/rules that uses debhelper.
 
 include /usr/share/dpkg/default.mk
-# include /usr/share/cdbs/1/class/python-distutils.mk
 
 export DEB_VERSION_UPSTREAM
 
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
-
-export DEBPYTHON_DEFAULT=3.6
-export DEBPYTHON_SUPPORTED=3.6,3.7
-
-# export DEBPYTHON_DEFAULT DEBPYTHON_SUPPORTED
 
 export PYBUILD_NAME=nicos
 export PYBUILD_DISABLE=test

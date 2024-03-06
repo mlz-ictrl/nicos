@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Release 3.11.0
+--------------
+
+* Core
+
+  - NICOS now requires at least Python 3.9 to run.
+
+
 Release 3.10.0
 --------------
 

@@ -35,9 +35,9 @@ from nicos.configmod import config
 from nicos._vendor.gitversion import get_git_version, get_nicos_version  # isort:skip
 __version__ = nicos_version = get_nicos_version()
 
-# Check for Python version 3.6+.
-if sys.version_info[:2] < (3, 6):
-    raise ImportError('NICOS requires Python 3.6 or higher')
+# Check for Python version 3.9+.
+if sys.version_info[:2] < (3, 9):
+    raise ImportError('NICOS requires Python 3.9 or higher')
 
 
 # Create the nicos session object here to allow the import of submodules.
