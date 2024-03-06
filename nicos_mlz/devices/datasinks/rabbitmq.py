@@ -71,6 +71,7 @@ class Message:
         mapping: dict,
         metainfo: dict,
         statistics: dict,
+        counterinfo: dict,
     ):
         self.id = str(id)
         self.blockid = str(blockid) or None
@@ -81,6 +82,7 @@ class Message:
         self.mapping = mapping
         self.metadata = metainfo
         self.statistics = statistics
+        self.counterinfo = counterinfo
 
     def __str__(self):
         return json.dumps({**self.__dict__})
@@ -115,8 +117,19 @@ class RabbitSinkHandler(DataSinkHandler):
             },
             metainfo=metadata,
             statistics=valuestats_to_json(dataset.valuestats),
+            counterinfo=self.getCounterInfo(dataset),
         )
         self.sink._sendMessage(msg)
+
+    def getCounterInfo(self, dataset):
+        """ Get the counter infos"""
+
+        return {
+            'proposal_counter': dataset.propcounter,
+            'sample_counter': dataset.samplecounter,
+            'counter': dataset.counter,
+            'number': dataset.number,
+        }
 
     def _getScanDatasetParents(self, dataset):
         """Returns a tuple of `BlockDataset`, `ScanDataset` if available.
