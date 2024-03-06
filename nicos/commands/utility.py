@@ -133,7 +133,8 @@ def FloatRange(start, end, step=None, **kw):
 @helparglist('start, end, [num]')
 @parallel_safe
 def RangeListLog(start, end, num=10):
-    """Generate a log spaced list with specified number of steps.
+    """Generate a list with decadal logarithmic spaced distances and specified
+    number of steps.
 
     The default number of steps (*num*) is 10.
 

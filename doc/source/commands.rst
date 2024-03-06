@@ -103,6 +103,11 @@ Miscellaneous commands
 
    See spm_.
 
+.. currentmodule:: nicos.commands.utility
+.. autofunction:: FloatRange
+.. autofunction:: RangeListLog
+.. autofunction:: RangeListGeneral
+
 Device commands
 ---------------
 
