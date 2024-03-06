@@ -62,7 +62,7 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
         'pixel_size': Param('Size of a single pixel (in mm)',
                             type=tupleof(floatrange(0), floatrange(0)),
                             volatile=False, settable=False, unit='mm',
-                            default=(75 / 2048, 75 / 2028),
+                            default=(75 / 2048, 75 / 2048),
                             category='instrument'),
     }
 
