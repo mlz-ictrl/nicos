@@ -195,23 +195,10 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
 """
 
-
-class Dummy:
-    pass
-
-
 import pickle
 import re
-import sys
-
-if sys.version_info[:2] >= (3, 8):
-    from ast import Constant
-    Bytes, NameConstant, Num, Str = Dummy, Dummy, Dummy, Dummy
-else:
-    from ast import Bytes, NameConstant, Num, Str
-    Constant = Dummy
-from ast import Add, BinOp, Call, Dict, List, Name, Set, Sub, Tuple, UnaryOp, \
-    USub, parse
+from ast import Add, BinOp, Constant, Call, Dict, List, Name, Set, Sub, \
+    Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 
 from nicos.utils import number_types, readonlydict, readonlylist
@@ -321,12 +308,6 @@ def ast_eval(node):
     def _convert(node):
         if isinstance(node, Constant):
             return node.value
-        elif isinstance(node, (Str, Bytes)):
-            return node.s
-        elif isinstance(node, Num):
-            return node.n
-        elif isinstance(node, NameConstant):
-            return node.value
         elif isinstance(node, Tuple):
             return tuple(map(_convert, node.elts))
         elif isinstance(node, List):
@@ -348,10 +329,6 @@ def ast_eval(node):
                 isinstance(node.op, USub) and \
                 isinstance(node.operand, Constant):
             return -node.operand.value
-        elif isinstance(node, UnaryOp) and \
-                isinstance(node.op, USub) and \
-                isinstance(node.operand, Num):
-            return -node.operand.n
         elif isinstance(node, BinOp) and \
                 isinstance(node.op, (Add, Sub)) and \
                 isinstance(node.right, Constant) and \
@@ -360,18 +337,6 @@ def ast_eval(node):
                 isinstance(node.left.value, number_types):
             left = node.left.value
             right = node.right.value
-            if isinstance(node.op, Add):
-                return left + right
-            else:
-                return left - right
-        elif isinstance(node, BinOp) and \
-                isinstance(node.op, (Add, Sub)) and \
-                isinstance(node.right, Num) and \
-                isinstance(node.right.n, complex) and \
-                isinstance(node.left, Num) and \
-                isinstance(node.left.n, number_types):
-            left = node.left.n
-            right = node.right.n
             if isinstance(node.op, Add):
                 return left + right
             else:
