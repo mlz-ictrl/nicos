@@ -195,10 +195,23 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
 """
 
+
+class Dummy:
+    pass
+
+
 import pickle
 import re
-from ast import Add, BinOp, Bytes, Call, Dict, List, Name, NameConstant, Num, \
-    Set, Str, Sub, Tuple, UnaryOp, USub, parse
+import sys
+
+if sys.version_info[:2] >= (3, 8):
+    from ast import Constant
+    Bytes, NameConstant, Num, Str = Dummy, Dummy, Dummy, Dummy
+else:
+    from ast import Bytes, NameConstant, Num, Str
+    Constant = Dummy
+from ast import Add, BinOp, Call, Dict, List, Name, Set, Sub, Tuple, UnaryOp, \
+    USub, parse
 from base64 import b64decode, b64encode
 
 from nicos.utils import number_types, readonlydict, readonlylist
@@ -306,10 +319,14 @@ _safe_names = {'None': None, 'True': True, 'False': False,
 def ast_eval(node):
     # copied from Python 2.7 ast.py, but added support for float inf/-inf/nan
     def _convert(node):
-        if isinstance(node, (Str, Bytes)):
+        if isinstance(node, Constant):
+            return node.value
+        elif isinstance(node, (Str, Bytes)):
             return node.s
         elif isinstance(node, Num):
             return node.n
+        elif isinstance(node, NameConstant):
+            return node.value
         elif isinstance(node, Tuple):
             return tuple(map(_convert, node.elts))
         elif isinstance(node, List):
@@ -322,8 +339,6 @@ def ast_eval(node):
         elif isinstance(node, Name):
             if node.id in _safe_names:
                 return _safe_names[node.id]
-        elif isinstance(node, NameConstant):
-            return node.value
         elif isinstance(node, UnaryOp) and \
                 isinstance(node.op, USub) and \
                 isinstance(node.operand, Name) and \
@@ -331,8 +346,24 @@ def ast_eval(node):
             return -_safe_names[node.operand.id]
         elif isinstance(node, UnaryOp) and \
                 isinstance(node.op, USub) and \
+                isinstance(node.operand, Constant):
+            return -node.operand.value
+        elif isinstance(node, UnaryOp) and \
+                isinstance(node.op, USub) and \
                 isinstance(node.operand, Num):
             return -node.operand.n
+        elif isinstance(node, BinOp) and \
+                isinstance(node.op, (Add, Sub)) and \
+                isinstance(node.right, Constant) and \
+                isinstance(node.right.value, complex) and \
+                isinstance(node.left, Constant) and \
+                isinstance(node.left.value, number_types):
+            left = node.left.value
+            right = node.right.value
+            if isinstance(node.op, Add):
+                return left + right
+            else:
+                return left - right
         elif isinstance(node, BinOp) and \
                 isinstance(node.op, (Add, Sub)) and \
                 isinstance(node.right, Num) and \
