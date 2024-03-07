@@ -105,7 +105,7 @@ class ComponentTable(Device):
         txt += '\t%s\n' % ', '.join(self.additional_devices)
         txt += 'Total Devices\n'
         txt += '\t%s\n' % ', '.join(self.getTableDevices())
-        session.log.info(txt)
+        self.log.info(txt)
 
     def getTableDevices(self):
         result = list(
