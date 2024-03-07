@@ -125,6 +125,7 @@ class RabbitSinkHandler(DataSinkHandler):
                 'experiment': session.experiment.name,
                 'sample': session.experiment.sample.name,
                 'instrument': session.instrument.name,
+                'environment': [dev.name for dev in dataset.environment],
             },
             metainfo=metadata,
             statistics=valuestats_to_json(dataset.valuestats),
