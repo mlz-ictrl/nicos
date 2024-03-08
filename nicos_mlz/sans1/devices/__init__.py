@@ -20,3 +20,17 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
+
+from nicos.core.params import Param, tupleof
+from nicos.devices.vendor.qmesydaq.tango import \
+    ImageChannel as BaseImageChannel
+
+
+class ImageChannel(BaseImageChannel):
+
+    parameters = {
+        'pixel_size': Param('Size of a single pixel (in mm)',
+                            type=tupleof(float, float), volatile=False,
+                            settable=False, default=(8, 8), unit='mm',
+                            category='instrument'),
+    }
