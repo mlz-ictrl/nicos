@@ -357,8 +357,7 @@ class NicosClient:
         if special_clause:
             query += ' and ' + special_clause
         query += ')'
-        res = self.eval(query, [])
-        if res:
+        if res := self.eval(query, []):
             return sorted(res, key=lambda d: d.lower())
         return []
 
@@ -386,8 +385,7 @@ class NicosClient:
             query = 'dict((pn, pi.serialize()) for (pn, pi) in ' \
                     'session.getDevice(session.getDevice(%r).alias).' \
                     'parameters.items())' % devname
-            result2 = self.eval(query, {})
-            if result2:
+            if result2 := self.eval(query, {}):
                 result.update(result2)
         return result or {}
 
@@ -415,7 +413,6 @@ class NicosClient:
 
     def getDeviceParam(self, devname, param):
         """Return value of a specific device parameter from cache."""
-        ret = self.getCacheKey(devname.lower() + '/' + param)
-        if ret:
+        if ret := self.getCacheKey(devname.lower() + '/' + param):
             return ret[1]
         return None
