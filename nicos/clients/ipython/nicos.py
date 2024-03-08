@@ -72,7 +72,7 @@ class IpythonNicosClient(NicosClient):
 
     def connect(self, conndata, eventmask=None):
         NicosClient.connect(self, conndata, eventmask)
-        if self.compat_proto < 22:
+        if self.daemon_info.get('protocol_version') < 22:
             raise RuntimeError("incompatible nicos server")
 
 
