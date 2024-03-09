@@ -34,6 +34,18 @@ watch_conditions = [
         type = 'neutronguide',
         gracetime = 600,
     ),
+    dict(
+        condition = 'abs(p1_nguide_value - p3_nguide_value) > 40',
+        message = 'Difference P1/P3 > 40 mbar',
+        type = 'neutronguide',
+        gracetime = 600,
+    ),
+    dict(
+        condition = 'abs(p2_nguide_value - p3_nguide_value) > 40',
+        message = 'Difference P2/P3 > 40 mbar',
+        type = 'neutronguide',
+        gracetime = 600,
+    ),
 ]
 
 includes = ['notifiers']
