@@ -23,8 +23,10 @@
 # *****************************************************************************
 """REFSANS neutron guide system class."""
 
-from nicos.core import Moveable, Override, Param, floatrange, oneof
+from nicos.core import Moveable, Override, Param, Readable, floatrange, \
+    oneof, status
 from nicos.core.params import Attach
+from nicos.core.utils import devIter
 from nicos.utils import number_types
 
 
@@ -171,3 +173,19 @@ class Optic(Moveable):
 
     def doReadUnit(self):
         return '' if isinstance(self.target, str) else 'mrad'
+
+    def doStatus(self, maxage=0):
+        self.log.debug('doStatus')
+        rettext = []
+        retstate = 0
+        for devname, dev in devIter(self._adevs, Readable, onlydevs=False):
+            state, text = dev.status(maxage)
+            if state > status.OK:
+                if '=' in text:
+                    rettext.append('%s=(%s)' % (devname, text))
+                elif text:
+                    rettext.append('%s=%s' % (devname, text))
+            retstate = max(retstate, state)
+        if retstate > 0:
+            return retstate, ', '.join(rettext)
+        return status.UNKNOWN, 'no status could be determined'
