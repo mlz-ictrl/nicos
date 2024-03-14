@@ -4,6 +4,7 @@ group = 'special'
 # watch_conditions:
 pressure_value = 0.018  # no precon
 pressure_precon = 0.015
+pressure_tag = 'chamber' #'pressure'
 
 # watchlist:
 # The entries in this list are dictionaries. Possible keys:
@@ -51,19 +52,19 @@ watch_conditions = [
     #     message = 'NL2b or sixfold shutter closed',
     #     type = 'critical',
     # ),
-    dict(condition = 'pressure_CB_value > %.3f' % pressure_value,
-         precondition = 'pressure_CB_value < %.3f' % pressure_precon,
-         message = 'pressure_CB_value > %.3f' % pressure_value,
-         type = 'critical',
-        ),
-    dict(condition = 'pressure_SFK_value > %.3f' % pressure_value,
-         precondition = 'pressure_SFK_value < %.3f' % pressure_precon,
-         message = 'pressure_SFK_value > %.3f' % pressure_value,
+    dict(condition = f'{pressure_tag}_CB_value > {pressure_value:.3f}',
+         precondition = f'{pressure_tag}_CB_value <= {pressure_precon:.3f}',
+         message = f'{pressure_tag}_CB_value > {pressure_value:.3f}',
          type = 'critical',
     ),
-    dict(condition = 'pressure_SR_value > %.3f' % pressure_value,
-         precondition = 'pressure_SR_value < %.3f' % pressure_precon,
-         message = 'pressure_SR_value > %.3f' % pressure_value,
+    dict(condition = f'{pressure_tag}_SFK_value > {pressure_value:.3f}',
+         precondition = f'{pressure_tag}_SFK_value <= {pressure_precon:.3f}',
+         message = f'{pressure_tag}_SFK_value > {pressure_value:.3f}',
+         type = 'critical',
+    ),
+    dict(condition = f'{pressure_tag}_SR_value > {pressure_value:.3f}',
+         precondition = f'{pressure_tag}_SR_value <= {pressure_precon:.3f}',
+         message = f'{pressure_tag}_SR_value > {pressure_value:.3f}',
          type = 'critical',
     ),
     dict(
