@@ -132,6 +132,7 @@ def test_hgap_opposite(session):
     motor_left = session.getDevice('m_left')
 
     sw2.opmode = '2blades_opposite'
+    assert sw2.opmode == '2blades_opposite'
     sw2.maw([6, 7])
     assert motor_left.doRead() == 6
     assert motor_right.doRead() == 7
@@ -453,3 +454,45 @@ def test_gap_fmtstr(session):
         assert gap.fmtstr != '%.3f'
         gap.opmode = 'centered'
         assert gap.fmtstr == '%.3f'
+
+
+def test_hgap_overlap(session):
+    g = session.getDevice('hgap')
+    assert raises(LimitError, g.width.start, -1)
+    goverlap = session.getDevice('hgap_overlap')
+    goverlap.width.maw(-1)
+    assert goverlap.width() == -1
+    assert goverlap._attached_right() == -0.5
+    assert goverlap._attached_left() == 0.5
+    assert raises(LimitError, goverlap.width.start, -2)
+
+
+def test_vgap_overlap(session):
+    g = session.getDevice('vgap')
+    assert raises(LimitError, g.height.start, -1)
+    goverlap = session.getDevice('vgap_overlap')
+    goverlap.height.maw(-1)
+    assert goverlap.height() == -1
+    assert goverlap._attached_bottom() == 0.5
+    assert goverlap._attached_top() == -0.5
+    assert raises(LimitError, goverlap.height.start, -2)
+
+
+def test_hgap_open(session):
+    g = session.getDevice('hgap_open')
+    assert g.width() == 0
+    g.width.maw(1)
+    assert g.width() == 1
+    assert g._attached_left() == -0.5
+    assert g._attached_right() == 0.5
+    assert raises(LimitError, g.width.start, 0)
+
+
+def test_vgap_open(session):
+    g = session.getDevice('vgap_open')
+    assert g.height() == 0
+    g.height.maw(1)
+    assert g.height() == 1
+    assert g._attached_bottom() == -0.5
+    assert g._attached_top() == 0.5
+    assert raises(LimitError, g.height.start, 0)

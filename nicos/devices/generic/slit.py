@@ -62,7 +62,15 @@ class Gap(HasAutoDevices, CanReference, Moveable):
             type=bool,
             default=False,
         ),
+        'min_opening': Param('The minimum opening of the slit',
+                             type=float, userparam=False, settable=False,
+                             default=0),
     }
+    parameters['min_opening'].ext_desc = """
+In case of a negative value the opening will be considered as maximum overlap
+of the blades.  In case of positive numbers the value defines the minimum
+opening.
+"""
 
     parameter_overrides = {
         'fmtstr': Override(volatile=True),
@@ -115,10 +123,13 @@ class Gap(HasAutoDevices, CanReference, Moveable):
         return self._doIsAllowedPositions(self._getPositions(target))
 
     def _isAllowedSlitOpening(self, positions):
-        ok, why = True, ''
-        if positions[1] < positions[0]:
-            ok, why = False, 'gap is negative'
-        return ok, why
+        if positions[1] - positions[0] < self.min_opening:
+            if self.min_opening > 0:
+                return False, 'opening is too small'
+            if self.min_opening == 0:
+                return False, 'opening is negative'
+            return False, 'overlap is too big'
+        return True, ''
 
     def _doIsAllowedPositions(self, positions):
         f = self.coordinates == 'opposite' and -1 or +1
