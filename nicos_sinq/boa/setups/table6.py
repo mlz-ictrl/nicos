@@ -17,7 +17,7 @@ devices = dict(
         precision = 0.05,
         can_disable = True,
     ),
-    Table6 = device('nicos_sinq.boa.devices.boatable.BoaTable',
+    Table6 = device('nicos_sinq.devices.componenttable.ComponentTable',
         description = 'Table 6',
         standard_devices = ['t6tx', 't6ty']
     ),

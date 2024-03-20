@@ -25,7 +25,7 @@ import pytest
 
 from nicos.commands.basic import AddSetup
 
-session_setup = 'sinq_boatable'
+session_setup = 'sinq_componenttable'
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -44,20 +44,18 @@ def test_standard(session):
 
 def test_adding_setup(session):
     table = session.getDevice('table_test')
-    table.addSetup('stdsystem')
+    table.attach('stdsystem')
     devList = table.getTableDevices()
 
     assert len(devList) == 6
-    assert 'rb' in devList
-    assert 'rc' in devList
-    assert 'Exp' in devList
-    assert 'Sample' in devList
+    for d in ['rb', 'rc', 'Exp', 'Sample']:
+        assert d in devList
 
 
 def test_removing_setup(session):
     table = session.getDevice('table_test')
-    table.addSetup('stdsystem')
-    table.removeSetup('stdsystem')
+    table.attach('stdsystem')
+    table.detach('stdsystem')
     devList = table.getTableDevices()
 
     assert len(devList) == 2
@@ -67,20 +65,20 @@ def test_removing_setup(session):
 
 def test_adding_device(session):
     table = session.getDevice('table_test')
-    table.addDevice('Exp')
+    table.attach(session.getDevice('Exp'))
 
     devList = table.getTableDevices()
 
     assert len(devList) == 3
-    assert 'rb' in devList
-    assert 'rc' in devList
-    assert 'Exp' in devList
+    for d in ['rb', 'rc', 'Exp']:
+        assert d in devList
 
 
 def test_removing_device(session):
     table = session.getDevice('table_test')
-    table.addDevice('Exp')
-    table.removeDevice('Exp')
+    exp = session.getDevice('Exp')
+    table.attach(exp)
+    table.detach('Exp')
 
     devList = table.getTableDevices()
 
@@ -89,9 +87,17 @@ def test_removing_device(session):
     assert 'rc' in devList
 
 
-def test_show(session):
+def test_show(session, log):
     table = session.getDevice('table_test')
-    table.addDevice('Exp')
-    table.addSetup('detector')
+    table.attach(session.getDevice('Exp'))
+    # table.attach(session.getDevice('detector'))
 
-    table.show()
+    with log.assert_msg_matches([r'Standard Devices:',
+                                 r'rb, rc',
+                                 r'Setups:',
+                                 r'Additional Devices',
+                                 r'\tExp',
+                                 r'Total Devices',
+                                 r'rb, rc, Exp',
+                                ]):
+        table.show()

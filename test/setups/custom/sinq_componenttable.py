@@ -39,8 +39,7 @@ devices = dict(
         description = 'Second motor of rotation table',
         abslimits = (-100, 100),
     ),
-    table_test = device('nicos_sinq.boa.devices.boatable'
-        '.BoaTable',
+    table_test = device('nicos_sinq.devices.componenttable.ComponentTable',
         description = "Boa Table Testing",
         standard_devices = ['rb', 'rc']
     ),

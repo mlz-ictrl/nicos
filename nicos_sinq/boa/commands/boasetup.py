@@ -57,7 +57,7 @@ test_presence = [('SQ:BOA:MCU4:PRESENT', 'quasi_adaptive_optics'),
 # test for presence. These devices are held in this list. There is a tuple of
 # test PV name and matching setup here.
 table_presence = [('SQ:BOA:xy1:TableIndex', 'translation1'),
-                  ('SQ:BOA:xy1:TableIndex', 'translation2'),
+                  ('SQ:BOA:xy2:TableIndex', 'translation2'),
                   ('SQ:BOA:drot1:TableIndex', 'drot1'),
                   ('SQ:BOA:drot2:TableIndex', 'drot2'),
                   ('SQ:BOA:dg:TableIndex', 'double_goniometer'),
@@ -105,7 +105,11 @@ def boadiscover():
         else:
             if comp[1] not in loaded_setups:
                 to_add.append(comp[1])
-            table_config[idx].append(comp[1])
+            if idx in table_config.keys():
+                table_config[idx].append(comp[1])
+            else:
+                session.log.warning('EPICS discovery set an invalid table ID: '
+                                    '%d, for %s', idx, comp[1])
 
     # Unload and load setups
     RemoveSetup(*to_remove)
@@ -118,11 +122,11 @@ def boadiscover():
         # remove setups which have gone
         for setup in to_remove:
             if setup in table.setups:
-                table.removeSetup(setup)
+                table.detach(setup)
         # add additional setups to table
         for setup in table_config[i+2]:
             if setup not in table.setups:
-                table.addSetup(setup)
+                table.attach(setup)
 
     session.log.info('Autodiscovery finished')
     session.log.info('Some setups: dmono, detectors etc cannot be auto '

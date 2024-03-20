@@ -7,7 +7,7 @@ devices = dict(
         description = 'Table 3 x translation',
         readpv = pvprefix + 'T3TX',
     ),
-    Table3 = device('nicos_sinq.boa.devices.boatable.BoaTable',
+    Table3 = device('nicos_sinq.devices.componenttable.ComponentTable',
         description = 'Table 3',
         standard_devices = [
             't3tx',
