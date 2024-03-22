@@ -26,7 +26,7 @@
 import pytest
 
 from nicos.commands.analyze import center_of_mass, fwhm, gauss, poly, \
-    root_mean_square
+    root_mean_square, ListFitters
 from nicos.core import FINAL
 
 try:
@@ -91,3 +91,29 @@ class TestAnalyzers:
         result = gauss()
         assert len(result) == 2 and len(result[0]) == 4
         assert -0.874 < result[0][0] < -0.873
+
+
+def test_list_fitters(session, log):
+    with log.assert_msg_matches([
+        r'name            can center',
+        r'==============  ==========',
+        r'center_of_mass  yes',
+        r'cos             yes',
+        r'cosine          yes',
+        r'exp             no',
+        r'exponential     no',
+        r'gauss           yes',
+        r'gaussian        yes',
+        r'line            no',
+        r'linear          no',
+        r'lorentz         yes',
+        r'lorentzian      yes',
+        r'pearson         yes',
+        r'pearson-vii     yes',
+        r'pseudo-voigt    yes',
+        r'pseudovoigt     yes',
+        r'sigmoid         yes',
+        r'tc              yes',
+        r'tcfit           yes',
+        ]):
+        ListFitters()
