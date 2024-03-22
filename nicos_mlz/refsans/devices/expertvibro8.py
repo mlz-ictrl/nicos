@@ -24,6 +24,7 @@
 """Devices for the Refsans expertvibro."""
 
 from nicos.core import Override, Param, Readable, intrange, status
+from nicos.core.constants import SIMULATION
 from nicos.devices.tango import PyTangoDevice
 
 
@@ -70,3 +71,10 @@ class AnalogValue(Base):
 
     def doRead(self, maxage=0):
         return self._readBuffer()[self.channel]
+
+    def doReset(self):
+        self._dev.WriteOutputWord((32, 1))
+
+    def clear(self):
+        if self._mode != SIMULATION:
+            self._dev.WriteOutputWord((32, 0))
