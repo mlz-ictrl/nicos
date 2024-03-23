@@ -393,7 +393,7 @@ class SecNodeDevice(Readable):
         if unmapped
         """
         if module in self.device_mapping \
-            and 'name' in self.device_mapping[module]:
+           and 'name' in self.device_mapping[module]:
             return self.device_mapping[module]['name']
         return self._get_prefix() + module
 
@@ -660,12 +660,11 @@ class SecNodeDevice(Readable):
         """
         # TODO: or NameError?
         if module not in self._secnode.modules:
-            raise ValueError('no module %r found on this SEC node'
-                                     % module)
+            raise ValueError('no module %r found on this SEC node' % module)
         if parameter not in self._secnode.modules[module]['parameters']:
             raise ValueError('no parameter %r found on module %r of this SEC node'
-                                     % (parameter, module))
-        self._custom_callbacks[(module,parameter)].append(f)
+                             % (parameter, module))
+        self._custom_callbacks[(module, parameter)].append(f)
         self._secnode.register_callback((module, parameter), updateItem=f)
         self.log.debug('registered callback %r for %s:%s', f.__name__,
                        module, parameter)
@@ -674,13 +673,12 @@ class SecNodeDevice(Readable):
         """Unregister a custom callback on this Node (prefer function on SecopDevice)."""
         # TODO: or NameError?
         if module not in self._secnode.modules:
-            raise ValueError('no module %r found on this SEC node'
-                                     % module)
+            raise ValueError('no module %r found on this SEC node' % module)
         if parameter not in self._secnode.modules[module]['parameters']:
             raise ValueError('no parameter %r found on module %r of this SEC node'
-                                     % (parameter, module))
+                             % (parameter, module))
         try:
-            self._custom_callbacks[(module,parameter)].append(f)
+            self._custom_callbacks[(module, parameter)].append(f)
             self._secnode.register_callback((module, parameter), updateItem=f)
         except ValueError as e:
             raise ValueError('function not registered as callback!') from e
