@@ -929,10 +929,10 @@ class ControlDialog(QDialog):
             self.buttonBox.removeButton(historyBtn)
         else:
             self.valuelabel.setText(self.devitem.text(1))
-            self.statuslabel.setText(self.devitem.text(2))
+            self.statuslabel.setText(self.devitem.text(3))
             self.statusimage.setPixmap(self.devitem.icon(0).pixmap(16, 16))
-            setForegroundBrush(self.statuslabel, self.devitem.foreground(2))
-            setBackgroundBrush(self.statuslabel, self.devitem.background(2))
+            setForegroundBrush(self.statuslabel, self.devitem.foreground(3))
+            setBackgroundBrush(self.statuslabel, self.devitem.background(3))
 
             # modify history button: add icon and set text
             historyBtn.setIcon(QIcon(':/find'))
