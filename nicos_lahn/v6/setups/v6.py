@@ -2,7 +2,7 @@ description = 'V6 setup'
 
 group = 'basic'
 
-includes = ['slit2', 'slit3', 'sampletable']
+includes = ['spinflipper', 'slit2', 'slit3', 'sampletable']
 
 startupcode = '''
 read()
