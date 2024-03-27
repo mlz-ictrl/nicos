@@ -67,7 +67,7 @@ def checkoutSource() {
 }
 
 def publishGerrit(name, value) {
-    def map = [(-1) :"FAILED", 0:"RUNNING", 1:"SUCCESSFUL"]	
+    def map = [(-1) :"FAILED", 0:"RUNNING", 1:"SUCCESSFUL"]
     gerritPostCheck(["jenkins:${name}":map[value]])
 }
 
@@ -323,16 +323,8 @@ node('dockerhost') {
     def buildimage_rocky = null;
 
     stage('docker setup') {
-        u18 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bionic')
-        u18.pull()
-        d11 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye')
-        d11.pull()
-        // remove bionic usage fully once we don't support the 3.9 branch anymore
-        if (GERRIT_BRANCH == 'master'  || GERRIT_BRANCH == 'release-3.10') {
-            buildimage_deb = d11
-        } else {
-            buildimage_deb = u18
-        }
+        buildimage_deb = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye')
+        buildimage_deb.pull()
 
         buildimage_rocky = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:rockylinux9')
         buildimage_rocky.pull()
