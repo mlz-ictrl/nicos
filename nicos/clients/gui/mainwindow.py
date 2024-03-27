@@ -417,6 +417,11 @@ class MainWindow(DlgUtils, QMainWindow):
             self.createWindow(wtype)
 
     def saveWindowLayout(self):
+        if sys.platform == 'darwin':
+            # on macos geometry saved in maximized window mode cannot be read
+            # again properly, which crashes nicos-gui
+            if self.isMaximized():
+                self.showNormal()
         with self.sgroup as settings:
             settings.setValue('geometry', self.saveGeometry())
             settings.setValue('windowstate', self.saveState())
