@@ -3,6 +3,7 @@ group = "basic"
 
 includes = [
     "counter",
+    'physics',
 ]
 
 sysconfig = dict(

@@ -5,6 +5,7 @@ includes = [
     'ccmotors',
     'counter',
     'motors',
+    'physics',
     'power',
     'spsanalog',
     'thermojet',
