@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Airpad axis for MIRA."""
+"""Airpad axis."""
 
 from nicos import session
 from nicos.core import Attach, Moveable, Param, anytype, tupleof
@@ -51,9 +51,9 @@ class HoveringAxis(Axis):
             self, old_value, target) + self.startdelay + self.stopdelay
 
     def _preMoveAction(self):
-        self._adevs['switch'].maw(self.switchvalues[1])
+        self._attached_switch.maw(self.switchvalues[1])
         session.delay(self.startdelay)
 
     def _postMoveAction(self):
         session.delay(self.stopdelay)
-        self._adevs['switch'].maw(self.switchvalues[0])
+        self._attchached_switch.maw(self.switchvalues[0])

@@ -45,7 +45,7 @@ from nicos.core import SIMULATION, Attach, InvalidValueError, Param, listof, \
     status
 from nicos.devices import entangle
 
-from nicos_mlz.mira.devices.axis import HoveringAxis
+from nicos_mlz.devices.axes import HoveringAxis
 
 
 class Stargate(entangle.DigitalOutput):

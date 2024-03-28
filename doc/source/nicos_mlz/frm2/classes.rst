@@ -55,3 +55,6 @@
 .. module:: nicos_mlz.devices.cetoni
 .. autoclass:: CetoniSensor()
 .. autoclass:: CetoniPump()
+
+.. module:: nicos_mlz.devices.axes
+.. autoclass:: HoveringAxis()

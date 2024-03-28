@@ -40,7 +40,7 @@ devices = dict(
         fmtstr = '%d',
         visibility = (),
     ),
-    arm1_rot = device('nicos_mlz.mira.devices.axis.HoveringAxis',
+    arm1_rot = device('nicos_mlz.devices.axes.HoveringAxis',
         description = 'Rotation arm 1',
         motor = 'arm1_rot_mot',
         coder = 'arm1_rot_enc',

@@ -38,7 +38,7 @@ devices = dict(
         tangodevice = tango_base + 'aircontrol/plc_airpads_sampletable',
         visibility = (),
     ),
-    mtt = device('nicos_mlz.mira.devices.axis.HoveringAxis',
+    mtt = device('nicos_mlz.devices.axes.HoveringAxis',
         description = 'primary spectrometer angle (A2)',
         motor = 'mtt_m',
         coder = 'mtt_c',

@@ -17,7 +17,7 @@ devices = dict(
         unit = 'deg',
         precision = 1,  # due to backlash
     ),
-    m2tt = device('nicos_mlz.mira.devices.axis.HoveringAxis',
+    m2tt = device('nicos_mlz.devices.axes.HoveringAxis',
         description = 'monochromator two-theta angle',
         precision = 0.04,
         backlash = 1,

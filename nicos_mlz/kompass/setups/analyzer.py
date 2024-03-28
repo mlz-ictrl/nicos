@@ -20,7 +20,7 @@ devices = dict(
         tangodevice = tango_base + 'airpads_detector',
         visibility = (),
     ),
-    att = device('nicos_mlz.mira.devices.axis.HoveringAxis',
+    att = device('nicos_mlz.devices.axes.HoveringAxis',
         description = 'secondary spectrometer angle (A6)',
         motor = 'att_m',
         coder = 'att_c',

@@ -54,7 +54,7 @@ devices = dict(
         pbs_values = ('down', 'up'),
     ),
 
-    stt_ax = device('nicos_mlz.mira.devices.axis.HoveringAxis',
+    stt_ax = device('nicos_mlz.devices.axes.HoveringAxis',
         description = 'secondary spectrometer angle (A4)',
         motor = 'stt_m',
         coder = 'stt_m',

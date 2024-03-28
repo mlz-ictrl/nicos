@@ -7,9 +7,6 @@
 .. autoclass:: DigitalInput()
 .. autoclass:: NamedDigitalInput()
 
-.. module:: nicos_mlz.mira.devices.axis
-.. autoclass:: HoveringAxis()
-
 .. module:: nicos_mlz.mira.devices.cascade
 .. autoclass:: XmlHandler()
 .. autoclass:: XmlSink()
