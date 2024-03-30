@@ -40,18 +40,12 @@ class TemperatureSensor(PyTangoDevice, Readable):
         'comtries': Override(default=5),
     }
 
-    def doInit(self, mode):
-        pass
-
     def doRead(self, maxage=0):
         # return current temperature
-        what = '%02dms' % self.address
-        temp = float(self._dev.Communicate(what))
+        temp = float(self._dev.Communicate(f'{self.address:02d}ms'))
         if temp > 77769:
-            temp = -0
-        else:
-            temp /= 10.0
-        return temp
+            return -0
+        return temp / 10
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
