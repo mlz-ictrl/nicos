@@ -274,7 +274,7 @@ class AmorLogicalMotor(Motor):
 
 class DetectorAngleMotor(TransformedMoveable):
 
-    hardware_accesss = False
+    hardware_access = False
 
     # The real motors
     attached_devices = {
