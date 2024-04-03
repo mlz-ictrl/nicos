@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
@@ -37,7 +36,7 @@ from nicos.utils.pid import PID
 
 
 class TextProgressIndicator:
-    _line = ['⠆', '⠃', '⠉', '⠘', '⠰', '⠤',]
+    _line = ['⠆', '⠃', '⠉', '⠘', '⠰', '⠤']
     _len = len(_line)
 
     @classmethod
