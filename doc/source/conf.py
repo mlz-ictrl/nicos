@@ -46,7 +46,6 @@ extensions = [
     'sphinx.ext.mathjax',
     'ext.setupdoc',
     'ext.daemondoc',
-    'ext.stubs',
     'ext.nicosclassdoc',
     'sphinxcontrib.seqdiag',
     #'alabaster',

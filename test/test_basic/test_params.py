@@ -30,7 +30,7 @@ from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     anytype, boolean, dictof, dictwith, floatrange, host, intrange, ipv4, \
     limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
     nonemptystring, oneof, oneofdict, oneofdict_or, pvname, relative_path, \
-    setof, string, subdir, tacodev, tangodev, tupleof, vec3
+    setof, string, subdir, tangodev, tupleof, vec3
 
 from test.utils import raises
 
@@ -201,16 +201,6 @@ def test_dictwith():
     assert raises(ValueError, dictwith(key=int), [])
     # test that the dict is read-only
     assert raises(TypeError, dictwith(key=int)({'key': '1'}).pop, 1)
-
-
-def test_tacodev():
-    assert tacodev('test/custom/device') == 'test/custom/device'
-    assert tacodev('test/custom/device1') == 'test/custom/device1'
-    assert tacodev('test1/custom1/device1') == 'test1/custom1/device1'
-    assert tacodev('1/2/3') == '1/2/3'
-    assert tacodev() == ''
-    assert raises(ValueError, tacodev, '/taco23/test/custom/device')
-    assert raises(ValueError, tacodev, 'test/device')
 
 
 def test_tangodev():

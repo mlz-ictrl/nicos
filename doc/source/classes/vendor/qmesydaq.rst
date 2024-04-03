@@ -7,21 +7,15 @@ controlled by |qmesydaq_link|.
 All classes are channels and must be combined to a detector device with the
 :class:`~nicos.devices.generic.detector.Detector`.
 
-There are three versions communication with QMesyDAQ:
+There are two versions of communication with QMesyDAQ:
 
  - `TANGO`_
- - `TACO`_
  - `CARESS`_
 
 TANGO
 -----
 
 .. automodule:: nicos.devices.vendor.qmesydaq.tango
-
-TACO
-----
-
-.. automodule:: nicos.devices.vendor.qmesydaq.taco
 
 CARESS
 ------

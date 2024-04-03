@@ -259,7 +259,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif typ == params.nicosdev:
         return DeviceComboWidget(parent, curvalue, client,
                                  allow_enter=allow_enter)
-    elif typ in (params.tacodev, params.tangodev, params.mailaddress,
+    elif typ in (params.tangodev, params.mailaddress,
                  params.ipv4, params.subdir, params.relative_path,
                  params.absolute_path):
         # XXX validate via regexp

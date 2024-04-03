@@ -788,19 +788,6 @@ def nicosdev(val=None):
     return val
 
 
-tacodev_re = re.compile(r'^(//[\w.-]+/)?[\w-]+/[\w-]+/[\w-]+$', re.I)
-
-
-def tacodev(val=None):
-    """a valid taco device"""
-    if val in ('', None):
-        return ''
-    val = string(val)
-    if not tacodev_re.match(val):
-        raise ValueError('%r is not a valid Taco device name' % val)
-    return val
-
-
 # allow only tango device names according tango spec
 # http://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/ds_prog/node13.html
 # without any attributes and properties

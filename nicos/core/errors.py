@@ -40,7 +40,6 @@ class NicosError(Exception):
     """
     category = 'Error'
     device = None
-    tacoerr = None
 
     def __init__(self, *args, **kwds):
         # store the originating device on the exception

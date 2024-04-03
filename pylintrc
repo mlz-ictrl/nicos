@@ -26,10 +26,7 @@ ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook="
- import numpy
- from nicos.utils.stubs import generate_stubs
- generate_stubs()"
+init-hook="import numpy"
 
 # Use multiple processes to speed up Pylint.
 jobs=1

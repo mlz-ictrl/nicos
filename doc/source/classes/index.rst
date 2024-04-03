@@ -13,7 +13,6 @@ distribution.
    generic/index
    polarized
    tas
-   taco/index
    tango
    epics
    secop

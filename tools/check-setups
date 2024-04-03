@@ -35,7 +35,6 @@ except ImportError:
     from nicos import config
 
 from nicos.utils.loggers import ColoredConsoleHandler
-from nicos.utils.stubs import generate_stubs
 
 from nicostools.setupchecker import FileHandler, Logger, SetupValidator
 
@@ -71,8 +70,6 @@ def main():
             for p in config.setup_subdirs
         ]
         paths = default_dirs
-
-    generate_stubs()
 
     logging.basicConfig()
     logging.setLoggerClass(Logger)

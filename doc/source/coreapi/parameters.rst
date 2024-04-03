@@ -184,10 +184,6 @@ as-is as a parameter type.  Example::
 
    Converter that only accepts valid NICOS device names.
 
-.. function:: tacodev
-
-   Converter that only accepts valid TACO device names.
-
 .. function:: tangodev
 
    Converter that only accepts valid TANGO device names (must be of the

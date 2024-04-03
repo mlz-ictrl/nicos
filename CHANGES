@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Release 3.12.0
+--------------
+
+* Core
+
+  - Dropped support for TACO devices.
+
+
 Release 3.11.0
 --------------
 

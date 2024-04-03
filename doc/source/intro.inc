@@ -10,7 +10,7 @@ interactive use at the same time.
 
 NICOS features an open interface to allow for different communciation backends
 to the underlying hardware. Just to name a few, by default NICOS supports
-TACO_, TANGO_, EPICS_, CARESS_, and SECoP_.
+TANGO_, EPICS_, CARESS_, and SECoP_.
 
 NICOS allows runtime changes to the hardware configuration and offers a
 plug-and play system for e.g. sample environment systems.
@@ -25,7 +25,6 @@ for alerting via email and instant messaging services (such as Slack).
 Of course, all these features are easily configurable.
 
 .. _MLZ: https: //www.mlz-garching.de
-.. _TACO: https://taco.sf.net
 .. _TANGO: https://tango-controls.org
 .. _EPICS: https://www.aps.anl.gov/epics/
 .. _CARESS: https://www.helmholtz-berlin.de/zentrum/locations/it/software/exsteuer/caress_de.html

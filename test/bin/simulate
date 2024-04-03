@@ -30,9 +30,8 @@ sync_cache_file = None
 class TestSimulationSession(SimulationSession):
 
     def begin_setup(self):
-        # do not set log handler to ERROR level, but do generate these:
-        from nicos.utils.stubs import generate_stubs
-        generate_stubs()
+        # do not set log handler to ERROR level
+        pass
 
     def simulationSync(self, db=None):
         if sync_cache_file is None:

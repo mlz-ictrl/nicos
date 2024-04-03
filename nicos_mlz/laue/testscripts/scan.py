@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: skip
 # test: subdirs = laue
 # test: setups = kappa
 
