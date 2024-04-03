@@ -18,14 +18,6 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watch_conditions = [
-    dict(condition = '( fugwatch_value == "on" and'
-                     '  abs(t_setpoint - ts_value) > 1.5 )',
-         type = 'default',
-         message = 'Temperature deviation between setpoint and value '
-                   'is too high shutting down high voltage.',
-         setup = 'highvoltage',
-         action = 'maw(fug, 0)',
-        ),
 ]
 
 includes = ['notifiers']
