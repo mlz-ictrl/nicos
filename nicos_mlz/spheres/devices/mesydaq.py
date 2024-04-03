@@ -22,12 +22,12 @@
 # *****************************************************************************
 
 
-from nicos.devices.vendor.qmesydaq.taco import Timer as MesyTimer
+from nicos.devices.vendor.qmesydaq.tango import TimerChannel as MesyTimer
 
 
 class Timer(MesyTimer):
     def getLastListModeFile(self):
-        return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile')
+        return self._getProperty('lastlistfile')
 
     def getLastHistModeFile(self):
-        return self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile')
+        return self._getProperty('lasthistfile')

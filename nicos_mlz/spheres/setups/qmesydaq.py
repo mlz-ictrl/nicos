@@ -1,25 +1,26 @@
 description = 'qmesydaq channel devices'
 group = 'optional'
 
-sysconfig = dict(datasinks = ['mesysink', 'mesylive'])
+sysconfig = dict(
+    datasinks = ['mesysink', 'mesylive']
+)
 
-tacohost = 'mesydaq.spheres.frm2'
-qm = '//%s/spheres/qmesydaq/' % tacohost
+qm = 'tango://mesydaq.spheres.frm2:10000/spheres/qmesydaq/'
 
 devices = dict(
-    #    mon1 = device('nicos.devices.vendor.qmesydaq.taco.Counter',
+    #    mon1 = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
     #                  description = 'QMesyDAQ Counter',
-    #                  tacodevice = qm + 'counter0',
+    #                  tangodevice = qm + 'counter0',
     #                  type = 'monitor',
     #                 ),
-    events = device('nicos.devices.vendor.qmesydaq.taco.Counter',
+    events = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
         description = 'QMesyDAQ Events channel',
-        tacodevice = qm + 'events',
+        tangodevice = qm + 'events',
         type = 'counter',
     ),
-    mesyimg = device('nicos.devices.vendor.qmesydaq.taco.Image',
+    mesyimg = device('nicos.devices.vendor.qmesydaq.tango.ImageChannel',
         description = 'QMesyDAQ MultiChannel Detector',
-        tacodevice = qm + 'det',
+        tangodevice = qm + 'det',
     ),
     mesy = device('nicos.devices.generic.Detector',
         description = 'QMesyDAQ Image type Detector',
@@ -42,7 +43,7 @@ devices = dict(
     ),
     mesytimer = device('nicos_mlz.spheres.devices.mesydaq.Timer',
         description = 'QMesyDaq timer',
-        tacodevice = qm + 'timer'
+        tangodevice = qm + 'timer'
     ),
 )
 
