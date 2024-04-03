@@ -2,8 +2,6 @@ description = 'NOK5b using Beckhoff controllers'
 
 group = 'lowlevel'
 
-
-
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -14,7 +12,7 @@ index_r = 5
 index_s = 6
 
 devices = {
-    '%s' % setupname : device(code_base + 'beckhoff.nok.DoubleMotorBeckhoffNOK',
+    f'{setupname}': device(code_base + 'beckhoff.nok.DoubleMotorBeckhoffNOK',
         description = '%s layer optic' % setupname,
         tangodevice = tango_base + 'optic/io/modbus',
         ruler = [266.947, 300.101], #abs enc! 53.8985,

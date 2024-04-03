@@ -1,11 +1,11 @@
-description = '%s readout devices' % setupname
+description = f'{setupname} readout devices'
 
 group = 'lowlevel'
 
 instrument_values = configdata('instrument.values')
 
-tango_base = instrument_values['tango_base'] + '%s/io/modbus' % setupname
-code_base = instrument_values['code_base'] + '%s.' % setupname
+tango_base = instrument_values['tango_base'] + f'{setupname}/io/modbus'
+code_base = instrument_values['code_base'] + f'{setupname}.'
 
 devices = dict(
 )

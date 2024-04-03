@@ -4,11 +4,11 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-tango_base = 'tango://%s:10000/box/omega/' % setupname
+tango_base = f'tango://{setupname}:10000/box/omega/'
 
 devices = {
-    # 'T_%s' % setupname : device('nicos.devices.entangle.TemperatureController',
-    'T_%s' % setupname : device('nicos.devices.entangle.Actuator',
+    # f'T_{setupname}': device('nicos.devices.entangle.TemperatureController',
+    f'T_{setupname}': device('nicos.devices.entangle.Actuator',
         description = 'Temperature of the stove',
         tangodevice = tango_base + 'temperature',
         abslimits = (0, 400),
@@ -18,6 +18,6 @@ devices = {
 }
 
 alias_config = {
-    'T':  {'T_%s' % setupname: 500},
-    'Ts':  {'T_%s' % setupname: 500},
+    'T':  {f'T_{setupname}': 500},
+    'Ts':  {f'T_{setupname}': 500},
 }
