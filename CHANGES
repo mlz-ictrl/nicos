@@ -8,6 +8,50 @@ Release 3.11.0
 
   - NICOS now requires at least Python 3.9 to run.
 
+  - The InfluxDB cache backend now is faster and correctly handles last values
+    and history queries for periods without value changes.
+
+* Commands
+
+  - ``floatrange`` renamed to ``FloatRange`` for consistency.
+
+* Devices
+
+  - Gap devices can now allow blades to overlap or keep a minimum opening with
+    the new ``min_opening`` parameter.
+
+  - Support adapting the simulated neutrons to different hosts in McStas
+    devices.
+
+  - Added integration for the RabbitMQ data catalog pipeline and eWorkbench
+    electronic logbook backend.
+
+  - Added options to filter and wrap NICOS devices when connecting to a SEC node
+    and automatically creating devices for each module.
+
+  - Added mail notifier that automatically includes the hostname in the subject.
+
+* GUI
+
+  - Readonly parameter values can now be copied from the GUI device "details"
+    dialog.
+
+  - Selected parts of console output can be added to the electronic logbook.
+
+  - Added more file readers to reopen already measured data files.
+
+  - Use better default colors for scan/history plot curves.
+
+  - Initial support for dark-mode system UI themes.
+
+* Other
+
+  - The electronic logbook can now have multiple backend handlers.
+
+  - Increased test coverage and added tests for selected GUI components.
+
+  - Added many more test scripts for individual instruments.
+
 
 Release 3.10.0
 --------------
