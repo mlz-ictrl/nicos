@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 import os
+
 from test.utils import alt_cache_addr
 
 name = 'setup for cache stresstest with memory db'
@@ -37,6 +38,7 @@ devices = dict(
         keystoretoken = 'influxdb',
         org = 'mlz',
         bucket = 'nicos-test',
+        bucket_latest = 'nicos-test-latest',
         loglevel = 'info',
     ),
 )

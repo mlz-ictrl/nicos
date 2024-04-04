@@ -3,17 +3,16 @@ group = 'special'
 
 devices = dict(
     DB = device('nicos.services.cache.database.influxdb.InfluxDBCacheDatabase',
-        url = 'http://app.antares.frm2.tum.de:8086',
+        # localhost if influxdb runs on the same machine
+        url = 'http://localhost:8086',
+        # token of a password saved using nicos-kyestore
         keystoretoken = 'influxdb',
-        org = 'mlz',
-        bucket = 'nicos-cache',
-        bucket_latest = 'nicos-cache-latest-values',
+        org = 'organization_name',
         loglevel = 'info',
     ),
     Server = device('nicos.services.cache.server.CacheServer',
-        description = 'Value caching server',
         db = 'DB',
-        server = '',
+        server = 'localhost',
         loglevel = 'info',
     ),
 )
