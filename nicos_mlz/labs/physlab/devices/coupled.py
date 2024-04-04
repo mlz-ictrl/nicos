@@ -29,6 +29,7 @@ from nicos.devices.abstract import Moveable
 class CoupledMotor(Moveable):
 
     hardware_access = False
+    valuetype = float
 
     attached_devices = {
         'maxis': Attach('Main axis to move', Moveable),
@@ -37,7 +38,7 @@ class CoupledMotor(Moveable):
     }
 
     parameters = {
-        'offset': Param('Offset between mainAxis and slaveAxis',
+        'offset': Param('Offset between main and coupled axis',
                         type=float, default=.0, settable=True)
     }
 
