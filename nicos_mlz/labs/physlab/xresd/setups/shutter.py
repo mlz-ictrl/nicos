@@ -14,8 +14,9 @@ devices = dict(
         description = 'open time of the shutter',
         tangodevice = tango_base + 'shuttertime',
     ),
-    t_anode = device('nicos.devices.generic.ManualSwitch',
-        description = 'x-ray tube anode material',
-        states = ['Cr', 'Cu'],
+    t_anode = device('nicos.devices.generic.ParamDevice',
+        description = 'X-ray tube anode material',
+        device = 'image',
+        parameter = 'anode',
     ),
 )
