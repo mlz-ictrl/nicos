@@ -17,32 +17,48 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Book <alexander.book@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
-import numpy as np
+"""Special Live panel with auto scaling display."""
 
 from nicos.clients.gui.panels.live import LiveDataPanel
+from nicos.guisupport.livewidget import IntegralLiveWidget, LiveWidget1D
 
 
-class TThetaLiveDataPanel(LiveDataPanel):
+class AutoScaleLiveWidget1D(LiveWidget1D):
 
-    def setData(self, arrays, labels=None, titles=None, uid=None, display=True):
+    def __init__(self, parent=None, **kwargs):
+        kwargs.update({'xscale': 'decimal'})
+        LiveWidget1D.__init__(self, parent, **kwargs)
 
-        # This will cache the original data, but does not display it
-        if uid:
-            LiveDataPanel.setData(self, arrays, labels, titles, uid=uid,
-                                  display=False)
+    def getYMax(self):
+        minupperedge = 1
+        if self._arrays is not None:
+            minupperedge = max(array.max() for array in self._arrays)
+            minupperedge *= 2.15 if self._logscale else 1.05
+        return minupperedge
 
-        ttheta = arrays[0][0]
-        counts = arrays[0][1]
+    def getYMin(self):
+        maxloweredge = 0.09 if self._logscale else 0
+        if self._arrays is not None:
+            maxloweredge = min(array.min() for array in self._arrays)
+            maxloweredge *= 0.5 if self._logscale else 0.95
+        return maxloweredge
 
-        labels = {'x': np.array(ttheta)}
-        titles = {'x': '2θ [deg]', 'y': 'counts'}
-        # This will display the modified data, but does not cache it..
-        LiveDataPanel.setData(self, np.array([counts]), labels, titles,
-                              uid=None, display=display)
+    def _getNewYRange(self):
+        ymax = self.getYMax()
+        ymin = self.getYMin()
+        return ymin, ymax, ymax
 
-    # def _initLiveWidget(self, array):
-    #    self.initLiveWidget(LiveWidget1D)
+
+class AutoScaleLiveDataPanel(LiveDataPanel):
+
+    def _initLiveWidget(self, array):
+        """Initialize livewidget based on array's shape"""
+        if len(array.shape) == 1:
+            widgetcls = AutoScaleLiveWidget1D
+        else:
+            widgetcls = IntegralLiveWidget
+        self.initLiveWidget(widgetcls)
