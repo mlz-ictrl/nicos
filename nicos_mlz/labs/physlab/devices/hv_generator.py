@@ -55,7 +55,8 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
     }
 
     def doRead(self, maxage=0):
-        return (self._attached_voltage.voltage, self._attached_current.current)
+        return (self._attached_voltage.read(maxage),
+                self._attached_current.read(maxage))
 
     def doReadWaterflow(self):
         return self._dev.waterflow
