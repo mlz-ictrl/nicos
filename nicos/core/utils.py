@@ -169,13 +169,11 @@ def multiStatus(devices, maxage=None):
             rettext.append('%s=(%s)' % (devname, text))
         elif text:
             rettext.append('%s=%s' % (devname, text))
-        if state > retstate:
-            retstate = state
+        retstate = max(retstate, state)
     if retstate > 0:
         return retstate, ', '.join(rettext)
-    else:
-        return status.UNKNOWN, 'no status could be determined (no doStatus ' \
-                               'implemented?)'
+    return status.UNKNOWN, 'no status could be determined (no doStatus ' \
+                           'implemented?)'
 
 
 def multiWait(devices):
