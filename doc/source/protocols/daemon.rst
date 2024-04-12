@@ -466,4 +466,13 @@ protocols.
    The script has been paused, and the user should be prompted to
    confirm continuation.
 
-   :arg: The continuation prompt.
+   :arg: A two-element tuple (prompt text, prompt uid) for simple confirmations,
+       or (prompt text, prompt uid, validator object, preset value) for value
+       inputs.
+
+.. daemonevt:: promptdone
+
+   A prompt sent with `prompt` has been responded to by a user,
+   cancel any prompts.
+
+   :arg: A single-element tuple (prompt uid,)

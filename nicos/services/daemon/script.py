@@ -335,7 +335,13 @@ class ExecutionController(Controller):
             self.log.info('script paused in %s', self.current_location())
             session.log.info('Script paused by %s', flag[2])
             self.eventfunc('status', (STATUS_INBREAK, self.lineno))
-        new_flag = self.wait_for_continue()
+        while True:
+            new_flag = self.wait_for_continue(60)
+            # timeout?
+            if new_flag is Ellipsis:
+                session.breakCallback()
+            else:
+                break
         # new_flag is either a flag coming from Handler.stop(), from
         # Handler.continue() or the old one from above
         if new_flag[0] == 'continue':

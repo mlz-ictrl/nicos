@@ -89,6 +89,26 @@ def test_htmlhelp(client):
             break
 
 
+def test_userinput(client):
+    load_setup(client, 'daemontest')
+    idx = len(client._signals)
+    client.run('userval = userinput("gimme", float)')
+    for name, data, _exc in client.iter_signals(idx, timeout=10.0):
+        if name == 'prompt':
+            uid = data[1]
+            assert data[0] == 'gimme'
+            assert data[2] is float
+            idx = len(client._signals)
+            client.eval(f'session.setUserinput({uid!r}, 42)')
+            client.tell('continue')
+            break
+    for name, data, _exc in client.iter_signals(idx, timeout=10.0):
+        if name == 'promptdone':
+            assert data[0] == uid
+            assert client.eval('userval == 42.0')
+            break
+
+
 def test_simulation(client):
     load_setup(client, 'daemontest')
     idx = len(client._signals)

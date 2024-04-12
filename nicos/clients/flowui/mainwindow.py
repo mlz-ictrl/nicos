@@ -218,7 +218,9 @@ class MainWindow(DefaultMainWindow):
         if self.showtrayicon:
             self.trayIcon.show()
         if self.promptWindow and status != 'paused':
+            # when script continues, any prompts are useless
             self.promptWindow.close()
+            self.promptWindow = None
         # propagate to panels
         for panel in self.panels:
             panel.updateStatus(status, exception)

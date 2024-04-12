@@ -53,7 +53,7 @@ __all__ = [
     'notify', 'SetMailReceivers', 'ListMailReceivers', 'SetDataReceivers',
     'ListDataReceivers', '_trace', 'timer',
     'LogEntry', '_LogAttach', '_LogAttachImage',
-    'SetErrorAbort', 'pause', 'abort',
+    'SetErrorAbort', 'pause', 'userinput', 'abort',
 ]
 
 
@@ -1021,11 +1021,48 @@ def SetErrorAbort(abort):
 
 @usercommand
 def pause(prompt='Script paused by pause() command.'):
-    """Pause the script until the user confirms continuation.
+    """Pause the script until a user confirms continuation.
 
-    The *prompt* text is shown to the user.
+    The *prompt* text is shown to the user, with the choice to continue or
+    abort the script.
+
+    Any connected client with the same or higher user level as the one
+    executing the script can do this, in first come, first served fashion.
     """
     session.pause(prompt)
+
+
+@usercommand
+@helparglist('[prompt, [validator, [default]]]')
+def userinput(prompt='The script requests user input:',
+              validator=str, default=Ellipsis):
+    """Pause the script and ask for input, which is returned.
+
+    The *prompt* text is shown to the user, with the choice to enter a value
+    or abort the script.
+
+    For advanced users: If *validator* is given, it restricts the choices
+    accordingly; you can use any validator from `nicos.core.params`.  The
+    *default*, if given, is pre-filled in the input field.  Without a default,
+    this command will raise an error in dry-run mode.
+
+    Any connected client with the same or higher user level as the one
+    executing the script can do this, in first come, first served fashion.
+
+    Examples:
+
+    >>> dist = userinput('How far (in cm) is the sample from the detector?',
+    ...                  float, 15)
+
+    >>> from nicos.core.params import oneof
+    >>> if userinput('How do you want to continue:',
+    ...              oneof('measure', 'calibrate')) == 'measure':
+    ...     ...
+    """
+    result = session.userinput(prompt, validator, default)
+    if result is Ellipsis:
+        raise NicosError('no input provided to userinput(), cannot continue')
+    return result
 
 
 @usercommand

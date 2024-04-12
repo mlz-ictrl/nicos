@@ -250,6 +250,11 @@ class SimulationSession(Session):
     def abortScript(self):
         raise Abort
 
+    def userinput(self, prompt, validator=str, default=Ellipsis):
+        if default is not Ellipsis:
+            return validator(default)
+        raise NicosError('cannot dry-run userinput() without a default value')
+
 
 class SimulationSupervisor(Thread):
     """Thread for starting a simulation process, receiving messages from a zmq

@@ -26,6 +26,7 @@
 import builtins
 import sys
 import threading
+from uuid import uuid1
 
 from nicos.core import ACCESS_LEVELS, AccessError, watchdog_user
 from nicos.core.constants import FILE
@@ -61,6 +62,9 @@ class DaemonSession(NoninteractiveSession):
                compile("pass", "<break>3", "exec"),
                compile("pass", "<break>4", "exec"),
                compile("pass", "<break>5", "exec")]
+
+    _user_prompt = None
+    _user_input = Ellipsis
 
     def _initLogging(self, prefix=None, console=True):
         NoninteractiveSession._initLogging(self, prefix, console)
@@ -141,11 +145,33 @@ class DaemonSession(NoninteractiveSession):
     def breakpoint(self, level):
         exec(self._bpcode[level])
 
-    def pause(self, prompt):
-        self.log.info('pause from script...')
+    def breakCallback(self):
+        # this will be called every 60 seconds while the script is paused
+        if self._user_prompt:
+            self.emitfunc('prompt', self._user_prompt)
+
+    def pause(self, prompt, inputcmd=None):
         self.daemon_device._controller.set_break(('break', 3, 'pause()'))
-        self.emitfunc('prompt', (prompt,))
+        self._user_prompt = (prompt, str(uuid1()))
+        self.emitfunc('prompt', self._user_prompt)
         self.breakpoint(3)
+        self.emitfunc('promptdone', (self._user_prompt[1],))
+        self._user_prompt = None
+
+    def userinput(self, prompt, validator=str, default=Ellipsis):
+        self.daemon_device._controller.set_break(('break', 3, 'userinput()'))
+        self._user_prompt = (prompt, str(uuid1()), validator, default)
+        self.emitfunc('prompt', self._user_prompt)
+        # Must be set by the client by calling setUserinput
+        self._user_input = Ellipsis
+        self.breakpoint(3)
+        self.emitfunc('promptdone', (self._user_prompt[1],))
+        self._user_prompt = None
+        return self._user_input
+
+    def setUserinput(self, uid, value):
+        if self._user_prompt and uid == self._user_prompt[1]:
+            self._user_input = value
 
     def checkAccess(self, required):
         if 'level' in required:

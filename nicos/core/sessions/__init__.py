@@ -48,7 +48,7 @@ from nicos.core.constants import MAIN
 from nicos.core.data import DataSink
 from nicos.core.device import Device, DeviceAlias, DeviceMeta
 from nicos.core.errors import AccessError, CacheError, ConfigurationError, \
-    ModeError, NicosError, UsageError
+    ModeError, NicosError, ProgrammingError, UsageError
 from nicos.core.sessions.setups import readSetups
 from nicos.core.sessions.utils import EXECUTIONMODES, MAINTENANCE, MASTER, \
     SIMULATION, SLAVE, AttributeRaiser, NicosNamespace, SimClock, \
@@ -1576,6 +1576,15 @@ class Session:
 
     def pause(self, prompt):
         """Pause the script, prompting the user to continue with a message."""
+
+    def userinput(self, prompt, validator=str, default=Ellipsis):
+        """Pause the script, prompting the user to continue with a message."""
+        raise ProgrammingError('this session does not implement user input')
+
+    def setUserinput(self, value):
+        """Callback from the client to set the input by a call to `userinput`.
+        """
+        raise ProgrammingError('this session does not implement user input')
 
     def delay(self, secs):
         """Sleep for a small time, allow immediate stop before and after."""

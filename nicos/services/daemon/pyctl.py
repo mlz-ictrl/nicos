@@ -137,9 +137,10 @@ class Controller(_Controller):
         if flag is not None:
             self.set_stop(flag)
 
-    def wait_for_continue(self):
+    def wait_for_continue(self, timeout=None):
         """Called from the break func: wait for set_continue() to be called."""
-        self.__continue.wait()
+        if not self.__continue.wait(timeout):
+            return Ellipsis
         self.__continue.clear()
         return self.__continue_arg
 
