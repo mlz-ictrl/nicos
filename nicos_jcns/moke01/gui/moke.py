@@ -86,6 +86,11 @@ class MokePlot(LiveWidget1D):
         self.plot.reset()
         self.update()
 
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.MiddleButton:
+            self._update()
+        super().mousePressEvent(event)
+
 
 class MokeBase(Panel):
     panelName = 'MOKE'
@@ -157,7 +162,6 @@ class MokePanel(MokeBase):
         self._read_last_measurement()
         self._read_calibration()
         self.cmb_mag_mode.currentIndexChanged.connect(self._read_calibration)
-        self.btn_mag_resize.clicked.connect(self._read_calibration)
         self.chck_unlock.stateChanged.connect(self._on_unlock_changed)
         self.btn_calibrate.clicked.connect(self.button_calibrate_clicked)
         self.btn_run.clicked.connect(self.button_run_clicked)
@@ -169,7 +173,6 @@ class MokePanel(MokeBase):
         self._update_plot0.stop() # _update_calibration
         self._update_plot1.stop() # _update_intensity
         self.cmb_mag_mode.currentIndexChanged.disconnect(self._read_calibration)
-        self.btn_mag_resize.clicked.disconnect(self._read_calibration)
         self.btn_run.clicked.disconnect(self.button_run_clicked)
         self.btn_calc.clicked.disconnect(self.button_calc_clicked)
 
