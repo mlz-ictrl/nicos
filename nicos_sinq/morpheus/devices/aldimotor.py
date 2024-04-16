@@ -172,6 +172,8 @@ class AldiMotor(HasPrecision, Moveable):
 
     _switching = False
 
+    hardware_access = False
+
     def startBack(self):
         # Run back to the last known target
         self._switching = False
