@@ -175,7 +175,7 @@ class AldiMotor(HasPrecision, Moveable):
     def startBack(self):
         # Run back to the last known target
         self._switching = False
-        if self.target:
+        if self.target is not None:
             self.start(self.target)
         else:
             self.start(20.)
@@ -202,7 +202,7 @@ class AldiMotor(HasPrecision, Moveable):
     def doRead(self, maxage=0):
         if self.stage_number == self._attached_controller.read(0):
             return self._attached_real_motor.read(maxage)
-        if self.target:
+        if self.target is not None:
             return self.target
         # This can happen when this has never run or the cache value is lost.
         return 20.
