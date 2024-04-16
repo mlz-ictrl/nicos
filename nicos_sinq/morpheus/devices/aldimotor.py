@@ -189,8 +189,7 @@ class AldiMotor(HasPrecision, Moveable):
             self._switching = True
 
     def doStatus(self, maxage=0):
-        # Status is the controller status when switching, else the
-        # motor status
+        # Status is the controller status when switching, else the motor status
         if self._switching:
             status, reason = self._attached_controller.status(maxage)
             if status in self.busystates:
@@ -205,8 +204,7 @@ class AldiMotor(HasPrecision, Moveable):
             return self._attached_real_motor.read(maxage)
         if self.target:
             return self.target
-        # This can happen when this has never run or the cache
-        # value is lost.
+        # This can happen when this has never run or the cache value is lost.
         return 20.
 
     def doIsAllowed(self, target):
