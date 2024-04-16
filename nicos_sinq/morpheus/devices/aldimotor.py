@@ -196,8 +196,7 @@ class AldiMotor(HasPrecision, Moveable):
                 return status, reason
             self._attached_real_motor.start(self.target)
             self._switching = False
-        else:
-            return self._attached_real_motor.status(maxage)
+        return self._attached_real_motor.status(maxage)
 
     def doRead(self, maxage=0):
         if self.stage_number == self._attached_controller.read(0):
