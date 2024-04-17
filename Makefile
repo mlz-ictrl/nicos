@@ -42,7 +42,8 @@ install:
 	$(PYTHON) setup.py install --prefix=$(PREFIX) \
 	                        $(and $(DESTDIR),--root=$(DESTDIR)) \
 				$(and $(INSTRUMENT),--instrument=$(INSTRUMENT)) \
-				$(and $(SETUPPACKAGE), --setup-package=$(SETUPPACKAGE))
+				$(and $(SETUPPACKAGE), --setup-package=$(SETUPPACKAGE)) \
+				$(and $(INSTALL_LAYOUT), --install-layout=$(INSTALL_LAYOUT))
 
 inplace-install:
 	-ln -sf -t /etc/init.d "$$(pwd)/etc/nicos-system"
