@@ -23,7 +23,6 @@
 
 import glob
 import os
-from distutils.dir_util import mkpath
 from os import path
 
 from setuptools import setup
@@ -155,8 +154,8 @@ class nicosinstall(stinstall):
 
     def run_install_etc(self):
         self.copy_tree('etc', self.install_etc)
-        mkpath(self.install_pid)
-        mkpath(self.install_log)
+        self.mkpath(self.install_pid)
+        self.mkpath(self.install_log)
         self.createInitialGlobalNicosConf()
 
 
