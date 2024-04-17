@@ -4,6 +4,8 @@ Device API reference
 
 .. module:: nicos.core.device
 
+.. _dev-interface:
+
 ----------------
 Device interface
 ----------------
@@ -121,6 +123,29 @@ possible with the device:
 
       The :attr:`attached_devices` attribute does *not* need to contain the
       entries of base classes again, they are automatically merged.
+
+   .. attribute:: hardware_access
+
+      This attribute class controls the device behavior in dry-run mode
+      (i.e. ``self._mode == 'simulation'``).  If true, most ``do``-prefixed
+      implementation methods (see :ref:`dev-interface`) will not be called by
+      the non-``do`` methods since they are assumed to access actual hardware.
+      Instead their behavior is simulated as closely as possible.  An exception
+      are ``doInit``, ``doPreinit`` and ``doUpdate<Param>``, which have to check
+      for dry-run mode themselves if needed.
+
+      For example, ``start(target)`` would not call ``doStart(target)`` but set
+      an internal attribute "simulated position" to the new target (after
+      checking ``isAllowed(target)``).
+
+      If the attribute is false, this device is assumed to be a higher-level
+      device that only combines access to lower-level NICOS device without
+      accessing the hardware directly, and therefore its ``do`` methods are
+      safe to call in dry-run mode.
+
+      The default value is ``True``.  Make sure to set ``hardware_access =
+      False`` this on high level devices in order to propagate value changes as
+      much as possible in dry-run mode.
 
    .. rubric:: Public methods
 
