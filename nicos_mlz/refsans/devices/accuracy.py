@@ -25,7 +25,7 @@ Support code for any encoder with analog signal, like poti laser distance etc
 """
 
 from nicos.core import status
-from nicos.core.params import Param, Override, oneof
+from nicos.core.params import Override, Param, oneof
 from nicos.devices.generic.analog import CalculatedReadable
 
 
