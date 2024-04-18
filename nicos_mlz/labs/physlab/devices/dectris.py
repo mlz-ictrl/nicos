@@ -52,12 +52,10 @@ class Detector(ImageChannel):
                            'find out the used anode material',
                            type=floatrange(0), default=0.01, unit='keV'),
         'anode': Param('X-ray Anode material',
-                       type=oneof(*anode_mapping),
-                       settable=True, userparam=True, category='instrument',
-                       volatile=True),
+                       type=oneof(*anode_mapping), settable=True,
+                       userparam=True, volatile=True, category='instrument'),
         'flip': Param('Flipping spectrum',
-                      type=bool, settable=False,
-                      volatile=False, default=False,
+                      type=bool, settable=False, volatile=False, default=False,
                       category='general'),
     }
 
