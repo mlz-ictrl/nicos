@@ -22,6 +22,8 @@
 # *****************************************************************************
 
 from nicos.core import Moveable, Readable, status, usermethod
+from nicos.core.constants import SLAVE
+from nicos.core.errors import ModeError
 from nicos.core.mixins import HasLimits, HasPrecision
 from nicos.core.params import Attach, Param, floatrange, oneof
 from nicos.devices.entangle import StringIO
@@ -129,14 +131,22 @@ class Area(MoveName):
         """
         Open barrier, at selected speed
         """
-        self.doStart('open')
+        if self._mode == SLAVE:
+            raise ModeError(
+                self, f'opening barrier not allowed in {self._mode} mode')
+        if not self._sim_intercept:
+            self.doStart('open')
 
     @usermethod
     def close(self):
         """
         Close barrier, at selected speed
         """
-        self.doStart('close')
+        if self._mode == SLAVE:
+            raise ModeError(
+                self, f'closing barrier not allowed in {self._mode} mode')
+        if not self._sim_intercept:
+            self.doStart('close')
 
 
 class Press(HasPrecision, MoveName):
