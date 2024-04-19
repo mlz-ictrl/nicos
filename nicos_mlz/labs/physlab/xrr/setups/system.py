@@ -6,7 +6,13 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'xrr',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
+    datasinks = [
+        'conssink',
+        'filesink',
+        'daemonsink',
+        'livesink',
+        'rabbitsink',
+    ],
     notifiers = [],  # ['email'],
 )
 
@@ -40,6 +46,9 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos_mlz.labs.physlab.datasinks.LiveViewSink'),
+    rabbitsink = device('nicos_mlz.devices.rabbit_sink.RabbitSink',
+        rabbit_url = 'amqp://localhost',
+    ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = '/data',
