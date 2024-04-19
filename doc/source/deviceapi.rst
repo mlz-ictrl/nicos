@@ -126,7 +126,7 @@ possible with the device:
 
    .. attribute:: hardware_access
 
-      This attribute class controls the device behavior in dry-run mode
+      This class attribute controls the device behavior in dry-run mode
       (i.e. ``self._mode == 'simulation'``).  If true, most ``do``-prefixed
       implementation methods (see :ref:`dev-interface`) will not be called by
       the non-``do`` methods since they are assumed to access actual hardware.
