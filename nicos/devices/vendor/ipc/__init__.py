@@ -25,9 +25,10 @@
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
 from nicos import session
-from nicos.core import SIMULATION, Attach, CommunicationError, HasTimeout, \
-    InvalidValueError, Moveable, NicosError, Override, Param, Readable, \
-    floatrange, intrange, none_or, oneof, oneofdict, status, usermethod
+from nicos.core import SIMULATION, SLAVE, Attach, CommunicationError, \
+    HasTimeout, InvalidValueError, ModeError, Moveable, NicosError, Override, \
+    Param, Readable, floatrange, intrange, none_or, oneof, oneofdict, status, \
+    usermethod
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.utils import lazy_property
 
@@ -708,6 +709,11 @@ class Motor(HasTimeout, NicosMotor):
     @usermethod
     def _store(self):
         """Store the current parameter values to EEPROM."""
+        if self._mode == SLAVE:
+            raise ModeError(self,
+                            f'cannot store parameter in {self._mode} mode')
+        elif self._sim_intercept:
+            return
         self._attached_bus.send(self.addr, 40)
         self.log.info('parameters stored to EEPROM')
 
