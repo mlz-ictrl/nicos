@@ -28,12 +28,11 @@ from math import atan, degrees, radians, tan
 import numpy as np
 
 from nicos import session
-from nicos.commands import hiddenusercommand
-from nicos.core import SIMULATION, Attach, Moveable, Override, Param, \
+from nicos.core import SIMULATION, SLAVE, Attach, Moveable, Override, Param, \
     floatrange, listof, oneof, status, tupleof
-from nicos.core.errors import MoveError
+from nicos.core.errors import ModeError, MoveError
 from nicos.core.mixins import HasTimeout
-from nicos.core.utils import filterExceptions
+from nicos.core.utils import filterExceptions, usermethod
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
 
@@ -106,7 +105,7 @@ class MultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
     hortranslation = range(-100, 101, 20)
     anglis = [2.28, 2.45, 2.38, 2.35, 2.30, 2.43, 2.37, 2.43, 2.32, 2.36]
 
-    @hiddenusercommand
+    @usermethod
     def park(self, blocking=True):
         """Move device to the ``park`` position.
 
@@ -115,6 +114,8 @@ class MultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
 
         The call blocks the daemon execution if ``blocking`` is set to True.
         """
+        if self._mode == SLAVE:
+            raise ModeError(self, f'parking not allowed in {self._mode} mode')
         if self._seq_is_running():
             if self._mode == SIMULATION:
                 self._seq_thread.join()
@@ -612,7 +613,7 @@ class MultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             for i in range(1, last):
                 if not (gtarget[i - 1] <= gtarget[i] <= gtarget[i + 1]):
                     why.append('rg%i: %s %s %s' % (i + 1, gtarget[i - 1],
-                                               gtarget[i], gtarget[i + 1]))
+                                                   gtarget[i], gtarget[i + 1]))
                     allowed.discard(i + 1)
         notallowed = check - allowed
         if notallowed:
