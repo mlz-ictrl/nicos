@@ -206,6 +206,8 @@ class VSDIO(PyTangoDevice, Readable):
     @usermethod
     def diag(self):
         """Display all available diagnostic values."""
+        if self._sim_intercept:
+            return
         self.log.info("Analog Values:")
         for k, v in sorted(self._HW_AnalogChannels.items()):
             self.log.info("%s: %.2f %s", k, v[1] * self._readI16(v[0] // 2),
