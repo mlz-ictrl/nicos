@@ -9,7 +9,7 @@ code_base = instrument_values['code_base'] + 'beckhoff.vsd.'
 code_base_analog = instrument_values['code_base'] + 'analogencoder.AnalogEncoder'
 
 #lowlevel Flags
-undef = () #Labels witch are not jet defined or known
+undef = () #Labels witch are not yet defined or known
 used  = () #Labels witch are uses in a diffrend place
 userinterface = () #only if used
 cooling = ()
