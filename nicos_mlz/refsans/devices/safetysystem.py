@@ -202,7 +202,7 @@ class Group(Readable):
         return res
 
     def doRead(self, maxage=0):
-        return int(self._do_read_bits() == self.okmask)
+        return bool(self._do_read_bits() == self.okmask)
 
     def doStatus(self, maxage=0):
         bits = self._do_read_bits()
