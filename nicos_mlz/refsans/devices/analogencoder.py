@@ -28,7 +28,7 @@ import numpy as np
 
 from nicos.core import HasPrecision, Moveable, Param, Readable
 from nicos.core.errors import ConfigurationError
-from nicos.core.params import floatrange, Attach
+from nicos.core.params import Attach, Override, floatrange
 from nicos.devices.abstract import TransformedMoveable, TransformedReadable
 
 from nicos_mlz.refsans.devices.mixins import PolynomFit
@@ -49,7 +49,6 @@ class AnalogEncoder(PolynomFit, TransformedReadable):
         """Return a read analogue signal corrected by a polynom.
 
         A correcting polynom of at least first order is used.
-        Result is then offset + mul * <previously calculated value>
         """
         return self._fit(value)
 
@@ -95,12 +94,16 @@ class Ohmmeter(TransformedReadable):
     }
 
     parameters = {
-        'u_high': Param('upper Voltage',
-                        type=floatrange(0.), default=3.3),
-        'u_low': Param('lower Voltage',
-                       type=floatrange(0.), default=0.0),
-        'r_arb': Param('2. Resistor',
-                       type=floatrange(0.), default=1000.0),
+        'u_high': Param('Upper voltage',
+                        type=floatrange(0.), default=3.3, unit='V', ),
+        'u_low': Param('Lower voltage',
+                       type=floatrange(0.), default=0.0, unit='V', ),
+        'r_arb': Param('Second Resistor',
+                       type=floatrange(0.), default=1000.0, unit='Ohm', ),
+    }
+
+    parameter_overrides = {
+        'unit': Override(default='Ohm', mandatory=False),
     }
 
     hardware_access = False
@@ -123,11 +126,15 @@ class PTxxlinearC(TransformedReadable):
 
     parameters = {
         'r0': Param('Resistance at 0 deg Celsius',
-                    type=floatrange(0.), default=1000),
+                    type=floatrange(0.), default=1000, unit='Ohm', ),
         'r_cable': Param('Resistance of cable 2 * wire',
-                         type=floatrange(0.), default=0.0),
+                         type=floatrange(0.), default=0.0, unit='Ohm', ),
         'alpha': Param('alpha of PTs',
                        type=floatrange(0.), default=0.003851),
+    }
+
+    parameter_overrides = {
+        'unit': Override(default='degC', mandatory=False),
     }
 
     hardware_access = False
