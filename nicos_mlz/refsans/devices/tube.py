@@ -49,6 +49,8 @@ class TubeAngle(HasLimits, Moveable):
         'unit': Override(mandatory=False, default='deg'),
     }
 
+    hardware_access = False
+
     def doRead(self, maxage=0):
         return degrees(atan2(self._attached_yoke.read(maxage), self.yokepos))
 
@@ -107,6 +109,8 @@ class DetAngle(HasLimits, Moveable):
         'unit': Override(mandatory=False, default='deg'),
         'abslimits': Override(mandatory=False, volatile=True),
     }
+
+    hardware_access = False
 
     def doPreinit(self, mode):
         # center of the detector in respect to the tube base line

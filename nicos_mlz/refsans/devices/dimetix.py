@@ -45,6 +45,8 @@ class DimetixLaser(CanDisable, HasOffset, Readable):
                               type=intrange(-2000, -2000), default=-2000),
     }
 
+    hardware_access = False
+
     def doRead(self, maxage=0):
         if self._attached_signal.read(maxage) < self.signallimit:
             return self.invalidvalue

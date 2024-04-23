@@ -33,6 +33,8 @@ class TriState(CanDisable, HasOffset, Readable):
 
     _enabled = True
 
+    hardware_access = False
+
     def doRead(self, maxage=0):
         self.log.debug('enabled=%s', self._enabled)
         if self._enabled:

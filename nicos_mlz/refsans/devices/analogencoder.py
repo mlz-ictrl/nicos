@@ -40,6 +40,8 @@ class AnalogEncoder(PolynomFit, TransformedReadable):
         'device': Attach('Sensing device (poti etc)', Readable),
     }
 
+    hardware_access = False
+
     def _readRaw(self, maxage=0):
         return self._attached_device.read(maxage)
 
@@ -60,6 +62,8 @@ class AnalogMove(HasPrecision, PolynomFit, TransformedMoveable):
     attached_devices = {
         'device': Attach('Acting device (motor etc)', Moveable),
     }
+
+    hardware_access = False
 
     def _mapReadValue(self, value):
         return self._fit(value)
@@ -99,6 +103,8 @@ class Ohmmeter(TransformedReadable):
                        type=floatrange(0.), default=1000.0),
     }
 
+    hardware_access = False
+
     def _readRaw(self, maxage=0):
         return self._attached_device.read(maxage)
 
@@ -123,6 +129,8 @@ class PTxxlinearC(TransformedReadable):
         'alpha': Param('alpha of PTs',
                        type=floatrange(0.), default=0.003851),
     }
+
+    hardware_access = False
 
     def _readRaw(self, maxage=0):
         return self._attached_device.read(maxage)

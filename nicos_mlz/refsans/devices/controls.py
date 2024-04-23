@@ -98,6 +98,8 @@ class TemperatureControlled(BaseSequencer):
                          settable=True, mandatory=False, chatty=True),
     }
 
+    hardware_access = False
+
     def doRead(self, maxage=0):
         return self._attached_device.read(maxage)
 

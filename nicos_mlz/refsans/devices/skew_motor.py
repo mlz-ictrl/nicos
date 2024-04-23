@@ -39,6 +39,8 @@ class SkewRead(Readable):
         'two': Attach('readable device 2', Readable),
     }
 
+    hardware_access = False
+
     def _read_devices(self, maxage=0):
         return self._attached_one.read(maxage), self._attached_two.read(maxage)
 
@@ -62,6 +64,8 @@ class SkewMotor(HasOffset, SkewRead, Motor):
                       '"two"',
                       type=float, default=0., settable=True, unit='main'),
     }
+
+    hardware_access = False
 
     def doIsAtTarget(self, pos, target):
         if target is None:

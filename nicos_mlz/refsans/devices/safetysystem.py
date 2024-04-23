@@ -138,6 +138,8 @@ class Group(Readable):
         'fmtstr': Override(default='%s'),
     }
 
+    hardware_access = False
+
     def doReadUnit(self):
         return ''
 

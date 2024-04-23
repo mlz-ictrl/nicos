@@ -38,6 +38,8 @@ class BaseAvg(Readable):
                       type=int, settable=True, userparam=True, default=100),
     }
 
+    hardware_access = False
+
     def doStatus(self, maxage=0):
         return self._attached_dev.status(maxage=maxage)
 

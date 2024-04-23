@@ -32,6 +32,8 @@ class BeamStopDevice(Readable):
         'att': Attach('VSD device', Readable),
     }
 
+    hardware_access = False
+
     def doRead(self, maxage=0):
         return self._attached_att.read(maxage)
 
@@ -45,6 +47,8 @@ class BeamStopCenter(Readable):
     attached_devices = {
         'att': Attach('VSD device', Readable),
     }
+
+    hardware_access = False
 
     def doRead(self, maxage=0):
         val = self._attached_att.read(maxage)

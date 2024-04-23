@@ -3,3 +3,7 @@ nicos/chopper2_pos/target=1
 nicos/chopper2_pos/value=1
 nicos/table_z_motor/vmax=1
 nicos/b3h3_frame/value='110mm'
+nicos/safetysystem/value=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+nicos/julabo_flow/value=1
+nicos/all/value=10
+nicos/cache/value=1

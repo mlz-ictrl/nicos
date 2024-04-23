@@ -45,6 +45,8 @@ class Resolution(Readable):
         'unit': Override(volatile=True, mandatory=False),
     }
 
+    hardware_access = False
+
     def doRead(self, maxage=0):
         return chopper_resolution(
             self._attached_chopper.read(maxage).get('chopper2_pos', 5),
@@ -55,6 +57,7 @@ class Resolution(Readable):
 
 
 class RealFlightPath(Readable):
+
     attached_devices = {
         'table': Attach('port to read real table', Readable),
         'pivot': Attach('port to read real pivot', Readable),
@@ -63,6 +66,8 @@ class RealFlightPath(Readable):
     parameter_overrides = {
         'unit': Override(volatile=True, mandatory=False),
     }
+
+    hardware_access = False
 
     def doRead(self, maxage=0):
         table = self._attached_table.read(maxage)

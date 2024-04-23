@@ -48,6 +48,8 @@ class Ttr(TransformedReadable):
         'unit': Override(type=oneof(*UNITCONVS.keys())),
     }
 
+    hardware_access = False
+
     def _readRaw(self, maxage=0):
         return self._attached_att.read(maxage)
 
