@@ -43,4 +43,6 @@ class BaseAvg(Readable):
 
     def doRead(self, maxage=0):
         hist = [v for t, v in self._attached_dev.history()[-self.nums:]]
-        return sum(hist) / len(hist)
+        if hist:
+            return sum(hist) / len(hist)
+        return self._attached_dev.read(maxage)
