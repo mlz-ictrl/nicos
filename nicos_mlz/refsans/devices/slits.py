@@ -27,7 +27,7 @@ import numpy as np
 
 from nicos.core import Attach, AutoDevice, Moveable, Override, Param, Value, \
     dictof, dictwith, floatrange, oneof, status, tupleof
-from nicos.core.mixins import HasOffset
+from nicos.core.mixins import HasOffset, HasPrecision
 from nicos.core.utils import devIter
 from nicos.devices.generic import ManualSwitch
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev
@@ -42,7 +42,7 @@ MODES = [SLIT, POINT, GISANS]
 CENTERED = 'centered'
 
 
-class SingleSlit(PseudoNOK, HasOffset, Moveable):
+class SingleSlit(PseudoNOK, HasPrecision, HasOffset, Moveable):
     """Slit using one axis."""
 
     hardware_access = False
@@ -66,6 +66,7 @@ class SingleSlit(PseudoNOK, HasOffset, Moveable):
     parameter_overrides = {
         'masks': Override(type=dictwith(**{name: float for name in MODES}),
                           unit='', mandatory=True),
+        'precision': Override(default=0.01),
     }
 
     valuetype = float
