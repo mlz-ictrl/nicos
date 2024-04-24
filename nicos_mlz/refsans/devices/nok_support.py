@@ -31,9 +31,8 @@ from nicos.core.utils import multiReset
 from nicos.devices.abstract import CanReference, Coder, TransformedReadable
 from nicos.devices.entangle import Sensor
 from nicos.devices.generic import Axis
-from nicos.devices.generic.sequence import SeqDev, SeqMethod, SequenceItem, \
-    SequencerMixin
-from nicos.utils import clamp, lazy_property
+from nicos.devices.generic.sequence import SequencerMixin
+from nicos.utils import lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PolynomFit, PseudoNOK
 
@@ -114,6 +113,8 @@ class NOKPosition(PolynomFit, Coder):
         'unit': Override(default='mm', mandatory=False),
     }
 
+    hardware_access = False
+
     def doReset(self):
         multiReset(self._adevs)
 
@@ -134,53 +135,11 @@ class NOKPosition(PolynomFit, Coder):
         # apply simple scaling
         return self._fit(poti / ref)
 
-
-#
-# support stuff for the NOK
-#
-
-class SeqMoveOffLimitSwitch(SequenceItem):
-    """Fancy SequenceItem.
-
-    If the given device is at a limit switch, move it a little, else do nothing
-    """
-
-    def __init__(self, dev, *args, **kwargs):
-        SequenceItem.__init__(self, dev=dev, args=args, kwargs=kwargs)
-
-    def check(self):
-        pass
-
-    def run(self):
-        if 'limit switch - active' in self.dev.status(0)[1]:
-            # use 0.5 as fallback value
-            self.dev.start(self.kwargs.get('backoffby', 0.5))
-
-    def isCompleted(self):
-        self.dev.wait()
-        return True
-
-    def __repr__(self):
-        return 'MoveAwayFromLimitSwitch'
-
-
-class SeqDevMin(SeqDev):
-    """Fancy Sequenceitem.
-
-    Same as SeqDev, but do not go below usermin.
-    """
-
-    def __init__(self, dev, target):
-        # limit the position to allowed values
-        target = clamp(target, dev.usermin, dev.usermax)
-        SeqDev.__init__(self, dev, target)
-
-
 #
 # Nicos classes: for NOK's
 #
 
-# below code is based upon old nicm_nok.py
+
 class SingleMotorNOK(PseudoNOK, Axis):
     """NOK using a single axis.
 
@@ -208,6 +167,8 @@ class DoubleMotorAxis(AutoDevice, Moveable):
         'other': Param('other side of nok', type=oneof(0, 1),
                        settable=False, mandatory=True),
     }
+
+    hardware_access = False
 
     def doRead(self, maxage=0):
         return self._attached_both.read(maxage=maxage)[self.index]
@@ -270,12 +231,12 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
     valuetype = tupleof(float, float)
     _honor_stop = True
+    hardware_access = False
 
     def doInit(self, mode):
         for name, idx, ido in [('reactor', 0, 1),
                                ('sample', 1, 0)]:
-            self.add_autodevice(
-                                name,
+            self.add_autodevice(name,
                                 DoubleMotorAxis,
                                 unit=self.unit,
                                 both=self,
@@ -369,57 +330,3 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         if lowlevel[0] == status.BUSY:
             return lowlevel
         return Moveable.doStatus(self, maxage)
-
-
-class DoubleMotorNOKIPC(DoubleMotorNOK):
-
-    def doReference(self):
-        """Reference the NOK in a sophisticated way.
-
-        First we try to reach the lowest point ever needed for referencing,
-        then we reference the lower refpoint first, and the higher later.
-        After referencing is done, we go to (0, 0).
-        """
-        # XXX: EXTRA BIG TODO !!!
-        if self._seq_is_running():
-            raise MoveError(self, 'Cannot reference device, it is still '
-                            'moving!')
-
-        devices = self._devices
-        refpos = [d.refpos for d in devices]
-
-        # referencing is easier if device[0].refpos is always lower than
-        #  device[1].refpos
-        if refpos[1] < refpos[0]:
-            # wrong order: flip oder of entries
-            devices.reverse()
-            refpos.reverse()
-
-        # go below lowest interesting point
-        minpos = min(self.read() + refpos + [t + self.backlash
-                                             for t in refpos])
-
-        # build a referencing sequence
-        # go to lowest position first
-        sequence = [SeqDevMin(d, minpos) for d in devices]
-
-        # if one of the motors should have triggered the low-level-switch
-        # move them up a little and wait until the movement has finished
-        sequence += [SeqMoveOffLimitSwitch(d, backoffby=self.backlash / 4.)
-                     for d in devices]
-
-        # ref lowest position, should finish at refpos[0]
-        # The move should be first, as the referencing may block!
-        sequence += [SeqDev(devices[1], refpos[0]),
-                     SeqMethod(devices[0], 'reference')]
-
-        # ref highest position, should finish at refpos[1]
-        sequence += [SeqDev(devices[0], refpos[1]),
-                     SeqMethod(devices[1], 'reference')]
-
-        # fun: move both to 0
-        sequence += [SeqDev(d, 0) for d in devices]
-
-        # GO
-        self.log.debug('Seq_4: %r', sequence)
-        self._startSequence(sequence)

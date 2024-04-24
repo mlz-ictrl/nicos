@@ -34,16 +34,30 @@ from test.utils import raises
 session_setup = 'refsans'
 
 
-def test_nok(session):
-    nok2 = session.getDevice('nok2')
-    assert nok2.read(0) == [0, 0]
+class TestDoubleNOK:
 
-    # nok2.reference()
-    nok2.maw((1, 1))
-    assert nok2.read(0) == [1, 1]
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        pass
 
-    assert raises(LimitError, nok2.maw, (0, 20))
-    assert raises(LimitError, nok2.maw, (-30, -20))
+    def test_nok(self, session):
+        nok = session.getDevice('nok2')
+        assert nok.read(0) == [0, 0]
+
+        # nok.reference()
+        nok.maw((1, 1))
+        nok.stop()
+        # test isAtTarget method
+        nok.maw((1, 1))
+        assert nok.read(0) == [1, 1]
+        assert nok.reactor.read(0) == 1
+        assert nok.sample.read(0) == 1
+
+        nok.sample.maw(0)
+        nok.reactor.maw(-1)
+
+        assert raises(LimitError, nok.maw, (0, 20))
+        assert raises(LimitError, nok.maw, (-30, -20))
 
 
 def test_single_nok(session):
@@ -149,7 +163,8 @@ class TestDoubleSlit:
             assert d.mode == 'gisans'
 
     def test_move(self, session):
-        # move to max opening and zero position, check double and single positions
+        # move to max opening and zero position, check double and single
+        # positions
         d, r, s = (session.getDevice('zb3'), session.getDevice('zb3r'),
                    session.getDevice('zb3s'))
 

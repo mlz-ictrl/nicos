@@ -9,10 +9,7 @@
 .. autoclass:: NOKPosition()
 .. autoclass:: SingleMotorNOK()
 .. autoclass:: DoubleMotorNOK()
-.. autoclass:: DoubleMotorNOKIPC()
 .. autoclass:: DoubleMotorAxis()
-.. autoclass:: SeqMoveOffLimitSwitch()
-.. autoclass:: SeqDevMin()
 
 .. module:: nicos_mlz.refsans.devices.ipc
 .. autoclass:: NOKMotorIPC()
