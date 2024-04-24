@@ -220,7 +220,7 @@ def generate_output(measurement, angle=None, ext=None):
         output += 'Mean intensity and ellipticity curves:\n'
         if 'BvI' in measurement.keys() and measurement['BvI']:
             output += 'I, A\tdI, A\tB, mT\tdB, mT\tI, V\tdI, V\tE, a.u.\tdE, a.u.\n'
-            for (I, _), (B, Int), (_, E) in zip(measurement['BvI'][:len[IntvB]], IntvB, EvB):
+            for (I, _), (B, Int), (_, E) in zip(measurement['BvI'][:len(IntvB)], IntvB, EvB):
                 I, dI = (I.n, I.s) if isinstance(I, (AffineScalarFunc, Variable)) else (I, 0)
                 output += f'{I}\t{dI}\t{B.n}\t{B.s}\t{Int.n}\t{Int.s}\t{E.n}\t{E.s}\n'
         else:
