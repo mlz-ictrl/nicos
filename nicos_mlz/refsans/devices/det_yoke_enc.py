@@ -44,4 +44,4 @@ class BasePos(Readable):
 
     def doRead(self, maxage=0):
         return int(self._attached_comm.communicate(
-                   '$0%d?*' % self.index)[1:-1])
+                   '$0%d?*' % self.index)[1:])
