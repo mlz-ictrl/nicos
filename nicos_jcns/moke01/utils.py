@@ -228,3 +228,17 @@ def generate_output(measurement, angle=None, ext=None):
             for (B, Int), (_, E) in zip(IntvB, EvB):
                 output += f'{B.n}\t{B.s}\t{Int.n}\t{Int.s}\t{E.n}\t{E.s}\n'
     return output
+
+
+def fix_filename(filename):
+    """Restrict filename string to limited amount of symbols.
+    """
+    allowed = [ord(' ')]
+    allowed += range(ord('0'), ord('9'))
+    allowed += range(ord('A'), ord('Z'))
+    allowed += range(ord('a'), ord('z'))
+
+    res = ''
+    for l in filename:
+        res += l if ord(l) in allowed else '-'
+    return res

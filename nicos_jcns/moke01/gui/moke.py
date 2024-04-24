@@ -32,7 +32,7 @@ from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QDate, QMessageBox, QTimer, QStandardItem, \
     QStandardItemModel, Qt
 from nicos.utils import findResource
-from nicos_jcns.moke01.utils import calculate, generate_output
+from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 from gr.pygr import ErrorBar
 import numpy
@@ -134,8 +134,8 @@ class MokeBase(Panel):
         self.display_rawdata(output)
         folder = os.path.join(os.path.expanduser('~'), 'Measurements', 'moke')
         os.makedirs(folder, exist_ok=True)
-        with open(os.path.join(folder, sample_name + '.txt'), 'w',
-                  encoding='utf-8') as f:
+        with open(os.path.join(folder, fix_filename(sample_name) + '.txt'),
+                  'w', encoding='utf-8') as f:
             f.write(output)
 
     def display_rawdata(self, output):

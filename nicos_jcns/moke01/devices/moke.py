@@ -34,7 +34,7 @@ from nicos.devices.entangle import AnalogInput, PowerSupply, Sensor
 from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
 from nicos.utils import createThread
 from nicos.utils.curves import curve_from_two_temporal
-from nicos_jcns.moke01.utils import generate_output
+from nicos_jcns.moke01.utils import fix_filename, generate_output
 
 import numpy
 # pylint: disable=import-error
@@ -166,7 +166,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         folder = os.path.join(session.devices['Exp'].dataroot, 'Measurements')
         os.makedirs(folder, exist_ok=True)
         filename = f'{measurement["time"]} {measurement["name"]}.raw.txt'
-        with open(os.path.join(folder, filename), 'w',
+        with open(os.path.join(folder, fix_filename(filename)), 'w',
                   encoding='utf-8') as f:
             f.write(generate_output(measurement))
         return os.path.join(folder, filename)
