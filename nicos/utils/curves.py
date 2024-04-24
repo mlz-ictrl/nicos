@@ -41,10 +41,10 @@ except Exception:
 
 
 def interp_points(x, p1, p2):
-    """Fits y(x) of a point on a line through p1 and p2, when p1 and p2 are
-    (X, Y(X)) tuples.
+    """Interpolates y(x) of a point on a line through p1 and p2, when p1 and p2
+    are (X, Y(X)) tuples.
     """
-    if p1[0] == p2[0]:
+    if not p1[0] > p2[0] and not p1[0] < p2[0]:
         return (p1[1] + p2[1]) / 2
     k = (p2[1] - p1[1]) / (p2[0] - p1[0])
     b = p2[1] - k * p2[0]
@@ -52,7 +52,7 @@ def interp_points(x, p1, p2):
 
 
 def get_yvx(arg, curve):
-    """Fits y(arg) on a curve given as an array of (X, Y(X)) tuples.
+    """Interpolates y(arg) on a curve given as an array of (X, Y(X)) tuples.
     """
     if len(curve) == 1:
         return curve[0][1]
@@ -61,7 +61,7 @@ def get_yvx(arg, curve):
     if arg > curve[-1][0]:
         return interp_points(arg, curve[-2], curve[-1])
     for i, (x, _) in enumerate(curve):
-        if arg == x:
+        if not arg > x and not arg < x:
             return curve[i][1]
         if arg < x:
             return interp_points(arg, curve[i], curve[i - 1]) if i != 0 \
@@ -69,12 +69,12 @@ def get_yvx(arg, curve):
 
 
 def get_xvy(f, curve):
-    """Fits arg of a given f(arg) from a curve given as an array of (X, Y(X))
-    tuples. Returns first occurrence.
+    """Interpolates arg of a given f(arg) from a curve given as an array of
+    (X, Y(X)) tuples. Returns first occurrence.
     """
     output = []
     for i, (x, y) in enumerate(curve):
-        if y == f:
+        if not f > y and not f < y:
             output.append(x)
         if i:
             if curve[i - 1][1] < f < curve[i][1] or curve[i - 1][1] > f > curve[i][1]:
