@@ -49,6 +49,15 @@ def metainfo_to_json(metainfo):
         }
     return metadata
 
+# pylint: disable=line-too-long
+# use same schema logic as e.g. k8s api resources [1]
+# bump whenever the schema changes in an incompatible way or if we  add required fields
+# so that the ingestor can handle it or notify of a required upgrade
+# shortly before production usage, bump to 'v1'
+# [1] https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api_changes.md#alpha-beta-and-stable-versions
+# pylint: enable=line-too-long
+
+MESSAGE_VERSION = 'v1alpha1'
 
 def valuestats_to_json(valuestats):
     return {k: v._asdict() for k, v in valuestats.items()}
@@ -58,6 +67,7 @@ class Message:
     id: str  # pylint: disable=redefined-builtin
     event: str
     metadata: dict
+    version: str
 
     # pylint: disable=too-many-positional-arguments
     def __init__(
@@ -73,6 +83,7 @@ class Message:
         statistics: dict,
         counterinfo: dict,
     ):
+        self.version = MESSAGE_VERSION
         self.id = str(id)
         self.blockid = str(blockid) or None
         self.scanid = str(scanid) or None
