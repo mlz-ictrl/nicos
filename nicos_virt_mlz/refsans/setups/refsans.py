@@ -57,13 +57,6 @@ devices = dict(
         abslimits = (-120, 1000),
         unit = 'mm',
     ),
-    alphaf = device('nicos_mlz.refsans.devices.tube.DetAngle',
-        description = 'gamma',
-        tubeangle = 'tube_angle',
-        tubepos = 'det_table',
-        pivot = 'det_pivot',
-        theta = 'gonio_theta',
-    ),
 )
 
 startupcode = '''

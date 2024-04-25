@@ -138,7 +138,6 @@
 
 .. module:: nicos_mlz.refsans.devices.tube
 .. autoclass:: TubeAngle()
-.. autoclass:: DetAngle()
 
 Data Sinks
 ----------
