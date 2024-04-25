@@ -28,6 +28,7 @@ from nicos.core import Override, Param, listof, nicosdev, tupleof
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
 from nicos.devices.datasinks import FileSink
+from nicos.utils import findResource
 
 from nicos_sinq.sxtal.instrument import SXTalBase
 
@@ -61,7 +62,8 @@ class SINQAsciiSinkHandler(DataSinkHandler):
         return value
 
     def _initHeader(self):
-        with open(self.sink.templatefile, 'r', encoding='utf-8') as fin:
+        with open(findResource(self.sink.templatefile), 'r',
+                  encoding='utf-8') as fin:
             template = fin.read()
 
         template = template.replace('!!FILE!!', self.filename)
