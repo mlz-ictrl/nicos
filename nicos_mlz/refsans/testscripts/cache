@@ -12,3 +12,5 @@ nicos/nok_refa2/value=1
 nicos/nok_refb2/value=1
 nicos/nok_refc1/value=1
 nicos/nok_refc2/value=1
+nicos/sc2/abslimits=(-150, 130)
+nicos/sc2/userlimits=(-150, 130)

@@ -53,10 +53,10 @@ def test_slits(session):
 
     zb3.mode = 'point'
     assert zb3.read(0) == [10., 12.]
-
-    assert not zb3.center.isAllowed(20)[0]
-
     zb3.stop()
+
+    assert zb3.center.isAllowed(-14)[0]
+    assert zb3.center.isAllowed(12)[0]
 
 
 def test_beamstop(session):

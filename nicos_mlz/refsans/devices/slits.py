@@ -132,7 +132,7 @@ class DoubleSlit(PseudoNOK, Moveable):
         # Even if the slit could not be become closer then 0 and not more
         # opened the maxheight the instrument scientist want to scan over
         # the limits to find out the 'open' and 'closed' point for the neutrons
-        self.valuetype = tupleof(floatrange(-1, self.maxheight + 1), float)
+        self.valuetype = tupleof(float, floatrange(-1, self.maxheight + 1))
         # generate auto devices
         for name, idx, opmode in [('center', 0, CENTERED),
                                   ('opening', 1, CENTERED)]:

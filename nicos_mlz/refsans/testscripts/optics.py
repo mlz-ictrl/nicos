@@ -10,12 +10,12 @@ targets = [
     'horizontal',
 
     # Allowed, but not right configured !!!
-    # '12mrad_b3_789',
-    # '12mrad_b3_12.000',
+    '12mrad_b3_789',
+    '12mrad_b3_12.000',
     # '12mrad_b3_13.268',
-    # '12mrad_b2_12.254_eng',
+    '12mrad_b2_12.254_eng',
     # '12mrad_b2_12.88_big',
-    # '48mrad',
+    '48mrad',
 
     # configured, but not allowed !!!
     # '54mrad',

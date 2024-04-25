@@ -184,8 +184,8 @@ class TestDoubleSlit:
 
     def test_failures(self, session):
         d = session.getDevice('zb3')
-        assert raises(InvalidValueError, d.maw, (-120, 6))
-        assert raises(LimitError, d.maw, (12, -200))
+        assert raises(InvalidValueError, d.maw, (6, -120))
+        assert raises(LimitError, d.maw, (-200, 12))
 
     def test_stop(self, session):
         d = session.getDevice('zb3')
