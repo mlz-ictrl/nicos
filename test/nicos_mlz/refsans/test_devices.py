@@ -302,13 +302,13 @@ class TestDoubleSlitSequence:
 
         yield slit
 
-    def test_read(self, slit, session):
+    def test_read(self, slit):
         assert slit.read(0) == [0, 12]
 
-    def test_status(self, slit, session):
+    def test_status(self, slit):
         assert slit.status() == (status.OK, 'b3')
 
-    def test_move(self, slit, session):
+    def test_move(self, slit):
         assert slit.center.read(0) == 0
         slit.maw([2, 0])
         assert slit.read(0) == [2, 0]
@@ -316,3 +316,22 @@ class TestDoubleSlitSequence:
         slit.maw([0, 0])
         assert slit.read(0) == [0, 0]
         assert slit.center.read(0) == 0
+
+
+class TestTubeAngle:
+
+    @pytest.fixture(scope='function')
+    def tubeangle(self, session):
+        dev = session.getDevice('tube_angle')
+
+        yield dev
+
+        dev.maw(0)
+
+    def test_read(self, tubeangle):
+        assert tubeangle.read(0) == 0
+        assert tubeangle.abslimits == (-0.6250200740174968, 5.194428907734806)
+
+    def test_move(self, tubeangle):
+        tubeangle.maw(1)
+        assert tubeangle.read(0) == 1

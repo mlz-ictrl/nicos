@@ -52,6 +52,7 @@ devices = dict(
         description = 'yoke Motor',
         tangodevice = tango_base + 'test/tube/servostar',
         visibility = (),
+        unit = 'mm',
     ),
     det_yoke = device('nicos.devices.generic.Axis',
         description = 'yoke height, refmove only in expertmode!',

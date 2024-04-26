@@ -26,11 +26,13 @@
 from math import atan2, degrees, radians, tan
 
 from nicos.core import Moveable
+from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Attach, Override, Param, floatrange
+from nicos.devices.abstract import TransformedMoveable
 
 
-class TubeAngle(HasLimits, Moveable):
+class TubeAngle(HasLimits, TransformedMoveable):
     """Angle of the tube controlled by the yoke."""
 
     attached_devices = {
@@ -49,11 +51,25 @@ class TubeAngle(HasLimits, Moveable):
 
     hardware_access = False
 
-    def doRead(self, maxage=0):
-        return degrees(atan2(self._attached_yoke.read(maxage), self.yokepos))
+    def doInit(self, mode):
+        self.log.info('%s', self.parameters['yokepos'].unit)
+        self.log.info('%s', self._attached_yoke.unit)
+        if self.parameters['yokepos'].unit != self._attached_yoke.unit:
+            raise ConfigurationError(
+                self, "units of attached device 'yoke' and 'yokepos' parameter"
+                " are not identical.")
 
-    def doStart(self, target):
-        self._attached_yoke.move(tan(radians(target)) * self.yokepos)
+    def _readRaw(self, maxage=0):
+        return self._attached_yoke.read(maxage)
+
+    def _mapReadValue(self, value):
+        return degrees(atan2(value, self.yokepos))
+
+    def _mapTargetValue(self, target):
+        return tan(radians(target)) * self.yokepos
+
+    def _startRaw(self, target):
+        self._attached_yoke.move(target)
 
     def doReadAbslimits(self):
         yokelimits = self._attached_yoke.userlimits

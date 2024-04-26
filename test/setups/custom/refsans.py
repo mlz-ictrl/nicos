@@ -572,6 +572,12 @@ devices = dict(
         precision = 0.01,
         visibility = (),
     ),
+    tube_angle = device('nicos_mlz.refsans.devices.tube.TubeAngle',
+        yoke = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (-120, 1000),
+            unit = 'mm',
+        ),
+    ),
 )
 
 alias_config = {

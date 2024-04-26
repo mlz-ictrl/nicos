@@ -15,3 +15,6 @@ nicos/nok_refc2/value=1
 nicos/sc2/abslimits=(-150, 130)
 nicos/sc2/userlimits=(-150, 130)
 nicos/chopper/value={'D': 11000, 'wlmin': 5, 'wlmax': 10, 'gap': 50, 'chopper2_pos': 1, 'manner': 'normal'}
+nicos/det_yoke_motor/abslimits=(-120, 1000)
+nicos/det_yoke_motor/abslimits=(-120, 1000)
+nicos/det_yoke/unit='mm'
