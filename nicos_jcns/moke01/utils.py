@@ -28,7 +28,8 @@ from scipy.optimize import curve_fit
 # pylint: disable=import-error
 from uncertainties.core import AffineScalarFunc, Variable, ufloat
 
-from nicos.utils.curves import curves_from_series, incr_decr_curves, mean_curves
+from nicos.utils.curves import curves_from_series, incr_decr_curves, \
+    mean_curves, subtract_curve
 
 
 def minmax_curve(curve):
@@ -146,13 +147,11 @@ def scale_intensity(i, imin, imax, kerr):
     return (i - (imin + imax) / 2) / (imax - imin) * 2 * kerr
 
 
-def calculate(measurement, angle, ext):
+def calculate(IntvB, angle, ext):
     """MOKE-specific measurement analysis."""
 
     # separate increasing and decreasing curves, mean them, and fit the means
-    IntvB_raw = measurement['IntvB']
-    all_curves = curves_from_series(IntvB_raw)
-    fit_min, fit_max = None, None
+    all_curves = curves_from_series(IntvB)
     IntvB = []
     for directed_curves in incr_decr_curves(all_curves):
         curve = mean_curves(directed_curves)
@@ -199,7 +198,20 @@ def generate_output(measurement, angle=None, ext=None):
     # raw measurement output
     if not angle and not ext:
         output += 'Measured curves of intensity vs magnetic field:\n'
-        if 'BvI' in measurement.keys() and measurement['BvI']:
+        # @TODO case statements are for compatibility with previous measurement
+        # formats, will be deleted at some point
+        if 'baseline' in measurement.keys() and measurement['baseline']:
+            output += 'I, A\tdI, A\t' \
+                      'B, T\tdB, T\t' \
+                      'Int, V\tdInt, V\t' \
+                      'Int_subtracted, V\tdInt_subtracted, V\n'
+            for (I, _), (B, Int), (_, Int_sub) in \
+                    zip(measurement['BvI'], measurement['IntvB'],
+                        subtract_curve(measurement['IntvB'],
+                                       measurement['baseline'])):
+                I, dI = (I.n, I.s) if isinstance(I, (AffineScalarFunc, Variable)) else (I, 0)
+                output += f'{I}\t{dI}\t{B.n}\t{B.s}\t{Int.n}\t{Int.s}\t{Int_sub.n}\t{Int_sub.s}\n'
+        elif 'BvI' in measurement.keys() and measurement['BvI']:
             output += 'I, A\tdI, A\tB, T\tdB, T\tInt, V\tdInt, V\n'
             for (I, _), (B, Int) in zip(measurement['BvI'], measurement['IntvB']):
                 I, dI = (I.n, I.s) if isinstance(I, (AffineScalarFunc, Variable)) else (I, 0)
@@ -211,22 +223,32 @@ def generate_output(measurement, angle=None, ext=None):
 
     # analysis output
     if angle and ext:
-        fit_min, fit_max, IntvB, EvB, kerr = calculate(measurement, angle, ext)
+        IntvB = subtract_curve(measurement['IntvB'], measurement['baseline']) \
+            if 'baseline' in measurement.keys() and measurement['baseline'] \
+            else measurement['IntvB']
+        fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, angle, ext)
         output += f'Minimum intensity: {fit_min[1]} [V]\n'
         output += f'Maxmimum intensity: {fit_max[1]} [V]\n'
         output += f'Canting angle: {angle} [µrad]\n'
         output += f'Extinction: {ext} [V]\n'
         output += f'Kerr angle: {kerr} [µrad]\n\n'
         output += 'Mean intensity and ellipticity curves:\n'
+        # @TODO case statements are for compatibility with previous measurement
+        # formats, will be deleted at some point
         if 'BvI' in measurement.keys() and measurement['BvI']:
-            output += 'I, A\tdI, A\tB, mT\tdB, mT\tI, V\tdI, V\tE, a.u.\tdE, a.u.\n'
+            output += 'I, A\tdI, A\tB, mT\tdB, mT\tInt, V\tdInt, V\tE, a.u.\tdE, a.u.\n'
             for (I, _), (B, Int), (_, E) in zip(measurement['BvI'][:len(IntvB)], IntvB, EvB):
                 I, dI = (I.n, I.s) if isinstance(I, (AffineScalarFunc, Variable)) else (I, 0)
                 output += f'{I}\t{dI}\t{B.n}\t{B.s}\t{Int.n}\t{Int.s}\t{E.n}\t{E.s}\n'
         else:
-            output += 'B, mT\tdB, mT\tI, V\tdI, V\tE, a.u.\tdE, a.u.\n'
+            output += 'B, mT\tdB, mT\tInt, V\tdInt, V\tE, a.u.\tdE, a.u.\n'
             for (B, Int), (_, E) in zip(IntvB, EvB):
                 output += f'{B.n}\t{B.s}\t{Int.n}\t{Int.s}\t{E.n}\t{E.s}\n'
+        if 'baseline' in measurement.keys() and measurement['baseline']:
+            output += '\nBaseline was authomatically subtracted:'
+            output += 'B, mT\tdB, mT\tInt, V\tdInt, V\n'
+            for B, Int in measurement['baseline']:
+                output += f'{B.n}\t{B.s}\t{Int.n}\t{Int.s}\n'
     return output
 
 

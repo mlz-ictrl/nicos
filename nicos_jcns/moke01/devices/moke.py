@@ -49,6 +49,11 @@ class MokeMagnet(MagnetWithCalibrationCurves):
     }
 
     parameters = {
+        'baseline': Param(
+            'Stores baseline curves of intensity vs magnetic field for '
+            'different experiment modes in form of array of (X, Y(X)) tuples',
+            dict, settable=True, default={'stepwise': {}, 'continuous': {}}
+        ),
         'measurement': Param('Last measurement data', dict, settable=True),
     }
 
@@ -79,6 +84,9 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         measurement['cycles'] = cycles
         measurement['BvI'] = []
         measurement['IntvB'] = []
+        measurement['baseline'] = self.baseline[mode][str(ramp)] \
+            if mode in self.baseline.keys() and str(ramp) in self.baseline[mode].keys() \
+            else []
         self.measurement = measurement
 
         if mode == 'stepwise':
