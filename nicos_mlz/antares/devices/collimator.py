@@ -47,11 +47,10 @@ class CollimatorLoverD(Readable):
 
     def doRead(self, maxage=0):
         try:
-            ret = float(self._attached_l.read(maxage)) / \
+            return float(self._attached_l.read(maxage)) / \
                 float(self._attached_d.read(maxage))
-        except ValueError:
-            ret = 0
-        return ret
+        except (ValueError, ZeroDivisionError):
+            return 0
 
 
 class GeometricBlur(Readable):
@@ -89,7 +88,7 @@ class GeometricBlur(Readable):
                 float(self._attached_d.read(maxage)) / \
                 float(self._attached_l.read(maxage))
             return 1000 * ret  # convert to um
-        except ValueError:
+        except (ValueError, ZeroDivisionError):
             return 0
 
     def doReadUnit(self):

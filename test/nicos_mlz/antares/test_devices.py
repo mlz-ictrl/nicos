@@ -81,9 +81,21 @@ class TestCollimator:
         yield colli
         session.destroyDevice(colli)
 
+    @pytest.fixture(scope='function')
+    def pinhole(self, collimator):
+        yield collimator._attached_d
+        collimator._attached_d.maw(2)
+
     def test_l_over_d(self, collimator):
         assert collimator._attached_d.read(0) == 2
         assert collimator.read(0) == 2500
+
+    @pytest.mark.parametrize('target', [0, 'park'])
+    def test_invalid_pinholes(self, collimator, pinhole, target):
+        # Test invalid values: 0 injects a division error, 'park' an invalid
+        # value error
+        pinhole.maw(target)
+        assert collimator.read(0) == 0
 
 
 class TestBlur:
@@ -94,9 +106,32 @@ class TestBlur:
         yield blur
         session.destroyDevice(blur)
 
+    @pytest.fixture(scope='function')
+    def pinhole(self, blur):
+        yield blur._attached_d
+        blur._attached_d.maw(2)
+
+
+    @pytest.fixture(scope='function')
+    def length(self, blur):
+        old_l = blur._attached_l.read(0)
+        yield blur._attached_l
+        blur._attached_l.maw(old_l)
+
     def test_blur(self, blur):
         assert blur.read(0) == approx(4e-6)
         assert blur.unit == 'um'
+
+    @pytest.mark.parametrize('target', [0])
+    def test_invalid_length(self, blur, length, target):
+        length.maw(target)
+        assert blur.read(0) == 0
+
+    @pytest.mark.parametrize('target', ['park'])
+    def test_invalid_pinholes(self, blur, pinhole, target):
+        # Test invalid values: 'park' injects an invalid value error
+        pinhole.maw(target)
+        assert blur.read(0) == 0
 
 
 class TestSelectorTilt:
