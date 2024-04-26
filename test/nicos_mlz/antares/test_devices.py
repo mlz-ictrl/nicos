@@ -130,4 +130,5 @@ class TestToellner:
         assert toellner.read(0) == 10
 
         toellner.input_range = '5V'
+        assert toellner._input_range == 5
         assert toellner.read(0) == 20

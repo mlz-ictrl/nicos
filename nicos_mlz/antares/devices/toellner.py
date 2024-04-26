@@ -22,10 +22,14 @@
 # *****************************************************************************
 
 """Special device to amplify an analog output."""
-from nicos.core import Attach, HasLimits, Moveable, Param, oneof, status
+
+from nicos.core import Attach, HasLimits, Moveable, Override, Param, oneof, \
+    status
+
+from nicos.devices.abstract import TransformedMoveable
 
 
-class ToellnerDc(HasLimits, Moveable):
+class ToellnerDc(HasLimits, TransformedMoveable):
     """Special device to amplify an analog output."""
 
     attached_devices = {
@@ -45,37 +49,34 @@ class ToellnerDc(HasLimits, Moveable):
                       settable=False, mandatory=True),
     }
 
-    def doRead(self, maxage=0):
-        max_value = self.max_voltage
-        if self.mode == 'current':
-            max_value = self.max_current
+    parameter_overrides = {
+        'unit': Override(volatile=True, mandatory=False),
+    }
 
-        in_range = 5.
-        if self.input_range == '10V':
-            in_range = 10.
+    hardware_access = False
 
-        ret = float(self._attached_amplitude.read(maxage)) / in_range * max_value
-        return ret
-
-    def doStart(self, target):
-        max_value = self.max_voltage
-        if self.mode == 'current':
-            max_value = self.max_current
-
-        in_range = 5.
-        if self.input_range == '10V':
-            in_range = 10.
-
-        target = float(target) / float(max_value) * in_range
-
-        self._attached_amplitude.start(target)
-
-    def doReadUnit(self):
-        if self.mode == 'current':
-            return 'A'
-        return 'V'
+    def doInit(self, mode):
+        self._max_value = getattr(self, f'max_{self.mode}')
 
     def doStatus(self, maxage=0):
         if self._attached_amplitude.status(0)[0] == status.DISABLED:
-            return status.DISABLED, '%s mode' % self.mode
-        return status.OK, '%s mode' % self.mode
+            return status.DISABLED, f'{self.mode} mode'
+        return status.OK, f'{self.mode} mode'
+
+    def doReadUnit(self):
+        return 'A' if self.mode == 'current' else 'V'
+
+    def doUpdateInput_Range(self, value):
+        self._input_range = float(value[:-1])
+
+    def _readRaw(self, maxage=0):
+        return self._attached_amplitude.read(maxage)
+
+    def _mapReadValue(self, value):
+        return value / self._input_range * self._max_value
+
+    def _startRaw(self, target):
+        self._attached_amplitude.start(target)
+
+    def _mapTargetValue(self, target):
+        return target / self._max_value * self._input_range

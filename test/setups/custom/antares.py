@@ -120,6 +120,5 @@ devices = dict(
             unit = '',
         ),
         abslimits = (-20, 20),
-        unit = '',
      ),
 )
