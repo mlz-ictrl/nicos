@@ -219,7 +219,7 @@ class MokeTeslameter(Sensor):
     }
 
     parameters = {
-        'calibration_year': Param('Year of the last calibration', int),
+        'calibration_date': Param('Last calibration date in iso format', str),
         'probe_wire_length': Param('Length of probe cable in meters', float),
     }
 
@@ -230,11 +230,14 @@ class MokeTeslameter(Sensor):
         value = abs(value)
         i = self._dev.GetProperties().index('range')
         _range = float(self._dev.GetProperties()[i + 1].split(' T')[0])
-        temp = self._T.doRead()
+        Tdeg = self._T.doRead()
+        years = int((datetime.now() -
+                     datetime.strptime(self.calibration_date, '%Y-%m-%d')).days
+                    / 365)
         return (1e-4 * value + 6e-5 * _range +
-                (1e-5 * value + (1e-6 + 3e-6 * _range)) * abs(temp - 25) +
-                3e-6 * self.probe_wire_length * abs(temp - 25) +
-                (datetime.now().year - self.calibration_year) * 1e-3 * value)
+                (1e-5 * value + (1e-6 + 3e-6 * _range)) * abs(Tdeg - 25) +
+                3e-6 * self.probe_wire_length * abs(Tdeg - 25) +
+                years * 1e-3 * value)
 
 
 class MokeVoltmeter(Sensor):
@@ -280,7 +283,7 @@ class MokeVoltmeter(Sensor):
     }
 
     parameters = {
-        'calibration_date': Param('Date last calibration in iso format', str),
+        'calibration_date': Param('Last calibration date in iso format', str),
     }
 
     def doInit(self, mode):

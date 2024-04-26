@@ -47,7 +47,7 @@ devices = {
         fmtstr = '%.6f',
         pollinterval = 60,
         probe_wire_length = 3.5,
-        calibration_year = 2011,
+        calibration_date = '2011-01-01',
         visibility = (),
     ),
     'PS_current': device('nicos_jcns.moke01.devices.moke.MokePowerSupply',
