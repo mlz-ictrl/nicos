@@ -56,8 +56,7 @@ class Shutter(PyTangoDevice, Readable):
         is_clsd = self._dev.ReadInputBit(self.closeoffset)
         if is_open + is_clsd == 1:
             return status.OK, ''
-        else:
-            return status.BUSY, 'moving'
+        return status.BUSY, 'moving'
 
     def doRead(self, maxage=0):
         is_open = self._dev.ReadInputBit(self.openoffset)
