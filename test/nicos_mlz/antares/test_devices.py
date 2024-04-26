@@ -112,3 +112,22 @@ class TestSelectorTilt:
     def test_selector_tilt(self, tilt):
         assert tilt.read(0) == 0
         tilt.maw(1)
+
+
+class TestToellner:
+
+    @pytest.fixture(scope='function')
+    def toellner(self, session):
+        toellner = session.getDevice('toellner_dc')
+
+        yield toellner
+
+        session.destroyDevice(toellner)
+
+    def test_toellner(self, toellner):
+        assert toellner.read(0) == 0
+        toellner.maw(10)
+        assert toellner.read(0) == 10
+
+        toellner.input_range = '5V'
+        assert toellner.read(0) == 20
