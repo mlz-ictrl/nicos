@@ -398,7 +398,7 @@ class MagnetWithCalibrationCurves(Magnet):
 
     def doStart(self, target):
         current = self._field2current(target)
-        current = current.n if WITH_UNCERTAINTIES else current[0]
+        current = current.n if WITH_UNCERTAINTIES else current
         self._attached_currentsource.doStart(current)
 
     def doStop(self):
