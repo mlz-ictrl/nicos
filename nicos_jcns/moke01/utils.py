@@ -26,7 +26,7 @@ import numpy
 from scipy.odr import Model, Data, ODR
 from scipy.optimize import curve_fit
 # pylint: disable=import-error
-from uncertainties.core import AffineScalarFunc, Variable, ufloat
+from uncertainties.core import AffineScalarFunc, ufloat
 
 from nicos.utils.curves import curves_from_series, incr_decr_curves, \
     mean_curves, subtract_curve
@@ -86,8 +86,8 @@ def _lsm_dx_dy(x, y, dx, dy):
 def lsm(x, y, dx=None, dy=None):
     """Uncertainties-friendly least squares algorithm."""
 
-    if isinstance(y[0], (AffineScalarFunc, Variable)):
-        if isinstance(x[0], (AffineScalarFunc, Variable)):
+    if isinstance(y[0], AffineScalarFunc):
+        if isinstance(x[0], AffineScalarFunc):
             dx = [i.s for i in x]
             x = [i.n for i in x]
         dy = [i.s for i in y]
@@ -209,12 +209,12 @@ def generate_output(measurement, angle=None, ext=None):
                     zip(measurement['BvI'], measurement['IntvB'],
                         subtract_curve(measurement['IntvB'],
                                        measurement['baseline'])):
-                I, dI = (I.n, I.s) if isinstance(I, (AffineScalarFunc, Variable)) else (I, 0)
+                I, dI = (I.n, I.s) if isinstance(I, AffineScalarFunc) else (I, 0)
                 output += f'{I}\t{dI}\t{B.n}\t{B.s}\t{Int.n}\t{Int.s}\t{Int_sub.n}\t{Int_sub.s}\n'
         elif 'BvI' in measurement.keys() and measurement['BvI']:
             output += 'I, A\tdI, A\tB, T\tdB, T\tInt, V\tdInt, V\n'
             for (I, _), (B, Int) in zip(measurement['BvI'], measurement['IntvB']):
-                I, dI = (I.n, I.s) if isinstance(I, (AffineScalarFunc, Variable)) else (I, 0)
+                I, dI = (I.n, I.s) if isinstance(I, AffineScalarFunc) else (I, 0)
                 output += f'{I}\t{dI}\t{B.n}\t{B.s}\t{Int.n}\t{Int.s}\n'
         else:
             output += 'B, T\tdB, T\tInt, V\tdInt, V\n'
@@ -238,7 +238,7 @@ def generate_output(measurement, angle=None, ext=None):
         if 'BvI' in measurement.keys() and measurement['BvI']:
             output += 'I, A\tdI, A\tB, mT\tdB, mT\tInt, V\tdInt, V\tE, a.u.\tdE, a.u.\n'
             for (I, _), (B, Int), (_, E) in zip(measurement['BvI'][:len(IntvB)], IntvB, EvB):
-                I, dI = (I.n, I.s) if isinstance(I, (AffineScalarFunc, Variable)) else (I, 0)
+                I, dI = (I.n, I.s) if isinstance(I, AffineScalarFunc) else (I, 0)
                 output += f'{I}\t{dI}\t{B.n}\t{B.s}\t{Int.n}\t{Int.s}\t{E.n}\t{E.s}\n'
         else:
             output += 'B, mT\tdB, mT\tInt, V\tdInt, V\tE, a.u.\tdE, a.u.\n'

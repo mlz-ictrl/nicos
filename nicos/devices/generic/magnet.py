@@ -32,7 +32,7 @@ import numpy
 from scipy.optimize import fsolve
 try:
     # pylint: disable=import-error
-    from uncertainties.core import AffineScalarFunc, Variable, ufloat
+    from uncertainties.core import AffineScalarFunc, ufloat
     WITH_UNCERTAINTIES = True
 except Exception:
     WITH_UNCERTAINTIES = False
@@ -426,7 +426,7 @@ class MagnetWithCalibrationCurves(Magnet):
         except Exception:
             limits = [0, 0]
         if WITH_UNCERTAINTIES:
-            if isinstance(limits[0], (AffineScalarFunc, Variable)):
+            if isinstance(limits[0], AffineScalarFunc):
                 limits = [limits[0].n, limits[1].n]
         return min(limits), max(limits)
 

@@ -34,7 +34,7 @@ uncertainties python module.
 import numpy
 try:
     # pylint: disable=import-error
-    from uncertainties.core import AffineScalarFunc, Variable, ufloat
+    from uncertainties.core import AffineScalarFunc, ufloat
     WITH_UNCERTAINTIES = True
 except Exception:
     WITH_UNCERTAINTIES = False
@@ -86,7 +86,7 @@ def mean(x, dx=None):
     """Uncertainties-friendly mean calculation algorithm.
     """
     if WITH_UNCERTAINTIES:
-        if isinstance(x[0], (AffineScalarFunc, Variable)):
+        if isinstance(x[0], AffineScalarFunc):
             dx = [i.s for i in x]
             x = [i.n for i in x]
     x = numpy.array(x)
@@ -121,7 +121,7 @@ def curves_from_series(data, meta=None):
     """
     with_ufloat = False
     if WITH_UNCERTAINTIES:
-        if isinstance(data[0][0], (AffineScalarFunc, Variable)):
+        if isinstance(data[0][0], AffineScalarFunc):
             with_ufloat = True
     curves = []
     if meta:
@@ -147,7 +147,7 @@ def curves_from_series(data, meta=None):
         curves.append(data[sep:])
         # clean-up algorithm artifacts
         mn = mean([len(curve) for curve in curves])
-        if isinstance(mn, (AffineScalarFunc, Variable)):
+        if isinstance(mn, AffineScalarFunc):
             to_delete = [i for i, curve in enumerate(curves) if len(curve) < mn.s]
         else:
             to_delete = [i for i, curve in enumerate(curves) if len(curve) < mn[1]]

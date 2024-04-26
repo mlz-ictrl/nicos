@@ -38,7 +38,7 @@ from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 from gr.pygr import ErrorBar
 import numpy
 # pylint: disable=import-error
-from uncertainties.core import AffineScalarFunc, Variable
+from uncertainties.core import AffineScalarFunc
 
 
 class MokePlot(LiveWidget1D):
@@ -57,10 +57,10 @@ class MokePlot(LiveWidget1D):
         if curve:
             x = [i for i, _ in curve]
             y = [i for _, i in curve]
-        if isinstance(x[0], (AffineScalarFunc, Variable)):
+        if isinstance(x[0], AffineScalarFunc):
             dx = [i.s for i in x]
             x = [i.n for i in x]
-        if isinstance(y[0], (AffineScalarFunc, Variable)):
+        if isinstance(y[0], AffineScalarFunc):
             dy = [i.s for i in y]
             y = [i.n for i in y]
         x_err = ErrorBar(x, y, dx, direction=ErrorBar.HORIZONTAL,
