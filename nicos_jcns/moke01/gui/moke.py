@@ -248,8 +248,8 @@ class MokePanel(MokeBase):
             self._read_calibration()
 
     def _read_baseline(self):
-        baseline = self.client.eval('session.getDevice("MagB").baseline')
-        self.baseline = {key: dict(item) for key, item in baseline.items()}
+        self.baseline = self.client.eval(
+            'session.getDevice("MagB").baseline.copy()')
         self._update_baseline_plot()
 
     def _update_baseline_plot(self):
@@ -275,7 +275,7 @@ class MokePanel(MokeBase):
             self._update_baseline_plot()
 
     def _on_button_baseline_save_clicked(self):
-        self.client.run('temp = {key: dict(item) for key, item in MagB.baseline.items()}')
+        self.client.run('temp = MagB.baseline.copy()}')
         self.client.run('from nicos.utils.curves import curves_from_series, mean_curves')
         mode = self.m['mode']
         ramp = self.m['ramp']
