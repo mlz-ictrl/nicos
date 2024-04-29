@@ -145,6 +145,10 @@ class readonlydict(dict):
     def __reduce__(self):
         return dict.__reduce__(self)
 
+    def copy(self):
+        return {k: v.copy() if isinstance(v, dict) else v
+                for k, v in self.items()}
+
 
 class BoundedOrderedDict(OrderedDict):
     def __init__(self, *args, **kwds):
