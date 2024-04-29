@@ -30,3 +30,9 @@ Mapping device classes
 .. autoclass:: MappedReadable()
 
 .. autoclass:: MappedMoveable()
+
+
+Special classes
+---------------
+
+.. autoclass:: Magnet()

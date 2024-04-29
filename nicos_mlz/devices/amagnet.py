@@ -67,9 +67,9 @@ class GarfieldMagnet(CanDisable, CalibratedMagnet):
             # take abs to not fail if the currentreadback ever includes the sign
             current = abs(currentreadback.read(maxage))
             if self._attached_currentsource.read(maxage) < 0:
-                return self._current2field(-current)
-            return self._current2field(current)
-        return self._current2field(self._attached_currentsource.read(maxage))
+                return self._mapReadValue(-current)
+            return self._mapReadValue(current)
+        return CalibratedMagnet.doRead(self, maxage)
 
     def doWriteUserlimits(self, value):
         abslimits = self.abslimits

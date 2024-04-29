@@ -30,6 +30,7 @@ import time
 
 import numpy
 from scipy.optimize import fsolve
+
 try:
     # pylint: disable=import-error
     from uncertainties.core import AffineScalarFunc, ufloat
@@ -38,39 +39,17 @@ except Exception:
     WITH_UNCERTAINTIES = False
 
 from nicos import session
-from nicos.core import Attach, HasLimits, LimitError, Moveable, NicosError, \
-    Readable, status, usermethod
-from nicos.core.params import Override, Param, oneof, tupleof
+from nicos.core import Attach, HasLimits, LimitError, NicosError, Readable, \
+    status, usermethod
+from nicos.core.params import Param, oneof, tupleof
 from nicos.core.sessions.utils import MASTER
 from nicos.core.utils import multiStop
+from nicos.devices.abstract import Magnet
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev
 from nicos.utils import clamp, createThread
 from nicos.utils.curves import curve_from_two_temporal, curves_from_series, \
     get_xvy, get_yvx, incr_decr_curves, mean_curves
 from nicos.utils.fitting import Fit
-
-
-class Magnet(HasLimits, Moveable):
-    """Base class for magnets.
-    """
-
-    attached_devices = {
-        'currentsource': Attach('bipolar Powersupply', Moveable),
-    }
-
-    parameter_overrides = {
-        'unit': Override(mandatory=False, default='T'),
-        'abslimits': Override(mandatory=False, volatile=True),
-    }
-
-    def doReadAbslimits(self):
-        raise NotImplementedError('implement doReadAbslimits')
-
-    def _current2field(self, current):
-        raise NotImplementedError('implement _current2field')
-
-    def _field2current(self, field):
-        raise NotImplementedError('implement _field2current')
 
 
 class CalibratedMagnet(Magnet):
@@ -97,12 +76,13 @@ class CalibratedMagnet(Magnet):
                              chatty=True),
     }
 
+    def _mapReadValue(self, value):
+        return self._current2field(value)
+
     def _current2field(self, current, *coefficients):
-        """Return field in T for given current in A.
+        """Return field (B) in T for given current (I) in A.
 
-        Should be monotonic and asymmetric or _field2current will fail!
-
-        Note: This may be overridden in derived classes.
+        B(I) = c0 * I + c1 * erf(c2 * I) + c3 * atan(c4 * I)
         """
         v = coefficients or self.calibration
         if len(v) != 5:
@@ -111,30 +91,20 @@ class CalibratedMagnet(Magnet):
         return v[0]*current + v[1]*math.erf(v[2]*current) + \
             v[3]*math.atan(v[4]*current)
 
-    def _field2current(self, field):
-        """Return required current in A for requested field in T.
-
-        Note: This may be overridden in derived classes.
-        """
-        # binary search/bisection
+    def _mapTargetValue(self, target):
         maxcurr = self._attached_currentsource.abslimits[1]
         mincurr = -maxcurr
-        maxfield = self._current2field(maxcurr)
-        minfield = self._current2field(mincurr)
-        if not minfield <= field <= maxfield:
+        maxfield = self._mapReadValue(maxcurr)
+        minfield = self._mapReadValue(mincurr)
+        if not minfield <= target <= maxfield:
             raise LimitError(self,
                              'requested field %g %s out of range %g..%g %s' %
-                             (field, self.unit, minfield, maxfield, self.unit))
+                             (target, self.unit, minfield, maxfield, self.unit)
+                             )
 
-        res = fsolve(lambda cur: self._current2field(cur) - field, 0)[0]
-        self.log.debug('current for %g %s is %g', field, self.unit, res)
+        res = fsolve(lambda cur: self._mapReadValue(cur) - target, 0)[0]
+        self.log.debug('current for %g %s is %g', target, self.unit, res)
         return res
-
-    def doRead(self, maxage=0):
-        return self._current2field(self._attached_currentsource.read(maxage))
-
-    def doStart(self, target):
-        self._attached_currentsource.start(self._field2current(target))
 
     def doStop(self):
         self._attached_currentsource.stop()
@@ -144,15 +114,14 @@ class CalibratedMagnet(Magnet):
 
     def doReadRamp(self):
         # This is an approximation!
-        return self.calibration[0]*abs(self._attached_currentsource.ramp)
+        return self.calibration[0] * abs(self._attached_currentsource.ramp)
 
     def doWriteRamp(self, newramp):
         # This is an approximation!
         self._attached_currentsource.ramp = newramp / self.calibration[0]
 
     def doReadAbslimits(self):
-        minfield, maxfield = [self._current2field(I)
-                              for I in self._attached_currentsource.abslimits]
+        minfield, maxfield = Magnet.doReadAbslimits(self)
         # include 0 in allowed range
         minfield = min(minfield, 0)
         maxfield = max(maxfield, 0)
@@ -165,14 +134,14 @@ class CalibratedMagnet(Magnet):
     def doWriteUserlimits(self, value):
         HasLimits.doWriteUserlimits(self, value)
         # all Ok, set source to max of pos/neg field current
-        maxcurr = max(self._field2current(i) for i in value)
-        mincurr = min(self._field2current(i) for i in value)
+        maxcurr = max(self._mapTargetValue(v) for v in value)
+        mincurr = min(self._mapTargetValue(v) for v in value)
         self._attached_currentsource.userlimits = (mincurr, maxcurr)
 
     def doTime(self, old_value, target):
         # get difference in current
-        delta = abs(self._field2current(target) -
-                    self._field2current(old_value))
+        delta = abs(self._mapTargetValue(target) -
+                    self._mapTargetValue(old_value))
         # ramp is per minute, doTime should return seconds
         return 60 * delta / self._attached_currentsource.ramp
 
@@ -197,7 +166,7 @@ class CalibratedMagnet(Magnet):
             if scan.counter not in scannumbers:
                 continue
             if fieldcolumn not in scan.ynames or \
-                    currentcolumn not in scan.xnames:
+               currentcolumn not in scan.xnames:
                 self.log.info('%s is not a calibration scan', scan.counter)
                 continue
             xindex = scan.xnames.index(currentcolumn)
@@ -281,13 +250,12 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
             self._seq_set_field_polarity(0, sequence)
         return sequence
 
-    def doRead(self, maxage=0):
-        absfield = self._current2field(
-            self._attached_currentsource.read(maxage))
+    def _mapReadValue(self, value):
+        absfield = CalibratedMagnet._mapReadValue(self, value)
         return self._get_field_polarity() * absfield
 
     def doStart(self, target):
-        BaseSequencer.doStart(self, self._field2current(target))
+        BaseSequencer.doStart(self, self._mapTargetValue(target))
 
     def doStop(self):
         BaseSequencer.doStop(self)
@@ -300,7 +268,7 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
 
     def doReadAbslimits(self):
         maxcurr = self._attached_currentsource.abslimits[1]
-        maxfield = self._current2field(maxcurr)
+        maxfield = self._mapReadValue(maxcurr)
         # get configured limits if any, or take max of source
         limits = self._config.get('abslimits', (-maxfield, maxfield))
         # in any way, clamp limits to what the source can handle
@@ -311,7 +279,7 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
         HasLimits.doWriteUserlimits(self, value)
         currentsource = self._attached_currentsource
         # all Ok, set source to max of pos/neg field current
-        maxcurr = max(abs(self._field2current(i)) for i in value)
+        maxcurr = max(abs(self._mapTargetValue(i)) for i in value)
         currentsource.userlimits = (0, maxcurr)
 
 

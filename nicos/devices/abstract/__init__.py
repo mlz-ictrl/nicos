@@ -23,10 +23,10 @@
 
 """Definition of abstract base device classes."""
 
-from nicos.core import SLAVE, ConfigurationError, DeviceMixinBase, HasLimits, \
-    HasMapping, HasOffset, HasPrecision, InvalidValueError, ModeError, \
-    Moveable, Override, Param, PositionError, ProgrammingError, Readable, \
-    oneof, status, usermethod
+from nicos.core import SLAVE, Attach, ConfigurationError, DeviceMixinBase, \
+    HasLimits, HasMapping, HasOffset, HasPrecision, InvalidValueError, \
+    ModeError, Moveable, Override, Param, PositionError, ProgrammingError, \
+    Readable, oneof, status, usermethod
 from nicos.utils import num_sort
 
 
@@ -196,9 +196,36 @@ class TransformedMoveable(TransformedReadable, Moveable):
         raise ProgrammingError(self, 'Somebody please implement a proper '
                                '_startRaw or doStart method!')
 
+
+class Magnet(HasLimits, TransformedMoveable):
+    """Base class for electromagnets."""
+
+    attached_devices = {
+        'currentsource': Attach('Powersupply driving the magnetic field',
+                                Moveable)
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default='T'),
+        'abslimits': Override(mandatory=False, volatile=True),
+    }
+
+    hardware_access = False
+
+    def doReadAbslimits(self):
+        limits = self._attached_currentsource.abslimits
+        return self._mapReadValue(limits[0]), self._mapReadValue(limits[1])
+
+    def _readRaw(self, maxage=0):
+        return self._attached_currentsource.read(maxage)
+
+    def _startRaw(self, target):
+        self._attached_currentsource.start(target)
+
 # MappedReadable and MappedMoveable operate (via read/start) on a set of
 # predefined values which are mapped via the mapping parameter onto
 # device-specific (raw) values.
+
 
 class MappedReadable(HasMapping, TransformedReadable):
     """Base class for all read-only (discrete) value-mapped devices.

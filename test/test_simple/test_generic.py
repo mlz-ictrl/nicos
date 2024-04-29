@@ -242,12 +242,15 @@ def test_magnet(session):
     # the default formula is B(I) = c0*I + c1*erf(c2*I) + c3*atan(c4*I)
     magnet.calibration = 1, 0, 0, 0, 0
     assert magnet.abslimits == (-100, 100)
+    assert current.abslimits == (-100, 100)
     magnet.maw(1)
     assert magnet.read() == 1
     assert current.read() == 1
 
     magnet.calibration = 1, 1, 1, 1, 1
+    assert current.abslimits == (-100, 100)
     assert magnet.abslimits[0] == approx(-102.56, abs=1e-2)
+    assert magnet.abslimits[1] == approx(102.56, abs=1e-2)
     magnet.maw(1)
     assert magnet.read() == 1
     assert current.read() == approx(0.33, abs=1e-2)
