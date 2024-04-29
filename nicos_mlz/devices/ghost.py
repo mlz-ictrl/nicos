@@ -248,5 +248,5 @@ class Authenticator(BaseAuthenticator):
         if email == username:
             # try to extract the user's real name from the user data
             username = realname
-        return User(username, level, {'ghost': ghost,
+        return User(username, level, {'proposal_system': ghost,
                                       'keepalive': ghost.keepalive})

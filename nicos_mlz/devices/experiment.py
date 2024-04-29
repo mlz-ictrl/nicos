@@ -60,11 +60,11 @@ class Experiment(BaseExperiment):
     }
 
     @property
-    def ghost(self):
+    def proposal_system(self):
         """Return the GhOST API proxy if the current user was authenticated
         against GhOST, else None.
         """
-        return session.getExecutingUser().data.get('ghost')
+        return session.getExecutingUser().data.get('proposal_system')
 
     def getProposalType(self, proposal):
         if proposal in ('template', 'current'):
@@ -78,14 +78,14 @@ class Experiment(BaseExperiment):
 
     def _newCheckHook(self, proptype, proposal):
         # check if user may start this proposal
-        if self.ghost is None:
+        if self.proposal_system is None:
             return  # no way to check
         if proptype == 'user':
-            if not self.ghost.canStartProposal(proposal):
+            if not self.proposal_system.canStartProposal(proposal):
                 raise NicosError(self, 'Current user may not start this '
                                  'proposal')
         elif proptype == 'other':
-            if not self.ghost.isLocalContact():
+            if not self.proposal_system.isLocalContact():
                 raise NicosError(self, 'Current user may not start a '
                                  'non-user proposal')
 
@@ -94,7 +94,7 @@ class Experiment(BaseExperiment):
             # for compatibility with templates expecting a cycle number
             kwds['cycle'] = 'unknown_cycle'
         if self.proptype == 'user':
-            if self.ghost is not None:
+            if self.proposal_system is not None:
                 self._fillProposal(proposal, kwds)
         return kwds
 
@@ -103,12 +103,12 @@ class Experiment(BaseExperiment):
         pass
 
     def _canQueryProposals(self):
-        return 'ghost' in session.getExecutingUser().data
+        return 'proposal_system' in session.getExecutingUser().data
 
     def _queryProposals(self, proposal=None, kwds=None):
-        if self.ghost is None:
+        if self.proposal_system is None:
             raise NicosError('cannot query proposals for logged-in user')
-        res = self.ghost.queryProposals(proposal)
+        res = self.proposal_system.queryProposals(proposal)
         if kwds:
             for prop in res:
                 res[prop].update(kwds)
@@ -116,7 +116,7 @@ class Experiment(BaseExperiment):
 
     def _fillProposal(self, proposal, kwds):
         try:
-            res = self.ghost.queryProposals(proposal)[0]
+            res = self.proposal_system.queryProposals(proposal)[0]
         except Exception:
             self.log.warning('could not query proposal info to '
                              'fill metadata', exc=1)
