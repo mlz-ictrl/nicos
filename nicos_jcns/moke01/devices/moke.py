@@ -52,7 +52,10 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         'baseline': Param(
             'Stores baseline curves of intensity vs magnetic field for '
             'different experiment modes in form of array of (X, Y(X)) tuples',
-            dict, settable=True, default={'stepwise': {}, 'continuous': {}}
+            dict, settable=True, default={'stepwise': {'polar': {},
+                                                       'longitudinal': {}},
+                                          'continuous': {'polar': {},
+                                                         'longitudinal': {}}}
         ),
         'measurement': Param('Last measurement data', dict, settable=True),
     }
@@ -65,8 +68,8 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         if mode == MASTER:
             self._Bvt, self._Intvt, self._BvI, self._IntvB = [], [], [], []
 
-    def measure_intensity(self, mode, Bmin, Bmax, ramp, cycles, step, steptime,
-                          name, exp_type):
+    def measure_intensity(self, mode, field_orientation, Bmin, Bmax, ramp,
+                          cycles, step, steptime, name, exp_type):
         self._cycling = True
         self._progress, self._maxprogress = 0, 0
         measurement = {}
@@ -74,7 +77,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         measurement['time'] = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
         measurement['exp_type'] = exp_type
         measurement['mode'] = mode
-        self.mode = mode
+        measurement['field_orientation'] = field_orientation
         measurement['ramp'] = ramp
         self.ramp = ramp
         measurement['Bmin'] = Bmin
@@ -84,9 +87,8 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         measurement['cycles'] = cycles
         measurement['BvI'] = []
         measurement['IntvB'] = []
-        measurement['baseline'] = self.baseline[mode][str(ramp)] \
-            if mode in self.baseline.keys() and str(ramp) in self.baseline[mode].keys() \
-            else []
+        measurement['baseline'] = self.baseline[mode][field_orientation][str(ramp)] \
+            if str(ramp) in self.baseline[mode][field_orientation].keys() else []
         self.measurement = measurement
 
         if mode == 'stepwise':

@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+from contextlib import suppress
 import datetime
 import os
 
@@ -116,9 +117,10 @@ class MokeBase(Panel):
             QMessageBox.information(None, '', 'The measurement is not yet finished')
             return
 
-        IntvB = self.m['IntvB'] if 'baseline' not in self.m.keys() \
-            or not self.m['baseline'] or not self.chck_subtract_baseline.isChecked() \
-            else subtract_curve(self.m['IntvB'], self.m['baseline'])
+        IntvB = self.m['IntvB']
+        if self.chck_subtract_baseline.isChecked():
+            with suppress(Exception):
+                IntvB = subtract_curve(self.m['IntvB'], self.m['baseline'])
         angle = float(self.ln_canting_angle.text()) # urad
         ext = float(self.ln_extinction.text()) # V
         try:
@@ -256,9 +258,11 @@ class MokePanel(MokeBase):
         self.plot_baseline.reset()
         if self.baseline:
             for mode in self.baseline.keys():
-                for ramp in self.baseline[mode].keys():
-                    self.plot_baseline.add_curve(self.baseline[mode][ramp],
-                                                 legend=f'{mode} @ {ramp} A/min')
+                for field in self.baseline[mode].keys():
+                    for ramp in self.baseline[mode][field].keys():
+                        if self.baseline[mode][field][ramp]:
+                            self.plot_baseline.add_curve(self.baseline[mode][field][ramp],
+                                                         legend=f'{mode}, {field} @ {ramp} A/min')
 
     def _on_baseline_unlock_changed(self, state):
         self.btn_baseline_import.setEnabled(bool(state))
@@ -266,21 +270,26 @@ class MokePanel(MokeBase):
         self._read_baseline()
 
     def _on_button_baseline_import_clicked(self):
-        self.m = self.client.eval('session.getDevice("MagB").measurement')
         if self.m and self.m['IntvB']:
-            if self.m['mode'] not in self.baseline.keys():
-                self.baseline[self.m['mode']] = {}
-            self.baseline[self.m['mode']][str(self.m['ramp'])] = \
+            mode = self.m['mode']
+            field = self.m['field_orientation']
+            ramp = str(self.m['ramp'])
+            if ramp not in self.baseline[mode][field].keys():
+                self.baseline[mode][field][ramp] = {}
+            self.baseline[mode][field][ramp] = \
                 mean_curves(curves_from_series(self.m['IntvB']))
             self._update_baseline_plot()
 
     def _on_button_baseline_save_clicked(self):
-        self.client.run('temp = MagB.baseline.copy()}')
-        self.client.run('from nicos.utils.curves import curves_from_series, mean_curves')
-        mode = self.m['mode']
-        ramp = self.m['ramp']
-        self.client.run(f'temp["{mode}"]["{ramp}"] = mean_curves(curves_from_series(MagB.measurement["IntvB"]))')
-        self.client.run('MagB.baseline = temp')
+        if self.m and self.m['IntvB']:
+            mode = self.m['mode']
+            field = self.m['field_orientation']
+            ramp = str(self.m['ramp'])
+            self.client.run('temp = MagB.baseline.copy()')
+            self.client.run('from nicos.utils.curves import curves_from_series, mean_curves')
+            self.client.run(f'temp["{mode}"]["{field}"][{ramp}] = '
+                             'mean_curves(curves_from_series(MagB.measurement["IntvB"]))')
+            self.client.run('MagB.baseline = temp')
 
 
     def _read_last_measurement(self):
@@ -290,6 +299,7 @@ class MokePanel(MokeBase):
                 self.cmb_mode.findText(str(self.m['mode'])))
             self.ln_sample.setText(self.m['name'])
             self.rad_rotation.setChecked(self.m['exp_type'] == 'rotation')
+            self.rad_polar.setChecked(self.m['field_orientation'] == 'polar')
             self.ln_Bmin.setText(str(self.m['Bmin']))
             self.ln_Bmax.setText(str(self.m['Bmax']))
             self.ln_step.setText(str(self.m['step']))
@@ -297,9 +307,10 @@ class MokePanel(MokeBase):
             self.ln_cycles.setText(str(self.m['cycles']))
             sample_name = f'{self.m["time"]} {self.m["name"]}'
             if self.m['IntvB']:
-                IntvB = self.m['IntvB'] if 'baseline' not in self.m.keys() \
-                    or not self.m['baseline'] or not self.chck_subtract_baseline.isChecked() \
-                    else subtract_curve(self.m['IntvB'], self.m['baseline'])
+                IntvB = self.m['IntvB']
+                if self.chck_subtract_baseline.isChecked():
+                    with suppress(Exception):
+                        IntvB = subtract_curve(self.m['IntvB'], self.m['baseline'])
                 self.plot_IntvB.reset()
                 self.plot_IntvB.add_curve(IntvB, legend=sample_name)
                 self.display_rawdata(generate_output(self.m))
@@ -320,9 +331,10 @@ class MokePanel(MokeBase):
             QMessageBox.information(None, '', 'Step time must be > 0.1 s')
             return
         exp_type = 'rotation' if self.rad_rotation.isChecked() else 'ellipticity'
-        self.client.run(f'MagB.measure_intensity("{mode}", {Bmin}, {Bmax}, '
-                        f'{ramp}, {cycles}, {step}, {steptime}, "{name}", '
-                        f'"{exp_type}")')
+        field_orientation = 'polar' if self.rad_polar.isChecked() else 'longitudinal'
+        self.client.run(f'MagB.measure_intensity("{mode}", "{field_orientation}", '
+                        f'{Bmin}, {Bmax}, {ramp}, {cycles}, {step}, {steptime}, '
+                        f'"{name}", "{exp_type}")')
         self.update_plot_IntvB.start(500) # _update_intensity
 
     def _update_intensity(self):
@@ -336,9 +348,9 @@ class MokePanel(MokeBase):
         # before measurement is finished and stored to `MagB.measurement`
         # IntvB can be fetched from MagB._IntvB
         IntvB = self.client.eval('session.getDevice("MagB")._IntvB')
-        if 'baseline' in self.m.keys() and self.m['baseline'] \
-                and self.chck_subtract_baseline.isChecked():
-            IntvB = subtract_curve(IntvB, self.m['baseline'])
+        if self.chck_subtract_baseline.isChecked():
+            with suppress(Exception):
+                IntvB = subtract_curve(IntvB, self.m['baseline'])
         if IntvB:
             self.plot_IntvB.reset()
             self.plot_IntvB.add_curve(IntvB, legend=sample_name)
@@ -415,14 +427,14 @@ class MokeHistory(MokeBase):
             item = self._model.itemFromIndex(current)
             self.m = self.measurements[item.text()]
             self.display_rawdata(generate_output(self.m))
-        IntvB = self.m['IntvB'] if 'baseline' not in self.m.keys() \
-            or not self.m['baseline'] or not self.chck_subtract_baseline.isChecked() \
-            else subtract_curve(self.m['IntvB'], self.m['baseline'])
-        if IntvB:
-            sample_name = f'{self.m["time"]} {self.m["name"]}'
-            self.plot_IntvB.reset()
-            self.plot_EvB.reset()
-            self.plot_IntvB.add_curve(IntvB, legend=sample_name)
+        IntvB = self.m['IntvB']
+        if self.chck_subtract_baseline.isChecked():
+            with suppress(Exception):
+                IntvB = subtract_curve(self.m['IntvB'], self.m['baseline'])
+        sample_name = f'{self.m["time"]} {self.m["name"]}'
+        self.plot_IntvB.reset()
+        self.plot_EvB.reset()
+        self.plot_IntvB.add_curve(IntvB, legend=sample_name)
 
     def _on_subtract_baseline_changed(self, _):
         self._on_current_changed(self.lst_history.selectionModel().currentIndex())
