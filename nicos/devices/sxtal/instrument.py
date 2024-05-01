@@ -28,7 +28,6 @@ import numpy as np
 from nicos import session
 from nicos.core import Attach, AutoDevice, HasAutoDevices, LimitError, \
     Moveable, Override, Param, Value, intrange, oneof, tupleof, vec3
-from nicos.devices.generic.mono import Monochromator
 from nicos.devices.instrument import Instrument
 from nicos.devices.sxtal.goniometer.base import PositionFactory
 
@@ -41,7 +40,7 @@ class SXTalBase(HasAutoDevices, Instrument, Moveable):
     """
 
     attached_devices = {
-        'mono': Attach('Monochromator device', Monochromator),
+        'mono': Attach('Monochromator device', Moveable),
     }
 
     parameters = {

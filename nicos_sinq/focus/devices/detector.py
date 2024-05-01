@@ -27,10 +27,10 @@ from nicos import session
 from nicos.core import Attach, Device, Param, Value, listof
 from nicos.core.errors import ConfigurationError
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
+from nicos.utils import findResource
 
-from nicos_sinq.devices.imagesink import \
-    HistogramDesc, HistogramDimDesc
 from nicos_sinq.devices.detector import ControlDetector
+from nicos_sinq.devices.imagesink import HistogramDesc, HistogramDimDesc
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfArray
 
 
@@ -70,7 +70,8 @@ class Focus2DArray(HistogramConfArray):
         pass
 
     def dataText(self):
-        with open(self.lookup_file, 'r', encoding='utf-8') as fin:
+        with open(findResource(self.lookup_file), 'r',
+                  encoding='utf-8') as fin:
             lookup = fin.readlines()
         return ''.join(lookup[1:])
 
@@ -96,7 +97,8 @@ class MergedImageChannel(ImageChannelMixin, PassiveChannel):
     _idx_lower = None
 
     def doInit(self, mode):
-        with open(self.mergefile, 'r', encoding='utf-8') as fin:
+        with open(findResource(self.mergefile), 'r',
+                  encoding='utf-8') as fin:
             fin.readline()  # skip first line
             line = fin.readline()
             merged_length = int(line)
