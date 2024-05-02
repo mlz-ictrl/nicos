@@ -42,3 +42,9 @@ class Sample(BaseSample):
     parameter_overrides = {
         'samples': Override(mandatory=True, settable=False, internal=False),
     }
+
+    def _applyParams(self, number, parameters):
+        BaseSample._applyParams(self, number, parameters)
+        for key, value in parameters.items():
+            if key in ['sampletype', ]:
+                setattr(self, key, value)
