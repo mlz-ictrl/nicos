@@ -12,6 +12,10 @@ includes = [
     'vdetector',
 ]
 
+sysconfig = dict(
+    datasinks = ['caresssink'],
+)
+
 devices = dict(
     Sample = device('nicos_virt_mlz.stressi.devices.sample.Sample',
         description = 'Simulation sample',
