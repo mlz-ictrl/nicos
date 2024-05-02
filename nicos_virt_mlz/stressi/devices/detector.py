@@ -53,14 +53,16 @@ class McStasSimulation(BaseSimulation):
         'xpos': Attach('Sample position x', Readable),
         'ypos': Attach('Sample position y', Readable),
         'zpos': Attach('Sample position z', Readable),
-        'phi': Attach('Sample phi rotation', Readable),
-        'chi': Attach('Sample chi rotation', Readable),
+        'phi': Attach('Sample phi rotation', Readable, optional=True),
+        'chi': Attach('Sample chi rotation', Readable, optional=True),
         'omega': Attach('Sample omega rotation', Readable),
         'theta2': Attach('Rotation of detector around the sample', Readable),
         'force': Attach('Force of the tensile rig', Readable, optional=True),
     }
 
-    def _dev(self, dev, scale=1):
+    def _dev(self, dev, scale=1, default='0'):
+        if not dev:
+            return default
         fmtstr = dev.fmtstr
         if scale > 1:
             sf = int(log10(scale))
@@ -85,7 +87,6 @@ class McStasSimulation(BaseSimulation):
             'chi=%s' % self._dev(self._attached_chi),
             'omega=%s' % self._dev(self._attached_omega),
             'theta2=%s' % self._dev(self._attached_theta2),
-            'force=%s' % (self._dev(self._attachec_force)
-                          if self._attached_force else 0),
+            'force=%s' % self._dev(self._attached_force),
             'sampleswitch=%d' % self._attached_sample.sampletype,
         ]
