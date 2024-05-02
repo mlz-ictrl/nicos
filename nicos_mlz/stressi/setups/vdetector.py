@@ -2,7 +2,10 @@ description = 'Detector CARESS HWB Devices'
 
 group = 'lowlevel'
 
-includes = ['tensile', 'primaryslit_manual', 'sampletable', 'hv', ]
+includes = [
+    'primaryslit_manual',
+    'sampletable',
+]
 
 excludes = ['detector']
 
