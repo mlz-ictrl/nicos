@@ -3,13 +3,8 @@ description = 'STRESS-SPEC setup with sample table'
 group = 'basic'
 
 includes = [
-    'system',
-    'reactor',
-    'monochromator',
-    'slits',
-    'primaryslit',
+    'standard',
     'sampletable',
-    'vdetector',
 ]
 
 sysconfig = dict(
