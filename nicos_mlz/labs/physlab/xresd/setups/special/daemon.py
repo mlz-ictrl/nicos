@@ -2,6 +2,10 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
+    NemoAuth = device('nicos_mlz.devices.nemo.Authenticator',
+        nemourl = 'https://physicslab.frm2.tum.de',
+        instrument = 24,
+    ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
         # for the meaning of these entries see
@@ -25,7 +29,7 @@ devices = dict(
         # address the daemon service will be bound the the
         # corresponding network interface.
         server = 'localhost',
-        authenticators = ['Auth'],
+        authenticators = ['NemoAuth', 'Auth'],
         loglevel = 'info',
     ),
 )

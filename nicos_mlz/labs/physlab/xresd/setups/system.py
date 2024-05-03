@@ -41,6 +41,7 @@ devices = dict(
         dataroot = '/data',
         sendmail = True,
         sample = 'Sample',
+        propprefix = '',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
