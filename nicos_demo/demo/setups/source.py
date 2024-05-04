@@ -11,5 +11,6 @@ devices = dict(
         unit = 'MW',
         jitter = 0.1,
         curvalue = 19.9,
+        fmtstr = '%.1f',
     ),
 )
