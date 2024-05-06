@@ -1,7 +1,7 @@
 description = 'piface box'
 group = 'plugplay'
 
-tango_base = 'tango://pibox01:10000/box/piface/'
+tango_base = f'tango://{setupname}:10000/box/piface/'
 
 devices = dict(
     in_all = device('nicos.devices.entangle.DigitalInput',
