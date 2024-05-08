@@ -44,6 +44,8 @@ class ChopperBase(DeviceMixinBase):
         'comm': Attach('Communication device', StringIO),
     }
 
+    hardware_access = True
+
     def _read_controller(self, mvalue):
         # TODO  this has to be fix somehow
         if hasattr(self, 'chopper'):
