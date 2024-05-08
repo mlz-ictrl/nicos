@@ -2,7 +2,6 @@
 
 # test: subdirs = frm2
 # test: setups = 07_refsans_full
-# test: skip
 
 wichtig = [
     'this script MOVES!',
