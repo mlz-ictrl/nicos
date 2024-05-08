@@ -22,90 +22,7 @@
 #
 # *****************************************************************************
 
-import numpy
-from scipy.odr import ODR, Data, Model
-from scipy.optimize import curve_fit
-# pylint: disable=import-error
-from uncertainties.core import AffineScalarFunc, ufloat
-
-from nicos.utils.curves import curves_from_series, incr_decr_curves, \
-    mean_curves, subtract_curve
-
-
-def minmax_curve(curve):
-    """Returns min and max function values of a curve."""
-
-    c = [i for _, i in curve]
-    return min(c), max(c)
-
-
-def _lsm(x, y):
-    n = len(x)
-    sum_x = numpy.sum(x)
-    sum_y = numpy.sum(y)
-    sum_x_squared = numpy.sum(x ** 2)
-    sum_xy = numpy.sum(x * y)
-    k = (n * sum_xy - sum_x * sum_y) / (n * sum_x_squared - sum_x ** 2)
-    b = (sum_y - k * sum_x) / n
-
-    x_mean = numpy.mean(x)
-    residuals = y - (k * x + b)
-    SE_k = (numpy.sum(residuals ** 2) / (n - 2) /
-            numpy.sum((x - x_mean) ** 2)) ** 0.5
-    SE_b = (numpy.sum(residuals ** 2) / (n - 2) *
-            (1/n + (x_mean ** 2) / numpy.sum((x - x_mean) ** 2))) ** 0.5
-    return ufloat(k, SE_k), ufloat(b, SE_b)
-
-
-def _lsm_dy(x, y, dy):
-    def linear_model(x, k, b):
-        return k * x + b
-
-    params, covariance = curve_fit(linear_model, x, y, sigma=dy,
-                                   absolute_sigma=True)
-    k, b = params
-    SE_k = numpy.sqrt(covariance[0, 0])
-    SE_b = numpy.sqrt(covariance[1, 1])
-    return ufloat(k, SE_k), ufloat(b, SE_b)
-
-
-def _lsm_dx_dy(x, y, dx, dy):
-    def linear_model(p, x):
-        k, b = p
-        return k * x + b
-
-    model = Model(linear_model)
-    data = Data(x, y, wd=1.0 / dx ** 2, we=1.0 / dy ** 2)
-    odr = ODR(data, model, beta0=[1.0, 0.0])
-    odr_result = odr.run()
-    k, b = odr_result.beta
-    SE_k, SE_b = odr_result.sd_beta
-    return ufloat(k, SE_k), ufloat(b, SE_b)
-
-
-def lsm(x, y, dx=None, dy=None):
-    """Uncertainties-friendly least squares algorithm."""
-
-    if isinstance(y[0], AffineScalarFunc):
-        if isinstance(x[0], AffineScalarFunc):
-            dx = [i.s for i in x]
-            x = [i.n for i in x]
-        dy = [i.s for i in y]
-        y = [i.n for i in y]
-
-    x = numpy.array(x)
-    y = numpy.array(y)
-    dx = numpy.array(dx)
-    dy = numpy.array(dy)
-
-    if len(x) == 1:
-        return ufloat(0, 0), ufloat(y, dy if dy.any() else 0)
-    if not dx.any() and not dy.any():
-        return _lsm(x, y)
-    elif not dx.any():
-        return _lsm_dy(x, y, dy)
-    else:
-        return _lsm_dx_dy(x, y, dx, dy)
+from nicos.utils.functioncurves import Curve2D, Curves
 
 
 def fit_curve(curve, fittype):
@@ -116,14 +33,13 @@ def fit_curve(curve, fittype):
     if fittype not in fittypes:
         return
     err = 0.025
-    low, high = minmax_curve(curve)
-    y = numpy.array([i for _, i in curve])
-    y1 = [i for i in y if low * (1 - err) < i < low * (1 + err)]
-    y2 = [i for i in y if high * (1 - err) < i < high * (1 + err)]
-    y = numpy.array(y1) if fittype == 'min' else numpy.array(y2)
-    x = numpy.array([i for i, j in curve if j in y])
-    if x.any() and y.any():
-        return lsm(x, y)
+    ymin, ymax = curve.ymin, curve.ymax
+    y1 = [p.y for p in curve if ymin * (1 - err) < p.y < ymin * (1 + err)]
+    y2 = [p.y for p in curve if ymax * (1 - err) < p.y < ymax * (1 + err)]
+    y = y1 if fittype == 'min' else y2
+    x = [p.x for p in curve if p.y in y]
+    if x and y:
+        return Curve2D.from_x_y(x, y).lsm()
     else:
         return 0, 0
 
@@ -151,11 +67,10 @@ def calculate(IntvB, angle, ext):
     """MOKE-specific measurement analysis."""
 
     # separate increasing and decreasing curves, mean them, and fit the means
-    all_curves = curves_from_series(IntvB)
-    IntvB = []
-    for directed_curves in incr_decr_curves(all_curves):
-        curve = mean_curves(directed_curves)
-        IntvB += curve
+    series = Curves.from_series(IntvB)
+    IntvB = Curve2D()
+    IntvB.append(series.increasing().mean())
+    IntvB.append(series.decreasing().mean())
     fit_min = fit_curve(IntvB, 'min')
     fit_max = fit_curve(IntvB, 'max')
 
@@ -184,7 +99,7 @@ def generate_output(measurement, angle=None, ext=None):
         return ''
     BvI = measurement['BvI']
     IntvB = measurement['IntvB']
-    IntvB_sub = subtract_curve(IntvB, measurement['baseline'])
+    baseline = measurement['baseline']
 
     # Measurement settings
     output = f'Sample name: {measurement["name"]}\n'
@@ -199,6 +114,11 @@ def generate_output(measurement, angle=None, ext=None):
     output += f'Step time: {measurement["steptime"] if measurement["mode"] == "stepwise" else "n/a"} [s]\n'
     output += f'Number of cycles: {measurement["cycles"]}\n\n'
 
+    try:
+        IntvB_sub = IntvB - baseline
+    except Exception as e:
+        IntvB_sub = IntvB
+        output += f'Warning, subtraction of the baseline has failed:\n{str(e)}\n\n'
     # raw measurement output
     if not angle and not ext:
         output += 'Measured curves of intensity vs magnetic field:\n'
@@ -207,34 +127,34 @@ def generate_output(measurement, angle=None, ext=None):
                   'Int, V\tdInt, V\t' \
                   'Int_subtracted, V\tdInt_subtracted, V\n'
         for (I, _), (B, Int), (_, Int_sub) in zip(BvI, IntvB, IntvB_sub):
-            I, dI = (I.n, I.s) if isinstance(I, AffineScalarFunc) else (I, 0)
-            output += f'{I}\t{dI}\t' \
+            output += f'{I.n}\t{I.s}\t' \
                       f'{B.n}\t{B.s}\t' \
                       f'{Int.n}\t{Int.s}\t' \
                       f'{Int_sub.n}\t{Int_sub.s}\n'
-
-    # analysis output
-    if angle and ext:
-        fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, angle, ext)
-        output += f'Minimum intensity: {fit_min[1]} [V]\n'
-        output += f'Maxmimum intensity: {fit_max[1]} [V]\n'
-        output += f'Canting angle: {angle} [µrad]\n'
-        output += f'Extinction: {ext} [V]\n'
-        output += f'Kerr angle: {kerr} [µrad]\n\n'
-        output += 'Mean intensity and ellipticity curves:\n'
-        output += 'I, A\tdI, A\t' \
-                  'B, mT\tdB, mT\t' \
-                  'Int, V\tdInt, V\t' \
-                  'Int_subtracted, V\tdInt_subtracted, V\t' \
-                  'E, a.u.\tdE, a.u.\n'
-        for (I, _), (B, Int), (_, Int_sub), (_, E) in \
-                zip(BvI[:len(IntvB_sub)], IntvB, IntvB_sub, EvB):
-            I, dI = (I.n, I.s) if isinstance(I, AffineScalarFunc) else (I, 0)
-            output += f'{I}\t{dI}\t' \
-                      f'{B.n}\t{B.s}\t' \
-                      f'{Int.n}\t{Int.s}\t' \
-                      f'{Int_sub.n}\t{Int_sub.s}\t' \
-                      f'{E.n}\t{E.s}\n'
+    else:
+        # analysis output
+        try:
+            fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, angle, ext)
+            output += f'Minimum intensity: {fit_min[1]} [V]\n'
+            output += f'Maxmimum intensity: {fit_max[1]} [V]\n'
+            output += f'Canting angle: {angle} [µrad]\n'
+            output += f'Extinction: {ext} [V]\n'
+            output += f'Kerr angle: {kerr} [µrad]\n\n'
+            output += 'Mean intensity and ellipticity curves:\n'
+            output += 'I, A\tdI, A\t' \
+                      'B, mT\tdB, mT\t' \
+                      'Int, V\tdInt, V\t' \
+                      'Int_subtracted, V\tdInt_subtracted, V\t' \
+                      'E, a.u.\tdE, a.u.\n'
+            for (I, _), (B, Int), (_, Int_sub), (_, E) in \
+                    zip(BvI[:len(IntvB_sub)], IntvB, IntvB_sub, EvB):
+                output += f'{I.n}\t{I.s}\t' \
+                          f'{B.n}\t{B.s}\t' \
+                          f'{Int.n}\t{Int.s}\t' \
+                          f'{Int_sub.n}\t{Int_sub.s}\t' \
+                          f'{E.n}\t{E.s}\n'
+        except Exception as e:
+            output += f'Warning, calculation has failed:\n{str(e)}\n\n'
     return output
 
 

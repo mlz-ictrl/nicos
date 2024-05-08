@@ -24,7 +24,6 @@
 
 import datetime
 import os
-from contextlib import suppress
 
 import numpy
 from gr.pygr import ErrorBar
@@ -38,8 +37,6 @@ from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QDate, QMessageBox, QStandardItem, \
     QStandardItemModel, Qt, QTimer
 from nicos.utils import findResource
-from nicos.utils.curves import curves_from_series, mean_curves, subtract_curve
-
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 
@@ -120,8 +117,7 @@ class MokeBase(Panel):
 
         IntvB = self.m['IntvB']
         if self.chck_subtract_baseline.isChecked():
-            with suppress(Exception):
-                IntvB = subtract_curve(self.m['IntvB'], self.m['baseline'])
+            IntvB = self.m['IntvB'] - self.m['baseline']
         angle = float(self.ln_canting_angle.text()) # urad
         ext = float(self.ln_extinction.text()) # V
         try:
@@ -220,10 +216,10 @@ class MokePanel(MokeBase):
         mode = self.cmb_mode.currentText()
         if mode in calibration.keys():
             for ramp, curves in calibration[mode].items():
-                for i, curve in enumerate(curves):
-                    self.plot_calibration.add_curve(curve,
-                                         legend=f'{mode} {"increasing B" if i else "decreasing B"}'
-                                                f' @ {ramp} A/min')
+                self.plot_calibration.add_curve(curves.increasing()[0],
+                                                legend=f'{mode} increasing B @ {ramp} A/min')
+                self.plot_calibration.add_curve(curves.decreasing()[0],
+                                                legend=f'{mode} decreasing B @ {ramp} A/min')
 
         if calibration.keys:
             self.cmb_ramp.clear()
@@ -277,18 +273,17 @@ class MokePanel(MokeBase):
             if ramp not in self.baseline[mode][field].keys():
                 self.baseline[mode][field][ramp] = {}
             self.baseline[mode][field][ramp] = \
-                mean_curves(curves_from_series(self.m['IntvB']))
+                self.m['IntvB'].series_to_curves().mean()
             self._update_baseline_plot()
 
     def _on_button_baseline_save_clicked(self):
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
-            ramp = str(self.m['ramp'])
+            ramp = self.m['ramp']
             self.client.run('temp = MagB.baseline.copy()')
-            self.client.run('from nicos.utils.curves import curves_from_series, mean_curves')
-            self.client.run(f'temp["{mode}"]["{field}"][{ramp}] = '
-                             'mean_curves(curves_from_series(MagB.measurement["IntvB"]))')
+            self.client.run(f'temp["{mode}"]["{field}"]["{ramp}"] = '
+                             'MagB.measurement["IntvB"].series_to_curves().mean()')
             self.client.run('MagB.baseline = temp')
 
     def _on_button_run_clicked(self):
@@ -338,8 +333,7 @@ class MokePanel(MokeBase):
         IntvB_last = self.m['IntvB']
         IntvB = IntvB_curr if IntvB_curr else IntvB_last
         if self.chck_subtract_baseline.isChecked():
-            with suppress(Exception):
-                IntvB = subtract_curve(IntvB, self.m['baseline'])
+            IntvB = IntvB - self.m['baseline']
         if IntvB:
             self.plot_IntvB.reset()
             self.plot_IntvB.add_curve(IntvB, legend=sample_name)
@@ -417,8 +411,7 @@ class MokeHistory(MokeBase):
             self.display_rawdata(generate_output(self.m))
         IntvB = self.m['IntvB']
         if self.chck_subtract_baseline.isChecked():
-            with suppress(Exception):
-                IntvB = subtract_curve(self.m['IntvB'], self.m['baseline'])
+            IntvB = self.m['IntvB'] - self.m['baseline']
         sample_name = f'{self.m["time"]} {self.m["name"]}'
         self.plot_IntvB.reset()
         self.plot_EvB.reset()

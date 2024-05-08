@@ -24,6 +24,7 @@
 
 """Device classes for MOKE setup."""
 
+from contextlib import suppress
 import os
 import time
 from datetime import datetime
@@ -37,8 +38,7 @@ from nicos.core.sessions.utils import MASTER
 from nicos.devices.entangle import AnalogInput, PowerSupply, Sensor
 from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
 from nicos.utils import createThread
-from nicos.utils.curves import curve_from_two_temporal
-
+from nicos.utils.functioncurves import Curve2D
 from nicos_jcns.moke01.utils import fix_filename, generate_output
 
 
@@ -67,7 +67,8 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         self._intensity = self._attached_intensity
         self._magsensor = self._attached_magsensor
         if mode == MASTER:
-            self._Bvt, self._Intvt, self._BvI, self._IntvB = [], [], [], []
+            self._Bvt, self._Intvt, self._BvI, self._IntvB = Curve2D(), \
+                Curve2D(), Curve2D(), Curve2D()
 
     def measure_intensity(self, mode, field_orientation, Bmin, Bmax, ramp,
                           cycles, step, steptime, name, exp_type):
@@ -87,8 +88,8 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         measurement['step'] = step
         measurement['steptime'] = steptime
         measurement['cycles'] = cycles
-        measurement['BvI'] = []
-        measurement['IntvB'] = []
+        measurement['BvI'] = Curve2D()
+        measurement['IntvB'] = Curve2D()
         measurement['baseline'] = self.baseline[mode][field_orientation][str(ramp)] \
             if str(ramp) in self.baseline[mode][field_orientation].keys() else []
         self.measurement = measurement
@@ -98,7 +99,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
             n = int(abs(Bmax - Bmin) / step)
             dB = abs(Bmax - Bmin) / (Bmax - Bmin) * abs(Bmax - Bmin) / n
             ranges = [(Bmin, Bmax, dB), (Bmax, Bmin, -dB)]
-            self._BvI, self._IntvB = [], []
+            self._BvI, self._IntvB = Curve2D(), Curve2D()
             self._maxprogress = sum(len(numpy.arange(*r)) for r in ranges) * cycles
             for i, r in enumerate(ranges * cycles):
                 self.fielddirection = 'increasing' if i % 2 == 0 else 'decreasing'
@@ -109,10 +110,12 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                     session.delay(steptime)
                     B = None
                     while B is None:
-                        B = self.doRead()
+                        with suppress(Exception):
+                            B = self.doRead()
                     Int = None
                     while Int is None:
-                        Int = self._intensity.doRead()
+                        with suppress(Exception):
+                            Int = self._intensity.doRead()
                     self._BvI.append((self._field2current(_B).n, _B))
                     self._IntvB.append((ufloat(B, self._magsensor.readStd(B)),
                                         ufloat(Int, self._intensity.readStd(Int))))
@@ -136,7 +139,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
             else:
                 raise errors.NicosError(self, 'Power supply is busy.')
             # measures magnetic field and intensity vallues
-            self._Bvt, self._Intvt, self._IntvB = [], [], []
+            self._Bvt, self._Intvt, self._IntvB = Curve2D(), Curve2D(), Curve2D()
             while self._cycling and not self._stop_requested:
                 if self._measuring:
                     try:
@@ -153,9 +156,9 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                     if Int:
                         self._Intvt.append((time.time(),
                                             ufloat(Int, self._intensity.readStd(Int))))
-                    self._BvI = curve_from_two_temporal(self._Ivt, self._Bvt,
-                                                        interp_by='y')
-                    self._IntvB = curve_from_two_temporal(self._Bvt, self._Intvt)
+                    self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt,
+                                                          pick_yvt_points=True)
+                    self._IntvB = Curve2D.from_two_temporal(self._Bvt, self._Intvt)
                 else:
                     session.delay(0.1)
             self._cycling_thread.join()
