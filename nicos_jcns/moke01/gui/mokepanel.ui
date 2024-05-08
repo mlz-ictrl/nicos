@@ -112,7 +112,7 @@
          </size>
         </property>
         <property name="text">
-         <string>0.005</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -158,7 +158,7 @@
          </size>
         </property>
         <property name="text">
-         <string>5</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -171,7 +171,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_0">
       <attribute name="title">
@@ -474,7 +474,7 @@
             </size>
            </property>
            <property name="text">
-            <string>1</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -510,7 +510,7 @@
             </size>
            </property>
            <property name="text">
-            <string>-0.5</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -529,7 +529,7 @@
             </size>
            </property>
            <property name="text">
-            <string>0.5</string>
+            <string/>
            </property>
           </widget>
          </item>

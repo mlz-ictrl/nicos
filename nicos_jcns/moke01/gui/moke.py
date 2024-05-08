@@ -26,6 +26,11 @@ from contextlib import suppress
 import datetime
 import os
 
+from gr.pygr import ErrorBar
+import numpy
+# pylint: disable=import-error
+from uncertainties.core import AffineScalarFunc
+
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
@@ -35,11 +40,6 @@ from nicos.guisupport.qt import QDate, QMessageBox, QTimer, QStandardItem, \
 from nicos.utils import findResource
 from nicos.utils.curves import curves_from_series, mean_curves, subtract_curve
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
-
-from gr.pygr import ErrorBar
-import numpy
-# pylint: disable=import-error
-from uncertainties.core import AffineScalarFunc
 
 
 class MokePlot(LiveWidget1D):
@@ -169,7 +169,7 @@ class MokePanel(MokeBase):
         self.update_plot_calibration = QTimer()
         self.update_plot_calibration.timeout.connect(self._update_calibration)
         self.update_plot_IntvB = QTimer()
-        self.update_plot_IntvB.timeout.connect(self._update_intensity)
+        self.update_plot_IntvB.timeout.connect(self._update_measurement)
         self._mode_changed()
         self.cmb_mode.currentIndexChanged.connect(self._mode_changed)
         self.chck_calibration_unlock.stateChanged.connect(self._on_calibration_unlock_changed)
@@ -185,10 +185,9 @@ class MokePanel(MokeBase):
         self.btn_baseline_import.clicked.connect(self._on_button_baseline_import_clicked)
         self.btn_baseline_save.clicked.connect(self._on_button_baseline_save_clicked)
 
-        self._read_last_measurement()
         self.btn_run.clicked.connect(self._on_button_run_clicked)
         self.btn_calc.clicked.connect(self.on_button_calc_clicked)
-        self.update_plot_IntvB.start(500) # _update_intensity
+        self.update_plot_IntvB.start(500) # _update_measurement
         self.chck_subtract_baseline.stateChanged.connect(self._on_subtract_baseline_changed)
 
     def on_disconnected(self):
@@ -198,7 +197,7 @@ class MokePanel(MokeBase):
 
         self.btn_run.clicked.disconnect(self._on_button_run_clicked)
         self.btn_calc.clicked.disconnect(self.on_button_calc_clicked)
-        self.update_plot_IntvB.stop() # _update_intensity
+        self.update_plot_IntvB.stop() # _update_measurement
 
         self.btn_baseline_import.clicked.disconnect(self._on_button_baseline_import_clicked)
         self.btn_baseline_save.clicked.disconnect(self._on_button_baseline_save_clicked)
@@ -291,30 +290,6 @@ class MokePanel(MokeBase):
                              'mean_curves(curves_from_series(MagB.measurement["IntvB"]))')
             self.client.run('MagB.baseline = temp')
 
-
-    def _read_last_measurement(self):
-        self.m = self.client.eval('session.getDevice("MagB").measurement')
-        if self.m:
-            self.cmb_mode.setCurrentIndex(
-                self.cmb_mode.findText(str(self.m['mode'])))
-            self.ln_sample.setText(self.m['name'])
-            self.rad_rotation.setChecked(self.m['exp_type'] == 'rotation')
-            self.rad_polar.setChecked(self.m['field_orientation'] == 'polar')
-            self.ln_Bmin.setText(str(self.m['Bmin']))
-            self.ln_Bmax.setText(str(self.m['Bmax']))
-            self.ln_step.setText(str(self.m['step']))
-            self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(str(self.m['ramp'])))
-            self.ln_cycles.setText(str(self.m['cycles']))
-            sample_name = f'{self.m["time"]} {self.m["name"]}'
-            if self.m['IntvB']:
-                IntvB = self.m['IntvB']
-                if self.chck_subtract_baseline.isChecked():
-                    with suppress(Exception):
-                        IntvB = subtract_curve(self.m['IntvB'], self.m['baseline'])
-                self.plot_IntvB.reset()
-                self.plot_IntvB.add_curve(IntvB, legend=sample_name)
-                self.display_rawdata(generate_output(self.m))
-
     def _on_button_run_clicked(self):
         mode = self.cmb_mode.currentText()
         Bmin = self.ln_Bmin.text()
@@ -335,19 +310,32 @@ class MokePanel(MokeBase):
         self.client.run(f'MagB.measure_intensity("{mode}", "{field_orientation}", '
                         f'{Bmin}, {Bmax}, {ramp}, {cycles}, {step}, {steptime}, '
                         f'"{name}", "{exp_type}")')
-        self.update_plot_IntvB.start(500) # _update_intensity
+        self.update_plot_IntvB.start(500) # _update_measurement
 
-    def _update_intensity(self):
+    def _update_measurement(self):
         self.m = self.client.eval('session.getDevice("MagB").measurement')
         self.display_rawdata(generate_output(self.m))
         if not self.m:
-            self.update_plot_IntvB.stop() # _update_intensity
+            self.update_plot_IntvB.stop() # _update_measurement
             return
+        self.cmb_mode.setCurrentIndex(
+            self.cmb_mode.findText(str(self.m['mode'])))
+        self.ln_sample.setText(self.m['name'])
+        self.rad_rotation.setChecked(self.m['exp_type'] == 'rotation')
+        self.rad_polar.setChecked(self.m['field_orientation'] == 'polar')
+        self.ln_Bmin.setText(str(self.m['Bmin']))
+        self.ln_Bmax.setText(str(self.m['Bmax']))
+        self.ln_step.setText(str(self.m['step']))
+        self.ln_steptime.setText(str(self.m['steptime']))
+        self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(str(self.m['ramp'])))
+        self.ln_cycles.setText(str(self.m['cycles']))
         # live-update graph of intensity vs field
         sample_name = f'{self.m["time"]} {self.m["name"]}'
         # before measurement is finished and stored to `MagB.measurement`
         # IntvB can be fetched from MagB._IntvB
-        IntvB = self.client.eval('session.getDevice("MagB")._IntvB')
+        IntvB_curr = self.client.eval('session.getDevice("MagB")._IntvB')
+        IntvB_last = self.m['IntvB']
+        IntvB = IntvB_curr if IntvB_curr else IntvB_last
         if self.chck_subtract_baseline.isChecked():
             with suppress(Exception):
                 IntvB = subtract_curve(IntvB, self.m['baseline'])
@@ -368,11 +356,11 @@ class MokePanel(MokeBase):
         # stop QTimer when MagB finishes cycling
         if not self.client.eval('session.getDevice("MagB")._cycling') \
                 and self.m['IntvB']:
-            self.update_plot_IntvB.stop() # _update_intensity
+            self.update_plot_IntvB.stop() # _update_measurement
 
     def _on_subtract_baseline_changed(self, _):
         if not self.update_plot_IntvB.isActive():
-            self._read_last_measurement()
+            self._update_measurement()
 
 
 class MokeHistory(MokeBase):
@@ -395,7 +383,6 @@ class MokeHistory(MokeBase):
         self.dt_to.setDate(QDate(*[int(i) for i in date1.split('-')]))
 
     def on_connected(self):
-        self.baseline = self.client.eval('session.getDevice("MagB").baseline')
         self._read_measurements()
         self.dt_from.dateChanged.connect(self._read_measurements)
         self.dt_to.dateChanged.connect(self._read_measurements)

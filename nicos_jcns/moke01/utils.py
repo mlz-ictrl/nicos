@@ -164,8 +164,8 @@ def calculate(IntvB, angle, ext):
 
     # rescale intensity into ellipticity curves
     EvB = []
-    for b, i in IntvB:
-        EvB.append((b, scale_intensity(i, fit_min[1], fit_max[1], kerr)))
+    for B, Int in IntvB:
+        EvB.append((B, scale_intensity(Int, fit_min[1], fit_max[1], kerr)))
 
     return fit_min, fit_max, IntvB, EvB, kerr
 

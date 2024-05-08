@@ -27,6 +27,10 @@ from datetime import datetime
 import os
 import time
 
+import numpy
+# pylint: disable=import-error
+from uncertainties import ufloat
+
 from nicos import session
 from nicos.core import Attach, device, errors, Param, status
 from nicos.core.sessions.utils import MASTER
@@ -35,10 +39,6 @@ from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
 from nicos.utils import createThread
 from nicos.utils.curves import curve_from_two_temporal
 from nicos_jcns.moke01.utils import fix_filename, generate_output
-
-import numpy
-# pylint: disable=import-error
-from uncertainties import ufloat
 
 
 class MokeMagnet(MagnetWithCalibrationCurves):
@@ -76,6 +76,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         measurement['name'] = name
         measurement['time'] = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
         measurement['exp_type'] = exp_type
+        self.mode = mode
         measurement['mode'] = mode
         measurement['field_orientation'] = field_orientation
         measurement['ramp'] = ramp
@@ -93,9 +94,6 @@ class MokeMagnet(MagnetWithCalibrationCurves):
 
         if mode == 'stepwise':
             self.fielddirection = 'increasing' if self.read(10) < Bmin else 'decreasing'
-            self.doStart(Bmin)
-            self._hw_wait()
-            session.delay(steptime)
             n = int(abs(Bmax - Bmin) / step)
             dB = abs(Bmax - Bmin) / (Bmax - Bmin) * abs(Bmax - Bmin) / n
             ranges = [(Bmin, Bmax, dB), (Bmax, Bmin, -dB)]
@@ -106,6 +104,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                 for _B in numpy.arange(*r):
                     self._progress += 1
                     self.doStart(_B)
+                    self._hw_wait()
                     session.delay(steptime)
                     B = None
                     while B is None:
