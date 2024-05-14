@@ -46,7 +46,7 @@ devices = dict(
     ),
 
     kafka_image_channel=device(
-        'nicos_sinq.devices.kafka.area_detector.ADKafkaImageDetector',
+        'nicos_sinq.devices.epics.area_detector.ADImageChannel',
         description='ImageChannel that reads from a kafka stream',
         kafka_plugin='kafka_plugin',
     ),

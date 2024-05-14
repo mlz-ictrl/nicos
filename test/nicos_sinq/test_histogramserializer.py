@@ -30,7 +30,6 @@ import time
 import numpy
 import pytest
 
-pytest.importorskip('kafka')
 pytest.importorskip('graypy')
 pytest.importorskip('flatbuffers')
 

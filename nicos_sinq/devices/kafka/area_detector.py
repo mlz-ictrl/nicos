@@ -21,82 +21,16 @@
 #
 # *****************************************************************************
 
-import kafka
 import numpy
 
-from nicos.core import Attach, status
-from nicos.core.constants import LIVE
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
-
-from nicos_ess.devices.kafka.consumer import KafkaSubscriber
-from nicos_sinq.devices.epics.area_detector import ADKafkaPlugin
 
 try:
     from nicos_sinq.devices.fbschemas.hs00 import Array, ArrayUInt, \
         EventHistogram
-
 except ImportError:
     EventHistogram = None
     Array = None
     ArrayUInt = None
-
-
-class ADKafkaImageDetector(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
-    """
-    Class for reading images from the stream associated with the ADPluginKafka
-    """
-    attached_devices = {
-        'kafka_plugin': Attach('NICOS device for the ADPluginKafka',
-                               ADKafkaPlugin, optional=False)
-    }
-
-    def doPreinit(self, mode):
-        broker = getattr(self._attached_kafka_plugin, 'broker')
-        if not broker:
-            raise Exception('Can\'t find broker address in ADPluginKafka')
-        self._consumer = kafka.KafkaConsumer(
-            bootstrap_servers=[broker],
-            auto_offset_reset='latest'  # start at latest offset
-        )
-
-        # Settings for thread to fetch new message
-        self._stoprequest = True
-        self._updater_thread = None
-        self._lastmessage = None
-
-    def doInit(self, mode):
-        topic = getattr(self._attached_kafka_plugin, 'topic')
-        if not topic:
-            raise Exception('Can\'t find topic in ADPluginKafka')
-        self._consumer.subscribe([topic])
-
-    def doReadArray(self, quality=LIVE):
-        deserializer = HistogramFlatbuffersDeserializer()
-        try:
-            data, _, _ = deserializer.decode(self._lastmessage[1])
-        except Exception as e:
-            self.log.error(e)
-            return []
-        self.readresult = []
-        return data.tolist()
-
-    def new_messages_callback(self, messages):
-        if not messages:
-            return
-        self._lastmessage = sorted(messages, key=lambda m: m[0])[~0]
-
-    def doStatus(self, maxage=0):
-        st = self._attached_kafka_plugin.status(maxage)
-        if st[0] != status.OK:
-            return st
-        if not self._consumer:
-            return status.ERROR, 'Broker failure'
-        if not self._consumer.subscription():
-            return status.WARN, 'No topic subscribed'
-        return status.OK, ''
-
-    def valueInfo(self):
-        return ()
 
 
 class HistogramFlatbuffersDeserializer:

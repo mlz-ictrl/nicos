@@ -4,7 +4,6 @@ colorcet
 polarTransform>=2.0.0
 python-logstash-async
 ess-streaming-data-types>=0.16.0
-kafka-python
 confluent-kafka
 py-elog
 flatbuffers==1.12
