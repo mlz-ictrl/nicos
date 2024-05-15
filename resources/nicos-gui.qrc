@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file alias="stop-red">icons/media-playback-stop-red.png</file>
     <file alias="hamburger">icons/hamburger-icon.png</file>
     <file alias="finishearly">icons/media-playback-finish.png</file>
     <file alias="viewonly">icons/emblem-readonly.png</file>

@@ -28,9 +28,9 @@ from time import time
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.colors import colors
-from nicos.guisupport.qt import QActionGroup, QBrush, QColor, QFontMetrics, \
-    QIcon, QListWidgetItem, QMenu, QPen, QPixmap, QSize, QStyledItemDelegate, \
-    Qt, QTimer, QToolBar, pyqtSlot
+from nicos.guisupport.qt import QAction, QActionGroup, QBrush, QColor, \
+    QFontMetrics, QIcon, QListWidgetItem, QMenu, QPen, QPixmap, QSize, \
+    QStyledItemDelegate, Qt, QTimer, QToolBar, QToolButton, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     BREAK_NOW, SIM_STATES, STATUS_IDLEEXC
@@ -183,43 +183,44 @@ class ScriptStatusPanel(Panel):
 
         bar = QToolBar('Script control')
         bar.setObjectName(bar.windowTitle())
-        # unfortunately it is not wise to put a menu in its own dropdown menu,
-        # so we have to duplicate the actionBreak and actionStop...
+
         dropdown1 = QMenu('', self)
-        dropdown1.addAction(self.actionBreak)
         dropdown1.addAction(self.actionBreakCount)
+        dropdown1.addAction(self.actionBreak)
         dropdown1.addAction(self.actionFinishEarly)
-        self.actionBreak2 = dropdown1.menuAction()
-        self.actionBreak2.setText('&amp;Pause after current scan point')
+        self.actionBreak2 = QAction('Pause script', self)
         self.actionBreak2.setIcon(QIcon(':/break'))
-        self.actionBreak2.triggered.connect(self.on_actionBreak2_triggered)
+        self.actionBreak2.setMenu(dropdown1)
+        bar.addAction(self.actionBreak2)
+        bar.widgetForAction(self.actionBreak2).setPopupMode(
+            QToolButton.ToolButtonPopupMode.InstantPopup)
+
+        bar.addAction(self.actionContinue)
 
         dropdown2 = QMenu('', self)
+        dropdown2.addAction(self.actionFinishEarlyAndStop)
         dropdown2.addAction(self.actionStop)
         dropdown2.addAction(self.actionFinish)
-        dropdown2.addAction(self.actionFinishEarlyAndStop)
-        self.actionStop2 = dropdown2.menuAction()
-        self.actionStop2.setText('&amp;Stop after current scan point')
-        self.actionStop2.setToolTip(self.actionStop.toolTip())
+        self.actionStop2 = QAction('Stop script', self)
         self.actionStop2.setIcon(QIcon(':/stop'))
-        self.actionStop2.triggered.connect(self.on_actionStop2_triggered)
-
-        bar.addAction(self.actionBreak2)
-        bar.addAction(self.actionContinue)
+        self.actionStop2.setMenu(dropdown2)
         bar.addAction(self.actionStop2)
+        bar.widgetForAction(self.actionStop2).setPopupMode(
+            QToolButton.ToolButtonPopupMode.InstantPopup)
+
         bar.addAction(self.actionEmergencyStop)
         self.bar = bar
         # self.mainwindow.addToolBar(bar)
 
         menu = QMenu('&Script control', self)
-        menu.addAction(self.actionBreak)
         menu.addAction(self.actionBreakCount)
+        menu.addAction(self.actionBreak)
         menu.addAction(self.actionContinue)
         menu.addAction(self.actionFinishEarly)
         menu.addSeparator()
+        menu.addAction(self.actionFinishEarlyAndStop)
         menu.addAction(self.actionStop)
         menu.addAction(self.actionFinish)
-        menu.addAction(self.actionFinishEarlyAndStop)
         menu.addSeparator()
         menu.addAction(self.actionEmergencyStop)
         self.mainwindow.menuBar().insertMenu(
@@ -386,10 +387,6 @@ class ScriptStatusPanel(Panel):
         self.client.tell_action('break', BREAK_AFTER_STEP)
 
     @pyqtSlot()
-    def on_actionBreak2_triggered(self):
-        self.on_actionBreak_triggered()
-
-    @pyqtSlot()
     def on_actionBreakCount_triggered(self):
         self.client.tell_action('break', BREAK_NOW)
 
@@ -403,10 +400,6 @@ class ScriptStatusPanel(Panel):
             self.client.tell_action('stop', BREAK_NOW)
         else:
             self.client.tell_action('stop', BREAK_AFTER_STEP)
-
-    @pyqtSlot()
-    def on_actionStop2_triggered(self):
-        self.on_actionStop_triggered()
 
     @pyqtSlot()
     def on_actionFinish_triggered(self):
