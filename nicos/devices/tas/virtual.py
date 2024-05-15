@@ -29,6 +29,7 @@ from numpy import random
 
 from nicos.core import Attach, ComputationError, Measurable, Param, Readable, \
     Value, status
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 
 
 class VirtualTasDetector(Measurable):
@@ -64,8 +65,10 @@ class VirtualTasDetector(Measurable):
     def doInfo(self):
         ret = []
         if self._user_comment:
-            ret.append(('usercomment', self._user_comment, self._user_comment,
-                        '', 'general'))
+            ret.append(DeviceMetaInfo(
+                'usercomment',
+                DeviceParInfo(self._user_comment, self._user_comment, '',
+                              'general')))
         return ret
 
     def doSetPreset(self, **preset):

@@ -197,10 +197,11 @@ class NicosMetaWriterMixin:
     def _collectMetaInformation(self, update_headerinfo=None):
         bycategory = {}
         metainfo = self.dataset.metainfo
-        for (device, key), (_, val, unit, category) in metainfo.items():
-            if category:
-                bycategory.setdefault(category, []).append(
-                    ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
+        for (device, key), info in metainfo.items():
+            if info.category:
+                bycategory.setdefault(info.category, []).append(
+                    ('%s_%s' % (device, key),
+                     (info.strvalue + ' ' + info.unit).strip()))
         if update_headerinfo is None:
             update_headerinfo = getattr(self.sink, 'update_headerinfo',
                                         self.update_headerinfo)
@@ -215,9 +216,8 @@ class NicosMetaWriterMixin:
                 device = session.getDevice(devname)
                 if (devname, 'value') in metainfo:
                     # re-use the category
-                    _, _, unit, category = metainfo[(devname, 'value')]
+                    category = metainfo[(devname, 'value')].category
                 else:
-                    unit = device.unit
                     category = 'result'
                 bycategory.setdefault(category, []).append(
                     ('%s_value' % devname, device.format(val, True).strip()))

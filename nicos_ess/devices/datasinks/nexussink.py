@@ -32,6 +32,7 @@ from streaming_data_types.run_stop_6s4t import serialise_6s4t
 from nicos.core import Attach, Override, Param, dictof, status, tupleof
 from nicos.core.constants import POINT
 from nicos.core.data import DataSinkHandler
+from nicos.core.device import DeviceParInfo
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
 
@@ -221,9 +222,8 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
         metainfo = self.dataset.metainfo
         # Put the start time in the metainfo
         if ('dataset', 'starttime') not in metainfo:
-            metainfo[('dataset',
-                      'starttime')] = (start_time_str, start_time_str, '',
-                                       'general')
+            metainfo[('dataset', 'starttime')] = DeviceParInfo(
+                start_time_str, start_time_str, '', 'general')
 
         structure = self._converter.convert(self._template,
                                             self.dataset.metainfo)

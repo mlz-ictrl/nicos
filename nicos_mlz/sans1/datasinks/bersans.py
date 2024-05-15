@@ -339,13 +339,13 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         # no way to map nicos-categories to BerSANS sections :(
         # also ignore some keys :(
         ignore = ('det1_lastlistfile', 'det1_lasthistfile')
-        for (dev, param), (value, strvalue, _unit, _category) in \
+        for (dev, param), info in \
                 self.dataset.metainfo.items():
             devname_key = '%s_%s' % (dev, param)
             if devname_key in ignore:
                 continue
-            metadata[devname_key] = value
-            nicosheader.append('%s=%s' % (devname_key, strvalue))
+            metadata[devname_key] = info.value
+            nicosheader.append('%s=%s' % (devname_key, info.strvalue))
 
         nicosheader = '\n'.join(sorted(map(toAscii, nicosheader))).encode()
         self.log.debug('nicosheader starts with: %40s', nicosheader)

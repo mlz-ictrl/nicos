@@ -155,10 +155,11 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
                             ('info', ds.info)]:
             self._write_comment('%25s : %s' % (name, value))
         bycategory = {}
-        for (devname, key), (_, val, unit, category) in ds.metainfo.items():
-            if category:
-                bycategory.setdefault(category, []).append(
-                    ('%s_%s' % (devname, key), (val + ' ' + unit).strip()))
+        for (devname, key), info in ds.metainfo.items():
+            if info.category:
+                bycategory.setdefault(info.category, []).append(
+                    ('%s_%s' % (devname, key),
+                     (info.strvalue + ' ' + info.unit).strip()))
         for category, catname in INFO_CATEGORIES:
             if category not in bycategory:
                 continue

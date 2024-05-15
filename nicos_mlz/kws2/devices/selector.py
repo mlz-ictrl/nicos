@@ -25,6 +25,7 @@
 
 from nicos.core import Attach, Moveable, Override, Param, Readable, dictof, \
     dictwith, tupleof
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 
 from nicos_mlz.kws1.devices.selector import \
     SelectorSwitcher as KWS1SelectorSwitcher
@@ -85,7 +86,8 @@ class SelectorLambda(Moveable):
     def doInfo(self):
         tilted = bool(self._attached_tiltdev.read())
         val = 0.2 if tilted else 0.1
-        return [('spread', val, str(val), '', 'general')]
+        return [
+            DeviceMetaInfo('spread', DeviceParInfo(val, str(val), '', 'general'))]
 
 
 class SelectorSwitcher(KWS1SelectorSwitcher):

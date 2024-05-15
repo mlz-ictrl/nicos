@@ -26,6 +26,7 @@
 import inspect
 import re
 from time import time as currenttime
+from typing import Any, NamedTuple, Tuple, Union
 
 import numpy
 
@@ -47,6 +48,19 @@ from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.utils import getVersions, loggers, number_types, parseDateString
 
 ALLOWED_CATEGORIES = {v[0] for v in INFO_CATEGORIES}
+
+
+# use Union for 3.9 compat, the shorter | syntax requires 3.10+
+class DeviceParInfo(NamedTuple):
+    value: Any
+    strvalue: str
+    unit: str
+    category: str
+
+
+class DeviceMetaInfo(NamedTuple):
+    key: Union[str, Tuple[str, str]]
+    info: Union[DeviceParInfo, Tuple[Any, str, str, str]]
 
 
 def requires(**access):
@@ -823,9 +837,10 @@ class Device(metaclass=DeviceMeta):
                 self.log.warning('error getting %s parameter', name, exc=err)
                 continue
             parunit = (unit or '').replace('main', selfunit)
-            ret.append((name, parvalue,
-                        self.formatParam(name, parvalue, use_repr=False),
-                        parunit, category))
+            pinfo = DeviceParInfo(
+                parvalue, self.formatParam(name, parvalue, use_repr=False),
+                parunit, category)
+            ret.append(DeviceMetaInfo(name, pinfo))
         return ret
 
     def shutdown(self):
@@ -1285,7 +1300,9 @@ class Readable(Device):
         ret = []
         try:
             val = self.read()
-            ret.append(('value', val, self.format(val), self.unit, 'general'))
+            ret.append(DeviceMetaInfo(
+                'value',
+                DeviceParInfo(val, self.format(val), self.unit, 'general')))
         except Exception as err:
             self._info_errcount += 1
             # only display the message for the first 5 times and then
@@ -1294,16 +1311,21 @@ class Readable(Device):
                 self.log.warning('error reading', exc=err)
             else:
                 self.log.debug('error reading', exc=err)
-            ret.append(('value', None, 'Error: %s' % err, '', 'general'))
+            ret.append(DeviceMetaInfo(
+                'value',
+                DeviceParInfo(None, 'Error: %s' % err, '', 'general')))
         else:
             self._info_errcount = 0
         try:
             st = self.status()
         except Exception as err:
             errstr = 'Error: %s' % err
-            ret.append(('status', (status.ERROR, errstr), errstr, '', 'status'))
+            ret.append(DeviceMetaInfo(
+                'status',
+                DeviceParInfo((status.ERROR, errstr), errstr, '', 'status')))
         else:
-            ret.append(('status', st, formatStatus(st), '', 'status'))
+            ret.append(DeviceMetaInfo(
+                'status', DeviceParInfo(st, formatStatus(st), '', 'status')))
         return ret + Device.info(self)
 
 
@@ -2241,9 +2263,12 @@ class Measurable(Waitable):
         except Exception as err:
             self.log.warning('error getting status', exc=err)
             errstr = 'Error: %s' % err
-            ret.append(('status', (status.ERROR, errstr), errstr, '', 'status'))
+            ret.append(DeviceMetaInfo(
+                'status',
+                DeviceParInfo((status.ERROR, errstr), errstr, '', 'status')))
         else:
-            ret.append(('status', st, formatStatus(st), '', 'status'))
+            ret.append(DeviceMetaInfo(
+                'status', DeviceParInfo(st, formatStatus(st), '', 'status')))
         return ret + Device.info(self)
 
     def valueInfo(self):
@@ -2520,7 +2545,9 @@ class DeviceAlias(Device):
         ret = []
         if isinstance(self._obj, Device):
             ret = self._obj.info()
-        return ret + [('alias', str(self._obj), str(self._obj), '', 'instrument')]
+        return ret + [DeviceMetaInfo(
+            'alias',
+            DeviceParInfo(str(self._obj), str(self._obj), '', 'instrument'))]
 
     @usermethod
     def version(self):

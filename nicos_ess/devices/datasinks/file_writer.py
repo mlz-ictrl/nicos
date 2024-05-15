@@ -46,6 +46,7 @@ from nicos.core import ADMIN, MASTER, Attach, Param, ScanDataset, host, \
     listof, status
 from nicos.core.constants import INTERRUPTED, POINT, SIMULATION
 from nicos.core.data.sink import DataSinkHandler
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.core.params import Override, anytype
 from nicos.devices.datasinks.file import FileSink
 from nicos.utils import printTable
@@ -283,9 +284,12 @@ class FileWriterStatus(KafkaStatusHandler):
             self._update_cached_jobs()
 
     def doInfo(self):
-        result = [(f'{self.name}', '', '', '', 'general')]
+        result = [DeviceMetaInfo(f'{self.name}',
+                                 DeviceParInfo('', '', '', 'general'))]
         for i, job in enumerate(self._jobs):
-            result.append((f'job {i + 1}', f'{job}', f'{job}', '', 'general'))
+            result.append(
+                DeviceMetaInfo(f'job {i + 1}',
+                               DeviceParInfo(f'{job}', f'{job}', '', 'general')))
         return result
 
     def _update_status(self):
@@ -379,8 +383,8 @@ class FileWriterSinkHandler(DataSinkHandler):
 
         datetime_now = datetime.now()
         job_id = str(uuid.uuid1())
-        self.dataset.metainfo[('Exp', 'job_id')] = (job_id, job_id, '',
-                                                    'experiment')
+        self.dataset.metainfo[('Exp', 'job_id')] = DeviceParInfo(
+            job_id, job_id, '', 'experiment')
         structure = self.sink._attached_nexus.get_structure(self.dataset)
         self.sink._start_job(file_path,
                              self.dataset.counter,

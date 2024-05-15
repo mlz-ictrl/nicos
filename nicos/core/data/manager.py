@@ -271,13 +271,13 @@ class DataManager:
         for device in devices:
             if 'metadata' not in device.visibility:
                 continue
-            for key, value, strvalue, unit, category in device.info():
-                newinfo[device.name, key] = (value, strvalue, unit, category)
+            for key, info in device.info():
+                newinfo[device.name, key] = info
         self.putMetainfo(newinfo)
 
     def cacheCallback(self, key, value, time):
         if (not self._current or self._current.settype != POINT
-            or self._current.finished is not None):
+           or self._current.finished is not None):
             return
         devname = session.device_case_map.get(key.split('/')[0])
         if devname is not None:

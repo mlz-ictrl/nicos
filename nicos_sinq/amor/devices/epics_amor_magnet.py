@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 from nicos.core import Attach, Override, Param, pvname, status
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 
 from nicos_sinq.devices.epics.base import EpicsWindowTimeoutDeviceSinq
 from nicos_sinq.devices.epics.extensions import EpicsMappedMoveable
@@ -163,4 +164,5 @@ class EpicsAmorMagnet(EpicsWindowTimeoutDeviceSinq):
     def doInfo(self):
         # Add the state in the information of this magnet
         state = 'on' if self._attached_switch.isEnabled else 'off'
-        return [('state', state, state, '', 'general')]
+        return [DeviceMetaInfo('state',
+                               DeviceParInfo(state, state, '', 'general'))]

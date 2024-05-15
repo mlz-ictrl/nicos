@@ -25,6 +25,7 @@
 """
 
 from nicos.core import Attach, Measurable, Param, Value, pvname, status
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.devices.generic import Detector
 from nicos.devices.generic.detector import CounterChannelMixin, \
     TimerChannelMixin
@@ -200,13 +201,17 @@ class SinqDetector(EpicsScalerRecord):
                         mode = 'timer' if pkey[0].startswith('t') \
                             else 'monitor'
                         break
-        ret.append(('mode', mode, mode, '', 'presets'))
-        ret.append(('preset', value, '%s' % value, unit, 'presets'))
+        ret.append(
+            DeviceMetaInfo('mode', DeviceParInfo(mode, mode, '', 'presets')))
+        ret.append(
+            DeviceMetaInfo(
+                'preset', DeviceParInfo(value, '%s' % value, unit, 'presets')))
 
         # Add the array description
         for desc in self.arrayInfo():
-            ret.append(('desc_' + desc.name, desc.__dict__, '', '', 'general'))
-
+            ret.append(
+                DeviceMetaInfo('desc_' + desc.name,
+                               DeviceParInfo(desc.__dict__, '', '', 'general')))
         return ret
 
     def doStatus(self, maxage=0):

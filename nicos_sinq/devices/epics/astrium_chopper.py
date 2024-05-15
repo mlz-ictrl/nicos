@@ -27,6 +27,7 @@ from collections import OrderedDict
 from nicos.core import ADMIN, Attach, ConfigurationError, HasPrecision, \
     Override, Param, Readable, UsageError, pvname, requires, status
 from nicos.core.constants import SIMULATION
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.devices.epics.pyepics import EpicsDevice
 
 from nicos_sinq.devices.epics.base import EpicsDigitalMoveableSinq, \
@@ -128,11 +129,14 @@ class EpicsChopperDisc(EpicsDevice, Readable):
     def doInfo(self):
         ret = []
         for prop in self.properties.keys():
-            ret.append((prop,
+            ret.append(
+                DeviceMetaInfo(
+                    prop,
+                    DeviceParInfo(
                         self._get_pv(prop),
                         '%s' % self._get_pv(prop),
                         '%s' % self._get_pvctrl(prop, 'units', ''),
-                        'general'))
+                        'general')))
         return ret
 
     def doReadFmtstr(self):

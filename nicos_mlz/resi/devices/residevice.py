@@ -32,6 +32,7 @@ import sys
 
 from nicos import session
 from nicos.core import Attach, Moveable, NicosError, Param, vec3
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.core.status import BUSY, OK
 from nicos.devices.sample import Sample
 
@@ -130,11 +131,19 @@ class ResiDevice(Moveable):
     def doInfo(self):
         info = []
         pos = ResiPositionProxy(self._hardware.GetPosition())
-        info.append(('position', pos, str(pos), '', 'experiment'))
-        info.append(('reflex', self._hardware.current_reflex,
-                     str(self._hardware.current_reflex), '', 'experiment'))
-        info.append(('cell', self._hardware.cell,
-                     str(self._hardware.cell), '', 'sample'))
+        info.append(
+            DeviceMetaInfo('position',
+                           DeviceParInfo(pos, str(pos), '', 'experiment')))
+        info.append(
+            DeviceMetaInfo('reflex',
+                           DeviceParInfo(self._hardware.current_reflex,
+                                         str(self._hardware.current_reflex),
+                                         '', 'experiment')))
+        info.append(
+            DeviceMetaInfo('cell',
+                           DeviceParInfo(self._hardware.cell,
+                                         str(self._hardware.cell), '',
+                                         'sample')))
         return info
 
     def doStop(self):

@@ -26,6 +26,7 @@ import time
 import numpy
 
 from nicos.core import Attach, Override, Param, Value, dictof, status
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 
 from nicos_sinq.devices.imagesink import HistogramDesc, HistogramDimDesc
@@ -262,5 +263,6 @@ class HistogramMemoryChannel(PassiveChannel):
     def doInfo(self):
         ret = []
         for item, val in self._text_info().items():
-            ret.append((item, val, '%s' % val, '', 'general'))
+            ret.append(DeviceMetaInfo(
+                item, DeviceParInfo(val, '%s' % val, '', 'general')))
         return ret

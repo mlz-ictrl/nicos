@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 from nicos.core import Override, Param, pvname, status
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 
 from nicos_sinq.devices.epics.detector import EpicsDetector
 
@@ -137,7 +138,8 @@ class EpicsScalerRecord(EpicsDetector):
         # Add the channels to the info as well
         for channel in self._channels:
             value = channel.read(0)
-            ret.append((channel.name, value, '%s' % value,
-                        channel.unit, 'presets'))
+            ret.append(DeviceMetaInfo(
+                channel.name,
+                DeviceParInfo(value, '%s' % value, channel.unit, 'presets')))
 
         return ret

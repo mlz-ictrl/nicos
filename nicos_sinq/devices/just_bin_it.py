@@ -32,6 +32,7 @@ from streaming_data_types.utils import get_schema
 from nicos import session
 from nicos.core import POLLER, SIMULATION, ArrayDesc, Override, Param, Value, \
     host, listof, oneof, status, tupleof
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
@@ -60,8 +61,13 @@ class Hist2dSANSLLB:
 
     @classmethod
     def get_info(cls, name, det_width, det_height, **ignored):
-        return [(f'{name} width', det_width, str(det_width), '', 'general'),
-                (f'{name} height', det_height, str(det_height), '', 'general')]
+        return [
+            DeviceMetaInfo(
+                f'{name} width',
+                DeviceParInfo(det_width, str(det_width), '', 'general')),
+            DeviceMetaInfo(
+                f'{name} height',
+                DeviceParInfo(det_height, str(det_height), '', 'general'))]
 
 
 hist_type_by_name = {
@@ -206,8 +212,10 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
         self.wait()
 
     def doInfo(self):
-        result = [(f'{self.name} histogram type', self.hist_type,
-                   self.hist_type, '', 'general')]
+        result = [
+            DeviceMetaInfo(
+                f'{self.name} histogram type',
+                DeviceParInfo(self.hist_type, self.hist_type, '', 'general'))]
         result.extend(hist_type_by_name[self.hist_type].get_info(
             **self._params))
         return result

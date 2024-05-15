@@ -491,11 +491,12 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     def _write_header(self, point):
         self.log.debug('_write_header: %r', point.settype)
         bycategory = {}
-        for (dev, key), (v, _, _, cat) in point.metainfo.items():
+        for (dev, key), info in point.metainfo.items():
             if dev == 'adet':
                 pass
-            if cat:
-                bycategory.setdefault(cat, []).append((dev, key, v,))
+            if info.category:
+                bycategory.setdefault(info.category, []).append(
+                    (dev, key, info.value,))
         if 'experiment' in bycategory:
             self._write_user_proposal(bycategory['experiment'])
         if 'limits' in bycategory:

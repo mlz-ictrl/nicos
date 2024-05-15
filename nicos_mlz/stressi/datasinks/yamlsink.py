@@ -360,12 +360,14 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
 
     def _fill_header(self):
         bycategory = {}
-        for (dev, key), (_v, v, _, cat) in self.dataset.metainfo.items():
-            if cat:
+        for (dev, key), info in self.dataset.metainfo.items():
+            if info.category:
                 if key == 'operators':  # don't use the formatted list
-                    bycategory.setdefault(cat, []).append((dev, key, _v))
+                    bycategory.setdefault(info.category, []).append(
+                        (dev, key, info.value))
                 else:
-                    bycategory.setdefault(cat, []).append((dev, key, v,))
+                    bycategory.setdefault(info.category, []).append(
+                        (dev, key, info.strvalue))
         if 'experiment' in bycategory:
             self._write_experiment(bycategory['experiment'])
         if 'sample' in bycategory:

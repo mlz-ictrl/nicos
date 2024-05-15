@@ -34,6 +34,7 @@ from nicos.core import INTERMEDIATE, LIVE, Attach, DeviceMixinBase, \
     UsageError, Value, anytype, listof, multiStatus, none_or, oneof, status, \
     tupleof
 from nicos.core.constants import FINAL
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.core.errors import ConfigurationError
 from nicos.core.scan import Scan
 from nicos.core.utils import multiWait
@@ -707,22 +708,29 @@ class Detector(Measurable):
     def doInfo(self):
         ret = []
         if self._user_comment:
-            ret.append(('usercomment', self._user_comment, self._user_comment,
-                        '', 'general'))
+            ret.append(DeviceMetaInfo(
+                'usercomment',
+                DeviceParInfo(self._user_comment, self._user_comment,
+                              '', 'general')))
         presets = []
         for (_dev, devpresets) in self._channel_presets.items():
             for (key, value) in devpresets:
                 presets.append((self._presetkeys[key][1], value))
         if len(presets) > 1:
             mode = ' or '.join(p[0] for p in presets)
-            ret.append(('mode', mode, mode, '', 'presets'))
+            ret.append(DeviceMetaInfo(
+                'mode', DeviceParInfo(mode, mode, '', 'presets')))
             for (mode, value) in presets:
-                ret.append(('preset_%s' % mode,
-                            value, str(value), '', 'presets'))
+                ret.append(DeviceMetaInfo(
+                    'preset_%s' % mode,
+                    DeviceParInfo(value, str(value), '', 'presets')))
         elif presets:
             mode, value = presets[0]
-            return ret + [('mode', mode, mode, '', 'presets'),
-                          ('preset', value, str(value), '', 'presets')]
+            return ret + [
+                DeviceMetaInfo(
+                    'mode', DeviceParInfo(mode, mode, '', 'presets')),
+                DeviceMetaInfo(
+                    'preset', DeviceParInfo(value, str(value), '', 'presets'))]
         return ret
 
 

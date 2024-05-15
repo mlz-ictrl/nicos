@@ -23,7 +23,7 @@
 
 from nicos import session
 from nicos.core import Attach, Param, dictof, listof, status, usermethod
-from nicos.core.device import Moveable, Readable
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.devices.generic.sequence import BaseSequencer, SeqCall, SeqDev, \
     SeqSleep
@@ -133,8 +133,9 @@ class DistancesHandler(BaseSequencer):
     def doInfo(self):
         ret = []
         for component in self._components():
-            ret.append((component, getattr(self, component),
-                        str(getattr(self, component)), 'mm', 'general'))
+            val = getattr(self, component)
+            ret.append(DeviceMetaInfo(component,
+                       DeviceParInfo(val, str(val), 'mm', 'general')))
         return ret
 
     def doRead(self, maxage=0):

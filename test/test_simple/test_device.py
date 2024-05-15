@@ -32,6 +32,7 @@ from nicos.core import ADMIN, AccessError, Attach, CanDisable, \
     CommunicationError, ConfigurationError, Device, HasCommunication, \
     HasLimits, HasOffset, LimitError, Moveable, NicosError, Param, \
     ProgrammingError, UsageError, requires, secret, status, usermethod
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.core.sessions.utils import MAINTENANCE
 from nicos.utils.credentials import keystore
 
@@ -119,7 +120,8 @@ class Dev2(HasLimits, HasOffset, CanDisable, Moveable):
         methods_called.add('doUpdateParam2')
 
     def doInfo(self):
-        return [('testkey', 'testval', 'testval', '', 'instrument')]
+        return [DeviceMetaInfo(
+            'testkey', DeviceParInfo('testval', 'testval', '', 'instrument'))]
 
     def doVersion(self):
         return [('testversion', 1.0)]

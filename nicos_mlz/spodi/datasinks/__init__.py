@@ -54,12 +54,13 @@ class CaressHistogramHandler(SingleFileSinkHandler):
         _metainfo = self.dataset.metainfo
         bycategory = {}
         detectors = self.sink.detectors
-        for (dev, key), (_, v, _, cat) in _metainfo.items():
+        for (dev, key), info in _metainfo.items():
             if dev in detectors + ['UBahn', 'Space', 'tths'] and \
-               cat == 'general':
+               info.category == 'general':
                 continue
-            if cat:
-                bycategory.setdefault(cat, []).append((dev, key, v,))
+            if info.category:
+                bycategory.setdefault(info.category, []).append(
+                    (dev, key, info.value,))
         detector = detectors[0] if detectors else 'adet'
         _comment = 'monrate = %.1f ' % _metainfo[detector, 'rates'][0][0]
         if 'general' in bycategory:
