@@ -46,7 +46,7 @@ PartOf=nicos.target
 [Service]
 Type=notify
 ExecStart=%(root)s/bin/nicos-%(proc)s -D%(instopt)s
-Restart=on-abnormal
+Restart=%(restart)s
 RestartSec=30
 User=%(user)s
 Group=%(group)s
@@ -141,6 +141,10 @@ def main():
                 'group': config.group or 'root',
                 'umask': config.umask or '002',
                 'props': '\n'.join(config.systemd_props),
+                # we want to restart monitors when they fail, e.g. due to a
+                # temporarily broken setup
+                'restart': ('on-failure' if procname.startswith('monitor')
+                            else 'on-abnormal'),
             })
         symlink = path.join(wants_dir, path.basename(unitfile))
         if not path.islink(symlink):
