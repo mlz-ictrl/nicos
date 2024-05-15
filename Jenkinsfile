@@ -323,15 +323,19 @@ node('dockerhost') {
     }
 
     def buildimage_deb = null;
-    def buildimage_debonly = null;
+    def buildimage_bullseye = null;
+    def buildimage_bookworm = null;
     def buildimage_rocky = null;
 
     stage('docker setup') {
         buildimage_deb = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye')
         buildimage_deb.pull()
 
-        buildimage_debonly = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye-debonly')
-        buildimage_debonly.pull()
+        buildimage_bullseye = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye-debonly')
+        buildimage_bullseye.pull()
+
+        buildimage_bookworm = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bookworm-debonly')
+        buildimage_bookworm.pull()
 
         buildimage_rocky = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:rockylinux9')
         buildimage_rocky.pull()
@@ -340,7 +344,7 @@ node('dockerhost') {
     stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
                          string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
-           buildimage_deb.inside(){
+           buildimage_deb.inside() {
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
@@ -384,12 +388,21 @@ try {
                 } // image.inside
             } // ws
         } // stage
-    }, test_debian: {
-        stage(name: 'Tests on Debian') {
+    }, test_bullseye: {
+        stage(name: 'Tests on Debian Bullseye') {
             ws {
                 checkoutSource()
-                buildimage_debonly.inside('-v /home/git:/home/git') {
-                    runTests('$NICOS3VENV', 'python3-debonly', false, true, true)
+                buildimage_bullseye.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3-bullseye', false, true, true)
+                } // image.inside
+            } // ws
+        } // stage
+    }, test_bookworm: {
+        stage(name: 'Tests on Debian Bookworm') {
+            ws {
+                checkoutSource()
+                buildimage_bookworm.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3-bookworm', false, true, true)
                 } // image.inside
             } // ws
         } // stage
