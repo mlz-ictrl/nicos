@@ -53,7 +53,6 @@ from nicos.core.sessions.setups import readSetups
 from nicos.core.sessions.utils import EXECUTIONMODES, MAINTENANCE, MASTER, \
     SIMULATION, SLAVE, AttributeRaiser, NicosNamespace, SimClock, \
     guessCorrectCommand, makeSessionId, sessionInfo
-from nicos.core.spm import SPMHandler
 from nicos.core.utils import system_user
 from nicos.devices.cacheclient import CacheClient, CacheLockError, \
     SyncCacheClient
@@ -146,10 +145,6 @@ class Session:
         self.clock = SimClock()
         # traceback of last unhandled exception
         self._lastUnhandled = None
-        # SPM mode or not?
-        self._spmode = False
-        self._spmhandler = SPMHandler(self)
-        self.setSPMode(config.simple_mode)
         # plug&play info cache
         self._pnp_cache = {'descriptions': {}}
         # intrinsic request to influence the countloop
@@ -272,14 +267,6 @@ class Session:
             self._manualscan = None
             self._currentscan = None
         self.log.info('switched to %s mode', mode)
-
-    def setSPMode(self, on):
-        """Switch simple parameter mode on or off."""
-        self._spmode = on
-
-    @property
-    def spMode(self):
-        return self._spmode
 
     def getSyncDb(self):
         """get cache values for simulation
@@ -966,30 +953,21 @@ class Session:
         command = command.strip()
         if command.startswith('#'):
             return compiler('LogEntry(%r)' % command[1:].strip())
-        if self._spmode:
-            if command.startswith('.'):
-                command = command[1:]
-            return compiler(self._spmhandler.handle_line(command))
         try:
             return compiler(command)
         except SyntaxError:
             # shortcut for integrated help
             if command.endswith('?') or command.startswith('?'):
                 return compiler('help(%s)' % command.strip('?'))
-            # shortcut for running commands in simple mode
+            # shortcut for simple input
             if command.startswith('.'):
-                return compiler(self._spmhandler.handle_line(command[1:]))
+                parts = command[1:].split()
+                code = '%s(%s)' % (parts[0], ', '.join(parts[1:]))
+                return compiler(code)
             # shortcut for simulation mode
             if command.startswith(':'):
                 return compiler('sim(%r)' % command[1:].rstrip())
             raise
-
-    def scriptHandler(self, script, filename, compiler):
-        """This method should be called to process/handle a script."""
-        if filename.endswith('.txt') or \
-                (self._spmode and not filename.endswith('.py')):
-            return compiler(self._spmhandler.handle_script(script, filename))
-        return compiler(script)
 
     def showHelp(self, obj=None):
         """Show help for the given object.

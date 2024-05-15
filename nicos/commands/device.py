@@ -37,8 +37,6 @@ from nicos.core import INFO_CATEGORIES, SIMULATION, AccessError, CanDisable, \
     NicosTimeoutError, Readable, UsageError, Waitable, formatStatus, \
     multiWait
 from nicos.core.errors import NicosError
-from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
-    spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
 from nicos.protocols.daemon import BREAK_AFTER_STEP
@@ -129,7 +127,6 @@ def _rmove_poshook(dev, delta):
 
 @usercommand
 @helparglist('dev1, pos1, ...')
-@spmsyntax(Multi(Dev(Moveable), Bare))
 @parallel_safe
 def move(*dev_pos_list):
     """Start moving one or more devices to a new position.
@@ -166,7 +163,6 @@ def move(*dev_pos_list):
 
 @usercommand
 @helparglist('dev, pos, ...')
-@spmsyntax(Multi(Dev(Moveable), Bare))
 def rmove(*dev_pos_list):
     """Move one or more devices by a relative amount.
 
@@ -188,7 +184,6 @@ def rmove(*dev_pos_list):
 
 @hiddenusercommand
 @helparglist('dev, pos, ...')
-@spmsyntax(Multi(Dev(Moveable), Bare))
 @parallel_safe
 def drive(*dev_pos_list):
     """Move one or more devices to a new position.  Same as `move()`."""
@@ -197,7 +192,6 @@ def drive(*dev_pos_list):
 
 @usercommand
 @helparglist('dev, pos, ...')
-@spmsyntax(Multi(Dev(Moveable), Bare))
 def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait for them.
 
@@ -229,7 +223,6 @@ def maw(*dev_pos_list):
 
 @usercommand
 @helparglist('dev, delta, ...')
-@spmsyntax(Multi(Dev(Moveable), Bare))
 def rmaw(*dev_pos_list):
     """Move one or more devices by relative amounts and wait for them.
 
@@ -255,7 +248,6 @@ def rmaw(*dev_pos_list):
 
 @hiddenusercommand
 @helparglist('dev, pos, ...')
-@spmsyntax(Multi(Dev(Moveable), Bare))
 def switch(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.  Same as `maw()`."""
@@ -264,7 +256,6 @@ def switch(*dev_pos_list):
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(Dev(Waitable)))
 def wait(*devlist):
     """Wait until motion/action of one or more devices is complete.
 
@@ -323,7 +314,6 @@ def wait(*devlist):
 
 @usercommand
 @helparglist('dev, condition, [timeout]')
-@spmsyntax(Dev(Readable), Bare, Bare, Bare)
 def waitfor(dev, condition, timeout=86400):
     """Wait for a device until a condition is fulfilled.
 
@@ -398,7 +388,6 @@ def waitfor(dev, condition, timeout=86400):
 
 @usercommand
 @helparglist('[dev, ...]')
-@spmsyntax(Multi(Dev(Readable)))
 @parallel_safe
 def read(*devlist):
     """Read the position (or value) of one or more devices.
@@ -441,7 +430,6 @@ def read(*devlist):
 
 @usercommand
 @helparglist('[dev, ...]')
-@spmsyntax(Multi(Dev(Readable)))
 @parallel_safe
 def status(*devlist):
     """Read the status of one or more devices.
@@ -474,7 +462,6 @@ def status(*devlist):
 
 @usercommand
 @helparglist('[dev, ...]')
-@spmsyntax(Multi(Dev((Moveable, Measurable))))
 @parallel_safe
 def stop(*devlist):
     """Stop one or more devices.
@@ -526,7 +513,6 @@ def stop(*devlist):
 
 @usercommand
 @helparglist('[dev, ...]')
-@spmsyntax(Multi(Dev(Measurable)))
 @parallel_safe
 def finish(*devlist):
     """Finish data acquisition for one or more detectors.
@@ -548,7 +534,6 @@ def finish(*devlist):
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(Dev(Readable)))
 @parallel_safe
 def reset(*devlist):
     """Reset the given device(s).
@@ -569,7 +554,6 @@ def reset(*devlist):
 
 
 @usercommand
-@spmsyntax(AnyDev, DevParam, Bare)
 @parallel_safe
 def set(dev, parameter, value):  # pylint: disable=redefined-builtin
     """Set a parameter of the device to a new value.
@@ -595,7 +579,6 @@ def set(dev, parameter, value):  # pylint: disable=redefined-builtin
 
 
 @usercommand
-@spmsyntax(AnyDev, DevParam)
 @parallel_safe
 def get(dev, parameter):
     """Print the value of a parameter of the device.
@@ -615,7 +598,6 @@ def get(dev, parameter):
 
 @usercommand
 @helparglist('parameter, ...')
-@spmsyntax(Multi(String))
 @parallel_safe
 def getall(*names):
     """List the given parameters for all existing devices that have them.
@@ -641,7 +623,6 @@ def getall(*names):
 
 
 @usercommand
-@spmsyntax(String, Bare)
 @parallel_safe
 def setall(param, value):
     """Set the given parameter to the given value for all devices that have it.
@@ -666,7 +647,6 @@ def setall(param, value):
 
 @usercommand
 @helparglist('[dev, ...]')
-@spmsyntax(Multi(AnyDev))
 @parallel_safe
 def info(*devlist):
     """Print general information of the given device or all devices.
@@ -699,7 +679,6 @@ def info(*devlist):
 
 @usercommand
 @helparglist('dev[, reason]')
-@spmsyntax(Dev(Moveable), reason=String)
 @parallel_safe
 def fix(dev, reason=''):
     """Fix a device, i.e. prevent movement until `release()` is called.
@@ -718,7 +697,6 @@ def fix(dev, reason=''):
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(Dev(Moveable)))
 @parallel_safe
 def release(*devlist):
     """Release one or more devices, i.e. undo the effect of `fix()`.
@@ -737,7 +715,6 @@ def release(*devlist):
 
 @hiddenusercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(Dev(Moveable)))
 @parallel_safe
 def unfix(*devlist):
     """Same as `release()`."""
@@ -746,7 +723,6 @@ def unfix(*devlist):
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(Dev(CanDisable)))
 @parallel_safe
 def disable(*devlist):
     """Disable one or more devices.
@@ -766,7 +742,6 @@ def disable(*devlist):
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(Dev(CanDisable)))
 @parallel_safe
 def enable(*devlist):
     """Enable one or more devices.
@@ -786,7 +761,6 @@ def enable(*devlist):
 
 @usercommand
 @helparglist('dev, value[, newvalue]')
-@spmsyntax(Dev(HasOffset), Bare)
 @parallel_safe
 def adjust(dev, value, newvalue=None):
     """Adjust the offset of the device.
@@ -816,7 +790,6 @@ def adjust(dev, value, newvalue=None):
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(AnyDev))
 @parallel_safe
 def version(*devlist):
     """List version info of the device(s).
@@ -837,7 +810,6 @@ def version(*devlist):
 
 @usercommand
 @helparglist('dev[, key][, fromtime][, totime][, interval]')
-@spmsyntax(AnyDev, String)
 @parallel_safe
 def history(dev, key='value', fromtime=None, totime=None, interval=None):
     """Print history of a device parameter.
@@ -905,7 +877,6 @@ def history(dev, key='value', fromtime=None, totime=None, interval=None):
 
 @usercommand
 @helparglist('[dev, ...]')
-@spmsyntax(Multi(Dev(HasLimits)))
 @parallel_safe
 def limits(*devlist):
     """Print the limits of the device(s), or all devices if none are given.
@@ -965,7 +936,6 @@ def limits(*devlist):
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(Dev(HasLimits)))
 @parallel_safe
 def resetlimits(*devlist):
     """Reset the user limits for the device(s) to the allowed maximum range.
@@ -1009,7 +979,6 @@ def resetlimits(*devlist):
 
 
 @usercommand
-@spmsyntax(Dev(CanReference))
 def reference(dev, *args):
     """Do a reference drive of the device, if possible.
 
@@ -1029,7 +998,6 @@ def reference(dev, *args):
 
 
 @usercommand
-@spmsyntax(AnyDev)
 @parallel_safe
 def ListParams(dev):
     """List all parameters of the device.
@@ -1072,7 +1040,6 @@ def ListParams(dev):
 
 
 @usercommand
-@spmsyntax(AnyDev)
 @parallel_safe
 def ListMethods(dev):
     """List user-callable methods for the device.
@@ -1102,7 +1069,6 @@ def ListMethods(dev):
 
 
 @usercommand
-@spmsyntax()
 @parallel_safe
 def ListDevices():
     """List all currently created devices.

@@ -33,7 +33,6 @@ from nicos.commands.device import maw, read
 from nicos.commands.scan import ADDSCANHELP2, _infostr, cscan
 from nicos.core import Measurable, Moveable, NicosError, Readable, UsageError
 from nicos.core.scan import QScan
-from nicos.core.spm import Bare, spmsyntax
 from nicos.devices.tas.mono import to_k
 from nicos.devices.tas.plotting import plot_hklmap, plot_resatpoint, \
     plot_resscan
@@ -113,7 +112,6 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
 
 @usercommand
 @helparglist('Q, dQ, numpoints, ...')
-@spmsyntax(Bare, Bare, Bare)
 def qscan(Q, dQ, numpoints, *args, **kwargs):
     """Perform a single-sided Q scan.
 
@@ -157,7 +155,6 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
 
 @usercommand
 @helparglist('Q, dQ, numperside, ...')
-@spmsyntax(Bare, Bare, Bare)
 def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Perform a centered Q scan.
 

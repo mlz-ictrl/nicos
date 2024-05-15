@@ -28,7 +28,6 @@ from nicos.commands.scan import ADDSCANHELP2, _fixType as _fixTypeNPoints, \
 from nicos.core import Moveable, UsageError
 from nicos.core.acquire import acquire
 from nicos.core.scan import Scan
-from nicos.core.spm import Bare, Dev, spmsyntax
 
 
 class KScan(Scan):
@@ -111,7 +110,6 @@ def _fixType(dev, args, mkpos):
 
 @usercommand
 @helparglist('dev, [start, step, end | listofpoints], t=seconds, ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def sscan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
@@ -165,7 +163,6 @@ def sscan(dev, *args, **kwargs):
 # pylint:disable=keyword-arg-before-vararg
 @usercommand
 @helparglist('dev, start, step, numpoints, ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def kscan(dev, start, step, numpoints, speed=None, *args, **kwargs):
     """Kinematic scan over device(s).
 

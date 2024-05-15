@@ -28,7 +28,6 @@ from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.core import Moveable, UsageError
 from nicos.core.scan import Scan
-from nicos.core.spm import Bare, Dev, spmsyntax
 from nicos.core.utils import waitForCompletion
 from nicos.devices.abstract import Motor as NicosMotor
 
@@ -153,7 +152,6 @@ def _fixType(dev, args, mkpos):
 
 @usercommand
 @helparglist('dev, [start, step, end | listofpoints], t=seconds, ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def rscan(dev, *args, **kwargs):
     """Scan ranges over device(s) and count detector(s).
 

@@ -53,7 +53,6 @@ class config:
     logging_path = 'log'
     systemd_props = []  # additional systemd Service properties
 
-    simple_mode = False
     sandbox_simulation = False
     sandbox_simulation_debug = False
     services = ['cache', 'poller']

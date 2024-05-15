@@ -36,7 +36,6 @@ from nicos.commands.measure import _count
 from nicos.commands.scan import ADDSCANHELP2, _infostr, cscan, scan
 from nicos.core import FINAL, Measurable, Moveable, NicosError, Readable, Scan
 from nicos.core.errors import ConfigurationError, LimitError, UsageError
-from nicos.core.spm import Bare, spmsyntax
 from nicos.core.utils import multiWait
 from nicos.devices.generic.detector import DummyDetector
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
@@ -1158,7 +1157,6 @@ class SinqQScan(Scan):
 
 @usercommand
 @helparglist('Q, dQ, numpoints, ...')
-@spmsyntax(Bare, Bare, Bare)
 def qscan(Q, dQ, numpoints, *args, **kwargs):
     """Perform a single-sided Q scan.
 
@@ -1202,7 +1200,6 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
 
 @usercommand
 @helparglist('Q, dQ, numperside, ...')
-@spmsyntax(Bare, Bare, Bare)
 def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Perform a centered Q scan.
 

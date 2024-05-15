@@ -82,22 +82,20 @@ class ScriptRequest(Request):
     can be done with the script: execute it, and update it.
     """
 
-    # pylint: disable=redefined-builtin
     def __init__(self, text, name=None, user=None, quiet=False,
-                 settrace=None, handler=None, format=None):
+                 settrace=None, handler=None):
         Request.__init__(self, user)
         self._run = Event()
         self._run.set()
 
         self.name = name
         self.quiet = quiet
-        self.format = format
         # if not None, this is a set_trace function that's called first thing
         # by the controller, to immediately enter remote debugging
         self.settrace = settrace
         # a weakref to the handler of origin for this request
         self.handler = weakref.ref(handler) if handler else None
-        # script text (SPM or Python commands)
+        # script text (Python code)
         if '\n' in text and not text.endswith('\n'):
             text += '\n'
         self.text = text
@@ -122,7 +120,7 @@ class ScriptRequest(Request):
         return repr(self.text)
 
     def parse(self):
-        self.code, self.blocks = parseScript(self.text, self.name, self.format,
+        self.code, self.blocks = parseScript(self.text, self.name,
                                              compilecode=True)
         # prefill runtimes with 0 so the results of the simulation can come in
         # any order
@@ -539,10 +537,7 @@ class ExecutionController(Controller):
             sys.settrace(None)
 
     def complete_line(self, line, lastword):
-        if not session._spmode:
-            return self.completer.get_matches(lastword, line)
-        spmatches = session._spmhandler.complete(lastword, line)
-        return [m + ' ' for m in spmatches]
+        return self.completer.get_matches(lastword, line)
 
     def add_estop_function(self, func, args):
         if not callable(func):
@@ -631,7 +626,7 @@ class ExecutionController(Controller):
             self.namespace['NicosSetup'] = self._setup
             # and put it in the queue as the first request
             request = ScriptRequest('NicosSetup()', 'setting up NICOS',
-                                    system_user, quiet=True, format='py')
+                                    system_user, quiet=True)
             self.new_request(request, notify=False)
 
             while 1:

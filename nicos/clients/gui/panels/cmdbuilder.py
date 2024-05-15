@@ -170,8 +170,6 @@ class CommandPanel(Panel):
         mode = 'python'
         if self.current_cmdlet is None:
             return
-        if self.client.eval('session.spMode', False):
-            mode = 'simple'
         if not self.current_cmdlet.isValid():
             return
         return self.current_cmdlet.generate(mode).rstrip()

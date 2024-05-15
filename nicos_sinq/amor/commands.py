@@ -27,7 +27,6 @@ from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import ADDSCANHELP0, ADDSCANHELP2, _handleScanArgs, \
     _infostr
-from nicos.core.spm import Bare, spmsyntax
 
 from nicos_sinq.amor.scan import WallTimeScan
 from nicos_sinq.devices.detector import SinqDetector
@@ -35,7 +34,6 @@ from nicos_sinq.devices.detector import SinqDetector
 
 @usercommand
 @helparglist('numpoints, walltime, ...')
-@spmsyntax(Bare)
 def walltimecount(numpoints, walltime, *args, **kwargs):
     """Count a number of times for the given amount of time on wall.
 

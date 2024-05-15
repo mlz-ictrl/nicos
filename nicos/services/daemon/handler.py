@@ -35,7 +35,7 @@ from base64 import b64decode, b64encode
 import rsa
 
 from nicos import config, get_custom_version, nicos_version, session
-from nicos.core import ADMIN, ConfigurationError, SPMError, User
+from nicos.core import ADMIN, ConfigurationError, User
 from nicos.core.data import ScanData
 from nicos.protocols.daemon import BREAK_NOW, DAEMON_COMMANDS, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
@@ -490,8 +490,6 @@ class ConnectionHandler:
         try:
             self.controller.simulate_script(uuid, code,
                                             name or None, self.user)
-        except SPMError as err:
-            self.send_error_reply('syntax error in script: %s' % err)
         except Exception as err:
             self.log.exception('exception in simulate command')
             self.send_error_reply('exception raised running simulation: %s' % err)

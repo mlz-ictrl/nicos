@@ -69,12 +69,14 @@ def formatScript(script, prompt='>>>'):
         return '%s\n%s%s' % (start, text, end)
 
 
-# pylint: disable=redefined-builtin
-def parseScript(script, name=None, format=None, compilecode=True):
+def parseScript(script, name=None, compilecode=True):
 
     def find_function(code, func, mod=''):
         if not isinstance(code, ast.Module):
-            code = ast.parse(code)
+            try:
+                code = ast.parse(code)
+            except SyntaxError:
+                return False
         for e in ast.walk(code):
             if not isinstance(e, ast.Call):
                 continue
@@ -101,13 +103,9 @@ def parseScript(script, name=None, format=None, compilecode=True):
         # results are shown
         code = [session.commandHandler(script, compiler)]
         blocks = None
-        if format == 'py':
-            time_sleep = find_function(script, 'sleep', 'time')
+        time_sleep = find_function(script, 'sleep', 'time')
     else:
         pycode = script
-        # check for SPM scripts
-        if format != 'py':
-            pycode = session.scriptHandler(script, name or '', lambda c: c)
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
         pycode = fixupScript(pycode)

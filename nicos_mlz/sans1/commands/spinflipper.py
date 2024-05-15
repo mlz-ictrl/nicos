@@ -27,12 +27,10 @@ from nicos import session
 from nicos.commands import helparglist, hiddenusercommand
 from nicos.commands.scan import scan
 from nicos.core import UsageError
-from nicos.core.spm import Num, spmsyntax
 
 
 @hiddenusercommand
 @helparglist('counting_time, flipper_value')
-@spmsyntax(Num, Num)
 def polcount(time, value=30):
     """
     Performs a count for preset time [s] with spin up and spin down.

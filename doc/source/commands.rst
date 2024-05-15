@@ -99,9 +99,6 @@ Miscellaneous commands
 .. autofunction:: ClearCache
 .. .. autofunction:: UserInfo
 .. autofunction:: SetErrorAbort
-.. autofunction:: SetSimpleMode
-
-   See spm_.
 
 .. currentmodule:: nicos.commands.utility
 .. autofunction:: FloatRange
@@ -259,12 +256,3 @@ Sample utility functions
 ------------------------
 
 .. autofunction:: activation
-
-
-Simple parameter mode
----------------------
-
-.. _spm:
-
-.. automodule:: nicos.core.spm
-   :no-members:

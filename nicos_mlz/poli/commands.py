@@ -39,7 +39,6 @@ from nicos.commands.scan import _infostr, contscan, cscan
 from nicos.core import Measurable, Moveable, NicosError, Readable, UsageError
 from nicos.core.constants import SIMULATION
 from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, Scan
-from nicos.core.spm import Bare, spmsyntax
 from nicos.devices.sxtal.instrument import SXTalBase
 from nicos.devices.sxtal.xtal.orientation import orient
 from nicos.protocols.daemon import BREAK_IMMEDIATE
@@ -465,7 +464,6 @@ class QScan(Scan):
 
 @usercommand
 @helparglist('Q, dQ, numpoints, ...')
-@spmsyntax(Bare, Bare, Bare)
 def qscan(Q, dQ, numpoints, *args, **kwargs):
     """Perform a single-sided Q step scan.
 
@@ -491,7 +489,6 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
 
 @usercommand
 @helparglist('Q, dQ, numperside, ...')
-@spmsyntax(Bare, Bare, Bare)
 def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Perform a centered Q step scan.
 

@@ -189,15 +189,10 @@ class ConsoleSession(Session):
         Session.setMode(self, mode)
         self.resetPrompt()
 
-    def setSPMode(self, on):
-        Session.setSPMode(self, on)
-        self.resetPrompt()
-
     def resetPrompt(self):
         base = self._mode != MASTER and self._mode + ' ' or ''
         expsetups = '+'.join(self.explicit_setups)
-        sys.ps1 = base + '(%s) %s ' % (expsetups,
-                                       '-->' if self._spmode else '>>>')
+        sys.ps1 = base + '(%s) %s ' % (expsetups, '>>>')
         sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
         self._pscolor = dict(
             slave='brown',
@@ -216,15 +211,7 @@ class ConsoleSession(Session):
         sys.stdout.write(colorcode('reset'))
 
     def completefn(self, word, index):
-        if not self._spmode:
-            return self._completer(word, index)
-        if index == 0:
-            line = readline.get_line_buffer()
-            self._matches = self._spmhandler.complete(line, word)
-        try:
-            return self._matches[index] + ' '
-        except IndexError:
-            return None
+        return self._completer(word, index)
 
     def breakpoint(self, level):
         if session._stoplevel >= level:

@@ -127,8 +127,6 @@ class CommandsPanel(Panel):
         code = ''
         valid = True
         mode = 'python'
-        if self.client.eval('session.spMode', False):
-            mode = 'simple'
         for i in range(self.frame.layout().count() - 2):
             cmdlet = self.frame.layout().itemAt(i).widget()
             valid = valid and cmdlet.isValid()

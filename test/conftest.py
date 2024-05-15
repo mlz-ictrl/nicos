@@ -78,10 +78,7 @@ def session(request):
         nicos_session.loadSetup(request.module.session_setup,
                                 **getattr(request.module,
                                           'session_load_kw', {}))
-    if getattr(request.module, 'session_spmode', False):
-        nicos_session.setSPMode(True)
     yield nicos_session
-    nicos_session.setSPMode(False)
     nicos_session.shutdown()
 
 

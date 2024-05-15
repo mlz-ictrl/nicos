@@ -23,27 +23,8 @@
 
 import logging
 
-import pytest
-
 from nicos import nicos_version
-from nicos.core import MASTER
 from nicos.core.constants import LIVE
-from nicos.protocols.daemon import STATUS_IDLE
-
-from test.utils import raises
-
-
-@pytest.fixture
-def simple_mode(client):
-    """Run nicos session in SimpleMode"""
-
-    client.run_and_wait('SetSimpleMode(True)')
-    yield
-    if client.isconnected:
-        try:
-            client.run_and_wait('SetSimpleMode False')
-        except Exception:
-            pass
 
 
 def load_setup(client, setup):
@@ -53,37 +34,6 @@ def load_setup(client, setup):
 def test_version(client):
     # getversion
     assert client.ask('getversion') == nicos_version
-
-
-def test_simple(client, simple_mode):
-    client.run_and_wait('NewSetup stdsystem')
-
-    # getstatus
-    status = client.ask('getstatus')
-    assert status['status'] == [STATUS_IDLE, -1]      # execution status
-    assert status['script'] == 'NewSetup stdsystem'   # current script
-    assert status['mode'] == MASTER                   # current mode
-    assert status['watch'] == {}                      # no watch expressions
-    assert status['setups'][1] == ['stdsystem']       # explicit setups
-    assert status['requests'] == []                   # no requests queued
-
-    # queue/unqueue/emergency
-    client.run('sleep 0.1')
-    client.run('printinfo 2')
-    status = client.ask('getstatus')
-    assert status['requests'][-1]['script'] == 'printinfo 2'
-    assert status['requests'][-1]['user'] == 'user'
-    client.tell('unqueue', str(status['requests'][-1]['reqid']))
-
-    # test view-only mode
-    client.viewonly = True
-    try:
-        assert raises(AssertionError, client.tell, 'exec', 'sleep')
-    finally:
-        client.viewonly = False
-
-    # wait until command is done
-    client.wait_idle()
 
 
 def test_encoding(client):

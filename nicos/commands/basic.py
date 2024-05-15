@@ -36,10 +36,6 @@ from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
     usercommand
 from nicos.core import ADMIN, MAINTENANCE, MASTER, SIMULATION, Device, \
     ModeError, NicosError, Readable, UsageError
-from nicos.core.utils import deprecated
-from nicos.core.sessions.utils import EXECUTIONMODES
-from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
-    SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
 from nicos.protocols.daemon import BREAK_AFTER_STEP
 from nicos.utils import LOCALE_ENCODING, fixupScript, formatArgs, \
@@ -52,7 +48,7 @@ __all__ = [
     '_Restart', 'Keep',
     'CreateDevice', 'RemoveDevice', 'CreateAllDevices',
     'NewExperiment', 'FinishExperiment', 'AddUser', 'ListUsers',
-    'Remark', 'SetMode', 'SetSimpleMode',
+    'Remark', 'SetMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', 'ListMailReceivers', 'SetDataReceivers',
     'ListDataReceivers', '_trace', 'timer',
@@ -132,7 +128,6 @@ def ListCommands():
 
 
 @usercommand
-@spmsyntax(Num)
 def sleep(secs):
     """Sleep for a given number of seconds.
 
@@ -171,7 +166,6 @@ def sleep(secs):
 
 @usercommand
 @helparglist('[setup, ...]')
-@spmsyntax(Multi(SetupName('all')))
 def NewSetup(*setupnames):
     """Load the given setups instead of the current one.
 
@@ -218,7 +212,6 @@ def NewSetup(*setupnames):
 
 @usercommand
 @helparglist('setup, ...')
-@spmsyntax(Multi(SetupName('unloaded')))
 def AddSetup(*setupnames):
     """Load the given setups additional to the current one.
 
@@ -246,7 +239,6 @@ def AddSetup(*setupnames):
 
 @usercommand
 @helparglist('setup, ...')
-@spmsyntax(Multi(SetupName('loaded')))
 def RemoveSetup(*setupnames):
     """Remove the given setups from the currently loaded ones.
 
@@ -280,7 +272,6 @@ def RemoveSetup(*setupnames):
 
 
 @usercommand
-@spmsyntax(listall=Bool)
 @parallel_safe
 def ListSetups(listall=False):
     """Print a list of setups.
@@ -344,7 +335,6 @@ def Keep(name, obj):
 
 @usercommand
 @helparglist('devname, ...')
-@spmsyntax(Multi(DeviceName))
 def CreateDevice(*devnames):
     """Create all given devices.
 
@@ -366,7 +356,6 @@ def CreateDevice(*devnames):
 
 @usercommand
 @helparglist('devname, ...')
-@spmsyntax(Multi(AnyDev))
 def RemoveDevice(*devnames):
     """Remove all given devices from the currently loaded setup.
 
@@ -487,7 +476,6 @@ def ListUsers():
 
 
 @usercommand
-@spmsyntax(String)
 @parallel_safe
 def Remark(remark):
     """Change the data file remark about instrument configuration.
@@ -508,7 +496,6 @@ def Remark(remark):
 
 
 @usercommand
-@spmsyntax(Oneof(*EXECUTIONMODES))
 def SetMode(mode):
     """Set the execution mode.
 
@@ -561,28 +548,6 @@ def SetMode(mode):
 
 
 @usercommand
-@spmsyntax(Bool)
-@deprecated(since='3.11.1', comment='Please use NICOS command syntax instead.')
-def SetSimpleMode(enable):
-    """Enable or disable Simple Parameter Mode.
-
-    Example:
-
-    >>> SetSimpleMode(True)
-
-    In Simple mode, commands are entered without parentheses and commas
-    separating the parameters.
-    """
-    session.setSPMode(enable)
-    if enable:
-        session.log.info('Simple parameter mode is now enabled. '
-                         'Use "SetSimpleMode false" to disable.')
-    else:
-        session.log.info('Simple parameter mode is now disabled. '
-                         'Use "SetSimpleMode(True)" to enable.')
-
-
-@usercommand
 def sync():
     """Synchronize dry-run/simulation copy with master copy.
 
@@ -598,7 +563,6 @@ def sync():
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(AnyDev))
 def ClearCache(*devnames):
     """Clear all cached information for the given device(s).
 
@@ -668,8 +632,6 @@ def _scriptfilename(filename):
     if fn.endswith(('.py', '.txt')):
         return fn
     # add an extension; the default depends on the current mode
-    if session._spmode:
-        return fn + '.txt'
     return fn + '.py'
 
 
@@ -721,9 +683,7 @@ def _RunScript(filename, statdevices, debug=False):
         raise NicosError('script %r would call itself, aborting' %
                          filename)
 
-    def compiler(src):
-        return compile(src + '\n', fn, 'exec')
-    compiled = session.scriptHandler(code, fn, compiler)
+    compiled = compile(code + '\n', fn, 'exec')
     with _ScriptScope(path.basename(fn), code):
         try:
             exec(compiled, session.namespace)
@@ -1047,7 +1007,6 @@ def _LogAttachImage(description, paths, extensions, names):
 
 
 @usercommand
-@spmsyntax(Bool)
 @parallel_safe
 def SetErrorAbort(abort):
     """Set behavior on unhandled errors in commands.

@@ -32,7 +32,6 @@ from nicos.core import Device, Measurable, Moveable, NicosError, Readable, \
 from nicos.core.constants import SUBSCAN
 from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, \
     ContinuousScan, ManualScan, Scan, StopScan, SweepScan
-from nicos.core.spm import Bare, Dev, spmsyntax
 from nicos.utils import number_types
 
 __all__ = [
@@ -138,7 +137,6 @@ def _infostr(fn, args, kwargs):
 
 @usercommand
 @helparglist('dev, [start, step, numpoints | listofpoints], ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def scan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
@@ -217,7 +215,6 @@ def scan(dev, *args, **kwargs):
 
 @usercommand
 @helparglist('dev-list, start-list, step-list, numpoints-list, ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def gridscan(dev, *args, **kwargs):
     """Scans over a grid of device positions and count detector(s).
 
@@ -271,7 +268,6 @@ def gridscan(dev, *args, **kwargs):
 
 @usercommand
 @helparglist('dev, center, step, numperside, ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def cscan(dev, *args, **kwargs):
     """Scan around a center.
 
@@ -324,7 +320,6 @@ def cscan(dev, *args, **kwargs):
 
 @usercommand
 @helparglist('numpoints, ...')
-@spmsyntax(Bare)
 def timescan(numpoints, *args, **kwargs):
     """Count a number of times without moving devices.
 
@@ -350,7 +345,6 @@ def timescan(numpoints, *args, **kwargs):
 
 @usercommand
 @helparglist('dev, start, end, ...')
-@spmsyntax(Dev(Moveable), Bare, Bare)
 def sweep(dev, start, end, *args, **kwargs):
     """Do a sweep of *dev* from *start* to *end*, repeating a count in between.
 
@@ -385,7 +379,6 @@ def sweep(dev, start, end, *args, **kwargs):
 @usercommand
 @helparglist('dev1, start1, step1, numpoints1, dev2, start2, step2, '
              'numpoints2, ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, Bare, Dev(Moveable), Bare, Bare, Bare)
 def twodscan(dev1, start1, step1, numpoints1,
              dev2, start2, step2, numpoints2,
              *args, **kwargs):
@@ -487,7 +480,6 @@ gridscan.__doc__ += (
 
 @usercommand
 @helparglist('dev, start, end[, speed, timedelta], ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, speed=Bare)
 # pylint: disable=keyword-arg-before-vararg
 def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     """Scan a device continuously with low speed.
