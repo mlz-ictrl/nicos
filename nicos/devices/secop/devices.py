@@ -58,12 +58,12 @@ from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
     HasOffset, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, Moveable, Readable
-from nicos.core.errors import ConfigurationError, CommunicationError
+from nicos.core.errors import CommunicationError, ConfigurationError
 from nicos.core.params import anytype, dictof, floatrange, intrange, listof
 from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
-from nicos.utils import importString, printTable
+from nicos.utils import createThread, importString, printTable
 
 SECOP_ERROR = 400
 
@@ -249,10 +249,11 @@ class SecNodeDevice(Readable):
 
     parameter_overrides = {
         'unit': Override(default='', mandatory=False),
-        # no polling on the SEC node
-        'maxage': Override(default=None, userparam=False),
-        # SECoP 'pollinterval' would be accessible as 'pollinterval_'
-        'pollinterval': Override(default=None, userparam=False),
+        # maxage is not used on the SecNodeDevice itself, but is the base
+        # for calculating a slightly hihger value on the SecopReadable instances
+        'maxage': Override(default=600, userparam=False),
+        # not used:
+        'pollinterval': Override(default=None, userparam=False, settable=False),
     }
 
     valuetype = str
@@ -261,6 +262,7 @@ class SecNodeDevice(Readable):
     _status = status.OK, 'unconnected'   # the nicos status
     _devices = {}
     _custom_callbacks = defaultdict(list)
+    _polled_devs = ()
 
     def doPreinit(self, mode):
         self._devices = {}
@@ -278,12 +280,42 @@ class SecNodeDevice(Readable):
                     self._connect()
                 except Exception:
                     self.log.exception("during initial connect")
+            self.__shutdown = Event()
+            self._polled_devs = [dev for dev in self._devices.values()
+                                if isinstance(dev, SecopReadable)]
+            if self._polled_devs:  # avoid busy loop
+                self.__poll_thread = createThread('poll-thread', self.__poll)
 
     def get_setup_info(self):
         if self._mode == SIMULATION:
             db = session.getSyncDb()
             return db.get('%s/setup_info' % self.name.lower())
         return self.setup_info
+
+    def __poll(self):
+        """simple poll thread
+
+        needed only for making sure value and status do not expire.
+        we can not use the regular poller for this, as dynamic devices
+        are not registered there
+        """
+        while True:
+            if not self._cache:  # defunct sec node
+                return
+            for dev in self._polled_devs:
+                if self.__shutdown.wait(1):
+                    return
+                # status()/read() do only call doStatus()/doRead() when the
+                # value is older than self.maxage. the maximum age will then be
+                # a little higher, as calculated in SecopRreadable.doReadMaxage
+                try:
+                    dev.status(self.maxage)
+                except Exception as e:
+                    dev.log.debug('error calling status(): %r', e)
+                try:
+                    dev.read(self.maxage)
+                except Exception as e:
+                    dev.log.debug('error calling read(): %r', e)
 
     def doRead(self, maxage=0):
         if self._secnode:
@@ -378,6 +410,8 @@ class SecNodeDevice(Readable):
             self._set_status(status.WARN, state)
 
     def doShutdown(self):
+        self.__shutdown.set()
+        self.__poll_thread.join()
         self._disconnect()
         if self._devices:
             self.log.error('can not remove devices %s', list(self._devices))
@@ -1158,7 +1192,9 @@ class SecopReadable(SecopDevice, Readable):
         # (take from SECoP description)
         'unit': Override(default='', mandatory=False),
         # pollinterval is unused as polling is done remotely
-        'pollinterval': Override(default=None, userparam=False),
+        'pollinterval': Override(default=None, userparam=False, settable=False),
+        # calculated to be slightly higher than maxage on the attached SecNodeDevice
+        'maxage': Override(default=3600, userparam=False, settable=False, volatile=True),
     }
 
     def doRead(self, maxage=0):
@@ -1198,6 +1234,11 @@ class SecopReadable(SecopDevice, Readable):
         # treat SECoP code 401 (unknown) as error - should be distinct from
         # NICOS status unknown
         return self.STATUS_MAP.get(code // 100, status.UNKNOWN), text
+
+    def doReadMaxage(self, maxage=0):
+        sn = self._attached_secnode
+        # maxage should be a little above the value used in poll thread
+        return sn.maxage + len(sn._polled_devs) * 2
 
     def showerrors(self):
         st = self.status()
