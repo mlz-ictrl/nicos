@@ -24,13 +24,19 @@
 from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.panels.status import \
     ScriptStatusPanel as DefaultScriptStatusPanel
+from nicos.guisupport.qt import QToolBar
 
 
 class ScriptStatusPanel(DefaultScriptStatusPanel):
     def __init__(self, parent, client, options):
         DefaultScriptStatusPanel.__init__(self, parent, client, options)
         self.set_icons()
-        self.layout().setMenuBar(self.bar)
+        menuToolBar = QToolBar('Script control 2')
+        menuToolBar.addActions(self.bar.actions())
+        # remove emergency stop from top level toolbar b/c a separate button
+        # already exists in flowui.
+        self.bar.removeAction(self.actionEmergencyStop)
+        self.layout().setMenuBar(menuToolBar)
 
     def set_icons(self):
         self.actionBreak.setIcon(get_icon('pause-24px.svg'))
@@ -43,6 +49,3 @@ class ScriptStatusPanel(DefaultScriptStatusPanel):
         self.actionFinishEarlyAndStop.setIcon(get_icon('skip_next-24px.svg'))
         self.actionStop.setIcon(get_icon('stop-24px.svg'))
         self.actionStop2.setIcon(get_icon('stop-24px.svg'))
-
-    def getToolbars(self):
-        return []
