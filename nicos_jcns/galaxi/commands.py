@@ -32,6 +32,7 @@ from nicos import session
 from nicos.commands import basic, device, helparglist, measure, usercommand
 from nicos.core.constants import SCAN
 from nicos.devices.datasinks.tiff import TIFFImageSink
+from nicos.protocols.daemon import BREAK_AFTER_STEP
 
 from nicos_jcns.devices.dectris import Detector2D as DECTRIS2DDetector, \
     FileSink as DECTRIS2DFileSink, MYTHENImageSink
@@ -99,7 +100,7 @@ def count(n, *detlist, **presets):
                                                   session.experiment.proposal,
                                                   filename)
             measure.count(*detlist, **presets)
-            session.breakpoint(2)  # allow daemon to stop here
+            session.breakpoint(BREAK_AFTER_STEP)  # allow daemon to stop here
     finally:
         for sink, settypes in galaxi_sinks.items():
             sink._setROParam('settypes', settypes)

@@ -27,6 +27,7 @@
 from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.measure import count
+from nicos.protocols.daemon import BREAK_AFTER_STEP
 
 
 @usercommand
@@ -115,7 +116,7 @@ def cetoni_count(pressure, volume1, volume2, time, *detlist, **preset):
     pump3.keep_pressure(pressure)
     while 1:
         try:
-            session.breakpoint(2)
+            session.breakpoint(BREAK_AFTER_STEP)
         except BaseException:
             pump1.stop_pid()
             pump2.stop_pid()

@@ -42,6 +42,7 @@ from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, Scan
 from nicos.core.spm import Bare, spmsyntax
 from nicos.devices.sxtal.instrument import SXTalBase
 from nicos.devices.sxtal.xtal.orientation import orient
+from nicos.protocols.daemon import BREAK_IMMEDIATE
 from nicos.utils import createSubprocess, number_types, printTable
 
 __all__ = [
@@ -948,7 +949,7 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False, kvector=None):
         if i % 10000 == 0:
             session.log.info('%s/%s', i, len(hkls))
             # allow immediate stop here
-            session.breakpoint(5)
+            session.breakpoint(BREAK_IMMEDIATE)
         hkl = hkl.tolist()
         try:
             poslist = instr._extractPos(instr._calcPos(hkl, wavelength))

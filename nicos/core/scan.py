@@ -39,6 +39,7 @@ from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
 from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait, \
     waitForCompletion
+from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP
 from nicos.utils import Repeater, number_types
 
 
@@ -201,7 +202,7 @@ class Scan:
         pass
 
     def finishPoint(self):
-        session.breakpoint(2)
+        session.breakpoint(BREAK_AFTER_STEP)
 
     def endScan(self):
         session.experiment.data.finishScan()
@@ -211,7 +212,7 @@ class Scan:
         except Exception:
             session.log.debug('could not add scan to electronic logbook',
                               exc=1)
-        session.breakpoint(1)
+        session.breakpoint(BREAK_AFTER_LINE)
 
     def handleError(self, what, err):
         """Handle an error occurring during positioning or readout for a point.
@@ -382,7 +383,7 @@ class Scan:
                             self.moveDevices(self._devices,
                                              self._endpositions[i], wait=False)
                     except SkipPoint:
-                        session.breakpoint(2)
+                        session.breakpoint(BREAK_AFTER_STEP)
                         continue
                     except BaseException as err:
                         try:
@@ -659,7 +660,7 @@ class ContinuousScan(Scan):
                     for det in detlist}
 
             while device.status(0)[0] == status.BUSY:
-                session.breakpoint(2)
+                session.breakpoint(BREAK_AFTER_STEP)
                 sleeptime = max(0, looptime + self._timedelta - currenttime())
                 session.log.debug('sleep time: %f', sleeptime)
                 with self.pointScope(point + 1):

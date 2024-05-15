@@ -41,6 +41,7 @@ from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
+from nicos.protocols.daemon import BREAK_AFTER_STEP
 from nicos.utils import createThread, number_types, parseDateString, \
     printTable, tupelize
 from nicos.utils.timer import Timer
@@ -377,7 +378,7 @@ def waitfor(dev, condition, timeout=86400):
         return
 
     def check(tmr):
-        session.breakpoint(2)  # allow break and continue here
+        session.breakpoint(BREAK_AFTER_STEP)  # allow break and continue here
         waitfor.cond_fulfilled = eval(full_condition, {}, {'_v': dev.read(0)})
         if waitfor.cond_fulfilled:
             session.log.info('Waiting for \'%s %s\' finished.', dev, condition)

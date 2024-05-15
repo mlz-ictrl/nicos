@@ -40,6 +40,7 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
+from nicos.protocols.daemon import BREAK_AFTER_STEP
 from nicos.utils import LOCALE_ENCODING, fixupScript, formatArgs, \
     formatDuration, printTable, reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
@@ -153,7 +154,7 @@ def sleep(secs):
         return
 
     def f_notify(tmr):
-        session.breakpoint(2)  # allow break and continue here
+        session.breakpoint(BREAK_AFTER_STEP)  # allow break and continue here
         session.action('%s left' % formatDuration(tmr.remaining_time()))
 
     session.beginActionScope('Sleeping')

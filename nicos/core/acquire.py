@@ -31,6 +31,7 @@ from nicos.core.constants import FINAL, INTERRUPTED, SIMULATION
 from nicos.core.errors import NicosError
 from nicos.core.params import Value
 from nicos.core.utils import waitForCompletion
+from nicos.protocols.daemon import BREAK_NOW
 
 
 def _wait_for_continuation(delay, only_pause=False):
@@ -56,7 +57,7 @@ def _wait_for_continuation(delay, only_pause=False):
         else:
             session.log.warning('counting paused: %s', current_msg)
         # allow the daemon to pause here, if we were paused by it
-        session.breakpoint(3)
+        session.breakpoint(BREAK_NOW)
         # still check for other conditions
         while exp.pausecount:
             if exp.pausecount != current_msg:
@@ -64,7 +65,7 @@ def _wait_for_continuation(delay, only_pause=False):
                 session.log.warning('counting paused: %s', current_msg)
             session.delay(delay)
             # also allow the daemon to pause here
-            session.breakpoint(3)
+            session.breakpoint(BREAK_NOW)
             if session.countloop_request:
                 # completely new request? continue with outer loop
                 break
