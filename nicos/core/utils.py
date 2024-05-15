@@ -35,6 +35,7 @@ from nicos.core.constants import SIMULATION
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
     PositionError
+from nicos.protocols.daemon import BREAK_AFTER_STEP
 from nicos.utils import createThread, formatDuration, toAscii
 
 # Exceptions at which a scan point is measured anyway.
@@ -213,6 +214,7 @@ def multiWait(devices):
     session.action(target_str)
     try:
         while devlist:
+            session.breakpoint(BREAK_AFTER_STEP)  # allow break and continue here
             session.log.debug('multiWait: iteration %d, devices left %s',
                               loops, devlist)
             loops += 1
