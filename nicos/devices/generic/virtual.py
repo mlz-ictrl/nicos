@@ -365,7 +365,7 @@ class VirtualCounter(VirtualChannel):
     def doSimulate(self, preset):
         if self.iscontroller:
             return [self.preselection]
-        return [random.randint(0, self.countrate)]
+        return [random.randint(0, int(self.countrate))]
 
     def valueInfo(self):
         return Value(self.name, unit='cts', errors='sqrt', type=self.type,
