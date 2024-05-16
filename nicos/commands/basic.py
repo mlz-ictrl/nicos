@@ -36,6 +36,7 @@ from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
     usercommand
 from nicos.core import ADMIN, MAINTENANCE, MASTER, SIMULATION, Device, \
     ModeError, NicosError, Readable, UsageError
+from nicos.core.utils import deprecated
 from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
@@ -561,6 +562,7 @@ def SetMode(mode):
 
 @usercommand
 @spmsyntax(Bool)
+@deprecated(since='3.11.1', comment='Please use NICOS command syntax instead.')
 def SetSimpleMode(enable):
     """Enable or disable Simple Parameter Mode.
 
