@@ -39,7 +39,7 @@ from gr.pygr.helper import ColorIndexGenerator
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgPresets, DlgUtils, dialogFromUi, loadUi
 from nicos.guisupport.plots import DATEFMT, GRMARKS, TIMEFMT, \
-    MaskedPlotCurve, NicosPlotAxes, NicosTimePlotAxes
+    MaskedPlotCurve, NicosPlotAxes, NicosTimePlotAxes, GRCOLORS
 from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFont, QListWidgetItem, QMenu, QPoint, Qt
 from nicos.guisupport.qtgr import InteractiveGRWidget, LegendEvent, \
@@ -412,7 +412,7 @@ class NicosPlotCurve(MaskedPlotCurve):
 
     def __init__(self, x, y, errBar1=None, errBar2=None,
                  linetype=gr.LINETYPE_SOLID, markertype=GRMARKS['dot'],
-                 linecolor=None, markercolor=1, legend=None, fillx=0, filly=0):
+                 linecolor=None, markercolor=None, legend=None, fillx=0, filly=0):
         MaskedPlotCurve.__init__(self, x, y, errBar1, errBar2,
                                  linetype, markertype, linecolor, markercolor,
                                  legend, fillx=fillx, filly=filly)
@@ -725,7 +725,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.mouselocation = None
         self._cursor = self.cursor()
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
-        self._markertype = GRMARKS['circle']
+        self._markertype = GRMARKS['solidcircle']
 
         dictPrintType = dict(gr.PRINT_TYPE)
         for prtype in [gr.PRINT_JPEG, gr.PRINT_TIF]:
@@ -942,15 +942,17 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             # update curve
             existing_curve.x, existing_curve.y = plotcurve.x, plotcurve.y
             if plotcurve.errorBar1 and existing_curve.errorBar1:
-                mcolor = existing_curve.errorBar1.markercolor
+                color = existing_curve.linecolor
                 existing_curve.errorBar1 = plotcurve.errorBar1
-                existing_curve.errorBar1.markercolor = mcolor
+                existing_curve.errorBar1.linecolor = color
+                existing_curve.errorBar1.markercolor = GRCOLORS['white']
             else:
                 existing_curve.errorBar1 = plotcurve.errorBar1
             if plotcurve.errorBar2 and existing_curve.errorBar2:
-                mcolor = existing_curve.errorBar2.markercolor
+                color = existing_curve.linecolor
                 existing_curve.errorBar2 = plotcurve.errorBar2
-                existing_curve.errorBar2.markercolor = mcolor
+                existing_curve.errorBar2.linecolor = color
+                existing_curve.errorBar2.markercolor = GRCOLORS['white']
             else:
                 existing_curve.errorBar2 = plotcurve.errorBar2
             if existing_curve not in self.plotcurves:
@@ -959,15 +961,17 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             if not plotcurve.linecolor:
                 color = self._color.getNextColorIndex()
                 plotcurve.linecolor = color
-                plotcurve.markercolor = color
+                plotcurve.markercolor = GRCOLORS['white']
             else:
                 color = plotcurve.linecolor
             plotcurve.markertype = self._markertype if self.hasSymbols \
                 else GRMARKS['dot']
             if plotcurve.errorBar1:
-                plotcurve.errorBar1.markercolor = color
+                plotcurve.errorBar1.linecolor = color
+                plotcurve.errorBar1.markercolor = GRCOLORS['white']
             if plotcurve.errorBar2:
-                plotcurve.errorBar2.markercolor = color
+                plotcurve.errorBar2.linecolor = color
+                plotcurve.errorBar2.markercolor = GRCOLORS['white']
             self._axes.addCurves(plotcurve)
             self.plotcurves.append(plotcurve)
 
@@ -1031,7 +1035,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         color = self._color.getNextColorIndex()
         resultcurve = NicosPlotCurve(fitter.curve_x, fitter.curve_y,
                                      legend=fitter._title,
-                                     linecolor=color, markercolor=color)
+                                     linecolor=color, markercolor=GRCOLORS['white'])
         self.addPlotCurve(resultcurve, True)
         resultcurve.markertype = GRMARKS['dot']
         self.parent_window.statusBar.showMessage("Fitting complete")
@@ -1126,7 +1130,7 @@ class ViewPlot(NicosGrPlot):
             plotcurve = NicosPlotCurve(np.delete(series.x, notfinites),
                                        np.delete(series.y, notfinites),
                                        legend=series.title,
-                                       linecolor=color, markercolor=color)
+                                       linecolor=color, markercolor=GRCOLORS['white'])
             plotcurve._parent = series
             self.series2curve[series] = plotcurve
             self.addPlotCurve(plotcurve, replot)
@@ -1314,7 +1318,9 @@ class DataSetPlot(NicosGrPlot):
             x, y, dy = np.array([0]), np.array([0]), None
         y = numpy.ma.masked_equal(y, 0)
         if dy is not None:
-            errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)
+            # attention: further attributes for `ErrorBar` are currently
+            # overwritten in `addPlotCurve`, e.g. `markercolor`
+            errbar = ErrorBar(x, y, dy)
             plotcurve.errorBar1 = errbar
         plotcurve.x = x
         plotcurve.y = y

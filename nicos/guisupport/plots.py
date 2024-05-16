@@ -107,6 +107,19 @@ GRCOLORS = dict(
 )
 
 
+# always set gr bordercolor according to linecolor
+gr_setlinecolorind = gr.setlinecolorind
+
+def setlinecolorind(color):
+    gr_setlinecolorind(color)
+    gr.setbordercolorind(color)
+
+gr.setlinecolorind = setlinecolorind
+
+# use this borderwidth for markers by default
+gr.setborderwidth = 0.5
+
+
 class MaskedPlotCurve(PlotCurve):
     """Plot curve that handles masked arrays as X and Y data."""
 
@@ -148,7 +161,7 @@ class MaskedPlotCurve(PlotCurve):
         self._markersize = size
 
     def drawGR(self):
-        gr.setmarkersize(self._markersize)
+        gr.setmarkersize(self.markersize)
         PlotCurve.drawGR(self)
 
 

@@ -391,7 +391,7 @@ class ScansPanel(PlotPanel):
         newplot = None
         if dataset.uid not in self.setplots:
             newplot = DataSetPlot(self.plotFrame, self, dataset)
-            newplot.setMarkerType(GRMARKS['circle'])
+            newplot.setMarkerType(GRMARKS['solidcircle'])
             newplot.setSymbols(True)
             if self.currentPlot:
                 newplot.enableCurvesFrom(self.currentPlot)
