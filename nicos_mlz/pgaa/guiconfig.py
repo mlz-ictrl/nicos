@@ -6,7 +6,7 @@ main_window = docked(
          panel('nicos_mlz.pgaa.gui.panels.PGAAPanel', setups='pgaa',)
         ),
         ('Tomography',
-         panel('nicos_mlz.pgaa.gui.panels.TomographyPanel', setups='tomography',),
+         panel('nicos_mlz.pgaa.gui.panels.TomographyPanel', setups='tomo',),
         ),
         ('PGAI',
          panel('nicos_mlz.pgaa.gui.panels.PGAIPanel', setups='pgai',)
