@@ -31,7 +31,7 @@ import numpy as np
 
 from nicos import get_custom_version, nicos_version, session
 from nicos.core import Override, Param, dictof
-from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
+from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
 from nicos.devices.datasinks import FileSink
 
@@ -592,10 +592,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             self._write_defdata('TIM', master)
         self._flush()
 
-    def putValues(self, values):
-        if self.dataset.settype == POINT:
-            return
-
     def addSubset(self, subset):
         self.log.debug('add subset: %s, #%d', subset.settype, subset.number)
         if subset.settype != POINT:
@@ -689,10 +685,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                         self.log.info("Ignoring environment device '%s' "
                                       "returning non-number value", info.name)
         self._detvalues = None
-
-    def putResults(self, quality, results):
-        if quality != FINAL and self.dataset.settype != POINT:
-            return
 
     def end(self):
         self._write_string('DATE', time.strftime('%d-%b-%Y'))
