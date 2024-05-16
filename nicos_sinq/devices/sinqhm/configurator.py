@@ -167,7 +167,7 @@ class HistogramConfAxis(HistogramConfElement):
 
         The formula to arrive at the histogram memory detector number d
         from the value in the packet p is:
-        :math:`d = postoffset + (preoffset + p \cdot multiplier)/divisor`.
+        :math:`d = postoffset + (preoffset + p \\cdot multiplier)/divisor`.
         If any of the parameters are not given or 0, then the operation
         is not performed: i.e. without a divisor no division.
 
