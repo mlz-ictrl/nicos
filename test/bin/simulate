@@ -28,22 +28,50 @@ sync_cache_file = None
 
 
 class TestSimulationSession(SimulationSession):
+    """
+    Special session for the dry run tests.
+
+    In the test suite, simulation mode cannot synchronize initial values from
+    the cache, since there is no running cache that has values from the actual
+    hardware (such as units from a Tango server).  Therefore, necessary values
+    are given by a file.
+
+    We need to apply the values from this file in two places:
+
+    * apply them to the device configuration (as if they were given in the
+      setup file) for values that need to be correct at device initialization
+    * apply them as if they came from the cache in a normal dry run for values
+      that are volatile
+    """
 
     def begin_setup(self):
-        # do not set log handler to ERROR level
-        pass
+        # do not set log handler to ERROR level like in parent class
 
-    def simulationSync(self, db=None):
+        def apply_param(dev, param, value):
+            # apply a device parameter in all setups that contain this device
+            for info in self._setup_info.values():
+                for setupdev in info['devices']:
+                    if setupdev.lower() == dev:
+                        info['devices'][setupdev][1][param] = value
+
+        # this hasn't been done at this point yet
+        self.readSetups()
+
+        # read the sync cache file and apply the values to the device config
+        self._db = {}
         if sync_cache_file is None:
             return
-        db = {}
         with open(sync_cache_file, encoding='utf-8') as fp:
             for line in fp:
                 if line.startswith('nicos/'):
                     line = line[6:]
                 key, value = line.split('=', 1)
-                db[key] = cache_load(value)
-        self._simulationSync_applyValues(db)
+                self._db[key] = cache_load(value)
+                dev, param = key.split('/', 1)
+                apply_param(dev, param, cache_load(value))
+
+    def simulationSync(self, db=None):
+        self._simulationSync_applyValues(self._db)
 
 
 args = sys.argv[1:]
