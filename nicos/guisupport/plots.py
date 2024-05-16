@@ -116,9 +116,6 @@ def setlinecolorind(color):
 
 gr.setlinecolorind = setlinecolorind
 
-# use this borderwidth for markers by default
-gr.setborderwidth = 0.5
-
 
 class MaskedPlotCurve(PlotCurve):
     """Plot curve that handles masked arrays as X and Y data."""
