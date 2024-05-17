@@ -32,7 +32,7 @@ from os import path
 import gr
 import numpy as np
 import numpy.ma
-from gr.pygr import CoordConverter, ErrorBar, Plot, PlotAxes, \
+from gr.pygr import CoordConverter, ErrorBar, Plot as grPlot, PlotAxes, \
     RegionOfInterest, Text
 from gr.pygr.helper import ColorIndexGenerator
 
@@ -709,6 +709,21 @@ class NicosPlot(DlgUtils):
         raise NotImplementedError
 
 
+class Plot(grPlot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._initviewport = self.viewport
+
+    def drawGR(self):
+        axes = self.getAxes(0)
+        if axes.yLabelLength > 3:
+            vp = list(self._initviewport)
+            vp[0] = self._initviewport[0] + (axes.yLabelLength - 3) * 0.015
+            self.viewport = vp
+            self.offsetYLabel = - (axes.yLabelLength - 3) * 0.015
+        super().drawGR()
+
+
 class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     axescls = NicosPlotAxes
@@ -736,7 +751,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self._color = ColorIndexGenerator()
         # avoid the first and therefore most used color being yellow
         self._color.getNextColorIndex()
-        self._plot = Plot(viewport=(.1, .85, .15, .88))
+        self._plot = Plot(viewport=(.1, .85, .18, .88))
         self._plot.setLegendWidth(0.05)
         self._axes = self.axescls(viewport=self._plot.viewport)
         self._axes.backgroundColor = 0
@@ -792,7 +807,6 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.plotcurves = []
         self.addAllCurves()
         if self.timeaxis:
-            self._plot.viewport = (.1, .85, .18, .88)
             self._axes.setXtickCallback(self.xtickCallBack)
             self._plot.offsetXLabel = -.08
 
