@@ -93,11 +93,8 @@ class RabbitSinkHandler(DataSinkHandler):
                     content_type='application/json'))
 
         metadata = {}
-        statistics = {}
         if dataset.settype != BLOCK:
             metadata = metainfo_to_json(dataset.metainfo)
-            if dataset.settype == POINT:
-                statistics = dataset.valuestats
         msg = Message(
             dataset.uid,
             scands.uid if scands else None,
@@ -112,7 +109,7 @@ class RabbitSinkHandler(DataSinkHandler):
                 'instrument': session.instrument.name,
             },
             metainfo=metadata,
-            statistics=statistics,
+            statistics=dataset.valuestats,
         )
         for retry in range(3):
             try:
