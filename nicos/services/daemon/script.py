@@ -24,6 +24,7 @@
 """Thread that executes user scripts."""
 
 import ast
+import itertools
 import sys
 import time
 import traceback
@@ -335,13 +336,19 @@ class ExecutionController(Controller):
             self.log.info('script paused in %s', self.current_location())
             session.log.info('Script paused by %s', flag[2])
             self.eventfunc('status', (STATUS_INBREAK, self.lineno))
-        while True:
+
+        # wait for continue, calling the session's callback regularly
+        for iteration in itertools.count(1):
             new_flag = self.wait_for_continue(60)
             # timeout?
             if new_flag is Ellipsis:
-                session.breakCallback()
+                try:
+                    session.breakCallback(arg, iteration)
+                except Exception:
+                    session.log.warning('break callback failed', exc=1)
             else:
                 break
+
         # new_flag is either a flag coming from Handler.stop(), from
         # Handler.continue() or the old one from above
         if new_flag[0] == 'continue':

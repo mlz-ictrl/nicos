@@ -38,6 +38,11 @@ from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.services.daemon.pyctl import ControlStop
 from nicos.utils.loggers import INFO
 
+# This interval, in minutes, is used to notify users of the script being still
+# in pause.  The first notification is after this interval, with subsequent
+# notifications following every 3 times this interval.
+PAUSE_NOTIFICATION_INTERVAL = 10
+
 
 class DaemonSession(NoninteractiveSession):
     """Subclass of Session that configures the logging system for running under
@@ -145,10 +150,18 @@ class DaemonSession(NoninteractiveSession):
     def breakpoint(self, level):
         exec(self._bpcode[level])
 
-    def breakCallback(self):
-        # this will be called every 60 seconds while the script is paused
+    def breakCallback(self, break_arg, iteration):
+        """Will be called every 60 seconds while the script is paused."""
+        # repeat user prompts
         if self._user_prompt:
             self.emitfunc('prompt', self._user_prompt)
+        # notify by email once after 10 minutes and then every 30 minutes
+        if iteration == PAUSE_NOTIFICATION_INTERVAL or \
+           iteration % (3*PAUSE_NOTIFICATION_INTERVAL) == 0:
+            self.notify('NICOS still paused',
+                        f'A NICOS script is still paused, by {break_arg[2]}. '
+                        'Please check if it can be continued.',
+                        what='pause reminder')
 
     def pause(self, prompt, inputcmd=None):
         self.daemon_device._controller.set_break(

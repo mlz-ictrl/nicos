@@ -19,6 +19,8 @@ Release 3.12.0
 
   - Added new elog event to hide/show events.
 
+  - NICOS now notifies the user regularly when a script is still paused.
+
 * Commands
 
   - The ``stop`` command stops and prints only busy devices.
