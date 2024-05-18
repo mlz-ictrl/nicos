@@ -10,7 +10,7 @@ Release 3.12.0
 
   - New parameter types/validators ``nonzero`` and ``secret``.
 
-  - Enable stop of waiting devices
+  - Scripts can now be stopped while waiting for devices to move.
 
   - Refactored the device polling interface.
 
@@ -23,11 +23,12 @@ Release 3.12.0
 
 * Commands
 
-  - The ``stop`` command stops and prints only busy devices.
+  - Argumentless ``stop()`` now tries to list the devices that were
+    actually stopped.
 
   - Added the ``userinput`` command to request input interactively.
 
-  - Dropped support of ``Simple Parameter Mode``
+  - Dropped support of the "Simple Parameter Mode".
 
   - Refactored interface of Q scan related commands to allow more user friendly
     parameter formats.
@@ -51,6 +52,9 @@ Release 3.12.0
   - Removed the ``ScanTool`` tool (substituted by scan cmdlets).
 
   - Help windows shows device ``usermethod``\ s.
+
+  - The pause/stop buttons now always show the dropdown menu to select
+    which pause/stop mode is appropriate for the situation.
 
 * Services
 
