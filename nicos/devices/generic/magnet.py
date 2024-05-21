@@ -550,12 +550,7 @@ class MagnetWithCalibrationCurves(Magnet):
         curves = curves_from_series(bvi, self._cycling_steps)
         incr, decr = incr_decr_curves(curves)
         calibration = (mean_curves(incr), mean_curves(decr))
-        temp = {}
-        temp[mode] = {}
-        if 'continuous' in self.calibration.keys():
-            temp['continuous'] = dict(self.calibration['continuous'])
-        if 'stepwise' in self.calibration.keys():
-            temp['stepwise'] = dict(self.calibration['stepwise'])
+        temp = self.calibration.copy()
         temp[mode][str(float(ramp))] = calibration
         self.calibration = temp
         self._calibration_updated = True
