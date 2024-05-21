@@ -25,6 +25,7 @@
 Class for magnets powered by unipolar power supplies.
 """
 
+from contextlib import suppress
 import math
 import time
 
@@ -33,10 +34,9 @@ from scipy.optimize import fsolve
 
 try:
     # pylint: disable=import-error
-    from uncertainties.core import AffineScalarFunc, ufloat
-    WITH_UNCERTAINTIES = True
+    from uncertainties.core import ufloat
 except Exception:
-    WITH_UNCERTAINTIES = False
+    from nicos.utils.functioncurves import FloatWithStdError as ufloat
 
 from nicos import session
 from nicos.core import Attach, HasLimits, LimitError, NicosError, Readable, \
@@ -47,9 +47,8 @@ from nicos.core.utils import multiStop
 from nicos.devices.abstract import Magnet
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev
 from nicos.utils import clamp, createThread
-from nicos.utils.curves import curve_from_two_temporal, curves_from_series, \
-    get_xvy, get_yvx, incr_decr_curves, mean_curves
 from nicos.utils.fitting import Fit
+from nicos.utils.functioncurves import Curve2D, Curves
 
 
 class CalibratedMagnet(Magnet):
@@ -336,27 +335,25 @@ class MagnetWithCalibrationCurves(Magnet):
         """Returns field in T for given current in A.
         """
         self._check_calibration(self.mode, self.ramp)
-        curve0, curve1 = self.calibration[self.mode][str(float(self.ramp))]
-        incr_curve = curve0 if curve0[-1][1] > curve0[0][1] else curve1
-        decr_curve = curve0 if curve0[-1][1] < curve0[0][1] else curve1
-        return get_yvx(current, incr_curve) if self.fielddirection == 'increasing' \
-            else get_yvx(current, decr_curve)
+        curves = self.calibration[self.mode][str(float(self.ramp))]
+        return curves.increasing()[0].yvx(current).y \
+            if self.fielddirection == 'increasing' \
+            else curves.decreasing()[0].yvx(current).y
 
     def _field2current(self, field):
         """Returns required current in A for requested field in T.
         """
         self._check_calibration(self.mode, self.ramp)
-        curve0, curve1 = self.calibration[self.mode][str(float(self.ramp))]
-        incr_curve = curve0 if curve0[-1][1] > curve0[0][1] else curve1
-        decr_curve = curve0 if curve0[-1][1] < curve0[0][1] else curve1
-        return get_xvy(field, incr_curve) if self.fielddirection == 'increasing' \
-            else get_xvy(field, decr_curve)
+        curves = self.calibration[self.mode][str(float(self.ramp))]
+        return curves.increasing()[0].xvy(field).x \
+            if self.fielddirection == 'increasing' \
+            else curves.decreasing()[0].xvy(field).x
 
     def doInit(self, mode):
         if mode == MASTER:
             self._cycling, self._measuring = False, False
             self._cycling_thread = None
-            self._Ivt, self._cycling_steps = [], []
+            self._Ivt, self._Bvt, self._cycling_steps = Curve2D(), Curve2D(), []
             self._calibration_updated = False
             self._progress, self._maxprogress = 0, 0
             self._stop_requested = False
@@ -365,8 +362,7 @@ class MagnetWithCalibrationCurves(Magnet):
         return self._attached_magsensor.doRead(maxage)
 
     def doStart(self, target):
-        current = self._field2current(target)
-        current = current.n if WITH_UNCERTAINTIES else current
+        current = self._field2current(target).n
         self._attached_currentsource.doStart(current)
 
     def doStop(self):
@@ -388,15 +384,11 @@ class MagnetWithCalibrationCurves(Magnet):
         return max(cs, ms)
 
     def doReadAbslimits(self):
-        try:
+        limits = [0, 0]
+        with suppress(Exception):
             self._check_calibration(self.mode, self.ramp)
-            limits = [self._current2field(I)
+            limits = [self._current2field(I).n
                       for I in self._attached_currentsource.abslimits]
-        except Exception:
-            limits = [0, 0]
-        if WITH_UNCERTAINTIES:
-            if isinstance(limits[0], AffineScalarFunc):
-                limits = [limits[0].n, limits[1].n]
         return min(limits), max(limits)
 
     def doReadRamp(self):
@@ -413,7 +405,7 @@ class MagnetWithCalibrationCurves(Magnet):
         ramp in [A/min].
         """
         self._measuring = True
-        self._Ivt, self._cycling_steps = [], []
+        self._Ivt, self._cycling_steps = Curve2D(), []
         temp = self.ramp
         self.ramp = 0
         # at least 100 measurement points if time between measurements is >0.5s
@@ -471,29 +463,28 @@ class MagnetWithCalibrationCurves(Magnet):
                                                     (absmin, absmax, float(ramp), n,))
             else:
                 raise NicosError(self, 'Power supply is busy.')
-            bvt = []
+            self._Bvt = Curve2D()
             while self._cycling and not self._stop_requested:
                 try:
                     B = self._attached_magsensor.doRead()
                 except Exception:
                     B = None
                 if B:
-                    if WITH_UNCERTAINTIES and hasattr(self._attached_magsensor, 'readStd'):
-                        bvt.append((time.time(),
-                                    ufloat(B, self._attached_magsensor.readStd(B))))
-                    else:
-                        bvt.append((time.time(), B))
+                    self._Bvt.append((time.time(),
+                                      ufloat(B, self._attached_magsensor.readStd(B))
+                                      if hasattr(self._attached_magsensor, 'readStd')
+                                      else B))
                 session.delay(0.5)
             self._cycling_thread.join()
             self._cycling_thread = None
-            bvi = curve_from_two_temporal(self._Ivt, bvt)
+            self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt)
         elif mode == 'stepwise':
             num = 100
             dI = (absmax - absmin) / num
             dt = dI / (ramp / 60) if dI / (ramp / 60) > 0.5 else 0.5
             dI = dt * ramp / 60
             ranges = [(absmin, absmax, dI), (absmax, absmin, -dI)]
-            bvi, self._cycling_steps = [], []
+            self._BvI, self._cycling_steps = Curve2D(), []
             for r in ranges * n:
                 self._cycling_steps.append(len(numpy.arange(*r)))
                 for i in numpy.arange(*r):
@@ -502,24 +493,20 @@ class MagnetWithCalibrationCurves(Magnet):
                     session.delay(10)
                     B = None
                     while B is None:
-                        try:
+                        with suppress(Exception):
                             B = self._attached_magsensor.doRead()
-                        except Exception:
-                            B = None
-                    if WITH_UNCERTAINTIES and hasattr(self._attached_magsensor, 'readStd'):
-                        bvi.append((i,
-                                    ufloat(B, self._attached_magsensor.readStd(B))))
-                    else:
-                        bvi.append((i, B))
+                    self._BvI.append((i,
+                                      ufloat(B, self._attached_magsensor.readStd(B)
+                                      if hasattr(self._attached_magsensor, 'readStd')
+                                      else B)))
                     if self._stop_requested:
                         break
                 if self._stop_requested:
                     break
         self.doStop()
 
-        curves = curves_from_series(bvi, self._cycling_steps)
-        incr, decr = incr_decr_curves(curves)
-        calibration = (mean_curves(incr), mean_curves(decr))
+        curves = Curves.from_series(self._BvI, self._cycling_steps)
+        calibration = Curves([curves.increasing().mean(), curves.decreasing().mean()])
         temp = self.calibration.copy()
         temp[mode][str(float(ramp))] = calibration
         self.calibration = temp
