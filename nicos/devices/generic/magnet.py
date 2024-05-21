@@ -330,7 +330,7 @@ class MagnetWithCalibrationCurves(Magnet):
     parameters = {
         'calibration': Param(
             'Magnetic field fitting curves',
-            type=dict, settable=True
+            type=dict, settable=True, default={'stepwise': {}, 'continuous': {}}
         ),
         'fielddirection': Param(
             'Direction in which magnetic field should change',
@@ -406,6 +406,7 @@ class MagnetWithCalibrationCurves(Magnet):
             self._stop_requested = True
         session.delay(1)
         self.ramp = self.maxramp
+        self._attached_currentsource.ramp = self.maxramp
         self._attached_currentsource.doStop()
 
     def doStatus(self, maxage=0):
@@ -486,6 +487,7 @@ class MagnetWithCalibrationCurves(Magnet):
         _increasing_curve_ = [(0, 1), (1, 2), (2, 4),]
         X and Y values can be also uncertainties.core.ufloat.
         """
+        self._stop_requested = False
         absmin = self._attached_currentsource.absmin
         absmax = self._attached_currentsource.absmax
         self.mode = mode
