@@ -181,3 +181,30 @@ def mean_curves(curves):
             ys.append(get_yvx(x, curve))
         res.append((x, mean(ys)))
     return res
+
+
+def curve_range(curve):
+    """Return a min and max argument values of a curve
+    """
+    c = [x for x, _ in curve]
+    return min(c), max(c)
+
+
+def subtract_curve(curve1, curve2):
+    """Subtracts curve2 from curve1. If X ranges of curves are different, the
+    resulting curve range will be an overlap of X ranges of curve1 and curve2.
+    """
+    if not curve1 or not curve2:
+        return curve1 or []
+    start1, end1 = curve_range(curve1)
+    start2, end2 = curve_range(curve2)
+    start = max(start1, start2)
+    end = min(end1, end2)
+    if start > end1:
+        return None
+    res = []
+    for x, y in curve1:
+        if x < start or x > end:
+            continue
+        res.append((x, y - get_yvx(x, curve2)))
+    return res
