@@ -522,10 +522,12 @@ def SetMode(mode):
       the required time to run a command or script is estimated from device
       properties ('speed', 'ramp', 'accel').
 
-      It is currently not implemented to switch back: use the `sim()` command
-      for doing one-off dry runs.
+      .. note:: It is currently not implemented to switch back: use the `sim()`
+         command for doing one-off dry runs.
 
     * 'maintenance' mode is for instrument scientists only.
+
+      .. note:: Be aware, that switching back to any other mode isn't supported
 
     Example:
 
