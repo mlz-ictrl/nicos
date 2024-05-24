@@ -82,7 +82,6 @@ SINQ classes
 .. autoclass:: InterpolatedMotor
 
 .. module:: nicos_sinq.devices.kafka.area_detector
-.. autoclass:: ADKafkaImageDetector
 .. autoclass:: HistogramFlatbuffersDeserializer
 
 .. module:: nicos_sinq.devices.lin2ang
