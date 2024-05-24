@@ -16,7 +16,6 @@ User Commands
 - `Triple-axis commands`_
 - `Imaging commands`_
 - `Sample utility functions`_
-- `Simple parameter mode`_
 
 Getting help
 ------------
