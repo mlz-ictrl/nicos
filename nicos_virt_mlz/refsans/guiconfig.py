@@ -12,7 +12,7 @@ main_window = docked(
               ),
         # panel('nicos.clients.gui.panels.watch.WatchPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel',
-              watermark='nicos_mlz/reseda/gui/watermark.png',
+              watermark='nicos_demo/demo/gui/nicos-watermark.png',
               hasinput=False,
               ),
     ),
