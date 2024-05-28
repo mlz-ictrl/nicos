@@ -78,6 +78,10 @@ class HDF5SinkHandler(DataSinkHandler):
     def current_file(self):
         return self.sink._current_scan_file
 
+    @current_file.setter
+    def current_file(self, value):
+        self.sink._current_scan_file = value
+
     def prepare(self):
         if self.dataset.settype == SUBSCAN:
             self.current_file.beginSubscan()
