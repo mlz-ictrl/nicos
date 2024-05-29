@@ -5,28 +5,24 @@ group = 'lowlevel'
 instrument_values = configdata('instrument.values')
 code_base = instrument_values['code_base']
 
-tango_base = 'tango://nimaana4.refsans.frm2.tum.de:10000/test/ads/'
+tango_base = f'tango://{setupname}:10000/test/ads/'
 
 Vadd = 2.5
 
 devices = dict(
-    nimaana_air_temp = device(code_base + 'analogencoder.AnalogEncoder',
+    nimaana_air_temp = device('nicos.devices.entangle.Sensor',
         description = 'nima temperature SHT3x',
-        device = 'nimaana4_ch2',
-        poly = [-66.875, 218.75 / Vadd],
-        unit = 'degC',
+        tangodevice = tango_base + 'ch2',
         pollinterval = 50,
     ),
-    nimaana_air_rh = device(code_base + 'analogencoder.AnalogEncoder',
+    nimaana_air_rh = device('nicos.devices.entangle.Sensor',
         description = 'nima humidity SHT3x',
-        device = 'nimaana4_ch1',
-        poly = [-12.5, 125. / Vadd],
-        unit = 'percent',
+        tangodevice = tango_base + 'ch1',
         pollinterval = 50,
     ),
 )
 
-for i in range(1, 5):
+for i in range(3, 5):
     devices[f'nimaana4_ch{i}'] = device('nicos.devices.entangle.Sensor',
         description = f'ADin{i - 1}',
         fmtstr = '%.4f',
