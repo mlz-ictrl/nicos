@@ -10,15 +10,17 @@ tango_base = f'tango://{setupname}:10000/test/ads/'
 Vadd = 2.5
 
 devices = dict(
-    nimaana_air_temp = device('nicos.devices.entangle.Sensor',
-        description = 'nima temperature SHT3x',
-        tangodevice = tango_base + 'ch2',
-        pollinterval = 50,
-    ),
     nimaana_air_rh = device('nicos.devices.entangle.Sensor',
         description = 'nima humidity SHT3x',
         tangodevice = tango_base + 'ch1',
-        pollinterval = 50,
+        unit = 'percent',
+        fmtstr = '%.1f',
+    ),
+    nimaana_air_temp = device('nicos.devices.entangle.Sensor',
+        description = 'nima temperature SHT3x',
+        tangodevice = tango_base + 'ch2',
+        unit = 'degC',
+        fmtstr = '%.1f',
     ),
 )
 
