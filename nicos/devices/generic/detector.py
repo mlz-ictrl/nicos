@@ -222,7 +222,9 @@ class RectROIChannel(PostprocessPassiveChannel):
     def getReadResult(self, arrays, _results, _quality):
         if any(self.roi):
             x, y, w, h = self.roi
-            return [arr[y:y + h, x:x + w].sum() if arr is not None else 0
+            return [(arr[y:y + h, x:x + w].sum()
+                     if arr.ndim > 1 else arr[x:x + w].sum())
+                    if arr is not None else 0
                     for arr in arrays]
         return [arr.sum() if arr is not None else 0 for arr in arrays]
 
