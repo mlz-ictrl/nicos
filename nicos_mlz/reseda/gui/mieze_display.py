@@ -56,10 +56,11 @@ class MiniPlot(LiveWidget1D):
         self.setTitles({'x': 'time slots', 'y': 'summed counts'})
         self.axes.resetCurves()
         self._curves = [
-            MaskedPlotCurve([0], [1], linecolor=GRCOLORS['blue'],
-                            markertype=DOT_MARKER, linetype=None),
+            MaskedPlotCurve([0], [1], linecolor=COLOR_BLUE,
+                            markertype=DOT_MARKER, markercolor=COLOR_BLUE,
+                            linetype=None),
             NicosPlotCurve([0], [.1], linecolor=COLOR_BLUE,
-                           markertype=DOT_MARKER),
+                           markertype=DOT_MARKER, markercolor=COLOR_BLUE)
         ]
         self._curves[0].markersize = 3
         self._curves[0].markertype = GRMARKS['circle']
