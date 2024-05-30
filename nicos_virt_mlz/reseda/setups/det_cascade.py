@@ -68,6 +68,9 @@ devices = dict(
         hsf_0b = 'hsf_0b',
         sf_0a = 'sf_0a',
         sf_0b = 'sf_0b',
+        neutronspersec = {
+            'localhost': 1e5,
+        },
     ),
     psd_timer = device('nicos.devices.mcstas.McStasTimer',
         description = 'Cascade timer',
@@ -86,7 +89,7 @@ devices = dict(
         timers = ['psd_timer'],
         monitors = ['monitor1'],
         images = ['psd_channel'],
-        liveinterval = 1,
+        liveinterval = 10,
     ),
     l1 = device('nicos.devices.generic.ManualMove',
         description = 'Distance between RF coils',
