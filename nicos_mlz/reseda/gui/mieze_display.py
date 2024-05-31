@@ -45,6 +45,7 @@ my_uipath = path.dirname(__file__)
 COLOR_BLUE = GRCOLORS['blue']
 
 DOT_MARKER = GRMARKS['dot']
+CIRCLE_MARKER = GRMARKS['circle']
 
 
 class MiniPlot(LiveWidget1D):
@@ -57,13 +58,12 @@ class MiniPlot(LiveWidget1D):
         self.axes.resetCurves()
         self._curves = [
             MaskedPlotCurve([0], [1], linecolor=COLOR_BLUE,
-                            markertype=DOT_MARKER, markercolor=COLOR_BLUE,
+                            markertype=CIRCLE_MARKER, markercolor=COLOR_BLUE,
                             linetype=None),
             NicosPlotCurve([0], [.1], linecolor=COLOR_BLUE,
                            markertype=DOT_MARKER, markercolor=COLOR_BLUE)
         ]
         self._curves[0].markersize = 3
-        self._curves[0].markertype = GRMARKS['circle']
         for curve in self._curves:
             self.axes.addCurves(curve)
         # Disable creating a mouse selection to zoom
