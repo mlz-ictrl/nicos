@@ -1166,9 +1166,11 @@ class SecopDevice(Device):
             self._cache.put(self, 'status', self.doStatus(0))
 
     def setConnected(self, connected):
-        if not connected:
+        if connected:
+            self._param_errors.clear()  # clear errors from previous connection
+        else:
             if self._cache:
-                self._cache.clear(self, ['status'])
+                self._cache.clear(self, ['status'])  # clear all except status
         self.updateStatus()
 
     def register_callback(self, parameter, f):
