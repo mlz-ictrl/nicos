@@ -250,7 +250,7 @@ class InfluxDBWrapper:
         point = Point(measurement).time(ts).field(f'{field}', value)\
             .tag('expired', expired)
         value_float = self._convert_to_float(value)
-        if value_float:
+        if value_float is not None:
             point_float = Point(measurement).time(ts)\
                 .field(f'{field}_float', value_float)\
                 .tag('expired', expired)
@@ -288,7 +288,6 @@ class InfluxDBWrapper:
         self._write(self._bucket_latest, Point('signing')
                     .time(datetime.utcnow()).field('N_records', len(points)))
 
-
     def _write(self, bucket, points):
         self._write_api.write(bucket=bucket, record=points)
 
@@ -296,15 +295,12 @@ class InfluxDBWrapper:
         try:
             value = ast.literal_eval(value)
         except Exception:
-            value = None
-        if value:
-            if type(value) in [list, tuple, set]:
-                value = list(value)[0] if len(value) == 1 and \
-                    type(list(value)[0]) not in [list, tuple, set, dict] \
-                    else None
-            if isinstance(value, int):
-                value = float(value)
-        return value if isinstance(value, float) else None
+            return None
+        while isinstance(value, (list, tuple, set)):
+            if len(value) != 1:
+                return None
+            value = list(value)[0]
+        return float(value) if isinstance(value, (int, float)) else None
 
 
 class InfluxDBCacheDatabase(CacheDatabase):
