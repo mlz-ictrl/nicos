@@ -4,7 +4,6 @@ group = 'basic'
 
 includes = [
     'autocollimator',
-    # 'ana4gpio03',
     'attenuators',
     'b3h3',
     'backguard',
@@ -12,6 +11,7 @@ includes = [
     'chamber',
     'chopper',
     'chopperphasentiming',
+    'ddg',
     'detector',
     'fak40',
     'expertvibro8',
