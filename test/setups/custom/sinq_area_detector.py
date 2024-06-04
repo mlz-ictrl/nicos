@@ -12,6 +12,7 @@ devices = dict(
         'nicos_sinq.devices.epics.area_detector.EpicsAreaDetector',
         description='Area detector instance that can only interact with EPICS',
         unit='',
+        basepv='',
         statepv=pvprefix + detector_channel + 'DetectorState_RBV',
         startpv=pvprefix + detector_channel + 'Acquire',
         errormsgpv=pvprefix + detector_channel + 'StatusMessage_RBV',

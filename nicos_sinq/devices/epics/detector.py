@@ -116,11 +116,13 @@ class EpicsDetector(EpicsDevice, Detector):
             Param('PV to start the counting',
                   type=pvname,
                   mandatory=True,
-                  userparam=False),
+                  userparam=False,
+                  preinit=True),
         'pausepv':
             Param('Optional PV to pause the counting',
                   type=pvname,
-                  userparam=False),
+                  userparam=False,
+                  preinit=True),
     }
 
     def doPreinit(self, mode):

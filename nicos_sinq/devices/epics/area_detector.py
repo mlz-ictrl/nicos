@@ -29,8 +29,8 @@ import numpy as np
 
 from nicos import session
 from nicos.core import LIVE, SIMULATION, ArrayDesc, AutoDevice, \
-    HasAutoDevices, Param, Value, listof, multiStatus, oneof, pvname, status, \
-    usermethod
+    HasAutoDevices, Override, Param, Value, listof, multiStatus, oneof, \
+    pvname, status, usermethod
 from nicos.core.device import Device
 from nicos.devices.epics.pyepics import EpicsDevice, EpicsMoveable
 from nicos.devices.generic import Detector, ImageChannelMixin
@@ -58,7 +58,7 @@ class EpicsAreaDetectorTimerPassiveChannel(EpicsTimerPassiveChannel):
     Mixin that determine the remaining acquisition time based on the EPICS
     'TimeRemaining_RBV' PV.
     """
-
+    parameter_overrides = {'readpv': Override(preinit=True)}
     def doTime(self, preset):
         return self._get_pv('readpv')
 
