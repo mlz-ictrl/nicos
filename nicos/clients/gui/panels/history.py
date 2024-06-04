@@ -301,8 +301,8 @@ class NewViewDialog(DlgUtils, QDialog):
 
         tree = self.deviceTree
         tree.itemChanged.disconnect(self.on_deviceTree_itemChanged)
-        keys = parseKeyExpression(self.devices.text(), multiple=True)[0]
-        for key in keys:
+        keys, _, exprs = parseKeyExpression(self.devices.text(), multiple=True)
+        for key, exp in zip(keys,  exprs):
             dev, _, param = key.partition('/')
             for i in range(tree.topLevelItemCount()):
                 if tree.topLevelItem(i).text(0).lower() == dev:
@@ -328,7 +328,7 @@ class NewViewDialog(DlgUtils, QDialog):
             item.setText(1, '')
             item.setText(2, '')
             item.setText(3, '')
-            self.deviceTreeSel[newkey] = ''
+            self.deviceTreeSel[newkey] = exp
         tree.itemChanged.connect(self.on_deviceTree_itemChanged)
 
     def on_deviceTree_itemChanged(self, item, col):
@@ -350,11 +350,10 @@ class NewViewDialog(DlgUtils, QDialog):
             if offset != 0:
                 suffix += ('+' if offset > 0 else '-') + \
                     item.text(3).strip('+-')
-            self.deviceTreeSel[key] = suffix
+            self.deviceTreeSel[key] = key + suffix
         else:
             self.deviceTreeSel.pop(key, None)
-        self.devices.setText(', '.join((k + v) for (k, v)
-                                       in self.deviceTreeSel.items()))
+        self.devices.setText(', '.join(self.deviceTreeSel.values()))
 
     def showSimpleHelp(self):
         self.showInfo('Please enter a time interval with units like this:\n\n'
