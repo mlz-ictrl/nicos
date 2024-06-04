@@ -22,7 +22,10 @@
 #
 # *****************************************************************************
 
-import pyads
+try:
+    import pyads
+except (ImportError, OSError):
+    pyads = None
 
 from nicos.core import Attach, HasCommunication, Override, Param, Readable, \
     status
@@ -78,10 +81,11 @@ class ADSServer(HasCommunication, Readable):
 
     def _call(self, attribute, ads_type):
         # open ADS connection and close after communication
-        with pyads.Connection(self.amsnetid, self.port, ip_address=self.ip) \
-                as connection:
-            connection.set_timeout(int(self.timeout * 1000))
-            return connection.read_by_name(attribute, ads_type)
+        if pyads is not None:
+            with pyads.Connection(self.amsnetid, self.port, ip_address=self.ip) \
+                    as connection:
+                connection.set_timeout(int(self.timeout * 1000))
+                return connection.read_by_name(attribute, ads_type)
 
     def _com_return(self, result, info):
         """Overwrite to set status to OK
