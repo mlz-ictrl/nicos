@@ -27,13 +27,8 @@ import csv
 import threading
 from datetime import datetime
 
-import influxdb_client
 from influxdb_client import BucketRetentionRules, InfluxDBClient, Point
-
-try:
-    from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
-except ImportError:
-    pass
+from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 from influxdb_client.client.write_api import SYNCHRONOUS as write_option
 
 from nicos.core import ConfigurationError, Param
@@ -97,16 +92,7 @@ class InfluxDBWrapper:
             keys = [record['_value'] for record in tables[0].records]
             return sorted(keys)
 
-        def readSubkeys(client, key):
-            msg = f'''import "influxdata/influxdb/schema"
-                schema.measurementFieldKeys(bucket: "{self._bucket}",
-                measurement: "{key}",
-                start: 2007-01-01T00:00:00Z, stop: now())'''
-            tables = client.query_api().query(msg)
-            subkeys = [record['_value'] for table in tables for record in table]
-            return sorted(subkeys)
-
-        async def readSubkeysAsync(client, key):
+        async def readSubkeys(client, key):
             msg = f'''import "influxdata/influxdb/schema"
                 schema.measurementFieldKeys(bucket: "{self._bucket}",
                 measurement: "{key}",
@@ -115,23 +101,7 @@ class InfluxDBWrapper:
             subkeys = [record['_value'] for table in tables for record in table]
             return sorted(subkeys)
 
-        def readLastValue(client, key, subkey):
-            result = []
-            year = datetime.now().year
-            while not result:
-                if year < 2007:
-                    break
-                msg = f'''from(bucket:"{self._bucket}")
-                    |> range(start: {year}-01-01T00:00:00Z, stop: now())
-                    |> filter(fn:(r) => r._measurement == "{key}")
-                    |> filter(fn:(r) => r._field == "{subkey}")
-                    |> last(column: "_time")
-                    |> drop(columns: ["_start", "_stop"])'''
-                result = client.query_api().query(msg)
-                year -= 1
-            return result
-
-        async def readLastValueAsync(client, key, subkey):
+        async def readLastValue(client, key, subkey):
             result = []
             year = datetime.now().year
             while not result and year >= 2007:
@@ -145,29 +115,18 @@ class InfluxDBWrapper:
                 year -= 1
             return result
 
-        def queryValues(client, keys):
-            subkeys = [readSubkeys(client, key) for key in keys]
-            keys = dict(zip(keys, subkeys))
-            res = []
-            for key, subkeys in keys.items():
-                for subkey in subkeys:
-                    res.append(readLastValue(client, key, subkey))
-            return res
-
-        async def queryValuesAsync(keys):
+        async def queryValues(keys):
             async with InfluxDBClientAsync(url=self._url, token=self._token,
                                            org=self._org, timeout=300_000) as \
                     client:
-                tasks = [readSubkeysAsync(client, key) for key in keys]
+                tasks = [readSubkeys(client, key) for key in keys]
                 keys = dict(zip(keys, await asyncio.gather(*tasks)))
-                tasks = [readLastValueAsync(client, key, subkey)
+                tasks = [readLastValue(client, key, subkey)
                          for key, subkeys in keys.items() for subkey in subkeys]
                 return await asyncio.gather(*tasks)
 
         keys = readKeys()
-        result = asyncio.run(queryValuesAsync(keys)) \
-                if hasattr(influxdb_client.client, 'influxdb_client_async') \
-            else queryValues(self._client, keys)
+        result = asyncio.run(queryValues(keys))
         return result
 
     def init_query(self):
