@@ -29,7 +29,7 @@ from streaming_data_types.alarm_al00 import Severity, serialise_al00
 from streaming_data_types.logdata_f144 import serialise_f144
 
 from nicos.core import Device, Override, Param, host, listof, status
-from nicos.protocols.cache import cache_load
+from nicos.protocols.cache import OP_TELL, cache_load
 from nicos.services.collector import ForwarderBase
 from nicos.utils import createThread
 
@@ -151,7 +151,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
         return False
 
     def _putChange(self, timestamp, ttl, key, op, value):
-        if value is None:
+        if value is None or op != OP_TELL:
             return
         dev_name = key[0:key.index('/')]
         if not self._checkKey(key) or not self._checkDevice(dev_name):
