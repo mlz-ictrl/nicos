@@ -81,13 +81,17 @@ class DSPec(PyTangoDevice, Measurable):
     # XXX: issues with ortec API -> workarounds and only truetime and livetime
     # working.
 
+    def _read_energy_calibration(self, index):
+        # Remark: This is a calibrated value for the current 60% detector
+        # ec = '0.563822 0.178138 0'
+        ec = self._dev.EnergyCalibration
+        return float(ec.strip().split()[index])
+
     def doReadEcalslope(self):
-        ec = self._dev.EnergyCalibration.strip()
-        return float(ec.split()[1])  # TODO: 0.1933363241016251
+        return self._read_energy_calibration(1)
 
     def doReadEcalintercept(self):
-        ec = self._dev.EnergyCalibration.strip()
-        return float(ec.split()[0])  # TODO: 2.704
+        return self._read_energy_calibration(0)
 
     def doReadArrays(self, quality):
         spectrum = None
