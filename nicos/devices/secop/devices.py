@@ -280,9 +280,11 @@ class SecNodeDevice(Readable):
                     self._connect()
                 except Exception:
                     self.log.exception("during initial connect")
+            if self.maxage is None:
+                self.maxage = 600
             self.__shutdown = Event()
             self._polled_devs = [dev for dev in self._devices.values()
-                                if isinstance(dev, SecopReadable)]
+                                 if isinstance(dev, SecopReadable)]
             if self._polled_devs:  # avoid busy loop
                 self.__poll_thread = createThread('poll-thread', self.__poll)
 
@@ -1240,7 +1242,7 @@ class SecopReadable(SecopDevice, Readable):
     def doReadMaxage(self, maxage=0):
         sn = self._attached_secnode
         # maxage should be a little above the value used in poll thread
-        return sn.maxage + len(sn._polled_devs) * 2
+        return (sn.maxage or 600) + len(sn._polled_devs) * 2
 
     def showerrors(self):
         st = self.status()
