@@ -672,6 +672,7 @@ class Device(metaclass=DeviceMeta):
         rmethod = getattr(self, 'doRead' + param.title(), None)
         umethod = getattr(self, 'doUpdate' + param.title(), None)
         done = False
+        value = Ellipsis
         # try to read from the hardware (only in non-simulation mode)
         if not self._sim_intercept and rmethod:
             try:
