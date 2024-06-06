@@ -153,7 +153,7 @@ class MCASinkHandler(SinkHandler):
             'b', '{:<26}'.format(addinfo.get('Name', '')[:26]).encode())
         mc_fill3 = array('h', [0])  # acq mode
         filler = array('h', [0 for _i in range(19)])  # filler
-        nchans = array('h', [len(spectrum)])  # number of channels
+        nchans = array('H', [len(spectrum)])  # number of channels
         filedata = [mc_fill, mc_fill2, spectr_name, mc_fill3]
         filedata.extend(timeb)
         filedata.extend(elap)
@@ -176,7 +176,7 @@ class MCAFileReader(ImageFileReader):
     def fromfile(cls, filename):
         with open(filename, 'rb') as f:
             f.seek(126)
-            numchannels = struct.unpack('h', f.read(2))[0]
+            numchannels = struct.unpack('H', f.read(2))[0]
             spectrum = np.zeros(numchannels, '<i4')
             for i in range(numchannels):
                 spectrum[i] = struct.unpack('I', f.read(4))[0]
@@ -209,7 +209,7 @@ class CHNSinkHandler(SinkHandler):
         starttime = array('b', s.encode())
 
         channeloffset = array('h', [0])
-        numchannels = array('h', [len(spectrum)])
+        numchannels = array('H', [len(spectrum)])
         filedata = [version, detnumber, segmentnumber, seconds, truetime,
                     livetime, startdate, starttime, channeloffset,
                     numchannels]
@@ -262,7 +262,7 @@ class CHNFileReader(ImageFileReader):
             # starttime = f.read(4).decode()
             # channeloffset = struct.unpack('h', f.read(2))[0]
             # pylint: enable=unused-variable
-            numchannels = struct.unpack('h', f.read(2))[0]
+            numchannels = struct.unpack('H', f.read(2))[0]
             spectrum = np.zeros(numchannels, '<i4')
             for i in range(numchannels):
                 spectrum[i] = struct.unpack('I', f.read(4))[0]
