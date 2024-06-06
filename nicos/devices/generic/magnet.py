@@ -32,12 +32,6 @@ import time
 import numpy
 from scipy.optimize import fsolve
 
-try:
-    # pylint: disable=import-error
-    from uncertainties.core import ufloat
-except Exception:
-    from nicos.utils.functioncurves import FloatWithStdError as ufloat
-
 from nicos import session
 from nicos.core import Attach, HasLimits, LimitError, NicosError, Readable, \
     status, usermethod
@@ -48,7 +42,7 @@ from nicos.devices.abstract import Magnet
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev
 from nicos.utils import clamp, createThread
 from nicos.utils.fitting import Fit
-from nicos.utils.functioncurves import Curve2D, Curves
+from nicos.utils.functioncurves import Curve2D, Curves, ufloat
 
 
 class CalibratedMagnet(Magnet):
