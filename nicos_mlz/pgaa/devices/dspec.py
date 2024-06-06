@@ -28,7 +28,7 @@ import numpy as np
 
 from nicos.core import ArrayDesc, Attach, Measurable, Moveable, Param, Value, \
     anytype, listof, status
-from nicos.core.constants import LIVE
+from nicos.core.constants import LIVE, SIMULATION
 from nicos.core.errors import NicosError
 from nicos.core.utils import multiWait
 from nicos.devices.tango import PyTangoDevice
@@ -83,11 +83,11 @@ class DSPec(PyTangoDevice, Measurable):
 
     def doReadEcalslope(self):
         ec = self._dev.EnergyCalibration.strip()
-        return float(ec.split()[1])
+        return float(ec.split()[1])  # TODO: 0.1933363241016251
 
     def doReadEcalintercept(self):
         ec = self._dev.EnergyCalibration.strip()
-        return float(ec.split()[2])
+        return float(ec.split()[0])  # TODO: 2.704
 
     def doReadArrays(self, quality):
         spectrum = None
@@ -103,12 +103,10 @@ class DSPec(PyTangoDevice, Measurable):
         return [spectrum]
 
     def doRead(self, maxage=0):
-        ret = [self._dev.TrueTime[0], self._dev.LiveTime[0],
-               sum(self._dev.Value.tolist())]
-        return ret
+        return [self._dev.TrueTime, self._dev.LiveTime, self._dev.Value.sum()]
 
     def doReadPoll(self):
-        return self._dev.PollTime[0]
+        return 0  # self._dev.PollTime[0]
 
     def _clear(self):
         self._started = None
@@ -126,7 +124,11 @@ class DSPec(PyTangoDevice, Measurable):
 
     def doInit(self, mode):
         self._clear()
-        self.arraydesc = ArrayDesc(self.name, (1, 16384), np.uint32)
+        if mode != SIMULATION:
+            w = self._dev.DetectorSize[0]
+        else:
+            w = 16384
+        self.arraydesc = ArrayDesc(self.name, (w, 1), np.uint32)
 
     def doFinish(self):
         self.doStop()
@@ -145,28 +147,34 @@ class DSPec(PyTangoDevice, Measurable):
 
         if 'TrueTime' in preset:
             try:
+                self.doStop()
+                self._dev.Clear()
                 self._dev.SyncMode = 'TrueTime'
-                self._dev.SyncValue = preset['TrueTime'] * 1000
+                self._dev.SyncValue = preset['TrueTime']
             except NicosError:
                 try:
                     self.doStop()
+                    self._dev.Clear()
                     self._dev.Init()
                 except NicosError:
                     return
                 self._dev.SyncMode = 'TrueTime'
-                self._dev.SyncValue = preset['TrueTime'] * 1000
+                self._dev.SyncValue = preset['TrueTime']
         elif 'LiveTime' in preset:
             try:
+                self.doStop()
+                self._dev.Clear()
                 self._dev.SyncMode = 'LiveTime'
-                self._dev.SyncValue = preset['LiveTime'] * 1000
+                self._dev.SyncValue = preset['LiveTime']
             except NicosError:
                 try:
                     self.doStop()
+                    self._dev.Clear()
                     self._dev.Init()
                 except NicosError:
                     return
                 self._dev.SyncMode = 'LiveTime'
-                self._dev.SyncValue = preset['LiveTime'] * 1000
+                self._dev.SyncValue = preset['LiveTime']
         elif 'ClockTime' in preset:
             self._stop = preset['ClockTime']
         elif 'counts' in preset:
@@ -199,13 +207,11 @@ class DSPec(PyTangoDevice, Measurable):
         self._enable_gates()
         try:
             self._dev.Stop()
-            self._dev.Clear()
             self._dev.Start()
         except NicosError:
             try:
                 self._dev.Stop()
                 self._dev.Init()
-                self._dev.Clear()
                 self._dev.Start()
             except NicosError:
                 pass
