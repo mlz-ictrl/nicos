@@ -145,7 +145,7 @@ class DSPec(PyTangoDevice, Measurable):
 
         if 'TrueTime' in preset:
             try:
-                self._dev.SyncMode = 'RealTime'
+                self._dev.SyncMode = 'TrueTime'
                 self._dev.SyncValue = preset['TrueTime'] * 1000
             except NicosError:
                 try:
@@ -153,7 +153,7 @@ class DSPec(PyTangoDevice, Measurable):
                     self._dev.Init()
                 except NicosError:
                     return
-                self._dev.SyncMode = 'RealTime'
+                self._dev.SyncMode = 'TrueTime'
                 self._dev.SyncValue = preset['TrueTime'] * 1000
         elif 'LiveTime' in preset:
             try:
