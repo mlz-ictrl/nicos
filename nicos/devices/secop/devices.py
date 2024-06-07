@@ -285,8 +285,7 @@ class SecNodeDevice(Readable):
             self.__shutdown = Event()
             self._polled_devs = [dev for dev in self._devices.values()
                                  if isinstance(dev, SecopReadable)]
-            if self._polled_devs:  # avoid busy loop
-                self.__poll_thread = createThread('poll-thread', self.__poll)
+            self.__poll_thread = createThread('poll-thread', self.__poll)
 
     def get_setup_info(self):
         if self._mode == SIMULATION:
@@ -301,6 +300,8 @@ class SecNodeDevice(Readable):
         we can not use the regular poller for this, as dynamic devices
         are not registered there
         """
+        if not self._polled_devs:  # avoid busy loop
+            return
         while True:
             if not self._cache:  # defunct sec node
                 return
