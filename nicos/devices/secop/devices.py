@@ -724,7 +724,11 @@ class SecNodeDevice(Readable):
 
 
 class SecopDevice(Device):
-    # based on Readable instead of Device, as we want to have a status
+    """for Devices representing a SECoP module
+
+    has a status (for the connection and errors on parameters)
+    but no value, therefore not based on Readable
+    """
     attached_devices = {
         'secnode': Attach('sec node', SecNodeDevice),
     }
@@ -736,13 +740,6 @@ class SecopDevice(Device):
                                   userparam=False),
         'mixins': Param('Mixins to add to this Device', type=listof(str),
                         settable=False, userparam=False, default=[]),
-    }
-    STATUS_MAP = {
-        0: status.DISABLED,
-        1: status.OK,
-        2: status.WARN,
-        3: status.BUSY,
-        4: status.ERROR,
     }
     _defunct = False
     _cache = None
@@ -1145,7 +1142,7 @@ class SecopDevice(Device):
         n = len(self._param_errors)
         if n == 1:
             param, exc = list(self._param_errors.items())[0]
-            return status.WARN, f'param {param}: {get_exc_name(exc)} - {exc}'
+            return status.WARN, f'param {param}: {exc}'
         return status.WARN, f'errors in {n} parameters: see {self.name}.showerrors()'
 
     def doStatus(self, maxage=0):
@@ -1156,17 +1153,25 @@ class SecopDevice(Device):
             return self.paramWarning()
         return status.OK, ''
 
+    @usermethod
+    def status(self, maxage=0):
+        """simple replacement for Readable.status
+
+        we have to implement it here, as it is called below even when
+        not inheriting from Readable
+        """
+        if self._sim_intercept:
+            return status.OK, 'simulated ok'
+        return self._getFromCache('status', self.doStatus, maxage)
+
     def showerrors(self):
         for param, exc in self._param_errors.items():
             prefix = '' if param in str(exc) else f'{param}: '
             session.log.info('%s.%s%s: %s', self.name, prefix, get_exc_name(exc), exc)
 
     def updateStatus(self):
-        """get the status and update status in cache"""
-        # even when not a Readable, the status in the cache is updated
-        # and appears in the device panel
-        if self._cache:
-            self._cache.put(self, 'status', self.doStatus(0))
+        """status update without SECoP read in async_only mode"""
+        self._cache_update('status')
 
     def setConnected(self, connected):
         if not connected:
@@ -1187,6 +1192,15 @@ class SecopDevice(Device):
         """Unregister a callback for parameter updates."""
         self._attached_secnode.unregister_custom_callback(self.secop_module,
                                                           parameter, f)
+
+
+STATUS_MAP = {
+    0: status.DISABLED,
+    1: status.OK,
+    2: status.WARN,
+    3: status.BUSY,
+    4: status.ERROR,
+}
 
 
 class SecopReadable(SecopDevice, Readable):
@@ -1236,7 +1250,7 @@ class SecopReadable(SecopDevice, Readable):
                 return self.paramWarning()
         # treat SECoP code 401 (unknown) as error - should be distinct from
         # NICOS status unknown
-        return self.STATUS_MAP.get(code // 100, status.UNKNOWN), text
+        return STATUS_MAP.get(code // 100, status.UNKNOWN), text
 
     def doReadMaxage(self, maxage=0):
         sn = self._attached_secnode
@@ -1248,10 +1262,6 @@ class SecopReadable(SecopDevice, Readable):
         if st[0] == status.ERROR:
             session.log.info('%s.status(): %s', self.name, st[1])
         super().showerrors()
-
-    def updateStatus(self):
-        """status update without SECoP read"""
-        self._cache_update('status')
 
     def info(self):
         # override the default NICOS behaviour here:
