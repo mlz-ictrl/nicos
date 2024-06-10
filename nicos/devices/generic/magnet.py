@@ -405,15 +405,16 @@ class MagnetWithCalibrationCurves(Magnet):
         # at least 100 measurement points if time between measurements is >0.5s
         # or as many as possible but the time between measurements is 0.5s
         num = 100
-        dI = (val2 - val1) / num
-        dt = dI / (ramp / 60) if dI / (ramp / 60) > 0.5 else 0.5
-        dI = dt * ramp / 60 * abs(val2 - val1) / (val2 - val1)
-        ranges = [(val1, val2, dI), (val2, val1, -dI)]
+        dt = (val2 - val1) / num / (ramp / 60)
+        if dt < 0.5:
+            dt = 0.5
+            num = (val2 - val1) / (dt * ramp / 60)
+        ranges = [(val1, val2, num, False), (val2, val1, num, False)]
         self._progress = 0
-        self._maxprogress = sum(len(numpy.arange(*r)) for r in ranges) * n
+        self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * n
         for r in ranges * n:
-            self._cycling_steps.append(len(numpy.arange(*r)))
-            for i in numpy.arange(*r):
+            self._cycling_steps.append(len(numpy.linspace(*r)))
+            for i in numpy.linspace(*r):
                 self._progress += 1
                 self._attached_currentsource.doStart(i)
                 self._Ivt.append((time.time(), i))
@@ -474,14 +475,11 @@ class MagnetWithCalibrationCurves(Magnet):
             self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt)
         elif mode == 'stepwise':
             num = 100
-            dI = (absmax - absmin) / num
-            dt = dI / (ramp / 60) if dI / (ramp / 60) > 0.5 else 0.5
-            dI = dt * ramp / 60
-            ranges = [(absmin, absmax, dI), (absmax, absmin, -dI)]
+            ranges = [(absmin, absmax, num, False), (absmax, absmin, num, False)]
             self._BvI, self._cycling_steps = Curve2D(), []
             for r in ranges * n:
-                self._cycling_steps.append(len(numpy.arange(*r)))
-                for i in numpy.arange(*r):
+                self._cycling_steps.append(len(numpy.linspace(*r)))
+                for i in numpy.linspace(*r):
                     self._attached_currentsource.doStart(i)
                     # hardcoded 10 secs to reach quasi steady state condition
                     session.delay(10)
