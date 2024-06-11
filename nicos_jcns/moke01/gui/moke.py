@@ -32,6 +32,7 @@ from uncertainties.core import AffineScalarFunc
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.core import status
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QDate, QMessageBox, QStandardItem, \
@@ -56,10 +57,10 @@ class MokePlot(LiveWidget1D):
         if curve:
             x = [i for i, _ in curve]
             y = [i for _, i in curve]
-        if isinstance(x[0], AffineScalarFunc):
+        if x and isinstance(x[0], AffineScalarFunc):
             dx = [i.s for i in x]
             x = [i.n for i in x]
-        if isinstance(y[0], AffineScalarFunc):
+        if y and isinstance(y[0], AffineScalarFunc):
             dy = [i.s for i in y]
             y = [i.n for i in y]
         x_err = ErrorBar(x, y, dx, direction=ErrorBar.HORIZONTAL,
@@ -105,6 +106,7 @@ class MokeBase(Panel):
         client.disconnected.connect(self.on_disconnected)
 
     def on_button_calc_clicked(self):
+        self.m = self.client.eval('session.getDevice("MagB").measurement')
         if not self.ln_canting_angle.text() or not self.ln_extinction.text():
             QMessageBox.information(None, '', 'Please input Canting angle/Extinction values')
             return
@@ -266,6 +268,7 @@ class MokePanel(MokeBase):
         self._read_baseline()
 
     def _on_button_baseline_import_clicked(self):
+        self.m = self.client.eval('session.getDevice("MagB").measurement')
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
@@ -277,6 +280,7 @@ class MokePanel(MokeBase):
             self._update_baseline_plot()
 
     def _on_button_baseline_save_clicked(self):
+        self.m = self.client.eval('session.getDevice("MagB").measurement')
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
@@ -310,10 +314,10 @@ class MokePanel(MokeBase):
 
     def _update_measurement(self):
         self.m = self.client.eval('session.getDevice("MagB").measurement')
-        self.display_rawdata(generate_output(self.m))
         if not self.m:
             self.update_plot_IntvB.stop() # _update_measurement
             return
+        self.display_rawdata(generate_output(self.m))
         self.cmb_mode.setCurrentIndex(
             self.cmb_mode.findText(str(self.m['mode'])))
         self.ln_sample.setText(self.m['name'])
@@ -329,12 +333,11 @@ class MokePanel(MokeBase):
         sample_name = f'{self.m["time"]} {self.m["name"]}'
         # before measurement is finished and stored to `MagB.measurement`
         # IntvB can be fetched from MagB._IntvB
-        IntvB_curr = self.client.eval('session.getDevice("MagB")._IntvB')
-        IntvB_last = self.m['IntvB']
-        IntvB = IntvB_curr if IntvB_curr else IntvB_last
-        if self.chck_subtract_baseline.isChecked():
-            IntvB = IntvB - self.m['baseline']
+        IntvB = self.client.eval('session.getDevice("MagB")._IntvB') or \
+                self.m['IntvB']
         if IntvB:
+            if self.chck_subtract_baseline.isChecked():
+                IntvB = IntvB - self.m['baseline']
             self.plot_IntvB.reset()
             self.plot_IntvB.add_curve(IntvB, legend=sample_name)
         # live-update progress bar
@@ -348,9 +351,14 @@ class MokePanel(MokeBase):
             timeleft = f'{int(steptime * (maxprogress - progress) / 60):02}:' \
                        f'{int(steptime * (maxprogress - progress) % 60):02}'
             self.lcd_timeleft.display(timeleft)
+        # if MagB is disabled but the measurement did not exited properly
+        if self.client.eval('session.getDevice("MagB")._cycling'):
+            if self.client.eval(
+                    'session.getDevice("MagB").status()[0]') == status.DISABLED:
+                self.client.run('MagB._cycling = False')
+                self.client.run('MagB._stop_requested = False')
         # stop QTimer when MagB finishes cycling
-        if not self.client.eval('session.getDevice("MagB")._cycling') \
-                and self.m['IntvB']:
+        else:
             self.update_plot_IntvB.stop() # _update_measurement
 
     def _on_subtract_baseline_changed(self, _):

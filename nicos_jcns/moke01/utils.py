@@ -78,7 +78,7 @@ def calculate(IntvB, angle, ext):
     kerr = calc_ellipticity(fit_min[1], fit_max[1], ext, angle)
 
     # rescale intensity into ellipticity curves
-    EvB = []
+    EvB = Curve2D()
     for B, Int in IntvB:
         EvB.append((B, scale_intensity(Int, fit_min[1], fit_max[1], kerr)))
 
@@ -108,10 +108,10 @@ def generate_output(measurement, angle=None, ext=None):
     output += f'Measurement mode: {measurement["mode"]}\n'
     output += f'Field orientation: {measurement["field_orientation"]}\n'
     output += f'Power supply ramp: {measurement["ramp"]} [A/min]\n'
-    output += f'Lower value of the field range Bmin: {measurement["Bmin"]} [T]\n'
-    output += f'Upper value of the field range Bmax: {measurement["Bmax"]} [T]\n'
-    output += f'Step size: {measurement["step"] if measurement["mode"] == "stepwise" else "n/a"} [T]\n'
-    output += f'Step time: {measurement["steptime"] if measurement["mode"] == "stepwise" else "n/a"} [s]\n'
+    output += f'Lower value of the field range Bmin: {measurement["Bmin"]} (T)\n'
+    output += f'Upper value of the field range Bmax: {measurement["Bmax"]} (T)\n'
+    output += f'Step size: {measurement["step"] if measurement["mode"] == "stepwise" else "n/a"} (T)\n'
+    output += f'Step time: {measurement["steptime"] if measurement["mode"] == "stepwise" else "n/a"} (s)\n'
     output += f'Number of cycles: {measurement["cycles"]}\n\n'
 
     try:
@@ -122,10 +122,10 @@ def generate_output(measurement, angle=None, ext=None):
     # raw measurement output
     if not angle and not ext:
         output += 'Measured curves of intensity vs magnetic field:\n'
-        output += 'I, A\tdI, A\t' \
-                  'B, T\tdB, T\t' \
-                  'Int, V\tdInt, V\t' \
-                  'Int_subtracted, V\tdInt_subtracted, V\n'
+        output += 'I (A)\tdI (A)\t' \
+                  'B (T)\tdB (T)\t' \
+                  'Int (V)\tdInt (V)\t' \
+                  'Int_subtracted (V)\tdInt_subtracted (V)\n'
         for (I, _), (B, Int), (_, Int_sub) in zip(BvI, IntvB, IntvB_sub):
             output += f'{I.n}\t{I.s}\t' \
                       f'{B.n}\t{B.s}\t' \
@@ -135,17 +135,17 @@ def generate_output(measurement, angle=None, ext=None):
         # analysis output
         try:
             fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, angle, ext)
-            output += f'Minimum intensity: {fit_min[1]} [V]\n'
-            output += f'Maxmimum intensity: {fit_max[1]} [V]\n'
-            output += f'Canting angle: {angle} [µrad]\n'
-            output += f'Extinction: {ext} [V]\n'
-            output += f'Kerr angle: {kerr} [µrad]\n\n'
+            output += f'Minimum intensity: {fit_min[1]} (V)\n'
+            output += f'Maxmimum intensity: {fit_max[1]} (V)\n'
+            output += f'Canting angle: {angle} (µrad)\n'
+            output += f'Extinction: {ext} (V)\n'
+            output += f'Kerr angle: {kerr} (µrad)\n\n'
             output += 'Mean intensity and ellipticity curves:\n'
-            output += 'I, A\tdI, A\t' \
-                      'B, mT\tdB, mT\t' \
-                      'Int, V\tdInt, V\t' \
-                      'Int_subtracted, V\tdInt_subtracted, V\t' \
-                      'E, a.u.\tdE, a.u.\n'
+            output += 'I (A)\tdI (A)\t' \
+                      'B (T)\tdB (T)\t' \
+                      'Int (V)\tdInt (V)\t' \
+                      'Int_subtracted (V)\tdInt_subtracted (V)\t' \
+                      'E (a.u.)\tdE (a.u.)\n'
             for (I, _), (B, Int), (_, Int_sub), (_, E) in \
                     zip(BvI[:len(IntvB_sub)], IntvB, IntvB_sub, EvB):
                 output += f'{I.n}\t{I.s}\t' \
@@ -161,7 +161,7 @@ def generate_output(measurement, angle=None, ext=None):
 def fix_filename(filename):
     """Restrict filename string to limited amount of symbols.
     """
-    allowed = [ord(' ')]
+    allowed = [ord(' '), ord('_'), ord('-')]
     allowed += range(ord('0'), ord('9'))
     allowed += range(ord('A'), ord('Z'))
     allowed += range(ord('a'), ord('z'))

@@ -80,7 +80,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Step, T:</string>
+         <string>Step (T):</string>
         </property>
        </widget>
       </item>
@@ -119,14 +119,14 @@
       <item row="0" column="3">
        <widget class="QLabel" name="lbl_ramp">
         <property name="text">
-         <string>Ramp, A/min:</string>
+         <string>Ramp (A/min):</string>
         </property>
        </widget>
       </item>
       <item row="0" column="7">
        <widget class="QLabel" name="lbl_steptime">
         <property name="text">
-         <string>Step time, s</string>
+         <string>Step time (s)</string>
         </property>
        </widget>
       </item>
@@ -267,7 +267,7 @@
          <item row="1" column="1">
           <widget class="QLabel" name="lbl_calibration_ramp">
            <property name="text">
-            <string>Ramp, A/min:</string>
+            <string>Ramp (A/min):</string>
            </property>
           </widget>
          </item>
@@ -481,7 +481,7 @@
          <item row="1" column="1">
           <widget class="QLabel" name="lbl_Bmin">
            <property name="text">
-            <string>B_min, T:</string>
+            <string>B_min (T):</string>
            </property>
           </widget>
          </item>
@@ -562,7 +562,7 @@
          <item row="1" column="3">
           <widget class="QLabel" name="lbl_Bmax">
            <property name="text">
-            <string>B_max, T:</string>
+            <string>B_max (T):</string>
            </property>
           </widget>
          </item>
@@ -862,7 +862,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Canting angle, µrad:</string>
+            <string>Canting angle (µrad):</string>
            </property>
           </widget>
          </item>
@@ -897,7 +897,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Kerr angle, µrad:</string>
+            <string>Kerr angle (µrad):</string>
            </property>
           </widget>
          </item>
@@ -976,7 +976,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Extinction, V:</string>
+            <string>Extinction (V):</string>
            </property>
           </widget>
          </item>

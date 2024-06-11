@@ -97,13 +97,12 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         if mode == 'stepwise':
             self.fielddirection = 'increasing' if self.read(10) < Bmin else 'decreasing'
             n = int(abs(Bmax - Bmin) / step)
-            dB = abs(Bmax - Bmin) / (Bmax - Bmin) * abs(Bmax - Bmin) / n
-            ranges = [(Bmin, Bmax, dB), (Bmax, Bmin, -dB)]
+            ranges = [(Bmin, Bmax, n, False), (Bmax, Bmin, n, False)]
             self._BvI, self._IntvB = Curve2D(), Curve2D()
-            self._maxprogress = sum(len(numpy.arange(*r)) for r in ranges) * cycles
+            self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * cycles
             for i, r in enumerate(ranges * cycles):
                 self.fielddirection = 'increasing' if i % 2 == 0 else 'decreasing'
-                for _B in numpy.arange(*r):
+                for _B in numpy.linspace(*r):
                     self._progress += 1
                     self.doStart(_B)
                     self._hw_wait()
@@ -163,12 +162,13 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                     session.delay(0.1)
             self._cycling_thread.join()
             self._cycling_thread = None
-        self.doStop()
+        if not self._stop_requested:
+            self.doStop()
         # stores the measurement in the cache
         measurement['BvI'] = self._BvI
         measurement['IntvB'] = self._IntvB
         self.measurement = measurement
-        session.log.info('Measurement is saved to %s',
+        session.log.info('Measurement saving: %s',
                          self.save_measurement(measurement))
         self._stop_requested = False
 
@@ -176,13 +176,16 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         keys = ['name', 'time']
         if not measurement or not all(key in measurement.keys() for key in keys):
             return None
-        folder = os.path.join(session.devices['Exp'].dataroot, 'Measurements')
-        os.makedirs(folder, exist_ok=True)
-        filename = f'{measurement["time"]} {measurement["name"]}.raw.txt'
-        with open(os.path.join(folder, fix_filename(filename)), 'w',
-                  encoding='utf-8') as f:
-            f.write(generate_output(measurement))
-        return os.path.join(folder, filename)
+        try:
+            folder = os.path.join(session.getDevice('Exp').dataroot, 'Measurements')
+            os.makedirs(folder, exist_ok=True)
+            filename = f'{measurement["time"]} {measurement["name"]}.raw.txt'
+            with open(os.path.join(folder, fix_filename(filename)), 'w',
+                      encoding='utf-8') as f:
+                f.write(generate_output(measurement))
+            return os.path.join(folder, filename)
+        except Exception as e:
+            return f'error: {str(e)}'
 
 
 class MokePowerSupply(PowerSupply):
@@ -190,7 +193,7 @@ class MokePowerSupply(PowerSupply):
     def doEnable(self, on):
         if not on:
             current = self.read()
-            if current < -7 or current > 7:
+            if abs(current) > 7:
                 self.ramp = 400
                 PowerSupply.doStart(self, 0)
                 self._hw_wait()

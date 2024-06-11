@@ -124,7 +124,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Canting angle, µrad:</string>
+            <string>Canting angle (µrad):</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -149,7 +149,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Extinction, V:</string>
+            <string>Extinction (V):</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -169,7 +169,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+         <item row="1" column="3" alignment="Qt::AlignCenter">
           <widget class="QLineEdit" name="ln_extinction">
            <property name="minimumSize">
             <size>
@@ -204,7 +204,7 @@
            </property>
           </spacer>
          </item>
-         <item row="1" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+         <item row="1" column="1" alignment="Qt::AlignCenter">
           <widget class="QLineEdit" name="ln_canting_angle">
            <property name="minimumSize">
             <size>
@@ -260,7 +260,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Kerr angle, µrad:</string>
+            <string>Kerr angle (µrad):</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -286,7 +286,7 @@
            </property>
           </spacer>
          </item>
-         <item row="2" column="5" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+         <item row="2" column="5" alignment="Qt::AlignCenter">
           <widget class="QPushButton" name="btn_calc">
            <property name="minimumSize">
             <size>
