@@ -35,8 +35,8 @@ class Spectrum(VirtualImage):
     }
 
     parameter_overrides = {
-        'size': Override(type=tupleof(intrange(1, 1), intrange(1, 16384)),
-                         default=(1, 16384)),
+        'size': Override(type=tupleof(intrange(1, 1), intrange(1, 65535)),
+                         default=(1, 65535)),
         'iscontroller': Override(settable=True),
     }
 
@@ -72,10 +72,11 @@ class DSPec(GatedDetector):
                         category='general'),
         'ecalslope': Param('Energy Calibration Slope',
                            type=int, mandatory=False, settable=True,
-                           prefercache=True, default=0, category='general'),
-        'ecalintercept': Param('Energy Calibration Slope',
+                           prefercache=True, default=0.178138,
+                           category='general'),
+        'ecalintercept': Param('Energy Calibration Intercept',
                                type=int, mandatory=False, settable=True,
-                               prefercache=True, default=0,
+                               prefercache=True, default=0.563822,
                                category='general'),
     }
 
