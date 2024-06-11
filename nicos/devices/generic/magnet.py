@@ -405,10 +405,10 @@ class MagnetWithCalibrationCurves(Magnet):
         # at least 100 measurement points if time between measurements is >0.5s
         # or as many as possible but the time between measurements is 0.5s
         num = 100
-        dt = (val2 - val1) / num / (ramp / 60)
+        dt = abs(val2 - val1) / num / (ramp / 60)
         if dt < 0.5:
             dt = 0.5
-            num = (val2 - val1) / (dt * ramp / 60)
+            num = int(abs(val2 - val1) / (dt * ramp / 60))
         ranges = [(val1, val2, num, False), (val2, val1, num, False)]
         self._progress = 0
         self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * n
@@ -425,7 +425,8 @@ class MagnetWithCalibrationCurves(Magnet):
                 break
         self._measuring = False
 
-        self.doStop()
+        if not self._stop_requested:
+            self.doStop()
         self.ramp = temp
         self._cycling = False
 
@@ -450,6 +451,7 @@ class MagnetWithCalibrationCurves(Magnet):
         self._attached_currentsource.doStart(self._attached_currentsource.absmin)
         self._hw_wait()
 
+        with_std = hasattr(self._attached_magsensor, 'readStd')
         if mode == 'continuous':
             if self._cycling_thread is None:
                 self._cycling = True
@@ -465,10 +467,8 @@ class MagnetWithCalibrationCurves(Magnet):
                 except Exception:
                     B = None
                 if B:
-                    self._Bvt.append((time.time(),
-                                      ufloat(B, self._attached_magsensor.readStd(B))
-                                      if hasattr(self._attached_magsensor, 'readStd')
-                                      else B))
+                    self._Bvt.append((time.time(), B if not with_std else
+                                      ufloat(B, self._attached_magsensor.readStd(B))))
                 session.delay(0.5)
             self._cycling_thread.join()
             self._cycling_thread = None
@@ -487,15 +487,14 @@ class MagnetWithCalibrationCurves(Magnet):
                     while B is None:
                         with suppress(Exception):
                             B = self._attached_magsensor.doRead()
-                    self._BvI.append((i,
-                                      ufloat(B, self._attached_magsensor.readStd(B)
-                                      if hasattr(self._attached_magsensor, 'readStd')
-                                      else B)))
+                    self._BvI.append((i, B if not with_std else
+                                      ufloat(B, self._attached_magsensor.readStd(B))))
                     if self._stop_requested:
                         break
                 if self._stop_requested:
                     break
-        self.doStop()
+        if not self._stop_requested:
+            self.doStop()
 
         curves = Curves.from_series(self._BvI, self._cycling_steps)
         calibration = Curves([curves.increasing().mean(), curves.decreasing().mean()])
