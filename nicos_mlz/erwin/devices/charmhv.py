@@ -23,16 +23,18 @@
 
 """Definition special power supply class for CHARM detector."""
 
+from time import time as currenttime
+
 from nicos import session
-from nicos.core import status
-from nicos.core.constants import POLLER
+from nicos.core import Attach, Override, Param, dictof, floatrange, listof, \
+    oneof, status, tupleof
+from nicos.core.constants import POLLER, SIMULATION
 from nicos.core.device import Moveable, Readable
-from nicos.core.errors import ConfigurationError, ModeError, NicosError, \
-    PositionError
-from nicos.core.params import Attach, Override, Param, dictof, oneof
+from nicos.core.errors import ConfigurationError, ModeError, MoveError, \
+    NicosError, PositionError
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.generic.sequence import SeqDev, SeqParam, SequencerMixin
-from nicos.utils import num_sort
+from nicos.devices.generic.sequence import SeqDev, SeqParam, SeqSleep, \
+    SequencerMixin
 
 
 class SeqRampParam(SeqParam):
@@ -70,24 +72,47 @@ class SeqRampParam(SeqParam):
 class HVSwitch(SequencerMixin, MappedMoveable):
     """High voltage convenience switching device for the CHARM detector."""
 
-    valuetype = oneof('on', 'off', 'safe')
+    hardware_access = False
 
     attached_devices = {
         'anodes': Attach('HV channels for the anodes',
                          Moveable, multiple=[2, 9]),
         'banodes': Attach('HV channels for the boundary anodes',
                           Moveable, multiple=[1, 8]),
-        'cathodes': Attach('HV channels for the boundary cathodes',
-                           Moveable, multiple=2),
+        'edges': Attach('HV channels for the boundary cathodes',
+                        Moveable, multiple=2),
         'window': Attach('HV channel for the window',
                          Moveable, multiple=1),
-        'trip': Attach('Devices signaling a trip on the hardware',
-                       Readable, optional=True),
     }
 
     parameters = {
-        '_tripped': Param('Indicator for hardware trip',
-                          type=bool, internal=True, default=False),
+        'tripped': Param('Indicator for hardware trip',
+                         type=bool, internal=True, default=False),
+        'lasthv': Param('When was hv applied last (timestamp)',
+                        type=float, internal=True, default=0.0,
+                        mandatory=False, settable=False),
+        'onstate': Param('Value indicating the HV is switched on',
+                         type=str, default='on'),
+        'offstate': Param('Value indicating the HV is switched on',
+                          type=str, default='off'),
+        'safestate': Param('Value indicating the HV is switched to safe state',
+                           type=str, default='safe'),
+        'maxofftime': Param('Maximum allowed Off-time for fast ramp-up',
+                            type=int, unit='s', default=12 * 3600),
+        'slowramp': Param('Slow ramp-up speed (volt per minute)',
+                          type=floatrange(0), unit='main/min', default=90),
+        'fastramp': Param('Fast ramp-up speed (volt per minute)',
+                          type=float, unit='main/min', default=360),
+        'rampsteps': Param('Cold-ramp-up sequence (voltage, stabilize_minutes)',
+                           type=listof(tupleof(floatrange(0), floatrange(0))),
+                           unit='',
+                           default=[
+                               (500, 3),
+                               (1000, 3),
+                               (1500, 3),
+                               (1750, 3),
+                               (1950, 3),
+                               ]),
     }
 
     parameter_overrides = {
@@ -96,81 +121,79 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         'mapping': Override(type=dictof(str, dictof(str, float))),
     }
 
+    @property
+    def _anodes(self):
+        return self._attached_anodes + self._attached_banodes
+
+    @property
+    def _devices(self):
+        return {
+            dev.name: dev for dev in (
+                self._anodes + self._attached_edges + self._attached_window)
+        }
+
     def doInit(self, mode):
+        self.valuetype = oneof(*self.mapping)
+
         if self.fallback in self.mapping:
             raise ConfigurationError(self, 'Value of fallback parameter is '
                                      'not allowed to be in the mapping!')
-        self._devices = {
-            dev.name: dev for dev in (
-                self._attached_anodes + self._attached_banodes +
-                self._attached_cathodes + self._attached_window)
-        }
 
         if len(self._attached_anodes) != len(self._attached_banodes) + 1:
-            raise ConfigurationError(self, 'Number of anode devices must be '
-                                     'the number of boundary anodes + 1: %d, '
-                                     '%d' % (
-                                         len(self.anodes), len(self.banodes)))
-        # if not self.relax_mapping:
-        #     self.valuetype = oneof(*sorted(self.mapping, key=num_sort))
+            raise ConfigurationError(self, 'Number of boundary anode devices '
+                                     'must be the number of anodes - 1: '
+                                     f'{len(self.banodes)}, {len(self.anodes)}')
 
-        for value in sorted(self.mapping, key=num_sort):
-            try:
-                self.valuetype(value)
-            except ValueError as err:
+        for value in [self.onstate, self.offstate, self.safestate]:
+            if value not in self.mapping:
                 raise ConfigurationError(
-                    self, '%r not allowed as key in mapping. %s' % (
-                        value, err)) from err
-        for d in self._devices.values():
-            d.enable()
+                    self, f'Parameter "{value}state" not in {list(self.mapping)}')
+
+        if session.sessiontype != POLLER:
+            for d in self._devices.values():
+                d.enable()
+
+    def doStatus(self, maxage=0):
+        stat, statmsg = SequencerMixin.doStatus(self, maxage)
+        if stat == status.ERROR:
+            if not self.tripped and 'tripped' in statmsg:
+                self._setROParam('tripped', True)
+        elif stat == status.WARN and self.target != self.onstate:
+            return status.OK, 'idle'
+        return stat, statmsg
 
     def doIsAllowed(self, target):
-        if target == 'off':
-            ok = True
-        else:
-            ok = not self._tripped and not self._hardware_tripped()
+        if target == self.offstate:
+            return True, ''
+        ok = not self.tripped
         return ok, '' if ok else 'hardware is tripped'
 
     def doStop(self):
-        if not self._tripped:
-            SequencerMixin.doStop(self)
-        else:
+        if self.tripped:
             raise ModeError(self, "can't be stopped, device is tripped.")
+        SequencerMixin.doStop(self)
 
     def doReset(self):
-        if self._tripped:
-            if self.doStatus(0)[0] == status.BUSY or self._hardware_tripped():
+        if self.tripped:
+            if self.doStatus(0)[0] == status.BUSY or self.tripped:
                 raise ModeError(self, "can't reset device. Hardware is tripped")
         SequencerMixin.doReset(self)
-        self._setROParam('_tripped', False)
-
-    def doPoll(self, n, maxage):
-        if not self._tripped and session.sessiontype == POLLER and \
-           self._hardware_tripped():
-            self._setROParam('_tripped', True)
-
-    def _hardware_tripped(self):
-        if self._attached_trip:
-            return self._attached_trip.read(0) == 'Trip'
-        return False
-
-    def _generateSequence(self, target):
-        anodes = self._attached_anodes + self._attached_banodes
-        seq = [
-            [SeqDev(dev, self.mapping[target][dev.name])
-             for dev in self._attached_window],
-            [SeqDev(dev, self.mapping[target][dev.name]) for dev in anodes],
-            [SeqDev(dev, self.mapping[target][dev.name])
-             for dev in self._attached_cathodes],
-        ]
-        return seq
+        self._setROParam('tripped', False)
 
     def _is_at_target(self, pos, target):
         # if values are exact the same
-        if pos == target:
+        if pos == {k: target[k] for k in pos}:
             return True
         for dev in pos:
-            if not self._devices[dev].isAtTarget(pos[dev], target[dev]):
+            # If there are some warnlimits defined, the difference will be used
+            # as precision value
+            device = self._devices[dev]
+            if wlims := device.warnlimits:
+                prec = target[dev] - wlims[0], wlims[1] - target[dev]
+                if not (target[dev] - prec[0] <= pos[dev] <= target[dev] + prec[1]):
+                    self.log.warning('%s: %s %s %s', dev, pos[dev], target[dev], prec)
+                    return False
+            elif not self._devices[dev].isAtTarget(pos[dev], target[dev]):
                 return False
         return True
 
@@ -180,19 +203,117 @@ class HVSwitch(SequencerMixin, MappedMoveable):
                 return val
         if self.fallback is not None:
             return self.fallback
-        else:
-            raise PositionError(self, 'unknown unmapped position %r' % value)
+        raise PositionError(self, 'unknown unmapped position %r' % value)
 
     def _readRaw(self, maxage=0):
         return {dev.name: dev.read(maxage) for dev in self._devices.values()}
 
-    def _startRaw(self, target):
-        ramp = self.mapping[self.target]['ramp']
-        seq = self._generateSequence(self.target)
-        if self.target in ['off', 'safe']:
+    def _cold_start(self, target):
+        if target != self.onstate:
+            return False
+        # check off time
+        return not self.lasthv or currenttime() - self.lasthv > self.maxofftime
+
+    def _move_downwards(self, target):
+        """Check if the target is below the current value."""
+        if target == self.offstate:
+            return True
+        if target == self.onstate:
+            return False
+        pos = self.read(0)
+        if pos == self.onstate:  # ON -> SAFE
+            return True
+        return False
+
+    def _generateSequence(self, target):
+        ramp = self.slowramp
+        if not self._cold_start(target):
+            ramp = self.fastramp
+        seq = [
+            tuple(SeqDev(dev, self.mapping[target][dev.name])
+                  for dev in self._attached_window),
+            tuple(SeqDev(dev, self.mapping[target][dev.name])
+                  for dev in self._attached_edges),
+        ]
+        if self._cold_start(target):
+            for steptarget, waittime in self.rampsteps:
+                seq.append(tuple(SeqDev(dev, steptarget)
+                                 for dev in self._anodes))
+                seq.append(SeqSleep(waittime * 60))
+        seq.append(tuple(SeqDev(dev, self.mapping[target][dev.name])
+                         for dev in self._anodes))
+        if self._move_downwards('target'):
             seq.reverse()
-        self._startSequence(
-            [SeqRampParam(dev, ramp)
-             for dev in self._attached_anodes + self._attached_banodes +
-             self._attached_cathodes] +
-            [SeqRampParam(dev, ramp) for dev in self._attached_window] + seq)
+        return [SeqRampParam(d, ramp) for d in self._devices.values()] + seq
+
+    def _startRaw(self, target):
+        if self._seq_is_running():
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise MoveError(self, 'Cannot start device, sequence is still '
+                                      'running (at %s)!' % self._seq_status[1])
+        self._startSequence(self._generateSequence(self.target))
+
+    def doRead(self, maxage=0):
+        val = MappedMoveable.doRead(self, maxage)
+        if val == self.onstate:
+            self._setROParam('lasthv', currenttime())
+        return val
+
+
+class HVOffDuration(Readable):
+
+    attached_devices = {
+        'hv_supply': Attach('HV Device', HVSwitch),
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, volatile=True),
+    }
+
+    valuetype = str
+
+    def doRead(self, maxage=0):
+        if self._attached_hv_supply:
+            secs = currenttime() - self._attached_hv_supply.lasthv
+            hours = int(secs / 3600)
+            mins = int(secs / 60) % 60
+            secs = int(secs) % 60
+            return '%g:%02d:%02d' % (hours, mins, secs)
+        return 'never'
+
+    def doReadUnit(self):
+        return ''
+
+    def doStatus(self, maxage=0):
+        stat, statmsg = self._attached_hv_supply.status(maxage)
+        if stat == status.WARN:
+            return status.OK, ''
+        return stat, statmsg
+
+
+class HVTrip(Readable):
+
+    attached_devices = {
+        'hv_supply': Attach('HV Device', HVSwitch),
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, volatile=True),
+    }
+
+    valuetype = str
+
+    def doRead(self, maxage=0):
+        return 'Tripped' if self._attached_hv_supply.tripped else ''
+
+    def doReadUnit(self):
+        return ''
+
+    def doStatus(self, maxage=0):
+        stat, statmsg = self._attached_hv_supply.status(maxage)
+        if stat == status.WARN:
+            return status.OK, ''
+        return stat, statmsg

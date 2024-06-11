@@ -1,10 +1,6 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-# watch_conditions:
-# The entries in this list are dictionaries.
-# For the entry keys and their meaning see:
-# https://forge.frm2.tum.de/nicos/doc/nicos-master/services/watchdog/#watch-conditions
 watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for the log files becomes too low.',
@@ -16,25 +12,35 @@ watch_conditions = [
          type = 'critical',
          gracetime = 10,
     ),
-    dict(condition = 's_tripped_value == "Trip"',
+    dict(condition = 's_hv_status[0] == WARN',
+         setup = 'charmsmall',
+         message = 'One of the small detector HV channels out of limits',
+         type = 'charm',
+    ),
+    dict(condition = 's_trip_value == "Trip"',
          # precondition = 's_hv_value != "Off"',
          # precondtime = 60,
          # setup = 'source',
          message = 'Small detector high voltage current too high',
-         type = 'critical',
+         type = 'charm',
          setup = 'charmsmall',
-         action = 'maw(s_hv, "off")',
+         action = "maw('s_hv', 'off')",
          actiontimeout = 600,
          # gracetime = 5,
     ),
-    dict(condition = 'b_tripped_value == "Trip"',
-         # precondition = 's_hv_value != "Off"',
+    dict(condition = 'b_hv_status[0] == WARN',
+         setup = 'charmbig',
+         message = 'One of the big detector HV channels out of limits',
+         type = 'charm',
+    ),
+    dict(condition = 'b_trip_value == "Trip"',
+         # precondition = 'b_hv_value != "Off"',
          # precondtime = 60,
          # setup = 'source',
          message = 'Big detector high voltage current too high',
-         type = 'critical',
+         type = 'charm',
          setup = 'charmbig',
-         action = 'maw(b_hv, "off")',
+         action = "maw('b_hv', 'off')",
          actiontimeout = 600,
          # gracetime = 5,
     ),
