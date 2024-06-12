@@ -83,9 +83,6 @@ class DaemonSink(DataSink):
 
 class LiveViewSinkHandler(DataSinkHandler):
 
-    def __init__(self, sink, dataset, detector):
-        DataSinkHandler.__init__(self, sink, dataset, detector)
-
     def processArrays(self, result):
         """Derived classes may override this in order to pre process data
         arrays in respect to the read result with the form
