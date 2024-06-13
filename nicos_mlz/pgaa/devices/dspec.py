@@ -27,7 +27,7 @@ from time import time as currenttime
 import numpy as np
 
 from nicos.core import ArrayDesc, Attach, Measurable, Moveable, Param, Value, \
-    anytype, listof, status
+    anytype, listof, nonemptylistof, status
 from nicos.core.constants import LIVE, SIMULATION
 from nicos.core.errors import NicosError
 from nicos.core.utils import multiWait
@@ -42,6 +42,16 @@ class DSPec(PyTangoDevice, Measurable):
     }
 
     parameters = {
+        'size': Param('Full detector size', type=nonemptylistof(int),
+                      settable=False, mandatory=False, volatile=True),
+        'roioffset': Param('ROI offset', type=nonemptylistof(int),
+                           mandatory=False, volatile=True, settable=True),
+        'roisize': Param('ROI size', type=nonemptylistof(int),
+                         mandatory=False, volatile=True, settable=True),
+        'binning': Param('Binning', type=nonemptylistof(int),
+                         mandatory=False, volatile=True, settable=True),
+        'zeropoint': Param('Zero point', type=nonemptylistof(int),
+                           settable=False, mandatory=False, volatile=True),
         'prefix': Param('prefix for filesaving',
                         type=str, settable=False, mandatory=True,
                         category='general'),
@@ -56,9 +66,9 @@ class DSPec(PyTangoDevice, Measurable):
         'cacheinterval': Param('Interval to cache intermediate spectra',
                                type=float, unit='s', settable=True,
                                default=1800),
-        'enablevalues':  Param('List of values to enable the gates',
-                               type=listof(anytype), default=[],
-                               settable=True, category='general'),
+        'enablevalues': Param('List of values to enable the gates',
+                              type=listof(anytype), default=[],
+                              settable=True, category='general'),
         'disablevalues': Param('List of values to disable the gates',
                                type=listof(anytype), default=[]),
     }
@@ -93,10 +103,36 @@ class DSPec(PyTangoDevice, Measurable):
     def doReadEcalintercept(self):
         return self._read_energy_calibration(0)
 
+    def doReadSize(self):
+        if self._mode != SIMULATION:
+            return self._dev.detectorSize.tolist()
+        return 16384
+
+    def doReadBinning(self):
+        return [1]
+
+    def doWriteBinning(self, value):
+        pass
+
+    def doReadRoioffset(self):
+        return self._dev.roiOffset.tolist()
+
+    def doWriteRoioffset(self, value):
+        self._dev.roiOffset = value
+
+    def doReadRoisize(self):
+        return self._dev.roiSize.tolist()
+
+    def doWriteRoisize(self, value):
+        self._dev.roiSize = value
+
+    def doReadZeropoint(self):
+        return self._dev.zeroPoint.tolist()
+
     def doReadArrays(self, quality):
         spectrum = None
         try:
-            spectrum = self._dev.Value
+            spectrum = self._dev.value
         except NicosError:
             # self._comment += 'CACHED'
             if self._read_cache is not None:
@@ -107,7 +143,7 @@ class DSPec(PyTangoDevice, Measurable):
         return [spectrum]
 
     def doRead(self, maxage=0):
-        return [self._dev.TrueTime, self._dev.LiveTime, self._dev.Value.sum()]
+        return [self._dev.TrueTime, self._dev.LiveTime, self._dev.value.sum()]
 
     def doReadPoll(self):
         return 0  # self._dev.PollTime[0]
