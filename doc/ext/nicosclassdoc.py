@@ -152,12 +152,15 @@ class NicosClassDocumenter(ClassDocumenter):
         self.add_line('**Attached devices**', '<autodoc>')
         self.add_line('', '<autodoc>')
         for adev, attach in sorted(attachedlist):
-            if (isinstance(attach.multiple, list) and attach.multiple[0] > 1) \
+            if (isinstance(attach.multiple, list) and attach.multiple) \
                or isinstance(attach.multiple, bool):
                 n = ''
                 if isinstance(attach.multiple, list):
                     if len(attach.multiple) > 1:
-                        n = '%d to %d ' % tuple(attach.multiple)
+                        n = ', '.join(['%d' % i for i in attach.multiple[:-1]])
+                        if len(attach.multiple) > 2:
+                            n += ','
+                        n += ' or %d ' % attach.multiple[-1]
                     else:
                         n = '%d ' % attach.multiple[0]
                 atype = 'a list of %s`~%s.%s`' % (
