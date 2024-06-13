@@ -351,7 +351,7 @@ class CSVSinkHandler(DataSinkHandler):
         addinfo['Beam'] = self._metainfo[self.detector.name,
                                          'enablevalues'][0][0]
 
-        for cond in ['LiveTime', 'TrueTime', 'ClockTime', 'counts']:
+        for cond in ['LiveTime', 'TrueTime', 'counts']:
             if cond in self.dataset.preset:
                 addinfo['cond'] = cond
                 addinfo['value'] = self.dataset.preset[cond]
