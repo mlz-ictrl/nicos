@@ -239,25 +239,19 @@ class ValueData(QStackedWidget):
         self.trueLive = TimeEditWidget(self)
         self.trueLive.setValue(1.0)
 
-        self.clockTime = QDateTimeEdit(QDateTime.currentDateTime(), self)
         self.counts = QSpinBox(self)
 
         self.widget_types = {
             'LiveTime': self.trueLive,
             'TrueTime': self.trueLive,
-            'ClockTime': self.clockTime,
             'counts': self.counts,
         }
 
         self.counts.setRange(0, 1000000000)
         self.counts.setSingleStep(50000)
 
-        # config QDateTime:
-        self.clockTime.setButtonSymbols(QAbstractSpinBox.NoButtons)
-
         # add widgets to Stack
         self.addWidget(self.trueLive)
-        self.addWidget(self.clockTime)
         self.addWidget(self.counts)
 
         # Init given current widget with data (time.. etc)
@@ -266,7 +260,6 @@ class ValueData(QStackedWidget):
         self.setValue(initState)
 
         self.trueLive.returnPressed.connect(self.on_returnPressed)
-        self.clockTime.editingFinished.connect(self.on_dt_changed)
         self.counts.valueChanged[str].connect(self.on_cts_changed)
         self.setMinimumWidth(90)
 
@@ -308,10 +301,6 @@ class ValueData(QStackedWidget):
     def on_returnPressed(self):
         value = self.trueLive.value()
         self.valueChanged[float].emit(value)
-
-    def on_dt_changed(self):
-        stamp = self.clockTime.dateTime().toMSecsSinceEpoch() / 1000.
-        self.valueChanged[float].emit(stamp)
 
     def on_cts_changed(self):
         cts = self.counts.value()
@@ -527,7 +516,7 @@ class ValueCell(CellItem):
 
 class CondCell(CellItem):
     standard_value = 'TrueTime'
-    conds = ('LiveTime', 'TrueTime', 'ClockTime', 'counts')
+    conds = ('LiveTime', 'TrueTime', 'counts')
 
     condChanged = pyqtSignal(str)
 

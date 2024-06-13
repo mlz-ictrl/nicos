@@ -92,8 +92,6 @@ class DSPec(GatedDetector):
                 yield 'TrueTime', dev, 'time'
             elif dev.name == 'livetim':
                 yield 'LiveTime', dev, 'time'
-            elif dev.name == 'clocktim':
-                yield 'ClockTime', dev, 'time'
         for dev in self._attached_images:
             yield 'counts', dev, 'counts'
 
@@ -104,8 +102,6 @@ class DSPec(GatedDetector):
                 pinfo = pinfo.union({'TrueTime'})
             elif dev.name == 'livetim':
                 pinfo = pinfo.union({'LiveTime'})
-            elif dev.name == 'clocktim':
-                pinfo = pinfo.union({'ClockTime'})
         if self._attached_images:
             pinfo = pinfo.union({'counts'})
         return pinfo

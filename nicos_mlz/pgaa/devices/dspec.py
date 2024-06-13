@@ -143,8 +143,7 @@ class DSPec(PyTangoDevice, Measurable):
         return False
 
     def presetInfo(self):
-        return {'info', 'Filename',
-                'TrueTime', 'LiveTime', 'ClockTime', 'counts'}
+        return {'info', 'Filename', 'TrueTime', 'LiveTime', 'counts'}
 
     def doSetPreset(self, **preset):
         self._clear()
@@ -179,8 +178,6 @@ class DSPec(PyTangoDevice, Measurable):
                     return
                 self._dev.SyncMode = 'LiveTime'
                 self._dev.SyncValue = preset['LiveTime']
-        elif 'ClockTime' in preset:
-            self._stop = preset['ClockTime']
         elif 'counts' in preset:
             pass
 
@@ -191,8 +188,6 @@ class DSPec(PyTangoDevice, Measurable):
             return preset['TrueTime']
         elif 'LiveTime' in preset:
             return preset['LiveTime']
-        elif 'ClockTime' in preset:
-            return abs(float(preset['ClockTime']) - currenttime())
         elif 'counts' in preset:
             return 1
         return None
@@ -203,8 +198,6 @@ class DSPec(PyTangoDevice, Measurable):
                 return self._lastpreset['TrueTime'] - elapsed
             elif 'LiveTime' in self._lastpreset:
                 return self._lastpreset['LiveTime'] - elapsed
-            elif 'ClockTime' in self._lastpreset:
-                return abs(float(self._lastpreset['ClockTime']) - currenttime())
         return None
 
     def doStart(self):
@@ -262,7 +255,7 @@ class DSPec(PyTangoDevice, Measurable):
         return None
 
     def doSimulate(self, preset):
-        for t in 'TrueTime', 'LiveTime', 'ClockTime':
+        for t in 'TrueTime', 'LiveTime':
             if t in preset:
                 return [preset[t], preset[t], 0]
         if 'counts' in preset:

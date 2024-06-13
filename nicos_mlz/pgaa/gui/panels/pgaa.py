@@ -802,7 +802,7 @@ class LogSource(QObject):
             info['Pressure'] = '%.3f mbar' % dataset.metainfo[
                 'chamber_pressure', 'value'][0]
             info['Filename'] = info.pop('FILENAME')
-            for cond in ['TrueTime', 'LiveTime', 'ClockTime', 'cond']:
+            for cond in ['TrueTime', 'LiveTime', 'cond']:
                 if cond in dataset.preset:
                     info['stop by'] = cond
                     info['at/after'] = dataset.preset[cond]
@@ -861,7 +861,7 @@ class Template(QObject):
                 # self.template.set_enabled(False)
                 self.viewer.setFocus()
                 e.accept()
-                return
+                # return
             # TODO: check what was the idea and how to implement it now
             # self._client.queuereq.emit(self.viewer)
 
