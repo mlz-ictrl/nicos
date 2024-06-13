@@ -447,9 +447,24 @@ class CSVDataSink(FileSink):
 
 class LiveViewSinkHandler(BaseLiveViewSinkHandler):
 
+    def getLabelArrays(self, result):
+        ds = self.dataset
+        detname = self.detector.name
+        slope = ds.metainfo.get((detname, 'ecalslope'), [0.178138])[0]
+        start = ds.metainfo.get((detname, 'ecalintercept'), [0.563822])[0]
+        steps = ds.metainfo.get((detname, 'size'), [[65535]])[0][0]
+        erange = np.linspace(start, start + slope * (steps - 1), steps)
+        self.log.debug('start: %s, end: %s', erange[0], erange[-1])
+        return [erange]
+
     def getLabelDescs(self, result):
         return {
-            'x': {'define': 'classic', 'title': 'channel'},
+            'x': {
+                'title': 'energy [keV]',
+                'define': 'array',
+                'dtype': 'float64',
+                'index': 0,
+            },
             'y': {'define': 'classic', 'title': 'counts'},
         }
 
