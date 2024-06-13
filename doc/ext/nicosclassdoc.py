@@ -157,7 +157,7 @@ class NicosClassDocumenter(ClassDocumenter):
                 n = ''
                 if isinstance(attach.multiple, list):
                     if len(attach.multiple) > 1:
-                        n = '%d to %d ' % attach.multiple
+                        n = '%d to %d ' % tuple(attach.multiple)
                     else:
                         n = '%d ' % attach.multiple[0]
                 atype = 'a list of %s`~%s.%s`' % (
