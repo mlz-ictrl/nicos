@@ -27,7 +27,8 @@ from nicos.devices.entangle import VectorInput
 
 
 class D8(Readable):
-    hardware_access = True
+
+    hardware_access = False
 
     register_mapping = {
         # (register index, bit number, bit_value): msg_txt
