@@ -4,11 +4,11 @@
 High voltage system
 -------------------
 
-.. module:: nicos_mlz.erwin.devices.charm
+.. module:: nicos_mlz.erwin.devices.charmhv
 .. autoclass:: HVSwitch()
 
 Radial Collimator
 -----------------
 
-.. module:: nicos_mlz.erwin.device.rc
+.. module:: nicos_mlz.erwin.devices.rc
 .. autoclass:: RadialCollimator()
