@@ -3,7 +3,7 @@
 main_window = docked(
    tabbed(
         ('PGAA',
-         panel('nicos_mlz.pgaa.gui.panels.PGAAPanel', setups='pgaa',)
+         panel('nicos_mlz.pgaa.gui.panels.PGAAPanel', setups='*pgaa',)
         ),
         ('Tomography',
          panel('nicos_mlz.pgaa.gui.panels.TomographyPanel', setups='tomo',),
