@@ -61,8 +61,9 @@ class RadialCollimator(Moveable):
         if target == 'off':
             self._attached_motor.stop()
         else:
-            minfreq, maxfreq = (float(self._getProperty('minspeed')) / 360,
-                                float(self._getProperty('maxspeed')) / 360)
+            minfreq, maxfreq = (
+                float(self._attached_motor._getProperty('minspeed')) / 360,
+                float(self._attached_motor._getProperty('maxspeed')) / 360)
             try:
                 floatrange(minfreq, maxfreq)(self.frequency)
             except ValueError as err:
