@@ -49,7 +49,8 @@ class ComponentTable(Device):
         'additional_devices': Param('additional devices attached '
                                     'to the table', type=listof(nicosdev),
                                     default=[], settable=True,
-                                    userparam=False), }
+                                    userparam=False),
+    }
 
     hardware_access = False
 
@@ -68,7 +69,7 @@ class ComponentTable(Device):
                 tmp.append(name)
                 self.setups = tmp
                 return
-        if not isinstance(name, Device) and\
+        if not isinstance(name, Device) and \
            name.name not in session.configured_devices:
             raise ValueError('device %s is not available' % name)
         if name not in self.additional_devices:
