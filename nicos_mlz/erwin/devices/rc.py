@@ -48,7 +48,7 @@ class RadialCollimator(Moveable):
     }
 
     def doStatus(self, maxage=0):
-        st, msg = self._attached_motor.status()
+        st, msg = self._attached_motor.status(maxage)
         if st in [status.OK, status.BUSY]:
             return status.OK, msg
         return status.ERROR, msg
