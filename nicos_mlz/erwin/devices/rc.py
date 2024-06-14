@@ -70,7 +70,7 @@ class RadialCollimator(Moveable):
                     self, '%r is an invalid value for parameter %s: %s' % (
                         self.frequency, 'frequency', err)) from err
             speed = 360 * self.frequency
-            self._attached_motor.dev.MoveCont(speed)
+            self._attached_motor._dev.MoveCont(speed)
 
     def doReadUnit(self):
         return ''
