@@ -771,7 +771,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     parameters = {
         'size': Param('Detector size in pixels (x, y)',
                       settable=False,
-                      type=tupleof(intrange(1, 1024), intrange(1, 1024)),
+                      type=tupleof(intrange(1, 2048), intrange(1, 2048)),
                       default=(128, 128)),
         'background': Param('Background level, use 0 to switch off',
                             settable=True, type=int, default=10),
