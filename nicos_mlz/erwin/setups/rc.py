@@ -10,5 +10,6 @@ devices = dict(
     rc_motor = device('nicos.devices.entangle.Motor',
         description = 'Radial collimator motor',
         tangodevice = 'tango://motorbox02.erwin.frm2.tum.de:10000/box/channel7/motor',
+        visibility = (),
     ),
 )
