@@ -173,7 +173,7 @@ class TimeEditWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setLayout(QHBoxLayout())
-        self.layout().setContentsMargins(0.1, 0.1, 0.1, 0.1)
+        self.layout().setContentsMargins(1, 1, 1, 1)
         self.layout().setSpacing(1)
         self.val = QLineEdit()
         self.val.setValidator(QDoubleValidator(0, 1000000, 2))
@@ -325,7 +325,7 @@ class CellItem(QWidget):
 
         # setting up layout:
         layout = QHBoxLayout()
-        layout.setContentsMargins(0.1, 0.1, 0.1, 0.1)
+        layout.setContentsMargins(1, 1, 1, 1)
         layout.setSpacing(1)
         self.setLayout(layout)
 
