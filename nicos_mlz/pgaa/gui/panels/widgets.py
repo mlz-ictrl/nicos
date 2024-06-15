@@ -486,7 +486,7 @@ class ValueCell(CellItem):
     standard_value = 1
     units = ('s', 'm', 'h', 'd')
 
-    def __init__(self, controller, parent, state=None):
+    def __init__(self, controller, parent=None, state=None):
         CellItem.__init__(self, controller, parent, state)
         condition = CondCell.standard_value
         self.vd = ValueData(self, condition, self.state)
