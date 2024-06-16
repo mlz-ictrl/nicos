@@ -346,10 +346,10 @@ class CellItem(QWidget):
             self.layout().addWidget(w)
 
     def setValue(self, val):
-        self.label.setText('%s' % val)
+        raise NotImplementedError("A subclass has to implement 'setValue'")
 
     def value(self):
-        return self.label.text()
+        return
 
     def disable(self):
         for w in self.widgets:
