@@ -28,11 +28,10 @@ from os import path
 
 from nicos.core.status import BUSY
 from nicos.guisupport.led import ClickableOutputLed
-from nicos.guisupport.qt import QAbstractButton, QAbstractSpinBox, QCheckBox, \
-    QComboBox, QCursor, QDateTime, QDateTimeEdit, QDoubleValidator, \
-    QHBoxLayout, QIntValidator, QLabel, QLCDNumber, QLineEdit, QPainter, \
-    QPixmap, QSlider, QSpinBox, QStackedWidget, Qt, QToolTip, QWidget, \
-    pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QAbstractButton, QCheckBox, QComboBox, \
+    QCursor, QDoubleValidator, QHBoxLayout, QIntValidator, QLabel, \
+    QLCDNumber, QLineEdit, QPainter, QPixmap, QSlider, QSpinBox, \
+    QStackedWidget, Qt, QToolTip, QWidget, pyqtSignal, pyqtSlot
 from nicos.guisupport.widget import NicosListener, NicosWidget
 
 widgetpath = path.dirname(__file__)
@@ -278,10 +277,6 @@ class ValueData(QStackedWidget):
         w = self.currentWidget()
         if isinstance(w, TimeEditWidget):
             w.setValue(new_data)
-        elif isinstance(w, QDateTimeEdit):
-            dt = QDateTime()
-            dt.setMSecsSinceEpoch(float(new_data) * 1000)
-            w.setDateTime(dt)
         elif isinstance(w, QSpinBox):
             w.setValue(int(new_data))
         self.current = new_data
@@ -293,8 +288,6 @@ class ValueData(QStackedWidget):
             w = self.currentWidget()
         if isinstance(w, TimeEditWidget):
             return float(w.value())
-        elif isinstance(w, QDateTimeEdit):
-            return float(w.dateTime().toMSecsSinceEpoch() / 1000.)
         elif isinstance(w, QSpinBox):
             return w.value()
 
@@ -555,42 +548,30 @@ class StatusCell(CellItem):
         self.set_layout()
         self.setMinimumWidth(20)
 
+    def setValue(self, val):
+        self.label.setText('%s' % val)
+
+    def value(self):
+        return self.label.text()
+
 
 class StartCell(CellItem):
+
     standard_value = [int(time.time()), 0]
 
     def __init__(self, controller, parent=None, state=None):
         CellItem.__init__(self, controller, parent, state)
-        if not state:
+        if state is None:
             state = self.standard_value
-        # widgets = QStackedWidget(self)
-
-        self.date_widget = QDateTimeEdit(self)
-        self.date_widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
-
-        # widgets.addWidget(self.date_widget)
-        # self.delay_widget = QLabel('after %s seconds' %self.state[1])
-        # widgets.addWidget(self.delay_widget)
-        self.widgets.append(self.date_widget)
-        # if self.state[0] > 0:
-        #     self.widgets[0].setCurrentWidget(self.date_widget)
-        # else:
-        #     self.widgets[0].setCurrentWidget(self.delay_widget)
-
-        self.date_widget.editingFinished.connect(self.on_dt_changed)
         self.set_layout()
         self.setValue(state)
 
     def setValue(self, val):
         self.state[0] = int(float(val[0]))
         self.state[1] = int(float(val[1]))
-        dt = QDateTime()
-        dt.setMSecsSinceEpoch(self.state[0] * 1000)
-        self.date_widget.setDateTime(dt)
 
     def value(self):
-        dt = int(self.date_widget.dateTime().toMSecsSinceEpoch() / 1000.)
-        return '[%s,%s]' % (dt, self.state[1])
+        return '[%s,%s]' % (int(time.time()), self.state[1])
 
     # def mousePressEvent(self, e):
     #    if e.button() == Qt.MouseButton.RightButton:
@@ -603,9 +584,6 @@ class StartCell(CellItem):
     #            self.get_update(self.date_widget,now)
     #    else:
     #        CellItem.mousePressEvent(self, e)
-
-    def on_dt_changed(self):
-        self.cellChanged.emit(self)
 
 
 class NameCommentCell(CellItem):
