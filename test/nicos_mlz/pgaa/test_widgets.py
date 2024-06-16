@@ -28,9 +28,12 @@ import pytest
 pytest.importorskip('pytestqt')
 pytest.importorskip('OpenGL')
 
-from nicos_mlz.pgaa.gui.panels.widgets import AttCell, BeamCell, CondCell, \
-    DetectorCell, ElColCell, NameCommentCell, PosCell, StartCell, StatusCell, \
-    TimeEditWidget, ValueCell
+from nicos_mlz.pgaa.gui.panels.widgets import AttCell, BeamCell, CellItem, \
+    CondCell, CustomCombo, CustomLED, DetectorCell, ElColCell, Led, \
+    NameCommentCell, PosCell, StartCell, StatusCell, TimeEditWidget, \
+    ValueCell, ValueData
+
+from test.utils import raises
 
 
 class TestWidgets:
@@ -59,6 +62,23 @@ class TestWidgets:
         widget.setValue('closed')
         assert widget.value() == 'closed'
 
+        assert widget.is_enabled()
+        widget.disable()
+        assert not widget.is_enabled()
+        widget.set_enabled(True)
+        assert widget.is_enabled()
+
+    def test_cellitem(self, qtbot):
+        widget = CellItem(None)
+        qtbot.addWidget(widget)
+        widget.show()
+
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.value() is None
+        assert raises(NotImplementedError, widget.setValue, None)
+
     def test_condcell(self, qtbot):
         widget = CondCell(None, state='TrueTime')
         qtbot.addWidget(widget)
@@ -70,6 +90,22 @@ class TestWidgets:
         assert widget.value() == 'TrueTime'
         widget.setValue('LiveTime')
         assert widget.value() == 'LiveTime'
+
+    def test_customcombo(self, qtbot):
+        widget = CustomCombo(None, [], -1)
+        qtbot.addWidget(widget)
+        widget.show()
+
+        with qtbot.waitExposed(widget):
+            pass
+
+    def test_customled(self, qtbot):
+        widget = CustomLED(None)
+        qtbot.addWidget(widget)
+        widget.show()
+
+        with qtbot.waitExposed(widget):
+            pass
 
     def test_detectorcell(self, qtbot):
         widget = DetectorCell(None, state=[])
@@ -95,6 +131,14 @@ class TestWidgets:
         assert widget.value() == 'Col'
         widget.setValue('Ell')
         assert widget.value() == 'Ell'
+
+    def test_led(self, qtbot):
+        widget = Led(None, '1', '0', None)
+        qtbot.addWidget(widget)
+        widget.show()
+
+        with qtbot.waitExposed(widget):
+            pass
 
     def test_namecommentcell(self, qtbot):
         widget = NameCommentCell(None)
@@ -157,3 +201,11 @@ class TestWidgets:
         assert widget.value() == 1.
         widget.setValue(2)
         assert widget.value() == 2.
+
+    def test_valuedata(self, qtbot):
+        widget = ValueData(None, 'TrueTime', 1)
+        qtbot.addWidget(widget)
+        widget.show()
+
+        with qtbot.waitExposed(widget):
+            pass
