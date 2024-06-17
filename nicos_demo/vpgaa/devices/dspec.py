@@ -22,7 +22,8 @@
 # *****************************************************************************
 """Classes to simulate the DSpec detector."""
 
-from nicos.core import ArrayDesc, Override, Param, intrange, status, tupleof
+from nicos.core import ArrayDesc, Override, Param, intrange, nonemptylistof, \
+    status, tupleof
 from nicos.devices.generic.detector import GatedDetector
 from nicos.devices.generic.virtual import VirtualImage
 
@@ -35,8 +36,8 @@ class Spectrum(VirtualImage):
     }
 
     parameter_overrides = {
-        'size': Override(type=tupleof(intrange(1, 1), intrange(1, 65535)),
-                         default=(1, 65535)),
+        'size': Override(type=tupleof(intrange(1, 65535), intrange(1, 1)),
+                         default=(65535, 1)),
         'iscontroller': Override(settable=True),
     }
 
@@ -44,7 +45,7 @@ class Spectrum(VirtualImage):
     is_timer = False
 
     def doInit(self, mode):
-        self.arraydesc = ArrayDesc(self.name, self.size[::-2], '<u4')
+        self.arraydesc = ArrayDesc(self.name, self.size, '<u4')
 
     def doEstimateTime(self, elapsed):
         if not self.iscontroller or self.doStatus()[0] != status.BUSY:
@@ -60,28 +61,32 @@ class Spectrum(VirtualImage):
 
     def doReadArray(self, _quality):
         if self._buf is not None:
-            return self._buf[0]
+            return self._buf.reshape(self.size[0])
         return self._buf
+
+    def arrayInfo(self):
+        return (self.arraydesc, )
 
 
 class DSPec(GatedDetector):
 
     parameters = {
+        'size': Param('Full detector size', type=nonemptylistof(int),
+                      settable=False, mandatory=False, volatile=True,
+                      category='instrument'),
         'prefix': Param('prefix for filesaving',
                         type=str, settable=False, mandatory=True,
                         category='general'),
         'ecalslope': Param('Energy Calibration Slope',
-                           type=int, mandatory=False, settable=True,
-                           prefercache=True, default=0.178138,
-                           category='general'),
+                           type=float, mandatory=False, settable=True,
+                           default=0.178138, category='general'),
         'ecalintercept': Param('Energy Calibration Intercept',
-                               type=int, mandatory=False, settable=True,
-                               prefercache=True, default=0.563822,
-                               category='general'),
+                               type=float, mandatory=False, settable=True,
+                               default=0.563822, category='general'),
     }
 
     parameter_overrides = {
-        'enablevalues':  Override(settable=True, category='general'),
+        'enablevalues': Override(settable=True, category='general'),
     }
 
     def _presetiter(self):
@@ -105,3 +110,6 @@ class DSPec(GatedDetector):
         if self._attached_images:
             pinfo = pinfo.union({'counts'})
         return pinfo
+
+    def doReadSize(self):
+        return [self._attached_images[0].size[0]]
