@@ -28,10 +28,12 @@ import pytest
 pytest.importorskip('pytestqt')
 pytest.importorskip('OpenGL')
 
+from nicos.guisupport.qt import QPixmap
+
 from nicos_mlz.pgaa.gui.panels.widgets import AttCell, BeamCell, CellItem, \
     CondCell, CustomCombo, CustomLED, DetectorCell, ElColCell, Led, \
-    NameCommentCell, PosCell, StartCell, StatusCell, TimeEditWidget, \
-    ValueCell, ValueData
+    NameCommentCell, PicButton, PosCell, StartCell, StatusCell, \
+    TimeEditWidget, ValueCell, ValueData
 
 from test.utils import raises
 
@@ -152,6 +154,18 @@ class TestWidgets:
         widget.setValue('test')
         assert widget.value() == 'test'
 
+    def test_picbutton(self, qtbot):
+        pixmap1 = QPixmap(100, 100)
+        pixmap1.fill()
+        pixmap2 = QPixmap(100, 100)
+        pixmap2.fill()
+        widget = PicButton(pixmap1, pixmap2)
+        qtbot.addWidget(widget)
+        widget.show()
+
+        with qtbot.waitExposed(widget):
+            pass
+
     def test_poscell(self, qtbot):
         widget = PosCell(None, state=1)
         qtbot.addWidget(widget)
@@ -189,6 +203,24 @@ class TestWidgets:
 
         with qtbot.waitExposed(widget):
             pass
+
+        # units = ('s', 'm', 'h', 'd')
+        assert widget.value() == 1
+        widget.setValue(86400)
+        assert widget.value() == 86400
+        assert widget.val.text() == '86400.00'
+
+        widget.unit.setCurrentIndex(3)
+        assert widget.value() == 86400
+        assert widget.val.text() == '1.0'
+
+        widget.unit.setCurrentIndex(2)
+        assert widget.value() == 86400
+        assert widget.val.text() == '24.0'
+
+        widget.unit.setCurrentIndex(1)
+        assert widget.value() == 86400
+        assert widget.val.text() == '1440.0'
 
     def test_valuecell(self, qtbot):
         widget = ValueCell(None)
