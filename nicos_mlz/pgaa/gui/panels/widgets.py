@@ -194,6 +194,7 @@ class TimeEditWidget(QWidget):
             val *= 3600.
         elif current_unit_index == 3:  # days
             val *= 86400.
+        self.currentUnit = current_unit_index
         return int(val)
 
     def setValue(self, val):
