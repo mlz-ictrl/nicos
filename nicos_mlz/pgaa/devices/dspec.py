@@ -106,7 +106,7 @@ class DSPec(PyTangoDevice, Measurable):
     def doReadSize(self):
         if self._mode != SIMULATION:
             return self._dev.detectorSize.tolist()
-        return 16384
+        return [16384]
 
     def doReadBinning(self):
         return [1]
