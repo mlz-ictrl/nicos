@@ -69,7 +69,7 @@ class SANSPanel(Panel):
     def on_client_cache(self, data):
         _time, key, _op, value = data
         if key == 'exp/action':
-            self.curstatus.setText(cache_load(value) or 'Idle')
+            self.curstatus.setText(cache_load(value or "'Idle'"))
 
     @pyqtSlot()
     def on_start_clicked(self):

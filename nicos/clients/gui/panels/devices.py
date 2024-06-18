@@ -638,7 +638,7 @@ class DevicesPanel(Panel):
         if subkey in self.param_display.get(ldevname, ()):
             if not devinfo.params:
                 devinfo.params = self.client.getDeviceParamInfo(devinfo.name)
-            value = devinfo.fmtParam(subkey, cache_load(value))
+            value = devinfo.fmtParam(subkey, cache_load(value or "''"))
             if subkey not in self._devparamitems.setdefault(ldevname, {}):
                 devitem = self._devitems[ldevname]
                 self._devparamitems[ldevname][subkey] = \
