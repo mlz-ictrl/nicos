@@ -64,28 +64,17 @@ devices = dict(
 #        visibility = (),
 #        jitter = 1,
 #    ),
-#    att_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+#    att_m = device('nicos.devices.entangle.Motor',
 #        description = 'Attenuator motor',
-#        # IP-adresse: 172.25.49.107
-#        tangodevice = tango_base + 'col-ng_pol/modbus',
-#        address = 0x4020+0*10,
-#        slope = 200*4, # FULL steps per turn * turns per mm
-#        microsteps = 8,
+#        tangodevice = tango_base + 'col-1/att_mot',
 #        unit = 'mm',
-#        refpos = 10.92,
 #        abslimits = (-400, 600),
 #        visibility = (),
 #        precision = 0.0025,
-#        autozero = None, # no auto referencing with an axis !!!
-#        #autozero = 80,
 #    ),
-#    att_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+#    att_c = device('nicos.devices.entangle.Sensor',
 #        description = 'Attenuator coder',
-#        # IP-adresse: 172.25.49.107
-#        tangodevice = tango_base + 'col-ng_pol/modbus',
-#        address = 0x40c8,
-#        slope = 1000000, # resolution = nm, we want mm
-#        zeropos = -13.191 + 26.5861880569,
+#        tangodevice = tango_base + 'col-1/att_enc',
 #        unit = 'mm',
 #        visibility = (),
 #    ),
@@ -107,39 +96,26 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    ng_pol_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    ng_pol_m = device('nicos.devices.entangle.Motor',
         description = 'Neutronguide polariser motor',
-        # IP-adresse: 172.25.49.107
-        tangodevice = tango_base + 'col-ng_pol/modbus',
-        address = 0x4020+1*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-1/ng_pol_mot',
         unit = 'mm',
-        refpos = -4.5,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    ng_pol_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    ng_pol_c = device('nicos.devices.entangle.Sensor',
         description = 'Neutronguide polariser coder',
-        # IP-adresse: 172.25.49.107
-        tangodevice = tango_base + 'col-ng_pol/modbus',
-        address = 0x40cd,
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = -13.191 + 26.5861880569,
+        tangodevice = tango_base + 'col-1/ng_pol_enc',
         unit = 'mm',
         visibility = (),
     ),
-#-------------------------------------------------------------------------------
-#    ng_pol_c_test = device('nicos.devices.entangle.Sensor',
-#        description = 'NG Pol coder test device',
-#        # IP-adresse: 172.25.49.114
-#        tangodevice = tango_base + '3m_test/plc_encoder1',
-#        unit = 'mm',
-#        visibility = (),
-#    ),
-#-------------------------------------------------------------------------------
+    laser = device('nicos.devices.entangle.NamedDigitalOutput',
+        description = 'laser, used for visually checking the alignment',
+        tangodevice = tango_base + 'col-1/laser',
+        visibility = (),
+    ),
+
     col_20 = device('nicos_mlz.sans1.devices.collimotor.Switcher',
         description = 'Collimotor 20',
         mapping = dict(ng=1.003, col=117, free1=234, las=351),
@@ -158,27 +134,17 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_20_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_20_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 20 motor',
-        # IP-adresse: 172.25.49.108
-        tangodevice = tango_base + 'col-20m/modbus',
-        address = 0x4020+0*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-2/col20_mot',
         unit = 'mm',
-        refpos = -5.39,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_20_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_20_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 20 coder',
-        # IP-adresse: 172.25.49.108
-        tangodevice = tango_base + 'col-20m/modbus',
-        address = 0x40c8,  # docu page 9
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 12.8533378965, # unspecified in docu page 9
+        tangodevice = tango_base + 'col-2/col20_enc',
         unit = 'mm',
         visibility = (),
     ),
@@ -201,27 +167,17 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_18_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_18_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 18',
-        # IP-adresse: 172.25.49.108
-        tangodevice = tango_base + 'col-20m/modbus',
-        address = 0x4020+1*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-2/col18_mot',
         unit = 'mm',
-        refpos = -5.28,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_18_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_18_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 18 coder',
-        # IP-adresse: 172.25.49.108
-        tangodevice = tango_base + 'col-20m/modbus',
-        address = 0x40cd,  # docu page 10
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 13.899101438, # unspecified in docu page 10
+        tangodevice = tango_base + 'col-2/col18_enc',
         unit = 'mm',
         visibility = (),
     ),
@@ -244,27 +200,17 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_16_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_16_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 16 motor',
-        # IP-adresse: 172.25.49.111
-        tangodevice = tango_base + 'col-16m/modbus',
-        address = 0x4020+1*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-3/col16_mot',
         unit = 'mm',
-        refpos = -4.29,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_16_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_16_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 16 coder',
-        # IP-adresse: 172.25.49.111
-        tangodevice = tango_base + 'col-16m/modbus',
-        address = 0x40c8,  # docu page 12
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 17.8761710467, # unspecified in docu page 12
+        tangodevice = tango_base + 'col-3/col16_enc',
         unit = 'mm',
         visibility = (),
     ),
@@ -277,19 +223,13 @@ devices = dict(
         pollinterval = 15,
         maxage = 60,
     ),
-    bg1_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    bg1_m = device('nicos.devices.entangle.Motor',
         description = 'Background slit1 motor',
-        # IP-adresse: 172.25.49.111
-        tangodevice = tango_base + 'col-16m/modbus',
-        address = 0x4020+0*10,
-        slope = 200*0.16, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-3/bg1_mot',
         unit = 'deg',
-        refpos = -28.85,
         abslimits = (-40, 300),
         visibility = (),
         precision = 0.05,
-        autozero = 400,
     ),
     col_14 = device('nicos_mlz.sans1.devices.collimotor.Switcher',
         description = 'Collimotor 14',
@@ -310,30 +250,21 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_14_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_14_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 14 motor',
-        # IP-adresse: 172.25.49.111
-        tangodevice = tango_base + 'col-16m/modbus',
-        address = 0x4020+2*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-3/col14_mot',
         unit = 'mm',
-        refpos = -2.31,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_14_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_14_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 14 coder',
-        # IP-adresse: 172.25.49.111
-        tangodevice = tango_base + 'col-16m/modbus',
-        address = 0x40cd,  # docu page 13
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 17.2842048903, # unspecified in docu page 13
+        tangodevice = tango_base + 'col-3/col14_enc',
         unit = 'mm',
         visibility = (),
     ),
+
     col_12 = device('nicos_mlz.sans1.devices.collimotor.Switcher',
         description = 'Collimotor 12',
         mapping = dict(ng=1.310, col=117, free1=234, free2=351),
@@ -353,27 +284,17 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_12_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_12_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 12 motor',
-        # IP-adresse: 172.25.49.112
-        tangodevice = tango_base + 'col-12m/modbus',
-        address = 0x4020+0*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-4/col12_mot',
         unit = 'mm',
-        refpos = -1.7,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_12_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_12_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 12 coder',
-        # IP-adresse: 172.25.49.112
-        tangodevice = tango_base + 'col-12m/modbus',
-        address = 0x40c8,  # docu page 14
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 17.1303596823, # unspecified in docu page 14
+        tangodevice = tango_base + 'col-4/col12_enc',
         unit = 'mm',
         visibility = (),
     ),
@@ -396,30 +317,21 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_10_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_10_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 10 motor',
-        # IP-adresse: 172.25.49.112
-        tangodevice = tango_base + 'col-12m/modbus',
-        address = 0x4020+1*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-4/col10_mot',
         unit = 'mm',
-        refpos = -5.14, #needs to be checked by O. Frank !!!
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_10_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_10_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 10 coder',
-        # IP-adresse: 172.25.49.112
-        tangodevice = tango_base + 'col-12m/modbus',
-        address = 0x40cd,  # docu page 15
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 17.2115868978, # unspecified in docu page 15
+        tangodevice = tango_base + 'col-4/col10_enc',
         unit = 'mm',
         visibility = (),
     ),
+
     col_8 = device('nicos_mlz.sans1.devices.collimotor.Switcher',
         description = 'Collimotor 8',
         mapping = dict(ng=1.679, col=117, free1=234, free2=351),
@@ -439,27 +351,17 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_8_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_8_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 8 motor',
-        # IP-adresse: 172.25.49.113
-        tangodevice = tango_base + 'col-8m/modbus',
-        address = 0x4020+1*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-5/col8_mot',
         unit = 'mm',
-        refpos = -3.88,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_8_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_8_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 8 coder',
-        # IP-adresse: 172.25.49.113
-        tangodevice = tango_base + 'col-8m/modbus',
-        address = 0x40c8,  # docu page 17
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 17.0752135418, # unspecified in docu page 17
+        tangodevice = tango_base + 'col-5/col8_enc',
         unit = 'mm',
         visibility = (),
     ),
@@ -482,27 +384,17 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_6_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_6_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 6 motor',
-        # IP-adresse: 172.25.49.113
-        tangodevice = tango_base + 'col-8m/modbus',
-        address = 0x4020+2*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-5/col6_mot',
         unit = 'mm',
-        refpos = -4.13,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_6_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_6_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 6 coder',
-        # IP-adresse: 172.25.49.113
-        tangodevice = tango_base + 'col-8m/modbus',
-        address = 0x40cd,  # docu page 18
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 15.859918895, # unspecified in docu page 18
+        tangodevice = tango_base + 'col-5/col6_enc',
         unit = 'mm',
         visibility = (),
     ),
@@ -515,20 +407,15 @@ devices = dict(
         pollinterval = 15,
         maxage = 60,
     ),
-    bg2_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    bg2_m = device('nicos.devices.entangle.Motor',
         description = 'Background slit2 motor',
-        # IP-adresse: 172.25.49.113
-        tangodevice = tango_base + 'col-8m/modbus',
-        address = 0x4020+0*10,
-        slope = 200*0.16, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-5/bg2_mot',
         unit = 'deg',
-        refpos = -1.5,
         abslimits = (-40, 300),
         visibility = (),
         precision = 0.05,
-        autozero = 400,
     ),
+
     col_4 = device('nicos_mlz.sans1.devices.collimotor.Switcher',
         description = 'Collimotor 4',
         mapping = dict(ng=0.985, col=117, free1=234, free2=351),
@@ -548,27 +435,17 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_4_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_4_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 4 motor',
-        # IP-adresse: 172.25.49.114 neu
-        tangodevice = tango_base + 'col-4m/modbus',
-        address = 0x4020+1*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-6/col4_mot',
         unit = 'mm',
-        refpos = -9.37,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_4_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_4_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 4 coder',
-        # IP-adresse: 172.25.49.114
-        tangodevice = tango_base + 'col-4m/modbus',
-        address = 0x40cd,  # docu page 19
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 17.5324112754, # unspecified in docu page 20
+        tangodevice = tango_base + 'col-6/col4_enc',
         unit = 'mm',
         visibility = (),
     ),
@@ -585,36 +462,31 @@ devices = dict(
     col_3_a = device('nicos.devices.generic.Axis',
         description = 'Collimotor 3',
         motor = 'col_3_m',
-        # coder = 'col_3_m',
+        coder = 'col_3_c',
         dragerror = 17,
         precision = 0.05,
         visibility = (),
         jitter = 1,
     ),
-    col_3_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_3_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 3 motor',
-        # IP-adresse: 172.25.49.114
-        tangodevice = tango_base + 'col-4m/modbus',
-        address = 0x4020+2*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-6/col3_mot',
         unit = 'mm',
-        refpos = -9.35,
         abslimits = (-400, 600),
-        autozero = 100, # auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-#    col_3_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
-#        description = 'Collimotor 3 coder',
-#        # IP-adresse: 172.25.49.114
-#        tangodevice = tango_base + 'col-4m/modbus',
-#        address = 0x40c8,  # docu page 20
-#        slope = 1000000, # resolution = nm, we want mm
-#        zeropos = 18.6575767247, # unspecified in docu page 19
-#        unit = 'mm',
-#        visibility = (),
-#    ),
+    col_3_c = device('nicos.devices.entangle.Sensor',
+        description = 'Collimotor 3 coder',
+        tangodevice = tango_base + 'col-6/col3_enc',
+        unit = 'mm',
+        visibility = (),
+    ),
+    vacuum_shutter = device('nicos.devices.entangle.NamedDigitalOutput',
+        description = 'vacuum shutter, typically operated via push button',
+        tangodevice = tango_base + 'col-6/shutter',
+        visibility = (),
+    ),
 
     col_2 = device('nicos_mlz.sans1.devices.collimotor.Switcher',
         description = 'Collimotor 2',
@@ -635,31 +507,53 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    col_2_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    col_2_m = device('nicos.devices.entangle.Motor',
         description = 'Collimotor 2 motor',
-        # IP-adresse: 172.25.49.115
-        tangodevice = tango_base + 'col-2m/modbus',
-        address = 0x4020+1*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-7/col2_mot',
         unit = 'mm',
-        refpos = -8.,
         abslimits = (-400, 600),
-        autopower = 'on',
-        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         visibility = (),
     ),
-    col_2_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    col_2_c = device('nicos.devices.entangle.Sensor',
         description = 'Collimotor 2 coder',
-        # IP-adresse: 172.25.49.115
-        tangodevice = tango_base + 'col-2m/modbus',
-        address = 0x40c8,  # docu page 22
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 17.7929853926, # unspecified in docu page 22
+        tangodevice = tango_base + 'col-7/col2_enc',
         unit = 'mm',
         visibility = (),
     ),
+#    col_1 = device('nicos_mlz.sans1.devices.collimotor.Switcher',
+#        description = 'Collimotor 1',
+#        mapping = dict(ng=1, col=117, free1=234, free2=351),
+#        moveable = 'col_1_a',
+#        blockingmove = False,
+#        pollinterval = 15,
+#        maxage = 60,
+#        visibility = (),
+#        precision = 0.05,
+#    ),
+#    col_1_a = device('nicos.devices.generic.Axis',
+#        description = 'Collimotor 1',
+#        motor = 'col_1_m',
+#        coder = 'col_1_c',
+#        dragerror = 1,
+#        precision = 0.05,
+#        visibility = (),
+#        jitter = 1,
+#    ),
+#    col_1_m = device('nicos.devices.entangle.Motor',
+#        description = 'Collimotor 1 motor',
+#        tangodevice = tango_base + 'col-7/col1_mot',
+#        unit = 'mm',
+#        abslimits = (-400, 600),
+#        precision = 0.0025,
+#        visibility = (),
+#    ),
+#    col_1_c = device('nicos.devices.entangle.Sensor',
+#        description = 'Collimotor 1 coder',
+#        tangodevice = tango_base + 'col-7/col1_enc',
+#        unit = 'mm',
+#        visibility = (),
+#    ),
     sa1 = device('nicos_mlz.sans1.devices.collimotor.Switcher',
         description = 'attenuation slits',
         mapping = {'29mm': 0, '19mm': 70, '9mm': 140},
@@ -668,18 +562,12 @@ devices = dict(
         pollinterval = 15,
         maxage = 60,
     ),
-    sa1_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    sa1_m = device('nicos.devices.entangle.Motor',
         description = 'attenuation slits motor',
-        # IP-adresse: 172.25.49.115
-        tangodevice = tango_base + 'col-2m/modbus',
-        address = 0x4020+0*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'col-7/sa1_mot',
         unit = 'mm',
-        refpos = -34.7,
         abslimits = (-40, 300),
         visibility = (),
-        autozero = 400,
     ),
 )
 

@@ -8,7 +8,7 @@ description = 'attenuator'
 group = 'lowlevel'
 
 # IP-adresse: 172.25.49.107
-tango_base = 'tango://hw.sans1.frm2.tum.de:10000/col/col-ng_pol/'
+tango_base = 'tango://hw.sans1.frm2.tum.de:10000/col/col-1/'
 
 devices = dict(
     att = device('nicos_mlz.sans1.devices.collimotor.Switcher',
@@ -30,28 +30,18 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    att_m = device('nicos_mlz.sans1.devices.collimotor.Motor',
+    att_m = device('nicos.devices.entangle.Motor',
         description = 'Attenuator motor',
-        tangodevice = tango_base + 'modbus',
-        address = 0x4020+0*10,
-        slope = 200*4, # FULL steps per turn * turns per mm
-        microsteps = 8,
+        tangodevice = tango_base + 'att_mot',
         unit = 'mm',
-        refpos = 10.92,
         abslimits = (-400, 600),
         visibility = (),
         precision = 0.0025,
-        autozero = None, # no auto referencing with an axis !!!
-        #autozero = 80,
     ),
-    att_c = device('nicos_mlz.sans1.devices.collimotor.Coder',
+    att_c = device('nicos.devices.entangle.Sensor',
         description = 'Attenuator coder',
-        tangodevice = tango_base + 'modbus',
-        address = 0x40c8,
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = -13.191 + 26.5861880569,
+        tangodevice = tango_base + 'att_enc',
         unit = 'mm',
         visibility = (),
     ),
-
 )
