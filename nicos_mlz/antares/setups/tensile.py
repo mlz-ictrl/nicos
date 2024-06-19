@@ -2,41 +2,24 @@ description = 'Tensile machine'
 
 group = 'optional'
 
-nameservice = 'antaresctrl.antares.frm2.tum.de'
+tango_base = 'tango://doli:10000/test/doli/'
 
 devices = dict(
-    teload = device('nicos.devices.vendor.caress.Motor',
+    teload = device('nicos.devices.entangle.Actuator',
         description = 'load value of the tensile machine',
-        nameserver = '%s' % (nameservice,),
-        config = 'TELOAD 500 TensileLoad.ControllableDevice',
-        absdev = False,
-        abslimits = (-50000, 50000),
-        unit = 'N',
-        fmtstr = '%.2f',
-        toolpath = '/control/bin',
-        caresspath = '/control/bin',
+        tangodevice = tango_base + 'force',
+        precision = 2,
+        fmtstr = '%.1f',
     ),
-    tepos = device('nicos.devices.vendor.caress.Motor',
+    tepos = device('nicos.devices.entangle.Sensor',
         description = 'position value of the tensile machine',
-        nameserver = '%s' % (nameservice,),
-        config = 'TEPOS 500 TensilePos.ControllableDevice',
-        absdev = False,
-        abslimits = (0, 70),
-        unit = 'mm',
-        fmtstr = '%.3f',
-        toolpath = '/control/bin',
-        caresspath = '/control/bin',
+        tangodevice = tango_base + 'position',
+        fmtstr = '%.4f',
     ),
-    teext = device('nicos.devices.vendor.caress.Motor',
+    teext = device('nicos.devices.entangle.Sensor',
         description = 'extension value of the tensile machine',
-        nameserver = '%s' % (nameservice,),
-        config = 'TEEXT 500 TensileExt.ControllableDevice',
-        absdev = False,
-        abslimits = (-3000, 3000),
-        unit = 'um',
+        tangodevice = tango_base + 'extension',
         fmtstr = '%.3f',
-        toolpath = '/control/bin',
-        caresspath = '/control/bin',
     ),
 )
 
