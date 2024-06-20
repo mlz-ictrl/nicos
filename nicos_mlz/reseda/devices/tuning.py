@@ -22,8 +22,9 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import Attach, InvalidValueError, Moveable, Override, Param, \
-    Readable, anytype, dictof, listof, nicosdev, oneof
+from nicos.core import Attach, ConfigurationError, InvalidValueError, \
+    Moveable, Override, Param, Readable, anytype, dictof, floatrange, listof, \
+    nicosdev, oneof
 from nicos.core.utils import multiWait
 
 # Storage structure of tunewave tables:
@@ -113,16 +114,24 @@ class EchoTime(Moveable):
     def doStart(self, target):
         # filter unsupported echotimes
         # find best match from table
+        if not self.currenttable:
+            raise ConfigurationError('There is no tunewave table loaded')
+        entries = list(self.currenttable.keys())
+        try:
+            target = floatrange(min(entries) - 1e12, max(entries) + 1e-12)(target)
+        except ValueError as err:
+            raise InvalidValueError(
+                f'target {target} not in range {min(entries)} - {max(entries)}') from err
         for entry in self.currenttable:
             if abs(entry - target) < 1e-12:
                 value = entry
                 break
         else:
             raise InvalidValueError('Given echo time not supported by current '
-                                    'tunewave table (%s/%s) within %s'
+                                    'tunewave table (%s/%s) within %s (%s)'
                                     % (getattr(session.experiment, 'measurementmode', 'mieze'),
                                        self._attached_wavelength.read(),
-                                       self.wavelengthtolerance))
+                                       self.wavelengthtolerance, entries))
 
         # stop stopfirst devices
         for devname in self.stopfirst:
