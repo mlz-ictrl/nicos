@@ -23,7 +23,7 @@
 
 from nicos import session
 from nicos.core import Attach, InvalidValueError, Moveable, Override, Param, \
-    Readable, anytype, dictof, listof, oneof
+    Readable, anytype, dictof, listof, nicosdev, oneof
 from nicos.core.utils import multiWait
 
 # Storage structure of tunewave tables:
@@ -45,11 +45,11 @@ class EchoTime(Moveable):
     parameters = {
         'zerofirst': Param('mapping of Devices to preconfigured value to be '
                            'set before applying the echo time',
-                           type=dictof(str, anytype),
+                           type=dictof(nicosdev, anytype),
                            settable=True, userparam=False, default={}),
         'stopfirst': Param('list of Devices to stop before setting a new '
                            'echotime',
-                           type=listof(str),
+                           type=listof(nicosdev),
                            settable=True, userparam=False, default=[]),
         'tables': Param('Tune wave tables',
                         type=dictof(oneof('nrse', 'mieze'), dictof(float,
@@ -60,7 +60,7 @@ class EchoTime(Moveable):
                               settable=False, userparam=True, internal=True,
                               volatile=True),
         'tunedevs': Param('Devices used for tuning',
-                          type=listof(str), settable=False, internal=True,
+                          type=listof(nicosdev), settable=False, internal=True,
                           volatile=True),
         'availtables': Param('Available tunewave tables',
                              type=dictof(str, listof(float)), settable=False,
