@@ -26,7 +26,7 @@
 import os
 from time import monotonic, sleep
 
-from nicos.core import LimitError
+from nicos.core import InvalidValueError
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqMethod, \
     SeqNOP, SeqParam, SeqSleep
 
@@ -145,4 +145,4 @@ def test_seqnop():
 def test_locked_multiswitcher(session):
     # Guard against regression of #1315
     lms = session.getDevice('ld2')
-    assert raises(LimitError, lms.move, 0)
+    assert raises(InvalidValueError, lms.move, 0)

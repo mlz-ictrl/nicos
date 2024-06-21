@@ -638,6 +638,11 @@ class LockedDevice(BaseSequencer):
         'unit': Override(volatile=True),
     }
 
+    def doInit(self, mode):
+        if hasattr(super(), 'doInit'):
+            super().doInit(mode)
+        self.valuetype = self._attached_device.valuetype
+
     def _generateSequence(self, target):
         device = self._attached_device
         lock = self._attached_lock
