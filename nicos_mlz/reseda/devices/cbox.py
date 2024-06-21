@@ -32,16 +32,17 @@ from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
 
 
 class CBoxResonanceFrequency(BaseSequencer):
-    """Class to control the RESEDA capacity box, used to adjust the resonant
-    circuits.
+    """Control the RESEDA capacity box, used to adjust the resonant circuits.
 
     You can trigger an auto adjustment by setting a desired resonance frequency.
+
     This device will calculate the necessary capacity
     ((1/(2*pi*frequency)) ** 2 / coil_inductivity) and determine the best setup
     for that capacity. It will also try some setups with lower and higher
     capacities, determining the adjustment quality
     (defined by (fwdp - revp) / (fwdp + revp)), and chooses the setup with the
     maximum quality as its new setup.
+
     It will also tune the input (highpass/tranformator/diplexer) for the given
     frequency and set the frequency to the function generator.
 
@@ -112,9 +113,9 @@ class CBoxResonanceFrequency(BaseSequencer):
         'cbox2_output_capacity': Param('Output capacity for cbox2 (coil box)',
                                        type=float, unit='F', default=9e-12),
         'coil_inductivity': Param('Inductivity of coil 1', unit='H',
-                                   type=float, default=28.76e-6),
+                                  type=float, default=28.76e-6),
         'coil_self_capacitance': Param('Self-capacitance of coil 1', unit='F',
-                                        type=float, default=5e-12),
+                                       type=float, default=5e-12),
         'tuning_step': Param('Frequency range to tune for', type=float,
                              default=1e3),
         'tuning_steps': Param('Number of steps to tune around the necessary '
@@ -127,11 +128,10 @@ class CBoxResonanceFrequency(BaseSequencer):
                                               'higher then the threshold',
                                               type=float, default=1e6),
         'transformer_threshold_frequencies': Param('Threshold frequencies for '
-                                              'transformer usage.',
-                                              type=tupleof(float, float),
+                                                   'transformer usage.',
+                                                   type=tupleof(float, float),
                                                    default=(0.4e6, 2e6)),
     }
-
 
     def doInit(self, mode):
         self._capacities = self._calculatePossibleCapacities()
@@ -179,7 +179,7 @@ class CBoxResonanceFrequency(BaseSequencer):
         result = {}
         for entry in caps:
             self._applyCapacity(entry)
-            #self._getResonanceFrequency(1)  # logging
+            # self._getResonanceFrequency(1)  # logging
             if self._attached_coil_amp:
                 quality = self._getCurrentAdjustmentQuality()
             else:
@@ -219,7 +219,7 @@ class CBoxResonanceFrequency(BaseSequencer):
         return odict
 
     def _calcNecessaryCapacity(self, frequency):
-        return (1/(2*pi*frequency)) ** 2 / self.coil_inductivity
+        return (1 / (2 * pi * frequency)) ** 2 / self.coil_inductivity
 
     def _determineDiplexer(self, freq):
         return 1 if freq > self.diplexer_threshold_frequency else 0
@@ -229,8 +229,7 @@ class CBoxResonanceFrequency(BaseSequencer):
             return 2
         elif freq > self.transformer_threshold_frequencies[0]:
             return 1
-        else:
-            return 0
+        return 0
 
     def _determineHighpass(self, frequency):
         result = 0
@@ -267,8 +266,8 @@ class CBoxResonanceFrequency(BaseSequencer):
         current_coil1 = numpy.median([self._adevs['coil_amp'].read(0)
                                       for _ in range(self.tuning_points)])
 
-       # current_coil2 = numpy.median([self._adevs['coil2_amp'].read(0)
-       #                               for _ in range(self.tuning_points)])
+        # current_coil2 = numpy.median([self._adevs['coil2_amp'].read(0)
+        #                               for _ in range(self.tuning_points)])
 
         return current_coil1
 
