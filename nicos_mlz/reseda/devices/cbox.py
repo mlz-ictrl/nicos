@@ -238,11 +238,8 @@ class CBoxResonanceFrequency(BaseSequencer):
             return result
 
         # poly val
-        x = round(frequency / 1000, 2)
-        fg_f = 0
-        for (i, coeff) in enumerate(self.HIGHPASS_POLYNOM):
-            fg_f += coeff * x ** i
-
+        fg_f = np.polynomial.Polynomial(self.HIGHPASS_POLYNOM)(
+            round(frequency / 1000, 2))
         c = 1 / (2 * pi * 22 * frequency * fg_f)
 
         c2 = 0
