@@ -25,7 +25,7 @@ from bisect import bisect_left
 from collections import OrderedDict
 from math import pi, sqrt
 
-import numpy
+import numpy as np
 
 from nicos.core import Attach, Moveable, Param, Readable, tupleof
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
@@ -263,21 +263,21 @@ class CBoxResonanceFrequency(BaseSequencer):
     def _getCurrentAdjustmentQuality(self):
         """Reads the current adjustment quality multiple times (defined by
         "tuning_points") and returns the median."""
-        current_coil1 = numpy.median([self._adevs['coil_amp'].read(0)
-                                      for _ in range(self.tuning_points)])
+        current_coil1 = np.median([self._adevs['coil_amp'].read(0)
+                                   for _ in range(self.tuning_points)])
 
-        # current_coil2 = numpy.median([self._adevs['coil2_amp'].read(0)
-        #                               for _ in range(self.tuning_points)])
+        # current_coil2 = np.median([self._adevs['coil2_amp'].read(0)
+        #                            for _ in range(self.tuning_points)])
 
         return current_coil1
 
     def _getCurrentAdjustmentQualityOLD(self):
         """Reads the current adjustment quality multiple times (defined by
         "tuning_points") and returns the median."""
-        revp = numpy.median([self._adevs['pa_revp'].read(0)
-                             for _ in range(self.tuning_points)])
-        fwdp = numpy.median([self._adevs['pa_fwdp'].read(0)
-                             for _ in range(self.tuning_points)])
+        revp = np.median([self._adevs['pa_revp'].read(0)
+                          for _ in range(self.tuning_points)])
+        fwdp = np.median([self._adevs['pa_fwdp'].read(0)
+                          for _ in range(self.tuning_points)])
 
         return (fwdp - revp) / (fwdp + revp)
 
