@@ -356,6 +356,7 @@ class DevicesPanel(Panel):
             devitem.setExpanded(True)
         self.tree.sortItems(0, Qt.SortOrder.AscendingOrder)
         self._update_view()
+        self.on_filter_editTextChanged(self.filter.currentText())
 
     def on_client_disconnected(self):
         self.clear()
