@@ -18,6 +18,11 @@ devices = dict(
         tangodevice = tango_base + 'position',
         fmtstr = '%.4f',
     ),
+    extension = device('nicos.devices.entangle.Actuator',
+        description = 'extension value of the tensile machine',
+        tangodevice = tango_base + 'extension',
+        fmtstr = '%.3f',
+    ),
 )
 
 display_order = 40
