@@ -37,8 +37,8 @@ from nicos.devices.tango import PyTangoDevice
 class DSPec(PyTangoDevice, Measurable):
 
     attached_devices = {
-        'gates':   Attach('Gating devices', Moveable,
-                          multiple=True, optional=True),
+        'gates': Attach('Gating devices', Moveable,
+                        multiple=True, optional=True),
     }
 
     parameters = {
