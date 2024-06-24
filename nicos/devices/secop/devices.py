@@ -52,7 +52,7 @@ from math import floor, log10
 from threading import Event, RLock
 
 from frappy.client import SecopClient
-from frappy.errors import CommunicationFailedError
+from frappy.errors import CommunicationFailedError, ReadFailedError
 
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
@@ -997,7 +997,13 @@ class SecopDevice(Device):
                     param_item.readerror = e
             except Exception:
                 pass
-            self._param_errors[parameter] = make_nicos_error(e)
+            if not isinstance(e, ReadFailedError):
+                # The SECoP spec states "ReadFailed" indicates "parameter can
+                # not be read _just now_". We assume this error happens not
+                # on a hardware failure (which would be HardwareError), but in
+                # a foreseeable way, depending on the state of the module
+                # -> do not worry the user
+                self._param_errors[parameter] = make_nicos_error(e)
             self.status(0)
 
     def _update(self, module, parameter, item):
