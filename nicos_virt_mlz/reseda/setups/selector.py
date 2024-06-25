@@ -25,6 +25,7 @@ devices = dict(
         # radius = 0.16,
         beamcenter = 0.115,
         maxspeed = 28500,
+        precision = 0.005,
     ),
     selector_delta_lambda = device('nicos_mlz.reseda.devices.SelectorLambdaSpread',
         description = 'Selector wavelength spread',
