@@ -97,7 +97,7 @@ devices = dict(
         default = 1.87,
         unit = 'm',
     ),
-    l_bd = device('nicos.devices.generic.ManualMove',
+    L_bd = device('nicos.devices.generic.ManualMove',
         description = "Distance between RF '0b' coil and detector",
         abslimits = (1, 8),
         default = 4.95,
