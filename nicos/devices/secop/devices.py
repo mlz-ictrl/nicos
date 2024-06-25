@@ -175,7 +175,8 @@ def make_nicos_error(exc, category=None):
     # do not repeat category when contained already at start
     text = re.sub(f'^{category} ?[-:]? ', '', str(exc))
     # NicosLogger needs category to be a class attribute
-    return type('NicosSecopError', (NicosError,), {'category': category})(text)
+    # still inherit from SECoP error class
+    return type('NicosSecopError', (type(exc), NicosError), {'category': category})(text)
 
 
 class SecNodeDevice(Readable):
