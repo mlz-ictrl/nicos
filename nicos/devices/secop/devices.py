@@ -264,6 +264,7 @@ class SecNodeDevice(Readable):
     _devices = {}
     _custom_callbacks = defaultdict(list)
     _polled_devs = ()
+    __poll_thread = None
 
     def doPreinit(self, mode):
         self._devices = {}
@@ -311,7 +312,7 @@ class SecNodeDevice(Readable):
                     return
                 # status()/read() do only call doStatus()/doRead() when the
                 # value is older than self.maxage. the maximum age will then be
-                # a little higher, as calculated in SecopRreadable.doReadMaxage
+                # a little higher, as calculated in SecopReadable.doReadMaxage
                 try:
                     dev.status(self.maxage)
                 except Exception as e:
@@ -414,8 +415,9 @@ class SecNodeDevice(Readable):
             self._set_status(status.WARN, state)
 
     def doShutdown(self):
-        self.__shutdown.set()
-        self.__poll_thread.join()
+        if self.__poll_thread:
+            self.__shutdown.set()
+            self.__poll_thread.join()
         self._disconnect()
         if self._devices:
             self.log.error('can not remove devices %s', list(self._devices))
