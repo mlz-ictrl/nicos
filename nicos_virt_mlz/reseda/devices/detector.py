@@ -87,6 +87,16 @@ class McStasSimulation(BaseSimulation):
         'sf_0b' : Attach('Current static flipper 0b', Readable),
     }
 
+    def doInit(self, mode):
+        BaseSimulation.doInit(self, mode)
+        self._tofchannels = 16
+
+    # This method is needed to transfer the number of tofchannels (parameter
+    # of the McStasImage device to the simulation. The solution with an
+    # attached image device leads to a circular dependency !
+    def setTofChannels(self, tofchannels):
+        self._tofchannels = tofchannels
+
     def _dev(self, dev, scale=1):
         return dev.fmtstr % (dev.read(0) / scale)
 
@@ -126,6 +136,7 @@ class McStasSimulation(BaseSimulation):
             'hsf_0b=%s' % self._dev(self._attached_hsf_0b),
             'sf_0a=%s' %  self._dev(self._attached_sf_0a),
             'sf_0b=%s' %  self._dev(self._attached_sf_0b),
+            'nt=%d' % self._tofchannels,
         ]
         return params
 
@@ -150,15 +161,16 @@ class McStasImage(BaseImage):
                                   intrange(-1, 1024), intrange(-1, 1024)),
                      default=(-1, -1, -1, -1), settable=True),
         'tofchannels': Param('Total number of TOF channels to use',
-                             type=intrange(1, 1024), default=128,
+                             type=intrange(1, 1024), default=16,
                              settable=True, category='presets'),
         'foilsorder': Param('Usable foils, ordered by number. Must match the '
                             'number of foils configured in the server!',
-                            type=listof(intrange(0, 31)), settable=False,
+                            type=listof(intrange(0, 31)), settable=True,
                             default=[0, 1, 2, 3, 4, 5, 6, 7],
                             category='instrument'),
         'foils': Param('Number of spaces for foils in the TOF data',
-                       type=intrange(1, 32), default=8, category='instrument'),
+                       type=intrange(1, 32), settable=True, default=8,
+                       category='instrument'),
         'fitfoil': Param('Foil for contrast fitting (number BEFORE resorting)',
                          type=int, default=0, settable=True),
     }
@@ -175,6 +187,10 @@ class McStasImage(BaseImage):
 
     def doInit(self, mode):
         self._xres, self._yres = self.size
+
+    def doPrepare(self):
+        self._attached_mcstas.setTofChannels(self.tofchannels)
+        BaseImage.doPrepare(self)
 
     def doStart(self):
         self.readresult = [0, 0]
@@ -219,7 +235,8 @@ class McStasImage(BaseImage):
     def arraydesc(self):
         if self.mode == 'image':
             return ArrayDesc(self.name, self._datashape, '<u4', ['X', 'Y'])
-        return ArrayDesc(self.name, self._datashape, '<u4', ['X', 'Y', 'T'])
+        return ArrayDesc(self.name, self._datashape, '<u4',
+                         ['X', 'Y', 'T', 'F'])
 
     def _readpsd(self, quality):
         try:
@@ -228,9 +245,11 @@ class McStasImage(BaseImage):
                 p = Path(path_to_result_dir).joinpath(self.mcstasfile)
                 if p.exists():
                     return np.squeeze(np.fromfile(
-                        str(p), dtype=np.dtype((np.double, self.size))))
+                        str(p), dtype=np.dtype(
+                            (np.double,
+                             (self.foils, self.tofchannels) + self.size))))
                 self.log.warning('No file: %s', p)
-                return np.zeros((self.tofchannels, ) + self.size)
+                return np.zeros((self.foils, self.tofchannels, ) + self.size)
 
             factor = self._attached_mcstas._getScaleFactor()
             if hasattr(self._attached_mcstas, '_mcstasdirpath'):
@@ -253,11 +272,10 @@ class McStasImage(BaseImage):
             self.readresult = [roi, total]
 
         # demux timing into foil + timing
-        nperfoil = self._datashape[0] // len(self.foilsorder)
         shaped = self._buf.reshape(
-            (len(self.foilsorder), nperfoil) + self._datashape[1:])
+            (self.foils, self.tofchannels) + self._datashape[2:])
 
-        x = np.arange(nperfoil)
+        x = np.arange(self.tofchannels)
         ty = shaped[self.fitfoil].sum((1, 2))
         ry = shaped[self.fitfoil, :, y1:y2, x1:x2].sum((1, 2))
 
@@ -281,7 +299,7 @@ class McStasImage(BaseImage):
             roi, total,
             abs(tres.contrast), tres.dcontrast, tres.avg, tres.davg,
             tres.phase, tres.dphase,  # tres.freq, tres.dfreq,
-            abs(rres.contrast), rres.dcontrast,rres.avg, rres.davg,
+            abs(rres.contrast), rres.dcontrast, rres.avg, rres.davg,
             rres.phase, rres.dphase,  # rres.freq, rres.dfreq,
         ]
 
@@ -306,6 +324,9 @@ class McStasImage(BaseImage):
 
     def doUpdateMode(self, value):
         self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
+        # if the value of the psd_channel.mode is image the shape of the array
+        # is the size of the detector otherwise, the shape is the size of the
+        # detector, tof_channels
         self._datashape = (value == 'image') and self.size or (
-            self.size + (self.tofchannels,))
+            (self.foils, self.tofchannels) + self.size)
         self._tres = (value == 'image') and 1 or self.tofchannels

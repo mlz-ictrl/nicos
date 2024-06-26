@@ -295,7 +295,13 @@ class CascadeTofSink(SingleRawImageSink):
     handlerclass = CascadeTofSinkHandler
 
     def isActiveForArray(self, arraydesc):
-        return len(arraydesc.shape) == 3
+        # The McSimulation detector returns a 4 dimensional array, where
+        # the number of foils and timechannels are in separate dimensions
+        # of the array
+        # The Cascade detector code returns a 3 dimensional array, where
+        # the number of foils and timechannels in one dimension as a product
+        # stored
+        return len(arraydesc.shape) in [3, 4]
 
 
 class CascadeImageReader(RawImageFileReader):
