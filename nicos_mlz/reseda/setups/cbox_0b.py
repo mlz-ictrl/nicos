@@ -13,6 +13,7 @@ devices = {
             freqgen = device('nicos.devices.entangle.AnalogOutput',
                 description = 'Frequency generator frequency',
                 tangodevice = '%s/%s/fg_frequency' % (tango_base, setupname),
+                maxage = 31,
                 pollinterval = 30,
                 fmtstr = '%.4g',
                 unit = 'Hz',
@@ -60,6 +61,7 @@ devices = {
         ),
     '%s' % setupname:
         device('nicos_mlz.reseda.devices.CBoxResonanceFrequency',
+            maxage = 31,
             pollinterval = 30,
             description = 'CBox',
             unit = 'Hz',
