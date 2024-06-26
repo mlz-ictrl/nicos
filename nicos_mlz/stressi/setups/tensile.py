@@ -2,12 +2,12 @@ description = 'Tensile machine'
 
 group = 'optional'
 
-tango_base = 'tango://doli:10000/test/doli/'
+tango_base = 'tango://tension02.stressi.frm2.tum.de:10000/test/doli/'
 
 devices = dict(
     teload = device('nicos.devices.entangle.Actuator',
         description = 'load value of the tensile machine',
-        tangodevice = tango_base + 'force',
+        tangodevice = tango_base + 'load',
         precision = 2,
         fmtstr = '%.1f',
     ),
