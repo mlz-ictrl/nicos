@@ -86,18 +86,19 @@ class FoilWidget(QWidget):
         # set name
         self.name = name
         self.groupBox.setTitle(name)
-
+        self.tofchannels = kwds.get('tofchannels', 16)
         # insert plot widget + store reference
         self.plotwidget = MiniPlot(self)
         self.plotwidget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
                                       QSizePolicy.Policy.MinimumExpanding)
         self.verticalLayout.insertWidget(0, self.plotwidget)
-        self.do_update([[0.] * 4, [0.] * 4, [0] * 16] * 2)
+        self.do_update([[0.] * 4, [0.] * 4, [0] * self.tofchannels] * 2)
 
     def do_update(self, data, roi=False):
         # data contains a list [avg, avgErr, contrast, contrastErr,
-        # freq, freErr, phase, phaseErr, 16 * counts]
+        # freq, freErr, phase, phaseErr, self.tofchannels * counts]
         popt, perr, counts = data[int(roi) * 3:(int(roi) + 1) * 3]
+        self.tofchannels = len(counts)
         avg, contrast, phase, freq = popt
         davg, dcontrast, dphase, dfreq = perr
 
@@ -113,10 +114,10 @@ class FoilWidget(QWidget):
 
         # now update plot
         datacurve, fitcurve = self.plotwidget._curves
-        fitcurve.x = np.arange(-0.5, 16.5, 0.1)
+        fitcurve.x = np.arange(-0.5, 0.5 + self.tofchannels, 0.1)
         fitcurve.y = self.fitter.fit_model(
             fitcurve.x, avg, contrast, phase, freq)
-        datacurve.x = np.arange(0, 16, 1)
+        datacurve.x = np.arange(0, self.tofchannels, 1)
         datacurve.y = np.array(counts)
         datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y,
                                        np.sqrt(datacurve.y),
@@ -158,7 +159,8 @@ class MiezePanel(Panel):
         for foil, x, y in zip(self.foils, self.rows * list(range(self.columns)),
                               sum([self.columns * [i] for i in
                                    range(self.rows)], [])):
-            foilwidget = FoilWidget(name=f'Foil {foil + 1}', parent=self)
+            # Is there a way to get tof channels on start?
+            foilwidget = FoilWidget(name=f'Foil {foil + 1}', parent=self, tofchannels=16)
             self.mywidgets.append(foilwidget)
             self.gridLayout.addWidget(foilwidget, y, x)
         self.client.cache.connect(self.on_client_cache)
