@@ -8,7 +8,7 @@ devices = dict(
             abslimits = (-90, 5),
             unit = 'deg',
             speed = 5,
-            curvalue = -10,
+            curvalue = -50,
         ),
         fmtstr = '%.3f',
         precision = 0.01,

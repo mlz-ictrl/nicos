@@ -10,8 +10,8 @@ devices = {
             pollinterval = 30,
             fmtstr = '%.4g',
             unit = 'Hz',
-            abslimits = (30000, 5000000),
-            default = 35000,
+            abslimits = (1, 5000000),
+            default = 4500,
         ),
     '%s_reg_amp' % setupname:
         device('nicos.devices.generic.ManualMove',

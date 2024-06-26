@@ -85,6 +85,7 @@ Instrument-specific code was contributed by:
 * Artur Glavic <artur.glavic@psi.ch>
 * Jonathan Hähne <jonathan.haehne@frm2.tum.de>
 * Martin Haese <martin.haese@hereon.de>
+* Christoph Herb <christoph.herb@frm2.tum.de>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
 * Markus Hölzel <markus.hoelzel@frm2.tum.de>
 * Stefan Huber <stefan.huber@frm2.tum.de>

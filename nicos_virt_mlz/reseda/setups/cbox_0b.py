@@ -11,7 +11,7 @@ devices = {
             fmtstr = '%.4g',
             unit = 'Hz',
             abslimits = (1, 5000000),
-            default = 35000,
+            default = 6200,
         ),
     '%s_reg_amp' % setupname:
         device('nicos.devices.generic.ManualMove',
