@@ -6,7 +6,7 @@ devices = {
         device('nicos.devices.generic.ManualMove',
             description = 'Frequency generator frequency',
             pollinterval = 30,
-            fmtstr = '%.3g',
+            fmtstr = '%.4g',
             unit = 'Hz',
             abslimits = (3500, 5000000),
             default = 35000,
@@ -61,6 +61,7 @@ devices = {
     #     ),
     '%s' % setupname:
         device('nicos_mlz.reseda.devices.CBoxResonanceFrequency',
+            maxage = 31,
             pollinterval = 30,
             description = 'CBox',
             unit = 'Hz',

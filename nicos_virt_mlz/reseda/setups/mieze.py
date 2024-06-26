@@ -6,5 +6,7 @@ includes = [
 ]
 
 startupcode = '''
+SetDetectors(psd)
+psd_channel.mode = 'tof'
 Exp.measurementmode = 'mieze'
 '''

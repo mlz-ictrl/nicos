@@ -58,6 +58,7 @@ devices = {
     #     ),
     '%s' % setupname:
         device('nicos_mlz.reseda.devices.CBoxResonanceFrequency',
+            maxage = 31,
             pollinterval = 30,
             description = 'CBox',
             unit = 'Hz',

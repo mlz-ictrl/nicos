@@ -7,6 +7,7 @@ devices = dict(
         abslimits = (0, 28500),
         precision = 10,
         unit = 'rpm',
+        curvalue = 21217,
     ),
     selector_tilt = device('nicos.devices.generic.VirtualMotor',
         description = 'Selector tilt',

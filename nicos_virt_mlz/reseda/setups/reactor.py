@@ -9,5 +9,6 @@ devices = dict(
         maxage = 61,
         unit = 'MW',
         jitter = 0.1,
+        curvalue = 19.8,
     ),
 )
