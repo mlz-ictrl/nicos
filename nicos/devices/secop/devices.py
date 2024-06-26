@@ -52,7 +52,7 @@ from math import floor, log10
 from threading import Event, RLock
 
 from frappy.client import SecopClient
-from frappy.errors import CommunicationFailedError
+from frappy.errors import CommunicationFailedError, ReadFailedError
 
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
@@ -175,7 +175,8 @@ def make_nicos_error(exc, category=None):
     # do not repeat category when contained already at start
     text = re.sub(f'^{category} ?[-:]? ', '', str(exc))
     # NicosLogger needs category to be a class attribute
-    return type('NicosSecopError', (NicosError,), {'category': category})(text)
+    # still inherit from SECoP error class
+    return type('NicosSecopError', (type(exc), NicosError), {'category': category})(text)
 
 
 class SecNodeDevice(Readable):
@@ -263,6 +264,7 @@ class SecNodeDevice(Readable):
     _devices = {}
     _custom_callbacks = defaultdict(list)
     _polled_devs = ()
+    __poll_thread = None
 
     def doPreinit(self, mode):
         self._devices = {}
@@ -310,7 +312,7 @@ class SecNodeDevice(Readable):
                     return
                 # status()/read() do only call doStatus()/doRead() when the
                 # value is older than self.maxage. the maximum age will then be
-                # a little higher, as calculated in SecopRreadable.doReadMaxage
+                # a little higher, as calculated in SecopReadable.doReadMaxage
                 try:
                     dev.status(self.maxage)
                 except Exception as e:
@@ -413,8 +415,9 @@ class SecNodeDevice(Readable):
             self._set_status(status.WARN, state)
 
     def doShutdown(self):
-        self.__shutdown.set()
-        self.__poll_thread.join()
+        if self.__poll_thread:
+            self.__shutdown.set()
+            self.__poll_thread.join()
         self._disconnect()
         if self._devices:
             self.log.error('can not remove devices %s', list(self._devices))
@@ -997,7 +1000,13 @@ class SecopDevice(Device):
                     param_item.readerror = e
             except Exception:
                 pass
-            self._param_errors[parameter] = make_nicos_error(e)
+            if not isinstance(e, ReadFailedError):
+                # The SECoP spec states "ReadFailed" indicates "parameter can
+                # not be read _just now_". We assume this error happens not
+                # on a hardware failure (which would be HardwareError), but in
+                # a foreseeable way, depending on the state of the module
+                # -> do not worry the user
+                self._param_errors[parameter] = make_nicos_error(e)
             self.status(0)
 
     def _update(self, module, parameter, item):
