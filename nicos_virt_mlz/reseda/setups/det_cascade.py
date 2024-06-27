@@ -64,7 +64,7 @@ devices = dict(
         sf_0a = 'sf_0a',
         sf_0b = 'sf_0b',
         neutronspersec = {
-            'localhost': 1e5,
+            'localhost': 3.5e5,
         },
     ),
     psd_timer = device('nicos.devices.mcstas.McStasTimer',
