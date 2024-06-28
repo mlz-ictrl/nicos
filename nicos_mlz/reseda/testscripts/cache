@@ -1,2 +1,9 @@
 nicos/arm1_rot_mot/unit='deg'
 nicos/arm1_rot_enc/unit='deg'
+nicos/cbox_0a_fg_freq/abslimits=(1, 5000000)
+nicos/hrf_0a/abslimits=(0, 100)
+nicos/hrf_0b/abslimits=(0, 100)
+nicos/arm1_rot_mot/abslimits=(-90, 5)
+nicos/arm1_rot/abslimits=(-90, 5)
+nicos/arm1_rot_enc/value=-50
+nicos/arm2_rot/abslimits=(-15, 55)
