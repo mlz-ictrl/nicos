@@ -213,23 +213,45 @@ reseda_default = {
     }  # entry
 }  # root
 
-polarizer_1 = {
-    'pol1:NXpolarizer': {
-        'type': ConstDataset('supermirror', 'string'),
-        # 'reflection': ConstDataset(0.99, 'float'),
-        # 'composition': ConstDataset('blah blubb', 'string'),
-        # 'efficiency': ConstDataset(0.7, dtype='float'),
-    },
-}
 
-polarizer_2 = {
-    'pol2:NXpolarizer': {
-        'type': ConstDataset('supermirror', 'string'),
-        # 'reflection': ConstDataset(0.99, 'float'),
-        # 'composition': ConstDataset('blah blubb', 'string'),
-        # 'efficiency': ConstDataset(0.7, dtype='float'),
-    },
-}
+def polarizer(name, typ='supermirror', **kwds):
+    """Create a NXpolarizer structure with
+
+        type -
+
+    Optional keywords:
+
+        reflection - default=0.99
+        efficiency - default=0.7
+        composition - default=''
+
+    """
+
+    return {
+        f'{name}:NXpolarizer': {
+            'type': ConstDataset(typ, 'string'),
+            # 'reflection': ConstDataset(kwds.get('reflection', 0.99), 'float'),
+            # 'efficiency': ConstDataset(kwds.get('efficiency', 0.7), dtype='float'),
+            # 'composition': ConstDataset(kwds.get('composition', '', 'string'),
+        }
+    }
+
+
+def flipper(name, typ='', **kwds):
+    """Create a NXflipper structure with
+
+        type -
+
+    Optional keywords:
+        -
+
+    """
+    return {
+        f'{name}:NXflipper': {
+            'type': ConstDataset(typ, 'string'),
+        }
+    }
+
 
 sample_common = {
     'name': DeviceDataset('Sample', 'samplename'),
@@ -271,8 +293,8 @@ class ResedaTemplateProvider(NexusTemplateProvider):
         full = copy_nexus_template(reseda_default)
         instrument = full['entry1:NXentry']['instrument:NXinstrument']
         instrument['detector:NXdetector'] = copy_nexus_template(reseda_detector)
-        instrument['pol1:NXpolarizer'] = copy_nexus_template(polarizer_1)
-        instrument['pol2:NXpolarizer'] = copy_nexus_template(polarizer_2)
+        instrument['pol1:NXpolarizer'] = copy_nexus_template(polarizer('pol1'))
+        instrument['pol2:NXpolarizer'] = copy_nexus_template(polarizer('pol2'))
         if 'sample' in session.loaded_setups:
             full['entry1:NXentry']['sample:NXsample'] = \
                 dict(sample_common, **sample_std)
