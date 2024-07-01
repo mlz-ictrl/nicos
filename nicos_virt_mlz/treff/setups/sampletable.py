@@ -67,7 +67,7 @@ devices = dict(
         description = "Detector arm rotation angle",
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (-6.06, 117.397),
-            unit = 'mm',
+            unit = 'deg',
             speed = 1,
         ),
         precision = 0.005,
