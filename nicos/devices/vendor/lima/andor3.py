@@ -21,7 +21,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import HasLimits, HasPrecision, Moveable, Param, oneof, status
+from nicos.core import HasLimits, HasPrecision, Moveable, Param, floatrange, \
+    oneof, status
 from nicos.devices.tango import PyTangoDevice
 
 from .generic import GenericLimaCCD
@@ -34,7 +35,7 @@ class Andor3LimaCCD(GenericLimaCCD):
     hardware specific functionality for all Andor SDK3 based cameras.
     """
 
-    READOUTRATES = [280, 200, 100]  # Values from sdk manual
+    READOUTRATES = [280, 200, 100, 10]  # Values from sdk manual
     ELSHUTTERMODES = ['rolling', 'global']  # Values from sdk manual
 
     parameters = {
@@ -46,9 +47,53 @@ class Andor3LimaCCD(GenericLimaCCD):
                                type=oneof(*ELSHUTTERMODES),
                                settable=True, volatile=True,
                                category='general'),
-        'framerate':     Param('Frame rate',
+        'framerate':     Param('Rate at which frames are delivered to the use',
                                type=float, unit='Hz', settable=False,
                                volatile=True, category='general'),
+        'adc_gain':     Param('ADC Gain which can be apply to the preamplifier',
+                              type=oneof('B11_HI-GAIN', 'B11_LOW_GAIN',
+                                         'B16_LH_GAIN'),
+                              settable=True, userparam=True,
+                              volatile=True, category=''),
+        'fanspeed':     Param('Fan speed setting',
+                              type=floatrange(0), settable=True,
+                              userparam=True, volatile=True,
+                              category=''),
+        'max_frame_rate_transfer': Param('Maximum sustainable transfer rate '
+                                         'of the interface for the current '
+                                         'shutter mode and ROI',
+                                         type=floatrange(0), settable=False,
+                                         userparam=True, volatile=True,
+                                         unit='B/s', fmtstr='%f',
+                                         category=''),
+        'readout_time':     Param('Time to read out data from the sensor',
+                                  type=float, settable=False, unit='s',
+                                  userparam=True, volatile=True,
+                                  category=''),
+        'overlap':          Param('Enable/disable overlap mode',
+                                  type=oneof('OFF', 'ON'), settable=True,
+                                  userparam=True, volatile=True,
+                                  mandatory=False, category=''),
+        'spurious_noise_filter': Param('Enable/Disable spurious noise filter',
+                                       type=oneof('OFF', 'ON'), settable=True,
+                                       userparam=True, volatile=True,
+                                       mandatory=False, category=''),
+        'serialnumber':     Param('Camera serial number',
+                                  type=str, settable=False, userparam=True,
+                                  volatile=True, category=''),
+        'trigger_inverted': Param('trigger signal inverted',
+                                  type=oneof('YES', 'NO'), settable=True,
+                                  userparam=True, volatile=True,
+                                  category=''),
+        'gate_inverted':    Param('gate signal inverted',
+                                  type=oneof('YES', 'NO'), settable=True,
+                                  userparam=True, volatile=True,
+                                  category=''),
+        'output_signal':    Param('Output signal selection',
+                                  type=oneof('FireRow1', 'FireRowN', 'FireAny',
+                                             'FireAll'),
+                                  settable=True, userparam=True, volatile=True,
+                                  category=''),
     }
 
     def doInfo(self):
@@ -57,10 +102,10 @@ class Andor3LimaCCD(GenericLimaCCD):
         return []
 
     def doReadReadoutrate(self):
-        return int(self._hwDev._dev.adc_rate[3:])
+        return int(self._hwDev._dev.adc_rate[:-4])
 
     def doWriteReadoutrate(self, value):
-        self._hwDev._dev.adc_rate = 'MHZ%i' % value
+        self._hwDev._dev.adc_rate = f'{value}_MHZ'
 
     def doReadElshuttermode(self):
         return self._hwDev._dev.electronic_shutter_mode.lower()
@@ -80,6 +125,57 @@ class Andor3LimaCCD(GenericLimaCCD):
         # set full detector size as roi
         self._dev.image_roi = (0, 0, 0, 0)
 
+    def doReadAdc_Gain(self):
+        return self._hwDev._dev.adc_gain
+
+    def doWriteAdc_Gain(self, value):
+        self._hwDev._dev.adc_gain = value
+
+    def doReadFanspeed(self):
+        return self._hwDev._dev.fan_speed
+
+    def doWriteFanspeed(self, value):
+        self._hwDev._dev.fan_speed = value
+
+    def doReadOverlap(self):
+        return self._hwDev._dev.overlap
+
+    def doWriteOverlap(self, value):
+        self._hwDev._dev.overlap = value
+
+    def doReadSerialnumber(self):
+        return self._hwDev._dev.serial_number
+
+    def doReadSpurious_Noise_Filter(self):
+        return self._hwDev._dev.spurious_noise_filter
+
+    def doWriteSpurious_Noise_Filter(self, value):
+        self._hwDev._dev.spurious_noise_filter = value
+
+    def doReadTrigger_Inverted(self):
+        return self._hwDev._dev.trigger_inverted
+
+    def doWriteTrigger_Inverted(self, value):
+        self._hwDev._dev.trigger_inverted = value
+
+    def doReadGate_Inverted(self):
+        return self._hwDev._dev.gate_inverted
+
+    def doWriteGate_Inverted(self, value):
+        self._hwDev._dev.gate_inverted = value
+
+    def doReadReadout_Time(self):
+        return self._hwDev._dev.readout_time
+
+    def doReadOutput_Signal(self):
+        return self._hwDev._dev.output_signal
+
+    def doWriteOutput_Signal(self, value):
+        self._hwDev._dev.output_signal = value
+
+    def doReadMax_Frame_Rate_Transfer(self):
+        return self._hwDev._dev.max_frame_rate_transfer
+
 
 class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
                                   LimaCooler, Moveable):
@@ -96,6 +192,12 @@ class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
         'Not Stabilised': status.BUSY,
     }
 
+    parameters = {
+        'cooler': Param('Start/stop the cooler',
+                        type=oneof('OFF', 'ON'), settable=True, userparam=True,
+                        volatile=True, category=''),
+    }
+
     def doRead(self, maxage=0):
         return self._dev.temperature
 
@@ -108,3 +210,9 @@ class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
     def doStart(self, target):
         self._dev.temperature_sp = target
         self.cooleron = True
+
+    def doReadCooler(self):
+        return self._dev.cooler
+
+    def doWriteCooler(self, value):
+        self._dev.cooler = value
