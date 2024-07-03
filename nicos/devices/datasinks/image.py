@@ -80,8 +80,7 @@ class SingleFileSinkHandler(DataSinkHandler):
     def _processArrayInfo(self, arrayinfo):
         # determine which index of the detector value is our data array
         # XXX support more than one array
-        arrayinfo = self.detector.arrayInfo()
-        if len(arrayinfo) > 1:
+        if len(arrayinfo) != 1:
             self.log.warning('image sink only supports one array per detector')
         self._arraydesc = arrayinfo[0]
 
@@ -159,7 +158,7 @@ class MultipleFileSinkHandler(SingleFileSinkHandler):
         self._files = []
 
     def _processArrayInfo(self, arrayinfo):
-        self._arrayinfo = self.detector.arrayInfo()
+        self._arrayinfo = arrayinfo
 
     def _putResult(self, quality, result):
         if result[1][0] is None:
