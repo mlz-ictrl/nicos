@@ -62,18 +62,18 @@ Command=%(Command)s
 SampleName=%(Sample.samplename)s
 Environment=%(Environment)s
 Position=%(SampleChanger)s
-Omega=%(st1_omg)s
-omega-2b=%(st1_omg)s
-Phi=%(st1_phi)s
-phi-2b=%(st1_phi)s
-Chi=%(st1_chi)s
-chi-2b=%(st1_chi)s
-BTableX=%(st1_x)s
-x-2b=%(st1_x)s
-BTableY=%(st1_y)s
-y-2b=%(st1_y)s
-BTableZ=%(st1_z)s
-z-2b=%(st1_z)s
+Omega=%(st_omg)s
+omega-2b=%(st_omg)s
+Phi=%(st_phi)s
+phi-2b=%(st_phi)s
+Chi=%(st_chi)s
+chi-2b=%(st_chi)s
+BTableX=%(st_x)s
+x-2b=%(st_x)s
+BTableY=%(st_y)s
+y-2b=%(st_y)s
+BTableZ=%(st_z)s
+z-2b=%(st_z)s
 TTableX=%(st2_x)s
 x-2a=%(st2_x)s
 TTableY=%(st2_y)s
@@ -265,7 +265,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
 
         try:
             SD = '%.4f' % ((session.getDevice('det1_z').read() -
-                           session.getDevice('st1_x').read()) / 1000)
+                           session.getDevice('st_x').read()) / 1000)
         except Exception:
             self.log.warning("can't determine SD (detector distance), "
                              "using 0 instead", exc=1)
