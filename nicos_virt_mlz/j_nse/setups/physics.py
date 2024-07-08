@@ -1,6 +1,8 @@
 description = 'High level physics JNSE devices'
 group = 'optional'
 
+modules = ['nicos_mlz.j_nse.commands.jnse']
+
 includes = [
     'counter',
     'ccmotors',
@@ -73,3 +75,9 @@ for i in range(1, 4):
         pollinterval = 0.5,
         unit = 'A',
     )
+
+
+def topic(cmd):
+    return f'{cmd}_\n\n.. _{cmd}: cmd:{cmd}\n\n'
+
+help_topics = {'J-nse commands': topic('nsescan')}
