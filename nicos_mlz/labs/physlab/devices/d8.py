@@ -21,9 +21,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import Attach, Readable
+from nicos.core import Attach, Readable, status
 from nicos.core.params import Param
-from nicos.core import status
+from nicos.devices.entangle import VectorInput
 
 
 class D8(Readable):
@@ -47,7 +47,7 @@ class D8(Readable):
     }
 
     attached_devices = {
-        'registers': Attach('Voltage channel of the xray generator', Readable),
+        'registers': Attach('Access to D8 registers', VectorInput),
     }
 
     parameters = {
@@ -89,7 +89,7 @@ class D8(Readable):
     def doStatus(self, maxage=0):
         er = self._errors()
         if len(er) > 0:
-            return status.ERROR, 'components faulty: %s' %  er
+            return status.ERROR, 'components faulty: %s' % er
         return status.OK, 'idle'
 
     def doPoll(self, n, maxage):
