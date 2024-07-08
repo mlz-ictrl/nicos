@@ -40,6 +40,11 @@ devices = dict(
         chi = 'chis',
         omega = 'omgs',
         theta2 = 'tths',
+        neutronspersec = {
+            'localhost', 1.12e5,
+            'taco6.ictrl.frm2.tum.de': 8.9+05,
+            'stressictrl02.stressi.frm2.tum.de': 2.7e6,
+        },
     ),
     image = device('nicos.devices.mcstas.McStasImage',
         description = 'Image data device',
