@@ -579,10 +579,14 @@ class StringIO(PyTangoDevice, Device):
 
     @property
     def availablechars(self):
+        if self._sim_intercept:
+            return 0
         return self._dev.availableChars
 
     @property
     def availablelines(self):
+        if self._sim_intercept:
+            return 0
         return self._dev.availableLines
 
 

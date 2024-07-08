@@ -23,8 +23,9 @@
 
 """QMesyDAQ related classes."""
 
+from nicos import session
 from nicos.core import Attach, DataSinkHandler, Device, Override
-from nicos.core.constants import POINT
+from nicos.core.constants import POINT, SIMULATION
 from nicos.devices.datasinks import FileSink
 from nicos.devices.entangle import CounterChannel
 
@@ -36,8 +37,11 @@ class HistogramSinkHandler(DataSinkHandler):
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = filepaths[0]
-        self.sink._attached_image._dev.SetProperties(['writehistogram', 'true'])
-        self.sink._attached_image._dev.SetProperties(['lasthistfile', qmname])
+        if session.mode != SIMULATION:
+            self.sink._attached_image._dev.SetProperties(['writehistogram',
+                                                          'true'])
+            self.sink._attached_image._dev.SetProperties(['lasthistfile',
+                                                          qmname])
 
 
 class ListmodeSinkHandler(DataSinkHandler):
@@ -47,8 +51,11 @@ class ListmodeSinkHandler(DataSinkHandler):
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = filepaths[0]
-        self.sink._attached_image._dev.SetProperties(['writelistmode', 'true'])
-        self.sink._attached_image._dev.SetProperties(['lastlistfile', qmname])
+        if session.mode != SIMULATION:
+            self.sink._attached_image._dev.SetProperties(['writelistmode',
+                                                          'true'])
+            self.sink._attached_image._dev.SetProperties(['lastlistfile',
+                                                          qmname])
         limage = self.sink._attached_liveimage
         if limage:
             limage._dev.filename = filepaths[0]

@@ -28,9 +28,10 @@ import time
 import numpy
 
 from nicos import session
-from nicos.devices.entangle import Motor, Sensor, NamedDigitalOutput, HasOffset
 from nicos.core import Attach, Param, errors
+from nicos.core.constants import SIMULATION
 from nicos.core.sessions.utils import MASTER
+from nicos.devices.entangle import HasOffset, Motor, NamedDigitalOutput, Sensor
 from nicos.utils import createThread
 from nicos.utils.pid import PID
 
@@ -78,9 +79,14 @@ class CetoniPump(Motor):
     }
 
     def doInit(self, mode):
-        self._max_speed = float(self._getProperty('maxspeed'))
-        self._max_volume = float(self._getProperty('absmax'))
-        self._pressure_limit = float(self._getProperty('limit'))
+        if mode != SIMULATION:
+            self._max_speed = float(self._getProperty('maxspeed'))
+            self._max_volume = float(self._getProperty('absmax'))
+            self._pressure_limit = float(self._getProperty('limit'))
+        else:
+            self._max_speed = 0
+            self._max_volume = 0
+            self._pressure_limit = 0
         self._x, self._y = [], []
         self._pressure = self._attached_pressure
         self._valve = self._attached_valve
