@@ -28,6 +28,7 @@ from nicos.devices.entangle import AnalogInput
 
 # Helper classes:
 
+
 class BaseInput(AnalogInput):
     """Base class for the different Janitza online values"""
 
@@ -67,7 +68,7 @@ class VectorInput(BaseInput):
     """Vector input with high and low alarm limits"""
 
     parameters = {
-        'limitmin':  Param('Low alarm limit', listof(float), settable=True),
+        'limitmin': Param('Low alarm limit', listof(float), settable=True),
         'limitmax': Param('High alarm limit', listof(float), settable=True),
     }
 
