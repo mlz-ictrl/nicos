@@ -41,8 +41,8 @@ devices = dict(
         omega = 'omgs',
         theta2 = 'tths',
         neutronspersec = {
-            'localhost', 1.12e5,
-            'taco6.ictrl.frm2.tum.de': 8.9+05,
+            'localhost': 1.12e5,
+            'taco6.ictrl.frm2.tum.de': 8.9e+05,
             'stressictrl02.stressi.frm2.tum.de': 2.7e6,
         },
     ),
