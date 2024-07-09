@@ -25,7 +25,6 @@
 
 import numpy as np
 
-from nicos.core.constants import SIMULATION
 from nicos.core.params import Override, Param, Value, listof, oneof
 from nicos.devices.entangle import CounterChannel as BaseCounterChannel, \
     ImageChannel as BaseImageChannel, TimerChannel as BaseTimerChannel
@@ -144,12 +143,9 @@ class MultiCounter(BaseImageChannel):
     }
 
     def doRead(self, maxage=0):
-        if self._mode == SIMULATION:
-            res = [0] * max(self.channels)
-        else:
-            # read data via Tango and transform it
-            val = self._dev.value
-            res = val.tolist() if isinstance(val, np.ndarray) else val
+        # read data via Tango and transform it
+        val = self._dev.value
+        res = val.tolist() if isinstance(val, np.ndarray) else val
         expected = max(self.channels or [0])
         if len(res) >= expected:
             # ch is 1 based, data is 0 based
