@@ -74,7 +74,7 @@ devices = dict(
     # Shutter:                             (0, 0),    # 0x0000
     # shutterzustand:                      (18, 11),  # 0x0800
     # Warnschilder:                        (18, 9),   # 0x0200
-    basis = device(code_base + 'Group',
+    shutter_permission = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['Safedetectorsystem',
@@ -185,7 +185,7 @@ devices = dict(
         okmask = 0b110101,
         visibility = lowlevel,
     ),
-    user = device(code_base + 'Group',
+    user_safetysystem_interface = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['externer_User_Kontakt_A', 'externer_User_Kontakt_B'],

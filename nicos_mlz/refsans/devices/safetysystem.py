@@ -243,6 +243,8 @@ class Group(Readable):
         raw = self._attached_shs.read()
         for i, key in enumerate(self.bitlist):
             address, bit = self._register[key]
+            self.log.debug('%s', key)
+            self.log.debug('%d', ((raw[address] & (1 << bit)) >> bit) << i)
             res |= ((raw[address] & (1 << bit)) >> bit) << i
         return res
 
