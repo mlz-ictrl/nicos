@@ -128,8 +128,8 @@ def test_dryrun(session, facility, instr, script):
     timing_condition = None
     subdirs = custom_subdirs[f'{facility}.{instr}']
     custom_dir = Path(module_root).joinpath(facility)
-    fullpath = custom_dir.joinpath(instr, 'testscripts', script)
-    cachepath = custom_dir.joinpath(instr, 'testscripts', 'cache')
+    fullpath = custom_dir.joinpath(*instr.split('.'), 'testscripts', script)
+    cachepath = custom_dir.joinpath(*instr.split('.'), 'testscripts', 'cache')
 
     with fullpath.open(encoding='utf-8') as fp:
         for line in fp:
