@@ -39,12 +39,6 @@ devices = dict(
         fmtstr = '%.4f',
     ),
 
-    # ahfh (Heusler-Analyzer)
-    ahfh = device('nicos.devices.entangle.Motor',
-        description = 'ahfh',
-        tangodevice = tango_base + 'ahfh_mot',
-        fmtstr = '%.4f',
-    ),
     ana = device('nicos.devices.tas.Monochromator',
         description = 'Analyzer unit to move outgoing wavevector',
         unit = 'A-1',
@@ -63,9 +57,7 @@ devices = dict(
 # ac (agx)
 # ax (atx)
 # ay (aty)
-# afh
-# afv
-for key in ('ath', 'agx', 'atx', 'aty', 'afv', 'afh', ):  #'nutator'):
+for key in ('ath', 'agx', 'atx', 'aty', ):  #'nutator'):
     devices[key] = device('nicos.devices.generic.Axis',
         description = key,
         motor = device('nicos.devices.entangle.Motor',
