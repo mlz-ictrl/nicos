@@ -1005,7 +1005,9 @@ class Readable(Device):
         # value in simulation mode
         self._sim_intercept = self._mode == SIMULATION and self.hardware_access
         self._sim_old_value = None
-        self._sim_value = 0  # no way to configure a useful default...
+        # if value is in the cache-file in test_dryrun, it ends up in
+        # self._config, otherwise we should get it from cache sync later
+        self._sim_value = self._config.get('value', 0)
         self._sim_min = None
         self._sim_max = None
         self._sim_started = None
