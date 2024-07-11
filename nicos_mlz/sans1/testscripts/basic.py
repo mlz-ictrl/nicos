@@ -58,3 +58,13 @@ maw(det1_z, 20000)
 maw(det1_z, 4000)
 maw(det1_hv, 'ON')
 maw(det1_z, 20000)
+
+# Test laser
+maw('laser', 'On')
+read('laser')
+maw('laser', 'Off')
+read('laser')
+maw('laser', 1)
+read('laser')
+maw('laser', 0)
+read('laser')

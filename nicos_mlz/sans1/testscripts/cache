@@ -22,3 +22,4 @@ nicos/col_3_a/abslimits=(-400,600)
 nicos/col_3_a/userlimits=(-400,600)
 nicos/col_2_a/abslimits=(-400,600)
 nicos/col_2_a/userlimits=(-400,600)
+nicos/laser/mapping={'On': 1, 'Off': 0}
