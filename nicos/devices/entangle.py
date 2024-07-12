@@ -395,7 +395,7 @@ class NamedDigitalInput(DigitalInput):
     }
 
     def doInit(self, mode):
-        if 'mapping' in self._config:
+        if 'mapping' in self._config or mode == SIMULATION:
             self._reverse = {v: k for (k, v) in self.mapping.items()}
             return
         try:
@@ -464,7 +464,7 @@ class NamedDigitalOutput(DigitalOutput):
     }
 
     def doInit(self, mode):
-        if 'mapping' in self._config:
+        if 'mapping' in self._config or mode == SIMULATION:
             self._reverse = {v: k for (k, v) in self.mapping.items()}
             # oneofdict: allows both types of values (string/int), but
             # normalizes them into the string form
