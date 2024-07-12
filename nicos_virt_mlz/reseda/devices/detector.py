@@ -272,8 +272,7 @@ class McStasImage(BaseImage):
             self.readresult = [roi, total]
 
         # demux timing into foil + timing
-        shaped = self._buf.reshape(
-            (self.foils, self.tofchannels) + self._datashape[2:])
+        shaped = self._buf.reshape(self._datashape)
 
         x = np.arange(self.tofchannels)
         ty = shaped[self.fitfoil].sum((1, 2))
