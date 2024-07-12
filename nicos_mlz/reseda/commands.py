@@ -46,8 +46,8 @@ def miezetau(wavelength, deltaFreq, distance):
     """
     # co.m_n  Mass of neutron
     # co.h    Planck constant
-    return (2*co.m_n**2/co.h**2 * (wavelength*1e-10)**3 * deltaFreq * distance *
-            1e9)
+    return (2 * (co.m_n / co.h)**2 * (wavelength * 1e-10)**3 * deltaFreq *
+            distance * 1e9)
 
 
 @usercommand
