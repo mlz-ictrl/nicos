@@ -66,6 +66,7 @@ devices = dict(
         neutronspersec = {
             'localhost': 3.5e5,
             'taco6.ictrl.frm2.tum.de': 4e4,
+            'ictrl23': 5.15e4,
         },
     ),
     psd_timer = device('nicos.devices.mcstas.McStasTimer',
