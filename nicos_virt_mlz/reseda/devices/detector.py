@@ -187,6 +187,7 @@ class McStasImage(BaseImage):
 
     def doInit(self, mode):
         self._xres, self._yres = self.size
+        self._read = 0
 
     def doPrepare(self):
         self._attached_mcstas.setTofChannels(self.tofchannels)
@@ -195,6 +196,7 @@ class McStasImage(BaseImage):
     def doStart(self):
         self.readresult = [0, 0]
         BaseImage.doStart(self)
+        self._read = 0
 
     def valueInfo(self):
         if self.mode == 'tof':
@@ -248,7 +250,8 @@ class McStasImage(BaseImage):
                         str(p), dtype=np.dtype(
                             (np.double,
                              (self.foils, self.tofchannels) + self.size))))
-                self.log.warning('No file: %s', p)
+                if self._read > 0:
+                    self.log.warning('No file: %s %s', quality, p)
                 return np.zeros((self.foils, self.tofchannels, ) + self.size)
 
             factor = self._attached_mcstas._getScaleFactor()
@@ -257,6 +260,7 @@ class McStasImage(BaseImage):
                 self._buf = (buf * factor).astype(np.uint32)
             else:
                 self._buf = np.zeros((self.tofchannels, ) + self.size)
+            self._read += 1
         except OSError:
             if quality != LIVE:
                 self.log.exception('Could not read result file', exc=1)
