@@ -280,7 +280,7 @@ class PreviewDialog(QDialog):
         self.tableWidget.setHorizontalHeaderLabels(self._header_labels)
 
         self.fromDateTimeEdit.setDateTime(
-                QDateTime.currentDateTime().addMonths(-1))
+            QDateTime.currentDateTime().addMonths(-1))
         self.toDateTimeEdit.setDateTime(QDateTime.currentDateTime())
 
         self.fromDateTimeEdit.dateTimeChanged.connect(self.update_timeline)
@@ -705,7 +705,7 @@ class TunewaveTablePanel(Panel):
         # Add echotime as first table header
         try:
             self._header_labels = ['echotime'] + self.client.eval(
-                    '%s.tunedevs' % self._dev)
+                '%s.tunedevs' % self._dev)
         except (NameError, TypeError):  # 'tabledev' is not available
             return
 
