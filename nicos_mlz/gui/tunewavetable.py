@@ -32,6 +32,7 @@ from nicos.guisupport.qt import QBrush, QColor, QDateTime, QDialog, QEvent, \
     QGraphicsTextItem, QGraphicsView, QMenu, QPainter, QPen, Qt, \
     QTableWidgetItem, QTextEdit, pyqtSignal, pyqtSlot
 from nicos.guisupport.typedvalue import DeviceValueEdit
+from nicos.protocols.cache import cache_load
 from nicos.utils import findResource
 
 
@@ -482,6 +483,7 @@ class TunewaveTablePanel(Panel):
 
         client.connected.connect(self.on_client_connected)
         client.device.connect(self.on_client_device)
+        client.cache.connect(self.on_client_cache)
         self._dev_available = False
 
     @property
@@ -505,6 +507,18 @@ class TunewaveTablePanel(Panel):
     def on_client_connected(self):
         """Refresh everything on a fresh connection."""
         self._update_available_tables()
+
+    def on_client_cache(self, data):
+        (_time, key, _op, value) = data
+        ldevname, subkey = key.rsplit('/', 1)
+        if ldevname != self._dev:
+            return
+        if subkey == 'tables':
+            if not self._dev_available:
+                self._prepare_table()
+            if self._dev_available:
+                self._available_tables = cache_load(value) if value else {}
+            self._update_combo_boxes()
 
     def on_client_device(self, data):
         """Check for configured 'tabledev' device."""
