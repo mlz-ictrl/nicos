@@ -29,7 +29,8 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_ess.nexus import EventStream, NXDataset
-from nicos_sinq.nexus.specialelements import AbsoluteTime, CellArray
+from nicos_sinq.nexus.specialelements import AbsoluteTime, CellArray,\
+    SaveSampleEnv, DevStat
 
 dmc_base = {
     'NeXus_Version': '4.4.0',
@@ -394,6 +395,9 @@ def makeSample():
             DeviceDataset('a3',
                           dtype='float32',
                           units=NXAttribute('degree', 'string')),
+        "hugo": SaveSampleEnv(),
+        "temperature_mean": DevStat("Ts:avg"),
+        "temperature_stddev": DevStat("Ts:stddev"),
     }
 
     sample_device = session.experiment.sample
@@ -404,9 +408,6 @@ def makeSample():
         }
     else:
         nexus_sample_class = 'NXsample'
-
-    if 'temperature' in session.devices:
-        sample['temperature'] = DeviceDataset('temperature', dtype='float32')
 
     return nexus_sample_class, sample
 
