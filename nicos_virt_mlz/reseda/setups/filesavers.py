@@ -12,6 +12,7 @@ devices = dict(
     ),
     nxsink = device('nicos.nexus.NexusSink',
         templateclass = 'nicos_mlz.reseda.nexus.nexus_templates.ResedaTemplateProvider',
+        settypes = {'scan', 'point', 'subscan'},
         filenametemplate = ['%(scancounter)07d.nxs'],
     ),
 )
