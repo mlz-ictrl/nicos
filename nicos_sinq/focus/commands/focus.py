@@ -27,6 +27,7 @@ from nicos import session
 from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.device import maw
 from nicos.core.errors import ConfigurationError
+from nicos.utils import findResource
 
 
 @usercommand
@@ -84,7 +85,8 @@ def LoadThetaArrays():
     Loads the theta values from focusmerge.dat into the arrays for use in
     NeXus file writing.
     """
-    with open('nicos_sinq/focus/focusmerge.dat', encoding='utf-8') as fin:
+    with open(findResource('nicos_sinq/focus/focusmerge.dat'),
+              encoding='utf-8') as fin:
         fin.readline()  # skip first
         # First: the merged data theta
         length = int(fin.readline())
