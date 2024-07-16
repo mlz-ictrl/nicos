@@ -30,8 +30,10 @@ SINQ uses a different way to calculate monochromator focusing
 
 import math
 
+from nicos import session
+from nicos.core.errors import LimitError
 from nicos.devices.generic.mono import to_k
-from nicos.devices.tas.mono import Monochromator
+from nicos.devices.tas.mono import Monochromator, thetaangle
 
 
 class SinqMonochromator(Monochromator):
@@ -56,11 +58,29 @@ class TasAnalyser(SinqMonochromator):
     def doWriteScatteringsense(self, value):
         off = self._attached_theta.offset
         if self.scatteringsense == -1 and value == 1:
-            off += 180
-        elif self.scatteringsense == 1 and value == -1:
             off -= 180
+        elif self.scatteringsense == 1 and value == -1:
+            off += 180
         if off > 180:
             off -= 360
         elif off < -180:
             off += 360
         self._attached_theta.offset = off
+        session.delay(5)
+        self._attached_theta.userlimits = self._attached_theta.abslimits
+
+    def _calc_angles(self, k):
+        try:
+            angle = thetaangle(self.dvalue, self.order, k)
+        except ValueError:
+            raise LimitError(
+                self, 'wavelength not reachable with d=%.3f A and n=%s' % (
+                    self.dvalue, self.order)) from None
+        tt = 2.0 * angle * self.scatteringsense  # twotheta with correct sign
+        th = angle * self.scatteringsense  # absolute theta with correct sign
+        return th, tt
+
+    def _get_angles(self, maxage):
+        tt = self._attached_twotheta.read(maxage)
+        th = self._attached_theta.read(maxage)
+        return tt * self.scatteringsense, th*self.scatteringsense
