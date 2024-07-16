@@ -112,7 +112,7 @@ class BOATemplateProvider(NexusTemplateProvider):
         det = self.containsDetector(table)
         if det:
             self._detector = det
-            table.removeSetup(det)
+            table.detach(det)
         devices = table.getTableDevices()
         content = {}
         for d in devices:
@@ -130,7 +130,7 @@ class BOATemplateProvider(NexusTemplateProvider):
         equipment = ','.join(table.setups)
         content['equipment'] = ConstDataset(equipment, 'string')
         if det:
-            table.addSetup(det)
+            table.attach(det)
             content['detector'] = ConstDataset(det, 'string')
         return content
 

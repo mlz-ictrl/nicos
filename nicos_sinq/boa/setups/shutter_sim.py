@@ -9,7 +9,7 @@ sysconfig = {'datasinks': ['shuttersink',]}
 devices = dict(
     shutter = device('nicos.devices.generic.manual.ManualSwitch',
         description = 'Shutter',
-        states = ['open', 'close']
+        states = ['open', 'close', 'closed']
     ),
     shutterauto = device('nicos.devices.generic.manual.ManualSwitch',
         description = 'Flag if shutter is operated in automatic or manual mode',

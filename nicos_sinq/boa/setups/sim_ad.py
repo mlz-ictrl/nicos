@@ -1,15 +1,12 @@
 description = 'Setup for the ANDOR CCD camera at BOA'
 
-# This line for the real thing...
-pvprefix = 'SQ:BOA:andor:'
-# This line below for simulation, uses dchabot/simioc docker container
-#pvprefix = 'sim:det:'
+pvprefix = 'KM36:sim:'
 
 detector_channel = 'cam1:'
 motprefix = 'SQ:BOA:mcu1:DCCDATZ'
 counterprefix = 'SQ:BOA:counter'
 
-excludes = ['andorccd', 'embl']
+excludes = ['andorccd', 'embl', 'andorccd-l', 'andor']
 
 devices = dict(
     dccdatz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
@@ -70,8 +67,8 @@ devices = dict(
         readpv = pvprefix + 'image1:ArrayData',
         epicstimeout = 30.
     ),
-    andor = device('nicos_sinq.devices.epics.SINQ_area_detector.AndorAreaDetector',
-        description = 'Area detector instance for ANDOR CCD',
+    andor = device('nicos_sinq.devices.epics.area_detector.EpicsAreaDetector',
+        description = 'Area detector instance for sim AD',
         unit = '',
         basepv = pvprefix + detector_channel,
         statepv = pvprefix + detector_channel + 'DetectorState_RBV',
