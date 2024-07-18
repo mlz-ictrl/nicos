@@ -261,6 +261,8 @@ class McStasImage(BaseImage):
             else:
                 self._buf = np.zeros((self.tofchannels, ) + self.size)
             self._read += 1
+            if self.mode == 'image':
+                self._buf = np.sum(self._buf, axis=(0, 1))
         except OSError:
             if quality != LIVE:
                 self.log.exception('Could not read result file', exc=1)
@@ -274,6 +276,7 @@ class McStasImage(BaseImage):
             roi = total
         if self.mode == 'image':
             self.readresult = [roi, total]
+            return
 
         # demux timing into foil + timing
         shaped = self._buf.reshape(self._datashape)
