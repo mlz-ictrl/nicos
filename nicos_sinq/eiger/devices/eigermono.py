@@ -57,6 +57,9 @@ class EigerA2Controller(InterfaceLogicalMotorHandler):
         result = {}
         result['a2'] = self._attached_reala2.read(maxage)
         a2Target = self._attached_reala2.target
+        if not a2Target:
+            # Fix for simulation mode
+            a2Target = result['a2']
         vall = self._attached_left.read(maxage)
         valr = self._attached_right.read(maxage)
         d2ro = self.sizes[1] - a2Target
