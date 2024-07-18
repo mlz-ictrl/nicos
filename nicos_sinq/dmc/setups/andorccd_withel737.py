@@ -2,32 +2,32 @@ description = 'Setup for the ANDOR CCD camera at BOA using the CCDWWW server'
 
 counterprefix = 'SQ:DMC:counter'
 
-excludes = ['detector']
+excludes = ['detector', 'andorccd']
 
 devices = dict(
-    el737_preset = device('nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
+    el737_preset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',
         unit = 'sec',
         readpv = f'{counterprefix}.TP',
         presetpv = f'{counterprefix}.TP',
     ),
-    elapsedtime = device('nicos_ess.devices.epics.detector.EpicsTimerPassiveChannel',
+    elapsedtime = device('nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
         description = 'Used to view elapsed time while counting',
         unit = 'sec',
         readpv = f'{counterprefix}.T',
     ),
-    monitorpreset = device('nicos_ess.devices.epics.detector.EpicsCounterActiveChannel',
+    monitorpreset = device('nicos_sinq.devices.epics.detector.EpicsCounterActiveChannel',
         description = 'Used to set and view monitor preset',
         type = 'monitor',
         readpv = f'{counterprefix}.PR2',
         presetpv = f'{counterprefix}.PR2',
     ),
-    monitorval = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
+    monitorval = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'Monitor for neutron beam',
         type = 'monitor',
         readpv = f'{counterprefix}.S2',
     ),
-    protoncurr = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
+    protoncurr = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'Monitor for proton current',
         type = 'monitor',
         readpv = f'{counterprefix}.S4',
