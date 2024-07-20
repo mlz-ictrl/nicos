@@ -24,14 +24,14 @@ from copy import deepcopy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, NamedImageDataset, \
-    NXAttribute, NXLink, NXTime
+    DeviceAttribute, DeviceDataset, NamedImageDataset, NXAttribute, NXLink, \
+    NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_sinq.focus.nexus.focus import FocusCoordinates, ScaledImage, \
     SliceTofImage, SumImage
 from nicos_sinq.nexus.specialelements import ConfArray, FixedArray, \
-    TwoThetaArray, SaveSampleEnv
+    SaveSampleEnv, TimeBinConfArray, TwoThetaArray
 
 focus_default = {"NeXus_Version": "4.4.0",
                  "instrument": "FOCUS at SINQ",
@@ -144,10 +144,10 @@ monochromator = {
 
 det_common = {
     "delay": DeviceDataset("delay"),
-    "time_binning": ConfArray("hm_tof_array",
-                              units=NXAttribute("us", "string"),
-                              axis=NXAttribute(2, "int32"),
-                              scale=.1),
+    "time_binning": TimeBinConfArray("hm_tof_array",
+                                     units=NXAttribute("us", "string"),
+                                     axis=NXAttribute(2, "int32"),
+                                     scale=.1),
 }
 
 middlebank = {
