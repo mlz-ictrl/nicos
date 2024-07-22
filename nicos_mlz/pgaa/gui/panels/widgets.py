@@ -30,7 +30,7 @@ from nicos.core.status import BUSY
 from nicos.guisupport.led import ClickableOutputLed
 from nicos.guisupport.qt import QAbstractButton, QCheckBox, QComboBox, \
     QCursor, QDoubleValidator, QHBoxLayout, QIntValidator, QLabel, \
-    QLCDNumber, QLineEdit, QPainter, QPixmap, QSlider, QSpinBox, \
+    QLCDNumber, QLineEdit, QLocale, QPainter, QPixmap, QSlider, QSpinBox, \
     QStackedWidget, Qt, QToolTip, QWidget, pyqtSignal, pyqtSlot
 from nicos.guisupport.widget import NicosListener, NicosWidget
 
@@ -175,7 +175,11 @@ class TimeEditWidget(QWidget):
         self.layout().setContentsMargins(1, 1, 1, 1)
         self.layout().setSpacing(1)
         self.val = QLineEdit()
-        self.val.setValidator(QDoubleValidator(0, 1000000, 2))
+        validator = QDoubleValidator()
+        validator.setLocale(QLocale('en_US'))  # Needed for the '.' in input
+        validator.setBottom(0)
+        validator.setDecimals(2)
+        self.val.setValidator(validator)
         self.layout().addWidget(self.val)
         self.unit = QComboBox()
         self.unit.insertItems(0, self.units)
@@ -236,22 +240,21 @@ class ValueData(QStackedWidget):
 
     def __init__(self, parent=None, init_widget_info=None, initState=None):
         QStackedWidget.__init__(self, parent)
-        self.trueLive = TimeEditWidget(self)
-        self.trueLive.setValue(1.0)
+        self.timeWidget = TimeEditWidget(self)
+        self.timeWidget.setValue(1.0)
 
         self.counts = QSpinBox(self)
+        self.counts.setRange(0, 2**31 - 1)
+        self.counts.setSingleStep(50000)
 
         self.widget_types = {
-            'LiveTime': self.trueLive,
-            'TrueTime': self.trueLive,
+            'LiveTime': self.timeWidget,
+            'TrueTime': self.timeWidget,
             'counts': self.counts,
         }
 
-        self.counts.setRange(0, 1000000000)
-        self.counts.setSingleStep(50000)
-
         # add widgets to Stack
-        self.addWidget(self.trueLive)
+        self.addWidget(self.timeWidget)
         self.addWidget(self.counts)
 
         # Init given current widget with data (time.. etc)
@@ -259,7 +262,7 @@ class ValueData(QStackedWidget):
 
         self.setValue(initState)
 
-        self.trueLive.returnPressed.connect(self.on_returnPressed)
+        self.timeWidget.returnPressed.connect(self.on_returnPressed)
         self.counts.valueChanged[str].connect(self.on_cts_changed)
         self.setMinimumWidth(90)
 
@@ -277,7 +280,7 @@ class ValueData(QStackedWidget):
     def setValue(self, new_data):
         w = self.currentWidget()
         if isinstance(w, TimeEditWidget):
-            w.setValue(new_data)
+            w.setValue(float(new_data))
         elif isinstance(w, QSpinBox):
             w.setValue(int(new_data))
         self.current = new_data
@@ -293,7 +296,7 @@ class ValueData(QStackedWidget):
             return w.value()
 
     def on_returnPressed(self):
-        value = self.trueLive.value()
+        value = self.timeWidget.value()
         self.valueChanged[float].emit(value)
 
     def on_cts_changed(self):
@@ -333,7 +336,7 @@ class CellItem(QWidget):
         pass
 
     def is_enabled(self):
-        return max(w.isEnabled() for w in self.widgets)
+        return max(w.isEnabled() for w in self.widgets) if self.widgets else False
 
     def set_layout(self):
         for w in self.widgets:

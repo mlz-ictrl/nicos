@@ -191,7 +191,7 @@ class TableWidget(QTableWidget):
         self.show()
 
         self.source.set_table(self)
-        if hasattr(source, 'sequence') and source.sequence:
+        if getattr(source, 'sequence', None):
             self._refresh()
 
     def setColumnHeaders(self, column_headers):
@@ -349,15 +349,14 @@ class Row(QWidget):
         """Create GUI elements."""
         items = []
         for value in self.par2cell:
-            if value not in kwargs:
-                kwargs[value] = None
+            state = kwargs.get(value.replace('/', '_').replace(' ', '_'))
             if value not in self.par2cell or self.par2cell[value] is CellItem:
-                w = CellItem(self, self, kwargs[value])
+                w = CellItem(self, self, state)
             else:
                 w = self.par2cell[value](self, parent=self,
-                                         state=kwargs[value])
-            items.append(w)
+                                         state=state)
             w.setObjectName(value)
+            items.append(w)
         return items
 
     def re_create(self):
@@ -406,7 +405,15 @@ class Measurement(BasicScriptHandler, Row):
         # TODO: place stop cond cells in one column
         self.stop_cond_cells = {}
         Row.__init__(self, parent=parent, data=self.data)
-        self._make_connections()
+        self.condCell, self.atAfterCell = self._make_connections()
+        # save new values for the condition type and value, due to the signal
+        # slots the values will be overridden be the different calls
+        condValue = self.data.get('stop_by')
+        afterValue = self.data.get('at_after')
+        if self.condCell:
+            self.condCell.setValue(condValue)
+        if self.atAfterCell:
+            self.atAfterCell.setValue(afterValue)
 
     def _extract_suffix(self, txt):
         return self.suffix_re.search('COVX').group('suffix')
@@ -423,6 +430,7 @@ class Measurement(BasicScriptHandler, Row):
             condCell.condChanged.connect(atAfterCell.condCellChanged)
         for w in self.widgets:
             w.cellChanged.connect(self.cellChanged)
+        return condCell, atAfterCell
 
     @pyqtSlot('QWidget')
     def cellChanged(self, item):
@@ -441,10 +449,10 @@ class Measurement(BasicScriptHandler, Row):
 
     def get_script(self):
         script = self.basic_script
-        for key in self.data:
+        for key, value in self.data.items():
             script = script.replace(
                 '__%s__' % key.replace('/', '_').replace(' ', '_'),
-                '%s' % self.data[key])
+                '%s' % value)
         return script
 
     def re_create(self):
@@ -484,11 +492,6 @@ class QueuedMeasurement(Measurement):
         script_text = request['script']
         self._client = client
         Measurement.__init__(self, parent=parent, init_script=script_text)
-        atAfterCell = self.widgets[self.column_order.index('at/after')]
-        condCell = self.widgets[self.column_order.index('stop by')]
-        condCell.setValue(self.data['stop_by'])
-        atAfterCell.condCellChanged(self.data['stop_by'])
-        atAfterCell.setValue(self.data['at_after'])
         self._client.updated.connect(self.on_update)
         if self.disable:
             for w in self.widgets:
@@ -556,6 +559,8 @@ class Log(Row):
         if 'stopped' in data:
             data['stopped'] = datetime.fromtimestamp(
                 data['stopped']).strftime('%Y-%m-%d %H:%M:%S')
+        data.update({key.replace('/', '_').replace(' ', '_'): value
+                     for key, value in data.items()})
         Row.__init__(self, parent, data)
         for widget in self.widgets:
             widget.setMinimumWidth(90)
