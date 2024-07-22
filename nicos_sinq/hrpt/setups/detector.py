@@ -51,7 +51,7 @@ devices = dict(
     protoncount = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'Fourth scalar counter channel',
         type = 'monitor',
-        readpv = pvprefix + '.S5',
+        readpv = pvprefix + '.S7',
     ),
     c5 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'Fifth scalar counter channel',

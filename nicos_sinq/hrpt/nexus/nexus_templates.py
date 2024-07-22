@@ -1,9 +1,9 @@
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, ImageDataset, NexusSampleEnv, \
-    NXAttribute, NXLink, NXScanLink, NXTime
+    DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
+    NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_sinq.nexus.specialelements import DevStat, OptionalDeviceDataset, \
+from nicos_sinq.nexus.specialelements import DevStat, SaveSampleEnv, \
     TwoThetaArray
 
 # Default template for HRPT including most of the devices
@@ -49,15 +49,11 @@ hrpt_default = {"NeXus_Version": "4.3.0", "instrument": "HRPT",
                                            'som_oscillation'),
                                        "sample_mur": DeviceDataset('Sample',
                                                                    'mur'),
-                                       "hugo": NexusSampleEnv(postfix='_log'),
-                                       "temperature": OptionalDeviceDataset(
-                                           'temperature'),
-                                       "magnetic_field": OptionalDeviceDataset(
-                                           "mf"),
+                                       "hugo": SaveSampleEnv(),
                                        "temperature_mean":
-                                           DevStat("temperature:avg"),
+                                           DevStat("Ts:avg"),
                                        "temperature_stddev":
-                                           DevStat("temperature:stddev"),
+                                           DevStat("Ts:stddev"),
                                    }, "HRPT:NXinstrument": {
                         "HRPT-CERCA-Detector:NXpsd": {
                             "CounterMode": DetectorDataset('mode', "string"),

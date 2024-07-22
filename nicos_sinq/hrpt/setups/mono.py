@@ -86,6 +86,6 @@ devices = dict(
         description = 'GE Monochromator',
         default = '1.17',
         unit = 'A',
-        abslimits = (1, 7),
+        abslimits = (.5, 7),
     )
 )
