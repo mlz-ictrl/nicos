@@ -23,9 +23,9 @@
 """Class for the sample changer."""
 
 from nicos import session
-from nicos.core import Attach, IsController, Moveable, Override, Param, status
+from nicos.core import Attach, HasLimits, IsController, Moveable, Override, \
+    Param, status
 from nicos.core.errors import LimitError
-from nicos.core.mixins import HasLimits
 from nicos.core.params import floatrange, intrange
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
     SeqSleep
@@ -74,10 +74,19 @@ class SampleChanger(IsController, BaseSequencer):
         if adev == self._attached_motor:
             if self._attached_push._attached_sensort.read(0) in ['down', 0]:
                 return False, '"push" is not in top position or moving'
+            if not any(self._attached_motor.isAtTarget(adevtarget, target)
+                       for target in list(range(self.valuetype.fr,
+                                                self.valuetype.to + 1))):
+                return False, 'invalid motor target position'
         elif adev == self._attached_push:
             if self._attached_motor.status(0)[0] == status.BUSY:
                 return False, 'motor moving'
-            if self._attached_motor.read(0) not in list(range(1, 17)):
+            pos = self._attached_motor.read(0)
+            if not self._attached_motor.isAtTarget(pos):
+                return False, 'invalid motor position, precision exceeded'
+            if not any(self._attached_motor.isAtTarget(pos, target)
+                       for target in list(range(self.valuetype.fr,
+                                                self.valuetype.to + 1))):
                 return False, 'invalid motor position'
         return True, ''
 
