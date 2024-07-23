@@ -538,7 +538,7 @@ class SetupChecker:
         # check for validity of extended representative
         representative = self.ns.get('extended', {}).get('representative')
         if representative is not None:
-            if representative not in devs:
+            if representative not in devs and representative not in aliascfg:
                 self.log_error(
                     'extended["representative"] should be a device '
                     'defined in the current setup',
