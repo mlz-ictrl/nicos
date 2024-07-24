@@ -27,6 +27,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (-1000, 1000),
         userlimits = (5, 355),
+        curvalue = 5,
         speed = 2,
         visibility = (),
     ),

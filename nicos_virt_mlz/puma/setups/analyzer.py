@@ -11,6 +11,7 @@ devices = dict(
             unit = 'deg',
             abslimits = (-0, 60),
             speed = 0.5,
+            curvalue = 12.010
         ),
         precision = 0.01,
         # offset = -0.551,
@@ -20,6 +21,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (-117, 117),
         speed = 0.5,
+        curvalue = -24.020,
         visibility = (),
     ),
     att = device('nicos.devices.generic.Axis',

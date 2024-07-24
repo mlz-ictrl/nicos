@@ -1,7 +1,7 @@
 description = 'basic PUMA setup'
 
 includes = ['sampletable', 'monochromator', 'analyzer', 'lengths', 'reactor',
-            # 'shutter',
+            'shutter',
             # 'ana_alias',
            ]
 
@@ -17,7 +17,14 @@ devices = dict(
     puma = device('nicos_mlz.puma.devices.PUMA',
         description = 'DAS PUMA',
         instrument = 'PUMA',
-        responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
+        responsible = 'J. T. Park <jitae.park@frm2.tum.de>',
+        doi = 'http://dx.doi.org/10.17815/jlsrf-1-36',
+        website = 'http://www.mlz-garching.de/puma',
+        operators = [
+            'Technische Universität München (TUM)',
+            'Institut für Physikalische Chemie, Georg-August-Universität '
+            'Göttingen',
+        ],
         cell = 'Sample',
         phi = 'phi',
         psi = 'psi',
@@ -160,10 +167,17 @@ devices = dict(
 )
 
 alias_config = {
-    'ana':  {'ana_pg002': 100, 'ana_ge311': 90},
+    'ana': {
+        'ana_pg002': 100,
+        'ana_ge311': 90,
+    },
+    'mono': {
+        'mono_pg002': 100,
+        'mono_cu220': 90,
+        'mono_cu111': 80,
+        'mono_ge311': 70,
+    },
 }
 
 startupcode = '''
-psi.alias = psi_puma
-mono.alias = mono_pg002
 '''
