@@ -23,7 +23,7 @@
 from nicos.core import Param
 from nicos.core.device import Moveable, Override, listof
 from nicos.core.errors import InvalidValueError
-from nicos.utils import createSubprocess
+from nicos.utils import createSubprocess, findResource
 
 
 class ProcDevice(Moveable):
@@ -47,7 +47,7 @@ class ProcDevice(Moveable):
             raise InvalidValueError('Process is still running')
 
         fullargs = list(self.args)
-        fullargs.insert(0, self.subprocess)
+        fullargs.insert(0, findResource(self.subprocess))
         self._subprocess = createSubprocess(fullargs)
 
     def doIsCompleted(self):

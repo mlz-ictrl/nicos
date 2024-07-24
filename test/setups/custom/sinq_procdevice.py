@@ -7,7 +7,7 @@ includes = ['stdsystem']
 devices = dict(
     sleeper = device('nicos_sinq.devices.procdevice.ProcDevice',
         description = 'A sleeping device...',
-        subprocess = 'sleep',
+        subprocess = 'test/setups/custom/test_sleep.sh',
         args = [
             '2',
         ]
