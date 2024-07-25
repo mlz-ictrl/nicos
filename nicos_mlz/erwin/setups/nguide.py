@@ -10,6 +10,7 @@ devices = dict(
         fmtstr = '%.2f',
         maxage = 65,
         pollinterval = 30,
+        warnlimits = (None, 10),
     ),
     p2_nguide = device('nicos.devices.entangle.Sensor',
         description = 'Pressure 2',
@@ -17,6 +18,7 @@ devices = dict(
         fmtstr = '%.2f',
         maxage = 65,
         pollinterval = 30,
+        warnlimits = (None, 10),
     ),
     p3_nguide = device('nicos.devices.entangle.Sensor',
         description = 'Pressure 3',
@@ -24,6 +26,7 @@ devices = dict(
         fmtstr = '%.2f',
         maxage = 65,
         pollinterval = 30,
+        warnlimits = (None, 10),
     ),
 )
 

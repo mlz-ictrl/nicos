@@ -56,16 +56,32 @@ watch_conditions = [
          actiontimeout = 600,
          # gracetime = 5,
     ),
+    dict(condition = 'p1_nguide_status[0] == WARN',
+        # precondition = 'p1_nguide_value < 10',
+        # precondtime = 60,
+        type = 'neutronguide',
+        message = 'ErwiN: P1 is to high (> 10 mbar)',
+    ),
+    dict(condition = 'p2_nguide_status[0] == WARN',
+        # precondition = 'p2_nguide_value < 10',
+        # precondtime = 60,
+        type = 'neutronguide',
+        message = 'ErwiN: P2 is to high (> 10 mbar)',
+    ),
 ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 ('default')
 # and one for priority 2 ('critical').
+notifiers = {
+    'default': [],
+    'critical': [],
+    'neutronguide': ['ngmail'],
+}
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
         cache = 'localhost:14869',
-        notifiers = {'default': [],
-                     'critical': []},
+        notifiers = notifiers,
         watch = watch_conditions,
         loglevel = 'info',
     ),
