@@ -10,7 +10,7 @@ group = 'special'
 # 'gracetime' -- time in sec allowed for the condition to be true without
 #    emitting a warning (default 5 sec)
 # 'precondition'
-#   If present, this condition must be fullfiled for at least ``precondtime``,
+#   If present, this condition must be fulfilled for at least ``precondtime``,
 #   before condition will trigger. Default is no precondition.
 # 'precondtime'
 #   The time a precondition must be fulfilled. Default is 5 seconds.

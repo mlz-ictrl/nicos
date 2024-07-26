@@ -148,7 +148,7 @@ specification can have these keys:
    gracetime, no warning is emitted.  The default gracetime is 5 seconds.
 
 **precondition**
-   If present, this condition must be fullfiled for at least ``precondtime``,
+   If present, this condition must be fulfilled for at least ``precondtime``,
    before condition will trigger. If ``precondcooldown`` is present, the condition
    can still be triggered for that interval after the precondition becomes false.
    The default is no precondition. The syntax is the same as for ``condition``.
