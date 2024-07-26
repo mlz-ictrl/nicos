@@ -50,6 +50,8 @@ windows = [
     window('Live data', 'live',
            panel('nicos_mlz.spodi.gui.panels.live.LiveDataPanel',
                  filetypes=['ctxt'])),
+    window('Watchdog', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [
