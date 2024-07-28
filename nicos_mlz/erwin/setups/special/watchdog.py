@@ -70,6 +70,8 @@ watch_conditions = [
     ),
 ]
 
+includes = ['notifiers']
+
 # The Watchdog device has two lists of notifiers, one for priority 1 ('default')
 # and one for priority 2 ('critical').
 notifiers = {
