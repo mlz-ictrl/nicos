@@ -10,6 +10,6 @@ devices = dict(
         alwayspoll = [],  # ['charmsmall'],
         neverpoll = ['detector', ],
         blacklist = ['adet', 'image', 'events', 'det'],
-        loglevel = 'debug',
+        loglevel = 'info',
     ),
 )
