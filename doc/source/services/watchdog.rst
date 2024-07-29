@@ -203,8 +203,25 @@ specification can have these keys:
    seconds until the action is actually executed.  This should not be used for
    very time-critical conditions.
 
-   The action should not take longer than 60 seconds; in case it does the process
-   will be forcibly aborted.
+   The action should not take longer than ``actiontimeout``; in case it does
+   the process will be forcibly aborted.
+
+**actiontimeout**
+   An ``action`` may need some time to be finished. The 'actiontimeout' defines
+   the maximum time the action may need. After this time the action will be
+   aborted.  The default value is 60 seconds.
+
+**okaction**
+   If set the 'okaction' will be executed when the condition comes back to normal.
+
+   At least for watchdog conditions whose ``scriptaction`` is ``pausecount``
+   (pause the counting), it would make sense to also define an action when
+   the condition is normal again.
+
+**okmessage**
+   If set the 'okmessage' will be emitted, when the condition comes back to
+   normal.
+
 
 Additionally to the actions which could be define the Watchdog may also be used
 to send some messages. For this purpose exist some
