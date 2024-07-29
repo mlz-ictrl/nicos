@@ -431,7 +431,7 @@ class SISDetector(Detector):
     def doFinish(self):
         Detector.doFinish(self)
         if self.autoshutter:
-            self._attached_shutter.maw('close')
+            self._attached_shutter.maw('closed')
 
     def _checkShutter(self):
         if self._attached_shutter.read() in self._attached_shutter.CLOSEDSTATES:

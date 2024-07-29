@@ -4,7 +4,7 @@
 
 
 # Go to Reflectivity Mode and prepare instrument setup
-maw(shutter,'close')
+maw(shutter, 'closed')
 maw(giref, -6000)
 maw(selector_lambda, 6)
 move( s1_top, 70, s1_bottom, 74.3)
@@ -51,7 +51,7 @@ while tx.read()<initial_tx_value+5:
         print 'candidate tx:',new_tx
         roi6_p=roi6_n
 
-maw(shutter,'close')
+maw(shutter, 'closed')
 
 
 # 2D tx,rz scan in reflection condition
@@ -78,7 +78,7 @@ while tx.read()<new_tx+1:
                 maw(rz, rz.read()+0.05)
         maw(tx, tx.read()+0.1)
 
-maw(shutter,'close')
+maw(shutter, 'closed')
 
 # Go to the found optimum values
 maw(rz, new_rz)
