@@ -23,7 +23,7 @@ devices = {
         device('nicos_mlz.reseda.devices.RTE1104YScaleSetting',
             description = 'amplitude setting chain of subdevices: setting channel 2',
             io = 'rte1104_io',
-            channel = 2,
+            channel = 3,
             regulator = device('nicos_mlz.reseda.devices.Regulator',
                 description = 'Auto regulating amplitude',
                 sensor = '%s_coil_rms' % setupname,
