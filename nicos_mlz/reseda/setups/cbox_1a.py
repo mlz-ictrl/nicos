@@ -4,6 +4,11 @@ group = 'optional'
 tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 
 devices = {
+    '%s_fg_io' % setupname:
+        device('nicos.devices.entangle.StringIO',
+            description = 'Low level communication to frequency generator',
+            tangodevice = '%s/%s/fg_io' % (tango_base, setupname),
+        ),
     '%s_fg_freq' % setupname:
         device('nicos.devices.entangle.AnalogOutput',
             description = 'Frequency generator frequency',

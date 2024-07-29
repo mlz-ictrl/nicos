@@ -6,6 +6,11 @@ tango_base = 'tango://resedahw2.reseda.frm2.tum.de:10000/reseda'
 includes = ['rte1104']
 
 devices = {
+    '%s_fg_io' % setupname:
+        device('nicos.devices.entangle.StringIO',
+            description = 'Low level communication to frequency generator',
+            tangodevice = '%s/%s/fg_io' % (tango_base, setupname),
+        ),
     '%s_fg_freq' % setupname:
         device('nicos_mlz.reseda.devices.RTE1104TimescaleSetting',
             description = 'Frequency setting chain of subdevices: setting timescale',
