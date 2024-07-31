@@ -35,19 +35,17 @@ from test.utils import daemon_addr, killSubprocess, startSubprocess
 def daemon_wait_cb():
     start = monotonic()
     wait = 10
-    s = None
+    sock = None
     while monotonic() < start + wait:
-
         try:
-            s = tcpSocket(daemon_addr, 0)
+            sock = tcpSocket(daemon_addr, 0)
         except OSError:
             sleep(0.02)
         else:
-            s.close()
             break
         finally:
-            if s:
-                s.close()
+            if sock:
+                sock.close()
     else:
         raise Exception('daemon failed to start within %s sec' % wait)
 
