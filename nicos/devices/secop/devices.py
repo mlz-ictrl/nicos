@@ -874,9 +874,9 @@ class SecopDevice(Device):
 
         # see if secop_properties exists (the case when auto-created from the
         # SecNode) or not, where we need to get it from setup_info.
-        if 'secop_properties' not in config:
-            name = secnodedev._get_device_name(config['secop_module'])
-            config["secop_properties"] = secnodedev.setup_info[name][1].get(
+        if 'secop_properties' not in devcfg:
+            devname = secnodedev._get_device_name(devcfg['secop_module'])
+            devcfg["secop_properties"] = secnodedev.setup_info[devname][1].get(
                 "secop_properties", {}
             )
 
