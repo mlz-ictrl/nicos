@@ -64,6 +64,7 @@ from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
 from nicos.utils import createThread, importString, printTable
+from nicos.utils import merge_dicts
 
 SECOP_ERROR = 400
 
@@ -757,44 +758,25 @@ class SecopDevice(Device):
         for accessing the assigned SECoP module
         """
         secnodedev = session.getDevice(config['secnode'])
-        params_override = config.pop('params_cfg', None)
-        commands_override = config.pop('commands_cfg', None)
-        add_mixins = config.pop('mixins', [])
+        # get config from SECNode
         setup_info = secnodedev.get_setup_info()
-        if name in setup_info:
-            devcfg = dict(setup_info[name][1])
-            params_cfg = dict(devcfg.pop('params_cfg'))
-            commands_cfg = dict(devcfg.pop('commands_cfg'))
-        else:
-            devcfg, params_cfg, commands_cfg = {}, {}, {}
-        if params_override is not None:
-            for pname, pdict in list(params_cfg.items()):
-                pnew = params_override.get(pname)
-                if pnew is not None:
-                    params_cfg[pname] = dict(pdict, **pnew)
-                elif pname not in cls.parameters:
-                    params_cfg.pop(pname)  # remove parameters not mentioned
-        if commands_override is not None:
-            for cname, cmddict in list(commands_cfg.items()):
-                cnew = commands_override.get(cname)
-                if cnew is not None:
-                    commands_cfg[cname] = dict(cmddict, **cnew)
-                else:
-                    commands_cfg.pop(cname)  # remove commands not mentioned
-        devcfg.update(config)
+
+        seccfg = setup_info[config['secop_module']][1]
+        devcfg = merge_dicts(config, seccfg)
+        add_mixins = devcfg.pop('mixins', [])
 
         # create parameters and methods
         parameters = {}
         # validators of special/pseudo parameters
         maintypes = {'value': anytype, 'status': tuple, 'target': anytype}
         attrs = dict(parameters=parameters, __module__=cls.__module__, _maintypes=maintypes)
-        if 'value_datainfo' in config:
+        if 'value_datainfo' in devcfg:
             maintypes['value'] = get_validator(
-                config.pop('value_datainfo'), use_limits=False)
-        if 'target_datainfo' in config:
+                devcfg.pop('value_datainfo'), use_limits=False)
+        if 'target_datainfo' in devcfg:
             attrs['valuetype'] = maintypes['target'] = get_validator(
-                config.pop('target_datainfo'), use_limits=True)
-        for pname, kwargs in params_cfg.items():
+                devcfg.pop('target_datainfo'), use_limits=True)
+        for pname, kwargs in devcfg['params_cfg'].items():
             typ = get_validator(kwargs.pop('datainfo'),
                                 use_limits=kwargs.get('settable', False))
             if 'fmtstr' not in kwargs and (typ is float or
@@ -818,7 +800,7 @@ class SecopDevice(Device):
 
                 attrs['doWrite%s' % pname.title()] = do_write
 
-        for cname, cmddict in commands_cfg.items():
+        for cname, cmddict in devcfg['commands_cfg'].items():
 
             if cname == 'reset':
                 continue  # special treatment of reset command in doReset
@@ -901,10 +883,10 @@ class SecopDevice(Device):
         classname = cls.__name__ + '_' + name
         # create a new class extending SecopDevice, apply DeviceMeta in order
         # to include the added parameters
-        features = config['secop_properties'].get('features', [])
+        features = devcfg['secop_properties'].get('features', [])
         mixins = [importString(mixin) for mixin in add_mixins]
         mixins.extend([FEATURES[f] for f in features if f in FEATURES])
-        if set(params_cfg) & {'target_limits', 'target_min', 'target_max'}:
+        if set(devcfg['params_cfg']) & {'target_limits', 'target_min', 'target_max'}:
             mixins.append(SecopHasLimits)
         if mixins:
             # create class to hold access methods

@@ -1805,3 +1805,20 @@ class File(BufferedWriter):
 
 def toAscii(s):
     return s.encode('unicode-escape').decode('ascii')
+
+
+def merge_dicts(a, b):
+    """Creates new dict with dictionary b merged into dictionary a recursively."""
+    out = {}
+    for key in set(a).union(b):
+        if key in a and key in b:
+            if isinstance(a[key], dict) and isinstance(b[key], dict):
+                # merge dicts
+                out[key] = merge_dicts(a[key], b[key])
+            else:
+                out[key] = b[key]
+        elif key in a:
+            out[key] = a[key]
+        else:
+            out[key] = b[key]
+    return out
