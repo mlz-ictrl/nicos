@@ -1051,7 +1051,8 @@ class ControlDialog(QDialog):
             board = QGuiApplication.clipboard()
             board.setText(item.text(1))
         elif action:
-            cmd = 'session.getDevice(%r).pollParams(volatile_only=False%s)' \
+            cmd = 'session.getDevice(%r).pollParams(volatile_only=False,' \
+                  'blocking=True%s)' \
                   % (self.devname, ', param_list=[%r]' % item.text(0)
                      if action == refreshAction else '')
             # poll even non volatile parameters as requested explicitly
