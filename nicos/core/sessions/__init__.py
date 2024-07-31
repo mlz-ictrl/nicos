@@ -1059,6 +1059,8 @@ class Session:
         if isinstance(dev, str):
             if dev in self.devices:
                 dev = self.devices[dev]
+            elif dev in self.dynamic_devices:
+                dev = self.dynamic_devices[dev]
             elif dev in self.configured_devices:
                 if self.checkParallel():
                     raise NicosError('cannot create devices in parallel '
