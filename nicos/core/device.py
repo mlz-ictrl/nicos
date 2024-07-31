@@ -942,6 +942,8 @@ class Device(metaclass=DeviceMeta):
         devices, if *with_ttl* is > 0, the cached value gets the TTL of the
         device value, determined by :attr:`maxage`, multiplied by *with_ttl*.
         """
+        if not self._cache:
+            return
         value = getattr(self, 'doRead' + name.title())()
         if not self._cache:
             self._params[name] = value
@@ -1216,15 +1218,14 @@ class Readable(Device):
                 ret = self.doPoll(n, maxage)
             except Exception:
                 self.log.warning('error in doPoll', exc=1)
-        if ret is not None and ret[0] is not None:
+        if ret is None:
+            return self.status(maxage), self.read(maxage)
+        status, value = ret
+        if self._cache:
             ct = currenttime()
-            self._cache.put(self, 'status', ret[0], ct, self.maxage)
-            self._cache.put(self, 'value', ret[1], ct, self.maxage)
-            return ret[0], ret[1]
-        # updates shall always get through to the cache
-        # self._cache.invalidate(self, 'value')
-        # self._cache.invalidate(self, 'status')
-        return self.status(maxage), self.read(maxage)
+            self._cache.put(self, 'status', status, ct, self.maxage)
+            self._cache.put(self, 'value', value, ct, self.maxage)
+        return status, value
 
     @usermethod(doc="""
         Reset the device hardware and returns the new status afterwards.
