@@ -197,7 +197,7 @@ class PolarisationPanel(NicosWidget, Panel):
         with waitCursor():
             missed_devices = []
             for d in ('def1', 'polcol', 'man', 'med'):
-                self.client.eval('%s.pollParam()', None)
+                self.client.eval(f'{d}.pollParams()', None)
                 params = self.client.getDeviceParams(d)
                 for p, v in params.items():
                     self._update_key('%s/%s' % (d, p), v)
