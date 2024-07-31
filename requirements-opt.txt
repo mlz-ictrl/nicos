@@ -16,7 +16,7 @@ Pillow>=4.0.0
 Markdown>=2.6.9
 pamela>=0.3.0
 systemd-python>=230;sys_platform!='win32' and sys_platform!='darwin'
-frappy-core>=0.15.0
+frappy-core>=0.19.9
 requests_oauthlib>=1.2.0
 opencv-python-headless>=3.0.0,<4.8
 h5py>=2.6
