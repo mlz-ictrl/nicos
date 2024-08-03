@@ -77,30 +77,32 @@ class AmorDirector(Waitable):
     in turn are provided as ParamDevices.
     """
     parameters = {
-        'ka0': Param('Beam inclination after guide', type=float,
-                     userparam=True, settable=True, default=0.245),
-        'kad': Param('Beam center offset', type=float, volatile=True,
+        'ka0': Param('Divergence aperture: Beam inclination after guide',
+                     type=float, userparam=True, settable=True,
+                     default=0.245),
+        'kad': Param('Divergence aperture: Beam center offset', type=float,
+                     volatile=True, userparam=True, settable=True),
+        'div': Param('Divergence aperture: Incident beam diviergence',
+                     type=float, userparam=True, settable=True, volatile=True),
+        'mu':  Param('Sample: Angle between horizon and sample surface',
+                     type=float, userparam=True, settable=True, volatile=True),
+        'mud': Param('Sample: rocking angle', type=float,
                      userparam=True, settable=True),
-        'nu': Param('Angle horizon to sample-detector', type=float,
-                    userparam=True, settable=True, volatile=True),
-        'nud': Param('Detector position offset', type=float,
+        'szd': Param('Sample: Vertical focal point offset', type=float,
                      userparam=True, settable=True),
-        'mu': Param('Angle between horizon and sample surface', type=float,
-                    userparam=True, settable=True, volatile=True),
-        'mud': Param('Sample rocking angle', type=float,
-                     userparam=True, settable=True),
-        'szd': Param('Vertical focal point offset', type=float,
-                     userparam=True, settable=True),
-        'kappa': Param('Angle between horizon and beam center', type=float,
-                       userparam=True, settable=True, volatile=True),
-        'div': Param('Incident beam diviergence', type=float,
-                     userparam=True, settable=True, volatile=True),
-        'mode': Param('AMOR mode',
-                      type=oneof('deflector', 'simple', 'universal'),
-                      userparam=True, settable=True, default='universal'),
         'zoffset': Param('sample offset to instrument horizon',
                          type=float, userparam=True,
                          settable=True, volatile=True),
+        'kappa': Param('Sample: Angle between horizon and nominal beam center',
+                       type=float, userparam=True, settable=True,
+                       volatile=True),
+        'nu':  Param('Detector: Angle horizon to sample-detector', type=float,
+                     userparam=True, settable=True, volatile=True),
+        'nud': Param('Detector: Detector position offset', type=float,
+                     userparam=True, settable=True),
+        'mode': Param('AMOR mode',
+                      type=oneof('deflector', 'simple', 'universal'),
+                      userparam=True, settable=True, default='universal'),
     }
 
     attached_devices = {
@@ -146,9 +148,7 @@ class AmorDirector(Waitable):
                                np.tan(np.deg2rad(self.ka0))))
         else:
             kappa = np.tan(np.deg2rad(self.ka0))
-        if kappa < self.ka0:
-            kappa = self.ka0
-        return kappa
+        return max(kappa, self.ka0)
 
     def doReadMu(self):
         return self._attached_som.read(0) - self.mud
@@ -186,19 +186,19 @@ class AmorDirector(Waitable):
         diff_dist = self._attached_distances.sample -\
             self._attached_distances.deflector
         if abs(target - ka0) < 0.1:
-            positions['lom'] = 0
-            positions['ltz'] = 40
+            positions['lom'] = ka0
+            positions['ltz'] = 70
             target = ka0
         else:
-            positions['lom'] = (target-ka0)/2 + kad
-            positions['ltz'] = diff_dist * (np.tan(np.deg2rad(target+kad)) -
-                                            np.tan(np.deg2rad(target)))
-        self.szd = -(diff_dist)*(np.tan(np.deg2rad(target)) -
-                                 np.tan(np.deg2rad(ka0)))
+            positions['lom'] = (target+ka0)/2 + kad
+            positions['ltz'] = diff_dist * np.tan(np.deg2rad(ka0+kad))
+        local_zoffset = self.zoffset
+        self.szd = (diff_dist)*(np.tan(np.deg2rad(ka0)) -
+                                np.tan(np.deg2rad(target)))
         positions['d2z'] = self.szd + (self._attached_distances.sample -
                                        self._attached_distances.diaphragm2) *\
             np.tan(np.deg2rad(target+kad))
-        positions['soz'] = self.szd + self.zoffset
+        positions['soz'] = self.szd + local_zoffset
         if self.mode != 'universal':
             self.nu = 2. * self.mu + target + kad
         self._startDevices(positions)
