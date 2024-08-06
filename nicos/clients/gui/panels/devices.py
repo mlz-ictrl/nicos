@@ -33,10 +33,11 @@ from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
 from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QBrush, QByteArray, QComboBox, QCursor, \
-    QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
-    QMessageBox, QPalette, QPushButton, QRegularExpression, Qt, \
-    QTreeWidgetItem, pyqtSignal, pyqtSlot, sip, QGuiApplication
+    QDialog, QDialogButtonBox, QFont, QGuiApplication, QIcon, QInputDialog, \
+    QMenu, QMessageBox, QPalette, QPushButton, QRegularExpression, Qt, \
+    QTreeWidgetItem, pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
+from nicos.guisupport.utils import waitCursor
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.utils import AttrDict
 
@@ -1056,7 +1057,8 @@ class ControlDialog(QDialog):
                   % (self.devname, ', param_list=[%r]' % item.text(0)
                      if action == refreshAction else '')
             # poll even non volatile parameters as requested explicitly
-            self.client.eval(cmd, None)
+            with waitCursor():
+                self.client.eval(cmd, None)
 
     @pyqtSlot()
     def on_settingsBtn_clicked(self):
