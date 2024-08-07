@@ -1,7 +1,7 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.host'),
     instrument = 'PGAA_',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
@@ -28,7 +28,7 @@ devices = dict(
     ),
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'The currently running experiment',
-        dataroot = 'data/',
+        dataroot = configdata('config_data.dataroot'),
         sample = 'Sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
@@ -37,13 +37,14 @@ devices = dict(
     livesink = device('nicos_mlz.pgaa.datasinks.LiveViewSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
+        path = configdata('config_data.dataroot'),
         minfree = 5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing log files',
         warnlimits = (10, None),
         minfree = 5,
-        path = 'log/',
+        path = configdata('config_data.logging_path'),
         visibility = (),
     ),
 )

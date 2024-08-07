@@ -44,6 +44,7 @@ devices = dict(
             'localhost': 1.12e5,
             'taco6.ictrl.frm2.tum.de': 8.9e+05,
             'stressictrl02.stressi.frm2.tum.de': 2.7e6,
+            configdata('config_data.host'): 1.12e5,
         },
     ),
     image = device('nicos.devices.mcstas.McStasImage',

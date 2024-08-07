@@ -18,7 +18,7 @@ devices = dict(
     # PamAuth = device('nicos.services.daemon.auth.pam.Authenticator'),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         authenticators = ['Auth'],
-        loglevel = 'debug',
-        server = '',
+        loglevel = 'info',
+        server = configdata('config_data.host'),
     ),
 )

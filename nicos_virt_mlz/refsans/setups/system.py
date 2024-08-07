@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.host'),
     instrument = 'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink'],
@@ -30,7 +30,7 @@ devices = dict(
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'Container storing Experiment properties',
-        dataroot = 'data',
+        dataroot = configdata('config_data.dataroot'),
         sample = 'Sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
@@ -40,10 +40,11 @@ devices = dict(
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         minfree = 5,
+        path = configdata('config_data.dataroot'),
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
-        path = 'log',
+        path = configdata('config_data.logging_path'),
         visibility = (),
         warnlimits = (0.5, None),
     ),

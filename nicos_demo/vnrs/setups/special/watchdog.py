@@ -4,7 +4,7 @@ group = 'special'
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = 'localhost',
+        cache = configdata('config_data.host'),
         notifiers = {},
         mailreceiverkey = 'email/receivers',
         watch = [],

@@ -2,7 +2,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.host'),
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -23,7 +23,7 @@ devices = dict(
     ),
     Exp = device('nicos_mlz.antares.devices.experiment.Experiment',
         description = 'experiment object',
-        dataroot = 'data/FRM-II',
+        dataroot = configdata('config_data.dataroot'),
         sample = 'Sample',
         mailsender = 'nectar@frm2.tum.de',
         zipdata = False,
@@ -52,12 +52,12 @@ devices = dict(
     ),
     DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free Space on the DataStorage',
-        path = 'data',
+        path = configdata('config_data.dataroot'),
         minfree = 50,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
-        path = 'log',
+        path = configdata('config_data.logging_path'),
         visibility = (),
         warnlimits = (0.5, None),
     ),

@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'localhost'
+    cache = configdata('config_data.host'),
 )
 
 devices = dict(
@@ -10,6 +10,6 @@ devices = dict(
         alwayspoll = ['charmsmall'],
         neverpoll = ['detector', 'erwindet'],
         blacklist = ['adet', 'image', 'events', 'det'],
-        loglevel = 'debug',
+        loglevel = 'info',
     ),
 )

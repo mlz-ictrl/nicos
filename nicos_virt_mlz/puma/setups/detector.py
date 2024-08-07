@@ -14,6 +14,7 @@ devices = dict(
             'localhost': 2.2e6,
             'taco6.ictrl.frm2.tum.de': 2.2e6,
             'ictrl23': 2.55e6,
+            configdata('config_data.host'): 1.3e6,
         },
     ),
     timer = device('nicos.devices.mcstas.McStasTimer',

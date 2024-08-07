@@ -9,7 +9,7 @@ devices = dict(
         description = 'updates locally running version in central wikipage',
         update_uri = JENKINS_URI,
         infokey = 'info',
-        cache = 'localhost:14869',
+        cache = configdata('config_data.host'),
         tokenid = 'frm2jenkins'
     ),
 )

@@ -12,7 +12,7 @@ devices = dict(
         ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = '',
+        server = configdata('config_data.host'),
         authenticators = ['Auth'],
         loglevel = 'info',
     ),

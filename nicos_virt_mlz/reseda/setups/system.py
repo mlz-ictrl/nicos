@@ -2,7 +2,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.host'),
     instrument = 'vreseda',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
@@ -25,7 +25,7 @@ devices = dict(
     ),
     Exp = device('nicos_mlz.reseda.devices.Experiment',
         description = 'Experiment object',
-        dataroot = 'data',
+        dataroot = configdata('config_data.dataroot'),
         sendmail = True,
         serviceexp = 'p0',
         sample = 'Sample',
@@ -37,12 +37,12 @@ devices = dict(
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
     DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = 'data',
+        path = configdata('config_data.dataroot'),
         minfree = 5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Space on log drive',
-        path = 'log',
+        path = configdata('config_data.logging_path'),
         warnlimits = (.5, None),
         minfree = 0.5,
         visibility = (),

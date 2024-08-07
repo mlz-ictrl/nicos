@@ -3,11 +3,11 @@ group = 'special'
 
 devices = dict(
     Global = device('nicos.services.collector.CacheForwarder',
-        cache = 'localhost:14716',
+        cache = configdata('config_data.host') + ':14716',
         prefix = 'nicos/demosys/',
     ),
     Collector = device('nicos.services.collector.Collector',
-        cache = 'localhost:14869',
+        cache = configdata('config_data.host'),
         forwarders = ['Global'],
     ),
 )

@@ -3,7 +3,7 @@ description = 'NICOS system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.host'),
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = [
@@ -29,7 +29,7 @@ devices = dict(
     Exp = device('nicos_mlz.toftof.devices.Experiment',
         description = 'The currently running experiment',
         propprefix = '',
-        dataroot = 'data',
+        dataroot = configdata('config_data.dataroot'),
         sendmail = True,
         serviceexp = 'p0',
         sample = 'Sample',
@@ -59,12 +59,12 @@ devices = dict(
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = 'data',
+        path = configdata('config_data.dataroot'),
         minfree = 5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
-        path = 'log',
+        path = configdata('config_data.logging_path'),
         visibility = (),
         warnlimits = (0.5, None),
     ),

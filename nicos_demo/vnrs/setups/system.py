@@ -2,7 +2,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.host'),
     instrument = 'NRS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -20,7 +20,7 @@ devices = dict(
     ),
     Exp = device('nicos.devices.experiment.ImagingExperiment',
         description = 'North radiography station experiment',
-        dataroot = 'data/',
+        dataroot = configdata('config_data.dataroot'),
         sample = 'Sample',
         mailsender = 'aaron.craft@inl.gov',
         propprefix = '',
@@ -47,7 +47,7 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free Space on the DataStorage',
-        path = 'data',
+        path = configdata('config_data.dataroot'),
         minfree = 5,
     ),
 )

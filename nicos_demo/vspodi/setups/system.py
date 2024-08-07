@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.host'),
     instrument = 'Spodi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'spodilivesink',
@@ -28,7 +28,7 @@ devices = dict(
     ),
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
-        dataroot = 'data',
+        dataroot = configdata('config_data.dataroot'),
         sendmail = True,
         serviceexp = 'p0',
         sample = 'Sample',
@@ -57,12 +57,12 @@ devices = dict(
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = 'data',
+        path = configdata('config_data.dataroot'),
         minfree = 5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Space on log drive',
-        path = 'log',
+        path = configdata('config_data.logging_path'),
         minfree = 0.5,
         visibility = (),
     ),
