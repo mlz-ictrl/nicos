@@ -3,7 +3,7 @@ group = 'special'
 
 devices = dict(
     DB = device('nicos.services.cache.database.FlatfileCacheDatabase',
-        storepath = 'data/cache',
+        storepath = configdata('config_data.cachepath'),
         loglevel = 'info',
     ),
     Server = device('nicos.services.cache.server.CacheServer',
@@ -18,7 +18,7 @@ devices = dict(
         # Binding the cache to the 'localhost' leads to trouble if
         # some other NICOS services are running on different
         # machines
-        server = '',
+        server = configdata('config_data.cache_bind'),
         loglevel = 'info',
     ),
 )

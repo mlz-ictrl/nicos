@@ -32,7 +32,7 @@ notifiers = {
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = 'localhost',
+        cache = configdata('config_data.cache_host'),
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
         watch = watch_conditions,

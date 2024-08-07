@@ -1,8 +1,8 @@
-description = 'common definitions for virtual firepod instrument'
+description = 'common definitions for virtual saphir instrument'
 
 group = 'configdata'
 
-instrument = 'firepod'
+instrument = 'saphir'
 host = 'localhost'
 daemon_bind = '' if host == 'localhost' else host
 cache_bind = '' if host == 'localhost' else host

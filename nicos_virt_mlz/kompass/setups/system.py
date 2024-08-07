@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.cache_host'),
     instrument = 'kompass',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'nxsink'],
@@ -43,7 +43,7 @@ devices = dict(
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'The currently running experiment',
-        dataroot = 'data',
+        dataroot = configdata('config_data.dataroot'),
         sample = 'Sample',
         sendmail = False,
         managerights = dict(
@@ -100,12 +100,12 @@ devices = dict(
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = None,
+        path = configdata('config_data.dataroot'),
         minfree = 5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
-        path = 'log',
+        path = configdata('config_data.logging_path'),
         visibility = (),
         warnlimits = (0.5, None),
     ),

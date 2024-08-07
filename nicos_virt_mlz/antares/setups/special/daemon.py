@@ -7,7 +7,6 @@ import hashlib
 devices = dict(
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'sha1',
-        # first entry is the user name, second the hashed password, third the user level
         passwd = [
             ('guest', '', 'guest'),
             ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
@@ -15,7 +14,7 @@ devices = dict(
         ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        authenticators = ['Auth'],
+        authenticators = configdata('config_data.authenticators'),
         loglevel = 'info',
         server = configdata('config_data.daemon_bind'),
     ),
