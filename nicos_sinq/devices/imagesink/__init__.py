@@ -21,8 +21,8 @@
 #
 # *****************************************************************************
 
-from nicos_sinq.devices.imagesink.histogramdesc import \
-    HistogramDesc, HistogramDimDesc
+from nicos_sinq.devices.imagesink.histogramdesc import HistogramDesc, \
+    HistogramDimDesc
 from nicos_sinq.devices.imagesink.kafka import ImageKafkaDataSink, \
     ImageKafkaDataSinkHandler
 from nicos_sinq.devices.imagesink.serializer import \

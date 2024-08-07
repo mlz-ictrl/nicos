@@ -27,7 +27,6 @@ controller using EPICS.
 
 from nicos.core import ConfigurationError, HasPrecision, Override, Param, \
     pvname, status
-
 from nicos.devices.epics.pyepics import EpicsAnalogMoveable
 from nicos.devices.epics.pyepics.mixins import HasDisablePv
 

@@ -36,8 +36,8 @@ from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     cache_dump, cache_load
-from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
-    ConditionWithPrecondition
+from nicos.services.watchdog.conditions import ConditionWithPrecondition, \
+    DelayedTrigger, Expression
 from nicos.utils import LCDict, createSubprocess, createThread, \
     watchFileContent
 

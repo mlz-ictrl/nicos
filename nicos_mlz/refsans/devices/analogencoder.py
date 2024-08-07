@@ -28,7 +28,7 @@ import numpy as np
 
 from nicos.core import HasPrecision, Moveable, Param, Readable
 from nicos.core.errors import ConfigurationError
-from nicos.core.params import floatrange, Attach
+from nicos.core.params import Attach, floatrange
 from nicos.devices.abstract import TransformedMoveable, TransformedReadable
 
 from nicos_mlz.refsans.devices.mixins import PolynomFit

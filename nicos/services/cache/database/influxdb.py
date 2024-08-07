@@ -31,7 +31,8 @@ import influxdb_client
 from influxdb_client import BucketRetentionRules, InfluxDBClient, Point
 
 try:
-    from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
+    from influxdb_client.client.influxdb_client_async import \
+        InfluxDBClientAsync
 except ImportError:
     pass
 from influxdb_client.client.write_api import SYNCHRONOUS as write_option
@@ -40,7 +41,6 @@ from nicos.core import ConfigurationError, Param
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.utils.credentials.keystore import nicoskeystore
-
 
 csv.field_size_limit(0xA00000) # 10 MB limit for influx queries with big fields
 

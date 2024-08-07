@@ -26,7 +26,7 @@ Devices to control the sample environment at SPHERES
 """
 
 from nicos import session
-from nicos.core import SIMULATION, oneof, Override, anytype
+from nicos.core import SIMULATION, Override, anytype, oneof
 from nicos.core.params import Attach, Param, tangodev
 from nicos.core.status import WARN
 from nicos.devices import entangle

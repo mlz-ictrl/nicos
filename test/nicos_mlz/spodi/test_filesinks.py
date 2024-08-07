@@ -30,6 +30,7 @@ import pytest
 pytest.importorskip('dataparser')
 
 from nicos.commands.measure import count
+
 from nicos_mlz.spodi.datasinks import CaressHistogramReader
 
 session_setup = 'spodi'

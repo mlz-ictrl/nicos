@@ -24,7 +24,6 @@
 """HRPT slit device."""
 
 from nicos.core import Param
-
 from nicos.devices.generic.slit import CenterGapAxis, HorizontalGap, SlitAxis
 
 

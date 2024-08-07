@@ -26,7 +26,6 @@ import pytest
 pytest.importorskip('graypy')
 
 from nicos.commands.device import adjust
-
 from nicos.devices.epics.pyepics.motor import EpicsMotor
 
 session_setup = 'ess_motors'

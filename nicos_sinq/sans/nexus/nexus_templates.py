@@ -2,8 +2,8 @@ from copy import deepcopy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, ImageDataset, \
-    NXAttribute, NXLink, NXScanLink, NXTime
+    DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
+    NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_sinq.nexus.specialelements import AbsoluteTime, FixedArray, \

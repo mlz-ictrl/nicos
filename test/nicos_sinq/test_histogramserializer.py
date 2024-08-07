@@ -33,8 +33,7 @@ import pytest
 pytest.importorskip('graypy')
 pytest.importorskip('flatbuffers')
 
-from nicos_sinq.devices.fbschemas.hs00 import EventHistogram
-from nicos_sinq.devices.fbschemas.hs00 import Array
+from nicos_sinq.devices.fbschemas.hs00 import Array, EventHistogram
 from nicos_sinq.devices.kafka.area_detector import \
     HistogramFlatbuffersDeserializer
 

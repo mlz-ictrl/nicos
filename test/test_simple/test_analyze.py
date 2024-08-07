@@ -25,8 +25,8 @@
 
 import pytest
 
-from nicos.commands.analyze import center_of_mass, fwhm, gauss, poly, \
-    root_mean_square, ListFitters
+from nicos.commands.analyze import ListFitters, center_of_mass, fwhm, gauss, \
+    poly, root_mean_square
 from nicos.core import FINAL
 
 try:

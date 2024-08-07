@@ -49,7 +49,7 @@ from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
-from nicos.utils import parseKeyExpression, number_types, parseDuration, \
+from nicos.utils import number_types, parseDuration, parseKeyExpression, \
     safeName
 
 

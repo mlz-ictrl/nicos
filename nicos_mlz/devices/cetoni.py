@@ -28,9 +28,9 @@ import time
 import numpy
 
 from nicos import session
-from nicos.devices.entangle import Motor, Sensor, NamedDigitalOutput, HasOffset
 from nicos.core import Attach, Param, errors
 from nicos.core.sessions.utils import MASTER
+from nicos.devices.entangle import HasOffset, Motor, NamedDigitalOutput, Sensor
 from nicos.utils import createThread
 from nicos.utils.pid import PID
 

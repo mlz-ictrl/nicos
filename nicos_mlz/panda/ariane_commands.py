@@ -39,12 +39,11 @@ from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.commands.tas import _getQ
-from nicos.core import CommunicationError, NicosError, UsageError, SIMULATION
+from nicos.core import SIMULATION, CommunicationError, NicosError, UsageError
 from nicos.core.scan import QScan
 from nicos.utils.messaging import nicos_zmq_ctx
 
 from nicos_mlz.panda.gui.ariane_vis import make_map, update_map
-
 
 __all__ = ['qaigrid', 'qaiscan']
 

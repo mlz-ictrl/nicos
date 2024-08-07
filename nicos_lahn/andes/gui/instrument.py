@@ -25,8 +25,9 @@
 """Instrument specific display widgets."""
 
 from nicos.guisupport.qt import QSize
-from nicos_lahn.andes.gui.widgets import InstrumentView
 from nicos.guisupport.widget import NicosWidget, PropDef
+
+from nicos_lahn.andes.gui.widgets import InstrumentView
 
 
 class InstrumentWidget(NicosWidget, InstrumentView):

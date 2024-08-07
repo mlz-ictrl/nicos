@@ -37,7 +37,6 @@ from nicos.utils import decodeAny, findResource
 
 from nicos_ess.gui.panels.panel import PanelBase
 
-
 USER_FIELDS = ['name', 'email', 'affiliation']
 CONTACT_FIELDS = ['name', 'email', 'affiliation']
 SAMPLE_FIELDS = ['name', 'formula', 'number of', 'mass/volume', 'density']

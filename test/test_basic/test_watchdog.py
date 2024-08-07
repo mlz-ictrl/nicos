@@ -23,8 +23,8 @@
 
 """NICOS tests for the watchdog condition primitives."""
 
-from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
-    ConditionWithPrecondition
+from nicos.services.watchdog.conditions import ConditionWithPrecondition, \
+    DelayedTrigger, Expression
 
 
 class DummyLog:

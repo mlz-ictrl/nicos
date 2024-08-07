@@ -23,14 +23,14 @@
 
 """NICOS notification classes."""
 
-import subprocess
 import socket
+import subprocess
 from time import time as currenttime
 
 from nicos import session
 from nicos.core import ADMIN, AccessError, Device, Override, Param, \
-    floatrange, listof, mailaddress, oneof, tupleof, usermethod, none_or, \
-    nonemptystring
+    floatrange, listof, mailaddress, none_or, nonemptystring, oneof, tupleof, \
+    usermethod
 from nicos.utils import createSubprocess, createThread
 from nicos.utils.emails import sendMail
 

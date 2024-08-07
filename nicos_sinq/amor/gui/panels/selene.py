@@ -26,6 +26,7 @@ from logging import WARNING
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
+
 from nicos_sinq.amor.devices.selene import ACTIVE, INACTIVE, NARROW, WIDE
 
 

@@ -23,5 +23,5 @@
 from nicos.devices.epics.pyepics.monitor import PyEpicsMonitor as PVMonitor
 from nicos.devices.epics.pyepics.pyepics import EpicsAnalogMoveable, \
     EpicsDevice, EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, \
-    EpicsStringMoveable, EpicsStringReadable, EpicsWindowTimeoutDevice, pvget, \
-    pvput
+    EpicsStringMoveable, EpicsStringReadable, EpicsWindowTimeoutDevice, \
+    pvget, pvput

@@ -36,8 +36,8 @@ from nicos.core.errors import ConfigurationError
 from nicos.nexus.elements import DeviceDataset, NexusElementBase, \
     NexusSampleEnv, NXAttribute
 
-from nicos_sinq.devices.sinqhm.configurator import HistogramConfArray
 from nicos_sinq.devices.sample import CrystalSample
+from nicos_sinq.devices.sinqhm.configurator import HistogramConfArray
 
 
 class TwoThetaArray(NexusElementBase):

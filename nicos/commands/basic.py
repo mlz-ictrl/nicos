@@ -36,10 +36,10 @@ from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
     usercommand
 from nicos.core import ADMIN, MAINTENANCE, MASTER, SIMULATION, Device, \
     ModeError, NicosError, Readable, UsageError
-from nicos.core.utils import deprecated
 from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
+from nicos.core.utils import deprecated
 from nicos.devices.notifiers import Mailer
 from nicos.utils import LOCALE_ENCODING, fixupScript, formatArgs, \
     formatDuration, printTable, reexecProcess, resolveClasses

@@ -25,8 +25,8 @@ from nicos import session
 from nicos.core import Attach, Readable
 from nicos.core.errors import NicosError
 from nicos.core.status import BUSY
-
-from nicos.devices.epics.pyepics.motor import EpicsMotor, HomingProtectedEpicsMotor
+from nicos.devices.epics.pyepics.motor import EpicsMotor, \
+    HomingProtectedEpicsMotor
 
 # pylint: disable=no-else-raise
 

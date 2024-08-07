@@ -33,9 +33,9 @@ from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
 from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QBrush, QByteArray, QComboBox, QCursor, \
-    QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
-    QMessageBox, QPalette, QPushButton, QRegularExpression, Qt, \
-    QTreeWidgetItem, pyqtSignal, pyqtSlot, sip, QGuiApplication
+    QDialog, QDialogButtonBox, QFont, QGuiApplication, QIcon, QInputDialog, \
+    QMenu, QMessageBox, QPalette, QPushButton, QRegularExpression, Qt, \
+    QTreeWidgetItem, pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.utils import AttrDict

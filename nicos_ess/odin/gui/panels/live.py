@@ -23,13 +23,14 @@
 import h5py
 import numpy as np
 
-from nicos.guisupport.qt import QGroupBox, QHBoxLayout, QLabel, QLineEdit, \
-    QPushButton, QVBoxLayout, QWidget, QCheckBox, QComboBox, QGridLayout, \
-    QSizePolicy, QFileDialog
-from nicos_ess.gui.panels.live import \
-    MultiLiveDataPanel as DefaultMultiLiveDataPanel, \
-    layout_iterator, Preview, DEFAULT_TAB_WIDGET_MAX_WIDTH, \
-    DEFAULT_TAB_WIDGET_MIN_WIDTH
+from nicos.guisupport.qt import QCheckBox, QComboBox, QFileDialog, \
+    QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, \
+    QSizePolicy, QVBoxLayout, QWidget
+
+from nicos_ess.gui.panels.live import DEFAULT_TAB_WIDGET_MAX_WIDTH, \
+    DEFAULT_TAB_WIDGET_MIN_WIDTH, \
+    MultiLiveDataPanel as DefaultMultiLiveDataPanel, Preview, \
+    layout_iterator
 
 
 class ADControl(QWidget):

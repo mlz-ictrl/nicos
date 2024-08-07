@@ -32,6 +32,7 @@ from nicos.core import Device, Override, Param, host, listof, status
 from nicos.protocols.cache import cache_load
 from nicos.services.collector import ForwarderBase
 from nicos.utils import createThread
+
 from nicos_ess.devices.kafka.producer import KafkaProducer
 
 nicos_status_to_al00 = {

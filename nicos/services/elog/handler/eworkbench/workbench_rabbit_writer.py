@@ -21,17 +21,17 @@
 #
 # *****************************************************************************
 import io
-from PIL import Image
+from datetime import datetime
 from html import escape
 from logging import ERROR
-from datetime import datetime
+
+from PIL import Image
 
 from nicos.core import Param
 from nicos.services.elog.handler import Handler as BaseHandler
-from nicos.services.elog.utils import formatMessage
-
 from nicos.services.elog.handler.eworkbench.rabbit_producer import \
     RabbitProducer
+from nicos.services.elog.utils import formatMessage
 
 
 class RabbitWriter:

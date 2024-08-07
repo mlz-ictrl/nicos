@@ -24,8 +24,8 @@
 """The PGAA attentuator."""
 
 from nicos.core import Override, multiWait
-from nicos.core.errors import InvalidValueError
 from nicos.core.device import Moveable
+from nicos.core.errors import InvalidValueError
 from nicos.core.params import Attach
 from nicos.devices.generic.switcher import MultiSwitcher
 

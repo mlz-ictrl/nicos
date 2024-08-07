@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-from nicos.guisupport.qt import QPushButton, QLabel
+from nicos.guisupport.qt import QLabel, QPushButton
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 

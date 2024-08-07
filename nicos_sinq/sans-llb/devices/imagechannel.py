@@ -26,8 +26,8 @@ import numpy as np
 from nicos.core import Attach, Param, Value
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
-from nicos_sinq.devices.imagesink.histogramdesc import \
-                HistogramDesc, HistogramDimDesc
+from nicos_sinq.devices.imagesink.histogramdesc import HistogramDesc, \
+    HistogramDimDesc
 
 
 class XSummedImageChannel(ImageChannelMixin, PassiveChannel):

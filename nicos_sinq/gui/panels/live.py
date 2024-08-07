@@ -25,11 +25,10 @@
 A slider allows to select which scanpoint to display"""
 
 import numpy as np
-from nicos.guisupport.qt import Qt, QLabel
 
 from nicos.clients.flowui.panels.live import \
     LiveDataPanel as FlowuiLiveDataPanel
-from nicos.guisupport.qt import QSlider, QVBoxLayout, QWidget
+from nicos.guisupport.qt import QLabel, QSlider, Qt, QVBoxLayout, QWidget
 
 
 class ScanSlider(QWidget):

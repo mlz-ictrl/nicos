@@ -23,7 +23,6 @@
 
 import numpy
 
-
 try:
     from nicos_sinq.devices.fbschemas.hs00 import Array, ArrayUInt, \
         EventHistogram

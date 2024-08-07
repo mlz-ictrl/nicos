@@ -29,7 +29,7 @@ from time import sleep
 
 import pytest
 
-from nicos.core.errors import CommunicationError, LimitError, CacheLockError
+from nicos.core.errors import CacheLockError, CommunicationError, LimitError
 from nicos.devices.cacheclient import CacheClient
 from nicos.utils import readonlydict, readonlylist
 

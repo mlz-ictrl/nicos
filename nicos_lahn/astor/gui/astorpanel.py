@@ -22,9 +22,9 @@
 # *****************************************************************************
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, ScriptExecQuestion
+from nicos.clients.gui.utils import ScriptExecQuestion, loadUi
+from nicos.guisupport.qt import QIcon, QMessageBox, pyqtSlot
 from nicos.utils import findResource
-from nicos.guisupport.qt import QIcon, pyqtSlot, QMessageBox
 
 
 class ASTORPanel(Panel):

@@ -197,7 +197,7 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
 import pickle
 import re
-from ast import Add, BinOp, Constant, Call, Dict, List, Name, Set, Sub, \
+from ast import Add, BinOp, Call, Constant, Dict, List, Name, Set, Sub, \
     Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 

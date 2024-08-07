@@ -26,7 +26,6 @@ import numpy as np
 
 from nicos.core import Attach, CommunicationError, Override, Param, Readable, \
     limits, pvname, status
-
 from nicos.devices.epics.pyepics import EpicsReadable
 from nicos.devices.epics.pyepics.mixins import HasDisablePv
 

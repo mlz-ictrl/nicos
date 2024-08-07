@@ -32,7 +32,7 @@ from time import time as currenttime
 import numpy as np
 from lttb import lttb
 
-from nicos.utils import number_types, KEYEXPR_NS
+from nicos.utils import KEYEXPR_NS, number_types
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):

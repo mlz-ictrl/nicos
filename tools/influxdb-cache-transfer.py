@@ -29,22 +29,22 @@ Usage: influxdb-cache-transfer.py -h
 
 import argparse
 import ast
-from datetime import datetime
 import math
 import multiprocessing
 import os
 import socket
 import sys
 import time
+from datetime import datetime
+
 sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from influxdb_client import InfluxDBClient, BucketRetentionRules, Point
+import requests
+from influxdb_client import BucketRetentionRules, InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS as write_option
 from numpy import arange
-import requests
 
 from nicos.utils.credentials.keystore import nicoskeystore
-
 
 DB = None
 LOG = None

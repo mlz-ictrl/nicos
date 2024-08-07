@@ -21,9 +21,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import Attach, Readable
+from nicos.core import Attach, Readable, status
 from nicos.core.params import Param
-from nicos.core import status
 
 
 class D8(Readable):

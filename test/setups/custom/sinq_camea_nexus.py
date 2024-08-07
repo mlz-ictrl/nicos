@@ -1,4 +1,5 @@
 from os import path
+
 from test.utils import cache_addr, runtime_root
 
 name = 'CAMEA setup to test NeXus templates'

@@ -25,7 +25,7 @@ from time import sleep
 
 import numpy as np
 
-from nicos.core import Param, Value, intrange, floatrange
+from nicos.core import Param, Value, floatrange, intrange
 from nicos.devices.generic.detector import PassiveChannel
 from nicos.devices.tango import PyTangoDevice
 

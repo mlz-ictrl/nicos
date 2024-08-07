@@ -46,6 +46,7 @@ def topic(cmd):
     return f'{cmd}_\n\n.. _{cmd}: cmd:{cmd}\n\n'
 
 import importlib
+
 excluded = ['helparglist', 'usercommand']
 help_topics = {'Cetoni commands': ''}
 for mod in modules:

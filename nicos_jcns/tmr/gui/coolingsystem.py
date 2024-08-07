@@ -25,15 +25,15 @@ from os import path
 
 from nicos.clients.gui.panels.devices import DEVICE_TYPE, DevicesPanel
 from nicos.clients.gui.panels.generic import GenericPanel
-from nicos.core.status import ERROR, OK, UNKNOWN, WARN, BUSY, NOTREACHED, \
-    DISABLED, statuses
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
+    WARN, statuses
 from nicos.core.utils import ACCESS_LEVELS, GUEST
+from nicos.guisupport.colors import colors
 # pylint: disable=no-name-in-module
 from nicos.guisupport.qt import QBrush, QColorConstants, QLinearGradient, \
     QPainter, QPen, QPixmap, QPointF, QRectF, Qt, QTextOption, \
     QTreeWidgetItem, QWidget
 # pylint: enable=no-name-in-module
-from nicos.guisupport.colors import colors
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import AttrDict
 

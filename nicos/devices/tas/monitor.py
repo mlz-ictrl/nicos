@@ -27,8 +27,7 @@ from scipy.interpolate import interp1d
 
 from nicos.core import Attach, Param, Value, dictof
 from nicos.devices.generic import PostprocessPassiveChannel
-
-from nicos.devices.tas import Wavevector
+from nicos.devices.tas.spectro import Wavevector
 
 
 class OrderCorrectedMonitor(PostprocessPassiveChannel):
