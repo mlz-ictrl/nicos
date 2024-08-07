@@ -82,8 +82,8 @@ class McStasSimulation(BaseSimulation):
         params = [
             'Ki_Fix=%s' % {'CKI': 0, 'CKF': 1}.get(self._attached_tas.scanmode, 0),
             'EFixed=%s' % self._dev(
-                self._attached_ef if self._attached_tas.scanmode == 'CKI' else
-                self._attached_ei),
+                self._attached_ei if self._attached_tas.scanmode == 'CKI' else
+                self._attached_ef),
             # 1000 is default for open, can be 20, 40 or 60 otherwise
             'primary_collimation=%s' % ('1000' if pc == 'closed' else pc),
             'qx=%s' % q[0],
@@ -128,8 +128,7 @@ class Counter(McStasCounter):
             with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
                 for line in f:
                     if line.startswith('# values:'):
-                        sig = float(line.split()[4])
-                        value = sig * self._attached_mcstas._getScaleFactor()
+                        value = float(line.split()[4])
         except Exception:
             if self._attached_mcstas._getTime() > MIN_RUNTIME:
                 self.log.warning('could not read result file', exc=1)
