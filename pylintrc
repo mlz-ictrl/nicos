@@ -41,7 +41,7 @@ limit-inference-results=10
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=pylint.extensions.emptystring
+#load-plugins=pylint.extensions.emptystring
 
 # Pickle collected data for later comparisons.
 persistent=yes

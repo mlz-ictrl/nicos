@@ -36,13 +36,14 @@ import socket
 import sys
 import time
 from datetime import datetime
-
-sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+from os import path
 
 import requests
 from influxdb_client import BucketRetentionRules, InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS as write_option
 from numpy import arange
+
+sys.path.insert(1, path.dirname(path.dirname(path.realpath(__file__))))
 
 from nicos.utils.credentials.keystore import nicoskeystore
 
@@ -62,8 +63,8 @@ class InfluxDB:
             response = requests.head(url)
             if response.status_code != 200:
                 raise OSError('Could not connect to the database.')
-        except requests.exceptions.RequestException:
-            raise OSError('Could not connect to the database.')
+        except requests.exceptions.RequestException as exc:
+            raise OSError('Could not connect to the database.') from exc
         self._token = nicoskeystore.getCredential(keystoretoken)
         if not self._token:
             raise OSError('InfluxDB API token missing in keyring')
@@ -171,7 +172,6 @@ class TransferLog(InfluxDB):
         return count
 
 
-
 def read_cache(cachePath):
     """
     Tool to return sorted list of cache files.
@@ -182,7 +182,7 @@ def read_cache(cachePath):
     Returns: sorted list of cache files
     """
 
-    if not os.path.exists(cachePath):
+    if not path.exists(cachePath):
         raise OSError('Please add a valid path to the nicos-cache location.')
     excluded = ['.DS_Store', '.bak', '#']
     filelist = []
@@ -190,14 +190,14 @@ def read_cache(cachePath):
     for entry in sorted(os.listdir(cachePath)):
         try:
             _ = int(entry)
-            for root, _, filenames in sorted(os.walk(os.path.join(cachePath, entry))):
+            for root, _, filenames in sorted(os.walk(path.join(cachePath, entry))):
                 for filename in sorted(filenames):
                     if True not in [key in filename for key in excluded]:
-                        filelist.append(os.path.join(root, filename))
+                        filelist.append(path.join(root, filename))
                         count += 1
                     if count % 1000 == 0:
                         print(f'\x1b[KIndexing nicos files {count}\x1b[0F')
-        except:
+        except Exception:
             continue
     return filelist
 
@@ -216,15 +216,15 @@ def parseFile(measurement, cachefile):
 
     points, errorlog = [], []
     measurement = measurement.replace('-', '/') #category
-    with open(cachefile, 'r') as file:
+    with open(cachefile, 'r', encoding='utf-8') as file:
         line = file.readline()
         while line:
             line = file.readline()
             if line != '':
                 try:
-                    #subkey, time, hasttl, value
+                    # subkey, time, hasttl, value
                     field, ts, expired, value = line[:len(line)-1].split('\t')
-                except Exception as e:
+                except Exception:
                     errorlog.append(line)
                     continue
                 expired = expired == "-"
@@ -232,11 +232,11 @@ def parseFile(measurement, cachefile):
                 if value and value not in skip_keys:
                     try:
                         ts = datetime.utcfromtimestamp(float(ts))
-                    except:
+                    except Exception:
                         continue
                     try:
                         value_float = ast.literal_eval(value)
-                    except:
+                    except Exception:
                         value_float = None
                     if type(value_float) in [list, tuple, set]:
                         value_float = list(value_float)[0] if len(value_float) == 1 and \
@@ -267,17 +267,17 @@ def copyfile(influxUrl, cachefile, progress):
     """
 
     print(f'\x1b[KProgress {format(progress, ".2f")}% {cachefile}\x1b[0F')
-    global DB
+    global DB  # pylint: disable=global-statement
     if DB is None:
         DB = InfluxDB(influxUrl, 'influxdb', 'mlz')
         DB.addNewBucket('nicos-cache')
-    global LOG
+    global LOG  # pylint: disable=global-statement
     if LOG is None:
         LOG = TransferLog(influxUrl, 'influxdb', 'mlz', 'cache-transfer-log')
         LOG.read_processed('processed', 'filename')
 
     if not LOG.is_processed(cachefile):
-        points, errorlog = parseFile(os.path.basename(cachefile), cachefile)
+        points, errorlog = parseFile(path.basename(cachefile), cachefile)
         for error in errorlog:
             LOG.add_entry('parse_errors', [{cachefile: error}])
         try:
@@ -285,7 +285,6 @@ def copyfile(influxUrl, cachefile, progress):
             LOG.add_entry('processed', [{'filename': cachefile}])
         except Exception as e:
             LOG.add_entry('fault_files', [{cachefile: e}])
-    return
 
 
 def copy(influxUrl, cachePath):
@@ -300,7 +299,7 @@ def copy(influxUrl, cachePath):
     """
 
     cpus = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(processes=cpus)
+    pool = multiprocessing.Pool(processes=cpus)  # pylint: disable=consider-using-with
 
     filelist = read_cache(cachePath)
     progress, filescount = 0, len(filelist)
@@ -500,7 +499,6 @@ def compare_progress(influxUrl, total_entries):
               f'Errors: {errors}\x1b[0F')
         time.sleep(5)
     print()
-    return
 
 
 def compare_all(influxUrl, cache1, cache2, tsfrom, tsto):
@@ -531,7 +529,7 @@ def compare_all(influxUrl, cache1, cache2, tsfrom, tsto):
 
     total_entries = math.ceil(key_count * (tsto - tsfrom) / 86400)
     cpus = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(processes=cpus)
+    pool = multiprocessing.Pool(processes=cpus)  # pylint: disable=consider-using-with
     pool.apply_async(compare_progress, (influxUrl, total_entries,))
     for key, subkeys in table.items():
         for subkey in subkeys:
