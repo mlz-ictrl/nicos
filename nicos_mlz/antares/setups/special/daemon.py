@@ -43,6 +43,6 @@ devices = dict(
         description = 'Daemon, executing commands and scripts',
         server = '0.0.0.0',
         authenticators = ['UserDBAuth', 'LDAPAuth', 'LDAPAuthBU', ],
-        loglevel = 'debug',
+        loglevel = 'info',
     ),
 )

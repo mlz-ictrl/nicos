@@ -12,6 +12,6 @@ devices = dict(
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = 'mephisto17.office.frm2.tum.de',
         authenticators = ['Auth'],
-        loglevel = 'debug',
+        loglevel = 'info',
     ),
 )

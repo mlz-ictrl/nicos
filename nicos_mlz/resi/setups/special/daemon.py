@@ -5,7 +5,7 @@ devices = dict(
     Auth = device('nicos.services.daemon.auth.Authenticator'),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = 'resictrl.resi.frm2.tum.de',
-        loglevel = 'debug',
+        loglevel = 'info',
         authenticators = ['Auth'],
     ),
 )
