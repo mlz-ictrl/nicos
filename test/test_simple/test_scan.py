@@ -343,6 +343,7 @@ def test_manualscan(session):
             mot.maw(i)
             count_result = count()
         assert raises(NicosError, manualscan)
+        assert raises(NicosError, scan, mot, 0, 1, 1, t=0.)
 
     assert isinstance(count_result, CountResult) and len(count_result) == 5
 
