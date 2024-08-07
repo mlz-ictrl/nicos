@@ -867,8 +867,9 @@ class ControlDialog(QDialog):
             QDialogButtonBox.StandardButton.RestoreDefaults)
         self.settingsBtn.clicked.connect(self.on_settingsBtn_clicked)
 
-        # trigger parameter poll
-        self.client.eval('%s.pollParams()' % self.devname, None)
+        # trigger poll of volatile parameters
+        self.client.eval(f'session.getDevice({self.devname!r}).'
+                         'asyncPollVolatileParams()', None)
 
         # now get all cache keys pertaining to the device and set the
         # properties we want
@@ -1052,11 +1053,9 @@ class ControlDialog(QDialog):
             board = QGuiApplication.clipboard()
             board.setText(item.text(1))
         elif action:
-            cmd = 'session.getDevice(%r).pollParams(volatile_only=False,' \
-                  'blocking=True%s)' \
-                  % (self.devname, ', param_list=[%r]' % item.text(0)
-                     if action == refreshAction else '')
-            # poll even non volatile parameters as requested explicitly
+            arg = repr(item.text(0)) if action == refreshAction else ''
+            # will poll even nonvolatile parameters, as requested explicitly
+            cmd = (f'session.getDevice({self.devname!r}).pollParams({arg})')
             with waitCursor():
                 self.client.eval(cmd, None)
 

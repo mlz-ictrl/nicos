@@ -937,26 +937,28 @@ class Device(metaclass=DeviceMeta):
         device value, determined by :attr:`maxage`, multiplied by *with_ttl*.
         """
         value = getattr(self, 'doRead' + name.title())()
-        if with_ttl:
+        if not self._cache:
+            self._params[name] = value
+        elif with_ttl:
             self._cache.put(self, name, value, currenttime(),
                             getattr(self, 'maxage', 0) * with_ttl)
         else:
             self._cache.put(self, name, value)
 
-    def pollParams(self, volatile_only=True, blocking=False, with_ttl=0,
-                   param_list=None):
-        """Poll all parameters (normally only volatile ones)."""
-        if param_list is None:
-            param_list = list(self.parameters)
-        param_list = [param for param in param_list if
-                      self.parameters[param].volatile or
-                      (not volatile_only and
-                       hasattr(self, 'doRead' + param.title()))]
-        if blocking:
-            for param in param_list:
-                self._pollParam(param, with_ttl)
-        else:
-            self._cache.put_raw('poller/%s/pollparams' % self.name, param_list,
+    def pollParams(self, *params, with_ttl=0):
+        """Poll given *params* (or, if None, all parameters that have a
+        doReadParam() method), in a blocking manner.
+        """
+        for name in params or self.parameters:
+            if hasattr(self, 'doRead' + name.title()):
+                self._pollParam(name, with_ttl)
+
+    def asyncPollVolatileParams(self):
+        """Poll all volatile parameters asynchronously."""
+        if self._cache:
+            params = [name for (name, info) in self.parameters.items()
+                      if info.volatile]
+            self._cache.put_raw(f'poller/{self.name}/pollparams', params,
                                 flag=FLAG_NO_STORE)
 
 

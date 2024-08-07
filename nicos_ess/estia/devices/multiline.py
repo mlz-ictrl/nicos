@@ -187,8 +187,9 @@ class MultilineChannel(EpicsReadable):
         return raw[1]
 
     def doPoll(self, n, maxage=0):
-        self.pollParams(volatile_only=False,
-                        param_list=['i_limits', 'gain', 'latest_valid'])
+        self._pollParam('i_limits')
+        self._pollParam('gain')
+        self._pollParam('latest_valid')
 
 
 EnvironmentalParameters = namedtuple('EnvironmentalParameters',
