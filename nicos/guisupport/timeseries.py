@@ -51,8 +51,7 @@ def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
     # calculate maxticks, depends on 'good' values
     maxticks = minticks
     for i in range(len(good)-1):
-        if maxticks < minticks * good[i+1]/good[i]:
-            maxticks = minticks * good[i+1]/good[i]
+        maxticks = max(maxticks, minticks * good[i+1]/good[i])
 
     # determine ticking range
     length = maxtime - mintime
