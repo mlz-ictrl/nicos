@@ -29,6 +29,7 @@ from nicos.nexus.elements import CalcData, ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, NamedImageDataset, NexusSampleEnv, \
     NXAttribute, NXLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
+
 from nicos_sinq.nexus.specialelements import OptionalDeviceDataset
 
 

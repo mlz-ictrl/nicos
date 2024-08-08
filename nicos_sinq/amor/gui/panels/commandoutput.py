@@ -20,10 +20,10 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-from nicos.guisupport.qt import Qt, QHBoxLayout, QLabel, QScrollArea, \
-    QSizePolicy
 
 from nicos.clients.gui.panels import Panel
+from nicos.guisupport.qt import QHBoxLayout, QLabel, QScrollArea, \
+    QSizePolicy, Qt
 
 
 class CommandOutput(Panel):

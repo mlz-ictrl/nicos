@@ -31,7 +31,7 @@ from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK
 from nicos.guisupport.qt import QFont, QFontMetrics, pyqtProperty
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.utils import AttrDict, parseKeyExpression, lazy_property, KEYEXPR_NS
+from nicos.utils import KEYEXPR_NS, AttrDict, lazy_property, parseKeyExpression
 
 
 class NicosListener:

@@ -23,9 +23,10 @@
 # *****************************************************************************
 
 import json
-import zmq
 import traceback
 from random import random
+
+import zmq
 
 ctx = zmq.Context()
 rep = ctx.socket(zmq.REP)

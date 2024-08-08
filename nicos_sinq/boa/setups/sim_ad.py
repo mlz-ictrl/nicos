@@ -6,7 +6,7 @@ detector_channel = 'cam1:'
 motprefix = 'SQ:BOA:mcu1:DCCDATZ'
 counterprefix = 'SQ:BOA:counter'
 
-excludes = ['andorccd', 'embl', 'andorccd-l', 'andor']
+excludes = ['andorccd', 'embl', 'andorccd-l', 'andor', 'fastcomtec', 'camini']
 
 devices = dict(
     dccdatz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',

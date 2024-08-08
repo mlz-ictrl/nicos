@@ -41,7 +41,7 @@ from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
     STATUS_STOPPING
 from nicos.services.daemon.debugger import Rpdb
-from nicos.services.daemon.errors import ScriptError, RequestError
+from nicos.services.daemon.errors import RequestError, ScriptError
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.utils import ScriptQueue, formatScript, \
     parseScript, splitBlocks, updateLinecache

@@ -43,9 +43,9 @@ from OpenGL.GLUT.fonts import GLUT_STROKE_MONO_ROMAN
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QDialogButtonBox, QDoubleSpinBox, \
+from nicos.guisupport.qt import QT_VER, QDialogButtonBox, QDoubleSpinBox, \
     QFileDialog, QGridLayout, QMessageBox, QScrollBar, QStyledItemDelegate, \
-    Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, pyqtSlot, QT_VER
+    Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_mlz.pgaa.gui.panels.collision import cuboid_values, \

@@ -22,10 +22,10 @@
 # *****************************************************************************
 
 
-from nicos.core import SIMULATION, Value, Param, host, Override
+from nicos.core import SIMULATION, Override, Param, Value, host
 from nicos.core.device import Readable
 from nicos.core.params import tupleof
-from nicos.utils import closeSocket, tcpSocket, parseHostPort
+from nicos.utils import closeSocket, parseHostPort, tcpSocket
 
 
 class F71Teslameter(Readable):

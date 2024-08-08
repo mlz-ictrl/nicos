@@ -24,7 +24,6 @@ import pytest
 
 from nicos.core.device import Device
 from nicos.devices.epics.pyepics import EpicsDevice
-
 from nicos.devices.epics.pyepics.mixins import HasDisablePv
 
 session_setup = 'ess_extensions'

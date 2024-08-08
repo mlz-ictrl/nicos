@@ -45,9 +45,9 @@ if NICOS_QT == '6':
     import nicos.guisupport.gui_rc_qt6
 
     try:
-        from PyQt6 import QtWebEngineWidgets, QtWebEngineCore
-        from PyQt6.QtWebEngineWidgets import QWebEngineView as QWebView
+        from PyQt6 import QtWebEngineCore, QtWebEngineWidgets
         from PyQt6.QtWebEngineCore import QWebEnginePage as QWebPage
+        from PyQt6.QtWebEngineWidgets import QWebEngineView as QWebView
     except (ImportError, RuntimeError):
         QWebView = QWebPage = None
 

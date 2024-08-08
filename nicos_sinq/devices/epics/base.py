@@ -26,7 +26,7 @@ This module contains ESS specific Base classes for EPICS.
 
 from nicos.core import Override
 from nicos.devices.epics.pyepics import EpicsAnalogMoveable, \
-    EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, EpicsStringReadable,\
+    EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, EpicsStringReadable, \
     EpicsWindowTimeoutDevice
 
 

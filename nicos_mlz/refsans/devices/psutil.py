@@ -27,7 +27,7 @@ Some helper classes to handle CPU usage
 import psutil
 
 from nicos.core import Readable, status
-from nicos.core.params import Param, none_or, floatrange
+from nicos.core.params import Param, floatrange, none_or
 
 from nicos_demo.demo.devices.cpuload import CPULoad
 

@@ -26,12 +26,12 @@ from types import MethodType as createBoundMethod
 
 import numpy as np
 from polarTransform import convertToPolarImage
-from nicos.guisupport.qt import pyqtSlot, QIntValidator, QDialog
 from scipy import ndimage
 
 from nicos.clients.flowui.panels.live import LiveDataPanel as EssLiveDataPanel
 from nicos.clients.gui.main import log
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialog, QIntValidator, pyqtSlot
 
 from nicos_sinq.sans.gui import uipath
 

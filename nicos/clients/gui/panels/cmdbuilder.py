@@ -25,6 +25,7 @@
 """NICOS GUI single cmdlet command input."""
 
 from os import path
+
 from nicos.clients.gui.cmdlets import get_priority_sorted_categories, \
     get_priority_sorted_cmdlets
 from nicos.clients.gui.panels import Panel

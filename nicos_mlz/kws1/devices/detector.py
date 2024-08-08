@@ -31,6 +31,7 @@ from nicos.devices.entangle import Motor as TangoMotor
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep, \
     SequencerMixin
 from nicos.utils import num_sort
+
 from nicos_mlz.kws1.devices.params import oneof_detector
 
 

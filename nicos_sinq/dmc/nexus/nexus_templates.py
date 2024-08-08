@@ -29,8 +29,8 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_ess.nexus import EventStream, NXDataset
-from nicos_sinq.nexus.specialelements import AbsoluteTime, CellArray,\
-    SaveSampleEnv, DevStat
+from nicos_sinq.nexus.specialelements import AbsoluteTime, CellArray, \
+    DevStat, SaveSampleEnv
 
 dmc_base = {
     'NeXus_Version': '4.4.0',

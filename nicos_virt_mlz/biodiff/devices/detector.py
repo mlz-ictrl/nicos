@@ -24,9 +24,10 @@
 """VBIODIFF detector image based on McSTAS simulation."""
 
 from nicos.core import Attach, Override, Readable
-from nicos.devices.mcstas import McStasSimulation as BaseSimulation, \
-    DetectorMixin
+from nicos.devices.mcstas import DetectorMixin, \
+    McStasSimulation as BaseSimulation
 from nicos.devices.sxtal.sample import SXTalSample
+
 from nicos_mlz.biodiff.devices.detector import BiodiffDetector
 
 

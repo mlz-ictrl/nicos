@@ -23,6 +23,7 @@
 
 import pika
 import pika.exceptions
+
 from nicos.utils.loggers import NicosLogger
 
 

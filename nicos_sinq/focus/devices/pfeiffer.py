@@ -24,7 +24,6 @@
 from nicos import session
 from nicos.core import Attach, Readable
 from nicos.devices.epics.pyepics import EpicsDevice
-
 from nicos.devices.epics.pyepics.mixins import HasDisablePv
 
 

@@ -27,17 +27,17 @@ from enum import Enum
 
 import numpy as np
 import pyqtgraph as pg
-from pyqtgraph import AxisItem, GraphicsView, HistogramLUTItem, ImageItem, \
-    PlotWidget, ViewBox, mkPen, mkBrush, ColorMap
+from pyqtgraph import AxisItem, ColorMap, GraphicsView, HistogramLUTItem, \
+    ImageItem, PlotWidget, ViewBox, mkBrush, mkPen
 from pyqtgraph.graphicsItems.ROI import ROI
 
 from nicos.clients.gui.panels import Panel
 from nicos.core.constants import LIVE
 from nicos.guisupport.livewidget import AXES, DATATYPES
-from nicos.guisupport.qt import QFrame, QGroupBox, QHBoxLayout, QLabel, \
-    QLineEdit, QPushButton, QScrollArea, QSize, QSizePolicy, QSplitter, Qt, \
-    QTabWidget, QVBoxLayout, QWidget, pyqtProperty, pyqtSignal, pyqtSlot, \
-    QCheckBox
+from nicos.guisupport.qt import QCheckBox, QFrame, QGroupBox, QHBoxLayout, \
+    QLabel, QLineEdit, QPushButton, QScrollArea, QSize, QSizePolicy, \
+    QSplitter, Qt, QTabWidget, QVBoxLayout, QWidget, pyqtProperty, \
+    pyqtSignal, pyqtSlot
 from nicos.utils.loggers import NicosLogger
 
 pg.setConfigOption('background', 'w')

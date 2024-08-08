@@ -1,6 +1,7 @@
 #!/bin/python
 
 import os
+
 import gr
 
 # We're building the installer always with Qt 6.

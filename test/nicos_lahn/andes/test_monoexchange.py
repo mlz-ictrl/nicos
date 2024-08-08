@@ -23,8 +23,9 @@
 
 """ANDES specific monochromator exchange tests."""
 
+from nicos.core import UsageError, status
+
 from test.utils import raises
-from nicos.core import status, UsageError
 
 session_setup = 'lahn_monoexchange'
 

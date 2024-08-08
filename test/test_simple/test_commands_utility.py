@@ -25,8 +25,8 @@
 
 import numpy
 
-from nicos.commands.utility import RangeListByCount, RangeListByStep, \
-    RangeListGeneral, RangeListLog, FloatRange
+from nicos.commands.utility import FloatRange, RangeListByCount, \
+    RangeListByStep, RangeListGeneral, RangeListLog
 from nicos.core import UsageError
 
 from test.utils import approx, raises

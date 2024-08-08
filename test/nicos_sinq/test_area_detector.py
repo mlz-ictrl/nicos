@@ -44,7 +44,6 @@ from nicos_sinq.devices.epics.status import ADKafkaStatus
 
 from test.nicos_sinq.utils import create_hs00
 
-
 session_setup = "sinq_area_detector"
 
 

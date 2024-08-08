@@ -26,7 +26,6 @@
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceDataset, NXAttribute
 
-
 seconds = NXAttribute('s', 'string')
 counts = NXAttribute('counts', 'string')
 

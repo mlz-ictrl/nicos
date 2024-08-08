@@ -21,8 +21,8 @@
 #
 # *****************************************************************************
 from nicos.core import Attach, Moveable, Param, listof, tupleof
-
 from nicos.devices.epics.pyepics.motor import EpicsMotor
+
 from nicos_sinq.devices.epics.generic import WindowMoveable
 
 

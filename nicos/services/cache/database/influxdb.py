@@ -36,8 +36,7 @@ from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.utils.credentials.keystore import nicoskeystore
 
-
-csv.field_size_limit(0xA00000) # 10 MB limit for influx queries with big fields
+csv.field_size_limit(0xA00000)  # 10 MB limit for influx queries with big fields
 
 
 class InfluxDBWrapper:
@@ -72,7 +71,7 @@ class InfluxDBWrapper:
         if bucket_name not in self.getBucketNames():
             retention_rules = BucketRetentionRules(type='expire',
                                                    every_seconds=0)
-            self._client.buckets_api().create_bucket(\
+            self._client.buckets_api().create_bucket(
                 bucket_name=bucket_name,
                 retention_rules=retention_rules, org=self._org)
 
@@ -240,7 +239,7 @@ class InfluxDBWrapper:
                     .field(field, entry.value)
                     .tag('expired', entry.expired)
                 )
-        if not self._bucket_latest in self.getBucketNames():
+        if self._bucket_latest not in self.getBucketNames():
             self.addNewBucket(self._bucket_latest)
         self._write(self._bucket_latest, points)
         # signing

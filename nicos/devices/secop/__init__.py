@@ -23,7 +23,7 @@
 
 # compatibility for legacy imports
 try:
-    from .devices import SecNodeDevice, SecopDevice, SecopReadable, \
-        SecopWritable, SecopMoveable
+    from .devices import SecNodeDevice, SecopDevice, SecopMoveable, \
+        SecopReadable, SecopWritable
 except ImportError:
     pass

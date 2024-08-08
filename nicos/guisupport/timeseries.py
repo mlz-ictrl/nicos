@@ -32,7 +32,7 @@ from time import time as currenttime
 import numpy as np
 from lttb import lttb
 
-from nicos.utils import number_types, KEYEXPR_NS
+from nicos.utils import KEYEXPR_NS, number_types
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
@@ -51,8 +51,7 @@ def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
     # calculate maxticks, depends on 'good' values
     maxticks = minticks
     for i in range(len(good)-1):
-        if maxticks < minticks * good[i+1]/good[i]:
-            maxticks = minticks * good[i+1]/good[i]
+        maxticks = max(maxticks, minticks * good[i+1]/good[i])
 
     # determine ticking range
     length = maxtime - mintime

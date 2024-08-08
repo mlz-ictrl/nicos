@@ -25,11 +25,11 @@
 
 import os
 import pickle
+import shutil
 import time
 from os import path
 
 import pytest
-import shutil
 
 from nicos import config
 from nicos.commands.measure import ListDatasinks

@@ -25,6 +25,7 @@ import json
 from nicos import session
 from nicos.core import Device, Param, host, listof, usermethod
 from nicos.core.constants import SIMULATION
+
 from nicos_ess.devices.kafka.producer import KafkaProducer
 
 

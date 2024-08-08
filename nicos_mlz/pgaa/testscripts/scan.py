@@ -9,7 +9,6 @@
 
 from nicos import session
 
-
 if 'pgaa' in session.loaded_setups:
     printwarning('Execute PGAA specific tests')
     status('samplemotor')

@@ -23,9 +23,9 @@
 
 """ARIANE visualization."""
 
-import numpy as np
 import matplotlib.pyplot as pl
-from numpy import array, mgrid, clip
+import numpy as np
+from numpy import array, clip, mgrid
 from scipy.interpolate import griddata as griddata_sp
 
 from nicos.devices.tas.plotting import pylab_key_handler

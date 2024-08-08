@@ -21,7 +21,6 @@
 #
 # *****************************************************************************
 from nicos.core import Param, pvname, status
-
 from nicos.devices.epics.pyepics import EpicsReadable
 
 error_bits = {
