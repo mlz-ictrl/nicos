@@ -3,6 +3,7 @@ description = 'Kompass setup for spherical polarisation analysis mode'
 group = 'optional'
 
 tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
+cryopad_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/cryopad/'
 
 devices = dict(
     radial_coil1 = device('nicos.devices.entangle.PowerSupply',
@@ -74,6 +75,25 @@ devices = dict(
         ),
         fmtstr = '%.3f',
         precision = 0.001,
+    ),
+
+    cryopad_ln2 = device('nicos.devices.entangle.Sensor',
+        description = 'Liquid nitrogen level of cryopad',
+        tangodevice = cryopad_base + 'ln2mon/sensor',
+        fmtstr = '%d',
+        unit = '%',
+    ),
+    cryopad_lhe = device('nicos.devices.entangle.Sensor',
+        description = 'Liquid Helium level of cryopad',
+        tangodevice = cryopad_base + 'lhemon/sensor',
+        fmtstr = '%d',
+        unit = '%',
+    ),
+    cryopad_temp = device('nicos.devices.entangle.Sensor',
+        description = 'Temperature of magnetic shields of cryopad',
+        tangodevice = cryopad_base + 'temp/sensor',
+        fmtstr = '%.2f',
+        unit = 'K',
     ),
 )
 
