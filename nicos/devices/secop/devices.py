@@ -63,8 +63,7 @@ from nicos.core.params import anytype, dictof, floatrange, intrange, listof
 from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
-from nicos.utils import createThread, importString, printTable
-from nicos.utils import merge_dicts
+from nicos.utils import createThread, importString, merge_dicts, printTable
 
 SECOP_ERROR = 400
 

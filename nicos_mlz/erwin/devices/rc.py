@@ -24,8 +24,8 @@
 
 from nicos.core import status
 from nicos.core.device import Moveable
-from nicos.core.params import Attach, Override, Param, floatrange, oneof
 from nicos.core.errors import InvalidValueError
+from nicos.core.params import Attach, Override, Param, floatrange, oneof
 from nicos.devices.entangle import Motor
 
 

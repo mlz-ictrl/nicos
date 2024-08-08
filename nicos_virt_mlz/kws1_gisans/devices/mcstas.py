@@ -27,7 +27,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import ArrayDesc, Override, Param, listof, oneof
-from nicos.devices.mcstas import McStasImage, McStasSimulation, DetectorMixin
+from nicos.devices.mcstas import DetectorMixin, McStasImage, McStasSimulation
 
 from nicos_mlz.kws1.devices.daq import RTMODES, KWSDetector
 

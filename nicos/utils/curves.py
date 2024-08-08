@@ -32,6 +32,7 @@ uncertainties python module.
 """
 
 import numpy
+
 try:
     # pylint: disable=import-error
     from uncertainties.core import AffineScalarFunc, ufloat

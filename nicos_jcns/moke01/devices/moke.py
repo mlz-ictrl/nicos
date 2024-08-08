@@ -23,21 +23,22 @@
 # *****************************************************************************
 
 """Device classes for MOKE setup."""
-from datetime import datetime
+
 import os
 import time
+from datetime import datetime
 
 import numpy
-# pylint: disable=import-error
-from uncertainties import ufloat
+from uncertainties import ufloat  # pylint: disable=import-error
 
 from nicos import session
-from nicos.core import Attach, device, errors, Param, status
+from nicos.core import Attach, Param, device, errors, status
 from nicos.core.sessions.utils import MASTER
 from nicos.devices.entangle import AnalogInput, PowerSupply, Sensor
 from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
 from nicos.utils import createThread
 from nicos.utils.curves import curve_from_two_temporal
+
 from nicos_jcns.moke01.utils import fix_filename, generate_output
 
 

@@ -22,12 +22,12 @@
 #
 # *****************************************************************************
 
-from contextlib import suppress
 import datetime
 import os
+from contextlib import suppress
 
-from gr.pygr import ErrorBar
 import numpy
+from gr.pygr import ErrorBar
 # pylint: disable=import-error
 from uncertainties.core import AffineScalarFunc
 
@@ -35,10 +35,11 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
-from nicos.guisupport.qt import QDate, QMessageBox, QTimer, QStandardItem, \
-    QStandardItemModel, Qt
+from nicos.guisupport.qt import QDate, QMessageBox, QStandardItem, \
+    QStandardItemModel, Qt, QTimer
 from nicos.utils import findResource
 from nicos.utils.curves import curves_from_series, mean_curves, subtract_curve
+
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 

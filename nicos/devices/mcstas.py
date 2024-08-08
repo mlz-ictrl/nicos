@@ -37,9 +37,9 @@ import numpy as np
 from psutil import AccessDenied, NoSuchProcess, Popen
 
 from nicos import session
-from nicos.core import MASTER, ArrayDesc, Attach, Override, Param, Readable, \
-    Value, Waitable, dictof, floatrange, intrange, nonemptystring, oneof, \
-    status, tupleof, SLAVE
+from nicos.core import MASTER, SLAVE, ArrayDesc, Attach, Override, Param, \
+    Readable, Value, Waitable, dictof, floatrange, intrange, nonemptystring, \
+    oneof, status, tupleof
 from nicos.core.constants import FINAL, LIVE
 from nicos.devices.generic import ActiveChannel, Detector as BaseDetector, \
     ImageChannelMixin, PassiveChannel

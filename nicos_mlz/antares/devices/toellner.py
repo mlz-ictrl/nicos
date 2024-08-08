@@ -25,7 +25,6 @@
 
 from nicos.core import Attach, HasLimits, Moveable, Override, Param, oneof, \
     status
-
 from nicos.devices.abstract import TransformedMoveable
 
 

@@ -38,8 +38,8 @@ from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgPresets, DlgUtils, dialogFromUi, loadUi
-from nicos.guisupport.plots import DATEFMT, GRMARKS, TIMEFMT, \
-    MaskedPlotCurve, NicosPlotAxes, NicosTimePlotAxes, GRCOLORS
+from nicos.guisupport.plots import DATEFMT, GRCOLORS, GRMARKS, TIMEFMT, \
+    MaskedPlotCurve, NicosPlotAxes, NicosTimePlotAxes
 from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFont, QListWidgetItem, QMenu, QPoint, Qt
 from nicos.guisupport.qtgr import InteractiveGRWidget, LegendEvent, \
