@@ -326,7 +326,8 @@ class Scan:
         return 'Scan %s' % ','.join(map(str, self._devices))
 
     def run(self):
-        if not self._subscan and getattr(session, '_currentscan', None):
+        if not self._subscan and (getattr(session, '_currentscan', None) or
+                                  getattr(session, '_manualscan', None)):
             raise NicosError('cannot start scan while another scan is running')
         # stop previous inner_count / acquisition thread if available
         stop_acquire_thread()
