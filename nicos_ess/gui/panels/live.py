@@ -54,6 +54,7 @@ VERT_SPLITTER_SIZES_1 = [100, 500, 100]
 VERT_SPLITTER_SIZES_2 = [100, 500, 100]
 VERT_SPLITTER_SIZES_3 = [50, 1000]
 
+
 class HistogramItem(HistogramLUTItem):
     def __init__(
         self,
@@ -115,6 +116,8 @@ class HistogramItem(HistogramLUTItem):
             self.region.setRegion([mn, mx])
 
 
+# pylint: disable=keyword-arg-before-vararg
+
 class HistogramWidget(GraphicsView):
     def __init__(self, parent=None, remove_regions=False, *args, **kargs):
         background = kargs.pop('background', 'default')
@@ -173,7 +176,7 @@ class LineView(QWidget):
     data_changed = pyqtSignal(dict)
 
     def __init__(self, parent=None, name='', preview_mode=False, *args):
-        super(LineView, self).__init__(parent, *args)
+        super().__init__(parent, *args)
 
         self.name = name
         self.preview_mode = preview_mode
@@ -502,11 +505,11 @@ class CustomImageItem(ImageItem):
         self.setAcceptHoverEvents(True)
         self.hoverData.emit('')
 
-    def hoverEvent(self, event):
-        if event.isExit():
+    def hoverEvent(self, ev):
+        if ev.isExit():
             self.hoverData.emit('')  # Clear any previous title
         else:
-            pos = event.pos()
+            pos = ev.pos()
             i, j = pos.x(), pos.y()
             i, j = (
                 int(np.clip(i, 0, self.image.shape[0] - 1)),
@@ -1045,7 +1048,7 @@ class LiveDataPanel(Panel):
             descriptions = params['datadescs']
         except KeyError:
             self.log.warning(
-                'Livedata with tag "Live" without ' '"datadescs" provided.'
+                'Livedata with tag "Live" without "datadescs" provided.'
             )
             return
 
@@ -1101,7 +1104,7 @@ class LiveDataPanel(Panel):
             datacount = len(params['datadescs'])
             for index, datadesc in enumerate(params['datadescs']):
                 labels, _ = process_axis_labels(datadesc, blobs[datacount:])
-                for i, blob in enumerate(blobs[:datacount]):
+                for _i, blob in enumerate(blobs[:datacount]):
                     self._process_livedata(params, blob, index, labels)
 
                 if not datacount:
@@ -1264,7 +1267,7 @@ class DetContainer:
             return
 
         self._blobs_to_index[name] = [self._previews_to_index[name]]
-        for idx, datadesc in enumerate(self._params_cache['datadescs']):
+        for _idx, datadesc in enumerate(self._params_cache['datadescs']):
             transferred_label_count = self._previews_to_index[name]
             for axis in datadesc['labels'].values():
                 if axis['define'] != 'classic':
@@ -1439,40 +1442,42 @@ class MultiLiveDataPanel(LiveDataPanel):
         )
 
     def update_previews(self, action, widget_name):
-        for name, preview in self._previews.items():
+        for _name, preview in self._previews.items():
             if preview.widget.name == widget_name:
                 action(preview)
 
     def plot_mode_changed(self):
         current_plot_mode = self.plotwidget_1d.mode_checkbox.isChecked()
-        action = lambda preview: preview.widget.mode_checkbox.setChecked(
-            current_plot_mode
-        )
+
+        def action(preview):
+            preview.widget.mode_checkbox.setChecked(current_plot_mode)
         self.update_previews(action, self.plotwidget_1d.name)
 
     def plot_clear_data(self):
-        action = lambda preview: preview.widget.clear_data()
+        def action(preview):
+            preview.widget.clear_data()
         self.update_previews(action, self.plotwidget_1d.name)
 
     def plot_log_mode_changed(self):
         current_log_mode = self.plotwidget_1d.log_checkbox.isChecked()
-        action = lambda preview: preview.widget.log_checkbox.setChecked(
-            current_log_mode
-        )
+
+        def action(preview):
+            preview.widget.log_checkbox.setChecked(current_log_mode)
         self.update_previews(action, self.plotwidget_1d.name)
 
     def plot_vertical_line_changed(self):
         current_value = self.plotwidget_1d.vertical_line.value()
-        action = lambda preview: preview.widget.vertical_line.setValue(
-            current_value
-        )
+
+        def action(preview):
+            preview.widget.vertical_line.setValue(current_value)
         self.update_previews(action, self.plotwidget_1d.name)
 
     def lut_changed(self):
         current_gradient_state = (
             self.plotwidget.settings_histogram.item.gradient.saveState()
         )
-        action = lambda preview: \
+
+        def action(preview):
             preview.widget.settings_histogram.item.gradient.restoreState(
                 current_gradient_state
             )
@@ -1480,9 +1485,9 @@ class MultiLiveDataPanel(LiveDataPanel):
 
     def levels_changed(self):
         current_image_levels = self.plotwidget.image_item.getLevels()
-        action = lambda preview: preview.widget.image_item.setLevels(
-            current_image_levels
-        )
+
+        def action(preview):
+            preview.widget.image_item.setLevels(current_image_levels)
         self.update_previews(action, self.plotwidget.name)
 
     def on_1d_data_changed(self, state):

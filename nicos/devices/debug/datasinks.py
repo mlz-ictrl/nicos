@@ -61,10 +61,13 @@ class DebugDataSinkHandler(DataSinkHandler):
     def addSubset(self, subset):
         self.log.info('%r: addSubset called: %r', self.dataset.settype,
                       subset.settype)
-        self.log.info('  subset.values: %r', subset.values)
-        self.log.info('  subset.canonical values: %r', subset.canonical_values)
-        if subset.devvaluelist:
-            self.log.info('  subset.devvaluelist[0]: %s', subset.devvaluelist[0])
+        if subset.settype == POINT:
+            self.log.info('  subset.values: %r', subset.values)
+            self.log.info('  subset.canonical values: %r',
+                          subset.canonical_values)
+            if subset.devvaluelist:
+                self.log.info('  subset.devvaluelist[0]: %s',
+                              subset.devvaluelist[0])
         self.log.info('  settype: %s, #%s (%s)', self.dataset.settype,
                       subset.number, len(self.dataset.subsets))
 
