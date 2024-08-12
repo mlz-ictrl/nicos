@@ -12,7 +12,7 @@ devices = dict(
         subject = 'ErwiN',
     ),
     ngmail = device('nicos.devices.notifiers.Mailer',
-        sender = 'spodi@frm2.tum.de',
+        sender = 'erwin@frm2.tum.de',
         copies = [
             ('markus.hoelzel@frm2.tum.de', 'all'),   # gets all messages
             ('anatoliy.senyshyn@frm2.tum.de', 'important'),   # gets only important messages
