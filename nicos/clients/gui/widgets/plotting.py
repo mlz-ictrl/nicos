@@ -1111,6 +1111,8 @@ class ViewPlot(NicosGrPlot):
         self.parent_window.statusBar.showMessage(msg)
 
     def addAllCurves(self):
+        if self._plot.autoscale & PlotAxes.SCALE_Y:
+            self.unzoom()
         for series in self.view.series.values():
             self.addCurve(series)
         for curve in self._axes.getVisibleCurves():
@@ -1278,6 +1280,8 @@ class DataSetPlot(NicosGrPlot):
         return ''
 
     def addAllCurves(self):
+        if self._plot.autoscale & PlotAxes.SCALE_Y:
+            self.unzoom()
         for curve in self.dataset.curves:
             self.addCurve(curve)
         for curve in self._axes.getVisibleCurves():
