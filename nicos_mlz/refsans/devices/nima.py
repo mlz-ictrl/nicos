@@ -50,7 +50,7 @@ class Base(Readable):
 
     def doGet(self, style, maxage=0):
         style = style.replace('_', ' ')
-        if style + ';' not in self.data or self.stringserver == 'read':
+        if style + ';' not in self._data or self.stringserver == 'read':
             res = self._attached_comm.communicate('read')
         else:
             res = self._data
