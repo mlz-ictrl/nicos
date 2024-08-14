@@ -33,7 +33,7 @@ class Accuracy(CalculatedReadable):
 
     parameters = {
         'absolute': Param('Value is absolute or signed.',
-                          type=bool, settable=True, default=True),
+                          type=bool, settable=False, default=True),
     }
 
     parameter_overrides = {

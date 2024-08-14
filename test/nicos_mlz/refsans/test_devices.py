@@ -286,7 +286,7 @@ class TestAccuracy:
     ])
     def test_read(self, session, absolute, expected):
         dev = session.getDevice('table_acc')
-        dev.absolute = absolute
+        dev._setROParam('absolute', absolute)
         assert dev.read(0) == expected
 
     def test_status(self, session):
