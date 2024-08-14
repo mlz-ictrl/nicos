@@ -228,6 +228,12 @@ class Device(tuple):
     """
 
 
+class Secret(tuple):
+    """Helper class for reading setups, to distinguish secret() from
+    lists/tuples.
+    """
+
+
 def _s(n):
     return int(n), (int(n) != 1 and 's' or '')
 

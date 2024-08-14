@@ -24,13 +24,16 @@
 """Parameter definition helpers and typechecking combinators."""
 
 import copy
+import os
 import re
 from os import path
 
 import numpy as np
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
-from nicos.utils import decodeAny, parseHostPort, readonlydict, readonlylist
+from nicos.utils import Secret, decodeAny, parseHostPort, readonlydict, \
+    readonlylist
+from nicos.utils.credentials import keystore
 
 INFO_CATEGORIES = [
     ('experiment', 'Experiment information'),
@@ -992,3 +995,48 @@ class host:
         if not host:
             raise ValueError('Empty hostname is not allowed')
         return self._addDefaults(host, port)
+
+
+class secret:
+    """Parameter type to lookup external secret sources.
+
+    *externalkey*: the external key to look up
+    *default*: (optional) default value if not resolved
+
+    Calling `lookup` will resolve to the expected secret.
+
+    Lookup is performed in this order and the first match returned:
+
+    1. externalkey looked up in the nicos keystore
+    2. NICOS_<upper(externalkey)> from the environment
+    3. (optional) the given default
+    """
+
+    def __init__(self, externalkey='', default=None):
+        if isinstance(externalkey, Secret):  # from using Secret() in setup
+            self.externalkey = externalkey[0]
+            self.default = externalkey[1].get('default')
+        else:
+            self.externalkey = externalkey
+            self.default = default
+
+    def lookup(self, error=None):
+        """Look up the secret in the NICOS keystore.
+
+        If *error* is given, raise a ConfigurationError if the secret cannot
+        be found and no default is given.
+        """
+        if not self.externalkey:
+            raise ConfigurationError('No external key given for this secret')
+        val = keystore.nicoskeystore.getCredential(self.externalkey)
+        if not val:
+            env_name = f'NICOS_{self.externalkey.upper().replace("-", "_")}'
+            val = os.environ.get(env_name)
+        if not val:
+            val = self.default
+        if not val and error:
+            raise ConfigurationError(error)
+        return val
+
+    def __repr__(self):
+        return f'<secret {self.externalkey!r}>'

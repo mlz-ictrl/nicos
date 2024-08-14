@@ -24,7 +24,7 @@
 """Setup file handling."""
 
 from nicos.core.params import nicosdev_re
-from nicos.utils import Device
+from nicos.utils import Device, Secret
 from nicos.utils.files import iterSetups
 
 SETUP_GROUPS = {
@@ -155,6 +155,7 @@ def prepareNamespace(setupname, filepath, all_setups):
         '_dep_files': dep_files,
         'Row': Row, 'Column': Column, 'BlockRow': Row,
         'Block': Block, 'Field': Field, 'SetupBlock': SetupBlock,
+        'secret': lambda key, **kwds: Secret((key, kwds)),
     }
     return ns
 

@@ -23,14 +23,17 @@
 
 """NICOS device class test suite."""
 
+import os
+
 import pytest
 
 from nicos.commands.basic import NewSetup
 from nicos.core import ADMIN, AccessError, Attach, CanDisable, \
     CommunicationError, ConfigurationError, Device, HasCommunication, \
     HasLimits, HasOffset, LimitError, Moveable, NicosError, Param, \
-    ProgrammingError, UsageError, requires, status, usermethod
+    ProgrammingError, UsageError, requires, secret, status, usermethod
 from nicos.core.sessions.utils import MAINTENANCE
+from nicos.utils.credentials import keystore
 
 from test.utils import raises
 
@@ -154,6 +157,12 @@ class Dev4(Device):
                              internal=True, userparam=True),
         'explicit': Param('non-internal parameter with explicit userparam '
                           'setting', userparam=False),
+    }
+
+
+class DevSecret(Device):
+    parameters = {
+        'verysecretval': Param('a secret param', type=secret),
     }
 
 
@@ -515,3 +524,18 @@ def test_offset_sign(session):
     dev.doAdjust(1, 0)
     assert dev.offset == -1
     assert dev.read(0) == 0
+
+
+def test_secret_device(session):
+    dev = session.getDevice('dev_secret')
+    try:
+        keystore.nicoskeystore.delCredential('secretenv')
+    except Exception:
+        # raises if key is not in keystore, but always cleanup in case of fails
+        pass
+    assert dev.verysecretval.lookup() not in ['env', 'store']
+    os.environ['NICOS_SECRETENV'] = 'env'
+    assert dev.verysecretval.lookup() == 'env'
+    keystore.nicoskeystore.setCredential('secretenv', 'store')
+    assert dev.verysecretval.lookup() == 'store'
+    keystore.nicoskeystore.delCredential('secretenv')
