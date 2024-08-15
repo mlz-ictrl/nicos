@@ -43,8 +43,9 @@ class InfluxDBWrapper:
     """Wrapper for InfluxDB API 2.0.
     """
 
-    def __init__(self, url, token, org, bucket, bucket_latest):
+    def __init__(self, url, token, org, bucket, bucket_latest, unbuffered=False):
         self._update_queue = []
+        self._unbuffered = unbuffered
         self._update_lock = threading.Lock()
         self._url = url
         self._token = token
@@ -216,7 +217,7 @@ class InfluxDBWrapper:
             self._update_queue.append(point)
             if value_float:
                 self._update_queue.append(point_float)
-        if len(self._update_queue) > 100:
+        if len(self._update_queue) > 100 or self._unbuffered:
             self._update()
 
     def _update(self):
@@ -302,6 +303,10 @@ class InfluxDBCacheDatabase(CacheDatabase):
             'Name of the bucket where data should be stored',
             type=str, default='nicos-cache-latest-values', mandatory=False
         ),
+        'unbuffered': Param(
+            'flag to indicate writing must not be buffered',
+            type=bool, default=False, mandatory=False
+        ),
     }
 
     def doInit(self, mode):
@@ -312,7 +317,7 @@ class InfluxDBCacheDatabase(CacheDatabase):
         if not token:
             raise ConfigurationError('InfluxDB API token missing in keyring')
         self._client = InfluxDBWrapper(self.url, token, self.org, self.bucket,
-                                       self.bucket_latest)
+                                       self.bucket_latest, self.unbuffered)
         self._time = datetime.now().timestamp()
 
     def initDatabase(self):
