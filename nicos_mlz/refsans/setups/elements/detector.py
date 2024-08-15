@@ -67,7 +67,6 @@ devices = dict(
         device1 = 'det_yoke_motor',
         device2 = 'det_yoke_enc',
         visibility = showcase_values['hide_acc'],
-        unit = 'mm'
     ),
     det_yoke_enc_io = device('nicos.devices.entangle.StringIO',
         description = 'Yoke big red: communication device',
@@ -153,7 +152,6 @@ devices = dict(
         description = 'laser measurement of table accuracy',
         device1 = 'det_table_motor',
         device2 = 'dix_laser_analog',
-        unit = 'mm',
     ),
     dix_laser_analog = device('nicos_mlz.refsans.devices.dimetix.DimetixLaser',
         description = 'laser measurement of table',
