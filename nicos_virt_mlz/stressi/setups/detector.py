@@ -40,6 +40,7 @@ devices = dict(
         chi = 'chis',
         omega = 'omgs',
         theta2 = 'tths',
+        force = 'teload',
         neutronspersec = {
             'localhost': 1.12e5,
             'taco6.ictrl.frm2.tum.de': 8.9e+05,
