@@ -499,7 +499,11 @@ class SaveSampleEnv(NexusElementBase):
                                             time.localtime(self.starttime))
         dset = loggroup.create_dataset('value', (1,), maxshape=(None,),
                                        dtype='float32')
-        dset[0] = dev.read()
+        try:
+            dset[0] = dev.read()
+        except Exception as e:
+            dev.log.warning('error reading %s: %r', dev, e)
+            dset[0] = float('nan')
         self._last_update[dev.name] = time.time()
 
     def create(self, name, h5parent, sinkhandler):
