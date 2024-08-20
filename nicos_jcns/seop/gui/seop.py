@@ -29,7 +29,6 @@ import time
 from datetime import datetime
 
 import gr
-import yaml
 from gr.pygr import Plot, PlotCurve
 from numpy import array
 
@@ -38,9 +37,10 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import Axes, LiveWidget1D
 from nicos.guisupport.plots import DATEFMT, GRMARKS, TIMEFMT
 from nicos.guisupport.qt import QLayout, QMainWindow, QSizePolicy, \
-    QStatusBar, Qt, QTreeWidgetItem, pyqtSlot
+    QStatusBar, pyqtSlot
 from nicos.guisupport.qtgr import InteractiveGRWidget, MouseEvent
 from nicos.guisupport.timeseries import buildTickDistAndSubTicks
+from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource
 
 
@@ -68,7 +68,7 @@ class SeopPlot(LiveWidget1D):
         self.setTitles({'x': xlabel, 'y': ylabel})
         self._curves = [PlotCurve([0], [1], linewidth=2, legend='')]
         if marker:
-            self._curves[0].markertype=GRMARKS['diagonalcross']
+            self._curves[0].markertype = GRMARKS['diagonalcross']
             self.changeMarkerSize(1.5)
 
         self.axes.addCurves(self._curves[0])
@@ -177,64 +177,99 @@ class SeopPlotPanel(Panel):
             self.update_plot()
 
 
-class SeopSettingsTreeItem(QTreeWidgetItem):
-    def __init__(self, cfgkey, strings):
-        super().__init__(strings)
-        self.cfgkey = cfgkey
-
-    def setData(self, column, role, value):
-        super().setData(column, role, value)
-
-
 class SeopSettingsPanel(Panel):
-    """Tree displaying all settings available to the seop system."""
+    """All settings available for the seop system."""
     panelName = 'NMR Settings'
 
     def __init__(self, parent, client, options):
         super().__init__(parent, client, options)
         loadUi(self, findResource('nicos_jcns/seop/gui/seopsettings.ui'))
-        self.configTree.itemDoubleClicked.connect(self.treeItemDoubleClicked)
-        self.configTree.itemChanged.connect(self.setConfigData)
+        self.keytowidget = {
+            # AFP section
+            'tasks/afp/signal/amplitude': self.AFPAmplitudeEdit,
+            'tasks/afp/signal/duration': self.AFPDurationEdit,
+            'tasks/afp/signal/freq_center': self.AFPFreqCenterEdit,
+            'tasks/afp/signal/freq_delta': self.AFPFreqDeltaEdit,
+            'tasks/afp/switch_sleep': self.AFPMuteTimeEdit,
+            'tasks/afp/signal/envelope_width': self.AFPEnvWidthEdit,
+            # AFP devices
+            'tasks/afp/devices/analog/port': self.AFPAnalogPortEdit,
+            'tasks/afp/devices/analog/sample_rate': self.AFPSampleRateEdit,
+            'tasks/afp/devices/analog/voltage_min': self.AFPVminEdit,
+            'tasks/afp/devices/analog/voltage_max': self.AFPVmaxEdit,
+            'tasks/afp/devices/state/port': self.AFPStatePortEdit,
+            'tasks/afp/devices/switch/port': self.AFPMutePortEdit,
+            # NMR
+            'tasks/nmr/signal/amplitude': self.NMRAmplitudeEdit,
+            'tasks/nmr/signal/duration': self.NMRSignalDurationEdit,
+            'tasks/nmr/signal/freq_center': self.NMRFreqCenterEdit,
+            'tasks/nmr/measurement/duration': self.NMRMeasureDurationEdit,
+            'tasks/nmr/measurement/ringdown': self.NMRRingdownEdit,
+            'tasks/nmr/dsp/downsampling_factor': self.NMRDownsampleEdit,
+            'tasks/nmr/dsp/freq_lowpass': self.NMRLowpassEdit,
+            'tasks/nmr/dsp/freq_mixdown': self.NMRMixdownEdit,
+            'tasks/nmr/dsp/freq_mixdown_offset': self.NMRMixdownOffsetEdit,
+            'tasks/nmr/background/interval': self.NMRBackgroundIntervalEdit,
+            # NMR devices
+            'tasks/nmr/devices/input/port': self.NMRInputPortEdit,
+            'tasks/nmr/devices/input/sample_rate': self.NMRInputSampleRateEdit,
+            'tasks/nmr/devices/output/port': self.NMROutputPortEdit,
+            'tasks/nmr/devices/output/sample_rate': self.NMROutputSampleRateEdit,
+            'tasks/nmr/devices/output/voltage_min': self.NMROutputVminEdit,
+            'tasks/nmr/devices/output/voltage_max': self.NMROutputVmaxEdit,
+            'tasks/nmr/devices/switch/port': self.NMRSwitchPortEdit,
+            'tasks/nmr/devices/trigger/port': self.NMRTriggerPortEdit,
+        }
+        self.widgettokey = {v: k for k, v in self.keytowidget.items()}
         client.connected.connect(self.on_client_connected)
+        client.device.connect(self.on_client_device)
+        self.destroyed.connect(self.on_destroyed)
+        dvalidator = DoubleValidator()
+        for key, widget in self.keytowidget.items():
+            if 'port' in key:
+                continue
+            widget.setValidator(dvalidator)
+        self.setEnabled('cell' in client.getDeviceList())
 
     def on_client_connected(self):
         self._load_config()
+        for widget in self.keytowidget.values():
+            widget.returnPressed.connect(self.setConfigData)
+
+    def on_client_device(self, data):
+        (action, devlist) = data
+        if 'cell' not in devlist:
+            return
+        if action == 'create':
+            self.setEnabled(True)
+        elif action == 'destroy':
+            self.setEnabled(False)
+
+    def on_destroyed(self):
+        self.client.connected.disconnect(self.on_client_connected)
+        self.client.device.disconnect(self.on_client_device)
 
     def _load_config(self):
-        self.configTree.clear()
-        cfg = self.client.eval('cell.raw_config_file()', None)
-        if not cfg:
+        for key, widget in self.keytowidget.items():
+            value = self.client.eval(f"cell.cfg_get('{key}')", '')
+            widget.setText(value)
+
+    def setEnabled(self, enabled):
+        self.setEnabled(enabled)
+
+    def setConfigData(self):
+        widget = self.sender()
+        key = self.widgettokey.get(widget, None)
+        if not key:
             return
-        config = yaml.safe_load(cfg)
-        for k, v in config.items():
-            t = self._make_tree(k, k, v)
-            self.configTree.addTopLevelItem(t)
-
-        self.configTree.expandAll()
-        for i in range(self.configTree.columnCount()):
-            self.configTree.resizeColumnToContents(i)
-
-    def _make_tree(self, path, key, config):
-        if not isinstance(config, dict):
-            cfgItem = SeopSettingsTreeItem(path, [key, str(config)])
-            cfgItem.setFlags(cfgItem.flags() | Qt.ItemFlag.ItemIsEditable)
-            # cfgItem.changed.connect(self.setConfigData)
-            return cfgItem
-        tree = SeopSettingsTreeItem(path, [key])
-        for k, v in config.items():
-            tree.addChild(self._make_tree('/'.join((path, k)), k, v))
-        return tree
-
-    def treeItemDoubleClicked(self, item, column):
-        if column != 1:
-            return
-        self.configTree.editItem(item, column)
-
-    def setConfigData(self, item, column):
-        if column != 1:
-            return
-        data = item.data(1, Qt.ItemDataRole.DisplayRole)
-        self.client.run(f"cell.cfg_set('{item.cfgkey}', '{data}')")
+        value = widget.text()
+        # Special case: tasks/nmr/signal/duration and
+        # tasks/nmr/signal_switch/duration should be the same.
+        # The switch triggers the measurement when the signal is complete, should not diverge.
+        # Cutting off the ringdown is done with "ringdown".
+        if key == 'tasks/nmr/signal/duration':
+            self.client.run(f"cell.cfg_set('tasks/nmr/signal_switch/duration', '{value}')")
+        self.client.run(f"cell.cfg_set('{key}', '{value}')")
 
     @pyqtSlot()
     def on_reloadBtn_clicked(self):
