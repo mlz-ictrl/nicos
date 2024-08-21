@@ -29,8 +29,8 @@ from os import path
 
 import gr
 
-from nicos.guisupport.qt import QApplication, QDoubleValidator, QFileDialog, \
-    QFont, QLocale, QPalette, Qt, QValidator
+from nicos.guisupport.qt import QApplication, QCursor, QDoubleValidator, \
+    QFileDialog, QFont, QLocale, QPalette, Qt, QValidator
 
 
 def savePlot(widget, default_file_type, old_file_path=None):
@@ -126,7 +126,7 @@ def waitCursor():
             pass
     """
     try:
-        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         yield
     finally:
         QApplication.restoreOverrideCursor()

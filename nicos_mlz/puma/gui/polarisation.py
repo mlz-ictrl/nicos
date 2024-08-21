@@ -26,12 +26,13 @@ from math import asin, atan, cos, degrees, pi, radians, sin, sqrt, tan
 from numpy import arange, array, sign
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, waitCursor
+from nicos.clients.gui.utils import loadUi
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRCOLORS, GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QDoubleValidator, QLabel, QMessageBox, QSize, \
     QSizePolicy, Qt, QVBoxLayout, QWidget, pyqtSlot
+from nicos.guisupport.utils import waitCursor
 from nicos.guisupport.widget import NicosWidget
 from nicos.utils import findResource
 

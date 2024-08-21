@@ -35,8 +35,7 @@ from gr import COLORMAPS as GR_COLORMAPS
 
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
 from nicos.clients.gui.panels.plot import PlotPanel
-from nicos.clients.gui.utils import enumerateWithProgress, loadUi, uipath, \
-    waitCursor
+from nicos.clients.gui.utils import enumerateWithProgress, loadUi, uipath
 from nicos.core.constants import FILE, LIVE
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import AXES, DATATYPES, IntegralLiveWidget, \
@@ -45,6 +44,7 @@ from nicos.guisupport.qt import QActionGroup, QByteArray, QDialog, \
     QFileDialog, QListWidgetItem, QMenu, QPoint, QSizePolicy, QStatusBar, Qt, \
     QToolBar, QWidget, pyqtSignal, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
+from nicos.guisupport.utils import waitCursor
 from nicos.protocols.cache import cache_load
 from nicos.utils import BoundedOrderedDict, ReaderRegistry, safeName
 
