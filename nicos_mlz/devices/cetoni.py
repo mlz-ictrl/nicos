@@ -30,6 +30,7 @@ import numpy
 from nicos import session
 from nicos.core import Attach, Param, errors
 from nicos.core.sessions.utils import MASTER
+from nicos.core import usermethod
 from nicos.devices.entangle import HasOffset, Motor, NamedDigitalOutput, Sensor
 from nicos.utils import createThread
 from nicos.utils.pid import PID
@@ -268,3 +269,29 @@ class CetoniPump(Motor):
         self._valve.doStart(state)
         while self._valve.doRead() != state:
             session.delay(0.1)
+
+    @usermethod
+    def debubble(self, volume, number):
+        """Method to release the bubbles from the syringe.
+        Bubbles are supposed to be released by pumping the solution the Cetoni
+        syringe is connected to in specifyed amount of *volume* a *number*
+        of times.
+
+        Example:
+
+        >>> syringe.debubble(5, 3)
+
+        Should pump 5 ml of a solvent 3 times.
+        """
+        state = self._valve.read()
+        self.set_valve_state('inlet')
+        speed = self.speed
+        self.speed = self._max_speed
+        self.start(0)
+        for _ in range(number):
+            self.start(volume)
+            self._hw_wait()
+            self.start(0)
+            self._hw_wait()
+        self.set_valve_state(state)
+        self.speed = speed
