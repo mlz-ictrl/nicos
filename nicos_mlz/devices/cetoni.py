@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Device classes for Cetoni Nemesys pumps."""
+"""Device classes for Cetoni Nemesys syringe."""
 
 import time
 
@@ -59,13 +59,13 @@ class CetoniSensor(HasOffset, Sensor):
         return numpy.mean(values), numpy.std(values)
 
 
-class CetoniPump(Motor):
-    """Device for Cetoni Nemesys high pressure syringe pressure pump.
+class CetoniSyringe(Motor):
+    """Device for Cetoni Nemesys high pressure syringe pump.
     This device can attach pressure sensor and 4-state valve."""
 
     attached_devices = {
-        'pressure': Attach('Pressure sensor related to the pump', CetoniSensor),
-        'valve': Attach('Cetoni valve related to the pump', NamedDigitalOutput),
+        'pressure': Attach('Pressure sensor related to the syringe', CetoniSensor),
+        'valve': Attach('Cetoni valve related to the syringe', NamedDigitalOutput),
     }
 
     parameters = {
@@ -197,7 +197,7 @@ class CetoniPump(Motor):
                 break
         if not 0 < fill < self._max_volume:
             raise errors.NicosError(self, 'Can\'t reach the pressure from '
-                                          'current pump fill level.')
+                                          'current syringe fill level.')
         k = (self._y[-1] - self._y[-2]) / (self._x[-1] - self._x[-2])
         b = self._y[-1] - k * self._x[-1]
         fill_level = (target_pressure - b) / k
@@ -241,7 +241,7 @@ class CetoniPump(Motor):
                                                'PID controller can\'t reach the'
                                                ' condition.')
 
-        # once good precision is obtained on virtual pump, it is transfered
+        # once good precision is obtained on virtual syringe, it is transferred
         # to the real one
         t = time.time() - t
         buf = []

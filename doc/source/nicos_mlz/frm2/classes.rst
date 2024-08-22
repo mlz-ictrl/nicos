@@ -54,4 +54,4 @@
 
 .. module:: nicos_mlz.devices.cetoni
 .. autoclass:: CetoniSensor()
-.. autoclass:: CetoniPump()
+.. autoclass:: CetoniSyringe()
