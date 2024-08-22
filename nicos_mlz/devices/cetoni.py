@@ -144,7 +144,16 @@ class CetoniPump(Motor):
     def suck_from_cell(self, volume, t=0):
         self.dispense_to_cell(-volume, t)
 
+    @usermethod
     def keep_pressure(self, target_pressure, rewrite_xy=True):
+        """Sets and keeps specific pressure in the syringe using PID.
+
+        Example:
+
+        >>> syringe.keep_pressure(42)
+
+        Sets and keeps 42 bars in the syringe.
+        """
         if self._valve.doRead() not in ('closed', 'outlet'):
             raise errors.NicosError(self, 'Corresponding valve should be either'
                                     ' in \"closed\" or \"outlet\" state.')
@@ -156,7 +165,16 @@ class CetoniPump(Motor):
         else:
             raise errors.NicosError(self, 'Another PID thread is running.')
 
+    @usermethod
     def set_pressure(self, target_pressure, rewrite_xy=True):
+        """Sets specific pressure in the syringe.
+
+        Example:
+
+        >>> syringe.set_pressure(42)
+
+        Sets 42 bars in the syringe.
+        """
         if not 1 <= target_pressure <= self._pressure_limit:
             raise errors.NicosError(self, 'Target pressure is out of limits.')
         if self.pid_mode:
