@@ -15,7 +15,7 @@ group = 'special'
 watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for log files becomes too low.',
-         type = 'critical',
+         type = 'logspace',
          gracetime = 30,
     ),
     dict(
@@ -38,10 +38,22 @@ includes = ['notifiers']
 # one for priority 2.
 
 devices = dict(
+    logspace_notif = device('nicos.devices.notifiers.Mailer',
+        description = 'Reports about the limited logspace',
+        sender = 'puma@frm2.tum.de',
+        mailserver = 'smtp.frm2.tum.de',
+        copies = [
+            ('jens.krueger@frm2.tum.de', 'important'),
+        ],
+        subject = 'PUMA log space runs full',
+    ),
     Watchdog = device('nicos.services.watchdog.Watchdog',
         cache = 'pumahw.puma.frm2.tum.de:14869',
-        notifiers = {'default': ['email'],
-                     'critical': ['email', 'smser']},
+        notifiers = {
+            'default': ['email'],
+            'critical': ['email', 'smser'],
+            'logspace': ['email', 'smser', 'logspace_notif'],
+        },
         watch = watch_conditions,
     ),
 )
