@@ -62,9 +62,9 @@ def cetoni_count(pressure, volume1, volume2, time, *detlist, **preset):
 
     Example:
 
-    >>> cetoni_mixture(30, 1, 1, 10)
-    >>> cetoni_mixture(30, 1, 1, 10, t=10)
-    >>> cetoni_mixture(30, 1, 1, 10, psd, t=10)
+    >>> cetoni_count(30, 1, 1, 10)
+    >>> cetoni_count(30, 1, 1, 10, t=10)
+    >>> cetoni_count(30, 1, 1, 10, psd, t=10)
 
     At first pumps 1 and 2 will be discharged and charged again to the maximum
     fill level. Pump 3 will be discharged too, but filled enough to create
