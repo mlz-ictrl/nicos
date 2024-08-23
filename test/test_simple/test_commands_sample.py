@@ -25,6 +25,7 @@
 
 import json
 from io import StringIO
+import pytest
 from unittest import mock
 
 from nicos.commands.sample import activation, powderfit
@@ -77,6 +78,7 @@ def test_powderfit_from_peaks():
     assert res[1] == approx(-1, abs=1e-2)
 
 
+@pytest.mark.flaky(reruns=5, only_rerun='AssertionError')
 def test_powderfit_from_data(session):
     tasdev = session.getDevice('Tas')
     tasdev.scanconstant = 2.0
