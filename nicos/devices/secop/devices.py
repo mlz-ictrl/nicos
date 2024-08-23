@@ -1277,7 +1277,7 @@ class SecopReadable(SecopDevice, Readable):
     def info(self):
         # override the default NICOS behaviour here:
         # a disabled SECoP module should be ignored silently
-        st = self.doStatus()
+        st = self.status(0)
         if st[0] == status.DISABLED:
             # do not display info in data file when disabled
             return []
