@@ -96,6 +96,10 @@ class CetoniSyringe(Motor):
         self.pollinterval = 0.5 if on else self._config.get('pollinterval', 300)
         self._pressure.pollinterval = 0.5 if on else self._config.get('pollinterval', 300)
         self._valve.pollinterval = 0.5 if on else self._config.get('pollinterval', 300)
+        if not on:
+            self.speed = self._max_speed
+            self.start(0)
+            self._hw_wait()
         Motor.doEnable(self, on)
 
     def doStatus(self, maxage=0):
