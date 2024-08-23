@@ -27,6 +27,7 @@
 from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.measure import count
+from nicos.core.errors import UsageError
 
 
 @usercommand
@@ -81,30 +82,18 @@ def cetoni_count(pressure, volume1, volume2, time, *detlist, **preset):
     syringe2 = session.getDevice('syringe2')
     syringe3 = session.getDevice('syringe3')
 
-    syringe1.set_valve_state('inlet')
-    syringe2.set_valve_state('inlet')
-    syringe3.set_valve_state('inlet')
-
-    syringe1.speed = syringe1._max_speed
-    syringe1.doStart(0)
-    syringe2.speed = syringe2._max_speed
-    syringe2.doStart(0)
-    syringe3.speed = syringe3._max_speed
-    syringe3.doStart(0)
-    syringe1._hw_wait()
-    syringe2._hw_wait()
-    syringe3._hw_wait()
-    syringe1.speed = syringe1._max_speed
-    syringe1.doStart(25)
-    syringe2.speed = syringe2._max_speed
-    syringe2.doStart(25)
-    syringe3.speed = syringe3._max_speed
-    syringe3.doStart(3)
-    syringe1._hw_wait()
-    syringe2._hw_wait()
-    syringe3._hw_wait()
-    session.log.info('Liquids have been refreshed.\n'
-                     'Setting the pressure values.')
+    # User has to fill syringes manually with desired volumes
+    if syringe1.read() <= volume1 or syringe2.read() <= volume2:
+        raise UsageError('Syringes must be filled with volumes > than the '
+                         'desired mixing volumes, since a liquid is compressed '
+                         'under pressure.')
+    # syringe3 must have enough of empty volume to contain the volume of
+    # liquids dispensed from syringes 1 and 2
+    vol = max(syringe3.abslimits) - syringe3.read()
+    if vol < volume1 + volume2:
+        raise UsageError('Syringe3 doesn\'t have enough of volume to contain '
+                         f'liquids from syringes 1 and 2: {volume1} + {volume2}'
+                         f' > {vol}')
 
     syringe1.set_valve_state('closed')
     syringe2.set_valve_state('closed')
@@ -121,13 +110,18 @@ def cetoni_count(pressure, volume1, volume2, time, *detlist, **preset):
             syringe2.stop_pid()
             syringe3.stop_pid()
             break
-        if syringe1.pid_ready and syringe2.pid_ready and syringe3.pid_ready:
+        if all(s.pid_ready for s in [syringe1, syringe2, syringe3]):
             session.log.info('Pressure values have been reached.')
             syringe1.stop_pid()
             syringe2.stop_pid()
             syringe3.stop_pid()
             break
         session.delay(1)
+
+    # User had to fill syringes considering compression of liquids
+    if syringe1.read() < volume1 or syringe2.read() < volume2:
+        raise UsageError('After the pressure is set, one or both of syringes '
+                         'are not filled with desired volumes.')
 
     syringe1.set_valve_state('outlet')
     syringe2.set_valve_state('outlet')
