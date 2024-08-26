@@ -31,6 +31,7 @@ from nicos import session
 from nicos.core import Attach, Param, errors
 from nicos.core.constants import SIMULATION
 from nicos.core.sessions.utils import MASTER
+from nicos.core import usermethod
 from nicos.devices.entangle import HasOffset, Motor, NamedDigitalOutput, Sensor
 from nicos.utils import createThread
 from nicos.utils.pid import PID
@@ -150,7 +151,16 @@ class CetoniPump(Motor):
     def suck_from_cell(self, volume, t=0):
         self.dispense_to_cell(-volume, t)
 
+    @usermethod
     def keep_pressure(self, target_pressure, rewrite_xy=True):
+        """Sets and keeps specific pressure in the syringe using PID.
+
+        Example:
+
+        >>> syringe.keep_pressure(42)
+
+        Sets and keeps 42 bars in the syringe.
+        """
         if self._valve.doRead() not in ('closed', 'outlet'):
             raise errors.NicosError(self, 'Corresponding valve should be either'
                                     ' in \"closed\" or \"outlet\" state.')
@@ -162,7 +172,16 @@ class CetoniPump(Motor):
         else:
             raise errors.NicosError(self, 'Another PID thread is running.')
 
+    @usermethod
     def set_pressure(self, target_pressure, rewrite_xy=True):
+        """Sets specific pressure in the syringe.
+
+        Example:
+
+        >>> syringe.set_pressure(42)
+
+        Sets 42 bars in the syringe.
+        """
         if not 1 <= target_pressure <= self._pressure_limit:
             raise errors.NicosError(self, 'Target pressure is out of limits.')
         if self.pid_mode:
@@ -256,3 +275,29 @@ class CetoniPump(Motor):
         self._valve.doStart(state)
         while self._valve.doRead() != state:
             session.delay(0.1)
+
+    @usermethod
+    def debubble(self, volume, number):
+        """Method to release the bubbles from the syringe.
+        Bubbles are supposed to be released by pumping the solution the Cetoni
+        syringe is connected to in specifyed amount of *volume* a *number*
+        of times.
+
+        Example:
+
+        >>> syringe.debubble(5, 3)
+
+        Should pump 5 ml of a solvent 3 times.
+        """
+        state = self._valve.read()
+        self.set_valve_state('inlet')
+        speed = self.speed
+        self.speed = self._max_speed
+        self.start(0)
+        for _ in range(number):
+            self.start(volume)
+            self._hw_wait()
+            self.start(0)
+            self._hw_wait()
+        self.set_valve_state(state)
+        self.speed = speed
