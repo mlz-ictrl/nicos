@@ -6,7 +6,10 @@ devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
         description = 'Reports via email',
         sender = 'mira@frm2.tum.de',
-        copies = [('rgeorgii@frm2.tum.de', 'all')],
+        copies = [
+            ('rgeorgii@frm2.tum.de', 'all'),
+            ('markos.skoulatos@frm2.tum.de', 'all'),
+        ],
         subject = 'MIRA',
         mailserver='smtp.frm2.tum.de',
     ),

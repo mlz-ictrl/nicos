@@ -9,13 +9,13 @@ devices = dict(
         mailserver = 'smtp.frm2.tum.de',
         copies = [
             ('jitae.park@frm2.tum.de', 'all'),
-            ('Avishek.Maity@frm2.tum.de', 'all'),
+            ('norbert.juenke@frm2.tum.de', 'important'),
         ],
         subject = 'PUMA',
     ),
     smser = device('nicos.devices.notifiers.SMSer',
         description = 'Reports via SMS',
         server = 'triton.admin.frm2.tum.de',
-        receivers = ['017680508564', '015219120504'],
+        receivers = ['017680508564'],
     ),
 )
