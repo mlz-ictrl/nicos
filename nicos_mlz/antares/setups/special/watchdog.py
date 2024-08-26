@@ -20,7 +20,7 @@ group = 'special'
 watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for log files becomes too low.',
-         type = 'critical',
+         type = 'logspace',
          gracetime = 30,
         ),
     dict(condition = 'reactorpower_value < 19',
@@ -100,6 +100,7 @@ includes = ['notifiers']
 notifiers = {
     'default': ['warning', 'smser'],
     'critical': ['warning', 'smser'],
+    'logspace': ['warning', 'smser', 'logspace_notif'],
 }
 
 devices = dict(
