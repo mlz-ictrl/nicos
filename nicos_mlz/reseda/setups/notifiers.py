@@ -22,4 +22,13 @@ devices = dict(
     #     receivers = ['#nicos_build-up'],
     #     keystoretoken = 'slack',
     # ),
+    logspace_notif = device('nicos.devices.notifiers.Mailer',
+        description = 'Reports about the limited logspace',
+        sender = 'reseda@frm2.tum.de',
+        mailserver = 'smtp.frm2.tum.de',
+        copies = [
+            ('jens.krueger@frm2.tum.de', 'important'),
+        ],
+        subject = 'RESEDA log space runs full',
+    ),
 )
