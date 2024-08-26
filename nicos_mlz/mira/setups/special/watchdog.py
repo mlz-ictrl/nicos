@@ -15,7 +15,7 @@ group = 'special'
 watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for log files becomes too low.',
-         type = 'critical',
+         type = 'logspace',
          gracetime = 30,
     ),
     dict(
@@ -50,8 +50,11 @@ includes = ['notifiers']
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
         cache = 'miractrl.mira.frm2.tum.de:14869',
-        notifiers = {'default': ['email'],
-                     'critical': ['email', 'smser']},
+        notifiers = {
+            'default': ['email'],
+            'critical': ['email', 'smser'],
+            'logspace': ['email', 'smser', 'logspace_notif'],
+        },
         watch = watch_conditions,
         mailreceiverkey = 'email/receivers',
     ),

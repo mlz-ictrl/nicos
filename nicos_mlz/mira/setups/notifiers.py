@@ -15,4 +15,13 @@ devices = dict(
         server = 'triton.admin.frm2.tum.de',
         receivers = ['01719251564'],
     ),
+    logspace_notif = device('nicos.devices.notifiers.Mailer',
+        description = 'Reports about the limited logspace',
+        sender = 'mira@frm2.tum.de',
+        mailserver = 'smtp.frm2.tum.de',
+        copies = [
+            ('jens.krueger@frm2.tum.de', 'important'),
+        ],
+        subject = 'MIRA log space runs full',
+    ),
 )
