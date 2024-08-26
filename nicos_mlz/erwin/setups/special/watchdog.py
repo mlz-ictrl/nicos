@@ -1,4 +1,3 @@
-
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
@@ -26,7 +25,7 @@ group = 'special'
 watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for the log files becomes too low.',
-         type = 'critical',
+         type = 'logspace',
          gracetime = 30,
     ),
     dict(condition = 'Space_status[0] == WARN',
@@ -72,12 +71,11 @@ watch_conditions = [
 
 includes = ['notifiers']
 
-# The Watchdog device has two lists of notifiers, one for priority 1 ('default')
-# and one for priority 2 ('critical').
 notifiers = {
-    'default': [],
-    'critical': [],
+    'default': ['email'],
+    'critical': ['email'],
     'neutronguide': ['ngmail'],
+    'logspace': ['email', 'logspace_notif'],
 }
 
 devices = dict(

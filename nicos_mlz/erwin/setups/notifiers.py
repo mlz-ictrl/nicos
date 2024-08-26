@@ -22,9 +22,17 @@ devices = dict(
         subject = 'Erwin/Neutron guide',
         mailserver ='mailhost.frm2.tum.de',
     ),
-
     # smser = device('nicos.devices.notifiers.SMSer',
     #     server = 'triton.admin.frm2.tum.de',
     #     receivers = [],
     # ),
+    logspace_notif = device('nicos.devices.notifiers.Mailer',
+        description = 'Reports about the limited logspace',
+        sender = 'erwin@frm2.tum.de',
+        mailserver = 'smtp.frm2.tum.de',
+        copies = [
+            ('jens.krueger@frm2.tum.de', 'important'),
+        ],
+        subject = 'ErwiN log space runs full',
+    ),
 )
