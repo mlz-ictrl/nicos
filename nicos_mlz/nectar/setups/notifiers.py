@@ -24,11 +24,18 @@ devices = dict(
         subject = '[NECTAR]',
         mailserver = 'mailhost.frm2.tum.de',
     ),
-
-
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2.tum.de',
         receivers = [],
+    ),
+    logspace_notif = device('nicos.devices.notifiers.Mailer',
+        description = 'Reports about the limited logspace',
+        sender = 'nectar@frm2.tum.de',
+        mailserver = 'smtp.frm2.tum.de',
+        copies = [
+            ('jens.krueger@frm2.tum.de', 'important'),
+        ],
+        subject = 'NECTAR log space runs full',
     ),
 )
