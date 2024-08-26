@@ -43,6 +43,6 @@ devices = dict(
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing log files',
         path = '/control/log',
-        minfree = 5,
+        minfree = .5,
     ),
 )

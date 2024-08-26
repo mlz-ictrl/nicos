@@ -14,10 +14,18 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         subject = 'PGAA',
     ),
-
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2.tum.de',
         receivers = [],
+    ),
+    logspace_notif = device('nicos.devices.notifiers.Mailer',
+        description = 'Reports about the limited logspace',
+        sender = 'pgaa@frm2.tum.de',
+        mailserver = 'smtp.frm2.tum.de',
+        copies = [
+            ('jens.krueger@frm2.tum.de', 'important'),
+        ],
+        subject = 'PGAA log space runs full',
     ),
 )
