@@ -30,7 +30,7 @@ pressure_tag = 'chamber' #'pressure'
 watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for log files becomes too low.',
-         type = 'critical',
+         type = 'logspace',
          gracetime = 30,
     ),
     dict(condition = 'reactorpower_value < 19.0 or sixfold_value == "closed" or'
@@ -80,6 +80,7 @@ includes = ['notifiers']
 notifiers = {
     'default': ['email'],
     'critical': ['email', 'smser'],
+    'logspace': ['email', 'smser', 'logspace_notif'],
 }
 
 devices = dict(

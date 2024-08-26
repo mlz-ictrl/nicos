@@ -24,4 +24,13 @@ devices = dict(
             '01799553828',
             ],
     ),
+    logspace_notif = device('nicos.devices.notifiers.Mailer',
+        description = 'Reports about the limited logspace',
+        sender = 'refsans@frm2.tum.de',
+        mailserver = 'smtp.frm2.tum.de',
+        copies = [
+            ('jens.krueger@frm2.tum.de', 'important'),
+        ],
+        subject = 'REFSANS log space runs full',
+    ),
 )
