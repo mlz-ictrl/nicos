@@ -324,7 +324,7 @@ node('dockerhost') {
     def buildimage_rocky = null;
 
     stage('docker setup') {
-        buildimage_deb = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye')
+        buildimage_deb = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye-ok')
         buildimage_deb.pull()
 
         buildimage_debonly = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye-debonly')
