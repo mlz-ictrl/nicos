@@ -24,7 +24,7 @@
 
 """Directives to document daemon commands and events."""
 
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 from sphinx.domains.python import PyFunction, PyVariable
 from sphinx.util.docfields import Field
 from sphinx.util.docstrings import prepare_docstring
@@ -50,7 +50,7 @@ class DaemonCommand(PyFunction):
     def before_content(self):
         dstring = prepare_docstring(self.object.__doc__ or '')
         # overwrite content of directive
-        self.content = ViewList(dstring)
+        self.content = StringList(dstring)
         PyFunction.before_content(self)
 
 
