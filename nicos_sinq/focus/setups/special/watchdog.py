@@ -4,7 +4,7 @@ group = 'special'
 # watchlist:
 # The entries in this list are dictionaries.
 # For the entry keys and their meaning see:
-# https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/watchdog
+# https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/watchdog/#watch-conditions
 watchlist = [
     dict(
         condition = 'ch2vacuum_value > .01',

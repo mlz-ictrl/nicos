@@ -4,7 +4,7 @@ group = 'special'
 # watch_conditions:
 # The entries in this list are dictionaries.
 # For the entry keys and their meaning see:
-# https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/watchdog
+# https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/watchdog/#watch-conditions
 watch_conditions = [
     dict(
         # condition='len(Exp_scripts) > 0 and  emergency_value == 1',

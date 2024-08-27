@@ -5,7 +5,7 @@ group = 'special'
 # watchlist:
 # The entries in this list are dictionaries.
 # For the entry keys and their meaning see:
-# https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/watchdog
+# https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/watchdog/#watch-conditions
 watchlist = [
     # These 2 entries check the disk space for the data and the log file
     # if there is any underflow in limits the user and/or instrument
