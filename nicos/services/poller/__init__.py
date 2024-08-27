@@ -208,7 +208,7 @@ class Poller(Device):
                     stval, rdval = dev.poll(i, maxage=maxage)
                     self.log.debug('%-10s: status = %-25s, value = %s',
                                    dev, stval, rdval)
-                    # adjust timing of we are no longer busy
+                    # adjust timing if we are no longer busy
                     if stval is not None and stval[0] != status.BUSY:
                         interval = dev.pollinterval
                         maxage = interval - POLL_MIN_VALID_TIME
