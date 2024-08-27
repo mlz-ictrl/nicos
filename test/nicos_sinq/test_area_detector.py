@@ -25,6 +25,7 @@
 Tests for EPICS area detector
 """
 
+import sys
 import unittest
 from time import monotonic, sleep
 from unittest.mock import patch
@@ -147,6 +148,7 @@ class TestEpicsAreaDetector:
         assert abs(pv.get() - (self.time_preset - elapsed)) < .1
 
 
+@pytest.mark.skipif('--sinq' not in sys.argv, reason='Only valid for SINQ')
 class TestKafkaPlugin:
     """
     Tests for the operations of KafkaPlugin
@@ -264,6 +266,7 @@ class TestKafkaPlugin:
         assert st[1] == msg
 
 
+@pytest.mark.skipif('--sinq' not in sys.argv, reason='Only valid for SINQ')
 class TestKafkaAreaDetectorConsumer:
     """
     Test operation of areaDetector messages consumer.
@@ -378,6 +381,7 @@ class TestKafkaAreaDetectorConsumer:
         assert (raw[max(timestamps)] == data).all()
 
 
+@pytest.mark.skipif('--sinq' not in sys.argv, reason='Only valid for SINQ')
 class TestEpicsAreaDetectorWithKafkaPlugin:
     """
     Tests for the operations of EPICS areaDetector with configured PluginKafka.
