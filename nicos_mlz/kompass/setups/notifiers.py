@@ -18,4 +18,13 @@ devices = dict(
         server = 'triton.admin.frm2.tum.de',
         receivers = [],
     ),
+    logspace_notif = device('nicos.devices.notifiers.Mailer',
+        description = 'Reports about the limited logspace',
+        sender = 'kompass@frm2.tum.de',
+        mailserver = 'smtp.frm2.tum.de',
+        copies = [
+            ('jens.krueger@frm2.tum.de', 'important'),
+        ],
+        subject = 'KOMPASS log space runs full',
+    ),
 )
