@@ -224,6 +224,18 @@ class HelpGenerator:
         ret.append(self.gen_markup(docstring))
         return ''.join(ret)
 
+    def gen_methodhelp(self, func, dev=''):
+        ret = []
+        argspec = formatArgs(func)
+        ret.append(self.gen_heading(f'Help on the {dev}.{func.__name__} '
+                                    'user method'))
+        ret.append('<p class="usage">Usage: <tt>' +
+                   html.escape(dev + '.' + func.__name__ + argspec) +
+                   '</tt></p>')
+        docstring = '\n'.join(formatDocstring(func.__doc__ or ''))
+        ret.append(self.gen_markup(docstring))
+        return ''.join(ret)
+
     def gen_devhelp(self, dev):
         ret = []
         ret.append(self.gen_heading('Help on the %s device' % dev))
@@ -283,10 +295,10 @@ class HelpGenerator:
             listed.add(cls)
             for name, (args, doc, fromtype, is_usermethod) in sorted(cls.methods.items()):
                 if is_usermethod and fromtype is cls:
-                    ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
-                               (html.escape(dev.name + '.' + name + args),
-                                cls.__name__,
-                                html.escape(doc)))
+                    ret.append('<tr><td><tt><a href="method:%s">%s</a></tt></td><td>%s</td><td>%s</td></tr>' %
+                               (dev.name + '.' + name,
+                                dev.name + '.' + name + html.escape(args),
+                                cls.__name__, html.escape(doc)))
             for base in cls.__bases__:
                 if issubclass(base, Device):
                     _list(base)
@@ -310,6 +322,11 @@ class HelpGenerator:
             devname = target[4:]
             obj = session.devices[devname]
             return self.gen_devhelp(obj)
+        elif target.startswith('method:'):
+            dev = target[7:].split('.')[0]
+            method = target[target.index('.') + 1:]
+            return self.gen_methodhelp(getattr(session.devices[dev], method),
+                                       dev)
         elif target in session.devices:
             obj = session.devices[target]
             return self.gen_devhelp(obj)
@@ -342,6 +359,11 @@ class HelpGenerator:
         elif isinstance(obj, Device):
             return 'dev:%s' % obj, \
                 self.header + self.gen_devhelp(obj) + self.footer
+        elif inspect.ismethod(obj) and hasattr(obj, 'is_usermethod'):
+            return ('method:%s' % obj.__name__,
+                    self.header +
+                    self.gen_methodhelp(obj, obj.__self__.name) +
+                    self.footer)
         elif inspect.isfunction(obj):
             return 'cmd:%s' % obj.__name__, \
                 self.header + self.gen_funchelp(obj) + self.footer
