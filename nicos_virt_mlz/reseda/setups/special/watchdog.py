@@ -26,7 +26,7 @@ watch_conditions = [
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = configdata('config_data.host'),
+        cache = configdata('config_data.cache_host'),
         notifiers = {'default': []},
         watch = watch_conditions,
         mailreceiverkey = 'email/receivers',

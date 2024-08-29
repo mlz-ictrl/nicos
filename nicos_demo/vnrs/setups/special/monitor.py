@@ -34,7 +34,7 @@ devices = dict(
         # Use only 'localhost' if the cache is really running on
         # the same machine, otherwise use the hostname (official
         # computer name) or an IP address.
-        cache = configdata('config_data.host'),
+        cache = configdata('config_data.cache_host'),
         font = 'Luxi Sans',
         valuefont = 'Consolas',
         padding = 0,

@@ -3,7 +3,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = configdata('config_data.host'),
+    cache = configdata('config_data.cache_host'),
 )
 
 devices = dict(

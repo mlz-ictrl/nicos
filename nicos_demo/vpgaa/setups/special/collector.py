@@ -3,7 +3,7 @@ group = 'special'
 
 devices = dict(
     GlobalCache = device('nicos.services.collector.CacheForwarder',
-        cache = configdata('config_data.host') + ':14716',
+        cache = configdata('config_data.cache_host') + ':14716',
         prefix = 'nicos/demosys/',
     ),
     Webhook = device('nicos.services.collector.WebhookForwarder',
@@ -14,7 +14,7 @@ devices = dict(
         keyfilters = ['.*/value'],
     ),
     Collector = device('nicos.services.collector.Collector',
-        cache = configdata('config_data.host'),
+        cache = configdata('config_data.cache_host'),
         forwarders = ['GlobalCache', 'Webhook'],
     ),
 )

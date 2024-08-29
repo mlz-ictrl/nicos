@@ -9,7 +9,7 @@ devices = dict(
     ),
     Server = device('nicos.services.cache.server.CacheServer',
         db = 'DB',
-        server = configdata('config_data.host'),
+        server = configdata('config_data.cache_bind'),
         loglevel = 'info',
     ),
 )

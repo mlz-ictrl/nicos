@@ -3,7 +3,7 @@ description = 'NICOS system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = configdata('config_data.host'),
+    cache = configdata('config_data.cache_host'),
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = [

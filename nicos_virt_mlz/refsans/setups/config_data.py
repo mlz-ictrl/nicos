@@ -2,8 +2,10 @@ description = 'common definitions for virtual refsans instrument'
 
 group = 'configdata'
 
-bind = ''  # bind address for daemons
-host = 'localhost'  # connect address for daemons
+host = 'localhost'
+daemon_bind = ''
+cache_bind = ''
+cache_host = host
 dataroot = 'data'
 cachepath = f'{dataroot}/cache'
 logging_path = 'log'
