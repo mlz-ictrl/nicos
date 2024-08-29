@@ -61,7 +61,8 @@ class NexusElementBase:
         pass
 
     def append(self, name, h5parent, sinkhandler, subset):
-        self.np = self.np + 1
+        if self.doAppend:
+            self.np = self.np + 1
 
     def resize_dataset(self, dset):
         idx = self.np + 1
@@ -244,6 +245,9 @@ class DeviceDataset(NexusElementBase):
         self.createAttributes(dset, sinkhandler)
 
     def update(self, name, h5parent, sinkhandler, values):
+        # Do not try to update anything else then values
+        if self.parameter != 'value':
+            return
         if (self.device, self.parameter) in sinkhandler.dataset.metainfo:
             self.value = sinkhandler.dataset.metainfo[
                 (self.device, self.parameter)]

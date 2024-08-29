@@ -141,7 +141,11 @@ class NexusSinkHandler(DataSinkHandler):
                 nxgroup.attrs['NX_class'] = numpy.string_(nxclass)
                 self.create(val, nxgroup)
             elif isinstance(val, NexusElementBase):
-                val.create(key, h5obj, self)
+                try:
+                    val.create(key, h5obj, self)
+                except Exception as e:
+                    self.log.warning('Exception %s while creating NeXus entry'
+                                     'for %s', str(e), key)
             else:
                 self.log.warning('Cannot write %r of type %r', key, type(val))
 
@@ -156,7 +160,11 @@ class NexusSinkHandler(DataSinkHandler):
                     # No need to update attributes
                     pass
                 elif isinstance(val, NexusElementBase):
-                    val.update(key, h5obj, self, values)
+                    try:
+                        val.update(key, h5obj, self, values)
+                    except Exception as e:
+                        self.log.warning('Exception %s while updating %s',
+                                         str(e), key)
                 else:
                     self.log.warning('Cannot identify and update %r', key)
 
@@ -173,7 +181,8 @@ class NexusSinkHandler(DataSinkHandler):
                 try:
                     val.append(key, h5obj, self, subset)
                 except Exception as err:
-                    self.log.warning('Exception %r on key %r', err, key)
+                    self.log.warning('Exception %r while appending to key %r',
+                                     err, key)
             else:
                 self.log.warning('Cannot identify and append %r', key)
 
@@ -197,7 +206,11 @@ class NexusSinkHandler(DataSinkHandler):
                 # No need to update attributes
                 pass
             elif isinstance(val, NexusElementBase):
-                val.results(key, h5obj, self, results)
+                try:
+                    val.results(key, h5obj, self, results)
+                except Exception as e:
+                    self.log.warning('Exception %s while writing results'
+                                     'to %s', str(e), key)
             else:
                 self.log.warning('Cannot add results to %r', key)
 
