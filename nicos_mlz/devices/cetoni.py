@@ -28,10 +28,9 @@ import time
 import numpy
 
 from nicos import session
-from nicos.core import Attach, Param, errors
+from nicos.core import Attach, Param, errors, usermethod
 from nicos.core.constants import SIMULATION
 from nicos.core.sessions.utils import MASTER
-from nicos.core import usermethod
 from nicos.devices.entangle import HasOffset, Motor, NamedDigitalOutput, Sensor
 from nicos.utils import createThread
 from nicos.utils.pid import PID
