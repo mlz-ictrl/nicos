@@ -1,5 +1,5 @@
 
-description = 'Cetoni syringe high pressure pumps, valves and pressure sensors.'
+description = 'High pressure Cetoni syringe pumps, valves and pressure sensors.'
 
 group = 'plugplay'
 
@@ -26,8 +26,8 @@ for i in range(1, 4):
         fmtstr = '%.2f',
         pollinterval = 300,
     )
-    devices[f'pump{i}'] = device('nicos_mlz.devices.cetoni.CetoniPump',
-        description = f'Pump {i}',
+    devices[f'syringe{i}'] = device('nicos_mlz.devices.cetoni.CetoniSyringe',
+        description = f'Syringe {i}',
         tangodevice = tango_base + f'pumps/pump{i}',
         fmtstr = '%.3f',
         pollinterval = 300,

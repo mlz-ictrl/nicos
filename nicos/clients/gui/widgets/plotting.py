@@ -897,6 +897,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             event.curve.visible = not event.curve.visible
             if event.curve._parent:
                 event.curve._parent.disabled = not event.curve._parent.disabled
+            if self._plot.autoscale & PlotAxes.SCALE_Y:
+                self.unzoom()
             self.update()
 
     def on_roiItemClicked(self, event):
