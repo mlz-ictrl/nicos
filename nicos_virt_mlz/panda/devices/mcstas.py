@@ -32,7 +32,6 @@ class PandaSimulation(McStasSimulation):
 
     parameter_overrides = {
         'mcstasprog': Override(default='vpanda'),
-        'mcstasfile': Override(default='PSD_det.psd'),
     }
 
     def _prepare_params(self):
