@@ -9,7 +9,7 @@ devices = dict(
         port = 5672,
         virtual_host = '/',
         username = 'guest',
-        password = 'guest',
+        password = secret('eln_rabbitmq_password', default='guest'),
         static_queue = 'xresd-workbench',
     ),
     Logbook = device('nicos.services.elog.Logbook',

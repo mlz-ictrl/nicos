@@ -28,6 +28,7 @@ from logging import getLevelName
 from PIL import Image
 
 from nicos.core import Param
+from nicos.core.params import secret
 from nicos.services.elog.handler import Handler as BaseHandler
 from nicos.services.elog.handler.eworkbench.rabbit_producer import \
     RabbitProducer
@@ -72,7 +73,8 @@ class Handler(BaseHandler):
         'username': Param('RabbitMQ username from pika credentials',
                           type=str, ext_desc=ext_desc_cred),
         'password': Param('RabbitMQ password from pika credentials',
-                          type=str, ext_desc=ext_desc_cred),
+                          type=secret, mandatory=True, ext_desc=ext_desc_cred,
+                          default='eln_rabbitmq_password'),
         'static_queue': Param('RabbitMQ queue name used in given pika '
                               'channel',
                               type=str, ext_desc=ext_desc_chann),
@@ -80,13 +82,13 @@ class Handler(BaseHandler):
 
     def doInit(self, mode):
         self._out = RabbitWriter()
-
+        password = self.password.lookup('RabbitMQ password is required')
         self._out.rabbit_producer = RabbitProducer(
             url=self.url,
             port=self.port,
             virtual_host=self.virtual_host,
             username=self.username,
-            password=self.password,
+            password=password,
             static_queue=self.static_queue)
 
         self.log.info('workbench_writer: handle init')
