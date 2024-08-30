@@ -2,7 +2,7 @@ description = 'common detector devices provided by McStas simulation'
 
 group = 'lowlevel'
 
-excludes = ['detector', 'multianalysis', 'defcal', 'polarisationkinetics']
+excludes = ['detector', 'multianalysis', 'defcal', 'polarizationkinetic']
 
 devices = dict(
     mcstas = device('nicos_virt_mlz.puma.devices.detector.McStasSimulation',
