@@ -226,13 +226,17 @@ class HelpGenerator:
 
     def gen_methodhelp(self, func, dev=''):
         ret = []
-        argspec = formatArgs(func)
+        if hasattr(func, 'help_arglist'):
+            argspec = '(%s)' % func.help_arglist
+        else:
+            argspec = formatArgs(func)
         ret.append(self.gen_heading(f'Help on the {dev}.{func.__name__} '
                                     'user method'))
         ret.append('<p class="usage">Usage: <tt>' +
                    html.escape(dev + '.' + func.__name__ + argspec) +
                    '</tt></p>')
-        docstring = '\n'.join(formatDocstring(func.__doc__ or ''))
+        docstring = getattr(func, 'help_doc', func.__doc__ or '')
+        docstring = '\n'.join(formatDocstring(docstring))
         ret.append(self.gen_markup(docstring))
         return ''.join(ret)
 

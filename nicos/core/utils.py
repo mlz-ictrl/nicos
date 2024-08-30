@@ -67,11 +67,26 @@ system_user = User('system', ADMIN)
 watchdog_user = User('watchdog', ADMIN)
 
 
-def usermethod(func):
+def usermethod(func=None, doc=None, helparglist=None):
     """Decorator that marks a method as a user-visible method.
 
     The method will be shown to the user in the help for a device.
     """
+    # new style usage:
+    #   @usermethod(doc='blah')
+    #   def meth(...)
+    if func is None:
+        def deco(func):
+            func.is_usermethod = True
+            if doc:
+                func.help_doc = doc
+            if helparglist:
+                func.help_arglist = helparglist
+            return func
+        return deco
+    # legacy usage:
+    #   @usermethod
+    #   def meth(...)
     func.is_usermethod = True
     return func
 

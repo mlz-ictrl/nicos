@@ -1078,7 +1078,17 @@ class Readable(Device):
         """
         return Value(self.name, unit=self.unit, fmtstr=self.fmtstr),
 
-    @usermethod
+    @usermethod(doc='''
+        Read and return the main value of the device, which can then be used
+        further in the script.
+
+        If *maxage* is given, makes sure the value is at most that many seconds
+        old.  ``0`` will enforce reading from the hardware.
+
+        Example:
+
+        >>> maw(dev2, dev1.read())
+    ''', helparglist='[maxage]')
     def read(self, maxage=None):
         """Read the (possibly cached) main value of the device.
 
@@ -1097,7 +1107,13 @@ class Readable(Device):
             self._sim_setValue(val)
         return val
 
-    @usermethod
+    @usermethod(doc='''
+        Read and return the status of the device as a tuple of status constant
+        and textual extended info.
+
+        If *maxage* is given, makes sure the value is at most that many seconds
+        old.  ``0`` will enforce reading from the hardware.
+    ''', helparglist='[maxage]')
     def status(self, maxage=None):
         """Return the (possibly cached) status of the device.
 
