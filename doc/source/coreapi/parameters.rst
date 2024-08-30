@@ -12,7 +12,7 @@ writing device classes.  They are re-exported in :mod:`nicos.core`.
 
 .. autoclass:: Value
 
-.. autoclass:: Attach(self, description, devclass, optional=False, multiple=False)
+.. autoclass:: Attach
 
 .. autoclass:: ArrayDesc
 
