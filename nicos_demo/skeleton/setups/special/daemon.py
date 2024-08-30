@@ -24,8 +24,8 @@ devices = dict(
         # If server is a hostname (official computer name) or an IP
         # address the daemon service will be bound the the
         # corresponding network interface.
-        server = 'localhost',
         authenticators = ['Auth'],
+        server = 'localhost',
         loglevel = 'info',
     ),
 )

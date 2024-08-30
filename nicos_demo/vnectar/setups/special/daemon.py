@@ -11,8 +11,8 @@ devices = dict(
         ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = configdata('config_data.daemon_bind'),
         authenticators = ['Auth'],
+        server = configdata('config_data.daemon_bind'),
         loglevel = 'info',
     ),
 )

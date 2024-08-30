@@ -10,8 +10,8 @@ devices = dict(
                              ],
                    ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-                    server = 'localhost',
                     authenticators = ['Auth',],
+                    server = 'localhost',
                     loglevel = 'info',
                    ),
 )
