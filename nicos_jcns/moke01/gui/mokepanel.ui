@@ -171,7 +171,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_0">
       <attribute name="title">
@@ -427,71 +427,58 @@
        </property>
        <item row="0" column="0">
         <layout class="QGridLayout" name="lyt_intensity">
-         <item row="1" column="5">
-          <widget class="QLabel" name="lbl_cycles">
+         <item row="0" column="1">
+          <widget class="QLabel" name="lbl_sample">
            <property name="text">
-            <string>Cycles:</string>
+            <string>Sample name:</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="9">
-          <widget class="QPushButton" name="btn_run">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Run</string>
-           </property>
-          </widget>
+         <item row="0" column="2" colspan="5">
+          <widget class="QLineEdit" name="ln_sample"/>
          </item>
-         <item row="1" column="6">
-          <widget class="QLineEdit" name="ln_cycles">
-           <property name="minimumSize">
-            <size>
-             <width>75</width>
-             <height>0</height>
-            </size>
+         <item row="0" column="8" rowspan="2">
+          <widget class="QGroupBox" name="grb_field_orientation">
+           <property name="title">
+            <string>Field orientation:</string>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>75</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="rad_polar">
+              <property name="text">
+               <string>Polar</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="rad_longitudinal">
+              <property name="text">
+               <string>Longitudinal</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item row="1" column="1">
           <widget class="QLabel" name="lbl_Bmin">
            <property name="text">
             <string>B_min (T):</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" colspan="6">
-          <widget class="QCheckBox" name="chck_subtract_baseline">
-           <property name="text">
-            <string>Subtract the baseline</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -514,55 +501,10 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="4">
-          <widget class="QLineEdit" name="ln_Bmax">
-           <property name="minimumSize">
-            <size>
-             <width>75</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>75</width>
-             <height>16777215</height>
-            </size>
-           </property>
+         <item row="1" column="5">
+          <widget class="QLabel" name="lbl_cycles">
            <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="10" rowspan="2">
-          <spacer name="spcr_intensity_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="0" rowspan="2">
-          <spacer name="spcr_intensity_1">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="lbl_Bmax">
-           <property name="text">
-            <string>B_max (T):</string>
+            <string>Cycles:</string>
            </property>
           </widget>
          </item>
@@ -621,7 +563,59 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="11" rowspan="2">
+         <item row="1" column="3">
+          <widget class="QLabel" name="lbl_Bmax">
+           <property name="text">
+            <string>B_max (T):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="10" rowspan="2">
+          <spacer name="spcr_intensity_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="6">
+          <widget class="QLineEdit" name="ln_cycles">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" rowspan="2">
+          <spacer name="spcr_intensity_1">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="13" rowspan="2">
           <layout class="QVBoxLayout" name="lyt_intensity_timer">
            <property name="sizeConstraint">
             <enum>QLayout::SetMinimumSize</enum>
@@ -692,10 +686,38 @@
            </item>
           </layout>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="lbl_sample">
+         <item row="2" column="1" colspan="6">
+          <widget class="QCheckBox" name="chck_subtract_baseline">
            <property name="text">
-            <string>Sample name:</string>
+            <string>Subtract the baseline</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="9">
+          <widget class="QPushButton" name="btn_run">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Run</string>
            </property>
           </widget>
          </item>
@@ -758,46 +780,77 @@
            </layout>
           </widget>
          </item>
-         <item row="0" column="2" colspan="5">
-          <widget class="QLineEdit" name="ln_sample"/>
-         </item>
-         <item row="0" column="8" rowspan="2">
-          <widget class="QGroupBox" name="grb_field_orientation">
-           <property name="title">
-            <string>Field orientation:</string>
+         <item row="1" column="4">
+          <widget class="QLineEdit" name="ln_Bmax">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>0</height>
+            </size>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QRadioButton" name="rad_polar">
-              <property name="text">
-               <string>Polar</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rad_longitudinal">
-              <property name="text">
-               <string>Longitudinal</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
           </widget>
+         </item>
+         <item row="0" column="11" rowspan="2">
+          <layout class="QVBoxLayout" name="lyt_cycle">
+           <item>
+            <spacer name="spcr_cycle_0">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="lbl_cycle">
+             <property name="text">
+              <string>Cycle:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLCDNumber" name="lcd_cycle">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>24</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="spcr_cycle_1">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>

@@ -352,8 +352,11 @@ class MokePanel(MokeBase):
             timeleft = f'{int(steptime * (maxprogress - progress) / 60):02}:' \
                        f'{int(steptime * (maxprogress - progress) % 60):02}'
             self.lcd_timeleft.display(timeleft)
+        cycling = self.client.eval('session.getDevice("MagB")._cycling')
+        cycle = self.client.eval('session.getDevice("MagB")._cycle')
+        self.lcd_cycle.display(cycle + 1 if cycling else 0)
         # if MagB is disabled but the measurement did not exited properly
-        if self.client.eval('session.getDevice("MagB")._cycling'):
+        if cycling:
             if self.client.eval(
                     'session.getDevice("MagB").status()[0]') == status.DISABLED:
                 self.client.run('MagB._cycling = False')

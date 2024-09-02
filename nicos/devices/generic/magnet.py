@@ -349,7 +349,7 @@ class MagnetWithCalibrationCurves(Magnet):
             self._cycling_thread = None
             self._Ivt, self._Bvt, self._cycling_steps = Curve2D(), Curve2D(), []
             self._calibration_updated = False
-            self._progress, self._maxprogress = 0, 0
+            self._progress = self._maxprogress = self._cycle = 0
             self._stop_requested = False
 
     def doRead(self, maxage=0):
@@ -413,6 +413,7 @@ class MagnetWithCalibrationCurves(Magnet):
         self._progress = 0
         self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * n
         for r in ranges * n:
+            self._cycle = len(self._cycling_steps) // 2
             self._cycling_steps.append(len(numpy.linspace(*r)))
             for i in numpy.linspace(*r):
                 self._progress += 1

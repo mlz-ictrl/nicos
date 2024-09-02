@@ -74,7 +74,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
     def measure_intensity(self, mode, field_orientation, Bmin, Bmax, ramp,
                           cycles, step, steptime, name, exp_type):
         self._cycling = True
-        self._progress, self._maxprogress = 0, 0
+        self._progress = self._maxprogress = self._cycle = 0
         measurement = {}
         measurement['name'] = name
         measurement['time'] = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
@@ -103,6 +103,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
             self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * cycles
             for i, r in enumerate(ranges * cycles):
                 self.fielddirection = 'increasing' if i % 2 == 0 else 'decreasing'
+                self._cycle = i // 2
                 for _B in numpy.linspace(*r):
                     self._progress += 1
                     self.doStart(_B)
