@@ -303,8 +303,8 @@ class MokePanel(MokeBase):
         if not all([name, mode, Bmin, Bmax, ramp, cycles, step, steptime]):
             QMessageBox.information(None, '', 'Please input measurement settings')
             return
-        if float(steptime) <= 0.1:
-            QMessageBox.information(None, '', 'Step time must be > 0.1 s')
+        if float(steptime) < 0:
+            QMessageBox.information(None, '', 'Step time must be non-negative value')
             return
         exp_type = 'rotation' if self.rad_rotation.isChecked() else 'ellipticity'
         field_orientation = 'polar' if self.rad_polar.isChecked() else 'longitudinal'
