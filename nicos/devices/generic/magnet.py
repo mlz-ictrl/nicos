@@ -416,12 +416,12 @@ class MagnetWithCalibrationCurves(Magnet):
             self._cycle = len(self._cycling_steps) // 2
             self._cycling_steps.append(len(numpy.linspace(*r)))
             for i in numpy.linspace(*r):
-                self._progress += 1
                 self._attached_currentsource.doStart(i)
                 self._Ivt.append((time.time(), i))
                 session.delay(dt)
                 if self._stop_requested:
                     break
+                self._progress += 1
             if self._stop_requested:
                 break
         self._measuring = False

@@ -105,7 +105,6 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                 self.fielddirection = 'increasing' if i % 2 == 0 else 'decreasing'
                 self._cycle = i // 2
                 for _B in numpy.linspace(*r):
-                    self._progress += 1
                     self.doStart(_B)
                     self._hw_wait()
                     session.delay(steptime)
@@ -120,6 +119,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                     self._BvI.append((self._field2current(_B).n, _B))
                     self._IntvB.append((ufloat(B, self._magsensor.readStd(B)),
                                         ufloat(Int, self._intensity.readStd(Int))))
+                    self._progress += 1
                     if self._stop_requested:
                         break
                 if self._stop_requested:

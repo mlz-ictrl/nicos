@@ -102,7 +102,6 @@ class MokeBase(Panel):
         self.plot_IntvB = MokePlot('MagB, T', 'Intensity, V', self)
         self.plot_EvB = MokePlot('MagB, T', 'Ellipticity, a.u.', self)
         self.m = {}
-        self.baseline = {}
         client.connected.connect(self.on_connected)
         client.disconnected.connect(self.on_disconnected)
 
@@ -160,8 +159,10 @@ class MokePanel(MokeBase):
         MokeBase.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_jcns/moke01/gui/mokepanel.ui'))
         self.tabWidget.setCurrentIndex(0)
+        self.calibration = {}
         self.plot_calibration = MokePlot('PS_current, A', 'MagB, T', self)
         self.lyt_plot_calibration.addWidget(self.plot_calibration)
+        self.baseline = {}
         self.plot_baseline = MokePlot('MagB, T', 'Intensity, V', self)
         self.lyt_plot_baseline.addWidget(self.plot_baseline)
         self.lyt_plot_IntvB.addWidget(self.plot_IntvB)
@@ -215,19 +216,20 @@ class MokePanel(MokeBase):
 
     def _read_calibration(self):
         self.plot_calibration.reset()
-        calibration = self.client.eval('session.getDevice("MagB").calibration')
+        self.calibration = self.client.eval(
+            'session.getDevice("MagB").calibration.copy()')
         mode = self.cmb_mode.currentText()
-        if mode in calibration.keys():
-            for ramp, curves in calibration[mode].items():
+        if mode in self.calibration:
+            for ramp, curves in self.calibration[mode].items():
                 self.plot_calibration.add_curve(curves.increasing()[0],
                                                 legend=f'{mode} increasing B @ {ramp} A/min')
                 self.plot_calibration.add_curve(curves.decreasing()[0],
                                                 legend=f'{mode} decreasing B @ {ramp} A/min')
 
-        if calibration.keys:
+        if self.calibration:
             self.cmb_ramp.clear()
-            self.cmb_ramp.addItems(calibration[mode].keys())
-        if 'ramp' in self.m.keys():
+            self.cmb_ramp.addItems(self.calibration[mode].keys())
+        if 'ramp' in self.m:
             ramp = str(self.m['ramp'])
         else:
             ramp = self.cmb_ramp.currentText() or \
@@ -346,15 +348,17 @@ class MokePanel(MokeBase):
         self.bar_cycles.setMaximum(maxprogress)
         progress = self.client.eval('session.getDevice("MagB")._progress')
         self.bar_cycles.setValue(progress)
-        # live-update remaining time
-        if self.m['mode'] == 'stepwise':
-            steptime = float(self.ln_steptime.text())
-            timeleft = f'{int(steptime * (maxprogress - progress) / 60):02}:' \
-                       f'{int(steptime * (maxprogress - progress) % 60):02}'
-            self.lcd_timeleft.display(timeleft)
+        stop_requested = self.client.eval('session.getDevice("MagB")._stop_requested')
         cycling = self.client.eval('session.getDevice("MagB")._cycling')
-        cycle = self.client.eval('session.getDevice("MagB")._cycle')
-        self.lcd_cycle.display(cycle + 1 if cycling else 0)
+        # live-update remaining time
+        if cycling and not stop_requested and maxprogress:
+            timeleft = self._timeleft(progress)
+            self.lcd_timeleft.display(f'{int(timeleft / 60):02}:{int(timeleft % 60):02}')
+            cycle = self.client.eval('session.getDevice("MagB")._cycle')
+            self.lcd_cycle.display(cycle + 1)
+        else:
+            self.lcd_timeleft.display('')
+            self.lcd_cycle.display('')
         # if MagB is disabled but the measurement did not exited properly
         if cycling:
             if self.client.eval(
@@ -368,6 +372,52 @@ class MokePanel(MokeBase):
     def _on_subtract_baseline_changed(self, _):
         if not self.update_plot_IntvB.isActive():
             self._update_measurement()
+
+    def _timeleft(self, progress):
+        """Calculates approximate remaining time of a measurement."""
+        Bmin = self.m['Bmin']
+        Bmax = self.m['Bmax']
+        cycles = self.m['cycles']
+        step = self.m['step']
+        steptime = self.m['steptime']
+        ramp = self.m['ramp']
+        mode = self.m['mode']
+        if mode == 'stepwise':
+            n = int(abs(Bmax - Bmin) / step)
+            ranges = [(Bmin, Bmax, n, False), (Bmax, Bmin, n, False)] * cycles
+            values = [i for r in ranges for i in numpy.linspace(*r)]
+            t = 0
+            B0 = values[progress - 1] if progress else 0
+            I0 = self._field2current(B0, values[progress] > B0).n
+            for B1 in values[progress:]:
+                I1 = self._field2current(B1, B1 > B0).n
+                t += abs(I1 - I0) / ramp * 60 + 1 # ~1 s overhead
+                t += steptime if mode == 'stepwise' else 0
+                t += 0.5 if mode == 'stepwise' else 0 # avg measurement delay
+                B0, I0 = B1, I1
+        else:
+            Imin = self._field2current(Bmin, Bmin > 0).n
+            Imax = self._field2current(Bmax, Bmax > Bmin).n
+            n = 100
+            dt = abs(Imax - Imin) / n / ramp * 60
+            if dt < 0.5:
+                dt = 0.5
+                n = int(abs(Imax - Imin) / (dt * ramp / 60))
+            ranges = [(Imin, Imax, n, False), (Imax, Imin, n, False)] * cycles
+            values = [i for r in ranges for i in numpy.linspace(*r)]
+            t = 0
+            I0 = values[progress - 1] if progress else 0
+            for I1 in values[progress:]:
+                t += abs(I1 - I0) / ramp * 60
+                I0 = I1
+        return t
+
+    def _field2current(self, field, increasing):
+        mode = self.m['mode']
+        ramp = self.m['ramp']
+        curves = self.calibration[mode][str(ramp)]
+        return curves.increasing()[0].xvy(field).x \
+            if increasing else curves.decreasing()[0].xvy(field).x
 
 
 class MokeHistory(MokeBase):

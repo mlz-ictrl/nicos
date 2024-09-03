@@ -642,7 +642,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Remaining time:</string>
+              <string>Approx.time:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
