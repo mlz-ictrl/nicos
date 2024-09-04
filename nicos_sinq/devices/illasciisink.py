@@ -257,8 +257,10 @@ class ILLAsciiHandler(DataSinkHandler):
                 self.scanvalues[dev.name].append(tuple(subset.devvaluelist))
             else:
                 self.scanvalues[dev.name].append(subset.devvaluelist[i])
-        for dev in self.dataset.environment:
-            self.scanvalues[dev.name].append(dev.read())
+
+        for dev, value in zip(self.dataset.environment,
+                              self.dataset.envvaluelist):
+            self.scanvalues[dev.name].append(value)
 
         for det in self.sink.scaninfo:
             if det in subset.values:
