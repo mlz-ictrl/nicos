@@ -139,18 +139,14 @@ def test_intensity_measurement(session):
     magsensor.simulate = True
     # 400 T are not real values, but these values are already in the cache
     # after previous test
-    Bmin = -400.0 # T
-    BMax = 400.0 # T
-    ramp = 400.0 # A/min
-    cycles = 1
-    step = 40.0 # T
-    steptime = 1 # s
+    mrmnt = {'Bmin': -400.0, 'Bmax': 400.0, 'ramp': 400.0, 'cycles': 1,
+             'step': 40.0, 'steptime': 1, 'mode': 'stepwise',
+             'field_orientation': 'polar'}
     temp = magb.calibration.copy()
-    temp['stepwise'][str(float(ramp))] = Curves([[(-400, -400), (400, 400)],
-                                                 [(400, 400), (-400, -400)]])
-    magb._check_calibration('stepwise', ramp)
-    magb.measure_intensity('stepwise', 'polar', Bmin, BMax, ramp, cycles, step,
-                           steptime, 'test', 'ellipticity')
+    temp['stepwise'][str(mrmnt['ramp'])] = Curves([[(-400, -400), (400, 400)],
+                                                    [(400, 400), (-400, -400)]])
+    magb._check_calibration('stepwise', mrmnt['ramp'])
+    magb.measure_intensity(mrmnt)
     assert magb.measurement['BvI'].x == magb.measurement['BvI'].y
     assert magb.measurement['BvI'].x == magb.measurement['IntvB'].x
     for p in magb.measurement['IntvB']:

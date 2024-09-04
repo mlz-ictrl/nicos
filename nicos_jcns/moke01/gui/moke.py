@@ -297,29 +297,32 @@ class MokePanel(MokeBase):
             self.client.run('MagB.baseline = temp')
 
     def _on_button_run_clicked(self):
-        mode = self.cmb_mode.currentText()
-        Bmin = self.ln_Bmin.text()
-        Bmax = self.ln_Bmax.text()
-        ramp = self.cmb_ramp.currentText()
-        cycles = self.ln_cycles.text()
-        step = self.ln_step.text()
-        steptime = self.ln_steptime.text()
-        name = self.ln_sample.text()
-        if not all([name, mode, Bmin, Bmax, ramp, cycles, step, steptime]):
-            QMessageBox.information(None, '', 'Please input measurement settings')
-            return
-        if float(steptime) < 0:
+        measurement = {
+            'mode': self.cmb_mode.currentText(),
+            'Bmin': float(self.ln_Bmin.text()),
+            'Bmax': float(self.ln_Bmax.text()),
+            'ramp': float(self.cmb_ramp.currentText()),
+            'cycles': int(self.ln_cycles.text()),
+            'step': float(self.ln_step.text()),
+            'steptime': float(self.ln_steptime.text()),
+            'name': self.ln_sample.text(),
+            'exp_type': 'rotation' if self.rad_rotation.isChecked() \
+                else 'ellipticity',
+            'field_orientation': 'polar' if self.rad_polar.isChecked() \
+                else 'longitudinal'
+        }
+        for key, item in measurement.items():
+            if item is None or item == '':
+                QMessageBox.information(None, '', f'Please input {key} value')
+                return
+        if measurement['steptime'] < 0:
             QMessageBox.information(None, '', 'Step time must be non-negative value')
             return
-        exp_type = 'rotation' if self.rad_rotation.isChecked() else 'ellipticity'
-        field_orientation = 'polar' if self.rad_polar.isChecked() else 'longitudinal'
-        self.client.run(f'MagB.measure_intensity("{mode}", "{field_orientation}", '
-                        f'{Bmin}, {Bmax}, {ramp}, {cycles}, {step}, {steptime}, '
-                        f'"{name}", "{exp_type}")')
+        self.client.run(f'MagB.measure_intensity({measurement})')
         self.update_plot_IntvB.start(500) # _update_measurement
 
     def _update_measurement(self):
-        self.m = self.client.eval('session.getDevice("MagB").measurement')
+        self.m = self.client.eval('session.getDevice("MagB").measurement.copy()')
         if not self.m:
             self.update_plot_IntvB.stop() # _update_measurement
             return

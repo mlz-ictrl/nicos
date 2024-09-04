@@ -77,43 +77,35 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
         else:
             self._attached_currentsource.disable()
 
-    def measure_intensity(self, mode, field_orientation, Bmin, Bmax, ramp,
-                          cycles, step, steptime, name, exp_type):
+    def measure_intensity(self, mrmnt):
         self._cycling = True
         self._progress = self._maxprogress = self._cycle = 0
-        measurement = {}
-        measurement['name'] = name
-        measurement['time'] = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-        measurement['exp_type'] = exp_type
-        self.mode = mode
-        measurement['mode'] = mode
-        measurement['field_orientation'] = field_orientation
-        measurement['ramp'] = ramp
-        self.ramp = ramp
-        measurement['Bmin'] = Bmin
-        measurement['Bmax'] = Bmax
-        measurement['step'] = step
-        measurement['steptime'] = steptime
-        measurement['cycles'] = cycles
-        measurement['BvI'] = Curve2D()
-        measurement['IntvB'] = Curve2D()
-        measurement['baseline'] = self.baseline[mode][field_orientation][str(ramp)] \
-            if str(ramp) in self.baseline[mode][field_orientation].keys() else []
-        self.measurement = measurement
+        self.mode = mrmnt['mode']
+        self.ramp = mrmnt['ramp']
+        mrmnt['time'] = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        mrmnt['BvI'] = Curve2D()
+        mrmnt['IntvB'] = Curve2D()
+        mrmnt['baseline'] = \
+            self.baseline[mrmnt['mode']][mrmnt['field_orientation']][str(mrmnt['ramp'])] \
+            if str(mrmnt['ramp']) in self.baseline[mrmnt['mode']][mrmnt['field_orientation']].keys() \
+                else []
+        self.measurement = mrmnt
 
-        if mode == 'stepwise':
-            self.fielddirection = 'increasing' if self.read(10) < Bmin else 'decreasing'
-            n = int(abs(Bmax - Bmin) / step)
-            ranges = [(Bmin, Bmax, n, False), (Bmax, Bmin, n, False)]
+        if mrmnt['mode'] == 'stepwise':
+            self.fielddirection = 'increasing' \
+                if self.read(10) < mrmnt['Bmin'] else 'decreasing'
+            n = int(abs(mrmnt['Bmax'] - mrmnt['Bmin']) / mrmnt['step'])
+            ranges = [(mrmnt['Bmin'], mrmnt['Bmax'], n, False),
+                      (mrmnt['Bmax'], mrmnt['Bmin'], n, False)] * mrmnt['cycles']
             self._BvI, self._IntvB = Curve2D(), Curve2D()
-            self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * cycles
-            for i, r in enumerate(ranges * cycles):
-                self.fielddirection = 'increasing' if i % 2 == 0 else 'decreasing'
+            self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges)
+            for i, r in enumerate(ranges):
+                self.fielddirection = 'increasing' if r[1] > r[0] else 'decreasing'
                 self._cycle = i // 2
                 for _B in numpy.linspace(*r):
                     self.doStart(_B)
                     self._hw_wait()
-                    session.delay(steptime)
+                    session.delay(mrmnt['steptime'])
                     B = None
                     while B is None:
                         with suppress(Exception):
@@ -130,19 +122,18 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                         break
                 if self._stop_requested:
                     break
-            self._cycling = False
-        elif mode ==  'continuous':
-            self.fielddirection = 'decreasing'
-            IBmin = self._field2current(Bmin).n
+        elif mrmnt['mode'] == 'continuous':
             self.fielddirection = 'increasing'
-            IBmax = self._field2current(Bmax).n
-            self.doStart(Bmin)
+            IBmax = self._field2current(mrmnt['Bmax']).n
+            self.fielddirection = 'decreasing'
+            IBmin = self._field2current(mrmnt['Bmin']).n
+            self.doStart(mrmnt['Bmin'])
             self._hw_wait()
-            session.delay(10) # saturates sample with Bmin field value
             # runs the power supply in parallel thread
             if not self._cycling_thread:
-                self._cycling_thread = createThread('', self.cycle_currentsource,
-                                                    (IBmin, IBmax, ramp, cycles,))
+                self._cycling_thread = \
+                    createThread('', self.cycle_currentsource,
+                                 (IBmin, IBmax, mrmnt['ramp'], mrmnt['cycles'],))
             else:
                 raise errors.NicosError(self, 'Power supply is busy.')
             # measures magnetic field and intensity vallues
@@ -163,21 +154,23 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                     if Int:
                         self._Intvt.append((time.time(),
                                             ufloat(Int, self._intensity.readStd(Int))))
-                    self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt,
-                                                          pick_yvt_points=True)
-                    self._IntvB = Curve2D.from_two_temporal(self._Bvt, self._Intvt)
+                    if self._Ivt and self._Bvt:
+                        self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt,
+                                                              pick_yvt_points=True)
+                    if self._Intvt and self._Bvt:
+                        self._IntvB = Curve2D.from_two_temporal(self._Bvt, self._Intvt)
                 else:
                     session.delay(0.1)
             self._cycling_thread.join()
             self._cycling_thread = None
+        self._cycling = False
         if not self._stop_requested:
             self.doStop()
         # stores the measurement in the cache
-        measurement['BvI'] = self._BvI
-        measurement['IntvB'] = self._IntvB
-        self.measurement = measurement
-        session.log.info('Measurement saving: %s',
-                         self.save_measurement(measurement))
+        mrmnt['BvI'] = self._BvI
+        mrmnt['IntvB'] = self._IntvB
+        self.measurement = mrmnt
+        session.log.info('Measurement saving: %s', self.save_measurement(mrmnt))
         self._stop_requested = False
 
     def save_measurement(self, measurement):
