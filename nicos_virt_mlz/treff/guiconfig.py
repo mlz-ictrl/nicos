@@ -77,7 +77,7 @@ tools = [
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('Report NICOS bug or request enhancement', 'nicos.clients.gui.tools.bugreport.BugreportTool'),
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
-         runatstartup=True),
+         runatstartup=False),
 ]
 
 options = {
