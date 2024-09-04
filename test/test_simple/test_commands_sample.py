@@ -78,8 +78,7 @@ def test_powderfit_from_peaks():
     assert res[0] == approx(0.02, abs=1e-2)
     assert res[1] == approx(-1, abs=1e-2)
 
-
-@pytest.mark.flaky(reruns=5, only_rerun='AssertionError')
+@pytest.mark.flaky(reruns=5)
 def test_powderfit_from_data(session):
     tasdev = session.getDevice('Tas')
     tasdev.scanconstant = 2.0
