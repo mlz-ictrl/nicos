@@ -124,7 +124,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Canting angle (µrad):</string>
+            <string>Canting angle (SKT):</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -260,7 +260,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Kerr angle (µrad):</string>
+            <string>Kerr angle (mrad):</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

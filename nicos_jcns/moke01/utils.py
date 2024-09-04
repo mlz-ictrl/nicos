@@ -137,9 +137,9 @@ def generate_output(measurement, angle=None, ext=None):
             fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, angle, ext)
             output += f'Minimum intensity: {fit_min[1]} (V)\n'
             output += f'Maxmimum intensity: {fit_max[1]} (V)\n'
-            output += f'Canting angle: {angle} (µrad)\n'
+            output += f'Canting angle: {angle} (SKT)\n'
             output += f'Extinction: {ext} (V)\n'
-            output += f'Kerr angle: {kerr} (µrad)\n\n'
+            output += f'Kerr angle: {kerr} (mrad)\n\n'
             output += 'Mean intensity and ellipticity curves:\n'
             output += 'I (A)\tdI (A)\t' \
                       'B (T)\tdB (T)\t' \

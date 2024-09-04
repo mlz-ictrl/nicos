@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 import datetime
+import math
 import os
 
 import numpy
@@ -120,7 +121,9 @@ class MokeBase(Panel):
         IntvB = self.m['IntvB']
         if self.chck_subtract_baseline.isChecked():
             IntvB = self.m['IntvB'] - self.m['baseline']
-        angle = float(self.ln_canting_angle.text()) # urad
+        angle = float(self.ln_canting_angle.text()) # [SKT]
+        # recalculate angle in SKT to mrad
+        angle *= 0.7 / 25 / 180 * math.pi * 1000 # [mrad]
         ext = float(self.ln_extinction.text()) # V
         try:
             fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, angle, ext)
