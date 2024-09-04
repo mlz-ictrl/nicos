@@ -33,7 +33,7 @@ import numpy
 from uncertainties import ufloat  # pylint: disable=import-error
 
 from nicos import session
-from nicos.core import Attach, Param, device, errors, status
+from nicos.core import Attach, Param, device, errors, status, CanDisable
 from nicos.core.sessions.utils import MASTER
 from nicos.devices.entangle import AnalogInput, PowerSupply, Sensor
 from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
@@ -43,7 +43,7 @@ from nicos.utils.functioncurves import Curve2D
 from nicos_jcns.moke01.utils import fix_filename, generate_output
 
 
-class MokeMagnet(MagnetWithCalibrationCurves):
+class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
 
     attached_devices = {
         'intensity': Attach('Voltmeter reads intensity of a laser beam',
@@ -70,6 +70,12 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         if mode == MASTER:
             self._Bvt, self._Intvt, self._BvI, self._IntvB = Curve2D(), \
                 Curve2D(), Curve2D(), Curve2D()
+
+    def doEnable(self, on):
+        if on:
+            self._attached_currentsource.enable()
+        else:
+            self._attached_currentsource.disable()
 
     def measure_intensity(self, mode, field_orientation, Bmin, Bmax, ramp,
                           cycles, step, steptime, name, exp_type):
@@ -194,13 +200,10 @@ class MokePowerSupply(PowerSupply):
 
     def doEnable(self, on):
         if not on:
-            current = self.read()
-            if abs(current) > 7:
-                self.ramp = 400
-                PowerSupply.doStart(self, 0)
-                self._hw_wait()
+            self.ramp = 400
+            PowerSupply.doStart(self, 0)
+            self._hw_wait()
         PowerSupply.doEnable(self, on)
-        self._hw_wait()
 
     def doStart(self, target):
         if self.doStatus()[0] == status.DISABLED:
