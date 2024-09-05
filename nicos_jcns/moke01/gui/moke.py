@@ -138,16 +138,15 @@ class MokeBase(Panel):
                              legend='Fit max')
         self.plot_IntvB.add_curve(IntvB, legend='Mean')
         # show EvB plot and kerr angle
-        sample_name = f'{self.m["time"]} {self.m["name"]}'
         self.plot_EvB.reset()
-        self.plot_EvB.add_curve(EvB, legend=sample_name)
+        self.plot_EvB.add_curve(EvB, legend=self.m['name'])
         self.ln_kerr.setText(str(kerr))
 
         output = generate_output(self.m, angle, ext)
         self.display_rawdata(output)
         folder = os.path.join(os.path.expanduser('~'), 'Measurements', 'moke')
         os.makedirs(folder, exist_ok=True)
-        with open(os.path.join(folder, fix_filename(sample_name) + '.txt'),
+        with open(os.path.join(folder, f'{fix_filename(self.m["name"])}.txt'),
                   'w', encoding='utf-8') as f:
             f.write(output)
 
@@ -305,7 +304,8 @@ class MokePanel(MokeBase):
             'cycles': int(self.ln_cycles.text()),
             'step': float(self.ln_step.text()),
             'steptime': float(self.ln_steptime.text()),
-            'name': self.ln_sample.text(),
+            'id': self.ln_id.text(),
+            'description': self.ln_description.text(),
             'exp_type': 'rotation' if self.rad_rotation.isChecked() \
                 else 'ellipticity',
             'field_orientation': 'polar' if self.rad_polar.isChecked() \
@@ -326,10 +326,15 @@ class MokePanel(MokeBase):
         if not self.m:
             self.update_plot_IntvB.stop() # _update_measurement
             return
+        keys = ['mode', 'Bmin', 'Bmax', 'ramp', 'cycles', 'step', 'steptime',
+                'id', 'description', 'exp_type', 'field_orientation']
+        if not all(k in self.m for k in keys):
+            return
         self.display_rawdata(generate_output(self.m))
         self.cmb_mode.setCurrentIndex(
             self.cmb_mode.findText(str(self.m['mode'])))
-        self.ln_sample.setText(self.m['name'])
+        self.ln_id.setText(self.m['id'])
+        self.ln_description.setText(self.m['description'])
         self.rad_rotation.setChecked(self.m['exp_type'] == 'rotation')
         self.rad_polar.setChecked(self.m['field_orientation'] == 'polar')
         self.ln_Bmin.setText(str(self.m['Bmin']))
@@ -339,7 +344,6 @@ class MokePanel(MokeBase):
         self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(str(self.m['ramp'])))
         self.ln_cycles.setText(str(self.m['cycles']))
         # live-update graph of intensity vs field
-        sample_name = f'{self.m["time"]} {self.m["name"]}'
         # before measurement is finished and stored to `MagB.measurement`
         # IntvB can be fetched from MagB._IntvB
         IntvB = self.client.eval('session.getDevice("MagB")._IntvB') or \
@@ -348,7 +352,7 @@ class MokePanel(MokeBase):
             if self.chck_subtract_baseline.isChecked():
                 IntvB = IntvB - self.m['baseline']
             self.plot_IntvB.reset()
-            self.plot_IntvB.add_curve(IntvB, legend=sample_name)
+            self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
         # live-update progress bar
         maxprogress = self.client.eval('session.getDevice("MagB")._maxprogress')
         self.bar_cycles.setMaximum(maxprogress)
@@ -466,24 +470,21 @@ class MokeHistory(MokeBase):
         measurements = \
             self.client.eval(f'MagB.history("measurement", "{fr_time}", "{to_time}")')
         for _, m in measurements:
-            keys = ['name', 'time', 'IntvB']
-            if all(key in m.keys() for key in keys) and m['IntvB']:
-                name = f'{m["time"]} {m["name"]}'
-                self.measurements[name] = m
-                self._model.insertRow(0, QStandardItem(name))
+            if 'name' in m.keys() and 'IntvB' in m.keys() and m['IntvB']:
+                if m['name'] not in self.measurements.keys():
+                    self._model.insertRow(0, QStandardItem(m['name']))
+                self.measurements[m['name']] = m
 
     def _on_current_changed(self, current, _=None):
         if current:
             item = self._model.itemFromIndex(current)
             self.m = self.measurements[item.text()]
             self.display_rawdata(generate_output(self.m))
-        IntvB = self.m['IntvB']
-        if self.chck_subtract_baseline.isChecked():
-            IntvB = self.m['IntvB'] - self.m['baseline']
-        sample_name = f'{self.m["time"]} {self.m["name"]}'
+        IntvB = self.m['IntvB'] - self.m['baseline'] \
+            if self.chck_subtract_baseline.isChecked() else self.m['IntvB']
         self.plot_IntvB.reset()
         self.plot_EvB.reset()
-        self.plot_IntvB.add_curve(IntvB, legend=sample_name)
+        self.plot_IntvB.add_curve(IntvB, legend=self.m["name"])
 
     def _on_subtract_baseline_changed(self, _):
         self._on_current_changed(self.lst_history.selectionModel().currentIndex())

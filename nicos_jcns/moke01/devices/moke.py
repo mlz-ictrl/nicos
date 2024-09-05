@@ -82,7 +82,10 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
         self._progress = self._maxprogress = self._cycle = 0
         self.mode = mrmnt['mode']
         self.ramp = mrmnt['ramp']
-        mrmnt['time'] = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        mrmnt['time'] = datetime.now().strftime('%Y%m%d%H%M%S')
+        mrmnt['name'] = f'{mrmnt["time"]}-{mrmnt["id"]}-' \
+                        f'{mrmnt["field_orientation"][:3]}-' \
+                        f'{mrmnt["exp_type"][:3]}'
         mrmnt['BvI'] = Curve2D()
         mrmnt['IntvB'] = Curve2D()
         mrmnt['baseline'] = \
@@ -174,13 +177,12 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
         self._stop_requested = False
 
     def save_measurement(self, measurement):
-        keys = ['name', 'time']
-        if not measurement or not all(key in measurement.keys() for key in keys):
+        if not measurement or 'name' not in measurement.keys():
             return None
         try:
             folder = os.path.join(session.getDevice('Exp').dataroot, 'Measurements')
             os.makedirs(folder, exist_ok=True)
-            filename = f'{measurement["time"]} {measurement["name"]}.raw.txt'
+            filename = f'{measurement["name"]}.raw.txt'
             with open(os.path.join(folder, fix_filename(filename)), 'w',
                       encoding='utf-8') as f:
                 f.write(generate_output(measurement))

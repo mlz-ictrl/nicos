@@ -94,7 +94,7 @@ def generate_output(measurement, angle=None, ext=None):
     and output parameter kerr."""
 
     keys = ['name', 'time', 'IntvB', 'exp_type', 'mode', 'ramp', 'Bmin', 'Bmax',
-            'cycles', 'BvI', 'baseline', 'field_orientation']
+            'cycles', 'BvI', 'baseline', 'field_orientation', 'id', 'description']
     if not measurement or not all(key in measurement.keys() for key in keys):
         return ''
     BvI = measurement['BvI']
@@ -102,7 +102,9 @@ def generate_output(measurement, angle=None, ext=None):
     baseline = measurement['baseline']
 
     # Measurement settings
-    output = f'Sample name: {measurement["name"]}\n'
+    output = f'Measurement name: {measurement["name"]}\n'
+    output += f'Id: {measurement["id"]}\n'
+    output += f'Description: {measurement["description"]}\n'
     output += f'Measurement time: {measurement["time"]}\n'
     output += f'Measurement type: {measurement["exp_type"]}\n'
     output += f'Measurement mode: {measurement["mode"]}\n'

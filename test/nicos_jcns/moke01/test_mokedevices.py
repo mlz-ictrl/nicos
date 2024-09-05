@@ -141,7 +141,7 @@ def test_intensity_measurement(session):
     # after previous test
     mrmnt = {'Bmin': -400.0, 'Bmax': 400.0, 'ramp': 400.0, 'cycles': 1,
              'step': 40.0, 'steptime': 1, 'mode': 'stepwise',
-             'field_orientation': 'polar'}
+             'exp_type': 'ell', 'field_orientation': 'polar', 'id': 'test'}
     temp = magb.calibration.copy()
     temp['stepwise'][str(mrmnt['ramp'])] = Curves([[(-400, -400), (400, 400)],
                                                     [(400, 400), (-400, -400)]])
