@@ -152,8 +152,6 @@ services.add_argument('--nodaemon', '-D', action='store_true',
 # These services are opt-in.
 services.add_argument('--htmlmonitor', '-H', action='store_true',
                       help='start the web monitor')
-services.add_argument('--pushversioninfo', action='store_true',
-                      help='start the version update service')
 
 monitor = parser.add_argument_group('monitor related options')
 monitor.add_argument('--monitorsetup', '-m', action='store',
@@ -222,11 +220,6 @@ else:
     spawn('nicos-cache', '--clear', **spawnargs)
 echo(' cache')
 sleep(2)
-
-if opts.pushversioninfo:
-    spawn('nicos-pushversioninfo', **spawnargs)
-    echo(' pushversioninfo')
-    sleep(0.1)
 
 if not opts.nowatchdog:
     spawn('nicos-watchdog', **spawnargs)
