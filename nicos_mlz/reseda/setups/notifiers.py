@@ -22,7 +22,7 @@ devices = dict(
     ),
     # slacker = device('nicos.devices.notifiers.slack.Slacker',
     #     receivers = ['#nicos_build-up'],
-    #     keystoretoken = 'slack',
+    #     authtoken = secret('slack'),
     # ),
     logspace_notif = device('nicos.devices.notifiers.Mailer',
         description = 'Reports about the limited logspace',

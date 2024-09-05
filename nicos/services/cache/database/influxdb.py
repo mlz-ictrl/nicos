@@ -31,10 +31,9 @@ from influxdb_client import BucketRetentionRules, InfluxDBClient, Point
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 from influxdb_client.client.write_api import SYNCHRONOUS as write_option
 
-from nicos.core import ConfigurationError, Param
+from nicos.core import Param, secret
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
-from nicos.utils.credentials.keystore import nicoskeystore
 
 csv.field_size_limit(0xA00000)  # 10 MB limit for influx queries with big fields
 
@@ -287,9 +286,9 @@ class InfluxDBCacheDatabase(CacheDatabase):
         'url': Param(
             'URL of InfluxDB instance', type=str, mandatory=True
         ),
-        'keystoretoken': Param(
+        'apitoken': Param(
             'Id used in the keystore for InfluxDB API token',
-            type=str, default='influxdb', mandatory=True
+            type=secret, default='influxdb'
         ),
         'org': Param(
             'Corresponding organization name created during initialization of '
@@ -313,9 +312,7 @@ class InfluxDBCacheDatabase(CacheDatabase):
         self._recent = {}
         self._recent_lock = threading.Lock()
         CacheDatabase.doInit(self, mode)
-        token = nicoskeystore.getCredential(self.keystoretoken)
-        if not token:
-            raise ConfigurationError('InfluxDB API token missing in keyring')
+        token = self.apitoken.lookup('InfluxDB API token missing in keyring')
         self._client = InfluxDBWrapper(self.url, token, self.org, self.bucket,
                                        self.bucket_latest, self.unbuffered)
         self._time = datetime.now().timestamp()

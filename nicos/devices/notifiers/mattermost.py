@@ -25,9 +25,8 @@ import json
 
 import requests
 
-from nicos.core import ConfigurationError, Param
+from nicos.core import Param, secret
 from nicos.devices.notifiers import Notifier
-from nicos.utils.credentials.keystore import nicoskeystore
 
 
 class Mattermost(Notifier):
@@ -36,7 +35,7 @@ class Mattermost(Notifier):
     Mattermost is a group chat system similar to Slack, but open source.
 
     To use this notifier, some Mattermost user must register an "Incoming
-    Webhook" on the Mattermost instance.  The credid parameter should be set to
+    Webhook" on the Mattermost instance.  The hookid parameter should be set to
     a NICOS keystore credential ID of the "secret" part of the hook URL.
 
     Receivers can be given as channels, using the last part of the channel's
@@ -49,7 +48,7 @@ class Mattermost(Notifier):
     you would set the following configuration::
 
        baseurl = 'https://chat.example.org'
-       credid = '...' (a keystore ID with the value 'xsdkue8djsk')
+       hookid = secret('...') (a keystore ID with the value 'xsdkue8djsk')
        receivers = ['nicos-notifications', '@joe']
 
     The `username` parameter can be set freely, Mattermost will show "bot"
@@ -63,8 +62,8 @@ class Mattermost(Notifier):
                           type=str, mandatory=True),
         'iconurl':  Param('URL of an image to show next to notifications',
                           type=str, default=''),
-        'credid':   Param('Credential ID in the NICOS keystore '
-                          'for the hook ID', type=str, default='mattermost'),
+        'hookid':   Param('NICOS keystore secret name for the hook ID',
+                          type=secret, default='mattermost'),
     }
 
     _headers = {
@@ -73,9 +72,7 @@ class Mattermost(Notifier):
     }
 
     def doInit(self, mode):
-        secret_hookid = nicoskeystore.getCredential(self.credid)
-        if not secret_hookid:
-            raise ConfigurationError('Mattermost hook ID missing in keystore')
+        secret_hookid = self.hookid.lookup('Mattermost hookid not in keystore')
         self._hookurl = self.baseurl + '/hooks/' + secret_hookid
 
     def send(self, subject, body, what=None, short=None, important=True):

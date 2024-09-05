@@ -27,9 +27,8 @@ import html
 from slack import WebClient as slackwebclient
 from slack.errors import SlackApiError
 
-from nicos.core import ConfigurationError, Override, Param
+from nicos.core import Override, Param, secret
 from nicos.devices.notifiers import Notifier
-from nicos.utils.credentials.keystore import nicoskeystore
 
 
 class Slacker(Notifier):
@@ -38,13 +37,14 @@ class Slacker(Notifier):
     To use this notifier, you can register your own Slack App (or use an
     existing one) via https://api.slack.com/apps and install it to your
     workspace. On installation you'll receive an OAuth token which needs
-    to be stored in the nicos keyring (domain: nicos) using the
-    ``keystoretoken`` as identifier.
+    to be stored in the NICOS keyring (domain: nicos). The identifier for
+    the keystore entry then needs to be configured as the device parameter
+    ``authtoken`` as  ``secret('...')``.
     """
 
     parameters = {
-        'keystoretoken': Param('Id used in the keystore for the OAuth token',
-                               type=str, default='slack'),
+        'authtoken': Param('NICOS keystore secret name for the OAuth token',
+                           type=secret, default='slack'),
     }
 
     parameter_overrides = {
@@ -53,9 +53,7 @@ class Slacker(Notifier):
     }
 
     def doInit(self, mode):
-        secret_token = nicoskeystore.getCredential(self.keystoretoken)
-        if not secret_token:
-            raise ConfigurationError('Slack API token missing in keyring')
+        secret_token = self.authtoken.lookup('Slack API token not in keystore')
         self._slack = slackwebclient(secret_token)
 
     def send(self, subject, body, what=None, short=None, important=True):
@@ -71,4 +69,5 @@ class Slacker(Notifier):
             except SlackApiError as e:
                 error = e.response['error']
 
-            self.log.warning('Could not send slack message to %s: %s', entry, error)
+            self.log.warning('Could not send slack message to %s: %s',
+                             entry, error)

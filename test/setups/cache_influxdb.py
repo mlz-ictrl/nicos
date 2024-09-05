@@ -35,7 +35,6 @@ devices = dict(
     ),
     DB2 = device('nicos.services.cache.database.influxdb.InfluxDBCacheDatabase',
         url = os.environ.get('INFLUXDB_URI', 'http://localhost:8086'),
-        keystoretoken = 'influxdb',
         org = 'mlz',
         bucket = 'nicos-test',
         bucket_latest = 'nicos-test-latest',

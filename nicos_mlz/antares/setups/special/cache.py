@@ -4,7 +4,6 @@ group = 'special'
 devices = dict(
     DB = device('nicos.services.cache.database.influxdb.InfluxDBCacheDatabase',
         url = 'http://app.antares.frm2.tum.de:8086',
-        keystoretoken = 'influxdb',
         org = 'mlz',
         bucket = 'nicos-cache',
         bucket_latest = 'nicos-cache-latest-values',
