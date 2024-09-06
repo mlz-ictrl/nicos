@@ -33,7 +33,6 @@ from uncertainties.core import AffineScalarFunc
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.core import status
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QDate, QMessageBox, QStandardItem, \
@@ -346,37 +345,27 @@ class MokePanel(MokeBase):
         # live-update graph of intensity vs field
         # before measurement is finished and stored to `MagB.measurement`
         # IntvB can be fetched from MagB._IntvB
-        IntvB = self.client.eval('session.getDevice("MagB")._IntvB') or \
-                self.m['IntvB']
+        IntvB = self.client.eval('session.getDevice("MagB")._IntvB') or self.m['IntvB']
         if IntvB:
             if self.chck_subtract_baseline.isChecked():
                 IntvB = IntvB - self.m['baseline']
             self.plot_IntvB.reset()
             self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
-        # live-update progress bar
-        maxprogress = self.client.eval('session.getDevice("MagB")._maxprogress')
-        self.bar_cycles.setMaximum(maxprogress)
-        progress = self.client.eval('session.getDevice("MagB")._progress')
-        self.bar_cycles.setValue(progress)
-        stop_requested = self.client.eval('session.getDevice("MagB")._stop_requested')
-        cycling = self.client.eval('session.getDevice("MagB")._cycling')
-        # live-update remaining time
-        if cycling and not stop_requested and maxprogress:
-            timeleft = self._timeleft(progress)
-            self.lcd_timeleft.display(f'{int(timeleft / 60):02}:{int(timeleft % 60):02}')
-            cycle = self.client.eval('session.getDevice("MagB")._cycle')
-            self.lcd_cycle.display(cycle + 1)
+        if self.client.eval('session.getDevice("MagB")._measuring'):
+            # live-update progress bar
+            maxprogress = self.client.eval('session.getDevice("MagB")._maxprogress')
+            self.bar_cycles.setMaximum(maxprogress)
+            progress = self.client.eval('session.getDevice("MagB")._progress')
+            self.bar_cycles.setValue(progress)
+            # live-update remaining time
+            if maxprogress:
+                timeleft = self._timeleft(progress)
+                self.lcd_timeleft.display(f'{int(timeleft / 60):02}:{int(timeleft % 60):02}')
+                cycle = self.client.eval('session.getDevice("MagB")._cycle')
+                self.lcd_cycle.display(cycle + 1)
         else:
             self.lcd_timeleft.display('')
             self.lcd_cycle.display('')
-        # if MagB is disabled but the measurement did not exited properly
-        if cycling:
-            if self.client.eval(
-                    'session.getDevice("MagB").status()[0]') == status.DISABLED:
-                self.client.run('MagB._cycling = False')
-                self.client.run('MagB._stop_requested = False')
-        # stop QTimer when MagB finishes cycling
-        else:
             self.update_plot_IntvB.stop() # _update_measurement
 
     def _on_subtract_baseline_changed(self, _):

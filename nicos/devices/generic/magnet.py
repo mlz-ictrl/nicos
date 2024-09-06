@@ -345,7 +345,7 @@ class MagnetWithCalibrationCurves(Magnet):
 
     def doInit(self, mode):
         if mode == MASTER:
-            self._cycling, self._measuring = False, False
+            self._cycling = False
             self._cycling_thread = None
             self._Ivt, self._Bvt, self._cycling_steps = Curve2D(), Curve2D(), []
             self._calibration_updated = False
@@ -360,11 +360,6 @@ class MagnetWithCalibrationCurves(Magnet):
         self._attached_currentsource.doStart(current)
 
     def doStop(self):
-        if self._cycling:
-            self._stop_requested = True
-        session.delay(1)
-        self.ramp = self.maxramp
-        self._attached_currentsource.ramp = self.maxramp
         self._attached_currentsource.doStop()
 
     def doStatus(self, maxage=0):
@@ -398,7 +393,6 @@ class MagnetWithCalibrationCurves(Magnet):
         """Cycles current source from val1 [A] to val2 [A] n times at a given
         ramp in [A/min].
         """
-        self._measuring = True
         self._Ivt, self._cycling_steps = Curve2D(), []
         temp = self.ramp
         self.ramp = 0
@@ -419,17 +413,13 @@ class MagnetWithCalibrationCurves(Magnet):
                 self._attached_currentsource.doStart(i)
                 self._Ivt.append((time.time(), i))
                 session.delay(dt)
+                self._progress += 1
                 if self._stop_requested:
                     break
-                self._progress += 1
             if self._stop_requested:
                 break
-        self._measuring = False
-
-        if not self._stop_requested:
-            self.doStop()
-        self.ramp = temp
         self._cycling = False
+        self.ramp = temp
 
     @usermethod
     def calibrate(self, mode, ramp, n):
@@ -453,54 +443,55 @@ class MagnetWithCalibrationCurves(Magnet):
         self._hw_wait()
 
         with_std = hasattr(self._attached_magsensor, 'readStd')
-        if mode == 'continuous':
-            if self._cycling_thread is None:
-                self._cycling = True
-                self._cycling_thread = createThread('',
-                                                    self.cycle_currentsource,
-                                                    (absmin, absmax, float(ramp), n,))
-            else:
-                raise NicosError(self, 'Power supply is busy.')
-            self._Bvt = Curve2D()
-            while self._cycling and not self._stop_requested:
-                try:
-                    B = self._attached_magsensor.doRead()
-                except Exception:
-                    B = None
-                if B:
-                    self._Bvt.append((time.time(), B if not with_std else
-                                      ufloat(B, self._attached_magsensor.readStd(B))))
-                session.delay(0.5)
-            self._cycling_thread.join()
-            self._cycling_thread = None
-            self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt)
-        elif mode == 'stepwise':
-            num = 100
-            ranges = [(absmin, absmax, num, False), (absmax, absmin, num, False)]
-            self._BvI, self._cycling_steps = Curve2D(), []
-            for r in ranges * n:
-                self._cycling_steps.append(len(numpy.linspace(*r)))
-                for i in numpy.linspace(*r):
-                    self._attached_currentsource.doStart(i)
-                    # hardcoded 10 secs to reach quasi steady state condition
-                    session.delay(10)
-                    B = None
-                    while B is None:
-                        with suppress(Exception):
-                            B = self._attached_magsensor.doRead()
-                    self._BvI.append((i, B if not with_std else
-                                      ufloat(B, self._attached_magsensor.readStd(B))))
-                    if self._stop_requested:
-                        break
-                if self._stop_requested:
-                    break
-        if not self._stop_requested:
-            self.doStop()
+        try:
+            if mode == 'continuous':
+                if self._cycling_thread is None:
+                    self._cycling = True
+                    self._cycling_thread = createThread('',
+                                                        self.cycle_currentsource,
+                                                        (absmin, absmax, float(ramp), n,))
+                else:
+                    raise NicosError(self, 'Power supply is busy.')
+                self._Bvt = Curve2D()
+                while self._cycling:
+                    session.breakpoint(1)
+                    try:
+                        B = self._attached_magsensor.doRead()
+                    except Exception:
+                        B = None
+                    if B:
+                        self._Bvt.append((time.time(), B if not with_std else
+                                          ufloat(B, self._attached_magsensor.readStd(B))))
+                    session.delay(0.5)
+                self._cycling_thread.join()
+                self._cycling_thread = None
+                self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt)
+            elif mode == 'stepwise':
+                num = 100
+                ranges = [(absmin, absmax, num, False), (absmax, absmin, num, False)]
+                self._BvI, self._cycling_steps = Curve2D(), []
+                for r in ranges * n:
+                    self._cycling_steps.append(len(numpy.linspace(*r)))
+                    for i in numpy.linspace(*r):
+                        self._attached_currentsource.doStart(i)
+                        # hardcoded 10 secs to reach quasi steady state condition
+                        session.delay(10)
+                        B = None
+                        while B is None:
+                            with suppress(Exception):
+                                B = self._attached_magsensor.doRead()
+                        self._BvI.append((i, B if not with_std else
+                                          ufloat(B, self._attached_magsensor.readStd(B))))
+        finally:
+            self._stop_requested = True
+            if self._cycling_thread is not None:
+                self._cycling_thread.join()
+                self._cycling_thread = None
 
-        curves = Curves.from_series(self._BvI, self._cycling_steps)
-        calibration = Curves([curves.increasing().mean(), curves.decreasing().mean()])
-        temp = self.calibration.copy()
-        temp[mode][str(float(ramp))] = calibration
-        self.calibration = temp
-        self._calibration_updated = True
-        self._stop_requested = False
+            curves = Curves.from_series(self._BvI, self._cycling_steps)
+            calibration = Curves([curves.increasing().mean(), curves.decreasing().mean()])
+            temp = self.calibration.copy()
+            temp[mode][str(float(ramp))] = calibration
+            self.calibration = temp
+            self._calibration_updated = True
+            self._stop_requested = False

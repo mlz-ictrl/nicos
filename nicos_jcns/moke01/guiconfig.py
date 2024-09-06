@@ -39,6 +39,7 @@ main_window = tabbed(
     ('MOKE',
         vsplit(
             panel('nicos_jcns.moke01.gui.moke.MokePanel'),
+            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
             setups='moke',
         ),
     ),

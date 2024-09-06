@@ -64,6 +64,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
 
     def doInit(self, mode):
         MagnetWithCalibrationCurves.doInit(self, mode)
+        self._measuring = False
         self._currentsource = self._attached_currentsource
         self._intensity = self._attached_intensity
         self._magsensor = self._attached_magsensor
@@ -78,7 +79,8 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             self._attached_currentsource.disable()
 
     def measure_intensity(self, mrmnt):
-        self._cycling = True
+        self._stop_requested = False
+        self._measuring = True
         self._progress = self._maxprogress = self._cycle = 0
         self.mode = mrmnt['mode']
         self.ramp = mrmnt['ramp']
@@ -94,55 +96,53 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                 else []
         self.measurement = mrmnt
 
-        if mrmnt['mode'] == 'stepwise':
-            self.fielddirection = 'increasing' \
-                if self.read(10) < mrmnt['Bmin'] else 'decreasing'
-            n = int(abs(mrmnt['Bmax'] - mrmnt['Bmin']) / mrmnt['step'])
-            ranges = [(mrmnt['Bmin'], mrmnt['Bmax'], n, False),
-                      (mrmnt['Bmax'], mrmnt['Bmin'], n, False)] * mrmnt['cycles']
-            self._BvI, self._IntvB = Curve2D(), Curve2D()
-            self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges)
-            for i, r in enumerate(ranges):
-                self.fielddirection = 'increasing' if r[1] > r[0] else 'decreasing'
-                self._cycle = i // 2
-                for _B in numpy.linspace(*r):
-                    self.doStart(_B)
-                    self._hw_wait()
-                    session.delay(mrmnt['steptime'])
-                    B = None
-                    while B is None:
-                        with suppress(Exception):
-                            B = self.doRead()
-                    Int = None
-                    while Int is None:
-                        with suppress(Exception):
-                            Int = self._intensity.doRead()
-                    self._BvI.append((self._field2current(_B).n, _B))
-                    self._IntvB.append((ufloat(B, self._magsensor.readStd(B)),
-                                        ufloat(Int, self._intensity.readStd(Int))))
-                    self._progress += 1
-                    if self._stop_requested:
-                        break
-                if self._stop_requested:
-                    break
-        elif mrmnt['mode'] == 'continuous':
-            self.fielddirection = 'increasing'
-            IBmax = self._field2current(mrmnt['Bmax']).n
-            self.fielddirection = 'decreasing'
-            IBmin = self._field2current(mrmnt['Bmin']).n
-            self.doStart(mrmnt['Bmin'])
-            self._hw_wait()
-            # runs the power supply in parallel thread
-            if not self._cycling_thread:
-                self._cycling_thread = \
-                    createThread('', self.cycle_currentsource,
-                                 (IBmin, IBmax, mrmnt['ramp'], mrmnt['cycles'],))
-            else:
-                raise errors.NicosError(self, 'Power supply is busy.')
-            # measures magnetic field and intensity vallues
-            self._Bvt, self._Intvt, self._IntvB = Curve2D(), Curve2D(), Curve2D()
-            while self._cycling and not self._stop_requested:
-                if self._measuring:
+        try:
+            if mrmnt['mode'] == 'stepwise':
+                self.fielddirection = 'increasing' \
+                    if self.read(10) < mrmnt['Bmin'] else 'decreasing'
+                n = int(abs(mrmnt['Bmax'] - mrmnt['Bmin']) / mrmnt['step'])
+                ranges = [(mrmnt['Bmin'], mrmnt['Bmax'], n, False),
+                          (mrmnt['Bmax'], mrmnt['Bmin'], n, False)] * mrmnt['cycles']
+                self._BvI, self._IntvB = Curve2D(), Curve2D()
+                self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges)
+                for i, r in enumerate(ranges):
+                    self.fielddirection = 'increasing' if r[1] > r[0] else 'decreasing'
+                    self._cycle = i // 2
+                    for _B in numpy.linspace(*r):
+                        self.doStart(_B)
+                        self._hw_wait()
+                        session.delay(mrmnt['steptime'])
+                        B = None
+                        while B is None:
+                            with suppress(Exception):
+                                B = self.doRead()
+                        Int = None
+                        while Int is None:
+                            with suppress(Exception):
+                                Int = self._intensity.doRead()
+                        self._BvI.append((self._field2current(_B).n, _B))
+                        self._IntvB.append((ufloat(B, self._magsensor.readStd(B)),
+                                            ufloat(Int, self._intensity.readStd(Int))))
+                        self._progress += 1
+            elif mrmnt['mode'] == 'continuous':
+                self.fielddirection = 'increasing'
+                IBmax = self._field2current(mrmnt['Bmax']).n
+                self.fielddirection = 'decreasing'
+                IBmin = self._field2current(mrmnt['Bmin']).n
+                self.doStart(mrmnt['Bmin'])
+                self._hw_wait()
+                # runs the power supply in parallel thread
+                if not self._cycling_thread:
+                    self._cycling = True
+                    self._cycling_thread = \
+                        createThread('', self.cycle_currentsource,
+                                     (IBmin, IBmax, mrmnt['ramp'], mrmnt['cycles']))
+                else:
+                    raise errors.NicosError(self, 'Power supply is busy.')
+                # measures magnetic field and intensity vallues
+                self._Bvt, self._Intvt, self._IntvB = Curve2D(), Curve2D(), Curve2D()
+                while self._cycling:
+                    session.breakpoint(1)
                     try:
                         B = self.doRead()
                     except Exception:
@@ -162,19 +162,17 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                                                               pick_yvt_points=True)
                     if self._Intvt and self._Bvt:
                         self._IntvB = Curve2D.from_two_temporal(self._Bvt, self._Intvt)
-                else:
-                    session.delay(0.1)
-            self._cycling_thread.join()
-            self._cycling_thread = None
-        self._cycling = False
-        if not self._stop_requested:
-            self.doStop()
-        # stores the measurement in the cache
-        mrmnt['BvI'] = self._BvI
-        mrmnt['IntvB'] = self._IntvB
-        self.measurement = mrmnt
-        session.log.info('Measurement saving: %s', self.save_measurement(mrmnt))
-        self._stop_requested = False
+        finally:
+            self._stop_requested = True
+            if self._cycling_thread is not None:
+                self._cycling_thread.join()
+                self._cycling_thread = None
+            self._measuring = False
+            # stores the measurement in the cache
+            mrmnt['BvI'] = self._BvI
+            mrmnt['IntvB'] = self._IntvB
+            self.measurement = mrmnt
+            session.log.info('Measurement saving: %s', self.save_measurement(mrmnt))
 
     def save_measurement(self, measurement):
         if not measurement or 'name' not in measurement.keys():
@@ -203,12 +201,11 @@ class MokePowerSupply(PowerSupply):
     def doStart(self, target):
         if self.doStatus()[0] == status.DISABLED:
             self.doEnable(True)
+            self._hw_wait()
         PowerSupply.doStart(self, target)
 
     def doStop(self):
         PowerSupply.doStop(self)
-        self._hw_wait()
-        self.doEnable(False)
 
 
 class MokePSVoltage(AnalogInput):
