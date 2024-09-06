@@ -23,7 +23,7 @@
 import io
 from datetime import datetime
 from html import escape
-from logging import ERROR
+from logging import getLevelName
 
 from PIL import Image
 
@@ -261,6 +261,7 @@ class Handler(BaseHandler):
                                         f'{description} {name}  '
                                         f'{wb_timestring_1(time)}',
                              'note': 0,
+                             'loglevel': None,
                              'attachment': 0,
                              'file': 1,
                              'line_count': 0,
@@ -303,6 +304,7 @@ class Handler(BaseHandler):
                                        f'{description} {name}  '
                                        f'{wb_timestring_1(time)}',
                             'note': 0,
+                            'loglevel': None,
                             'attachment': 1,
                             'file': 0,
                             'line_count': 0,
@@ -313,17 +315,14 @@ class Handler(BaseHandler):
         formatted = formatMessage(message)
         if not formatted:
             return
-        if message[2] == ERROR:
-            self.log.info('workbench_writer: handle error message')
-            headers = rb_headers_note(proposal=self._out.proposal,
-                                      subject=f'ERROR   '
-                                              f'{wb_timestring_1(time)}',
-                                      line_count=1)
-
-            self._out.rabbit_producer.produce(headers=headers,
-                                              message=wb_format(f'{formatted}'))
-
-        return
+        self.log.info('workbench_writer: message')
+        headers = rb_headers_note(proposal=self._out.proposal,
+                                  subject=f'{getLevelName(message[2])}   '
+                                          f'{wb_timestring_1(time)}',
+                                  loglevel=getLevelName(message[2]),
+                                  line_count=1)
+        self._out.rabbit_producer.produce(headers=headers,
+                                          message=formatted)
 
     def handle_scanbegin(self, time, dataset):
         self.log.info('workbench_writer: handle scanbegin')
@@ -376,9 +375,10 @@ class Handler(BaseHandler):
                 dataset_names.append(
                     dataset.xnames[i] + '(' + dataset.xunits[i] + ')')
                 if first == last:
-                    dateset_range_vals.append(f'{first:.3f}')
+                    dateset_range_vals.append(f'{wb_val_format(first)}')
                 else:
-                    dateset_range_vals.append(f'{first:.3f} - <br>{last:.3f}')
+                    dateset_range_vals.append(
+                        f'{wb_val_format(first)} - <br>{wb_val_format(last)}')
 
             cell_width = '%s' % (round(100 / (len(dataset_names) + 2), 3))
             scan_end_results += '<table style="border-collapse: collapse; ' \
@@ -414,6 +414,12 @@ class Handler(BaseHandler):
                                           message=scan_end_results)
 
 
+def wb_val_format(wb_val):
+    if isinstance(wb_val, (int, float, complex)):
+        return f'{wb_val:.3f}'
+    return f'{wb_val}'
+
+
 def wb_format(wb_line):
     return f'<pre style="margin: 0px !important;">{wb_line}</pre>'
 
@@ -426,11 +432,12 @@ def wb_timestring_2(time):
     return datetime.fromtimestamp(time).strftime("%Y-%m-%d %H:%M:%S")
 
 
-def rb_headers_note(proposal, subject, line_count):
+def rb_headers_note(proposal, subject, line_count, loglevel=None):
     return {
         'proposal': proposal,
         'subject': subject,
         'note': 1,
+        'loglevel': loglevel,
         'attachment': 0,
         'file': 0,
         'line_count': line_count,
