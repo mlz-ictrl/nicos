@@ -259,7 +259,7 @@ class ILLAsciiHandler(DataSinkHandler):
                 self.scanvalues[dev.name].append(subset.devvaluelist[i])
 
         for dev, value in zip(self.dataset.environment,
-                              self.dataset.envvaluelist):
+                              subset.envvaluelist):
             self.scanvalues[dev.name].append(value)
 
         for det in self.sink.scaninfo:
