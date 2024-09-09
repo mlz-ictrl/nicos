@@ -62,38 +62,32 @@ class Handler(BaseHandler):
         'https://pika.readthedocs.io/en/stable/modules/channel.html#module-pika.channel'
 
     parameters = {
-        'rabbit_url': Param('RabbitMQ host set in pika connection parameters',
-                            type=str,
-                            ext_desc=ext_desc_conn),
-        'rabbit_port': Param('RabbitMQ port set in pika connection parameters',
-                             type=int, default=5672,
-                             ext_desc=ext_desc_conn),
-        'rabbit_virtual_host': Param(
-            'RabbitMQ virtual host set in pika connection parameters',
-            type=str,
-            ext_desc=ext_desc_conn),
-        'rabbit_username': Param('RabbitMQ username from pika credentials',
-                                 type=str,
-                                 ext_desc=ext_desc_cred),
-        'rabbit_password': Param('RabbitMQ password from pika credentials',
-                                 type=str,
-                                 ext_desc=ext_desc_cred),
-        'rabbit_static_queue': Param(
-            'RabbitMQ queue name used in given pika channel',
-            type=str,
-            ext_desc=ext_desc_chann),
+        'url': Param('RabbitMQ host set in pika connection parameters',
+                     type=str, ext_desc=ext_desc_conn),
+        'port': Param('RabbitMQ port set in pika connection parameters',
+                      type=int, default=5672, ext_desc=ext_desc_conn),
+        'virtual_host': Param('RabbitMQ virtual host set in pika '
+                              'connection parameters',
+                              type=str, ext_desc=ext_desc_conn),
+        'username': Param('RabbitMQ username from pika credentials',
+                          type=str, ext_desc=ext_desc_cred),
+        'password': Param('RabbitMQ password from pika credentials',
+                          type=str, ext_desc=ext_desc_cred),
+        'static_queue': Param('RabbitMQ queue name used in given pika '
+                              'channel',
+                              type=str, ext_desc=ext_desc_chann),
     }
 
     def doInit(self, mode):
         self._out = RabbitWriter()
 
         self._out.rabbit_producer = RabbitProducer(
-            rabbit_url=self.rabbit_url,
-            rabbit_port=self.rabbit_port,
-            rabbit_virtual_host=self.rabbit_virtual_host,
-            rabbit_username=self.rabbit_username,
-            rabbit_password=self.rabbit_password,
-            rabbit_static_queue=self.rabbit_static_queue)
+            url=self.url,
+            port=self.port,
+            virtual_host=self.virtual_host,
+            username=self.username,
+            password=self.password,
+            static_queue=self.static_queue)
 
         self.log.info('workbench_writer: handle init')
 

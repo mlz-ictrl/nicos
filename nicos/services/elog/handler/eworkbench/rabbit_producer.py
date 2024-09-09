@@ -31,21 +31,21 @@ class RabbitProducer:
     HEADER_KEYS = {'proposal', 'subject', 'note', 'loglevel', 'attachment',
                    'file', 'line_count', 'img_rows'}
 
-    def __init__(self, rabbit_url, rabbit_port, rabbit_virtual_host,
-                 rabbit_username, rabbit_password, rabbit_static_queue):
+    def __init__(self, url, port, virtual_host,
+                 username, password, static_queue):
 
         self.log = NicosLogger('rabbit_producer')
-        self.rabbit_url = rabbit_url
-        self.rabbit_port = rabbit_port
-        self.virtual_host = rabbit_virtual_host
-        self.rabbit_username = rabbit_username
-        self.rabbit_password = rabbit_password
-        self.queue = rabbit_static_queue
+        self.url = url
+        self.port = port
+        self.virtual_host = virtual_host
+        self.username = username
+        self.password = password
+        self.queue = static_queue
 
-        self.credentials = pika.PlainCredentials(self.rabbit_username,
-                                                 self.rabbit_password)
+        self.credentials = pika.PlainCredentials(self.username,
+                                                 self.password)
         self._params = pika.connection.ConnectionParameters(
-            host=self.rabbit_url, port=self.rabbit_port,
+            host=self.url, port=self.port,
             virtual_host=self.virtual_host,
             heartbeat=600, blocked_connection_timeout=300,
             credentials=self.credentials)
