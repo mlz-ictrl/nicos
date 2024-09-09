@@ -89,7 +89,7 @@ class PilotLaser(HasDisablePv, EpicsReadable):
     def doReadUncertainty_Variable(self):
         return self._get_pv('uncertainty_variable')
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self._get_pv('ready'):
             return 'Ready'
         return 'Not Ready'

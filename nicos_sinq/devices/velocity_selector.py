@@ -101,7 +101,7 @@ class VSLambda(Moveable):
             (0.12411 * tter) + (0.00583 * tquat)
         return A, B
 
-    def doRead(self, maxage):
+    def doRead(self, maxage=0):
         spd = self._attached_seldev.read(maxage)
         if spd > 0:
             A, B = self._calcCoefficients()

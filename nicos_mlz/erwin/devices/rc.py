@@ -53,7 +53,7 @@ class RadialCollimator(Moveable):
             return status.OK, msg
         return status.ERROR, msg
 
-    def doRead(self, maxage):
+    def doRead(self, maxage=0):
         return 'on' if self._attached_motor.status(maxage)[0] == status.BUSY \
             else 'off'
 

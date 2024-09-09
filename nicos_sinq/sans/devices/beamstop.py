@@ -84,7 +84,7 @@ class Beamstop(BeamstopSequencer):
     _out_y = -543.
     valuetype = oneof('in', 'out')
 
-    def doRead(self, maxage):
+    def doRead(self, maxage=0):
         x = self._attached_x.read(maxage)
         y = self._attached_y.read(maxage)
         summ = abs(x - self._out_x)
@@ -144,7 +144,7 @@ class BeamstopChanger(BeamstopSequencer):
                           reason)
         self._fix()
 
-    def doRead(self, maxage):
+    def doRead(self, maxage=0):
         dio = self._attached_io.read(maxage)
         test = dio[1]
         val = 1

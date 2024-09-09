@@ -131,6 +131,6 @@ class Cone(Moveable):
     def doStatus(self, maxage=0):
         return self._instrument.status(maxage)
 
-    def doRead(self, maxage):
+    def doRead(self, maxage=0):
         # No sensible way to read from positions
         return self.target
