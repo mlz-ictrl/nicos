@@ -1099,8 +1099,9 @@ def whyExited(status):
 
 def formatExtendedFrame(frame):
     ret = []
+    secret_indicators = ('credentials', 'password', 'secret')
     for key, value in frame.f_locals.items():
-        if key.startswith(('credentials', 'password', 'secret')):
+        if key.startswith(secret_indicators) or key.endswith(secret_indicators):
             continue
         try:
             valstr = repr(value)[:256]

@@ -965,9 +965,7 @@ class BaseHistoryWindow:
             self._add_preset(info['name'], info)
         self.viewStack.pop()
         row = self.clearView(view)
-        new_view = self._createViewFromDialog(info, row)
-        if new_view.plot.HAS_AUTOSCALE:
-            self._autoscale(True, False)
+        self._createViewFromDialog(info, row)
 
     def on__actionCloseView_triggered(self):
         view = self.viewStack.pop()
@@ -1162,9 +1160,7 @@ class HistoryPanel(BaseHistoryWindow, PlotPanel):
         for view in old_views:
             info = view.dlginfo
             row = self.clearView(view)
-            new_view = self._createViewFromDialog(info, row)
-            if new_view.plot.HAS_AUTOSCALE:
-                self._autoscale(True, False)
+            self._createViewFromDialog(info, row)
 
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
