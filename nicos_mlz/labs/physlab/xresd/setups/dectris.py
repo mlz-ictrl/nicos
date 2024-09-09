@@ -41,11 +41,6 @@ devices = dict(
         timers = ['timer'],
         images = ['image'],
     ),
-    sdet = device('nicos_mlz.labs.physlab.devices.detector.MovingDetector',
-        description = 'Moving detector ... ',
-        motor = 'ctt',
-        detector = 'adet',
-    ),
     rawfile = device('nicos.devices.datasinks.raw.SingleRawImageSink',
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw']
     ),
