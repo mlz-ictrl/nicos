@@ -24,6 +24,6 @@
 
 
 from .curves import Curve2D, Curves
-from .imports import ufloat, AffineScalarFunc
+from .imports import AffineScalarFunc, ufloat
 from .points import CurvePoint2D
 from .types import FloatWithStdError

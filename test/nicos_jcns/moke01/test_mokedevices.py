@@ -34,10 +34,10 @@ except ModuleNotFoundError:
     uncertainties = None
 
 from nicos.core import NicosError
-from nicos_jcns.moke01.utils import calculate
-from nicos.utils.functioncurves import AffineScalarFunc, Curve2D, Curves, \
-    CurvePoint2D
+from nicos.utils.functioncurves import AffineScalarFunc, Curve2D, \
+    CurvePoint2D, Curves
 
+from nicos_jcns.moke01.utils import calculate
 
 session_setup = 'moke01'
 

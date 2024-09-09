@@ -38,6 +38,7 @@ from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QDate, QMessageBox, QStandardItem, \
     QStandardItemModel, Qt, QTimer
 from nicos.utils import findResource
+
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 

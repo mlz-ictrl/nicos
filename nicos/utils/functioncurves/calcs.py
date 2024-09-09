@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 import numpy
-from scipy.odr import Model, Data, ODR
+from scipy.odr import ODR, Data, Model
 from scipy.optimize import curve_fit
 
 from .imports import AffineScalarFunc, ufloat

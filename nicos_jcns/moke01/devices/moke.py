@@ -24,9 +24,9 @@
 
 """Device classes for MOKE setup."""
 
-from contextlib import suppress
 import os
 import time
+from contextlib import suppress
 from datetime import datetime
 
 import numpy
@@ -39,6 +39,7 @@ from nicos.devices.entangle import AnalogInput, PowerSupply, Sensor
 from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
 from nicos.utils import createThread
 from nicos.utils.functioncurves import Curve2D
+
 from nicos_jcns.moke01.utils import fix_filename, generate_output
 
 

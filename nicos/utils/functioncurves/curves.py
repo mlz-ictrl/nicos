@@ -27,7 +27,6 @@ from .calcs import lsm, mean
 from .imports import AffineScalarFunc
 from .points import CurvePoint2D
 
-
 _compatible_types = (int, float, AffineScalarFunc)
 
 

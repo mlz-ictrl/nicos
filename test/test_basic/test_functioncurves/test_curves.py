@@ -30,7 +30,7 @@ from random import randint
 
 import numpy
 
-from nicos.utils.functioncurves import Curves, Curve2D
+from nicos.utils.functioncurves import Curve2D, Curves
 
 
 def test_basic():

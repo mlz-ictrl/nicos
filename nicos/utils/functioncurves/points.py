@@ -25,7 +25,6 @@
 
 from .imports import AffineScalarFunc, ufloat
 
-
 _compatible_types = (int, float, AffineScalarFunc)
 
 

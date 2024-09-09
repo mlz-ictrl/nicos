@@ -28,5 +28,5 @@
 try:
     from uncertainties.core import AffineScalarFunc, ufloat
 except Exception:
-    from .types import FloatWithStdError as AffineScalarFunc
-    from .types import FloatWithStdError as ufloat
+    from .types import FloatWithStdError as AffineScalarFunc, \
+        FloatWithStdError as ufloat
