@@ -968,7 +968,7 @@ class Readable(Device):
 
     Subclasses *need* to implement:
 
-    * doRead(maxage)
+    * doRead(maxage=0)
 
     Subclasses *can* implement:
 
@@ -977,7 +977,7 @@ class Readable(Device):
 
     Subclasses *can* override:
 
-    * doStatus(maxage)
+    * doStatus(maxage=0)
     * valueInfo()
     """
 
@@ -1287,7 +1287,7 @@ class Waitable(Readable):
 
     * _getWaiters()
     * doEstimateTime(elapsed)
-    * doStatus(maxage)
+    * doStatus(maxage=0)
     """
 
     busystates = (status.BUSY,)
