@@ -33,8 +33,8 @@ from nicos_sinq.devices.illasciisink import ILLAsciiScanfileReader
 
 @pytest.fixture(scope='function', autouse=True)
 def setup():
-    loc = locale.getlocale()
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    loc = locale.setlocale(locale.LC_ALL)
+    locale.setlocale(locale.LC_ALL, 'C')
     yield
     locale.setlocale(locale.LC_ALL, loc)
 
