@@ -129,10 +129,10 @@ class OnlineMonitor(Readable):
 
     valuetype = str
 
-    def doRead(self, maxage=None):
+    def doRead(self, maxage=0):
         return self.status(maxage)[1]
 
-    def doStatus(self, maxage=None):
+    def doStatus(self, maxage=0):
         state = status.OK
         text = []
         for devlist in self._adevs.values():

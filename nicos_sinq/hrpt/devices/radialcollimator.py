@@ -87,7 +87,7 @@ class RadialCollimator(EpicsDevice, MappedMoveable):
         self.newtarget = target
         self._put_pv('target', target)
 
-    def doStatus(self, maxage=None):
+    def doStatus(self, maxage=0):
         target = self._get_pv('target')
         # This if condition catches the startup case when the target
         # readback from EPICS gives the

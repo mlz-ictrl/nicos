@@ -142,7 +142,7 @@ class MicroPythonServo(HasOffset, Motor):
             io.communicate('s%d.angle(%f)' % (self.channel, self.target or 0.))
             io.addPollDev(self)
 
-    def doRead(self, maxage=None):
+    def doRead(self, maxage=0):
         return float(self._attached_io.communicate('s%d.angle()' %
                                                    self.channel)) - self.offset
 
@@ -155,7 +155,7 @@ class MicroPythonServo(HasOffset, Motor):
         self._attached_io.communicate(cmd)
         self._busytime = time.time() + duration
 
-    def doStatus(self, maxage=None):
+    def doStatus(self, maxage=0):
         if time.time() < self._busytime:
             return status.BUSY, ''
         return status.OK, ''

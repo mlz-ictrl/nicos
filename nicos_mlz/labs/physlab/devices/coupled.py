@@ -53,5 +53,5 @@ class CoupledMotor(Moveable):
 
         return axis and coupled
 
-    def doRead(self, maxage=None):
+    def doRead(self, maxage=0):
         return self._attached_maxis.read(maxage)

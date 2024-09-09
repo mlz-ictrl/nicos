@@ -77,7 +77,7 @@ class BaseCryopad(Moveable):
         """
         raise NotImplementedError
 
-    def doRead(self, maxage=None):
+    def doRead(self, maxage=0):
         lam_in, lam_out, gamma, sense = self._getInstrPosition(maxage)
         prec_in = self._attached_prec_in.read(maxage)
         prec_out = self._attached_prec_out.read(maxage)

@@ -159,7 +159,7 @@ maxspeed: %.4f
 
 class S7InterlockMotor(TangoMotor):
 
-    def doStatus(self, maxage=None):
+    def doStatus(self, maxage=0):
         code, msg = TangoMotor.doStatus(self, maxage)
         if code == status.ERROR:
             statebits = self._dev.StateBits

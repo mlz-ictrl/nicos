@@ -160,7 +160,7 @@ class MultiHV(BaseSequencer):
                 return
         raise NicosTimeoutError(self, 'timeout waiting for HV to ramp down')
 
-    def doRead(self, maxage=None):
+    def doRead(self, maxage=0):
         return [d.read(0) for d in self._attached_ephvs]
 
 
@@ -183,7 +183,7 @@ class GEPowerSupply(PowerSupply):
 
 class HVEpicsAnalogMoveable(EpicsAnalogMoveable):
 
-    def doStatus(self, maxage=None):
+    def doStatus(self, maxage=0):
         # HV writepv intermittently goes into unknown state, ignore it
         code, text = EpicsAnalogMoveable.doStatus(self, maxage)
         if code == status.UNKNOWN:

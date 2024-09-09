@@ -190,10 +190,10 @@ class DetectorZAxis(HasLimits, BaseSequencer):
         seq.append(SeqDev(self._attached_motor, target, stoppable=True))
         return seq
 
-    def doRead(self, maxage=None):
+    def doRead(self, maxage=0):
         return self._attached_motor.read(maxage)
 
-    def doStatus(self, maxage=None):
+    def doStatus(self, maxage=0):
         code, text = BaseSequencer.doStatus(self, maxage)
         if code == status.OK:
             text = self._attached_motor.status(maxage)[1]
@@ -208,7 +208,7 @@ class DetectorZAxis(HasLimits, BaseSequencer):
 class LockedMotor(TangoMotor):
     """A motor that is sometimes switched off by the SPS due to interlocks."""
 
-    def doStatus(self, maxage=None):
+    def doStatus(self, maxage=0):
         code, text = TangoMotor.doStatus(self, maxage)
         if code == status.DISABLED:
             # an error here most likely just means that the interlock is on

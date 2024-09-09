@@ -199,5 +199,5 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
 
 
 class DetectorBsEncoder(HasOffset, AnalogInput):
-    def doRead(self, maxage=None):
+    def doRead(self, maxage=0):
         return self._dev.value - self.offset

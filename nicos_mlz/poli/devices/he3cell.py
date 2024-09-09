@@ -134,7 +134,7 @@ class BeamPolarization(Readable):
         self.celllength = length
         self.celltrans = T0
 
-    def doRead(self, maxage=None):
+    def doRead(self, maxage=0):
         O = 0.0732 * self._attached_wavelength.read() * \
             self.celllength * self.hepressure
 

@@ -49,8 +49,8 @@ class DIOMVirtual(Moveable):
     def doStart(self, val):
         self.curvalue = val
 
-    def doRead(self, maxage = 0):
+    def doRead(self, maxage=0):
         return self.curvalue
 
-    def doStatus(self, maxage = 0):
+    def doStatus(self, maxage=0):
         return status.OK, ''
