@@ -38,7 +38,7 @@ Contributors:
 * Pierre Boillat <pierre.boillat@psi.ch>
 * Matt Clarke <matt.clarke@ess.eu>
 * Robert Georgii <robert.georgii@frm2.tum.de>
-* Jonathan Haehne <jonathan.haehne@frm2.tum.de>
+* Jonathan Hähne <jonathan.haehne@frm2.tum.de>
 * Moritz Hannemann <m.hannemann@fz-juelich.de>
 * Ümit Hardal <umit.hardal@ess.eu>
 * Michael Hart <michael.hart@stfc.ac.uk>
@@ -83,7 +83,6 @@ Instrument-specific code was contributed by:
 * Weimin Gan <weimin.gan@hereon.de>
 * Holger Gibhardt <hgibhar@gwdg.de>
 * Artur Glavic <artur.glavic@psi.ch>
-* Jonathan Hähne <jonathan.haehne@frm2.tum.de>
 * Martin Haese <martin.haese@hereon.de>
 * Christoph Herb <christoph.herb@frm2.tum.de>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
