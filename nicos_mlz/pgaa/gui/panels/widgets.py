@@ -176,7 +176,7 @@ class TimeEditWidget(QWidget):
         self.layout().setSpacing(1)
         self.val = QLineEdit()
         validator = QDoubleValidator()
-        validator.setLocale(QLocale('en_US'))  # Needed for the '.' in input
+        validator.setLocale(QLocale('C'))  # Needed for the '.' in input
         validator.setBottom(0)
         validator.setDecimals(2)
         self.val.setValidator(validator)
