@@ -813,7 +813,7 @@ def practical_SC2(wl_min=0,
         ang_SC2 = np.array([t_SCc, t_SCo]) * freq * 360
         SC2_opening = ang_SC2[0] - ang_SC2[1]
         return ang_SC2, SC2_opening
-        # was return s.mod(ang_SC2, 360), SC2_opening butr this can lead to
+        # was return s.mod(ang_SC2, 360), SC2_opening but this can lead to
         # wrong order
 
     # convert maximum wavelength input in velocities (in meters per second)
