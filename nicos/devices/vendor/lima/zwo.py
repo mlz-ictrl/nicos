@@ -60,3 +60,7 @@ class ZwoTC(PyTangoDevice, HasLimits, HasPrecision, LimaCooler, Moveable):
         else:
             self._dev.temperature_sp = target
             self.cooleron = True
+
+    def doVersion(self):
+        return [(self.tangodevice,
+                 f'tango {self._dev.get_tango_lib_version() / 100:.02f}')]

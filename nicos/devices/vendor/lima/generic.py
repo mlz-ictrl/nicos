@@ -83,6 +83,10 @@ class LimaCCDTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
         nicosStatus = statusMap.get(limaStatus, status.UNKNOWN)
         return (nicosStatus, limaStatus)
 
+    def doVersion(self):
+        return [(self.tangodevice,
+                 f'lima {self._dev.lima_version}, '
+                 f'tango {self._dev.get_tango_lib_version() / 100:.02f}')]
 
 class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     """
@@ -252,6 +256,11 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                 limaStatus += ' (Readout)'
 
         return (nicosStatus, limaStatus)
+
+    def doVersion(self):
+        return [(self.tangodevice,
+                 f'lima {self._dev.lima_version}, '
+                 f'tango {self._dev.get_tango_lib_version() / 100:.02f}')]
 
     def doReadImagewidth(self):
         return self._dev.image_width

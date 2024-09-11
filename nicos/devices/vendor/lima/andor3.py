@@ -211,6 +211,10 @@ class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
         self._dev.temperature_sp = target
         self.cooleron = True
 
+    def doVersion(self):
+        return [(self.tangodevice,
+                 f'tango {self._dev.get_tango_lib_version() / 100:.02f}')]
+
     def doReadCooler(self):
         return self._dev.cooler
 
