@@ -48,7 +48,7 @@ from test.nicos_sinq.utils import create_hs00
 session_setup = "sinq_area_detector"
 
 
-@pytest.mark.skip(reason="flaky test")
+#@pytest.mark.skip(reason="flaky test")
 class TestEpicsAreaDetector:
     """
     Tests for the operations EPICS areaDetector
