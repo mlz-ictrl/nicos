@@ -1180,6 +1180,7 @@ def AcceptRefinement():
 
     sample.cell = new_cell
 
-    instr._attached_mono._adjust(new_wl, 'A')
+    if hasattr(instr._attached_mono, '_adjust'):
+        instr._attached_mono._adjust(new_wl, 'A')
     instr._attached_gamma.offset = delta_gamma
     instr._attached_nu.offset = delta_nu
