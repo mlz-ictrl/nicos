@@ -867,7 +867,13 @@ class Device(metaclass=DeviceMeta):
         if caught_exc is not None:
             raise caught_exc
 
-    @usermethod
+    @usermethod(doc="""
+        Return a list of versions for this device.
+
+        If the list isn't empty the entries are tuples (component, version)
+        where a "component" can be the name of a Python module, or an
+        external dependency (like a Tango server).
+    """)
     def version(self):
         """Return a list of versions for this device.
 
@@ -1078,7 +1084,7 @@ class Readable(Device):
         """
         return Value(self.name, unit=self.unit, fmtstr=self.fmtstr),
 
-    @usermethod(doc='''
+    @usermethod(doc="""
         Read and return the main value of the device, which can then be used
         further in the script.
 
@@ -1088,7 +1094,7 @@ class Readable(Device):
         Example:
 
         >>> maw(dev2, dev1.read())
-    ''', helparglist='[maxage]')
+    """, helparglist='[maxage]')
     def read(self, maxage=None):
         """Read the (possibly cached) main value of the device.
 
@@ -1107,13 +1113,13 @@ class Readable(Device):
             self._sim_setValue(val)
         return val
 
-    @usermethod(doc='''
+    @usermethod(doc="""
         Read and return the status of the device as a tuple of status constant
         and textual extended info.
 
         If *maxage* is given, makes sure the value is at most that many seconds
         old.  ``0`` will enforce reading from the hardware.
-    ''', helparglist='[maxage]')
+    """, helparglist='[maxage]')
     def status(self, maxage=None):
         """Return the (possibly cached) status of the device.
 
@@ -1220,7 +1226,14 @@ class Readable(Device):
         # self._cache.invalidate(self, 'status')
         return self.status(maxage), self.read(maxage)
 
-    @usermethod
+    @usermethod(doc="""
+        Reset the device hardware and returns the new status afterwards.
+
+        Example:
+
+        >>> dev.reset()
+        (200, '')
+    """)
     def reset(self):
         """Reset the device hardware.  Returns the new status afterwards.
 
@@ -1311,7 +1324,14 @@ class Waitable(Readable):
                    status.ERROR: MoveError,
                    status.DISABLED: MoveError}
 
-    @usermethod
+    @usermethod(doc="""
+        Wait until movement of device is completed and return the current
+        device value after waiting.
+
+        Example:
+
+        >>> maw(dev2, dev1.wait())
+    """)
     def wait(self):
         """Wait until movement of device is completed.
 
@@ -1510,7 +1530,18 @@ class Moveable(Waitable):
                 if self.userlimits == (0.0, 0.0):
                     self._params['userlimits'] = self.abslimits
 
-    @usermethod
+    @usermethod(doc="""
+        Check if the given position can be moved to.
+
+        The return value is a tuple ``(valid, why)``.  The first item is a
+        boolean indicating if the position is valid, the second item is a
+        string with the reason if it is invalid.
+
+        Example:
+
+        >>> dev.isAllowed(10)
+        (False, 'out of limits')
+    """, helparglist='pos')
     def isAllowed(self, pos):
         """Check if the given position can be moved to.
 
@@ -1545,7 +1576,18 @@ class Moveable(Waitable):
             return self.doIsAllowed(pos)
         return True, ''
 
-    @usermethod
+    @usermethod(doc="""
+        Start the movement of the device to a new position.
+
+        The validity of the given *pos* is checked before starting the movement
+        and in case of giving a not allowed value, it will raise an error.
+
+        This method doesn't wait for completion of the movement.
+
+        Example:
+
+        >>> dev.start(10)
+    """, helparglist='pos')
     def start(self, pos):
         """Start movement of the device to a new position.
 
@@ -1740,7 +1782,7 @@ class Moveable(Waitable):
         self.start(target)
         return multiWait([self])[self]
 
-    @usermethod
+    @usermethod(doc="""Stop any movement of the device.""")
     def stop(self):
         """Stop any movement of the device.
 
@@ -1778,7 +1820,16 @@ class Moveable(Waitable):
             self._cache.invalidate(self, 'value')
             self._cache.invalidate(self, 'status')
 
-    @usermethod
+    @usermethod(doc="""
+        Fix the device, so movement or stop can't be executed anymore.
+
+        The param *reason* should contain a descriptive message why the device
+        is blocked.
+
+        Example:
+
+        >>> dev.fix('Cryostat is mounted')
+    """, helparglist='[reason]')
     def fix(self, reason=''):
         """Fix the device: don't allow movement anymore.
 
@@ -1817,7 +1868,7 @@ class Moveable(Waitable):
                 if isinstance(dev, Moveable):
                     dev.fix(reason)
 
-    @usermethod
+    @usermethod(doc="""Release the device, i.e. undo the effect of fix().""")
     def release(self):
         """Release the device, i.e. undo the effect of fix().
 
@@ -1911,7 +1962,17 @@ class Measurable(Waitable):
         self._sim_intercept = mode == SIMULATION and self.hardware_access
         Device._setMode(self, mode)
 
-    @usermethod
+    @usermethod(doc="""
+        Set the new standard preset for this detector.
+
+        The *preset* parameters are key=value entries, separated by comma,
+        where the *key* is one of the allowed presets of the detector
+        device. Typical keys are ``t``, ``mon``, and so on.
+
+        Example:
+
+        >>> dev.preset(t=1, mon=100)
+    """, helparglist='preset')
     def setPreset(self, **preset):
         """Set the new standard preset for this detector.
 
@@ -1945,7 +2006,20 @@ class Measurable(Waitable):
             return self._sim_preset
         return self._lastpreset
 
-    @usermethod
+    @usermethod(doc="""
+        Start measurement, with either the given preset or the standard preset.
+
+        If the *preset* parameter is given, these presets will be used,
+        otherwise the previously used preset values.
+
+        The *preset* parameters are key=value entries, separated by comma,
+        where the *key* is one of the allowed presets of the detector
+        device. Typical keys are ``t``, ``mon``, and so on.
+
+        Example:
+
+        >>> dev.start(t=1, mon=100)
+    """, helparglist='preset, ...')
     def start(self, **preset):
         """Start measurement, with either the given preset or the standard
         preset.  If a preset is given, `doSetPreset` is called with that preset
@@ -1990,7 +2064,11 @@ class Measurable(Waitable):
         how often this should be done.
         """
 
-    @usermethod
+    @usermethod(doc="""
+        Pause the measurement, if possible.
+
+        Returns ``True`` if paused successfully, otherwise ``False``.
+    """)
     def pause(self):
         """Pause the measurement, if possible.
 
@@ -2010,7 +2088,7 @@ class Measurable(Waitable):
             return self.doPause()
         return False
 
-    @usermethod
+    @usermethod(doc="""Resume paused measurement.""")
     def resume(self):
         """Resume paused measurement.
 
@@ -2027,10 +2105,13 @@ class Measurable(Waitable):
         if hasattr(self, 'doResume'):
             self.doResume()
 
-    @usermethod
+    @usermethod(doc="""
+        Finish the measurement now, if it is running and not finished.
+    """)
     def finish(self):
-        """Finish the measurement now.  This should do nothing if the
-        measurement was already finished.
+        """Finish the measurement now.
+
+        This should do nothing if the measurement was already finished.
 
         This operation is forbidden in slave mode.
 
@@ -2057,7 +2138,7 @@ class Measurable(Waitable):
             return
         self.doFinish()
 
-    @usermethod
+    @usermethod(doc="""Stop (abort) the measurement now.""")
     def stop(self):
         """Stop (abort) the measurement now.
 
@@ -2078,7 +2159,7 @@ class Measurable(Waitable):
             return
         return self.doStop()
 
-    @usermethod
+    @usermethod(helparglist='[maxage]')
     def read(self, maxage=None):
         """Return a list with the scalar result(s) of the last measurement."""
         if self._sim_intercept:
@@ -2099,7 +2180,12 @@ class Measurable(Waitable):
     def doReadArrays(self, quality):
         return []
 
-    @usermethod
+    @usermethod(doc="""
+        Return a list with the array result(s) of the last measurement.
+
+        *quality* is the condition in which the result is requested:
+        'live', 'intermediate', 'final', or 'interrupted'.
+    """, helparglist='quality')
     def readArrays(self, quality):
         """Return a list with the array result(s) of the last measurement.
 
@@ -2114,7 +2200,7 @@ class Measurable(Waitable):
             return [result]
         return result
 
-    @usermethod
+    @usermethod(doc="""Prepare measurement before counting.""")
     def prepare(self):
         """Prepare measurement before counting.
 
