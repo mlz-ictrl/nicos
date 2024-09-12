@@ -33,7 +33,6 @@ import numpy as np
 from nicos.core.errors import ConfigurationError, ProgrammingError
 from nicos.utils import Secret, decodeAny, parseHostPort, readonlydict, \
     readonlylist
-from nicos.utils.credentials import keystore
 
 INFO_CATEGORIES = [
     ('experiment', 'Experiment information'),
@@ -1028,7 +1027,12 @@ class secret:
         """
         if not self.externalkey:
             raise ConfigurationError('No external key given for this secret')
-        val = keystore.nicoskeystore.getCredential(self.externalkey)
+        try:
+            from nicos.utils.credentials import keystore
+            val = keystore.nicoskeystore.getCredential(self.externalkey)
+        except ImportError:
+            val = None
+
         if not val:
             env_name = f'NICOS_{self.externalkey.upper().replace("-", "_")}'
             val = os.environ.get(env_name)
