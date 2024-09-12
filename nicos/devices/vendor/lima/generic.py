@@ -21,6 +21,7 @@
 #
 # *****************************************************************************
 
+import struct
 import time
 
 import numpy
@@ -328,11 +329,14 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         response = self._dev.readImage(0)
 
         img_data_str = response[1]  # response is a tuple (type name, data)
+        _magic, _, headersize = struct.unpack('<IHH', img_data_str[:8])
+        if _magic != 0x44544159:
+            self.log.warning('Seems to be not a valid LImA image')
 
         dt = numpy.dtype(self._getImageType())
         dt = dt.newbyteorder('<')
 
-        img_data = numpy.frombuffer(img_data_str, dt, offset=64)
+        img_data = numpy.frombuffer(img_data_str, dt, offset=headersize)
         img_data = numpy.reshape(img_data, (self.imageheight, self.imagewidth))
         return img_data
 
