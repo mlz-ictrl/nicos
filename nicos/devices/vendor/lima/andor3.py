@@ -192,12 +192,6 @@ class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
         'Not Stabilised': status.BUSY,
     }
 
-    parameters = {
-        'cooler': Param('Start/stop the cooler',
-                        type=oneof('OFF', 'ON'), settable=True, userparam=True,
-                        volatile=True, category='instrument'),
-    }
-
     def doRead(self, maxage=0):
         return self._dev.temperature
 
@@ -209,14 +203,8 @@ class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
 
     def doStart(self, target):
         self._dev.temperature_sp = target
-        self.cooleron = True
+        self.cooler = 'ON'
 
     def doVersion(self):
         return [(self.tangodevice,
                  f'tango {self._dev.get_tango_lib_version() / 100:.02f}')]
-
-    def doReadCooler(self):
-        return self._dev.cooler
-
-    def doWriteCooler(self, value):
-        self._dev.cooler = value

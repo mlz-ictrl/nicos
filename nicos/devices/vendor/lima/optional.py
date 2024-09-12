@@ -23,7 +23,8 @@
 
 import re
 
-from nicos.core import ConfigurationError, DeviceMixinBase, NicosError, Param
+from nicos.core import ConfigurationError, DeviceMixinBase, NicosError, \
+    Param, oneof
 
 
 class OptionalLimaFunctionality:
@@ -51,18 +52,16 @@ class OptionalLimaFunctionality:
 
 class LimaCooler(DeviceMixinBase):
     parameters = {
-        'cooleron': Param('Cooler enabled',
-                          type=bool,
-                          default=False,
-                          volatile=True,
-                          settable=True),
+        'cooler': Param('Switch the cooler ON/OFF',
+                        type=oneof('OFF', 'ON'), settable=True, userparam=True,
+                        volatile=True, default='OFF', category='instrument'),
     }
 
-    def doReadCooleron(self):
-        return self._dev.cooler == 'ON'
+    def doReadCooler(self):
+        return self._dev.cooler
 
-    def doWriteCooleron(self, value):
-        self._dev.cooler = 'ON' if value else 'OFF'
+    def doWriteCooler(self, value):
+        self._dev.cooler = value
 
 
 class LimaShutter(OptionalLimaFunctionality):
