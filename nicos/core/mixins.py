@@ -793,7 +793,7 @@ class CanDisable(DeviceMixinBase):
         self.doEnable(on)
         self.poll()
 
-    @usermethod
+    @usermethod(doc="""Enable this device.""")
     def enable(self):
         """Enable this device.
 
@@ -801,7 +801,7 @@ class CanDisable(DeviceMixinBase):
         """
         self._enable(True)
 
-    @usermethod
+    @usermethod(doc="""Disable this device.""")
     def disable(self):
         """Disable this device.
 
