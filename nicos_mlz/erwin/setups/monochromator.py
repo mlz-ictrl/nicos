@@ -2,6 +2,8 @@ description = 'Monochromator devices'
 
 group = 'lowlevel'
 
+includes = ['motorbus']
+
 devices = dict(
     om_m = device('nicos.devices.vendor.ipc.Motor',
         bus = 'motorbus',
