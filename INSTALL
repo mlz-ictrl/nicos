@@ -135,7 +135,7 @@ where 'distro' stands for:
 
 * Development and documentation build::
 
-     apt-get install python3-{sip-dev,pytest,pytest-cov,pytest-timeout,pytest-rerunfailures,coverage}
+     apt-get install python3-{sip-dev,pytest,pytest-cov,pytest-timeout,coverage}
      apt-get install python3-{sphinx,sphinx-rtd-theme,sphinxcontrib.seqdiag}
      apt-get install python3-pyqt5-{dev,dev-tools}
 
