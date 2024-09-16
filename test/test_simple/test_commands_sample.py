@@ -78,6 +78,7 @@ def test_powderfit_from_peaks():
     assert res[0] == approx(0.02, abs=1e-2)
     assert res[1] == approx(-1, abs=1e-2)
 
+
 @pytest.mark.flaky(reruns=5)
 def test_powderfit_from_data(session):
     tasdev = session.getDevice('Tas')
@@ -94,5 +95,5 @@ def test_powderfit_from_data(session):
         cscan(phidev, phidev(), 0.1, 20, 1, tasdet)
     # since datasets are not numbered (no sink), number 0 will catch all
     res = powderfit('YIG', scans=[0])
-    assert -0.105 <= res[0] <= 0.105
-    assert -0.105 <= res[1] <= 0.105
+    assert res[0] == approx(0, abs=0.105)
+    assert res[1] == approx(0, abs=0.105)
