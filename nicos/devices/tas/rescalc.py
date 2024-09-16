@@ -419,8 +419,7 @@ class resmat:
             alf0_guide = MIN2RAD * 2 * pi * guide_h / ki
             bet0 = MIN2RAD * 2 * pi * guide_v / ki
 
-            if alf0_guide <= alf0:
-                alf0 = alf0_guide  # take into account collimator in the guide
+            alf0 = min(alf0, alf0_guide)  # take into account collimator in the guide
 
         G = matrix(zeros((8, 8)))
         G[0, 0] = 1 / alf0**2  # horizontal and vertical collimation matrix. The 4 Soller collimators
@@ -826,10 +825,10 @@ Resolution Info:
         TT = real(self.S * matrix([h, k, l]).transpose())
         # cos(theta) and sin(theta) are the projections of the Q vector onto
         # the directions V1 and V2
-        cos_theta = float(TT[0, 0] / sqrt(dot(TT.transpose(), TT)))
-        sin_theta = float(TT[1, 0] / sqrt(dot(TT.transpose(), TT)))
+        cos_theta = float(TT[0, 0] / sqrt(dot(TT.transpose(), TT))[0, 0])
+        sin_theta = float(TT[1, 0] / sqrt(dot(TT.transpose(), TT))[0, 0])
 
-        #----- Rotation matrix from system of resolution matrix
+        # ----- Rotation matrix from system of resolution matrix
         # to system defined by V1, V2, V3 => V1,V2 define scattering plane,
         # V3 is zone axis, thus perpendicular to the scattering plane
         R = [[cos_theta, sin_theta, 0], [-sin_theta, cos_theta, 0], [0, 0, 1]]
