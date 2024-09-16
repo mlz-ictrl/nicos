@@ -369,8 +369,7 @@ class EditorPanel(Panel):
         if has_scintilla:
             lexer = editor.lexer()
             lexer.setDefaultFont(self.custom_font)
-            for i in range(16):
-                lexer.setFont(self.custom_font, i)
+            lexer.setFont(self.custom_font, -1)
             # make keywords bold
             lexer.setFont(bold, 5)
         else:
