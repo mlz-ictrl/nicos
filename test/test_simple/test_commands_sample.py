@@ -27,8 +27,6 @@ import json
 from io import StringIO
 from unittest import mock
 
-import pytest
-
 from nicos.commands.sample import activation, powderfit
 from nicos.commands.scan import cscan
 from nicos.core import UsageError
@@ -79,8 +77,8 @@ def test_powderfit_from_peaks():
     assert res[1] == approx(-1, abs=1e-2)
 
 
-@pytest.mark.flaky(reruns=5)
 def test_powderfit_from_data(session):
+    session.experiment.data._last_scans = []
     tasdev = session.getDevice('Tas')
     tasdev.scanconstant = 2.0
     sample = session.getDevice('Sample')
@@ -89,11 +87,12 @@ def test_powderfit_from_data(session):
     sample.lattice = [12.38, 12.38, 12.38]
     sample.orient1 = [1, 0, 0]
     sample.orient2 = [0, 1, 1]
-    peaks = [(4, 0, 0, 0), (2, 1, 1, 0), (0, 2, 2, 0)]
+    peaks = [(4, 0, 0, 0), (2, 1, 1, 0), (0, 2, 2, 0),
+             (0, 4, 4, 0), (4, 2, 2, 0)]
     for peak in peaks:
         tasdev.maw(peak)
-        cscan(phidev, phidev(), 0.1, 20, 1, tasdet)
+        cscan(phidev, phidev(), 0.2, 10, 1, tasdet)
     # since datasets are not numbered (no sink), number 0 will catch all
     res = powderfit('YIG', scans=[0])
-    assert res[0] == approx(0, abs=0.105)
-    assert res[1] == approx(0, abs=0.105)
+    assert res[0] == approx(0, abs=0.105)  # mtt0
+    assert res[1] == approx(0, abs=0.105)  # stt0
