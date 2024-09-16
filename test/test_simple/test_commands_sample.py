@@ -91,7 +91,7 @@ def test_powderfit_from_data(session):
     peaks = [(4, 0, 0, 0), (2, 1, 1, 0), (0, 2, 2, 0)]
     for peak in peaks:
         tasdev.maw(peak)
-        cscan(phidev, phidev(), 0.2, 10, 1, tasdet)
+        cscan(phidev, phidev(), 0.1, 20, 1, tasdet)
     # since datasets are not numbered (no sink), number 0 will catch all
     res = powderfit('YIG', scans=[0])
     assert -0.105 <= res[0] <= 0.105
