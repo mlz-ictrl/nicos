@@ -143,6 +143,9 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
                           type=oneof(0, 90, 180, 270),
                           default=90, userparam=True, settable=True,
                           ),
+        '_hist_id': Param('Histogram ID currently being histogrammed',
+                          type=str, default=None, internal=True,
+                          settable=True),
     }
 
     parameter_overrides = {
@@ -153,18 +156,19 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
     }
 
     def doPreinit(self, mode):
+        self._status = status.OK, ''
+        self._command_id = None
+        # self._hist_id = None
         if mode == SIMULATION:
             return
-        self._status = status.OK, ''
         # Set up the data consumer
         self._histograms_consumer = create_kafka_consumer(self.brokers[0])
         self._command_producer = create_kafka_producer(self.brokers[0])
 
-        self._command_id = None
-        self._hist_id = None
-
     def doInit(self, mode):
         self._zero_data()
+        if mode == SIMULATION:
+            return
         self._histograms_consumer.subscribe([self.hist_topic])
         self._processor = createThread('message_processor',
                                        self._get_new_messages)
@@ -324,3 +328,8 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
 
     def doStatus(self, maxage=0):
         return self._status
+
+    def doReset(self):
+        self._hist_id = 'all'
+        self.doStop()
+        self._status = status.OK, ''

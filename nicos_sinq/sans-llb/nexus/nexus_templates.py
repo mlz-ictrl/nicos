@@ -23,70 +23,12 @@
 
 from copy import deepcopy
 
-from nicos import session
-from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED
-from nicos.nexus.elements import CalcData, ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, NamedImageDataset, NexusSampleEnv, \
-    NXAttribute, NXLink, NXTime
+from nicos.nexus.elements import ConstDataset, DetectorDataset, \
+    DeviceAttribute, DeviceDataset, NamedImageDataset, NXAttribute, NXLink, \
+    NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_sinq.nexus.specialelements import OptionalDeviceDataset
-
-
-class SliceImage(CalcData):
-    """
-    For SANS-LLB we need to select a subset of the data from the high Q
-    detector. This is done in this class.
-    """
-    def __init__(self, image_name, x_dim,  start_y, end_y, **attrs):
-        self._start_y = start_y
-        self._end_y = end_y
-        self._x_dim = x_dim
-        self._image_name = image_name
-        self.dtype = 'int32'
-        self._detectorIDX = -1
-        self._imageIDX = -1
-        CalcData.__init__(self, **attrs)
-
-    def _shape(self, dataset):
-        n = self._end_y - self._start_y
-        if n > 1:
-            return self._x_dim, self._end_y - self._start_y
-        else:
-            session.log.error('Invalid slice data for %s', self._image_name)
-            return 0, 0
-
-    def locateImage(self, dataset):
-        detID = 0
-        imageID = 0
-        for det in dataset.detectors:
-            arList = det.arrayInfo()
-            for ar in arList:
-                if ar.name == self._image_name:
-                    self._detectorIDX = detID
-                    self._imageIDX = imageID
-                    break
-                imageID += 1
-            detID += 1
-        if detID == -1 or imageID == -1:
-            self.log.warning('Cannot find named image %s', self._image_name)
-
-    def _calcData(self, dataset):
-        if self._imageIDX == -1:
-            self.locateImage(dataset)
-        if self._imageIDX == -1:
-            return None
-        det = dataset.detectors[self._detectorIDX]
-        # Be persistent in getting at array data
-        arrayData = det.readArrays(FINAL)
-        if arrayData is None:
-            arrayData = det.readArrays(INTERRUPTED)
-            if arrayData is None:
-                arrayData = det.readArrays(INTERMEDIATE)
-        if arrayData is not None:
-            data = arrayData[self._imageIDX]
-            return data[:, self._start_y:self._end_y]
-
+from nicos_sinq.nexus.specialelements import SaveSampleEnv
 
 sansllb_default = {
     "NeXus_Version": "4.4.0",
@@ -135,7 +77,7 @@ sansllb_default = {
             "data": NXLink('/entry0/SANS-LLB/left_detector/data'),
         },
         "bottom_detector:NXdata": {
-            "data": NXLink('/entry0/SANS-LLB/bottom_detector/data'),
+             "data": NXLink('/entry0/SANS-LLB/bottom_detector/data'),
         },
     }
 }  # root
@@ -184,8 +126,8 @@ central_detector = {
     "distance": DeviceDataset("dthz"),
     "distance_set": DeviceDataset("dthz", parameter="target"),
     "z_offset": DeviceDataset("dthz", parameter="offset"),
-    "data": NamedImageDataset('low_q'),
-    "raw_data": NamedImageDataset('low_q_raw'),
+    "data": NamedImageDataset('main_det'),
+    "raw_data": NamedImageDataset('det_image'),
     "x_pixel_size": ConstDataset(5, float,
                                  units=NXAttribute("mm", "string")),
     "y_pixel_size": ConstDataset(5, float,
@@ -205,8 +147,8 @@ left_detector = {
     "distance": DeviceDataset("dtlz"),
     "distance_set": DeviceDataset("dtlz", parameter="target"),
     "z_offset": DeviceDataset("dtlz", parameter="offset"),
-    "data": SliceImage('high_q', 64, 0, 16),
-    "raw_data": SliceImage('high_q_raw', 256,  0, 16),
+    "data": NamedImageDataset('side_det'),
+    # "raw_data": SliceImage('high_q_raw', 256,  0, 16),
     "x_pixel_size": ConstDataset(12.7, float,
                                  units=NXAttribute("mm", "string")),
     "y_pixel_size": ConstDataset(5, float,
@@ -225,8 +167,7 @@ bottom_detector = {
     "distance": DeviceDataset("dtlz"),
     "distance_set": DeviceDataset("dtlz", parameter="target"),
     "z_offset": DeviceDataset("dtlz", parameter="offset"),
-    "data": SliceImage('high_q', 64, 16, 32),
-    "raw_data": SliceImage('high_q_raw', 256,  16, 32),
+    "data": NamedImageDataset('lower_det'),
     "x_pixel_size": ConstDataset(12.7, float,
                                  units=NXAttribute("mm", "string")),
     "y_pixel_size": ConstDataset(5, float,
@@ -239,10 +180,6 @@ bottom_detector = {
 
 sample_common = {
     "name": DeviceDataset("Sample", "samplename"),
-    "hugo": NexusSampleEnv(postfix='_log'),
-    "temperature": OptionalDeviceDataset("temperature", "value",
-                                         defaultval=0.0),
-    "magnetic_field": OptionalDeviceDataset("mf", "value", defaultval=0.0),
     "x": DeviceDataset("stx"),
     "x_set": DeviceDataset("stx", parameter="target"),
     "y": DeviceDataset("sty"),
@@ -251,6 +188,7 @@ sample_common = {
     "z_set": DeviceDataset("stz", parameter="target"),
     "omega": DeviceDataset("stom"),
     "sgu": DeviceDataset("stgn"),
+    "lieselotte": SaveSampleEnv(),
 }
 
 
