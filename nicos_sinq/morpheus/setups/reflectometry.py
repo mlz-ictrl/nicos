@@ -5,3 +5,7 @@ group = 'basic'
 includes = ['morpheus', 'slits', 'monochromator']
 
 excludes = ['a34_aliases', 'diffraction', 'tas']
+
+startupcode = '''
+wavelength.unit='A'
+'''
