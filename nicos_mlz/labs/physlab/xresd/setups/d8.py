@@ -1,5 +1,6 @@
 description = 'D8 x-ray instrument'
-group = 'optional'
+
+group = 'lowlevel'
 
 tango_base = configdata('instrument.values')['tango_base'] + 'box/bruker/'
 
