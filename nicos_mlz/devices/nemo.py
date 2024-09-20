@@ -51,7 +51,7 @@ def NemoAliasEntry(val=None):
         raise ValueError('NemoAliasEntry entry needs to be a 2/3-tuple '
                          '(name, accesslevel, isLocalContact(optional))')
     # pylint: disable=unbalanced-tuple-unpacking
-    localcontactstatus = bool(val[3]) if len(val) == 3 else False
+    localcontactstatus = bool(val[2]) if len(val) == 3 else False
     user, _p, level = UserPassLevelAuthEntry((val[0], '', val[1]))
     return tuple((user, level, localcontactstatus))
 
