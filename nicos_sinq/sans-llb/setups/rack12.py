@@ -57,7 +57,6 @@ devices = dict(
         right = 'sl5xn',
         top = 'sl5yp',
         bottom = 'sl5yn',
-        lowlevel = False
     ),
     sl5xw = device('nicos.core.device.DeviceAlias',
         description = 'slit  5 width',
@@ -115,7 +114,6 @@ devices = dict(
         right = 'sl6xn',
         top = 'sl6yp',
         bottom = 'sl6yn',
-        lowlevel = False
     ),
     sl6xw = device('nicos.core.device.DeviceAlias',
         description = 'slit  6 width',
