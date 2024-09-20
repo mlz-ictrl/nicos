@@ -289,7 +289,7 @@ class Authenticator(BaseAuthenticator):
         if username in self.aliases:
             username, level, is_lc = self.aliases[username]
         else:
-            level = USER
+            level, is_lc = USER, False
         nemo = NemoWrapper(self.nemourl, self.log, is_lc)
         try:
             realname = nemo.login(self.instrument,
