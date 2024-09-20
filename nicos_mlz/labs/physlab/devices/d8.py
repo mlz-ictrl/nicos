@@ -56,14 +56,14 @@ class D8(Readable):
         'rdoor': Param('Status of the right door', type=str, volatile=True),
     }
 
-    def _reg(self):
-        return list(map(int, self._attached_registers.read()))
+    def _reg(self, maxage=0):
+        return list(map(int, self._attached_registers.read(maxage)))
 
     def doRead(self, maxage=0):
-        return ','.join(self._errors())
+        return ','.join(self._errors(maxage))
 
-    def _errors(self):
-        reg = self._reg()
+    def _errors(self, maxage=0):
+        reg = self._reg(maxage)
         s = []
         for key, msg in self.register_mapping.items():
             idx, bit, val = key
@@ -88,7 +88,7 @@ class D8(Readable):
         return 'open'
 
     def doStatus(self, maxage=0):
-        er = self._errors()
+        er = self._errors(maxage)
         if len(er) > 0:
             return status.ERROR, 'components faulty: %s' % er
         return status.OK, 'idle'
