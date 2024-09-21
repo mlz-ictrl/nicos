@@ -51,15 +51,10 @@ __all__ = [
 
 def _getQ(v, name):
     try:
-        if len(v) == 4:
-            return list(v)
-        elif len(v) == 3:
-            return [v[0], v[1], v[2], 0]
-        else:
-            raise TypeError
-    except TypeError:
-        raise UsageError('%s must be a sequence of (h, k, l) or (h, k, l, E)'
-                         % name) from None
+        return list(Q(v))
+    except ValueError as e:
+        raise UsageError(f'{name} must contain only numbers') from e
+    raise UsageError(f'{name} must be a sequence of (h, k, l) or (h, k, l, E)')
 
 
 def _handleQScanArgs(fn, args, kwargs, Q, dQ, numpoints):
@@ -80,23 +75,20 @@ def _handleQScanArgs(fn, args, kwargs, Q, dQ, numpoints):
             envlist.append(arg)
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
+    argmap = {
+        'h': (Q, 0),
+        'k': (Q, 1),
+        'l': (Q, 2),
+        'e': (Q, 3),
+        'dh': (dQ, 0),
+        'dk': (dQ, 1),
+        'dl': (dQ, 2),
+        'de': (dQ, 3),
+    }
     for key, value in kwargs.items():
-        if key in ['h', 'H']:
-            Q[0] = value
-        elif key in ['k', 'K']:
-            Q[1] = value
-        elif key in ['l', 'L']:
-            Q[2] = value
-        elif key in ['e', 'E']:
-            Q[3] = value
-        elif key in ['dh', 'dH']:
-            dQ[0] = value
-        elif key in ['dk', 'dK']:
-            dQ[1] = value
-        elif key in ['dl', 'dL']:
-            dQ[2] = value
-        elif key in ['de', 'dE']:
-            dQ[3] = value
+        if t := argmap.get(key.lower()):
+            qObj, idx = t
+            qObj[idx] = float(value)
         elif key in session.devices and \
                 isinstance(session.devices[key], Moveable):
             if isinstance(value, list):
@@ -193,6 +185,7 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
         scan = QScan(values, move, multistep, detlist, envlist, preset,
                      scaninfo)
         scan.run()
+
 
 qscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qscan(Q, dQ, ')
 qcscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qcscan(Q, dQ, ')
@@ -372,6 +365,7 @@ def pos2hkl(phi=None, psi=None, **kwds):
         read(instr)
     else:
         instr._reverse_calpos(phi, psi, **kwds)
+
 
 rp = pos2hkl
 

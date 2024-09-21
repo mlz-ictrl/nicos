@@ -34,6 +34,7 @@ from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.analyze import COLHELP, _getData, findpeaks
 from nicos.commands.measure import _count
 from nicos.commands.scan import ADDSCANHELP2, _infostr, cscan, scan
+from nicos.commands.tas import _getQ
 from nicos.core import FINAL, Measurable, Moveable, NicosError, Readable, Scan
 from nicos.core.errors import ConfigurationError, LimitError, UsageError
 from nicos.core.utils import multiWait
@@ -1063,19 +1064,6 @@ def PeakSearch(reflist=None, threshold=100, **preset):
                         rfl.append(None, tuple(maxang), None)
                     else:
                         session.log.warning('Failed centering at phi = %f', p)
-
-
-def _getQ(v, name):
-    try:
-        if len(v) == 4:
-            return list(v)
-        elif len(v) == 3:
-            return [v[0], v[1], v[2], 0]
-        else:
-            raise TypeError
-    except TypeError:
-        raise UsageError('%s must be a sequence of (h, k, l) or (h, k, l, E)'
-                         % name) from None
 
 
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):

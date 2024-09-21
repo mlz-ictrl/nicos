@@ -225,15 +225,18 @@ def test_qscan(session, tas):
     qscan([1, 0, 0, 0], (0, 0, 0, 0), 1)
     qscan(array((1, 0, 0, 0)), array([0, 0, 0, 0]), 1)
 
-    assert raises(TypeError, qscan, '1000', (0, 0, 0, 0), 1)
-    assert raises(TypeError, qscan, 'XYZ', (0, 0, 0, 0), 1)
-    assert raises(TypeError, qscan, (1, 0, 0, "2"), [0, 0, "0.2", 0], 1)
+    qscan((1, 0, 0, '2'), [0, 0, '0.2', 0], 1)
+    qscan('1000', (0, 0, 0), 1)
+    qscan(1, 0.1, 1)
+    qscan((i for i in (1, 0, 0)), (0, 0, 0), 1)
 
-    assert raises(UsageError, qscan, 1, 1, 1)
+    qscan((2, 0, 0, '2'), (0.1, 0, 0, 0), 10, 'x1!', 'x23', t=1, h=3, dE=0.2)
+    qscan((2, 0, 0, '2'), (0.1, 0, 0, 0), 10, 'x1!', 'x23', t=1, h=3, dE='0.2')
+
+    assert raises(UsageError, qscan, 'abc', (0, 0, 0), 1)
     assert raises(UsageError, qscan, (1, 0, 0, 0, 0), (0, 0, 0), 10)
     assert raises(UsageError, qscan, (1, 0, 0), (0, 0, 0), 10)
     assert raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
-    assert raises(UsageError, qscan, (i for i in (1, 0, 0)), (0, 0, 0), 1)
 
 
 def test_tas_commands(session, log, tas):

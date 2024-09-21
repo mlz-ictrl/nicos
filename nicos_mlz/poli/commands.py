@@ -36,6 +36,7 @@ from nicos.commands.analyze import center_of_mass, gauss
 from nicos.commands.basic import Remark
 from nicos.commands.device import maw, move, read
 from nicos.commands.scan import _infostr, contscan, cscan
+from nicos.commands.tas import Q
 from nicos.core import Measurable, Moveable, NicosError, Readable, UsageError
 from nicos.core.constants import SIMULATION
 from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, Scan
@@ -368,12 +369,11 @@ def pos(*args, **kwds):
 
 def _getQ(v, name):
     try:
-        if len(v) == 3:
-            return list(v)
-        else:
-            raise TypeError
-    except TypeError:
-        raise UsageError('%s must be a sequence of (h, k, l)' % name) from None
+        if len(q := Q(v)) == 3:
+            return list(q)
+    except ValueError as e:
+        raise UsageError(f'{name} must contain only numbers') from e
+    raise UsageError(f'{name} must be a sequence of (h, k, l)')
 
 
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):

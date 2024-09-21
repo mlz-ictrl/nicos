@@ -40,6 +40,7 @@ def test_Q():
     assert all(Q(1, 0, 0) == [1, 0, 0, 0])
     assert all(Q(1, 0, 0, 5) == [1, 0, 0, 5])
     assert all(Q(h=1, E=5) == [1, 0, 0, 5])
+    assert all(Q(h=1, E='5') == [1, 0, 0, 5])
 
     # mixture of setting hkle values via list or kwds
     q1 = Q(1, 2, 3, 4)
