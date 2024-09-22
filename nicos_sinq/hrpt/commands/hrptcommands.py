@@ -45,7 +45,7 @@ def sarot(op=None):
         motc.execute('ac 3 0')
         return 'ok'
     else:
-        session.log.error('Wrong argument to sarot: only inderstand None, on, off')
+        session.log.error('Wrong argument to sarot: only understand None, on, off')
 
 @usercommand
 @helparglist('offset,divisor,length')
