@@ -5,6 +5,9 @@ devices = dict(
     NemoAuth = device('nicos_mlz.devices.nemo.Authenticator',
         nemourl = 'https://physicslab.frm2.tum.de',
         instrument = 24,
+        aliases = {
+            'bveltel': ('bveltel', 'admin', True),
+        },
     ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
@@ -20,16 +23,8 @@ devices = dict(
         ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        # 'localhost' will normally bind the daemon to the loopback
-        # device, therefore just clients on the same machine will be
-        # able to connect !
-        # '' will bind these daemon to all network interfaces in the
-        # machine
-        # If server is a hostname (official computer name) or an IP
-        # address the daemon service will be bound the the
-        # corresponding network interface.
         server = 'localhost',
-        authenticators = ['NemoAuth', 'Auth'],
+        authenticators = ['NemoAuth'], # 'Auth'],
         loglevel = 'info',
     ),
 )
