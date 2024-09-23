@@ -8,7 +8,6 @@ devices = dict(
         sender = 'nectar@frm2.tum.de',
         copies = [
             ('adrian.losko@frm2.tum.de', 'all'),
-            ('thomas.buecherl@tum.de', 'all'),
             ('michael.schulz@frm2.tum.de', 'important'),
         ],
         subject = '[NECTAR]',
@@ -18,7 +17,6 @@ devices = dict(
         sender = 'nectar@frm2.tum.de',
         copies = [
             ('adrian.losko@frm2.tum.de', 'all'),
-            ('thomas.buecherl@tum.de', 'all'),
             ('michael.schulz@frm2.tum.de', 'important'),
         ],
         subject = '[NECTAR]',
