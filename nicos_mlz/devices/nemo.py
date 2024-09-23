@@ -130,7 +130,7 @@ class NemoWrapper(NemoConnector):
         """
         sessions = self.getTodaysSessions()
         if session.experiment.proptype == 'user':
-            if not any(ses['proposal_number'] == session.experiment.proposal
+            if not any(ses['id'] == session.experiment.proposal
                        for ses in sessions):
                 raise AuthenticationError(
                     'user is neither local contact nor member of current proposal'
@@ -195,13 +195,13 @@ class NemoWrapper(NemoConnector):
                     "error querying today's sessions from NEMO", exc=1)
                 return []
         if proposal is not None:
-            sessions = [ses for ses in sessions if ses['id'] == proposal]
+            sessions = [ses for ses in sessions if ses['id'] == int(proposal)]
         for ses in sessions:
             try:
                 res = self.queryExperiment(ses['id'], sessions)
             except Exception:
                 session.log.warning("error querying session %s",
-                                    ses['number'],
+                                    ses['id'],
                                     exc=1)
             else:
                 result.append(res)
@@ -216,14 +216,14 @@ class NemoWrapper(NemoConnector):
             sessions = self.getTodaysSessions()
         sessinfo = [s for s in self.getTodaysSessions()
                     if s['id'] == sessid][0]
-        session.log.debug('session data: %r', sessinfo)
+        self.log.info('session data: %r', sessinfo)
 
         info = {}
-        info['proposal'] = sessinfo['id']
-        info['session'] = sessinfo['id']
+        info['proposal'] = str(sessinfo['id'])
+        info['session'] = str(sessinfo['id'])
         info['title'] = sessinfo['title']
         info['cycle'] = ''
-        info['instrument'] = sessinfo['tools']['name']
+        info['instrument'] = sessinfo['tool']['name']
         info['startdate'] = datetime.fromisoformat(sessinfo['start'])
         info['enddate'] = datetime.fromisoformat(sessinfo['end'])
         qd = sessinfo.get('question_data')
