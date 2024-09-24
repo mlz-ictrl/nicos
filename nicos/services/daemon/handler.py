@@ -197,7 +197,11 @@ class ConnectionHandler:
             password = rsa.decrypt(b64decode(password[4:]), privkey).decode()
 
         # check login data according to configured authentication
-        login = credentials[0]['login']
+        login = credentials[0]['login'].strip()
+        if not login:
+            self.log.error('No login given!')
+            self.send_error_reply('No username, please identify yourself!')
+            raise CloseConnection
         self.log.info('auth request from login %r', login)
         if authenticators:
             auth_err = None

@@ -62,9 +62,6 @@ class Authenticator(BaseAuthenticator):
     }
 
     def authenticate(self, username, password):
-        username = username.strip()
-        if not username:
-            raise AuthenticationError('No username, please identify yourself!')
         # check for exact match (also matches empty password if username
         # matches)
         password_ks = nicoskeystore.getCredential(username,

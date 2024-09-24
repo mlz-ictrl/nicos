@@ -76,9 +76,6 @@ class Authenticator(BaseAuthenticator):
         return password
 
     def authenticate(self, username, password):
-        username = username.strip()
-        if not username:
-            raise AuthenticationError('No username, please identify yourself!')
         # check for exact match (also matches empty password if username
         # matches)
         for (user, pw, level) in self.passwd:
