@@ -45,8 +45,8 @@ class Shutter(NamedDigitalOutput):
 
     def doStart(self, target):
         if target not in (0, 'closed'):
-            if D8.ldoor == 'open':
+            if self._attached_d8.ldoor != 'locked':
                 raise HardwareError(self, 'Left door is OPEN, please check it')
-            if D8.rdoor == 'open':
+            if self._attached_d8.rdoor != 'locked':
                 raise HardwareError(self, 'Right door is OPEN, please check it')
         NamedDigitalOutput.doStart(self, target)
