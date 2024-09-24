@@ -156,14 +156,13 @@ class NemoWrapper(NemoConnector):
         today = datetime.combine(date.today(), time.min, tz)
         delta = timedelta(days=1)
 
-        # nemo only returns reservation where start is > dt_from, so we need to filter ourselfs
+        # filter all reservations where start is < today+1 day
+        # (so starting on or before the current day)
+        # and end is > today (so ending today or later)
         sessions = self.get_reservations(tool_id=self.nemo_instrument,
-                                         dt_from=today - delta)
-        return [
-            ses for ses in sessions
-            if datetime.fromisoformat(ses['start']) < datetime.now(
-                tz=tz) < datetime.fromisoformat(ses['end'])
-        ]
+                                         dt_start_before=today + delta,
+                                         dt_end_after=today)
+        return sessions
 
     def canStartProposal(self, proposal):
         """Check if current user may start this proposal."""
