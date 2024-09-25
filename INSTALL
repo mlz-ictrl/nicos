@@ -124,7 +124,7 @@ where 'distro' stands for:
 
 * Optional components::
 
-     apt-get install python3-{ldap3,docutils,serial,matplotlib,astropy,h5py,markdown,opencv,pika}
+     apt-get install python3-{ldap3,docutils,serial,matplotlib,astropy,h5py,markdown,opencv,pika,tz}
      apt-get install frappy-core
      apt-get install python3-{kafka,confluent-kafka,pyepics}
 
