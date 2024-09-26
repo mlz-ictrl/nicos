@@ -5,7 +5,7 @@ group = 'basic'
 includes = [
     'd8',
     'dectris',
-    'hv',
+    # 'hv',
     'incident',
     'sample',
     'shutter',
