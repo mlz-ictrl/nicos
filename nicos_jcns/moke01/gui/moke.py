@@ -51,9 +51,10 @@ class MokePlot(LiveWidget1D):
         self._curves = []
         self._n = 0
 
-    def add_curve(self, curve, x=None, y=None, dx=None, dy=None, legend=None):
+    def add_curve(self, curve, legend=None):
         self._n += 1
         color = self._n % 7 if self._n % 7 else 7
+        x = y = dx = dy = None
         if curve:
             x = [i for i, _ in curve]
             y = [i for _, i in curve]
@@ -130,10 +131,10 @@ class MokeBase(Panel):
             return
         # upd IntvB plot with mean curve and fits
         x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])])
-        self.plot_IntvB.add_curve([], x=x, y=fit_min[0] * x + fit_min[1],
-                             legend='Fit min')
-        self.plot_IntvB.add_curve([], x=x, y=fit_max[0] * x + fit_max[1],
-                             legend='Fit max')
+        self.plot_IntvB.add_curve(list(zip(x, fit_min[0] * x + fit_min[1])),
+                                  legend='Fit min')
+        self.plot_IntvB.add_curve(list(zip(x, fit_max[0] * x + fit_max[1])),
+                                  legend='Fit max')
         self.plot_IntvB.add_curve(IntvB, legend='Mean')
         # show EvB plot and kerr angle
         self.plot_EvB.reset()
