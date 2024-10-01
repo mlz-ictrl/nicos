@@ -5,6 +5,9 @@ devices = dict(
     NemoAuth = device('nicos_mlz.devices.nemo.Authenticator',
         nemourl = 'https://physicslab.frm2.tum.de',
         instrument = 23,
+        aliases = {
+            'bveltel': ('bveltel', 'admin', True),
+        },
     ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
