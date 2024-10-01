@@ -11,7 +11,11 @@ main_window = docked(
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
-           dockpos='right'),
+           dockpos='right',
+           param_display={
+               'd8': ['ldoor', 'rdoor'],
+           },
+           ),
     ),
     ('Experiment Information and Setup',
      panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
