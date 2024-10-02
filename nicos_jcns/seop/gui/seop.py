@@ -255,7 +255,7 @@ class SeopSettingsPanel(Panel):
             widget.setText(value)
 
     def setEnabled(self, enabled):
-        self.setEnabled(enabled)
+        self.scrollArea.setEnabled(enabled)
 
     def setConfigData(self):
         widget = self.sender()
