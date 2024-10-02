@@ -403,10 +403,9 @@ class Experiment(Device):
             ensureDirectory(_dir, **self.managerights)
 
         # tell elog
-        if self.elog:
-            instname = session._instrument and session.instrument.instrument or ''
-            session.elogEvent('directory', (newproposalpath, instname,
-                                            path.basename(newproposalpath)))
+        instname = session._instrument and session.instrument.instrument or ''
+        session.elogEvent('directory', (newproposalpath, instname,
+                                        path.basename(newproposalpath)))
 
     def doWriteSampledir(self, newsampledir):
         # handle current symlink
@@ -486,21 +485,22 @@ class Experiment(Device):
             raise ConfigurationError(self, 'the sample device must now be '
                                      'named "Sample", please fix your system '
                                      'setup')
-        if self.elog and mode != SIMULATION:
+        if mode != SIMULATION:
             if not self.proposalpath:
                 self.log.warning('Proposalpath was not set, initiating a '
                                  'service experiment.')
                 self._setROParam('proposalpath',
                                  self.proposalpath_of(self.serviceexp))
                 self._setROParam('proptype', 'service')
-            ensureDirectory(path.join(self.proposalpath, 'logbook'),
-                            **self.managerights)
+            if self.elog:
+                ensureDirectory(path.join(self.proposalpath, 'logbook'),
+                                **self.managerights)
+                self._eloghandler = ELogHandler()
+                # only enable in master mode, see below
+                self._eloghandler.disabled = session.mode != MASTER
+                session.addLogHandler(self._eloghandler)
             session.elogEvent('directory', (self.proposalpath,
                                             instname, self.proposal))
-            self._eloghandler = ELogHandler()
-            # only enable in master mode, see below
-            self._eloghandler.disabled = session.mode != MASTER
-            session.addLogHandler(self._eloghandler)
         if not self.templates:
             self._setROParam('templates',
                              path.abspath(path.join(config.nicos_root,

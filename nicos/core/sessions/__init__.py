@@ -1347,7 +1347,7 @@ class Session:
     def elogEvent(self, eventtype, data):
         # NOTE: simulation mode is disconnected from cache, therefore no elog
         # events will be sent in simulation mode
-        if self.cache:
+        if self.cache and self.experiment and self.experiment.elog:
             self.cache.put_raw('logbook/' + eventtype + FLAG_NO_STORE, data)
 
     def scriptEvent(self, eventtype, data):
