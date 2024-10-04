@@ -46,12 +46,12 @@ class LimaCCDTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
     """
 
     parameters = {
-        '_starttime':   Param('Cached counting start time',
-                              type=float, default=0, settable=False,
-                              internal=True),
-        '_stoptime':    Param('Cached counting start time',
-                              type=float, default=0, settable=False,
-                              internal=True),
+        '_starttime': Param('Cached counting start time',
+                            type=float, default=0, settable=False,
+                            internal=True),
+        '_stoptime':  Param('Cached counting start time',
+                            type=float, default=0, settable=False,
+                            internal=True),
     }
 
     def doWritePreselection(self, value):
@@ -87,6 +87,7 @@ class LimaCCDTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
         return [(self.tangodevice,
                  f'lima {self._dev.lima_version}, '
                  f'tango {self._dev.get_tango_lib_version() / 100:.02f}')]
+
 
 class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     """
@@ -248,9 +249,9 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             elif deltaTime <= (self._curexpotime):
                 remaining = self._curexpotime - deltaTime
                 limaStatus += ' (Exposing; Remaining: %.2f s)' % remaining
-            elif self._shutter and deltaTime <= (self._curshutteropentime +
-                                                 self._curexpotime +
-                                                 self._curshutterclosetime):
+            elif self._shutter and deltaTime <= sum(self._curshutteropentime,
+                                                    self._curexpotime,
+                                                    self._curshutterclosetime):
                 limaStatus += ' (Closing shutter)'
             else:
                 limaStatus += ' (Readout)'
