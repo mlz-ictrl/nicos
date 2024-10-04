@@ -25,6 +25,7 @@
 
 import subprocess
 import time
+from functools import partial
 from os import path
 from select import select
 from threading import Thread
@@ -60,9 +61,7 @@ class CommandsTool(QDialog):
         for i, (text, cmd) in enumerate(commands):
             btn = QPushButton(text, self)
             self.buttonLayout.addWidget(btn, i % collen, i // collen)
-            def btncmd(bcmd=cmd):
-                self.execute(bcmd)
-            btn.clicked[()].connect(btncmd)
+            btn.clicked.connect(partial(self.execute, cmd))
 
     def execute(self, cmd):
         self.outputBox.setPlainText('[%s] Executing %s...\n' %
