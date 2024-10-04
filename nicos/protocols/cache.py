@@ -341,7 +341,9 @@ def ast_eval(node):
                 return left + right
             else:
                 return left - right
-        elif isinstance(node, Call) and node.func.id == 'cache_unpickle':
+        elif isinstance(node, Call) and \
+                isinstance(node.func, Name) and \
+                node.func.id == 'cache_unpickle':
             return pickle.loads(b64decode(ast_eval(node.args[0])))
         raise ValueError('malformed literal string with %s' % node)
     return _convert(node)
