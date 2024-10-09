@@ -24,7 +24,7 @@
 from math import radians
 
 import pytest
-from numpy import allclose, dot, sqrt
+from numpy import allclose, array, dot, sqrt
 
 from nicos.commands.measure import count
 from nicos.commands.tas import Q, _resmat_args, acc_bragg, alu, calpos, \
@@ -238,11 +238,20 @@ def test_qscan(session, tas):
           h=1, k=1, l=1, e=0, dH=0, dk=0, dl=0, dE=.1)
     qcscan((1, 0, 0), Q(0, 0, 0, 0.1), 3, manual=[1, 2])
     qscan((1, 0, 0), Q(0, 0, 0, 0), 1)
+    qscan((1, 0, 0, 0), Q(0, 0, 0, 0), 1)
+    qscan([1, 0, 0, 0], [0, 0, 0, 0], 1)
+    qscan([1, 0, 0, 0], (0, 0, 0, 0), 1)
+    qscan(array((1, 0, 0, 0)), array([0, 0, 0, 0]), 1)
+
+    assert raises(TypeError, qscan, '1000', (0, 0, 0, 0), 1)
+    assert raises(TypeError, qscan, 'XYZ', (0, 0, 0, 0), 1)
+    assert raises(TypeError, qscan, (1, 0, 0, "2"), [0, 0, "0.2", 0], 1)
 
     assert raises(UsageError, qscan, 1, 1, 1)
     assert raises(UsageError, qscan, (1, 0, 0, 0, 0), (0, 0, 0), 10)
     assert raises(UsageError, qscan, (1, 0, 0), (0, 0, 0), 10)
     assert raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
+    assert raises(UsageError, qscan, (i for i in (1, 0, 0)), (0, 0, 0), 1)
 
 
 def test_tas_commands(session, log, tas):
