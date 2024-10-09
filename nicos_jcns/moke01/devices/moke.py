@@ -108,17 +108,17 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                     self.fielddirection = 'increasing' if r[1] > r[0] else 'decreasing'
                     self._cycle = i // 2
                     for _B in numpy.linspace(*r):
-                        self.doStart(_B)
+                        self.start(_B)
                         self._hw_wait()
                         session.delay(mrmnt['steptime'])
                         B = None
                         while B is None:
                             with suppress(Exception):
-                                B = self.doRead()
+                                B = self.read(0)
                         Int = None
                         while Int is None:
                             with suppress(Exception):
-                                Int = self._intensity.doRead()
+                                Int = self._intensity.read(0)
                         self._BvI.append((self._field2current(_B).n, _B))
                         self._IntvB.append((ufloat(B, self._magsensor.readStd(B)),
                                             ufloat(Int, self._intensity.readStd(Int))))
@@ -128,7 +128,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                 IBmax = self._field2current(mrmnt['Bmax']).n
                 self.fielddirection = 'decreasing'
                 IBmin = self._field2current(mrmnt['Bmin']).n
-                self.doStart(mrmnt['Bmin'])
+                self.start(mrmnt['Bmin'])
                 self._hw_wait()
                 # runs the power supply in parallel thread
                 if not self._cycling_thread:
@@ -143,14 +143,14 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                 while self._cycling:
                     session.breakpoint(1)
                     try:
-                        B = self.doRead()
+                        B = self.read(0)
                     except Exception:
                         B = None
                     if B:
                         self._Bvt.append((time.time(),
                                           ufloat(B, self._magsensor.readStd(B))))
                     try:
-                        Int = self._intensity.doRead()
+                        Int = self._intensity.read(0)
                     except Exception:
                         Int = None
                     if Int:
@@ -193,13 +193,13 @@ class MokePowerSupply(PowerSupply):
     def doEnable(self, on):
         if not on:
             self.ramp = 400
-            PowerSupply.doStart(self, 0)
+            PowerSupply.start(self, 0)
             self._hw_wait()
         PowerSupply.doEnable(self, on)
 
     def doStart(self, target):
-        if self.doStatus()[0] == status.DISABLED:
-            self.doEnable(True)
+        if self.status(0)[0] == status.DISABLED:
+            self.enable()
             self._hw_wait()
         PowerSupply.doStart(self, target)
 
@@ -234,7 +234,7 @@ class MokeTeslameter(Sensor):
         value = abs(value)
         i = self._dev.GetProperties().index('range')
         _range = float(self._dev.GetProperties()[i + 1].split(' T')[0])
-        Tdeg = self._T.doRead()
+        Tdeg = self._T.read(0)
         years = int((datetime.now() -
                      datetime.strptime(self.calibration_date, '%Y-%m-%d')).days
                     / 365)

@@ -141,21 +141,20 @@ def test_calibration(session):
 @pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
 @pytest.mark.skipif(tango is None, reason='tango is missing')
 def test_intensity_measurement(session):
-    magb = session.getDevice('MagB')
     magsensor = session.getDevice('Mag_sensor')
-    # there is one extra read() during `measure_intensity`
-    magsensor.testqueue = [-400.0] + list(range(-400, 400, 40)) + \
+    # there are two extra read() calls during `measure_intensity`
+    magsensor.testqueue = [1, 2] + list(range(-400, 400, 40)) + \
                           list(range(400, -400, -40))
     magsensor.simulate = True
-    # 400 T are not real values, but these values are already in the cache
-    # after previous test
     mrmnt = {'Bmin': -400.0, 'Bmax': 400.0, 'ramp': 400.0, 'cycles': 1,
              'step': 40.0, 'steptime': 1, 'mode': 'stepwise',
              'exp_type': 'ell', 'field_orientation': 'polar', 'id': 'test'}
+    magb = session.getDevice('MagB')
     temp = magb.calibration.copy()
     temp['stepwise'][str(mrmnt['ramp'])] = Curves([[(-400, -400), (400, 400)],
                                                     [(400, 400), (-400, -400)]])
-    magb._check_calibration('stepwise', mrmnt['ramp'])
+    magb.calibration = temp
+    magb.userlimits = (-400, 400)
     magb.measure_intensity(mrmnt)
     assert magb.measurement['BvI'].x == magb.measurement['BvI'].y
     assert magb.measurement['BvI'].x == magb.measurement['IntvB'].x

@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param
+from nicos.core import Param, status
 from nicos.devices.generic import VirtualMotor
 
 
@@ -43,14 +43,17 @@ class VirtualSensor(VirtualMotor):
         self._i = -1
 
     def doRead(self, maxage=0):
-        if self.simulate:
+        if self.simulate and self._i < len(self.testqueue):
             self._i += 1
-            return self.testqueue[self._i] or VirtualMotor.doRead(self, maxage)
+            return self.testqueue[self._i]
         else:
             return VirtualMotor.doRead(self, maxage)
 
     def readStd(self, _):
         return 0
+
+    def status(self, maxage=None):
+        return status.OK, ''
 
 
 class VirtualPS(VirtualMotor):
@@ -65,3 +68,6 @@ class VirtualPS(VirtualMotor):
 
     def doReadRamp(self):
         return 400.0
+
+    def status(self, maxage=None):
+        return status.OK, ''

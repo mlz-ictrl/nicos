@@ -353,18 +353,18 @@ class MagnetWithCalibrationCurves(Magnet):
             self._stop_requested = False
 
     def doRead(self, maxage=0):
-        return self._attached_magsensor.doRead(maxage)
+        return self._attached_magsensor.read(maxage)
 
     def doStart(self, target):
         current = self._field2current(target).n
-        self._attached_currentsource.doStart(current)
+        self._attached_currentsource.start(current)
 
     def doStop(self):
-        self._attached_currentsource.doStop()
+        self._attached_currentsource.stop()
 
     def doStatus(self, maxage=0):
-        cs = self._attached_currentsource.doStatus(maxage)
-        ms = self._attached_magsensor.doStatus(maxage)
+        cs = self._attached_currentsource.status(maxage)
+        ms = self._attached_magsensor.status(maxage)
         return max(cs, ms)
 
     def doReset(self):
@@ -410,7 +410,7 @@ class MagnetWithCalibrationCurves(Magnet):
             self._cycle = len(self._cycling_steps) // 2
             self._cycling_steps.append(len(numpy.linspace(*r)))
             for i in numpy.linspace(*r):
-                self._attached_currentsource.doStart(i)
+                self._attached_currentsource.start(i)
                 self._Ivt.append((time.time(), i))
                 session.delay(dt)
                 self._progress += 1
@@ -439,7 +439,7 @@ class MagnetWithCalibrationCurves(Magnet):
         absmax = self._attached_currentsource.absmax
         self.mode = mode
         self.ramp = float(ramp)
-        self._attached_currentsource.doStart(self._attached_currentsource.absmin)
+        self._attached_currentsource.start(self._attached_currentsource.absmin)
         self._hw_wait()
 
         with_std = hasattr(self._attached_magsensor, 'readStd')
@@ -456,7 +456,7 @@ class MagnetWithCalibrationCurves(Magnet):
                 while self._cycling:
                     session.breakpoint(1)
                     try:
-                        B = self._attached_magsensor.doRead()
+                        B = self._attached_magsensor.read(0)
                     except Exception:
                         B = None
                     if B:
@@ -473,13 +473,13 @@ class MagnetWithCalibrationCurves(Magnet):
                 for r in ranges * n:
                     self._cycling_steps.append(len(numpy.linspace(*r)))
                     for i in numpy.linspace(*r):
-                        self._attached_currentsource.doStart(i)
+                        self._attached_currentsource.start(i)
                         # hardcoded 10 secs to reach quasi steady state condition
                         session.delay(10)
                         B = None
                         while B is None:
                             with suppress(Exception):
-                                B = self._attached_magsensor.doRead()
+                                B = self._attached_magsensor.read(0)
                         self._BvI.append((i, B if not with_std else
                                           ufloat(B, self._attached_magsensor.readStd(B))))
         finally:
