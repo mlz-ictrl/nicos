@@ -234,6 +234,8 @@ def Q(*args, **kwds):
     if len(args) == 1:
         try:
             nlen = len(args[0])
+            if nlen > 4:
+                raise UsageError('1 to 4 Q/E components are allowed')
         except TypeError:
             q[0] = args[0]
         else:
