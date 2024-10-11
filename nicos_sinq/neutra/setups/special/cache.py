@@ -2,7 +2,7 @@ description = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB = device('nicos.services.cache.server.FlatfileCacheDatabase',
+    DB = device('nicos.services.cache.database.FlatfileCacheDatabase',
         description = 'On disk storage for Cache Server',
         storepath = configdata('config.DATA_PATH') + 'cache',
         loglevel = 'info',

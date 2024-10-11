@@ -45,10 +45,7 @@ from nicos.core import Attach, Device, Param, host
 from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     OP_ASK, OP_LOCK, OP_REWRITE, OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     OP_UNSUBSCRIBE, OP_WILDCARD, line_pattern, msg_pattern
-# pylint: disable=unused-import
-from nicos.services.cache.database import CacheDatabase, \
-    FlatfileCacheDatabase, MemoryCacheDatabase, \
-    MemoryCacheDatabaseWithHistory
+from nicos.services.cache.database import CacheDatabase
 from nicos.utils import closeSocket, createThread, getSysInfo, loggers, \
     parseHostPort
 

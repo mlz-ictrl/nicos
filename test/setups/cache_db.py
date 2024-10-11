@@ -31,7 +31,7 @@ devices = dict(
         db = 'DB',
         loglevel = 'debug',
     ),
-    DB = device('nicos.services.cache.server.FlatfileCacheDatabase',
+    DB = device('nicos.services.cache.database.FlatfileCacheDatabase',
         storepath = 'altcache',
         loglevel = 'debug',
     ),

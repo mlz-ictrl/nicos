@@ -31,7 +31,7 @@ devices = dict(
         db = 'DB3',
         loglevel = 'debug',
     ),
-    DB3 = device('nicos.services.cache.server.MemoryCacheDatabaseWithHistory',
+    DB3 = device('nicos.services.cache.database.MemoryCacheDatabaseWithHistory',
         maxentries = 50,
         loglevel = 'debug',
     ),

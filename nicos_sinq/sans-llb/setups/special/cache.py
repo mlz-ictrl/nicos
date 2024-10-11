@@ -3,7 +3,7 @@ group = 'special'
 import os
 
 devices = dict(
-    DB = device('nicos.services.cache.server.FlatfileCacheDatabase',
+    DB = device('nicos.services.cache.database.FlatfileCacheDatabase',
         description = 'On disk storage for Cache Server',
         storepath = os.environ.get('NICOSDUMP', '.') + '/sans-llb/cache',
         loglevel = 'info',

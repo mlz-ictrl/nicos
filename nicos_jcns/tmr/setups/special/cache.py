@@ -2,7 +2,7 @@ description = 'setup for the TMR cache server'
 group = 'special'
 
 devices = dict(
-    DB = device('nicos.services.cache.server.FlatfileCacheDatabase',
+    DB = device('nicos.services.cache.database.FlatfileCacheDatabase',
         storepath = '/data/cache',
         loglevel = 'info',
     ),

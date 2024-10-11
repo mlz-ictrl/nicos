@@ -60,7 +60,7 @@ A simple setup file for the cache could look like this::
   group = 'special'
 
   devices = dict(
-      DB     = device('nicos.services.cache.server.FlatfileCacheDatabase',
+      DB     = device('nicos.services.cache.database.FlatfileCacheDatabase',
                       storepath = 'data/cache',
                      ),
 
