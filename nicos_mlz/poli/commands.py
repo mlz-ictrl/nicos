@@ -336,6 +336,7 @@ def pos2hkl(gamma=None, omega=None, nu=None):
             raise UsageError('must give either no angles or all angles')
         instr._reverse_calpos(gamma=gamma, omega=omega, nu=nu)
 
+
 rp = pos2hkl
 
 
@@ -838,6 +839,7 @@ n                                ! extended output
     session.log.info('')
     session.log.info('Use AcceptIndexing() to use this indexing.')
 
+
 IndexPeaks._last_result = None
 
 
@@ -1157,6 +1159,7 @@ def RefineMatrix(listname='default', **kwds):
 
     RefineMatrix._last_result = (new_cell, p.wavelength,
                                  p.delta_gamma, p.delta_nu)
+
 
 RefineMatrix._last_result = None
 

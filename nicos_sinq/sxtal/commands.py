@@ -576,7 +576,7 @@ def CenterList(reflist, **preset):
     if rfl is None:
         session.log.error('Reflection list %s not found', reflist)
         return
-    process_center(rfl,  **preset)
+    process_center(rfl, **preset)
 
 
 def write_rfl(r, **preset):
@@ -806,7 +806,7 @@ class HKLScan(Scan):
                      if v.name == session.instrument.center_counter][0]
             vals = [x[index] for x in subscan.detvaluelists]
             if vals:
-                _, _, intensity,  _ = window_integrate(vals)
+                _, _, intensity, _ = window_integrate(vals)
                 session.experiment.data.putResults(FINAL,
                                                    {'intensity': [intensity]})
         except LimitError:
