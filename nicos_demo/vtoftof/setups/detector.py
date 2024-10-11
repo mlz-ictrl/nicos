@@ -17,7 +17,7 @@ devices = dict(
         visibility = (),
         pollinterval = None,
     ),
-    image = device('nicos_mlz.toftof.devices.VirtualImage',
+    image = device('nicos_mlz.toftof.devices.virtual.VirtualImage',
         description = 'Image data device',
         fmtstr = '%d',
         pollinterval = None,

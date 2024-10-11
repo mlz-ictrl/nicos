@@ -50,8 +50,11 @@ Detector
 
 .. module:: nicos_mlz.toftof.devices.detector
 
-.. autoclass:: TOFTOFChannel()
 .. autoclass:: Detector()
+
+.. module:: nicos_mlz.toftof.devices.tof
+
+.. autoclass:: TOFTOFChannel()
 
 .. module:: nicos_mlz.toftof.devices.toni
 

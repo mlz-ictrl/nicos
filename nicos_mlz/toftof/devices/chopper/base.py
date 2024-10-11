@@ -59,8 +59,8 @@ class BaseChopperController(HasTimeout, Readable):
         'changetime': Param('Time of last change',
                             userparam=False, type=float,),
         'frametime': Param('Time between neutron pulses',
-                            unit='s', type=float, mandatory=False,
-                            volatile=True, category='general',),
+                           unit='s', type=float, mandatory=False,
+                           volatile=True, category='general',),
     }
 
     parameter_overrides = {

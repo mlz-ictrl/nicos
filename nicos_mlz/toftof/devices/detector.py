@@ -28,89 +28,13 @@ from time import time as currenttime
 import numpy
 
 from nicos import session
-from nicos.core import Attach, Moveable, NicosError, Override, Param, \
-    intrange, listof, status
+from nicos.core import Attach, Moveable, NicosError, Param, \
+    intrange, listof
 from nicos.core.constants import INTERMEDIATE, SIMULATION
-from nicos.devices.entangle import TOFChannel
 from nicos.devices.generic.detector import Detector as GenericDetector
 
 from nicos_mlz.toftof.devices.chopper import BaseChopperController
 from nicos_mlz.toftof.lib import calculations as calc
-
-
-class TOFTOFChannel(TOFChannel):
-    # This class is, unfortunately, not agnostic to hw specifics
-    parameters = {
-        'frametime': Param('Total width of all time bins in s',
-                           type=float, mandatory=False, volatile=True,
-                           default=0.1, category='general', settable=True,),
-        'monitorchannel': Param('Channel number of the monitor counter',
-                                type=intrange(1, 1024), settable=False,
-                                default=956,
-                                ),
-    }
-    parameter_overrides = {
-        'timechannels': Override(default=1024),
-        'timeinterval': Override(type=float, unit='s', volatile=True),
-        'delay':        Override(type=float, unit='s', volatile=True),
-    }
-
-    def doReadFrametime(self):
-        return self.doReadTimeinterval() * self.doReadTimechannels()
-
-    def doWriteFrametime(self, value):
-        self.doStop()
-
-        # as the HW can only realize selected values for timeinterval, probe
-        # until success
-        wanted_timeinterval = int(
-            (value / self.doReadTimechannels()) / calc.ttr) * calc.ttr
-        self.doWriteTimeinterval(wanted_timeinterval)
-        # note: if a doReadTimeinterval differs in value from a previous
-        #       doWriteTimeinterval,
-        #       HW does actually uses the returned value, not the wanted.
-        #       (in this case: returned < set) so, increase the wanted value
-        #       until the used one is big enough
-        actual_timeinterval = self.doReadTimeinterval()
-        while actual_timeinterval * self.timechannels < value:
-            wanted_timeinterval += calc.ttr
-            self.doWriteTimeinterval(wanted_timeinterval)
-            actual_timeinterval = self.doReadTimeinterval()
-
-    def doStop(self):
-        if self.doStatus()[0] == status.BUSY:
-            self._dev.Stop()
-
-    def doWriteTimechannels(self, value):
-        self.doStop()
-        self._dev.timeChannels = value
-
-    def doReadTimeinterval(self):
-        # our timeinterval is in s, entangle is in ns, in multiple of calc.ttr
-        return self._dev.timeInterval * 1e-9
-
-    def doWriteTimeinterval(self, value):
-        # our timeinterval is in s, entangle is in ns, in multiple of calc.ttr
-        self.doStop()
-        self._dev.timeInterval = int(value / calc.ttr) * int(calc.ttr * 1e9)
-
-    def doReadDelay(self):
-        # our delay is in s, entangle is in ns, in multiple of calc.ttr
-        return self._dev.delay * 1e-9
-
-    def doWriteDelay(self, value):
-        # our delay is in s, entangle is in ns, in multiple of calc.ttr
-        self.doStop()
-        self.log.debug('set counter delay: %f s', value)
-        value = int(value / calc.ttr) * int(calc.ttr * 1e9)
-        self.log.debug('set counter delay: %d ns', value)
-        self._dev.delay = value
-
-    def doReadArray(self, quality):
-        ndata = TOFChannel.doReadArray(self, quality)
-        self.readresult = [ndata[2:self.monitorchannel].sum() +
-                           ndata[self.monitorchannel + 1:].sum()]
-        return ndata
 
 
 class Detector(GenericDetector):

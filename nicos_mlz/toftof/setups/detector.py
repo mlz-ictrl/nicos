@@ -20,7 +20,7 @@ devices = dict(
         unit = 'cts',
         visibility = (),
     ),
-    image = device('nicos_mlz.toftof.devices.TOFTOFChannel',
+    image = device('nicos_mlz.toftof.devices.tof.TOFTOFChannel',
         description = 'The TOFTOF image',
         tangodevice = tango_base + 'toftof/det/histogram',
         timechannels = 1024,

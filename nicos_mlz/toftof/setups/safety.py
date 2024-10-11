@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/'
 
 devices = dict(
-    saf = device('nicos_mlz.toftof.devices.SafetyInputs',
+    saf = device('nicos_mlz.toftof.devices.safety.SafetyInputs',
         description = 'State of the safety control',
         i7053 = ['i7053_1', 'i7053_2', 'i7053_3'],
         fmtstr = '0x%012x',
@@ -37,7 +37,7 @@ devices = dict(
         tangodevice = tango_base + 'shutter/status',
         visibility = (),
     ),
-    shutter = device('nicos_mlz.toftof.devices.Shutter',
+    shutter = device('nicos_mlz.toftof.devices.safety.Shutter',
         description = 'Instrument shutter',
         open = 'shopen',
         close = 'shclose',

@@ -7,7 +7,7 @@ includes = ['choppermemograph']
 tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/rs232/'
 
 devices = dict(
-    ch = device('nicos_mlz.toftof.devices.Controller',
+    ch = device('nicos_mlz.toftof.devices.chopper.real.Controller',
         description = 'TOFTOF chopper control device',
         io = device('nicos.devices.entangle.StringIO',
             tangodevice = tango_base + 'ifchcontrol',
@@ -71,11 +71,11 @@ devices = dict(
         maxage = 12,
         unit = 'rpm',
     ),
-    chdelaybus = device('nicos_mlz.toftof.devices.ToniBus',
+    chdelaybus = device('nicos_mlz.toftof.devices.toni.ToniBus',
         tangodevice = tango_base + 'ifchdelay',
         visibility = (),
     ),
-    chdelay = device('nicos_mlz.toftof.devices.DelayBox',
+    chdelay = device('nicos_mlz.toftof.devices.toni.DelayBox',
         description = 'Trigger time-offset',
         requires = {'level': 'guest'},
         bus = 'chdelaybus',
