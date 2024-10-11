@@ -7,7 +7,7 @@ includes = ['rte1104']
 
 devices = {
     '%s_fg_freq' % setupname:
-        device('nicos_mlz.reseda.devices.RTE1104TimescaleSetting',
+        device('nicos_mlz.reseda.devices.rte1104.RTE1104TimescaleSetting',
             description = 'Frequency setting chain of subdevices: setting timescale',
             io = 'rte1104_io',
             freqgen = device('nicos.devices.entangle.AnalogOutput',
@@ -19,7 +19,7 @@ devices = {
                ),
         ),
      '%s_reg_amp' % setupname:
-        device('nicos_mlz.reseda.devices.RTE1104YScaleSetting',
+        device('nicos_mlz.reseda.devices.rte1104.RTE1104YScaleSetting',
             description = 'amplitude setting chain of subdevices: setting channel 2',
             io = 'rte1104_io',
             channel = 2,
@@ -164,7 +164,7 @@ devices = {
                 fmtstr = '%.0f',
             ),
         ),
-    '%s_coil_rms' % setupname: device('nicos_mlz.reseda.devices.RTE1104',
+    '%s_coil_rms' % setupname: device('nicos_mlz.reseda.devices.rte1104.RTE1104',
        description = 'rms Coil voltage (Input Channel 2)',
        io = 'rte1104_io',
        channel = 2,
