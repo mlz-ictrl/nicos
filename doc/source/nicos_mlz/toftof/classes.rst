@@ -4,9 +4,11 @@
 Chopper
 -------
 
+.. module:: nicos_mlz.toftof.devices.chopper.real
+.. autoclass:: Controller()
+
 .. module:: nicos_mlz.toftof.devices.chopper
 
-.. autoclass:: Controller()
 .. autoclass:: SpeedReadout()
 .. .. autoclass:: PropertyChanger()
 .. autoclass:: Wavelength()
