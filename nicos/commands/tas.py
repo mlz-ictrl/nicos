@@ -236,6 +236,8 @@ def Q(*args, **kwds):
         try:
             if isinstance(arg0, str):
                 arg0 = arg0.strip().split()
+            else:
+                arg0 = list(arg0)
             nlen = len(arg0)
             if nlen > 4:
                 raise UsageError('1 to 4 Q/E components are allowed')

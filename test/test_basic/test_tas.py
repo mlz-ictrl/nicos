@@ -67,10 +67,16 @@ def test_Q():
     assert all(Q('-1 0 -1 0') == [-1, 0, -1, 0])
     assert all(Q('') == [0, 0, 0, 0])
 
+    # using a generator as Q value input
+    assert all(Q((i for i in (1, 0))) == [1, 0, 0, 0])
+    assert all(Q((i for i in (1, 0, 0))) == [1, 0, 0, 0])
+    assert all(Q((i for i in (1, 0, 0, 0))) == [1, 0, 0, 0])
+
+    # length errors, more than 4 elements
     assert raises(UsageError, Q, 1, 2, 3, 4, 5)
     assert raises(UsageError, Q, (1, 2, 3, 4, 5))
     assert raises(UsageError, Q, '1 2 3 4 5')
-    assert raises(TypeError, Q, (i for i in (1, 0, 0)))
+    assert raises(UsageError, Q, (i for i in (1, 0, 0, 0, 0)))
 
 
 def test_getspacegroup():
