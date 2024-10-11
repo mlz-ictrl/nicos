@@ -1,6 +1,7 @@
 # pylint: skip-file
 # GoldenRatioTomo 1.1
 
+# test: needs = tango
 # test: needs = astropy
 # test: setups = nectar, servostar, detector
 # test: setupcode = SetDetectors(det)

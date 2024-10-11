@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = tango
 # test: setups = hexapod
 
 # move to initial position

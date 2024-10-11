@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = tango
 # test: setups = dns
 
 # Typical sample-detector scan with different fields per point.

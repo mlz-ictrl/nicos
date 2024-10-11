@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = tango
 # test: needs = astropy
 # test: needs = cv2
 # test: setups = detbox_blackbox

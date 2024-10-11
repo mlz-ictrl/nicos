@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = tango
 # test: needs = astropy
 # test: setups = nectar, servostar, detector
 # test: setupcode = SetDetectors(det)

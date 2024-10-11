@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = tango
 # test: subdirs = poli
 # test: setups = diffraction, mono
 # test: setupcode = SetDetectors(det)

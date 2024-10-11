@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = tango
 # test: setups = dns, dnsplotfiles
 # test: setupcode = SetDetectors(det)
 

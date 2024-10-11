@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = tango
 # test: subdirs = frm2
 # test: setups = sans1, selector042
 # test: setupcode = SetDetectors(det1)

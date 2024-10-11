@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = tango
 # test: needs = dataparser
 # test: subdirs = frm2
 # test: subdirs = spodi
