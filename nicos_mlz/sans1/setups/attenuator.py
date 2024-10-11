@@ -11,7 +11,7 @@ group = 'lowlevel'
 tango_base = 'tango://hw.sans1.frm2.tum.de:10000/col/col-1/'
 
 devices = dict(
-    att = device('nicos_mlz.sans1.devices.collimotor.Switcher',
+    att = device('nicos_mlz.sans1.devices.collimator.switcher.Switcher',
         description = 'Attenuator',
         mapping = dict(dia10=15.626, x10=108.626, x100=201.626, x1000=294.626, open=387.626),
         moveable = 'att_a',

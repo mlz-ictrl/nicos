@@ -26,11 +26,8 @@
 
 from time import localtime, strftime, time as currenttime
 
-from tango import DevState
-
 from nicos.core import Attach, HasPrecision, InvalidValueError, Moveable, \
     Override, Param, PositionError, Readable, listof, status, tupleof
-from nicos.devices.entangle import Motor as TangoMotor, PowerSupply
 from nicos.devices.generic.sequence import BaseSequencer, \
     LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, SeqSleep
 from nicos.devices.generic.switcher import Switcher
@@ -70,62 +67,6 @@ class VoltageSwitcher(Switcher):
             if self.target == 'LOW' and self._attached_moveable.read(0) < 70:
                 return status.OK, 'below 70V'
         return move_status
-
-
-class VoltageSupply(PowerSupply):
-    """work around a bug either in the Tango server or in the hv supply itself
-
-    basically the idle status is returned at the end of the ramp,
-    even if the output voltage is nowhere near the target value
-    """
-    parameters = {
-        '_stopflag': Param('Supply was stopped',
-                           type=bool, settable=True, mandatory=False,
-                           internal=True, default=False),
-    }
-
-    parameter_overrides = {
-        'timeout':   Override(default=90),
-        'precision': Override(volatile=True),
-    }
-
-    _last_st = status.OK, ''
-
-    def timeoutAction(self):
-        if self.target is not None:
-            self.log.warning('Timeout! retrying once to reach %s',
-                             self.format(self.target, unit=True))
-            # start() would clear timeoutActionCalled Flag
-            self.start(self.target)
-
-    def doStart(self, target):
-        self._stopflag = False
-        PowerSupply.doStart(self, target)
-
-    def doStatus(self, maxage=0):
-        # suppress intermittent tripped messages
-        st = PowerSupply.doStatus(self, maxage)
-        if st[0] == status.ERROR and 'trip' in st[1]:
-            if 'trip' not in self._last_st[1]:
-                st = (status.WARN, st[1])
-        self._last_st = st
-        return st
-
-    def doStop(self):
-        self._stopflag = True
-        PowerSupply.doStop(self)
-        self.wait()
-        PowerSupply.doStart(self, self.read(0))
-        self.wait()
-
-    def doReset(self):
-        self._stopflag = False
-        self._dev.Reset()
-
-    def doReadPrecision(self):
-        if self.target == 1:
-            return 69
-        return 3
 
 
 class HV(BaseSequencer):
@@ -268,7 +209,7 @@ class HVOffDuration(Readable):
         'hv_supply': Attach('HV Device', HV),
     }
     parameter_overrides = {
-        'unit':      Override(mandatory=False),
+        'unit': Override(mandatory=False),
     }
 
     valuetype = str
@@ -281,11 +222,6 @@ class HVOffDuration(Readable):
             secs = int(secs) % 60
             return '%g:%02d:%02d' % (hours, mins, secs)
         return 'never'
-
-
-class ZMotor(TangoMotor):
-    tango_status_mapping = TangoMotor.tango_status_mapping.copy()
-    tango_status_mapping[DevState.FAULT] = status.WARN
 
 
 class LockedDevice(HasPrecision, NicosLockedDevice):

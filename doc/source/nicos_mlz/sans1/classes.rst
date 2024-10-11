@@ -2,19 +2,27 @@
 =============================================
 
 
-.. module:: nicos_mlz.sans1.devices.collimotor
+.. module:: nicos_mlz.sans1.devices.collimator.slit
 .. autoclass:: Slit()
+
+.. module:: nicos_mlz.sans1.devices.collimator.switcher
 .. autoclass:: Switcher()
+
+.. module:: nicos_mlz.sans1.devices.collimator.motor
 .. autoclass:: Coder()
 .. autoclass:: Motor()
 .. autoclass:: MotorAllParams()
 
 .. module:: nicos_mlz.sans1.devices.hv
 .. autoclass:: VoltageSwitcher()
-.. autoclass:: VoltageSupply()
 .. autoclass:: HV()
 .. autoclass:: HVOffDuration()
+
+.. module:: nicos_mlz.sans1.devices.zmotor
 .. autoclass:: ZMotor()
+
+.. module:: nicos_mlz.sans1.devices.ps
+.. autoclass:: VoltageSupply()
 
 .. module:: nicos_mlz.sans1.devices.sample
 .. autoclass:: Sample()

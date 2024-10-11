@@ -125,6 +125,5 @@ devices = dict(
         xlimits = (480, 868),
         ylimits = (100, 590),
         shape = 'none',
-        maxtries = 3,
     ),
 )

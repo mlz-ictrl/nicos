@@ -84,7 +84,7 @@ devices = dict(
         description = 'QMesyDAQ Timer',
         tangodevice = tango_base + 'timer',
     ),
-    det1_image = device('nicos_mlz.sans1.devices.ImageChannel',
+    det1_image = device('nicos_mlz.sans1.devices.image.ImageChannel',
         description = 'QMesyDAQ Image',
         tangodevice = tango_base + 'image',
         flipaxes = [],  # don't flip the image

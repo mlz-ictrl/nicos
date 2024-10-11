@@ -3,7 +3,7 @@ description = 'attenuator'
 group = 'lowlevel'
 
 devices = dict(
-    att = device('nicos_mlz.sans1.devices.collimotor.Switcher',
+    att = device('nicos_mlz.sans1.devices.collimator.switcher.Switcher',
         description = 'Attenuator',
         mapping = dict(open=-2, x1000=92.8, x100=187.8, x10=282.8, dia10=377.8),
         moveable = 'att_m',

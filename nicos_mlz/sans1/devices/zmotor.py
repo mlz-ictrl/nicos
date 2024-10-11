@@ -17,6 +17,19 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
+
+"""Special device for Sans1 Z motor"""
+
+
+from tango import DevState
+
+from nicos.core import status
+from nicos.devices.entangle import Motor
+
+
+class ZMotor(Motor):
+    tango_status_mapping = Motor.tango_status_mapping.copy()
+    tango_status_mapping[DevState.FAULT] = status.WARN

@@ -28,14 +28,12 @@ import time
 from numpy import int32, uint16, uint32
 
 from nicos import session
-from nicos.core import ADMIN, SIMULATION, USER, Attach, CommunicationError, \
-    ConfigurationError, HasTimeout, InvalidValueError, Moveable, MoveError, \
-    Override, Param, PositionError, UsageError, floatrange, intrange, \
-    none_or, oneof, oneofdict, requires, status, usermethod
-from nicos.core.utils import multiStatus
+from nicos.core import ADMIN, SIMULATION, USER, CommunicationError, \
+    ConfigurationError, HasTimeout, InvalidValueError, MoveError, Override, \
+    Param, UsageError, floatrange, intrange, none_or, oneof, oneofdict, \
+    requires, status, usermethod
 from nicos.devices.abstract import CanReference, Coder as NicosCoder, \
     Motor as NicosMotor
-from nicos.devices.generic import Switcher as BaseSwitcher
 from nicos.devices.generic.sequence import SeqMethod, SequencerMixin
 from nicos.devices.tango import PyTangoDevice
 
@@ -43,71 +41,6 @@ WATCHDOG_REGISTER = 0x1120
 WATCHDOG_DISABLE = 0
 CODER_VALIDATOR = intrange(0x4000, 0x4800)
 MOTOR_VALIDATOR = oneof(*range(0x4020, 0x4800, 10))
-
-
-class Slit(BaseSwitcher):
-    """class for slit mounted onto something moving
-
-    and thus beeing only effective if the underlying
-    device is in a certain position.
-    """
-    attached_devices = {
-        'table': Attach('Guide table this slit is mounted on', Moveable),
-    }
-
-    parameters = {
-        'activeposition': Param('Position of the table where this slit is '
-                                'active', type=str),
-    }
-    parameter_overrides = {
-        'precision':    Override(default=0.1, mandatory=False, type=float),
-        'fallback':     Override(default='N.A.', mandatory=False, type=str),
-        'blockingmove': Override(default=False, mandatory=False),
-    }
-
-    def _mapReadValue(self, value):
-        if self._attached_table.read() != self.activeposition:
-            return 'N.A.'
-        return Switcher._mapReadValue(self, value)
-
-    def doStatus(self, maxage=0):
-        if self._attached_table.read() != self.activeposition:
-            return multiStatus(self._adevs, maxage)
-        return Switcher.doStatus(self, maxage)
-
-
-class Switcher(BaseSwitcher):
-    """Switcher, specially adapted to Sans1 needs"""
-    parameter_overrides = {
-        'precision':    Override(default=0.1, mandatory=False),
-        'fallback':     Override(default='Unknown', mandatory=False),
-        'blockingmove': Override(default=False, mandatory=False),
-    }
-
-    def _mapReadValue(self, value):
-        """Override default inverse mapping to allow a deviation <= precision"""
-        prec = self.precision
-
-        def myiter(mapping):
-            # use position names beginning with P as last option
-            for name, value in mapping.items():
-                if name[0] != 'P':
-                    yield name, value
-            for name, value in mapping.items():
-                if name[0] == 'P':
-                    yield name, value
-        for name, pos in myiter(self.mapping):
-            if prec:
-                if abs(pos - value) <= prec:
-                    return name
-            elif pos == value:
-                return name
-        if self.fallback is not None:
-            return self.fallback
-        if self.relax_mapping:
-            return self._attached_moveable.format(value, True)
-        raise PositionError(self, 'unknown position of %s' %
-                            self._attached_moveable)
 
 
 class TangoDevice(PyTangoDevice):
@@ -429,7 +362,6 @@ class Motor(TangoDevice, CanReference, SequencerMixin, HasTimeout, NicosMotor):
                 msg.append('Overtemperature (T>125 degC)')
             if errval & 0b1111111101000000:
                 msg.append('Unknown Error 0x%04x' % errval)
-
 
         # informational stuff
         if statval & (1 << 4):
