@@ -21,6 +21,12 @@ Robot
 .. module:: nicos_mlz.stressi.devices.robot
 .. autoclass:: RobotMotor()
 
+Detector
+--------
+
+.. module:: nicos_mlz.stressi.devices.detector
+.. autoclass:: ImageChannel
+
 Mixins
 ------
 
