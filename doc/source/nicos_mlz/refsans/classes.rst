@@ -5,11 +5,13 @@
 .. module:: nicos_mlz.refsans.devices.nok_support
 
 .. autoclass:: PseudoNOK()
-.. autoclass:: NOKMonitoredVoltage()
 .. autoclass:: NOKPosition()
 .. autoclass:: SingleMotorNOK()
 .. autoclass:: DoubleMotorNOK()
 .. autoclass:: DoubleMotorAxis()
+
+.. module:: nicos_mlz.refsans.devices.nok_sensor
+.. autoclass:: NOKMonitoredVoltage()
 
 .. module:: nicos_mlz.refsans.devices.ipc
 .. autoclass:: NOKMotorIPC()

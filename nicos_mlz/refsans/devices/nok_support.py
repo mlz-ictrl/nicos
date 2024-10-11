@@ -22,14 +22,12 @@
 # **************************************************************************
 """Support Code for REFSANS's NOK's."""
 
-from nicos.core import AutoDevice, ConfigurationError, HasAutoDevices, \
-    HasPrecision, Moveable, MoveError, Readable, dictwith, status
-from nicos.core.errors import HardwareError
+from nicos.core import AutoDevice, HasAutoDevices, HasPrecision, Moveable, \
+    MoveError, Readable, dictwith, status
 from nicos.core.params import Attach, Override, Param, floatrange, limits, \
-    none_or, oneof, tupleof
+    oneof, tupleof
 from nicos.core.utils import multiReset
-from nicos.devices.abstract import CanReference, Coder, TransformedReadable
-from nicos.devices.entangle import Sensor
+from nicos.devices.abstract import CanReference, Coder
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SequencerMixin
 from nicos.utils import lazy_property
@@ -37,52 +35,6 @@ from nicos.utils import lazy_property
 from nicos_mlz.refsans.devices.mixins import PolynomFit, PseudoNOK
 
 MODES = ['ng', 'rc', 'vc', 'fc']
-
-
-class NOKMonitoredVoltage(TransformedReadable, Sensor):
-    """Return a scaled and monitored analogue value.
-
-    Also checks the value to be within certain limits, if not, complain.
-    """
-
-    parameters = {
-        'reflimits': Param('None or Limits to check the reference: low, warn, '
-                           'high',
-                           type=none_or(tupleof(float, float, float)),
-                           settable=False, default=None),
-        'scale': Param('Scaling factor', type=float, settable=False,
-                       default=1.),
-    }
-
-    parameter_overrides = {
-        'unit': Override(default='V', mandatory=False),
-    }
-
-    def doUpdateReflimits(self, limits):
-        if limits is not None:
-            if not (0 <= limits[0] <= limits[1] <= limits[2]):
-                raise ConfigurationError(self, 'reflimits must be in ascending'
-                                         ' order!')
-
-    def _readRaw(self, maxage=0):
-        return Sensor.doRead(self, maxage)
-
-    def _mapReadValue(self, value):
-        value *= self.scale
-        if self.reflimits is not None:
-            if abs(value) > self.reflimits[2]:
-                raise HardwareError(self, 'Reference voltage (%.2f) above '
-                                    'maximum (%.2f)' % (value,
-                                                        self.reflimits[2]))
-            if abs(value) < self.reflimits[0]:
-                raise HardwareError(self, 'Reference voltage (%.2f) below '
-                                    'minimum (%.2f)' % (value,
-                                                        self.reflimits[0]))
-            if abs(value) < self.reflimits[1]:
-                self.log.warning('Reference voltage (%.2f) seems rather low, '
-                                 'should be above %.2f', value,
-                                 self.reflimits[1])
-        return value
 
 
 class NOKPosition(PolynomFit, Coder):

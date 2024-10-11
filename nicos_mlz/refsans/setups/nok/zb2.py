@@ -49,7 +49,7 @@ devices = dict(
          device2 = 'zb2_analog',
          visibility = showcase_values['hide_acc'],
     ),
-    zb2_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
+    zb2_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
         description = 'Poti for ZB2',
         tangodevice = tango_base + 'test/wb_b/2_3',
         scale = -1,  # mounted from top

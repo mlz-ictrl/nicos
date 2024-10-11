@@ -79,7 +79,7 @@ devices = dict(
         length = 500.0,
         visibility = showcase_values['hide_poti'] & showcase_values['NOreference'],
     ),
-    zb3r_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
+    zb3r_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
         description = 'Poti for ZB3, reactor side',
         tangodevice = tango_base + 'test/wb_c/1_2',
         scale = -1,  # mounted from top
@@ -100,7 +100,7 @@ devices = dict(
         length = 500.0,
         visibility = showcase_values['hide_poti'] & showcase_values['NOreference'],
     ),
-    zb3s_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
+    zb3s_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
         description = 'Poti for ZB3, sample side',
         tangodevice = tango_base + 'test/wb_c/1_3',
         scale = 1,   # mounted from bottom

@@ -43,7 +43,7 @@ devices = dict(
         visibility = (),
     ),
     # generated from global/inf/poti_tracing.inf
-    shutter_gamma_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
+    shutter_gamma_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
         description = 'Poti for shutter_gamma',
         tangodevice = tango_base + 'test/wb_a/1_0',
         scale = 1,   # mounted from bottom
