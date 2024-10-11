@@ -23,7 +23,5 @@
 
 from nicos_mlz.pgaa.devices.attenuator import Attenuator
 from nicos_mlz.pgaa.devices.beamfocus import BeamFocus
-from nicos_mlz.pgaa.devices.dspec import DSPec
-from nicos_mlz.pgaa.devices.pilz import AttenuatorSwitch, Switch
 from nicos_mlz.pgaa.devices.samplechanger import SampleChanger
 from nicos_mlz.pgaa.devices.sampledevices import SamplePusher
