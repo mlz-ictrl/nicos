@@ -232,15 +232,18 @@ def Q(*args, **kwds):
     if not args and not kwds:
         return q
     if len(args) == 1:
+        arg0 = args[0]
         try:
-            nlen = len(args[0])
+            if isinstance(arg0, str):
+                arg0 = arg0.strip().split()
+            nlen = len(arg0)
             if nlen > 4:
                 raise UsageError('1 to 4 Q/E components are allowed')
         except TypeError:
-            q[0] = args[0]
+            q[0] = arg0
         else:
             for i in range(nlen):
-                q[i] = args[0][i]
+                q[i] = arg0[i]
     elif len(args) > 4:
         raise UsageError('1 to 4 Q/E components are allowed')
     else:

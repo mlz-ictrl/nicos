@@ -58,8 +58,19 @@ def test_Q():
     assert all(Q(q, E=0) == [1, 0, 0, 0])
     assert all(Q(q, H=2, K=1, L=1, e=4) == [2, 1, 1, 4])
 
+    # using strings as Q value input
+    assert all(Q('100') == [100, 0, 0, 0])
+    assert all(Q('1 ') == [1, 0, 0, 0])
+    assert all(Q('1 0') == [1, 0, 0, 0])
+    assert all(Q('1 0 0') == [1, 0, 0, 0])
+    assert all(Q('1 0 0 0') == [1, 0, 0, 0])
+    assert all(Q('-1 0 -1 0') == [-1, 0, -1, 0])
+    assert all(Q('') == [0, 0, 0, 0])
+
     assert raises(UsageError, Q, 1, 2, 3, 4, 5)
     assert raises(UsageError, Q, (1, 2, 3, 4, 5))
+    assert raises(UsageError, Q, '1 2 3 4 5')
+    assert raises(TypeError, Q, (i for i in (1, 0, 0)))
 
 
 def test_getspacegroup():
