@@ -34,7 +34,7 @@ devices = dict(
         visibility = (),
         fmtstr = '%d',
     ),
-    det = device('nicos_mlz.puma.devices.KineticDetector',
+    det = device('nicos_mlz.puma.devices.tango.KineticDetector',
         description = 'Puma detector QMesydaq device (11 counters)',
         timers = ['timer'],
         monitors = ['mon1', 'cycles'],

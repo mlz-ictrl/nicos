@@ -44,6 +44,5 @@ from nicos_mlz.puma.devices.sh_cylinder import SH_Cylinder
 from nicos_mlz.puma.devices.spectro import PUMA
 from nicos_mlz.puma.devices.sr7 import SR7Shutter
 from nicos_mlz.puma.devices.stackedaxis import StackedAxis
-from nicos_mlz.puma.devices.tango import CycleCounter
 from nicos_mlz.puma.devices.virtual import VirtualDigitalInput, \
     VirtualDigitalOutput, VirtualLogoFeedback, VirtualReferenceMotor
