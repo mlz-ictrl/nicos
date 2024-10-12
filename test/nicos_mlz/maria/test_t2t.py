@@ -23,6 +23,10 @@
 
 """MARIA specific 2 theta unit tests."""
 
+import pytest
+
+pytest.importorskip('tango')
+
 session_setup = "t2t"
 
 

@@ -33,6 +33,11 @@ try:
 except ModuleNotFoundError:
     uncertainties = None
 
+try:
+    import tango
+except ImportError:
+    tango = None
+
 from nicos.core import NicosError
 from nicos.utils.functioncurves import AffineScalarFunc, Curve2D, \
     CurvePoint2D, Curves
@@ -43,6 +48,7 @@ session_setup = 'moke01'
 
 
 @pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
+@pytest.mark.skipif(tango is None, reason='tango is missing')
 def test_basic(session):
     magb = session.getDevice('MagB')
     intensity = session.getDevice('Intensity')
@@ -57,6 +63,7 @@ def test_basic(session):
 
 
 @pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
+@pytest.mark.skipif(tango is None, reason='tango is missing')
 def test_cycle_currentsource(session):
     magb = session.getDevice('MagB')
     v1, v2, n = randint(-400, -1), randint(1, 400), randint(1, 5)
@@ -70,6 +77,7 @@ def test_cycle_currentsource(session):
 
 
 @pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
+@pytest.mark.skipif(tango is None, reason='tango is missing')
 def test_magnet(session):
     ramp = 400 # A/min
     magb = session.getDevice('MagB')
@@ -93,6 +101,7 @@ def test_magnet(session):
 
 
 @pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
+@pytest.mark.skipif(tango is None, reason='tango is missing')
 def test_calibration(session):
     magb = session.getDevice('MagB')
     magsensor = session.getDevice('Mag_sensor')
@@ -130,6 +139,7 @@ def test_calibration(session):
 
 
 @pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
+@pytest.mark.skipif(tango is None, reason='tango is missing')
 def test_intensity_measurement(session):
     magb = session.getDevice('MagB')
     magsensor = session.getDevice('Mag_sensor')
