@@ -14,7 +14,7 @@ devices = {
             fmtstr = '%.3g'
         ),
      '%s_reg_amp' % setupname:
-        device('nicos_mlz.reseda.devices.RTE1104YScaleSetting',
+        device('nicos_mlz.reseda.devices.rte1104.RTE1104YScaleSetting',
             description = 'amplitude setting chain of subdevices: setting channel 1',
             io = 'rte1104_io',
             channel = 1,
@@ -175,7 +175,7 @@ devices = {
             ),
         ),
     '%s_coil_rms' % setupname:
-       device('nicos_mlz.reseda.devices.RTE1104',
+       device('nicos_mlz.reseda.devices.rte1104.RTE1104',
        description = 'rms Coil voltage (Input Channel 1)',
        io = 'rte1104_io',
        channel = 1,
