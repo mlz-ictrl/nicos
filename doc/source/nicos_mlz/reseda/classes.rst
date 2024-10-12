@@ -23,6 +23,11 @@
 .. module:: nicos_mlz.reseda.devices.armcontrol
 .. autoclass:: ArmController()
 
+.. module:: nicos_mlz.reseda.devices.rte1104
+.. autoclass:: RTE1104()
+.. autoclass:: RTE1104TimescaleSetting()
+.. autoclass:: RTE1104YScaleSetting()
+
 
 Data file formats
 -----------------
