@@ -77,6 +77,9 @@
 .. module:: nicos_mlz.puma.devices.kineticdetector
 .. autoclass:: KineticDetector
 
+.. module:: nicos_mlz.puma.devices.tango
+.. autoclass:: CycleCounter
+
 Data sinks
 ----------
 .. module:: nicos_mlz.puma.datasinks
