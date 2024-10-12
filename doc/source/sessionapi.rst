@@ -14,6 +14,7 @@ include the management of
 * the execution mode: switching modes
 * logging: handling the various NICOS loggers
 * notifications: sending notifications from devices or user code
+* electronic logbook: sending notifications to the electronic logbook handlers
 
 .. autoclass:: Session
    :no-members:
@@ -123,3 +124,7 @@ include the management of
    .. automethod:: breakpoint
    .. automethod:: updateLiveData
    .. automethod:: checkAccess
+
+   **Elog events**
+
+   .. automethod:: elogEvent

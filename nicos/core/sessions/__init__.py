@@ -1345,8 +1345,63 @@ class Session:
             self.log.error(exc_info=exc_info)
 
     def elogEvent(self, eventtype, data):
-        # NOTE: simulation mode is disconnected from cache, therefore no elog
-        # events will be sent in simulation mode
+        """Send events to electronic logbook.
+
+        The electronic logbook receives some messages from various NICOS
+        components via a special protocol. The following events will be sent:
+
+        ``attachment``: Add attachments to the logbook
+           | From the `_LogAttach` command
+           | Data: description, remote file names, target file names
+        ``detectors``: New standard detectors
+           | From `Experiment.setDetectors` and the `Set/AddDetectors` commands
+           | Data: detector device names
+        ``directory``: New | Data directory
+           | From Experiment device
+           | Data: directory, instrument, proposal
+        ``entry``: New freetext entry
+           | From `LogEntry` command
+           | Data: markdown text
+        ``environment``: New environment devices
+           | From `Experiment.setEnvironment` and `Set/AddEnvironment` commands
+           | Data: device names
+        ``image``: Add image attachment to the logbook
+           | From `_LogAttachImage` command
+           | Data: description, paths, extensions, names
+        ``message``: New log message
+           | From the ELogHandler
+           | Data: name, created, level, message, exc_text, reqid
+        ``newexperiment``: New experiment started
+           | From `Experiment.new` and the `NewExperiment` command
+           | Data: proposal, title
+        ``offset``: New offset of a device
+           | From `HasOffset.doWriteOffset`
+           | Data: device, old offset, new offset
+        ``remark``: New remark
+           | From `Experiment.doWriteRemark` and the `Remark` command
+           | Data: remark string
+        ``sample``: New sample selected
+           | From `Sample.doWriteSamplename`
+           | Data: sample name
+        ``scanbegin``: Scan was started
+           | From `Scan.beginScan`
+           | Data: scan data set (ScanDataSet)
+        ``scanend``: Scan was finished
+           | From: ``Scan.endScan``
+           | Data: as for ``scanbegin``
+        ``scriptbegin``: User script was started
+           | From `_ScriptScope.__enter__` and `_RunScript, run` commands
+           | Data: script text
+        ``scriptend``: User script was finished
+           | From `_ScriptScope.__exit__`
+           | Data: script text
+        ``setup``: New setups loaded
+           | From `Session.loadSetup`
+           | Data: setup names
+
+        .. note:: The simulation mode is disconnected from cache, therefore no
+                  elog events will be sent in simulation mode.
+        """
         if self.cache and self.experiment and self.experiment.elog:
             self.cache.put_raw('logbook/' + eventtype + FLAG_NO_STORE, data)
 
