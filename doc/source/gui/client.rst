@@ -11,25 +11,6 @@ NICOS daemon or to query it for current state or values.
 
 .. class:: NicosGuiClient
 
-   **Lower level methods**
-
-   .. automethod:: tell
-
-      For example, to queue some code to be executed, use ``client.tell('queue',
-      '', 'read()')``.  For a list of all commands, see :ref:`daemon-commands`.
-
-   .. automethod:: ask
-
-   .. automethod:: eval
-
-   **Signals**
-
-   For every :ref:`daemon event <daemon-events>`, the client emits a Qt signal
-   with the same name.  For example, to bind a handler to the ``status`` event
-   on a panel, use ::
-
-      self.client.status.connect(self.on_client_status)
-
    **Higher level methods**
 
    .. automethod:: getDeviceList
@@ -45,3 +26,22 @@ NICOS daemon or to query it for current state or values.
    .. automethod:: getDeviceParam
 
    .. automethod:: getCacheKey
+
+   **Signals**
+
+   For every :ref:`daemon event <daemon-events>`, the client emits a Qt signal
+   with the same name.  For example, to bind a handler to the ``status`` event
+   on a panel, use ::
+
+      self.client.status.connect(self.on_client_status)
+
+   **Lower level methods**
+
+   .. automethod:: tell
+
+      For example, to queue some code to be executed, use ``client.tell('queue',
+      '', 'read()')``.  For a list of all commands, see :ref:`daemon-commands`.
+
+   .. automethod:: ask
+
+   .. automethod:: eval
