@@ -191,11 +191,13 @@ class ClickableOutputLed(ValueLed):
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.ledColor = 'orange'
-            if self.current == self._stateActive:
-                self._client.run('move(%s, %r)' % (self.dev, self._stateInactive))
+            if self._client:
+                if self.current == self._stateActive:
+                    self._client.run('move(%s, %r)' % (self.dev, self._stateInactive))
+                else:
+                    self._client.run('move(%s, %r)' % (self.dev, self._stateActive))
+                event.accept()
             else:
-                self._client.run('move(%s, %r)' % (self.dev, self._stateActive))
-
-            event.accept()
+                event.ignore()
         else:
             event.ignore()

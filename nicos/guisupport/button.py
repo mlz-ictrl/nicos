@@ -78,5 +78,6 @@ class SinglePushButton(PushButton):
     def mousePressEvent(self, event):
 
         if event.button() == Qt.MouseButton.LeftButton:
-            self._client.run('move(%s, %r)' % (self.dev, self._stateTo))
+            if self._client:
+                self._client.run('move(%s, %r)' % (self.dev, self._stateTo))
         event.accept()
