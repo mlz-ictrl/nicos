@@ -147,8 +147,8 @@ class ResolutionPanel(NicosWidget, Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        self.setClient(client)
         NicosWidget.__init__(self)
+        self.setClient(client)
         client.connected.connect(self.on_client_connected)
         self.destroyed.connect(self.on_destroyed)
         if parent:
@@ -183,7 +183,8 @@ class ResolutionPanel(NicosWidget, Panel):
             self.plot3 = ResolutionPlot(self.rPlot, xscale='decimal')
 
     def registerKeys(self):
-        pass
+        for key in ('chSpeed/abslimits', 'chWL/abslimits'):
+            self.registerKey(key)
 
     def on_client_connected(self):
         with waitCursor():
@@ -196,6 +197,8 @@ class ResolutionPanel(NicosWidget, Panel):
                         self._update_key('%s/%s' % (d, p), v)
                 except (NicosError, NameError):
                     missed_devices += [d]
+            vt = self._client.getDeviceValuetype('chRatio')
+            self.ratio.setRange(min(vt.vals), max(vt.vals))
         if not missed_devices:
             self.recalculate()
         else:
@@ -205,9 +208,18 @@ class ResolutionPanel(NicosWidget, Panel):
             self.buttonBox.removeButton(
                 self.buttonBox.button(QDialogButtonBox.StandardButton.Apply))
 
+    def on_keyChange(self, key, value, time, expired):
+        dev, param = key.split('/')
+        if param == 'abslimits':
+            if dev == 'chSpeed'.lower():
+                self.speed.setRange(*value)
+            elif dev == 'chWL'.lower():
+                self.waveLength.setRange(*value)
+        NicosWidget.on_keyChange(self, key, value, time, expired)
+
     def _update_key(self, key, value):
         if key in ['chSpeed/value', 'ch/speed']:
-            self.speed.setValue(int(value))
+            self.speed.setValue(value if value else 3000)
         elif key in ['chRatio/value', 'ch/ratio']:
             self.ratio.setValue(int(value))
         elif key in ['chWL/value', 'ch/wavelength']:
