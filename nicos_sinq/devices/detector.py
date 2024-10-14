@@ -239,7 +239,6 @@ class ControlDetector(Detector):
         'followers': Attach('Follower detectors', Measurable,
                             multiple=True, optional=True),
     }
-    _slaves_stopped = False
     _followers_stopped = False
 
     def doSetPreset(self, **preset):
@@ -349,7 +348,7 @@ class ControlDetector(Detector):
 
     def doReset(self):
         self._attached_trigger.reset()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             det.reset()
         return self.doStatus()
 
