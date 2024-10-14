@@ -213,24 +213,6 @@ def test_error_handling(session, log, tas):
         assert phi() == approx(-46.6, abs=0.1)
 
 
-def test_Q(session):
-    assert all(Q() == [0, 0, 0, 0])
-    assert all(Q(1) == [1, 0, 0, 0])
-    assert all(Q(1, 0, 0) == [1, 0, 0, 0])
-    assert all(Q(1, 0, 0, 5) == [1, 0, 0, 5])
-    assert all(Q(h=1, E=5) == [1, 0, 0, 5])
-
-    q = Q(h=1, E=5)
-    assert all(Q(q, h=2, k=1) == [2, 1, 0, 5])
-    assert all(Q(q, h=2, k=1, l=1) == [2, 1, 1, 5])
-    assert all(Q(q, E=0) == [1, 0, 0, 0])
-
-    assert all(Q(q, H=2, K=1, L=1, e=4) == [2, 1, 1, 4])
-
-    assert raises(UsageError, Q, 1, 2, 3, 4, 5)
-    assert raises(UsageError, Q, (1, 2, 3, 4, 5))
-
-
 def test_qscan(session, tas):
     sgx = session.getDevice('sgx')
     qscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, sgx, 'scaninfo', t=1)

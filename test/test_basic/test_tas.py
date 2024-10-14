@@ -30,11 +30,18 @@ from nicos.devices.tas import spacegroups
 from test.utils import raises
 
 
-def test_Q_object():
-    assert all(Q() == Q(0, 0, 0, 0))
-    assert all(Q(1) == Q(1, 0, 0, 0))
-    assert all(Q(1, 1) == Q(1, 1, 0, 0))
-    assert all(Q(1, 1, 1) == Q(1, 1, 1, 0))
+def test_Q():
+    assert repr(Q()) == '[ 0.  0.  0.  0.]'
+
+    assert all(Q() == [0, 0, 0, 0])
+    assert all(Q(1) == [1, 0, 0, 0])
+    assert all(Q(1, 1) == [1, 1, 0, 0])
+    assert all(Q(1, 1, 1) == [1, 1, 1, 0])
+    assert all(Q(1, 0, 0) == [1, 0, 0, 0])
+    assert all(Q(1, 0, 0, 5) == [1, 0, 0, 5])
+    assert all(Q(h=1, E=5) == [1, 0, 0, 5])
+
+    # mixture of setting hkle values via list or kwds
     q1 = Q(1, 2, 3, 4)
     for q2 in [
         Q(Q(1, 4, 3, 0), k=2, e=4),
@@ -43,8 +50,16 @@ def test_Q_object():
         Q(H=1, K=2, L=3, E=4)
     ]:
         assert all(q2 == q1)
+
+    # overriding parameters during copy via kwds
+    q = Q(h=1, E=5)
+    assert all(Q(q, h=2, k=1) == [2, 1, 0, 5])
+    assert all(Q(q, h=2, k=1, l=1) == [2, 1, 1, 5])
+    assert all(Q(q, E=0) == [1, 0, 0, 0])
+    assert all(Q(q, H=2, K=1, L=1, e=4) == [2, 1, 1, 4])
+
     assert raises(UsageError, Q, 1, 2, 3, 4, 5)
-    assert repr(Q()) == '[ 0.  0.  0.  0.]'
+    assert raises(UsageError, Q, (1, 2, 3, 4, 5))
 
 
 def test_getspacegroup():
