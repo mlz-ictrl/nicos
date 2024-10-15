@@ -34,7 +34,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
-from nicos.guisupport.qt import QDate, QMessageBox, QStandardItem, \
+from nicos.guisupport.qt import pyqtSlot, QDate, QMessageBox, QStandardItem, \
     QStandardItemModel, Qt
 from nicos.guisupport.widget import NicosWidget
 from nicos.utils import findResource
@@ -103,10 +103,9 @@ class MokeBase(Panel):
         self.plot_IntvB = MokePlot('MagB, T', 'Intensity, V', self)
         self.plot_EvB = MokePlot('MagB, T', 'Ellipticity, a.u.', self)
         self.m = {}
-        client.connected.connect(self.on_connected)
-        client.disconnected.connect(self.on_disconnected)
 
-    def on_button_calc_clicked(self):
+    @pyqtSlot()
+    def on_btn_calc_clicked(self):
         if not self.ln_canting_angle.text() or not self.ln_extinction.text():
             QMessageBox.information(None, '', 'Please input Canting angle/Extinction values')
             return
@@ -118,7 +117,7 @@ class MokeBase(Panel):
             return
 
         IntvB = self.m['IntvB']
-        if self.chck_subtract_baseline.isChecked():
+        if self.chk_subtract_baseline.isChecked():
             IntvB = self.m['IntvB'] - self.m['baseline']
         angle = float(self.ln_canting_angle.text()) # [SKT]
         # recalculate angle in SKT to mrad
@@ -170,26 +169,6 @@ class MokePanel(NicosWidget, MokeBase):
         self.lyt_plot_EvB.addWidget(self.plot_EvB)
         NicosWidget.__init__(self)
         self.setClient(self.client)
-        self._mode_changed()
-        self.cmb_mode.currentIndexChanged.connect(self._mode_changed)
-        self.chck_calibration_unlock.stateChanged.connect(self._on_calibration_unlock_changed)
-        self.chck_baseline_unlock.stateChanged.connect(self._on_baseline_unlock_changed)
-
-    def on_connected(self):
-        self.btn_calibration.clicked.connect(self._on_button_calibrate_clicked)
-        self.btn_baseline_import.clicked.connect(self._on_button_baseline_import_clicked)
-        self.btn_baseline_save.clicked.connect(self._on_button_baseline_save_clicked)
-        self.btn_run.clicked.connect(self._on_button_run_clicked)
-        self.btn_calc.clicked.connect(self.on_button_calc_clicked)
-        self.chck_subtract_baseline.stateChanged.connect(self._on_subtract_baseline_changed)
-
-    def on_disconnected(self):
-        self.btn_calibration.clicked.disconnect(self._on_button_calibrate_clicked)
-        self.btn_baseline_import.clicked.disconnect(self._on_button_baseline_import_clicked)
-        self.btn_baseline_save.clicked.disconnect(self._on_button_baseline_save_clicked)
-        self.btn_run.clicked.disconnect(self._on_button_run_clicked)
-        self.btn_calc.clicked.disconnect(self.on_button_calc_clicked)
-        self.chck_subtract_baseline.stateChanged.disconnect(self._on_subtract_baseline_changed)
 
     def registerKeys(self):
         for k in ('magb/baseline', 'magb/calibration', 'magb/measurement',
@@ -278,8 +257,7 @@ class MokePanel(NicosWidget, MokeBase):
                         legend=self.m['name']
                     )
 
-    def _mode_changed(self):
-        mode = self.cmb_mode.currentText()
+    def on_cmb_mode_currentTextChanged(self, mode):
         if mode == 'stepwise':
             self.ln_step.setEnabled(True)
             self.ln_steptime.setEnabled(True)
@@ -289,21 +267,23 @@ class MokePanel(NicosWidget, MokeBase):
             self.ln_steptime.setEnabled(False)
             self.cmb_ramp.setEnabled(True)
 
-    def _on_calibration_unlock_changed(self, state):
+    def on_chk_calibration_unlock_stateChanged(self, state):
         self.ln_calibration_ramp.setEnabled(bool(state))
         self.ln_calibration_cycles.setEnabled(bool(state))
         self.btn_calibration.setEnabled(bool(state))
 
-    def _on_button_calibrate_clicked(self):
+    @pyqtSlot()
+    def on_btn_calibration_clicked(self):
         self.client.run(f'MagB.calibrate("{self.cmb_mode.currentText()}", '
                         f'{self.ln_calibration_ramp.text()}, '
                         f'{self.ln_calibration_cycles.text()})')
 
-    def _on_baseline_unlock_changed(self, state):
+    def on_chk_baseline_unlock_stateChanged(self, state):
         self.btn_baseline_import.setEnabled(bool(state))
         self.btn_baseline_save.setEnabled(bool(state))
 
-    def _on_button_baseline_import_clicked(self):
+    @pyqtSlot()
+    def on_btn_baseline_import_clicked(self):
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
@@ -313,7 +293,8 @@ class MokePanel(NicosWidget, MokeBase):
                 legend=f'{mode}, {field} @ {ramp} A/min'
             )
 
-    def _on_button_baseline_save_clicked(self):
+    @pyqtSlot()
+    def on_btn_baseline_save_clicked(self):
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
@@ -323,7 +304,8 @@ class MokePanel(NicosWidget, MokeBase):
                              'MagB.measurement["IntvB"].series_to_curves().mean()')
             self.client.run('MagB.baseline = temp')
 
-    def _on_button_run_clicked(self):
+    @pyqtSlot()
+    def on_btn_run_clicked(self):
         measurement = {
             'mode': self.cmb_mode.currentText(),
             'Bmin': float(self.ln_Bmin.text()),
@@ -348,7 +330,7 @@ class MokePanel(NicosWidget, MokeBase):
             return
         self.client.run(f'MagB.measure_intensity({measurement})')
 
-    def _on_subtract_baseline_changed(self, _):
+    def on_chk_subtract_baseline_stateChanged(self, _):
         self.on_keyChange('magb/progress', None, None, None)
 
     def _timeleft(self, progress):
@@ -412,7 +394,7 @@ class MokeHistory(MokeBase):
         self._model = QStandardItemModel()
         self.lst_history.setModel(self._model)
         self.lst_history.selectionModel().currentChanged.\
-            connect(self._on_current_changed)
+            connect(self.on_lst_history_index_changed)
         self.measurements = {}
         date1 = datetime.datetime.now().date()
         date0 = date1 - datetime.timedelta(days=30)
@@ -420,19 +402,18 @@ class MokeHistory(MokeBase):
         date1 = date1.strftime('%Y-%m-%d')
         self.dt_from.setDate(QDate(*[int(i) for i in date0.split('-')]))
         self.dt_to.setDate(QDate(*[int(i) for i in date1.split('-')]))
+        client.connected.connect(self.on_connected)
+        client.disconnected.connect(self.on_disconnected)
 
     def on_connected(self):
         self._read_measurements()
         self.dt_from.dateChanged.connect(self._read_measurements)
         self.dt_to.dateChanged.connect(self._read_measurements)
-        self.btn_calc.clicked.connect(self.on_button_calc_clicked)
-        self.chck_subtract_baseline.stateChanged.connect(self._on_subtract_baseline_changed)
 
     def on_disconnected(self):
         self.dt_from.dateChanged.disconnect(self._read_measurements)
         self.dt_to.dateChanged.disconnect(self._read_measurements)
-        self.btn_calc.clicked.disconnect(self.on_button_calc_clicked)
-        self.chck_subtract_baseline.stateChanged.disconnect(self._on_subtract_baseline_changed)
+        self.btn_calc.clicked.disconnect(self.on_btn_calc_clicked)
 
     def _read_measurements(self):
         self.measurements = {}
@@ -447,16 +428,16 @@ class MokeHistory(MokeBase):
                     self._model.insertRow(0, QStandardItem(m['name']))
                 self.measurements[m['name']] = m
 
-    def _on_current_changed(self, current, _=None):
+    def on_lst_history_index_changed(self, current, _=None):
         if current:
             item = self._model.itemFromIndex(current)
             self.m = self.measurements[item.text()]
             self.display_rawdata(generate_output(self.m))
         IntvB = self.m['IntvB'] - self.m['baseline'] \
-            if self.chck_subtract_baseline.isChecked() else self.m['IntvB']
+            if self.chk_subtract_baseline.isChecked() else self.m['IntvB']
         self.plot_IntvB.reset()
         self.plot_EvB.reset()
         self.plot_IntvB.add_curve(IntvB, legend=self.m["name"])
 
-    def _on_subtract_baseline_changed(self, _):
-        self._on_current_changed(self.lst_history.selectionModel().currentIndex())
+    def on_chk_subtract_baseline_stateChanged(self, _):
+        self.on_lst_history_index_changed(self.lst_history.selectionModel().currentIndex())
