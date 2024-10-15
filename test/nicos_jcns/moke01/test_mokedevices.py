@@ -141,9 +141,9 @@ def test_calibration(session):
 @pytest.mark.skipif(tango is None, reason='tango is missing')
 def test_intensity_measurement(session):
     magsensor = session.getDevice('Mag_sensor')
-    # there are two extra read() calls during `measure_intensity`
+    # there are two extra read() before and after `measure_intensity`
     magsensor.testqueue = [1, 2] + list(range(-400, 400, 40)) + \
-                          list(range(400, -400, -40))
+                          list(range(400, -400, -40)) + [3, 4]
     magsensor.simulate = True
     mrmnt = {'Bmin': -400.0, 'Bmax': 400.0, 'ramp': 400.0, 'cycles': 1,
              'step': 40.0, 'steptime': 1, 'mode': 'stepwise',

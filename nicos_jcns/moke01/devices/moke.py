@@ -172,6 +172,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             mrmnt['IntvB'] = self._IntvB
             self.measurement = mrmnt
             session.log.info('Measurement saving: %s', self.save_measurement(mrmnt))
+            self.disable()
 
     def save_measurement(self, measurement):
         if not measurement or 'name' not in measurement.keys():
