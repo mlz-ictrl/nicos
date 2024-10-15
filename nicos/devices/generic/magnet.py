@@ -310,6 +310,18 @@ class MagnetWithCalibrationCurves(Magnet):
             'Maximal ramp value',
             unit='A/min', type=float, mandatory=True
         ),
+        'cycle': Param(
+            'Current measurement cycle',
+            int, settable=True, internal=True
+        ),
+        'maxprogress': Param(
+            'Current measurement max count',
+            int, settable=True, internal=True
+        ),
+        'progress': Param(
+            'Current measurement progress indicator',
+            int, settable=True, internal=True
+        ),
     }
 
     def _check_calibration(self, mode, ramp):
@@ -348,7 +360,6 @@ class MagnetWithCalibrationCurves(Magnet):
             self._cycling = False
             self._cycling_thread = None
             self._Ivt, self._Bvt, self._cycling_steps = Curve2D(), Curve2D(), []
-            self._calibration_updated = False
             self._progress = self._maxprogress = self._cycle = 0
             self._stop_requested = False
 
@@ -404,16 +415,16 @@ class MagnetWithCalibrationCurves(Magnet):
             dt = 0.5
             num = int(abs(val2 - val1) / (dt * ramp / 60))
         ranges = [(val1, val2, num, False), (val2, val1, num, False)]
-        self._progress = 0
-        self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * n
+        self.progress = 0
+        self.maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * n
         for r in ranges * n:
-            self._cycle = len(self._cycling_steps) // 2
+            self.cycle = len(self._cycling_steps) // 2
             self._cycling_steps.append(len(numpy.linspace(*r)))
             for i in numpy.linspace(*r):
                 self._attached_currentsource.start(i)
                 self._Ivt.append((time.time(), i))
                 session.delay(dt)
-                self._progress += 1
+                self.progress += 1
                 if self._stop_requested:
                     break
             if self._stop_requested:
@@ -493,5 +504,4 @@ class MagnetWithCalibrationCurves(Magnet):
             temp = self.calibration.copy()
             temp[mode][str(float(ramp))] = calibration
             self.calibration = temp
-            self._calibration_updated = True
             self._stop_requested = False

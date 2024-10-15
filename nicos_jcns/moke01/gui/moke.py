@@ -35,7 +35,8 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QDate, QMessageBox, QStandardItem, \
-    QStandardItemModel, Qt, QTimer
+    QStandardItemModel, Qt
+from nicos.guisupport.widget import NicosWidget
 from nicos.utils import findResource
 
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
@@ -106,7 +107,6 @@ class MokeBase(Panel):
         client.disconnected.connect(self.on_disconnected)
 
     def on_button_calc_clicked(self):
-        self.m = self.client.eval('session.getDevice("MagB").measurement')
         if not self.ln_canting_angle.text() or not self.ln_extinction.text():
             QMessageBox.information(None, '', 'Please input Canting angle/Extinction values')
             return
@@ -154,7 +154,7 @@ class MokeBase(Panel):
         self.txt_rawdata.insertPlainText(output)
 
 
-class MokePanel(MokeBase):
+class MokePanel(NicosWidget, MokeBase):
 
     def __init__(self, parent, client, options):
         MokeBase.__init__(self, parent, client, options)
@@ -168,41 +168,115 @@ class MokePanel(MokeBase):
         self.lyt_plot_baseline.addWidget(self.plot_baseline)
         self.lyt_plot_IntvB.addWidget(self.plot_IntvB)
         self.lyt_plot_EvB.addWidget(self.plot_EvB)
-        self.update_plot_calibration = QTimer()
-        self.update_plot_calibration.timeout.connect(self._update_calibration)
-        self.update_plot_IntvB = QTimer()
-        self.update_plot_IntvB.timeout.connect(self._update_measurement)
+        NicosWidget.__init__(self)
+        self.setClient(self.client)
         self._mode_changed()
         self.cmb_mode.currentIndexChanged.connect(self._mode_changed)
         self.chck_calibration_unlock.stateChanged.connect(self._on_calibration_unlock_changed)
         self.chck_baseline_unlock.stateChanged.connect(self._on_baseline_unlock_changed)
 
     def on_connected(self):
-        self._read_calibration()
-        self.cmb_mode.currentIndexChanged.connect(self._read_calibration)
         self.btn_calibration.clicked.connect(self._on_button_calibrate_clicked)
-        self.update_plot_calibration.start(500) # _update_calibration
-
-        self._read_baseline()
         self.btn_baseline_import.clicked.connect(self._on_button_baseline_import_clicked)
         self.btn_baseline_save.clicked.connect(self._on_button_baseline_save_clicked)
-
         self.btn_run.clicked.connect(self._on_button_run_clicked)
         self.btn_calc.clicked.connect(self.on_button_calc_clicked)
-        self.update_plot_IntvB.start(500) # _update_measurement
         self.chck_subtract_baseline.stateChanged.connect(self._on_subtract_baseline_changed)
 
     def on_disconnected(self):
-        self.cmb_mode.currentIndexChanged.disconnect(self._read_calibration)
         self.btn_calibration.clicked.disconnect(self._on_button_calibrate_clicked)
-        self.update_plot_calibration.stop() # _update_calibration
-
-        self.btn_run.clicked.disconnect(self._on_button_run_clicked)
-        self.btn_calc.clicked.disconnect(self.on_button_calc_clicked)
-        self.update_plot_IntvB.stop() # _update_measurement
-
         self.btn_baseline_import.clicked.disconnect(self._on_button_baseline_import_clicked)
         self.btn_baseline_save.clicked.disconnect(self._on_button_baseline_save_clicked)
+        self.btn_run.clicked.disconnect(self._on_button_run_clicked)
+        self.btn_calc.clicked.disconnect(self.on_button_calc_clicked)
+        self.chck_subtract_baseline.stateChanged.disconnect(self._on_subtract_baseline_changed)
+
+    def registerKeys(self):
+        for k in ('magb/baseline', 'magb/calibration', 'magb/measurement',
+                  'magb/cycle', 'magb/maxprogress', 'magb/progress'):
+            self.registerKey(k)
+
+    def on_keyChange(self, key, value, time, expired):
+        if key == 'magb/calibration':
+            self.calibration = value.copy()
+            mode = self.cmb_mode.currentText()
+            if self.calibration:
+                self.cmb_ramp.clear()
+                self.cmb_ramp.addItems(self.calibration[mode].keys())
+            self.plot_calibration.reset()
+            for mode in self.calibration:
+                for ramp, curves in self.calibration[mode].items():
+                    self.plot_calibration.add_curve(
+                        curves.increasing()[0],
+                        legend=f'{mode} increasing B @ {ramp} A/min'
+                    )
+                    self.plot_calibration.add_curve(
+                        curves.decreasing()[0],
+                        legend=f'{mode} decreasing B @ {ramp} A/min'
+                    )
+        elif key == 'magb/baseline':
+            self.plot_baseline.reset()
+            if value:
+                for mode in value:
+                    for field in value[mode]:
+                        for ramp in value[mode][field]:
+                            if value[mode][field][ramp]:
+                                self.plot_baseline.add_curve(
+                                    value[mode][field][ramp],
+                                    legend=f'{mode}, {field} @ {ramp} A/min'
+                                )
+        elif key == 'magb/cycle':
+            self.lcd_cycle.display(value + 1)
+        elif key == 'magb/maxprogress':
+            self.bar_cycles.setMaximum(value) # progress bar
+        elif key == 'magb/progress':
+            if value:
+                self.bar_cycles.setValue(value) # progress bar
+                timeleft = self._timeleft(value)
+                self.lcd_timeleft.display(f'{int(timeleft / 60):02}:{int(timeleft % 60):02}')
+            # live-update graph of intensity vs field
+            # before measurement is finished and stored to `MagB.measurement`
+            # IntvB can be fetched from MagB._IntvB
+            if self.m:
+                self.m['IntvB'] = self.client.eval('session.getDevice("MagB")._IntvB')
+                if self.m['IntvB']:
+                    self.plot_IntvB.reset()
+                    self.plot_IntvB.add_curve(
+                        self.m['IntvB'] - self.m['baseline'] \
+                            if self.chk_subtract_baseline.isChecked() \
+                            else self.m['IntvB'],
+                        legend=self.m['name']
+                    )
+                self.display_rawdata(generate_output(self.m))
+        elif key == 'magb/measurement':
+            self.m = value.copy()
+            keys = ['id', 'mode', 'exp_type', 'field_orientation', 'steptime',
+                    'description', 'name', 'Bmin', 'Bmax', 'ramp', 'cycles',
+                    'step', 'IntvB',]
+            if self.m and all(k in self.m for k in keys):
+                self.display_rawdata(generate_output(self.m))
+                self.cmb_mode.setCurrentIndex(
+                    self.cmb_mode.findText(str(self.m['mode'])))
+                self.ln_id.setText(self.m['id'])
+                self.ln_description.setText(self.m['description'])
+                self.rad_rotation.setChecked(self.m['exp_type'] == 'rotation')
+                self.rad_ellipticity.setChecked(self.m['exp_type'] == 'ellipticity')
+                self.rad_polar.setChecked(self.m['field_orientation'] == 'polar')
+                self.rad_longitudinal.setChecked(self.m['field_orientation'] == 'longitudinal')
+                self.ln_Bmin.setText(str(self.m['Bmin']))
+                self.ln_Bmax.setText(str(self.m['Bmax']))
+                self.ln_step.setText(str(self.m['step']))
+                self.ln_steptime.setText(str(self.m['steptime']))
+                self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(str(self.m['ramp'])))
+                self.ln_cycles.setText(str(self.m['cycles']))
+                self.plot_IntvB.reset()
+                if self.m['IntvB']:
+                    self.plot_IntvB.add_curve(
+                        self.m['IntvB'] - self.m['baseline'] \
+                            if self.chk_subtract_baseline.isChecked() \
+                            else self.m['IntvB'],
+                        legend=self.m['name']
+                    )
 
     def _mode_changed(self):
         mode = self.cmb_mode.currentText()
@@ -215,28 +289,6 @@ class MokePanel(MokeBase):
             self.ln_steptime.setEnabled(False)
             self.cmb_ramp.setEnabled(True)
 
-    def _read_calibration(self):
-        self.plot_calibration.reset()
-        self.calibration = self.client.eval(
-            'session.getDevice("MagB").calibration.copy()')
-        mode = self.cmb_mode.currentText()
-        if mode in self.calibration:
-            for ramp, curves in self.calibration[mode].items():
-                self.plot_calibration.add_curve(curves.increasing()[0],
-                                                legend=f'{mode} increasing B @ {ramp} A/min')
-                self.plot_calibration.add_curve(curves.decreasing()[0],
-                                                legend=f'{mode} decreasing B @ {ramp} A/min')
-
-        if self.calibration:
-            self.cmb_ramp.clear()
-            self.cmb_ramp.addItems(self.calibration[mode].keys())
-        if 'ramp' in self.m:
-            ramp = str(self.m['ramp'])
-        else:
-            ramp = self.cmb_ramp.currentText() or \
-                   str(self.client.eval('session.getDevice("MagB").ramp'))
-        self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(ramp))
-
     def _on_calibration_unlock_changed(self, state):
         self.ln_calibration_ramp.setEnabled(bool(state))
         self.ln_calibration_cycles.setEnabled(bool(state))
@@ -244,47 +296,24 @@ class MokePanel(MokeBase):
 
     def _on_button_calibrate_clicked(self):
         self.client.run(f'MagB.calibrate("{self.cmb_mode.currentText()}", '
-                        f'{self.ln_calibration_ramp.text()}, {self.ln_calibration_cycles.text()})')
-
-    def _update_calibration(self):
-        if self.client.eval('session.getDevice("MagB")._calibration_updated'):
-            self.client.run('MagB._calibration_updated = False', noqueue=True)
-            self._read_calibration()
-
-    def _read_baseline(self):
-        self.baseline = self.client.eval(
-            'session.getDevice("MagB").baseline.copy()')
-        self._update_baseline_plot()
-
-    def _update_baseline_plot(self):
-        self.plot_baseline.reset()
-        if self.baseline:
-            for mode in self.baseline.keys():
-                for field in self.baseline[mode].keys():
-                    for ramp in self.baseline[mode][field].keys():
-                        if self.baseline[mode][field][ramp]:
-                            self.plot_baseline.add_curve(self.baseline[mode][field][ramp],
-                                                         legend=f'{mode}, {field} @ {ramp} A/min')
+                        f'{self.ln_calibration_ramp.text()}, '
+                        f'{self.ln_calibration_cycles.text()})')
 
     def _on_baseline_unlock_changed(self, state):
         self.btn_baseline_import.setEnabled(bool(state))
         self.btn_baseline_save.setEnabled(bool(state))
-        self._read_baseline()
 
     def _on_button_baseline_import_clicked(self):
-        self.m = self.client.eval('session.getDevice("MagB").measurement')
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
             ramp = str(self.m['ramp'])
-            if ramp not in self.baseline[mode][field].keys():
-                self.baseline[mode][field][ramp] = {}
-            self.baseline[mode][field][ramp] = \
-                self.m['IntvB'].series_to_curves().mean()
-            self._update_baseline_plot()
+            self.plot_baseline.add_curve(
+                self.m['IntvB'].series_to_curves().mean(),
+                legend=f'{mode}, {field} @ {ramp} A/min'
+            )
 
     def _on_button_baseline_save_clicked(self):
-        self.m = self.client.eval('session.getDevice("MagB").measurement')
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
@@ -318,97 +347,51 @@ class MokePanel(MokeBase):
             QMessageBox.information(None, '', 'Step time must be non-negative value')
             return
         self.client.run(f'MagB.measure_intensity({measurement})')
-        self.update_plot_IntvB.start(500) # _update_measurement
-
-    def _update_measurement(self):
-        self.m = self.client.eval('session.getDevice("MagB").measurement.copy()')
-        if not self.m:
-            self.update_plot_IntvB.stop() # _update_measurement
-            return
-        keys = ['mode', 'Bmin', 'Bmax', 'ramp', 'cycles', 'step', 'steptime',
-                'id', 'description', 'exp_type', 'field_orientation']
-        if not all(k in self.m for k in keys):
-            return
-        self.display_rawdata(generate_output(self.m))
-        self.cmb_mode.setCurrentIndex(
-            self.cmb_mode.findText(str(self.m['mode'])))
-        self.ln_id.setText(self.m['id'])
-        self.ln_description.setText(self.m['description'])
-        self.rad_rotation.setChecked(self.m['exp_type'] == 'rotation')
-        self.rad_polar.setChecked(self.m['field_orientation'] == 'polar')
-        self.ln_Bmin.setText(str(self.m['Bmin']))
-        self.ln_Bmax.setText(str(self.m['Bmax']))
-        self.ln_step.setText(str(self.m['step']))
-        self.ln_steptime.setText(str(self.m['steptime']))
-        self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(str(self.m['ramp'])))
-        self.ln_cycles.setText(str(self.m['cycles']))
-        # live-update graph of intensity vs field
-        # before measurement is finished and stored to `MagB.measurement`
-        # IntvB can be fetched from MagB._IntvB
-        IntvB = self.client.eval('session.getDevice("MagB")._IntvB') or self.m['IntvB']
-        if IntvB:
-            if self.chck_subtract_baseline.isChecked():
-                IntvB = IntvB - self.m['baseline']
-            self.plot_IntvB.reset()
-            self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
-        if self.client.eval('session.getDevice("MagB")._measuring'):
-            # live-update progress bar
-            maxprogress = self.client.eval('session.getDevice("MagB")._maxprogress')
-            self.bar_cycles.setMaximum(maxprogress)
-            progress = self.client.eval('session.getDevice("MagB")._progress')
-            self.bar_cycles.setValue(progress)
-            # live-update remaining time
-            if maxprogress:
-                timeleft = self._timeleft(progress)
-                self.lcd_timeleft.display(f'{int(timeleft / 60):02}:{int(timeleft % 60):02}')
-                cycle = self.client.eval('session.getDevice("MagB")._cycle')
-                self.lcd_cycle.display(cycle + 1)
-        else:
-            self.lcd_timeleft.display('')
-            self.lcd_cycle.display('')
-            self.update_plot_IntvB.stop() # _update_measurement
 
     def _on_subtract_baseline_changed(self, _):
-        if not self.update_plot_IntvB.isActive():
-            self._update_measurement()
+        self.on_keyChange('magb/progress', None, None, None)
 
     def _timeleft(self, progress):
         """Calculates approximate remaining time of a measurement."""
-        Bmin = self.m['Bmin']
-        Bmax = self.m['Bmax']
-        cycles = self.m['cycles']
-        step = self.m['step']
-        steptime = self.m['steptime']
-        ramp = self.m['ramp']
-        mode = self.m['mode']
-        if mode == 'stepwise':
-            n = int(abs(Bmax - Bmin) / step)
-            ranges = [(Bmin, Bmax, n, False), (Bmax, Bmin, n, False)] * cycles
-            values = [i for r in ranges for i in numpy.linspace(*r)]
-            t = 0
-            B0 = values[progress - 1] if progress else 0
-            I0 = self._field2current(B0, values[progress] > B0).n
-            for B1 in values[progress:]:
-                I1 = self._field2current(B1, B1 > B0).n
-                t += abs(I1 - I0) / ramp * 60 + 1 # ~1 s overhead
-                t += steptime if mode == 'stepwise' else 0
-                t += 0.5 if mode == 'stepwise' else 0 # avg measurement delay
-                B0, I0 = B1, I1
-        else:
-            Imin = self._field2current(Bmin, Bmin > 0).n
-            Imax = self._field2current(Bmax, Bmax > Bmin).n
-            n = 100
-            dt = abs(Imax - Imin) / n / ramp * 60
-            if dt < 0.5:
-                dt = 0.5
-                n = int(abs(Imax - Imin) / (dt * ramp / 60))
-            ranges = [(Imin, Imax, n, False), (Imax, Imin, n, False)] * cycles
-            values = [i for r in ranges for i in numpy.linspace(*r)]
-            t = 0
-            I0 = values[progress - 1] if progress else 0
-            for I1 in values[progress:]:
-                t += abs(I1 - I0) / ramp * 60
-                I0 = I1
+        t = 0
+        keys = ['mode', 'steptime', 'Bmin', 'Bmax', 'ramp', 'cycles', 'step',]
+        if self.m and all(k in self.m for k in keys):
+            Bmin = self.m['Bmin']
+            Bmax = self.m['Bmax']
+            cycles = self.m['cycles']
+            step = self.m['step']
+            steptime = self.m['steptime']
+            ramp = self.m['ramp']
+            mode = self.m['mode']
+            if mode == 'stepwise':
+                n = int(abs(Bmax - Bmin) / step)
+                ranges = [(Bmin, Bmax, n, False), (Bmax, Bmin, n, False)] * cycles
+                values = [i for r in ranges for i in numpy.linspace(*r)]
+                if progress < len(values) and self.calibration:
+                    B0 = values[progress - 1] if progress else 0
+                    I0 = self._field2current(B0, values[progress] > B0).n
+                    for B1 in values[progress:]:
+                        I1 = self._field2current(B1, B1 > B0).n
+                        t += abs(I1 - I0) / ramp * 60 + 1 # ~1 s overhead
+                        t += steptime
+                        t += 0.5 # avg measurement delay
+                        B0, I0 = B1, I1
+            else:
+                if self.calibration:
+                    Imin = self._field2current(Bmin, Bmin > 0).n
+                    Imax = self._field2current(Bmax, Bmax > Bmin).n
+                    n = 100
+                    dt = abs(Imax - Imin) / n / ramp * 60
+                    if dt < 0.5:
+                        dt = 0.5
+                        n = int(abs(Imax - Imin) / (dt * ramp / 60))
+                    ranges = [(Imin, Imax, n, False), (Imax, Imin, n, False)] * cycles
+                    values = [i for r in ranges for i in numpy.linspace(*r)]
+                    if progress < len(values):
+                        I0 = values[progress - 1] if progress else 0
+                        for I1 in values[progress:]:
+                            t += abs(I1 - I0) / ramp * 60
+                            I0 = I1
         return t
 
     def _field2current(self, field, increasing):

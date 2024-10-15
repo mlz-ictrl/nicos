@@ -112,7 +112,6 @@ def test_calibration(session):
     n = 1
     magb.calibrate('stepwise', ramp, n)
     magb.calibrate('continuous', ramp, n)
-    assert magb._calibration_updated
     assert 'stepwise' in magb.calibration.keys()
     assert 'continuous' in magb.calibration.keys()
     ramp = str(float(ramp))

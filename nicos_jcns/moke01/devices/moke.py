@@ -80,7 +80,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
     def measure_intensity(self, mrmnt):
         self._stop_requested = False
         self._measuring = True
-        self._progress = self._maxprogress = self._cycle = 0
+        self.progress = self.maxprogress = self.cycle = 0
         self.mode = mrmnt['mode']
         self.ramp = mrmnt['ramp']
         mrmnt['time'] = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -103,10 +103,10 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                 ranges = [(mrmnt['Bmin'], mrmnt['Bmax'], n, False),
                           (mrmnt['Bmax'], mrmnt['Bmin'], n, False)] * mrmnt['cycles']
                 self._BvI, self._IntvB = Curve2D(), Curve2D()
-                self._maxprogress = sum(len(numpy.linspace(*r)) for r in ranges)
+                self.maxprogress = sum(len(numpy.linspace(*r)) for r in ranges)
                 for i, r in enumerate(ranges):
                     self.fielddirection = 'increasing' if r[1] > r[0] else 'decreasing'
-                    self._cycle = i // 2
+                    self.cycle = i // 2
                     for _B in numpy.linspace(*r):
                         self.start(_B)
                         self._hw_wait()
@@ -122,7 +122,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                         self._BvI.append((self._field2current(_B).n, _B))
                         self._IntvB.append((ufloat(B, self._magsensor.readStd(B)),
                                             ufloat(Int, self._intensity.readStd(Int))))
-                        self._progress += 1
+                        self.progress += 1
             elif mrmnt['mode'] == 'continuous':
                 self.fielddirection = 'increasing'
                 IBmax = self._field2current(mrmnt['Bmax']).n
