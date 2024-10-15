@@ -32,7 +32,7 @@ from nicos.guisupport.plots import GRCOLORS, MaskedPlotCurve
 from nicos.guisupport.qt import QDialogButtonBox, QDoubleValidator, QLabel, \
     QMessageBox, QSize, QSizePolicy, Qt, QVBoxLayout, QWidget, pyqtSlot
 from nicos.guisupport.utils import waitCursor
-from nicos.guisupport.widget import NicosWidget
+from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import findResource
 
 from nicos_mlz.toftof.lib.calculations import ResolutionAnalysis
@@ -145,6 +145,12 @@ class IntensityPlot(PlotWidget):
 
 class ResolutionPanel(NicosWidget, Panel):
 
+    ch_dev = PropDef('ch_dev', str, 'ch', 'Chopper device')
+    speed_dev = PropDef('speed_dev', str, 'chSpeed', 'Chopper speed device')
+    wl_dev = PropDef('wl_dev', str, 'chWL', 'Wavelength device')
+    ratio_dev = PropDef('ratio_dev', str, 'chRatio', 'Chopper ratio device')
+    st_dev = PropDef('st_dev', str, 'chST', 'Slittype device')
+
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         NicosWidget.__init__(self)
@@ -183,13 +189,14 @@ class ResolutionPanel(NicosWidget, Panel):
             self.plot3 = ResolutionPlot(self.rPlot, xscale='decimal')
 
     def registerKeys(self):
-        for key in ('chSpeed/abslimits', 'chWL/abslimits'):
-            self.registerKey(key)
+        for dev in (self.speed_dev, self.wl_dev):
+            self.registerKey(f'{dev}/abslimits')
 
     def on_client_connected(self):
         with waitCursor():
             missed_devices = []
-            for d in ('chSpeed', 'chRatio', 'chWL', 'chST'):
+            for d in (self.speed_dev, self.ratio_dev,
+                      self.wl_dev, self.st_dev):
                 try:
                     self.client.eval(f'{d}.pollParams()', None)
                     params = self.client.getDeviceParams(d)
@@ -197,7 +204,7 @@ class ResolutionPanel(NicosWidget, Panel):
                         self._update_key('%s/%s' % (d, p), v)
                 except (NicosError, NameError):
                     missed_devices += [d]
-            vt = self._client.getDeviceValuetype('chRatio')
+            vt = self._client.getDeviceValuetype(self.ratio_dev)
             self.ratio.setRange(min(vt.vals), max(vt.vals))
         if not missed_devices:
             self.recalculate()
@@ -211,20 +218,20 @@ class ResolutionPanel(NicosWidget, Panel):
     def on_keyChange(self, key, value, time, expired):
         dev, param = key.split('/')
         if param == 'abslimits':
-            if dev == 'chSpeed'.lower():
+            if dev == self.speed_dev.lower():
                 self.speed.setRange(*value)
-            elif dev == 'chWL'.lower():
+            elif dev == self.wl_dev.lower():
                 self.waveLength.setRange(*value)
         NicosWidget.on_keyChange(self, key, value, time, expired)
 
     def _update_key(self, key, value):
-        if key in ['chSpeed/value', 'ch/speed']:
+        if key in [f'{self.speed_dev}/value', f'{self.ch_dev}/speed']:
             self.speed.setValue(value if value else 3000)
-        elif key in ['chRatio/value', 'ch/ratio']:
+        elif key in [f'{self.ratio_dev}/value', f'{self.ch_dev}/ratio']:
             self.ratio.setValue(int(value))
-        elif key in ['chWL/value', 'ch/wavelength']:
+        elif key in [f'{self.wl_dev}/value', f'{self.ch_dev}/wavelength']:
             self.waveLength.setValue(float(value))
-        elif key in ['chST/value', 'ch/slittype']:
+        elif key in [f'{self.st_dev}/value', f'{self.ch_dev}/slittype']:
             self.slits.setCurrentIndex(int(value))
 
     @pyqtSlot()
@@ -240,12 +247,12 @@ class ResolutionPanel(NicosWidget, Panel):
     def createScript(self, button):
         if self.buttonBox.standardButton(button) \
                 == QDialogButtonBox.StandardButton.Apply:
-            maw = ['chWL, %.2f' % self.waveLength.value()]
-            maw.append('chRatio, %d' % self.ratio.value())
-            maw.append('chSpeed, %d' % self.speed.value())
+            maw = [f'{self.wl_dev}, %.2f' % self.waveLength.value()]
+            maw.append(f'{self.ratio_dev}, %d' % self.ratio.value())
+            maw.append(f'{self.speed_dev}, %d' % self.speed.value())
             s = ['maw(%s)' % ', '.join(maw)]
             if self.client.user_level == ADMIN:
-                s.append('maw(chST, %d)' % self.slits.currentIndex())
+                s.append(f'maw({self.st_dev}, %d)' % self.slits.currentIndex())
             script = '\n'.join(s)
             # print(script)
             self.client.run(script, noqueue=False)
