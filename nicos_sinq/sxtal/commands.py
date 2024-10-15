@@ -1175,7 +1175,8 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
 
     """
     def hasFourVariables():
-        if isinstance(session.instrument, TASSXTal):
+        if isinstance(session.instrument, TASSXTal) \
+                and session.instrument.inelastic:
             return True
         if isinstance(session.instrument, EulerSXTal)\
                 and session.instrument.use_psi:
@@ -1229,7 +1230,8 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
 
-    if isinstance(session.instrument, TASSXTal):
+    if isinstance(session.instrument, TASSXTal)\
+            and session.instrument.inelastic:
         values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                   for i in range(-numperside, numperside+1)]
     else:

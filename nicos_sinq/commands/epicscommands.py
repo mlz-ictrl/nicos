@@ -29,6 +29,7 @@ import epics
 from nicos import session
 from nicos.commands import helparglist, hiddenusercommand, usercommand
 from nicos.commands.device import disable, enable
+from nicos.core.errors import UsageError, ConfigurationError
 
 from nicos_sinq.devices.epics.motor import EpicsMotor as SinqEpicsMotor
 
@@ -85,3 +86,35 @@ def EnableSetupMotors(*setupnames):
     >>> EnableSetupMotors('epics_motors')
     """
     _enableSetupMotors(enable, *setupnames)
+
+
+@usercommand
+@helparglist('device_name')
+def rereadEncoder(device_name):
+    """Reread the Absolute Encoder for a PMACV3 Motor.
+    The motor must first be disabled!
+
+    Example:
+
+    >>> rereadEncoder('pz5')
+    """
+    try:
+        device = session.getDevice(device_name, SinqEpicsMotor)
+
+        if not device.absolute_encoder:
+            session.log.error('%s has not been configured with an absolute'
+                              ' encoder.', device_name)
+            return
+
+        if device.isEnabled:
+            session.log.error('%s must be disabled to reread the absolute'
+                              ' encoder.', device_name)
+            return
+
+        return device._put_pv('reread_encoder', 1)
+
+    except ConfigurationError:
+        session.log.error('%s  not found.', device_name)
+        return
+    except UsageError:
+        session.log.error('%s is not of the right type', device_name)

@@ -128,6 +128,7 @@ class SINQProtonMonitor(CounterChannelMixin, EpicsActiveChannel):
 
     def doPrepare(self):
         self._put_pv('presetpv', self.preselection)
+        self._put_pv('readpv', 0)
 
     def doStart(self):
         self.doPrepare()

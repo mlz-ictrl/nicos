@@ -37,6 +37,7 @@ devices = dict(
         abslimits = (2.4, 6.2),
         mth1 = 'mth1',
         mth2 = 'mth2',
-        mtx = 'mtx'
+        mtx = 'mtx',
+        precision = .01,
     ),
 )

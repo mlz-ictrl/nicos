@@ -36,6 +36,9 @@ class EpicsMotor(EssEpicsMotor):
         'auto_enable': Param('Automatically enable the motor when the setup is'
                              ' loaded', type=bool, default=False,
                              settable=False),
+        'absolute_encoder': Param('Has an absolute encoder that can be reread',
+                                  type=bool, default=False,
+                                  settable=False),
     }
 
     def _get_pv_name(self, pvparam):
@@ -44,6 +47,8 @@ class EpicsMotor(EssEpicsMotor):
             return self.motorpv + ':Enable'
         elif pvparam == 'enable_rbv':
             return self.motorpv + ':Enable_RBV'
+        elif pvparam == 'reread_encoder':
+            return self.motorpv + ':Reread_Encoder'
         else:
             return EssEpicsMotor._get_pv_name(self, pvparam)
 
@@ -66,6 +71,8 @@ class EpicsMotor(EssEpicsMotor):
         if self.can_disable:
             pvs.add('enable')
             pvs.add('enable_rbv')
+        if self.absolute_encoder:
+            pvs.add('reread_encoder')
         return pvs
 
     def doEnable(self, on):
