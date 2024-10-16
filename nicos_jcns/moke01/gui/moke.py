@@ -118,7 +118,8 @@ class MokeBase(Panel):
 
         IntvB = self.m['IntvB']
         if self.chk_subtract_baseline.isChecked():
-            IntvB = self.m['IntvB'] - self.m['baseline']
+            IntvB -= self.m['baseline']
+            IntvB -= IntvB.series_to_curves().amean().yvx(0).y
         angle = float(self.ln_canting_angle.text()) # [SKT]
         # recalculate angle in SKT to mrad
         angle *= 0.7 / 25 / 180 * math.pi * 1000 # [mrad]
@@ -217,15 +218,13 @@ class MokePanel(NicosWidget, MokeBase):
             # before measurement is finished and stored to `MagB.measurement`
             # IntvB can be fetched from MagB._IntvB
             if self.m:
-                self.m['IntvB'] = self.client.eval('session.getDevice("MagB")._IntvB')
-                if self.m['IntvB']:
-                    self.plot_IntvB.reset()
-                    self.plot_IntvB.add_curve(
-                        self.m['IntvB'] - self.m['baseline'] \
-                            if self.chk_subtract_baseline.isChecked() \
-                            else self.m['IntvB'],
-                        legend=self.m['name']
-                    )
+                IntvB = self.client.eval('session.getDevice("MagB")._IntvB') \
+                    or self.m['IntvB']
+                if self.chk_subtract_baseline.isChecked() and self.m['baseline']:
+                    IntvB -= self.m['baseline']
+                    IntvB -= IntvB.series_to_curves().amean().yvx(0).y
+                self.plot_IntvB.reset()
+                self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
                 self.display_rawdata(generate_output(self.m))
         elif key == 'magb/measurement':
             self.m = value.copy()
@@ -250,12 +249,12 @@ class MokePanel(NicosWidget, MokeBase):
                 self.ln_cycles.setText(str(self.m['cycles']))
                 self.plot_IntvB.reset()
                 if self.m['IntvB']:
-                    self.plot_IntvB.add_curve(
-                        self.m['IntvB'] - self.m['baseline'] \
-                            if self.chk_subtract_baseline.isChecked() \
-                            else self.m['IntvB'],
-                        legend=self.m['name']
-                    )
+                    IntvB = self.m['IntvB']
+                    if self.chk_subtract_baseline.isChecked():
+                        IntvB -= self.m['baseline']
+                        IntvB -= IntvB.series_to_curves().amean().yvx(0).y
+                    self.plot_IntvB.reset()
+                    self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
 
     def on_cmb_mode_currentTextChanged(self, mode):
         if mode == 'stepwise':
@@ -433,8 +432,10 @@ class MokeHistory(MokeBase):
             item = self._model.itemFromIndex(current)
             self.m = self.measurements[item.text()]
             self.display_rawdata(generate_output(self.m))
-        IntvB = self.m['IntvB'] - self.m['baseline'] \
-            if self.chk_subtract_baseline.isChecked() else self.m['IntvB']
+        IntvB = self.m['IntvB']
+        if self.chk_subtract_baseline.isChecked():
+            IntvB -= self.m['baseline']
+            IntvB -= IntvB.series_to_curves().amean().yvx(0).y
         self.plot_IntvB.reset()
         self.plot_EvB.reset()
         self.plot_IntvB.add_curve(IntvB, legend=self.m["name"])
