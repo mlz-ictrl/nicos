@@ -157,9 +157,8 @@ class DeviceWidget(QWidget):
         maxWidth = 100  # default minimum 100
         for _, widget in self.parameters.items():
             labelWidth = widget.labelParam.sizeHint().width()
+            maxWidth = max(labelWidth, maxWidth)
 
-            if labelWidth > maxWidth:
-                maxWidth = labelWidth
         for _, widget in self.parameters.items():
             widget.labelParam.setMinimumWidth(maxWidth)
 
