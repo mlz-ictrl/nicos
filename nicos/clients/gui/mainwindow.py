@@ -35,7 +35,6 @@ from nicos.clients.base import ConnectionData
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.config import tabbed
 from nicos.clients.gui.data import DataHandler
-from nicos.clients.gui.dialogs.auth import ConnectionDialog
 from nicos.clients.gui.dialogs.debug import DebugConsole
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.dialogs.pnp import PnPSetupQuestion
@@ -752,9 +751,12 @@ class MainWindow(DlgUtils, QMainWindow):
             return
 
         self.actionConnect.setChecked(False)  # gets set by connection event
-        ret = ConnectionDialog.getConnectionData(self, self.connpresets,
-                                                 self.lastpreset,
-                                                 self.conndata, self.tunnel)
+        connectionDialog_cls = importString(
+            self.gui_conf.options.get(
+                'connection_dialog_class',
+                'nicos.clients.gui.dialogs.auth.ConnectionDialog'))
+        ret = connectionDialog_cls.getConnectionData(
+            self, self.connpresets, self.lastpreset, self.conndata, self.tunnel)
         new_name, new_data, save, tunnel = ret
 
         if new_data is None:
