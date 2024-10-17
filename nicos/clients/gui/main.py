@@ -79,7 +79,8 @@ def main(argv):
     log = NicosLogger('gui')
     log.parent = None
     log.setLevel(logging.INFO)
-    log.addHandler(ColoredConsoleHandler())
+    if sys.stdout is not None:
+        log.addHandler(ColoredConsoleHandler())
     log.addHandler(NicosLogfileHandler(path.join(userpath, 'log'), 'gui',
                                        use_subdir=False))
 
