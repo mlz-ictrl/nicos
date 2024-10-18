@@ -128,7 +128,7 @@ def ListAuth(request):
         passwds.append((user, hashed, level))
 
     Auth = ListAuthenticator('authenicator',
-                             hashing = 'sha1',
+                             hashing='sha1',
                              passwd=passwds)
     yield Auth
 
