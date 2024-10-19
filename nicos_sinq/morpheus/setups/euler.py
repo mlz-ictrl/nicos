@@ -2,7 +2,7 @@ description = 'Installs the Eulerian cradle into NICOS'
 
 includes = ['morpheus', 'monochromator']
 
-excludes = ['tas']
+excludes = ['tas', 'tasmlz']
 
 devices = dict(
     mess = device('nicos_sinq.sxtal.reflist.ReflexList',
@@ -70,3 +70,6 @@ devices = dict(
         devclass = 'nicos.core.device.Moveable'
     ),
 )
+startupcode = '''
+wavelength.unit='A'
+'''

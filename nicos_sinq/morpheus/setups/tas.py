@@ -1,22 +1,26 @@
-description = 'Installs the Triple Axis Calculations into MORPHEUS'
-
-# WARNING 555: This is a test version for development
+description = 'Installs the UB based Triple Axis Calculations into MORPHEUS'
 
 group = 'basic'
 
 includes = ['morpheus', 'monochromator', 'a34_aliases', 'slits']
 
-excludes = ['euler', 'pnr', 'diffraction']
-
 devices = dict(
     mess = device('nicos_sinq.sxtal.reflist.ReflexList',
         description = 'Reflection list for measurements',
-        reflection_list = []
+        reflection_list = [],
+        column_headers = (
+            ('H', 'K'
+             'L', 'EN'), ('A3', 'A4', 'SGU', 'SGL'), ('EI', 'EF')
+        ),
     ),
     ublist = device('nicos_sinq.sxtal.reflist.ReflexList',
         description = 'Reflection list for '
         'UB matrix refinement',
-        reflection_list = []
+        reflection_list = [],
+        column_headers = (
+            ('H', 'K'
+             'L', 'EN'), ('A3', 'A4', 'SGU', 'SGL'), ('EI', 'EF')
+        ),
     ),
     Sample = device('nicos_sinq.sxtal.sample.SXTalSample',
         description = 'The currently used sample',
@@ -46,7 +50,7 @@ devices = dict(
         sgl = 'sgy',
         mono = 'wavelength',
         ana = 'wavelength',
-        inelastic = True,
+        inelastic = False,
         out_of_plane = True,
         plane_normal = [0.015167, 0.005586, 0.999869],
     ),
@@ -65,11 +69,6 @@ devices = dict(
         alias = 'MORPHEUS.l',
         devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
     ),
-    en = device('nicos.core.device.DeviceAlias',
-        description = 'Alias for the en of hkle',
-        alias = 'MORPHEUS.en',
-        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
-    ),
     sgu = device('nicos.core.device.DeviceAlias',
         description = 'Alias for omega',
         alias = 'sgx',
@@ -81,3 +80,6 @@ devices = dict(
         devclass = 'nicos.core.device.Moveable'
     ),
 )
+startupcode = """
+wavelength.unit='meV'
+"""
