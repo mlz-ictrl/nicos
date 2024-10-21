@@ -78,6 +78,7 @@ Instrument-specific code was contributed by:
 * Alexey Bykov <redi87@bk.ru>
 * Daniel Cacabelos <daniel.cacabelos@ess.eu>
 * Petr Čermák <cermak@mag.mff.cuni.cz>
+* Tomáš Červeň <to.cerven@gmail.com>
 * Goetz Eckold <geckold@gwdg.de>
 * Artem Feoktystov <a.feoktystov@fz-juelich.de>
 * Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
@@ -113,6 +114,7 @@ Instrument-specific code was contributed by:
 * Jonas Petersson <jonas.petersson@ess.eu>
 * Matthias Pomm <matthias.pomm@hereon.de>
 * Kirill Pshenichnyi <pshcyrill@mail.ru>
+* Tomáš Sandrini <tomas.sandrini@seznam.cz>
 * Andrew Sazonov <andrew.sazonov@frm2.tum.de>
 * Philipp Schmakat <philipp.schmakat@frm2.tum.de>
 * Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>

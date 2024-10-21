@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>645</width>
+    <height>677</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0,0,1">
+   <item row="8" column="2">
+    <widget class="DeviceValueEdit" name="sampleRange">
+     <property name="dev" stdset="0">
+      <string>range_sample</string>
+     </property>
+     <property name="useButtons" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1" colspan="4">
+    <widget class="Line" name="line_5">
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="2">
+    <widget class="DeviceParamEdit" name="mainsorbTarget">
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_mainsorb</string>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="param" stdset="0">
+      <string>target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="ValueLabel" name="valueLabel_2">
+     <property name="dev" stdset="0">
+      <string/>
+     </property>
+     <property name="key" stdset="0">
+      <string>T_sample/setpoint</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="4">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="4">
+    <widget class="Line" name="line">
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="4" rowspan="2">
+    <widget class="QPushButton" name="sampleapplyButton">
+     <property name="text">
+      <string>Apply</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1" rowspan="2">
+    <widget class="ValueDisplay" name="valueDisplay_2">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_sample</string>
+     </property>
+     <property name="name" stdset="0">
+      <string>Sample</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4" rowspan="2">
+    <widget class="QPushButton" name="vtiapplyButton">
+     <property name="text">
+      <string>Apply</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="3">
+    <widget class="DeviceParamEdit" name="sampleRamp">
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_sample</string>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="param" stdset="0">
+      <string>ramp</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="DeviceParamEdit" name="sampleTarget">
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_sample</string>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="param" stdset="0">
+      <string>target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="DeviceParamEdit" name="vtiRamp">
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_vti</string>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="param" stdset="0">
+      <string>ramp</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" rowspan="2">
+    <widget class="QLabel" name="label_6">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Lakeshore</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="1" colspan="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="2">
+    <widget class="DeviceParamEdit" name="vtiTarget">
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_vti</string>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="param" stdset="0">
+      <string>target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Setpoint</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Range</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="ValueLabel" name="valueLabel">
+     <property name="dev" stdset="0">
+      <string/>
+     </property>
+     <property name="key" stdset="0">
+      <string>T_vti/setpoint</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="DeviceValueEdit" name="vtiRange">
+     <property name="dev" stdset="0">
+      <string>range_vti</string>
+     </property>
+     <property name="useButtons" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Ramp</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1" rowspan="2">
+    <widget class="ValueDisplay" name="valueDisplay_3">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_mainsorb</string>
+     </property>
+     <property name="name" stdset="0">
+      <string>MainSorb</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="3">
+    <widget class="ValueLabel" name="valueLabel_3">
+     <property name="dev" stdset="0">
+      <string/>
+     </property>
+     <property name="key" stdset="0">
+      <string>T_mainsorb/setpoint</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="2">
+    <widget class="DeviceParamEdit" name="minisorbTarget">
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_minisorb</string>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="param" stdset="0">
+      <string>target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="3">
+    <widget class="DeviceParamEdit" name="mainsorbRamp">
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_mainsorb</string>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="param" stdset="0">
+      <string>ramp</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="4" rowspan="2">
+    <widget class="QPushButton" name="mainsorbapplyButton">
+     <property name="text">
+      <string>Apply</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="2">
+    <widget class="DeviceValueEdit" name="mainsorbRange">
+     <property name="dev" stdset="0">
+      <string>range_mainsorb</string>
+     </property>
+     <property name="useButtons" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1" colspan="4">
+    <widget class="Line" name="line_4">
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" rowspan="2">
+    <widget class="ValueDisplay" name="valueDisplay">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_vti</string>
+     </property>
+     <property name="name" stdset="0">
+      <string>VTI</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="2">
+    <widget class="DeviceValueEdit" name="minisorbRange">
+     <property name="dev" stdset="0">
+      <string>range_minisorb</string>
+     </property>
+     <property name="useButtons" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1" rowspan="2">
+    <widget class="ValueDisplay" name="valueDisplay_4">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_minisorb</string>
+     </property>
+     <property name="name" stdset="0">
+      <string>MiniSorb</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="4" rowspan="2">
+    <widget class="QPushButton" name="minisorbapplyButton">
+     <property name="text">
+      <string>Apply</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="3">
+    <widget class="DeviceParamEdit" name="minisorbRamp">
+     <property name="maximumSize">
+      <size>
+       <width>60</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="dev" stdset="0">
+      <string>T_minisorb</string>
+     </property>
+     <property name="updateValue" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="showUnit" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="param" stdset="0">
+      <string>ramp</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="3">
+    <widget class="ValueLabel" name="valueLabel_4">
+     <property name="dev" stdset="0">
+      <string/>
+     </property>
+     <property name="key" stdset="0">
+      <string>T_minisorb/setpoint</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SqueezedLabel</class>
+   <extends>QLabel</extends>
+   <header>nicos.guisupport.squeezedlbl</header>
+  </customwidget>
+  <customwidget>
+   <class>ValueLabel</class>
+   <extends>SqueezedLabel</extends>
+   <header>nicos.guisupport.display</header>
+  </customwidget>
+  <customwidget>
+   <class>ValueDisplay</class>
+   <extends>QWidget</extends>
+   <header>nicos.guisupport.display</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceValueEdit</class>
+   <extends>QWidget</extends>
+   <header>nicos.guisupport.typedvalue</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceParamEdit</class>
+   <extends>DeviceValueEdit</extends>
+   <header>nicos.guisupport.typedvalue</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
