@@ -69,7 +69,8 @@ def loadBasicWindowSettings(window, settings):
 
 def loadUserStyle(window, settings):
     window.user_font = settings.value('font', QFont('Monospace'), QFont)
-    window.user_color = settings.value('color', QApplication.palette().base().color(), QColor)
+    window.user_color = settings.value(
+        'color', QApplication.palette().base().color(), QColor)
 
 
 def enumerateWithProgress(seq, text, every=1, parent=None, total=None,
@@ -163,7 +164,7 @@ class DlgUtils:
         tx.setReadOnly(1)
         tx.setText(contents)
         font = QFont(tx.font())
-        font.setFamily('monospace')
+        font.setFamily('Monospace')
         tx.setFont(font)
         lay.addWidget(tx)
         btn = QPushButton(qd, 'ok')

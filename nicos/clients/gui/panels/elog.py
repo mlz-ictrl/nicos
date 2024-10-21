@@ -186,7 +186,7 @@ class ELogPanel(Panel):
             window.resize(600, 800)
             window.setWindowTitle(filename)
             widget = QTextEdit(window)
-            widget.setFontFamily('monospace')
+            widget.setFontFamily('Monospace')
             window.setCentralWidget(widget)
             widget.setText(content)
             window.show()
