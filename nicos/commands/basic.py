@@ -376,8 +376,7 @@ def RemoveDevice(*devnames):
 
 
 @usercommand
-@helparglist('lowlevel=False')
-def CreateAllDevices(**kwargs):
+def CreateAllDevices(lowlevel=False):
     """Try to create all possible devices in the current setup.
 
     This is useful when a setup failed to load many devices, and another
@@ -392,7 +391,6 @@ def CreateAllDevices(**kwargs):
 
     see also: `CreateDevice`, `RemoveDevice`
     """
-    lowlevel = kwargs.get('lowlevel', False)
     if lowlevel and not session.checkUserLevel(ADMIN):
         session.log.error('Creating all lowlevel devices is only allowed '
                           'for admin users')
