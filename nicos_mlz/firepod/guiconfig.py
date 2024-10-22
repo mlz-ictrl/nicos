@@ -17,7 +17,11 @@ main_window = docked(
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
            dockpos='right',
            param_display={
-               'Exp': ['lastpoint', 'lastscan'],
+               'Exp': [
+                   'lastpoint',
+                   'lastscan',
+                ],
+               'slit': ['opmode',],
            },
            filters=[
                ('Detector', 'det'),
