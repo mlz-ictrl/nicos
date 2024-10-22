@@ -1029,6 +1029,7 @@ def pause(prompt='Script paused by pause() command.'):
 
 
 @usercommand
+@helparglist('[message]')
 def abort(message=None):
     """Abort any running script with a given message."""
     if message:
