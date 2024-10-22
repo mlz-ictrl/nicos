@@ -493,7 +493,7 @@ def Remark(remark):
     session.experiment.remark = remark
 
 
-@usercommand
+@hiddenusercommand
 def SetMode(mode):
     """Set the execution mode.
 
