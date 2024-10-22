@@ -36,6 +36,7 @@ from test.utils import approx
 
 @pytest.fixture(scope='function', autouse=True)
 def img():
+    """Return a test image read from file."""
     with np.load('test/test_basic/data/ascent.npz') as data:
         img = np.copy(data['arr_0'].astype(np.uint16))
         yield img
