@@ -173,9 +173,7 @@ class NicosConsoleFormatter(Formatter):
             else:
                 fmtstr = self.colorize(
                     'red', '%s%%(levelname)s: %%(message)s' % namefmt)
-            fmtstr = '%(filename)s' + datefmt + fmtstr
-            if not getattr(record, 'nonl', False):
-                fmtstr += '\n'
+            fmtstr = '%(filename)s' + datefmt + fmtstr + '\n'
         record.asctime = self.formatTime(record, self.datefmt)
         s = fmtstr % record.__dict__
         # never output more exception info -- the exception message is already
@@ -397,8 +395,7 @@ def recordToMessage(record, reqid):
 
     msg = [getattr(record, e) for e in ('name', 'created', 'levelno',
                                         'message', 'exc_text')] + [reqid]
-    if not hasattr(record, 'nonl'):
-        msg[3] += '\n'
+    msg[3] += '\n'
     return msg
 
 
