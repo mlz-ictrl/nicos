@@ -1,0 +1,56 @@
+description = 'PPMS Cryostat'
+
+group = 'basic'
+
+devices = dict(
+    secnode = device('nicos.devices.secop.SecNodeDevice',
+        description='PPMS14 SEC node',
+        uri='kfes62.troja.mff.cuni.cz:5000',
+        auto_create=False,
+        # unit='',
+        # count=0,
+        # pollinterval=1,
+    ),
+    ppms_level = device('nicos.devices.secop.SecopReadable',
+        secnode = 'secnode',
+        description = 'helium level',
+        secop_module = 'lev',
+        unit = '%',
+        fmtstr = '%g'),
+    T_ppms = device('nicos.devices.secop.SecopMoveable',
+        secnode = 'secnode',
+        description = 'main temperature',
+        secop_module = 'tt',
+        unit = 'K',
+        fmtstr = '%g'),
+    B_ppms = device('nicos.devices.secop.SecopMoveable',
+        secnode = 'secnode',
+        description = 'magnetic field',
+        secop_module = 'mf',
+        unit = 'T',
+        fmtstr = '%g'),
+    ppms_chamber = device('nicos.devices.secop.SecopMoveable',
+        secnode = 'secnode',
+        description = 'chamber state',
+        secop_module = 'chamber',
+        unit = '',
+        fmtstr = '%r'),
+
+    Gas = device('nicos.devices.generic.ManualMove',
+        description = 'Gas Level',
+        abslimits = (0, 1000000),
+        default = 0,
+        unit = '',
+    ),
+    ppms_cryostat = device('nicos_mgml.devices.cryostat.Cryostat',
+        description = 'ppms14 cryostat',
+        levelmeter = 'ppms_level',
+        gasmeter = 'Gas',
+        calibration = [(0, 1.5), (29, 4.36), (77.4, 34.5), (100, 36.2)],
+        unit = '%',
+    ),
+)
+
+alias_config = {
+    'Cryostat':  {'ppms_cryostat': 100},
+}
