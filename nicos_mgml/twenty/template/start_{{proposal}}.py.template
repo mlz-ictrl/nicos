@@ -1,0 +1,15 @@
+#
+# This script is for Proposal {{proposal}}
+#
+
+SetErrorAbort(True)
+SetDataReceivers('user@email.cz')
+
+#include remark in datafile
+filesink.filenametemplate=['%(proposal)s_%(scancounter)08d_%(remark)s.dat']
+
+# Samplename is set in NewExperiment from the Proposaldb, but can be changed here
+Sample.samplename='SAMPLENAME'
+
+
+# TBD more for different setups

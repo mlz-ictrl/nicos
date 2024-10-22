@@ -1,0 +1,15 @@
+Dear user(s),
+
+please find attached  {{proposal}}.tgz, a file containing the {{numscans}} data files
+({{proposal}}_{{firstscan}} to {{proposal}}_{{lastscan}}) and your script files
+from your recent experiment {{proposal}} (from {{from_date}} to {{to_date}}) on 20T cryomagnet.
+
+Please let us know about the quality of the data and your satisfaction with our support.
+Do not forget to submit an experimental report, especially if you will ask for further measurement time.
+Please take care of your sample(s).
+
+If you have further questions concerning this experiment, please ALWAYS include the
+proposalnumber ({{proposal}}) in your communication.
+
+Regards,
+  The MGML Team

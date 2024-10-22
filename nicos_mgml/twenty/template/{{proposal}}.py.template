@@ -1,0 +1,21 @@
+# typical commands
+
+Remark("Example scripts")   # creates a chapter in logbook
+
+#   your scans from here :
+
+move(T, 5)      # changing temperature
+wait(120)       # wait 2 min. (or wait(T) to wait until T is stable)
+# or
+maw(T, 5)       # move and wait - no sleep is necessary
+
+# just count for 13 points
+timescan(13)
+
+switch(magnet_mode, 'persistent')
+switch(magnet_mode, 'driven')
+
+notify("Hi there, your example script is finished! Your big green magnet.")   #send email to the user
+
+# end of user commands
+
