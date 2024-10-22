@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
@@ -29,4 +28,4 @@ try:
     from uncertainties.core import AffineScalarFunc, ufloat
 except Exception:
     from .types import FloatWithStdError as AffineScalarFunc, \
-        FloatWithStdError as ufloat
+        FloatWithStdError as ufloat # pylint: disable=reimported
