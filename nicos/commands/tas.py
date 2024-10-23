@@ -62,8 +62,9 @@ def _getQ(v, name):
                          % name) from None
 
 
-def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
+def _handleQScanArgs(fn, args, kwargs, Q, dQ, numpoints):
     preset, detlist, envlist, move, multistep = {}, None, None, [], []
+    scaninfo = ''
     for arg in args:
         if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
@@ -107,6 +108,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
                 move.append((session.devices[key], value))
         else:
             preset[key] = value
+    scaninfo += _infostr(fn, (Q, dQ, numpoints) + args, kwargs)
     return preset, scaninfo, detlist, envlist, move, multistep, Q, dQ
 
 
@@ -132,15 +134,14 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
     * plot='res'  -- plot resolution ellipsoid along scan
     * plot='hkl'  -- plot position of scan points in scattering plane
     """
-    Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    scanstr = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
-    plotval = kwargs.pop('plot', None)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
-        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+        _handleQScanArgs('qscan', args, kwargs, _getQ(Q, 'Q'), _getQ(dQ, 'dQ'),
+                         numpoints)
     if all(v == 0 for v in dQ) and numpoints > 1:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
               for i in range(numpoints)]
+    plotval = kwargs.get('plot', None)
     if plotval == 'res':
         resscan(*(p[0] for p in values), kf=kwargs.get('kf'),
                 ki=kwargs.get('ki'))
@@ -174,15 +175,14 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     * plot='res'  -- plot resolution ellipsoid along scan
     * plot='hkl'  -- plot position of scan points in scattering plane
     """
-    Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
-    plotval = kwargs.pop('plot', None)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
-        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+        _handleQScanArgs('qcscan', args, kwargs, _getQ(Q, 'Q'),
+                         _getQ(dQ, 'dQ'), numperside)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
               for i in range(-numperside, numperside+1)]
+    plotval = kwargs.pop('plot', None)
     if plotval == 'res':
         resscan(*(p[0] for p in values), kf=kwargs.get('kf'),
                 ki=kwargs.get('ki'))
