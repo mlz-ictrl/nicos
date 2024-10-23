@@ -30,11 +30,12 @@ from nicos.utils import createThread
 
 
 class Regulator(Moveable):
-    """Device to regulate a attached moveable by monitoring an attached
-    readable. Will be used for monitoring and regulating the amplitude of the
+    """Regulate an attached moveable by monitoring an attached readable.
+
+    Will be used for monitoring and regulating the amplitude of the
     frequency generators for the resonating circuits.
 
-    The regulation is done, assuming that the movable is (approximitely)
+    The regulation is done, assuming that the movable is (approximately)
     directly proportional to the sensor."""
 
     attached_devices = {
@@ -112,9 +113,8 @@ class Regulator(Moveable):
                     self.curstatus = status.BUSY, 'regulating'
                 if diff > self.deadbandwidth / 2:
                     cur_write_val = self._attached_moveable.read(0)
-                    step = self.stepfactor * (diff - self.deadbandwidth/2)
-                    if step < self.minstep:
-                        step = self.minstep
+                    step = self.stepfactor * (diff - self.deadbandwidth / 2)
+                    step = max(step, self.minstep)
                     maxstep = self.maxstep or step
                     sign = 1 if read_val < self.target else -1
 
@@ -125,11 +125,11 @@ class Regulator(Moveable):
                                    '%s -> %s', cur_write_val, new_target)
 
                     if hasattr(self._attached_moveable, 'absmax'):
-                        if new_target > self._attached_moveable.absmax:
-                            new_target = self._attached_moveable.absmax
+                        new_target = min(new_target,
+                                         self._attached_moveable.absmax)
                     if hasattr(self._attached_moveable, 'usermax'):
-                        if new_target > self._attached_moveable.usermax:
-                            new_target = self._attached_moveable.usermax
+                        new_target = min(new_target,
+                                         self._attached_moveable.usermax)
 
                     self._attached_moveable.start(new_target)
                     # TODO: wait?
