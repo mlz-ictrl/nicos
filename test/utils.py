@@ -42,9 +42,8 @@ from nicos.core import ACCESS_LEVELS, AccessError, Attach, DataSink, \
     DataSinkHandler, HasLimits, Moveable, status, system_user
 from nicos.core.mixins import IsController
 from nicos.core.sessions import Session
-from nicos.devices.abstract import CanReference
 from nicos.devices.cacheclient import CacheClient
-from nicos.devices.generic import VirtualMotor
+from nicos.devices.generic import VirtualReferenceMotor
 from nicos.devices.notifiers import Mailer
 from nicos.services.cache.database import FlatfileCacheDatabase
 from nicos.utils import closeSocket, createSubprocess, tcpSocket
@@ -505,15 +504,14 @@ class TestNotifier(Mailer):
         self._messages.append((subject, body, what, short, important))
 
 
-class TestReferenceMotor(CanReference, VirtualMotor):
+class TestReferenceMotor(VirtualReferenceMotor):
 
     _ref_error = None
 
-    def doReference(self):
+    def doReference(self, *args):
         if self._ref_error:
             raise self._ref_error  # pylint: disable=raising-bad-type
-        # Enforce a change in current position
-        self.curvalue = 0
+        VirtualReferenceMotor.doReference(self, args)
 
 
 def cleanup():
