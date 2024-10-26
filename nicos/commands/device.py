@@ -18,6 +18,7 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
+#   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
 
@@ -49,7 +50,7 @@ __all__ = [
     'reset', 'set', 'get', 'getall', 'setall', 'info', 'fix', 'release',
     'unfix', 'adjust', 'version', 'history', 'limits', 'resetlimits',
     'reference', 'ListParams', 'ListMethods', 'ListDevices', 'waitfor',
-    'enable', 'disable', 'rmove', 'rmaw',
+    'waitfor_stable', 'enable', 'disable', 'rmove', 'rmaw',
 ]
 
 
@@ -385,6 +386,74 @@ def waitfor(dev, condition, timeout=86400):
         if not cond_fulfilled:
             raise NicosTimeoutError(dev, "Waiting for '%s %s' timed out" %
                                     (dev, condition))
+        session.endActionScope()
+
+
+@usercommand
+@helparglist('device, target, accuracy, time_stable, [timeout]')
+def waitfor_stable(device, target, accuracy, time_stable, timeout=3600):
+    """Wait for the device to be within a certain range of the target value
+    for a defined continuous number of seconds.
+
+    If the device takes too long to stabilise then the action will timeout.
+
+    Example:
+
+    >>> waitfor_stable(dev1, 10, 1, 30, 600)
+
+    will wait until the device position is between 9 and 11 for a continous
+    period of 30 seconds, but will exit after 10 minutes if
+    stability is not reached.
+
+    .. note::
+
+       The default timeout is an hour (3600 s).
+    """
+    if session.mode == SIMULATION:
+        session.clock.tick(time_stable)
+        return
+
+    dev = session.getDevice(device)
+    if time_stable >= timeout:
+        raise UsageError('The timeout has to be greater than the stable time')
+
+    in_range_tmr = Timer()
+    in_range_tmr.stop()  # Timer starts automatically
+    cond = f"'{dev} is stable at {target} (+/-{accuracy}) for {time_stable} s'"
+    cond_fulfilled = False
+
+    def check(tmr, target, accuracy, time_stable):
+        nonlocal cond_fulfilled
+
+        session.breakpoint(BREAK_AFTER_STEP)  # allow break and continue here
+
+        if abs(target - dev.read(0)) <= accuracy:
+            if not in_range_tmr.is_running():
+                in_range_tmr.start(time_stable)
+                session.log.info('%s is within range, waiting %s seconds for '
+                                 'it to stabilise', device, time_stable)
+        else:
+            if in_range_tmr.is_running():
+                session.log.info('%s is no longer in range', device)
+            in_range_tmr.stop()
+
+        cond_fulfilled = bool(
+            in_range_tmr.is_running() and
+            in_range_tmr.remaining_time() <= dev._base_loop_delay)
+
+        if cond_fulfilled:
+            session.log.info("Waiting for %s finished", cond)
+            in_range_tmr.stop()
+            tmr.stop()
+
+    session.beginActionScope(f"Waiting until {cond}")
+    try:
+        # max wait time 1 hour if not set
+        tmr = Timer(timeout if timeout else 3600)
+        tmr.wait(dev._base_loop_delay, check, (target, accuracy, time_stable))
+    finally:
+        if not cond_fulfilled:
+            raise NicosTimeoutError(dev, f"Waiting for {cond} timed out.")
         session.endActionScope()
 
 

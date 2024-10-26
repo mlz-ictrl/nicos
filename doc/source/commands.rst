@@ -122,6 +122,7 @@ Device commands
 .. autofunction:: reset
 .. autofunction:: wait
 .. autofunction:: waitfor
+.. autofunction:: waitfor_stable
 .. autofunction:: info
 
 .. autofunction:: limits
