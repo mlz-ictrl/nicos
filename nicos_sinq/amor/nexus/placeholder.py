@@ -23,7 +23,7 @@
 
 from nicos.core.errors import ConfigurationError
 
-from nicos_ess.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
+from nicos.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
 
 class DistancesPlaceholder(PlaceholderBase):

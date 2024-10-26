@@ -23,17 +23,19 @@
 
 
 class PlaceholderBase:
-    """ Base class for a placeholder in NeXus template. Children should
-    implement the method *fetch_info* which returns the info of the value
-    in the form of a tuple consisting of the following qunatities:
-    (value, value_string, units, type)
+    """Placeholder in NeXus template.
+
+    Derived classes should implement the method *fetch_info* which returns the
+    info of the value in the form of a tuple consisting of the following
+    quantities: (value, value_string, units, type)
     """
 
     def __repr__(self):
         return self.__class__.__name__
 
     def fetch_info(self, metainfo):
-        """ Returns the value for the placeholder.
+        """Return the value for the placeholder.
+
         :param metainfo: The current information of all devices
         :return: tupleof (value, value_string, units, type)
         """
@@ -41,9 +43,10 @@ class PlaceholderBase:
 
 
 class DeviceValuePlaceholder(PlaceholderBase):
-    """ Placeholder for device and one of it's parameter in the NeXus structure
-    When required the placeholder can fetch the required value of the
-    parameter from the device.
+    """Placeholder for device and one of it's parameter in the NeXus structure.
+
+    When required the placeholder can fetch the required value of the parameter
+    from the device.
     """
 
     def __init__(self, device, parameter='value', defaultval=None):
@@ -55,9 +58,10 @@ class DeviceValuePlaceholder(PlaceholderBase):
         return "(Device: %s and Parameter: %s)" % (self.device, self.parameter)
 
     def fetch_info(self, metainfo):
-        """ Fetch the info of the device and it's parameter from the provided
-        metainfo. Returns None if no such device or parameter is found in the
-        provided metainfo.
+        """Fetch the device info and it's parameter from the provided metainfo.
+
+        Returns None if no such device or parameter is found in the provided
+        metainfo.
         :param metainfo: dictof device, parameter -> (val, str_val, unit, type)
         :return: info tupleof(val, str_val, unit, type)
         """

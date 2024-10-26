@@ -25,7 +25,7 @@
 from nicos import session
 from nicos.core import ConfigurationError
 
-from nicos_ess.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
+from nicos.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
 
 class NexusElementBase:
