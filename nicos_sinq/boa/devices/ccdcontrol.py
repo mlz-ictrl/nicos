@@ -88,9 +88,6 @@ class BoaControlDetector(ControlDetector):
             if self._attached_trigger.isCompleted():
                 # session.log.info('Trigger finished\n')
                 self._triggerFinished = time.time()
-                # This is needed with the AD simulation as it is not controlled
-                # by the counter box
-                # self._attached_slave_detectors[0].stop()
                 return False
         else:
             if all(det.isCompleted() for det in

@@ -39,8 +39,8 @@ from nicos.clients.gui.widgets.qscintillacompat import QScintillaCompatible
 from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QAction, QActionGroup, QByteArray, QColor, \
     QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, QFont, \
-    QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, QMessageBox, \
-    QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
+    QFontInfo, QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, \
+    QMessageBox, QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
     QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, QWidget, \
     pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
@@ -364,12 +364,17 @@ class EditorPanel(Panel):
     def _updateStyle(self, editor):
         if self.custom_font is None:
             return
-        bold = QFont(self.custom_font)
-        bold.setBold(True)
         if has_scintilla:
+            # normalize family names like Monospace because QScintilla doesn't
+            # and results in mismatch between glyph shapes and metrics
+            fontinfo = QFontInfo(self.custom_font)
+            normal = QFont(self.custom_font)
+            normal.setFamily(fontinfo.family())
+            bold = QFont(normal)
+            bold.setBold(True)
             lexer = editor.lexer()
-            lexer.setDefaultFont(self.custom_font)
-            lexer.setFont(self.custom_font, -1)
+            lexer.setDefaultFont(normal)
+            lexer.setFont(normal, -1)
             # make keywords bold
             lexer.setFont(bold, 5)
         else:

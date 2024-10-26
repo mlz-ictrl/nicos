@@ -2,7 +2,7 @@ description = 'Sample position 2 motorization'
 
 group = 'basic'
 
-includes = ['camera_focus_2', 'beam_limiter_2', 'shutters', 'detector']
+includes = ['camera_focus_2', 'beam_limiter_2', 'shutters', 'sensors']
 
 display_order = 30
 
