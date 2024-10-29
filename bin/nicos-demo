@@ -85,6 +85,7 @@ def cleanup():
     if need_cleanup:
         echo('Cleaning up...\n')
     pgid = None
+    all_stopped = True
     for nice_name, proc, prof in reversed(background_processes):
         try:
             if not pgid and hasattr(os, 'getpgid'):
@@ -98,16 +99,19 @@ def cleanup():
                 sleep(0.5)
             else:
                 proc.terminate()
+            proc.wait(2)
         except OSError as e:
             # might already have terminated early
             echo('could not stop %s: %s\n' % (nice_name, e))
-        else:
-            proc.wait()
+            all_stopped = False
+        except subprocess.TimeoutExpired:
+            echo('could not stop %s due to timeout\n' % nice_name)
+            all_stopped = False
     # under some circumstances (re-start due to internal errors)
     # the poller or watchdog may become detached
     # from its parents, so do a final safety kill
-    if pgid:
-        os.killpg(pgid, signal.SIGTERM)
+    if pgid and not all_stopped:
+        os.killpg(pgid, signal.SIGKILL)
     if need_cleanup:
         echo('NICOS demo finished.\n')
 
