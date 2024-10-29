@@ -23,13 +23,15 @@
 from contextlib import contextmanager
 from math import asin, degrees, fabs, radians, sin, tan
 
-from nicos.core import Attach, HasLimits, IsController, Moveable, Param
+from nicos.core import Attach, HasLimits, HasPrecision, IsController, \
+    Moveable, Param
 from nicos.core.errors import NicosError, PositionError
 from nicos.devices.generic import BaseSequencer
 from nicos.devices.generic.sequence import SeqDev, SeqMethod
 
 
-class DoubleMonochromator(HasLimits, IsController, BaseSequencer):
+class DoubleMonochromator(HasLimits, HasPrecision, IsController,
+                          BaseSequencer):
     """
     This class represents a double crystal monochromator as used at PSI.
     The two blades of the monochromator cannot safely pass each other.Thus
@@ -119,6 +121,11 @@ class DoubleMonochromator(HasLimits, IsController, BaseSequencer):
     def doRead(self, maxage=0):
         theta = self._attached_mth1.read(maxage)
         return abs(2 * self.dvalue * sin(radians(theta)))
+
+    def doStart(self, target):
+        if self.isAtTarget(target=target):
+            return
+        BaseSequencer.doStart(self, target)
 
     def isAdevTargetAllowed(self, adev, adevtarget):
         if self._allowed_called:

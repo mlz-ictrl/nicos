@@ -60,6 +60,7 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
     _count = 0
     _scandataset = None
     _lastsubscan = None
+    filename = None
 
     def prepare(self):
         if self.dataset.settype == 'scan':
@@ -76,6 +77,8 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
     def begin(self):
         if not self._ccl_file:
             # pylint: disable=consider-using-with
+            # filename needed for substitution in header generation
+            self.filename = self.dataset.filepaths[0]
             self._ccl_file = open(self.dataset.filepaths[0], 'w',
                                   encoding='utf-8')
             base = os.path.splitext(self.dataset.filepaths[0])[0]

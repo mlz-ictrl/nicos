@@ -140,10 +140,9 @@ class QuieckHandler(DataSinkHandler):
 
     def end(self):
         DataSinkHandler.end(self)
-        if self.dataset == self._startdataset and \
-                len(self._startdataset.filepaths) > 0:
-            message = 'QUIECK/' + self._startdataset.filepaths[0]
+        if self._startdataset.finished is not None:
             try:
+                message = 'QUIECK/' + self._startdataset.filepaths[0]
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as socke:
                     socke.sendto(message.encode(),
                                  (self.sink.host, self.sink.port))
