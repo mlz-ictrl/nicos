@@ -26,7 +26,7 @@
 import logging
 import shutil
 import tempfile
-from os import path
+from pathlib import Path
 
 from frappy.lib import generalConfig
 from frappy.server import Server
@@ -48,9 +48,9 @@ Mod('enumvalue',
 )
 '''
 
-tmpdir = tempfile.mkdtemp(prefix='nicos-frappy-tmp')
-cfgfile = path.join(tmpdir, 'cfg')
-with open(cfgfile, 'w', encoding='utf-8') as f:
+tmpdir = Path(tempfile.mkdtemp(prefix='nicos-frappy-tmp'))
+cfgfile = tmpdir / 'cfg'
+with cfgfile.open('w', encoding='utf-8') as f:
     f.write(TEST_CFG)
 
 generalConfig.set_default('lazy_number_validation', False)
@@ -69,7 +69,7 @@ handler.setLevel(logging.ERROR)
 handler.setFormatter(logging.Formatter('[SECNODE] %(name)s: %(message)s'))
 log.addHandler(handler)
 
-srv = Server('testserver', log, cfgfiles=cfgfile)
+srv = Server('testserver', log, cfgfiles=str(cfgfile))
 
 srv.run()
 shutil.rmtree(tmpdir, ignore_errors=True)
