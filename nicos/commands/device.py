@@ -366,22 +366,24 @@ def waitfor(dev, condition, timeout=86400):
 
     if session.mode == SIMULATION:
         return
+    cond_fulfilled = False
 
     def check(tmr):
+        nonlocal cond_fulfilled
+
         session.breakpoint(BREAK_AFTER_STEP)  # allow break and continue here
-        waitfor.cond_fulfilled = eval(full_condition, {}, {'_v': dev.read(0)})
-        if waitfor.cond_fulfilled:
-            session.log.info('Waiting for \'%s %s\' finished.', dev, condition)
+        cond_fulfilled = eval(full_condition, {}, {'_v': dev.read(0)})
+        if cond_fulfilled:
+            session.log.info("Waiting for '%s %s' finished", dev, condition)
             tmr.stop()
 
-    waitfor.cond_fulfilled = False
+    session.beginActionScope('Waiting until %s %s' % (dev, condition))
     try:
-        session.beginActionScope('Waiting until %s %s' % (dev, condition))
         tmr = Timer(timeout if timeout else 86400)  # max wait time 1 day
         tmr.wait(dev._base_loop_delay * 3, check)
     finally:
-        if not waitfor.cond_fulfilled:
-            raise NicosTimeoutError(dev, 'Waiting for \'%s %s\' timed out.' %
+        if not cond_fulfilled:
+            raise NicosTimeoutError(dev, "Waiting for '%s %s' timed out" %
                                     (dev, condition))
         session.endActionScope()
 
