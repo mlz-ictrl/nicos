@@ -34,150 +34,10 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0" columnminimumwidth="0,0,0">
-     <item row="0" column="0">
-      <widget class="QToolButton" name="proposalBtn">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Edit Proposal Information</string>
-       </property>
-       <property name="text">
-        <string>Proposal</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QToolButton" name="setupBtn">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Edit Instrument Setups</string>
-       </property>
-       <property name="text">
-        <string>Setups</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QToolButton" name="sampleBtn">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Edit Samples</string>
-       </property>
-       <property name="text">
-        <string>Samples</string>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="1">
-      <widget class="ValueLabel" name="valueLabel_5">
-       <property name="key" stdset="0">
-        <string>exp.remark</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" alignment="Qt::AlignRight">
-      <widget class="QLabel" name="label_4">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Users</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" alignment="Qt::AlignRight">
-      <widget class="QLabel" name="label_5">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Local Contact</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="ValueLabel" name="valueLabel">
-       <property name="key" stdset="0">
-        <string>exp.proposal</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1">
       <widget class="ValueLabel" name="valueLabel_3">
        <property name="key" stdset="0">
         <string>exp.users</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="ValueLabel" name="valueLabel_6">
-       <property name="key" stdset="0">
-        <string>sample.samplename</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="ValueLabel" name="valueLabel_4">
-       <property name="key" stdset="0">
-        <string>exp.localcontact</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0" colspan="3">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="0" alignment="Qt::AlignRight">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Detectors</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="0" alignment="Qt::AlignRight">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Scans</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="ValueLabel" name="setupLabel"/>
-     </item>
-     <item row="8" column="0" colspan="2">
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -188,49 +48,6 @@
        </property>
        <property name="key" stdset="0">
         <string>exp.detlist</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="1">
-      <widget class="ValueLabel" name="envLabel">
-       <property name="text">
-        <string>(exp.envlist)</string>
-       </property>
-       <property name="key" stdset="0">
-        <string>exp.envlist</string>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="0" colspan="2">
-      <widget class="Line" name="line_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" alignment="Qt::AlignRight">
-      <widget class="QLabel" name="label_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>Title</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="ValueLabel" name="valueLabel_2">
-       <property name="key" stdset="0">
-        <string>exp.title</string>
        </property>
       </widget>
      </item>
@@ -250,6 +67,170 @@
        </property>
       </widget>
      </item>
+     <item row="2" column="0" alignment="Qt::AlignRight">
+      <widget class="QLabel" name="label_4">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Users</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="ValueLabel" name="valueLabel_2">
+       <property name="key" stdset="0">
+        <string>exp.title</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="ValueLabel" name="valueLabel_4">
+       <property name="key" stdset="0">
+        <string>exp.localcontact</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="ValueLabel" name="envLabel">
+       <property name="text">
+        <string>(exp.envlist)</string>
+       </property>
+       <property name="key" stdset="0">
+        <string>exp.envlist</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QToolButton" name="sampleBtn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Edit Samples</string>
+       </property>
+       <property name="text">
+        <string>Samples</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" alignment="Qt::AlignRight">
+      <widget class="QLabel" name="label_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Title</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="ValueLabel" name="valueLabel">
+       <property name="key" stdset="0">
+        <string>exp.proposal</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="3">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="0" alignment="Qt::AlignRight">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Scans</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="ValueLabel" name="setupLabel"/>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0" colspan="2">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" alignment="Qt::AlignRight">
+      <widget class="QLabel" name="label_5">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Local Contact</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QToolButton" name="setupBtn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Edit Instrument Setups</string>
+       </property>
+       <property name="text">
+        <string>Setups</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="1">
+      <widget class="ValueLabel" name="valueLabel_5">
+       <property name="key" stdset="0">
+        <string>exp.remark</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0" alignment="Qt::AlignRight">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Detectors</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="0" colspan="2">
+      <widget class="Line" name="line_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="ValueLabel" name="valueLabel_6">
+       <property name="key" stdset="0">
+        <string>sample.samplename</string>
+       </property>
+      </widget>
+     </item>
      <item row="13" column="0">
       <widget class="QToolButton" name="remarkBtn">
        <property name="sizePolicy">
@@ -263,6 +244,38 @@
        </property>
        <property name="text">
         <string>Remark</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QToolButton" name="proposalBtn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Edit Proposal Information</string>
+       </property>
+       <property name="text">
+        <string>Proposal</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="0" colspan="2">
+      <widget class="CheckBox" name="elogBox">
+       <property name="text">
+        <string>Auto-hide content in electronic log</string>
+       </property>
+       <property name="key" stdset="0">
+        <string>exp.elog_hidden</string>
+       </property>
+       <property name="onCommand" stdset="0">
+        <string>HideLog(True)</string>
+       </property>
+       <property name="offCommand" stdset="0">
+        <string>HideLog(False)</string>
        </property>
       </widget>
      </item>
@@ -335,6 +348,11 @@
    <class>ValueLabel</class>
    <extends>QLabel</extends>
    <header>nicos.guisupport.display</header>
+  </customwidget>
+  <customwidget>
+   <class>CheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>nicos.guisupport.button</header>
   </customwidget>
  </customwidgets>
  <resources>
