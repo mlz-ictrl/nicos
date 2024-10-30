@@ -1344,8 +1344,10 @@ class Session:
         else:
             self.log.error(exc_info=exc_info)
 
-    def elogEvent(self, eventtype, data):
+    def elogEvent(self, eventtype, data, store=False):
         """Send events to electronic logbook.
+
+        If *store* is true, the event is stored permanently in the cache.
 
         The electronic logbook receives some messages from various NICOS
         components via a special protocol. The following events will be sent:
@@ -1403,7 +1405,10 @@ class Session:
                   elog events will be sent in simulation mode.
         """
         if self.cache and self.experiment and self.experiment.elog:
-            self.cache.put_raw('logbook/' + eventtype + FLAG_NO_STORE, data)
+            if store:
+                self.cache.put_raw(f'logbook/{eventtype}', data)
+            else:
+                self.cache.put_raw(f'logbook/{eventtype}{FLAG_NO_STORE}', data)
 
     def scriptEvent(self, eventtype, data):
         """Call this when an command/script event happens.

@@ -405,7 +405,8 @@ class Experiment(Device):
         # tell elog
         instname = session._instrument and session.instrument.instrument or ''
         session.elogEvent('directory', (newproposalpath, instname,
-                                        path.basename(newproposalpath)))
+                                        path.basename(newproposalpath)),
+                          store=True)
 
     def doWriteSampledir(self, newsampledir):
         # handle current symlink
@@ -500,7 +501,8 @@ class Experiment(Device):
                 self._eloghandler.disabled = session.mode != MASTER
                 session.addLogHandler(self._eloghandler)
             session.elogEvent('directory', (self.proposalpath,
-                                            instname, self.proposal))
+                                            instname, self.proposal),
+                              store=True)
         if not self.templates:
             self._setROParam('templates',
                              path.abspath(path.join(config.nicos_root,
