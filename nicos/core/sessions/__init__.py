@@ -1361,6 +1361,9 @@ class Session:
         ``directory``: New | Data directory
            | From Experiment device
            | Data: directory, instrument, proposal
+        ``hidden``: New events should be hidden by default or not
+           | From: `HideLog` command via `Experiment.elog_hidden` param
+           | Data: hidden (bool)
         ``entry``: New freetext entry
            | From `LogEntry` command
            | Data: markdown text

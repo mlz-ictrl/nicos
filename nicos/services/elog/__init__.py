@@ -70,8 +70,10 @@ class Logbook(BaseCacheClient):
         else:
             self._islocked = True
 
-        # request current directory for the handler to start up correctly
-        msg = f'@{self._prefix}directory{OP_ASK}\n{END_MARKER}{OP_ASK}\n'
+        # request persistent data for the handler to start up correctly
+        msg = (f'@{self._prefix}hidden{OP_ASK}\n'
+               f'@{self._prefix}directory{OP_ASK}\n'
+               f'{END_MARKER}{OP_ASK}\n')
         self._socket.sendall(msg.encode())
 
         # read response
@@ -91,7 +93,7 @@ class Logbook(BaseCacheClient):
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         self.log.debug('got %s, op: %s', key, op)
-        if op not in (OP_TELL, ) or not key.startswith(self._prefix):
+        if op != OP_TELL or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix):]
         time = time and float(time)

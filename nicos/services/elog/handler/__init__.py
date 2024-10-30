@@ -30,12 +30,17 @@ from nicos.core.device import Device
 
 class Handler(Device):
     def doInit(self, mode):
+        self._hidden = False
         self._dir = self._logdir = None
 
     def handle(self, key, timestamp, data):
         fun = getattr(self, f'handle_{key}', None)
         if fun:
-            fun(timestamp, data)
+            fun(timestamp, data)  # pylint: disable=not-callable
+
+    def handle_hidden(self, time, data):
+        """Handle the 'hidden' event."""
+        self._hidden = data
 
     def handle_directory(self, time, data):
         """Handle the 'directory' event.

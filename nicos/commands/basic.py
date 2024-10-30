@@ -52,7 +52,7 @@ __all__ = [
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', 'ListMailReceivers', 'SetDataReceivers',
     'ListDataReceivers', '_trace', 'timer',
-    'LogEntry', '_LogAttach', '_LogAttachImage',
+    'LogEntry', 'HideLog', '_LogAttach', '_LogAttachImage',
     'SetErrorAbort', 'pause', 'userinput', 'abort',
 ]
 
@@ -969,6 +969,16 @@ def LogEntry(entry):
     >>> # improved sample holder
     """
     session.elogEvent('entry', entry)
+
+
+@usercommand
+@parallel_safe
+def HideLog(hidden):
+    """Make new entries to the electronic log hidden by default.
+
+    This is meant to be active during recording of less important events.
+    """
+    session.experiment.elog_hidden = hidden
 
 
 @hiddenusercommand

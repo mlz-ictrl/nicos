@@ -103,6 +103,9 @@ class Experiment(Device):
                                 settable=True, internal=True),
         'elog':           Param('True if the electronic logbook should be '
                                 'enabled', type=bool, default=True),
+        'elog_hidden':    Param('True if the events sent to the electronic '
+                                'logbook should be hidden by default',
+                                type=bool, default=False, settable=True),
         'scripts':        Param('Currently executed scripts', type=listof(str),
                                 settable=True, internal=True,
                                 no_sim_restore=True),
@@ -1136,6 +1139,9 @@ class Experiment(Device):
     def doWriteRemark(self, remark):
         if remark:
             session.elogEvent('remark', remark)
+
+    def doWriteElog_Hidden(self, hidden):
+        session.elogEvent('hidden', hidden, store=True)
 
     @property
     def sample(self):
