@@ -24,8 +24,8 @@
 import ast
 
 from nicos.guisupport.led import ClickableOutputLed
-from nicos.guisupport.qt import Qt
-from nicos.guisupport.widget import PropDef
+from nicos.guisupport.qt import Qt, QCheckBox
+from nicos.guisupport.widget import NicosWidget, PropDef
 
 
 class PushButton(ClickableOutputLed):
@@ -81,3 +81,30 @@ class SinglePushButton(PushButton):
             if self._client:
                 self._client.run('move(%s, %r)' % (self.dev, self._stateTo))
         event.accept()
+
+
+class CheckBox(QCheckBox, NicosWidget):
+    designer_description = 'Shows and toggles a boolean parameter'
+
+    key = PropDef('key', str, '', 'Key to use as the value')
+    onCommand = PropDef('onCommand', str, '', 'Command to run for "on"')
+    offCommand = PropDef('offCommand', str, '', 'Command to run for "off"')
+
+    def __init__(self, parent=None, designMode=False):
+        QCheckBox.__init__(self, parent)
+        NicosWidget.__init__(self)
+        self.clicked.connect(self.on_clicked)
+
+    def registerKeys(self):
+        self.registerKey(self.props['key'])
+
+    def on_keyChange(self, key, value, time, expired):
+        if expired:
+            return
+        self.setChecked(bool(value))
+
+    def on_clicked(self, on):
+        if on:
+            self._client.run(self.props['onCommand'])
+        else:
+            self._client.run(self.props['offCommand'])
