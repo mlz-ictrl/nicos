@@ -469,6 +469,10 @@ class Experiment(Device):
     #
 
     def doInit(self, mode):
+        # need to keep a local cache to avoid recursing cache calls when
+        # querying
+        self._elog_enabled = self.elog
+
         # check that service proposal is actually resolved as service
         if self.propprefix:
             try:
@@ -556,6 +560,9 @@ class Experiment(Device):
                 raise ConfigurationError(
                     self, 'managerights: illegal value for key '
                     '%r: not an integer' % key, exc=1)
+
+    def doUpdateElog(self, on):
+        self._elog_enabled = on
 
     #
     # Experiment handling: New&Finish

@@ -1404,7 +1404,7 @@ class Session:
         .. note:: The simulation mode is disconnected from cache, therefore no
                   elog events will be sent in simulation mode.
         """
-        if self.cache and self.experiment and self.experiment.elog:
+        if self.cache and self.experiment and self.experiment._elog_enabled:
             if store:
                 self.cache.put_raw(f'logbook/{eventtype}', data)
             else:
