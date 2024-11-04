@@ -30,7 +30,8 @@ from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     anytype, boolean, dictof, dictwith, floatrange, host, intrange, ipv4, \
     limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
     nonemptystring, nonzero, oneof, oneofdict, oneofdict_or, pvname, \
-    relative_path, setof, string, subdir, tangodev, tupleof, vec3
+    relative_path, secret, setof, string, subdir, tangodev, tupleof, vec3
+from nicos.utils import Secret
 
 from test.utils import raises
 
@@ -476,3 +477,17 @@ def test_nonzero():
     assert raises(ValueError, nonzero(intrange(-1, 1)), 0)
     assert raises(ValueError, nonzero(floatrange(-1, 1)), 0)
     assert raises(ValueError, nonzero(floatrange(-1, 1)), 10)
+
+
+def test_secret():
+    s = secret()
+    assert f'{s!r}' == "<secret ''>"
+    assert raises(ConfigurationError, s.lookup)
+
+    s = secret('secret')
+    assert raises(ConfigurationError, s.lookup, 'error')
+    assert s.lookup() is None
+
+    s = secret(Secret(('secret', {})))
+    assert raises(ConfigurationError, s.lookup, 'error')
+    assert s.lookup() is None
