@@ -632,7 +632,7 @@ class Configure(Cmdlet):
         self.parameter.clear()
         self.parameter.addItems(sorted(p for p in self.paraminfo
                                        if self.paraminfo[p]['settable'] and
-                                          self.paraminfo[p]['userparam']))
+                                       self.paraminfo[p]['userparam']))
         self.target.dev = text
         self.on_parameter_change(self.parameter.currentText())
         self.changed()
@@ -785,6 +785,6 @@ def get_priority_sorted_categories():
     return categories
 
 
-for cmdlet in [Move, Count, Scan, CScan, TimeScan, ContScan, Tomo,
+for cmdlet in [Move, Count, Scan, CScan, TimeScan, ContScan,
                Sleep, Configure, NewSample]:
     register(cmdlet)

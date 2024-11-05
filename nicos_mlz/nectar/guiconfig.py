@@ -19,12 +19,20 @@ main_window = docked(
 windows = [
     window('Editor', 'editor',
         vsplit(
-            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel',
+              modules=[
+                  'nicos.clients.gui.cmdlets',
+                  'nicos.clients.gui.cmdlets.tomo',
+              ],
+            ),
             panel('nicos.clients.gui.panels.editor.EditorPanel',
               tools = [
                   tool('Scan Generator',
                        'nicos.clients.gui.tools.scan.ScanTool')
-              ]))),
+              ],
+            ),
+        ),
+    ),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',

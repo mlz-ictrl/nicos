@@ -24,8 +24,15 @@ windows = [
             )),
     window('Editor', 'editor',
            vsplit(
-               panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-               panel('nicos.clients.gui.panels.editor.EditorPanel'))),
+               panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel',
+                    modules=[
+                        'nicos.clients.gui.cmdlets',
+                        'nicos.clients.gui.cmdlets.tomo',
+                    ],
+               ),
+               panel('nicos.clients.gui.panels.editor.EditorPanel'),
+            ),
+    ),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
