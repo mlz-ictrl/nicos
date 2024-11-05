@@ -11,9 +11,6 @@
 .. module:: nicos_mlz.puma.devices.stackedaxis
 .. autoclass:: StackedAxis()
 
-.. module:: nicos_mlz.puma.devices.filter
-.. autoclass:: Filter()
-
 .. module:: nicos_mlz.puma.devices.focus
 .. autoclass:: FocusAxis()
 

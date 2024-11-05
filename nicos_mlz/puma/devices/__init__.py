@@ -26,7 +26,6 @@ from nicos_mlz.puma.devices.collimator import Collimator
 from nicos_mlz.puma.devices.comb_ax import CombAxis
 from nicos_mlz.puma.devices.coupledaxis import CoupledAxis
 from nicos_mlz.puma.devices.deflector import Deflector
-from nicos_mlz.puma.devices.filter import Filter
 from nicos_mlz.puma.devices.focus import FocusAxis
 from nicos_mlz.puma.devices.hecell import HeCellLifter
 from nicos_mlz.puma.devices.ipc import Coder, Motor, Motor1, ReferenceMotor
