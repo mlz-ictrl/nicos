@@ -38,9 +38,6 @@
 .. module:: nicos_mlz.puma.devices.coupledaxis
 .. autoclass:: CoupledAxis()
 
-.. module:: nicos_mlz.puma.devices.pgfilter
-.. autoclass:: PGFilter()
-
 .. module:: nicos_mlz.puma.devices.senseswitch
 .. autoclass:: SenseSwitch()
 

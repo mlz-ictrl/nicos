@@ -35,7 +35,6 @@ from nicos_mlz.puma.devices.mchanger import Mchanger
 from nicos_mlz.puma.devices.mtt import MttAxis
 from nicos_mlz.puma.devices.multianalyzer import MultiAnalyzer
 from nicos_mlz.puma.devices.multidetector import MultiDetectorLayout
-from nicos_mlz.puma.devices.pgfilter import PGFilter
 from nicos_mlz.puma.devices.seccoll import SecCollBlockChanger, SecCollLift, \
     SecCollPair, SecondaryCollimator
 from nicos_mlz.puma.devices.senseswitch import SenseSwitch
