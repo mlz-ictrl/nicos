@@ -102,9 +102,9 @@ class AsyncCommandsTool(CommandsTool):
         datapath = self.client.eval('session.experiment.datapath', '')
         if not datapath or not path.isdir(datapath):
             datapath = None
-        self.proc = createSubprocess(cmd, shell=False, stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT, bufsize=0,
-                                     cwd=datapath)
+        self.proc = createSubprocess(
+            cmd, shell=True, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, bufsize=0, cwd=datapath)
         self.thread = Thread(target=self._pollOutput)
         self.thread.start()
 
