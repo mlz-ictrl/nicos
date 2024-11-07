@@ -31,7 +31,6 @@ from uuid import uuid1
 
 import pytest
 
-from nicos import session
 from nicos.configmod import readToml
 from nicos.core.sessions.simulation import SimulationSupervisor
 from nicos.core.utils import system_user
@@ -70,7 +69,7 @@ class Emitter:
     def __init__(self, uuid, script):
         self.request = Request(uuid, script)
         self.messages = []
-        self.errored = False
+        self.error_record = None
         self.result = None
         self._controller = None
 
@@ -79,12 +78,10 @@ class Emitter:
 
     def emit_event(self, evtype, msg):
         if evtype == 'simmessage':
-            if msg[2] >= ERROR:
-                self.errored = True
-                session.log.info('%s', msg[4])
             record = LogRecord(msg[0], msg[2], msg[5], 0, msg[3].rstrip(),
                                (), None)
-            session.testhandler.emit(record)
+            if msg[2] >= ERROR and not self.error_record:
+                self.error_record = record
             self.messages.append(msg)
         elif evtype == 'simresult':
             assert msg[2] == self.request.reqid
@@ -174,8 +171,10 @@ def test_dryrun(session, facility, instr, script):
                                       [setup_subdirs, cachepath], quiet=False)
     supervisor.start()
     supervisor.join()
-    assert emitter.result is not None
-    assert not emitter.errored
+    if emitter.error_record:
+        session.log.handle(emitter.error_record)
+        # for safety, but logging the ERROR should have failed already
+        assert False, f'error during dry run: {emitter.error_record}'
     if timing_condition:
         time_estimation, _devices, _script = emitter.result
         assert eval('x ' + timing_condition, {'x': time_estimation})
