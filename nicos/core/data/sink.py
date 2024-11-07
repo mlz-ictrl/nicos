@@ -99,6 +99,17 @@ class DataSinkHandler:
         self.detector = detector
         self.manager = session.experiment.data
 
+    def getParent(self, settype):
+        """Get the parent dataset handler of the given settype, if one
+        exists, or None.
+        """
+        res = (handler
+               for subset in self.manager.iterParents(self.dataset, settype)
+               for handler in subset.handlers
+               if handler.sink is self.sink
+               and handler.detector is self.detector)
+        return next(res, None)
+
     def prepare(self):
         """Prepare writing this dataset.
 
