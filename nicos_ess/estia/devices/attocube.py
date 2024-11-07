@@ -49,7 +49,9 @@ class IDS3010Axis(EpicsReadable):
                   type=int,
                   userparam=False),
         'pvprefix':
-            Param('Prefix for the axis PV', type=str, mandatory=True),
+            Param('Prefix for the axis PV',
+                  type=str,
+                  mandatory=True),
         'absolute':
             Param('Absolute position value',
                   type=float,
@@ -233,7 +235,7 @@ class IDS3010Control(EpicsMoveable):
         return self._get_pv('read_pilot', as_string=True)
 
     def doWritePilot(self, value):
-        if not value in ('on', 'off'):
+        if value not in ('on', 'off'):
             self.log.error('Invalid value')
             return
         self._put_pv('write_pilot', value)
@@ -242,7 +244,7 @@ class IDS3010Control(EpicsMoveable):
         return self._get_pv('start_stop_alignment', as_string=True)
 
     def doWriteAlign(self, value):
-        if not value in ('on', 'off'):
+        if value not in ('on', 'off'):
             self.log.error('Invalid value')
         if value == 'on' and self.status()[1] == 'system idle':
             self._put_pv('start_stop_alignment', 'on')

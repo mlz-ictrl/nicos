@@ -226,8 +226,7 @@ class MultilineController(EpicsReadable):
                   settable=True,
                   internal=True),
         'alignment_process':
-            Param('Start/stop the process to align the '
-                  'channels.',
+            Param('Start/stop the process to align the channels.',
                   type=str,
                   settable=True,
                   internal=True),
