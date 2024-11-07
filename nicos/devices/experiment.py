@@ -689,6 +689,7 @@ class Experiment(Device):
 
         # reset all experiment dependent parameters and values to defaults
         self.remark = ''
+        self.elog_hidden = False
         try:
             self.sample.clear()
         except Exception:
