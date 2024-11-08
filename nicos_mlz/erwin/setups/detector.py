@@ -2,6 +2,8 @@ description = 'Small charm detector'
 
 group = 'optional'
 
+includes = ['charmbox02']
+
 tango_host = 'erwindet.erwin.frm2.tum.de'
 
 tango_base = f'tango://{tango_host}:10000/qm/qmesydaq/'
