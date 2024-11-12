@@ -25,7 +25,8 @@
 from nicos.core import status
 from nicos.core.device import Moveable
 from nicos.core.errors import InvalidValueError
-from nicos.core.params import Attach, Override, Param, floatrange, oneof
+from nicos.core.params import Attach, Override, Param, floatrange, limits, \
+    oneof
 from nicos.devices.entangle import Motor
 
 
@@ -45,6 +46,9 @@ class RadialCollimator(Moveable):
         'frequency': Param('Frequency of oscillation',
                            type=floatrange(0), unit='Hz', settable=True,
                            userparam=True, category='instrument'),
+        'frequency_limits': Param('The frequency limits',
+                                  type=limits, unit='Hz', settable=False,
+                                  volatile=True),
     }
 
     def doStatus(self, maxage=0):
@@ -57,21 +61,21 @@ class RadialCollimator(Moveable):
         return 'on' if self._attached_motor.status(maxage)[0] == status.BUSY \
             else 'off'
 
+    def doReadFrequency_Limits(self):
+        return (float(self._attached_motor._getProperty('minspeed')) / 360,
+                float(self._attached_motor._getProperty('maxspeed')) / 360)
+
     def doStart(self, target):
         if target == 'off':
             self._attached_motor.stop()
         else:
-            minfreq, maxfreq = (
-                float(self._attached_motor._getProperty('minspeed')) / 360,
-                float(self._attached_motor._getProperty('maxspeed')) / 360)
             try:
-                floatrange(minfreq, maxfreq)(self.frequency)
+                floatrange(*self.frequency_limits)(self.frequency)
             except ValueError as err:
                 raise InvalidValueError(
                     self, '%r is an invalid value for parameter %s: %s' % (
                         self.frequency, 'frequency', err)) from err
-            speed = 360 * self.frequency
-            self._attached_motor._dev.MoveCont(speed)
+            self._attached_motor._dev.MoveCont(360 * self.frequency)
 
     def doReadUnit(self):
         return ''
