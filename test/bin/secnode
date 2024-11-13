@@ -69,7 +69,8 @@ handler.setLevel(logging.ERROR)
 handler.setFormatter(logging.Formatter('[SECNODE] %(name)s: %(message)s'))
 log.addHandler(handler)
 
-srv = Server('testserver', log, cfgfiles=str(cfgfile))
-
-srv.run()
-shutil.rmtree(tmpdir, ignore_errors=True)
+try:
+    srv = Server('testserver', log, cfgfiles=[cfgfile])
+    srv.run()
+finally:
+    shutil.rmtree(tmpdir, ignore_errors=True)
