@@ -34,7 +34,7 @@ devices = dict(
     logspace_notif = device('nicos.devices.notifiers.Mailer',
         description = 'Reports about the limited logspace',
         sender = 'stressi@frm2.tum.de',
-        mailserver = 'smtp.frm2.tum.de',
+        mailserver = 'mailhost.frm2.tum.de',
         copies = [
             ('jens.krueger@frm2.tum.de', 'important'),
         ],

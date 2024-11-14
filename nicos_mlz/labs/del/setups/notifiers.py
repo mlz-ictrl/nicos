@@ -8,5 +8,6 @@ devices = dict(
         sender = 'karl.zeitelhack@frm2.tum.de',
         copies = [('karl.zeitelhack@frm2.tum.de', 'all')],
         subject = 'DEL',
+        mailserver = 'mailhost.frm2.tum.de',
     ),
 )

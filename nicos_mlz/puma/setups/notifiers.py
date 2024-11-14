@@ -6,7 +6,7 @@ devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
         description = 'Reports via email',
         sender = 'puma@frm2.tum.de',
-        mailserver = 'smtp.frm2.tum.de',
+        mailserver = 'mailhost.frm2.tum.de',
         copies = [
             ('jitae.park@frm2.tum.de', 'all'),
             ('norbert.juenke@frm2.tum.de', 'important'),

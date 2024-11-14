@@ -8,6 +8,7 @@ devices = dict(
         sender = 'firepod@frm2.tum.de',
         copies = [('christoph.hauf@frm2.tum.de', 'all')],
         subject = 'FirePod',
+        mailserver ='mailhost.frm2.tum.de',
     ),
     # smser = device('nicos.devices.notifiers.SMSer',
     #     server = 'triton.admin.frm2.tum.de',

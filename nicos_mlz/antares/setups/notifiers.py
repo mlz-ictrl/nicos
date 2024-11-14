@@ -6,6 +6,7 @@ devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
         description = 'Email notifier',
         sender = 'antares@frm2.tum.de',
+        mailserver = 'mailhost.frm2.tum.de',
         copies = [
             ('michael.schulz@frm2.tum.de', 'important'),
             ('burkhard.schillinger@frm2.tum.de', 'important'),
@@ -16,6 +17,7 @@ devices = dict(
     warning = device('nicos.devices.notifiers.Mailer',
         description = 'Watchdog email notifier',
         sender = 'antares@frm2.tum.de',
+        mailserver = 'mailhost.frm2.tum.de',
         copies = [
             ('michael.schulz@frm2.tum.de', 'all'),
             ('burkhard.schillinger@frm2.tum.de', 'all'),
@@ -31,7 +33,7 @@ devices = dict(
     logspace_notif = device('nicos.devices.notifiers.Mailer',
         description = 'Reports about the limited logspace',
         sender = 'antares@frm2.tum.de',
-        mailserver = 'smtp.frm2.tum.de',
+        mailserver = 'mailhost.frm2.tum.de',
         copies = [
             ('jens.krueger@frm2.tum.de', 'important'),
         ],

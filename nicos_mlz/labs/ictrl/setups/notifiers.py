@@ -9,6 +9,7 @@ devices = dict(
         copies = [('ictrl@frm2.tum.de', 'all'),   # gets all messages
                   ('ictrl@frm2.tum.de', 'important')], # gets only important messages
         subject = 'NICOS',
+        mailserver = 'mailhost.frm2.tum.de',
     ),
 
     # Configure SMS receivers if wanted and registered with IT.

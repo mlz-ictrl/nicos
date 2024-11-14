@@ -10,7 +10,7 @@ devices = dict(
     #         ('nobody@example.host', 'all'),   # gets all messages
     #         ('nobody@example.host', 'important'), # gets only important messages
     #     ],
-    #     mailserver = 'mailserver.host',  # please adapt!
+    #     mailserver = 'mailhost.frm2.tum.de',
     #     subject = 'NICOS',
     # ),
 )
