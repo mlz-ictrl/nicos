@@ -36,14 +36,18 @@ except ImportError:
 from nicos.guisupport.qt import QApplication, QMainWindow
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger, initLoggers
 
+mail_server = 'mailhost.fmr2.tum.de'
+mail_receiver = 'useroffice@mlz-garching.de'
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--receiver', dest='receiver', action='store',
-                    help='mailaddress of the receiver, defaults to'
-                    'useroffice@mlz-garching.de',
-                    default='useroffice@mlz-garching.de')
+                    help='mailaddress of the receiver, defaults to '
+                    f'{mail_receiver!r}',
+                    default=mail_receiver)
 parser.add_argument('-m', '--mailserver', dest='mailserver', action='store',
-                    help='name of the mail server, defaults to mailhost.frm2.tum.de',
-                    default='mailhost.frm2.tum.de')
+                    help='name of the mail server, defaults to '
+                    f'{mail_server!r}',
+                    default=mail_server)
 parser.add_argument('instrument', nargs=1, action='store', default='DEMO',
                     help='name of the instrument')
 parser.add_argument('sender', nargs=1, action='store',
