@@ -210,6 +210,9 @@ def Q(*args, **kwds):
     >>> q = Q(1, 0, 0)
     >>> q = Q(1, 0, 0, 5)
     >>> q = Q(h=1, E=5)
+    >>> q = Q('1 0 0 5')
+    >>> q = Q('1 0 0')
+    >>> q = Q('1')
 
     To create a Q vector from another Q vector, adjusting one or more entries:
 
