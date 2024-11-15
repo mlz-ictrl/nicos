@@ -48,15 +48,16 @@ def valuestats_to_json(valuestats):
 
 class Message:
     id: str  # pylint: disable=redefined-builtin
-    type: str  # pylint: disable=redefined-builtin
+    event: str
     metadata: dict
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
             self,
             id: uuid.UUID,  # pylint: disable=redefined-builtin
             scanid: uuid.UUID,
             blockid: uuid.UUID,
-            type: str,  # pylint: disable=redefined-builtin
+            event: str,
             started: str,
             filepaths: list,
             mapping: dict,
@@ -66,7 +67,7 @@ class Message:
         self.id = str(id)
         self.blockid = str(blockid) or None
         self.scanid = str(scanid) or None
-        self.type = type
+        self.event = event
         self.creation_timestamp = started
         self.filepaths = filepaths
         self.mapping = mapping
@@ -81,33 +82,25 @@ class RabbitSinkHandler(DataSinkHandler):
 
     ordering = 80
 
-    def _sendMessage(self, type: str, dataset: BaseDataset,  # pylint: disable=redefined-builtin
+    def _handleMessage(self, event: str, dataset: BaseDataset,
                      scands: ScanDataset = None, blockds: BlockDataset = None):
-        """Sends the metainfo, if available, and other information to the
+        """Prepares the data and sends the metainfo, if available, and other information to the
         Queue"""
         started = (datetime.fromtimestamp(dataset.started, tz=timezone.utc)
                    .isoformat())
-
-        def publish(message: Message):
-            self.sink._channel.basic_publish(
-                exchange=self.sink._exchange,
-                routing_key=session.instrument.instrument,
-                body=str(message),
-                properties=pika.BasicProperties(
-                    content_type='application/json'))
 
         metadata = {}
         if dataset.settype != BLOCK:
             metadata = metainfo_to_json(dataset.metainfo)
         msg = Message(
-            dataset.uid,
-            scands.uid if scands else None,
-            blockds.uid if blockds else None,
-            type,
-            started,
-            dataset.filepaths,
+            id=dataset.uid,
+            scanid=scands.uid if scands else None,
+            blockid=blockds.uid if blockds else None,
+            event=event,
+            started=started,
+            filepaths=dataset.filepaths,
             # DEVICE_INFO_MAPPING,
-            {
+            mapping={
                 'experiment': session.experiment.name,
                 'sample': session.experiment.sample.name,
                 'instrument': session.instrument.name,
@@ -115,18 +108,8 @@ class RabbitSinkHandler(DataSinkHandler):
             metainfo=metadata,
             statistics=valuestats_to_json(dataset.valuestats),
         )
-        for retry in range(3):
-            try:
-                if retry > 0:  # reconnect
-                    self.sink._connect()
-                publish(msg)
-                break
-            except (pika.exceptions.AMQPChannelError,
-                    pika.exceptions.AMQPConnectionError) as e:
-                self.log.debug('reconnect #%d due to %r', retry + 1, e)
-                exc = e
-        else:
-            raise exc
+        self.sink._sendMessage(msg)
+
 
     def _getScanDatasetParents(self, dataset):
         """Returns a tuple of `BlockDataset`, `ScanDataset` if available.
@@ -149,9 +132,9 @@ class RabbitSinkHandler(DataSinkHandler):
             return
         blockds, scands = self._getScanDatasetParents(self.dataset)
         if subset.number == 1:  # begin of ScanDataset including metainfo
-            self._sendMessage(self.dataset.settype, self.dataset, scands,
+            self._handleMessage(self.dataset.settype, self.dataset, scands,
                               blockds)
-        self._sendMessage(subset.settype, subset, self.dataset, blockds)
+        self._handleMessage(subset.settype, subset, self.dataset, blockds)
 
     def begin(self):
         self.log.debug("begin: dataset.settype = %s", self.dataset.settype)
@@ -159,7 +142,7 @@ class RabbitSinkHandler(DataSinkHandler):
         # before the first point. This is handled on the first point in
         # `addSubset`.
         if self.dataset.settype not in (SCAN, SUBSCAN):
-            self._sendMessage(self.dataset.settype, self.dataset)
+            self._handleMessage(self.dataset.settype, self.dataset)
 
     def end(self):
         self.log.debug("end: dataset.settype = %s", self.dataset.settype)
@@ -169,7 +152,7 @@ class RabbitSinkHandler(DataSinkHandler):
             # dispatching `finish`. Parents are left on the stack, using
             # `iter(self.manager._stack)` though.
             blockds, scands = self._getScanDatasetParents(None)
-        self._sendMessage(f'{self.dataset.settype}.end', self.dataset,
+        self._handleMessage(f'{self.dataset.settype}.end', self.dataset,
                           scands, blockds)
 
 
@@ -226,3 +209,22 @@ class RabbitSink(DataSink):
             exchange=self._exchange,
             queue=self._queue,
             routing_key=session.instrument.instrument)
+
+    def _sendMessage(self, msg):
+        for retry in range(3):
+            try:
+                if retry > 0:  # reconnect
+                    self._connect()
+                self._channel.basic_publish(
+                    exchange=self._exchange,
+                    routing_key=session.instrument.instrument,
+                    body=str(msg),
+                    properties=pika.BasicProperties(
+                        content_type='application/json'))
+                break
+            except (pika.exceptions.AMQPChannelError,
+                    pika.exceptions.AMQPConnectionError) as e:
+                self.log.debug('reconnect #%d due to %r', retry + 1, e)
+                exc = e
+        else:
+            raise exc
