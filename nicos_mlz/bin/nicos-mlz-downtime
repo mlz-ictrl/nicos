@@ -42,8 +42,8 @@ parser.add_argument('-r', '--receiver', dest='receiver', action='store',
                     'useroffice@mlz-garching.de',
                     default='useroffice@mlz-garching.de')
 parser.add_argument('-m', '--mailserver', dest='mailserver', action='store',
-                    help='name of the mail server, defaults to smtp.frm2.tum.de',
-                    default='smtp.frm2.tum.de')
+                    help='name of the mail server, defaults to mailhost.frm2.tum.de',
+                    default='mailhost.frm2.tum.de')
 parser.add_argument('instrument', nargs=1, action='store', default='DEMO',
                     help='name of the instrument')
 parser.add_argument('sender', nargs=1, action='store',
