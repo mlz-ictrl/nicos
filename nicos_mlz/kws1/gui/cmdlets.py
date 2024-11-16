@@ -167,7 +167,7 @@ class MeasureTable(Cmdlet):
         self.totalTime.setText(formatDuration(total_time))
         self.changed()
 
-    def generate(self, mode):
+    def generate(self):
         out = []
         if self.measdef.samplefile is not None:
             out.append('run(%r)' % self.measdef.samplefile)

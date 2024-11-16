@@ -126,11 +126,10 @@ class CommandsPanel(Panel):
     def on_runBtn_clicked(self):
         code = ''
         valid = True
-        mode = 'python'
         for i in range(self.frame.layout().count() - 2):
             cmdlet = self.frame.layout().itemAt(i).widget()
             valid = valid and cmdlet.isValid()
-            generated = cmdlet.generate(mode)
+            generated = cmdlet.generate()
             if not generated.endswith('\n'):
                 generated += '\n'
             code += generated

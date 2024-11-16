@@ -184,7 +184,7 @@ class DNSScan(Cmdlet):
         ]
         return all(valid)
 
-    def pregenerate(self, mode):
+    def pregenerate(self):
         values = self.getValues()
         active_fields = []
         command = ''
@@ -261,9 +261,9 @@ class PowderScan(DNSScan):
         ]
         return all(valid)
 
-    def generate(self, mode):
+    def generate(self):
         command, values, increment, fieldstring, timestring = \
-            self.pregenerate(mode)
+            self.pregenerate()
         command += ('scan([det_rot, sample_rot], '
                     '[{lowest_2theta}, {omega_start}], '
                     '[{increment}, {increment}], {bankpositions}, {fs}{ts})'
@@ -318,9 +318,9 @@ class SingleCrystalScan(DNSScan):
         ]
         return all(valid)
 
-    def generate(self, mode):
+    def generate(self):
         command, values, increment, fieldstring, timestring = \
-            self.pregenerate(mode)
+            self.pregenerate()
         values = self.getValues()
 
         for i in range(values['bankpositions']):
@@ -356,9 +356,7 @@ class Shutter(Cmdlet):
     def getValues(self):
         return {'shutter': self.shutter.currentText()}
 
-    def generate(self, mode):
-        if mode == 'simple':
-            return "maw expshutter '{}'".format(self.getValues()['shutter'])
+    def generate(self):
         return "maw(expshutter, '{}')".format(self.getValues()['shutter'])
 
 
@@ -382,10 +380,8 @@ class SetTemperature(Cmdlet):
             'command': command,
         }
 
-    def generate(self, mode):
+    def generate(self):
         values = self.getValues()
-        if mode == 'simple':
-            return '{} T {}'.format(values['command'], values['temperature'])
         return '{}(T, {})'.format(values['command'], values['temperature'])
 
 
@@ -491,7 +487,7 @@ class SlitScan(Cmdlet):
         x_center = limits['x_left'][2] + x_max/2.0
         return [x_center, y_center, x_max, y_max]
 
-    def generate(self, mode):
+    def generate(self):
         values = self.getValues()
         slittype = values['slittype']
         cmds = ["maw(expshutter, 'open')"]

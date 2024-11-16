@@ -90,7 +90,7 @@ class Tomo(PresetHelper, Cmdlet):
                 'start': self.start.value() if self.contBox.isChecked() else 0.0,
                 }
 
-    def generate(self, mode):
+    def generate(self):
         values = self.getValues()
         preset = self._getPreset(values)
         devrepr = self._getDeviceRepr(values['dev'])

@@ -42,11 +42,9 @@ class Lubrication(Cmdlet):
         return all([self.markValid(self.start, isFloat(self.start)),
                     self.markValid(self.end, isFloat(self.end))])
 
-    def generate(self, mode):
+    def generate(self):
         cmd = 'lubricate_liftingctr'
         args = [self.start.text(), self.end.text()]
-        if mode == 'simple':
-            return cmd + ' ' + ' '.join(args)
         return cmd + '(' + ', '.join(args) + ')'
 
 
@@ -100,7 +98,7 @@ class CenterPeak(Cmdlet):
         ]
         return all(valid)
 
-    def generate(self, mode):
+    def generate(self):
         cmd = 'centerpeak'
         entries = self.multiList.entries()
         args = [e.device.currentText() for e in entries]
@@ -120,9 +118,6 @@ class CenterPeak(Cmdlet):
         kwargs.append(('t', float(self.seconds.text())))
         if self.contBox.isChecked():
             kwargs.append(('cont', True))
-        if mode == 'simple':
-            return cmd + ' ' + ' '.join(args) + ' ' + \
-                ' '.join('%s %r' % i for i in kwargs)
         return cmd + '(' + ', '.join(args) + ', ' + \
             ', '.join('%s=%r' % i for i in kwargs) + ')'
 
@@ -176,7 +171,7 @@ class RefineMatrix(Cmdlet):
             or isFloat(box.lineEdit())) for box in self._boxes]
         return all(valid)
 
-    def generate(self, mode):
+    def generate(self):
         cmd = 'RefineMatrix'
         kwargs = []
         for (p, box) in zip('a b c alpha beta gamma wavelength '
@@ -189,14 +184,9 @@ class RefineMatrix(Cmdlet):
                 kwargs.append((p, '\'alpha\''))
             elif text != 'free':
                 kwargs.append((p, '%.4f' % float(text)))
-        if mode == 'simple':
-            code = cmd + ' ' + ' '.join('%s %s' % i for i in kwargs)
-            if self.acceptBox.isChecked():
-                code += '\nAcceptRefinement'
-        else:
-            code = cmd + '(' + ', '.join('%s=%s' % i for i in kwargs) + ')'
-            if self.acceptBox.isChecked():
-                code += '; AcceptRefinement()'
+        code = cmd + '(' + ', '.join('%s=%s' % i for i in kwargs) + ')'
+        if self.acceptBox.isChecked():
+            code += '; AcceptRefinement()'
         return code
 
 

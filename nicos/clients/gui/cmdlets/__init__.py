@@ -143,7 +143,7 @@ class Cmdlet(QWidget):
         """
         return True
 
-    def generate(self, mode):
+    def generate(self):
         """Generate code for the commandlet.
 
         *mode* is 'python' or 'simple'.
@@ -190,12 +190,8 @@ class Move(Cmdlet):
         if 'moveto' in values:
             self.multiList.entry(0).target.setValue(values['moveto'])
 
-    def generate(self, mode):
+    def generate(self):
         cmd = 'maw' if self.waitBox.isChecked() else 'move'
-        if mode == 'simple':
-            return cmd + ''.join(' %s %r' % (frm.device.currentText(),
-                                             frm.target.getValue())
-                                 for frm in self.multiList.entries())
         return cmd + '(' + ', '.join('%s, %r' % (
             self._getDeviceRepr(frm.device.currentText()), frm.target.getValue())
             for frm in self.multiList.entries()) + ')'
@@ -241,10 +237,8 @@ class Count(PresetHelper, Cmdlet):
     def isValid(self):
         return self.markValid(self.preset, self.preset.value() > 0)
 
-    def generate(self, mode):
+    def generate(self):
         preset = self._getPreset(self.getValues())
-        if mode == 'simple':
-            return f'count {preset}'
         return f'count({preset})'
 
 
@@ -309,20 +303,15 @@ class CommonScan(PresetHelper, Cmdlet):
         ]
         return all(valid)
 
-    def generate(self, mode):
+    def generate(self):
         values = self.getValues()
         devrepr = self._getDeviceRepr(values['dev'])
 
         if values['scancont']:
             start, end, speed, delta = self._getContParams(values)
-            if mode == 'simple':
-                return f'contscan {values["dev"]} {start} {end} {speed} {delta}'
             return f'contscan({devrepr}, {start}, {end}, {speed}, {delta})'
 
         preset = self._getPreset(values)
-        if mode == 'simple':
-            return f'{self.cmdname}{values["dev"]} {values["scanstart"]} ' \
-                f'{values["scanstep"]} {values["scanpoints"]} {preset}'
         return f'{self.cmdname}({devrepr}, {values["scanstart"]}, ' \
             f'{values["scanstep"]}, {values["scanpoints"]}, {preset})'
 
@@ -421,12 +410,10 @@ class TimeScan(PresetHelper, Cmdlet):
     def isValid(self):
         return self.markValid(self.preset, self.preset.value() > 0)
 
-    def generate(self, mode):
+    def generate(self):
         values = self.getValues()
         preset = self._getPreset(values)
         npoints = -1 if values['countinf'] else values['scanpoints']
-        if mode == 'simple':
-            return f'timescan {npoints} {preset}'
         return f'timescan({npoints}, {preset})'
 
 
@@ -500,11 +487,8 @@ class ContScan(Cmdlet):
         ]
         return all(valid)
 
-    def generate(self, mode):
+    def generate(self):
         values = self.getValues()
-        if mode == 'simple':
-            return 'contscan %(dev)s %(scanstart)s %(scanend)s %(devspeed)s ' \
-                   '%(preset)s' % values
         values['dev'] = self._getDeviceRepr(values['dev'])
         return 'contscan(%(dev)s, %(scanstart)s, %(scanend)s, %(devspeed)s, ' \
                '%(preset)s)' % values
@@ -529,9 +513,7 @@ class Sleep(Cmdlet):
     def isValid(self):
         return self.markValid(self.seconds, self.seconds.value() > 0)
 
-    def generate(self, mode):
-        if mode == 'simple':
-            return 'sleep %(sleeptime)s' % self.getValues()
+    def generate(self):
         return 'sleep(%(sleeptime)s)' % self.getValues()
 
 
@@ -587,10 +569,8 @@ class Configure(Cmdlet):
     def isValid(self):
         return self.markValid(self.target, True)
 
-    def generate(self, mode):
+    def generate(self):
         values = self.getValues()
-        if mode == 'simple':
-            return 'set %(dev)s %(param)s %(paramvalue)r' % values
         values['dev'] = self._getDeviceRepr(values['dev'])
         return 'set(%(dev)s, %(param)r, %(paramvalue)r)' % values
 
@@ -611,9 +591,7 @@ class NewSample(Cmdlet):
         if 'samplename' in values:
             self.samplename.setText(values['samplename'])
 
-    def generate(self, mode):
-        if mode == 'simple':
-            return 'NewSample %(samplename)r' % self.getValues()
+    def generate(self):
         return 'NewSample(%(samplename)r)' % self.getValues()
 
 

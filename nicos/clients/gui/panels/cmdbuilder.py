@@ -168,12 +168,11 @@ class CommandPanel(Panel):
         self.updateCommand()
 
     def _generate(self):
-        mode = 'python'
         if self.current_cmdlet is None:
             return
         if not self.current_cmdlet.isValid():
             return
-        return self.current_cmdlet.generate(mode).rstrip()
+        return self.current_cmdlet.generate().rstrip()
 
     def updateCommand(self):
         code = self._generate()

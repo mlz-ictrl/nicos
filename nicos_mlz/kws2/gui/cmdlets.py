@@ -37,8 +37,8 @@ class MeasureTable(KWS1MeasureTable):
         self.hvBox.setChecked(True)
         self.extendedFrame.layout().addWidget(self.hvBox)
 
-    def generate(self, mode):
-        res = KWS1MeasureTable.generate(self, mode)
+    def generate(self):
+        res = KWS1MeasureTable.generate(self)
         if self.hvBox.isChecked():
             res += "\nmaw(gedet_HV, 'off')"
         return res

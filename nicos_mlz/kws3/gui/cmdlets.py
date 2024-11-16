@@ -105,7 +105,7 @@ class RestoreState(Cmdlet):
             item.setCheckState(Qt.CheckState.Unchecked)
         # self.devList.
 
-    def generate(self, mode):
+    def generate(self):
         entries = []
         for i in range(self.devList.count()):
             if self.devList.item(i).checkState() == Qt.CheckState.Checked:
@@ -113,11 +113,8 @@ class RestoreState(Cmdlet):
                 value = self.client.getDeviceValue(dev)
                 if value is not None:
                     entries.append((self._getDeviceRepr(dev), value))
-        if mode == 'simple':
-            return 'maw ' + ''.join(' %s %r' % e for e in entries)
-        else:
-            return 'maw(\n' + \
-                ''.join('    %s, %r,\n' % e for e in entries) + ')'
+        return 'maw(\n' + \
+            ''.join('    %s, %r,\n' % e for e in entries) + ')'
 
 
 register(RestoreState)
