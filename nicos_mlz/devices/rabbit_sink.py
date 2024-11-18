@@ -174,7 +174,7 @@ class RabbitSink(DataSink):
     and writes all metainfo synchronously into it for further processing.
     """
     parameters = {
-        'rabbit_url': Param('RabitMQ server url', type=str, mandatory=True)
+        'rabbit_url': Param('RabbitMQ server url', type=str, mandatory=True)
     }
 
     parameter_overrides = {
