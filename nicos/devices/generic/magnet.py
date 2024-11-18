@@ -404,6 +404,7 @@ class MagnetWithCalibrationCurves(Magnet):
         """Cycles current source from val1 [A] to val2 [A] n times at a given
         ramp in [A/min].
         """
+        self._stop_requested = False
         self._Ivt, self._cycling_steps = Curve2D(), []
         temp = self.ramp
         self.ramp = 0

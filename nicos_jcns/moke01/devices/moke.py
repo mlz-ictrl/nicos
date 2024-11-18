@@ -78,7 +78,6 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             self._attached_currentsource.disable()
 
     def measure_intensity(self, mrmnt):
-        self._stop_requested = False
         self._measuring = True
         self.progress = self.maxprogress = self.cycle = 0
         self.mode = mrmnt['mode']
@@ -105,9 +104,12 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                 self._BvI, self._IntvB = Curve2D(), Curve2D()
                 self.maxprogress = sum(len(numpy.linspace(*r)) for r in ranges)
                 for i, r in enumerate(ranges):
+                    if not i % 2:
+                        session.breakpoint(2)
                     self.fielddirection = 'increasing' if r[1] > r[0] else 'decreasing'
                     self.cycle = i // 2
                     for _B in numpy.linspace(*r):
+                        session.breakpoint(3)
                         self.start(_B)
                         self._hw_wait()
                         session.delay(mrmnt['steptime'])
@@ -140,8 +142,12 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                     raise errors.NicosError(self, 'Power supply is busy.')
                 # measures magnetic field and intensity vallues
                 self._Bvt, self._Intvt, self._IntvB = Curve2D(), Curve2D(), Curve2D()
+                _cycle = self.cycle
                 while self._cycling:
-                    session.breakpoint(1)
+                    if self.cycle != _cycle:
+                        session.breakpoint(2)
+                    _cycle = self.cycle
+                    session.breakpoint(3)
                     try:
                         B = self.read(0)
                     except Exception:

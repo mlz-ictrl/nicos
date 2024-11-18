@@ -35,8 +35,9 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import pyqtSlot, QDate, QMessageBox, QStandardItem, \
-    QStandardItemModel, Qt
+    QStandardItemModel, Qt, QToolBar
 from nicos.guisupport.widget import NicosWidget
+from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP
 from nicos.utils import findResource
 
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
@@ -170,6 +171,32 @@ class MokePanel(NicosWidget, MokeBase):
         self.lyt_plot_EvB.addWidget(self.plot_EvB)
         NicosWidget.__init__(self)
         self.setClient(self.client)
+        self.bar = QToolBar('Script control')
+        self.bar.addAction(self.actionStopNow)
+        self.bar.addAction(self.actionStopLater)
+        self.bar.addAction(self.actionEmergencyStop)
+
+    def getToolbars(self):
+        return [self.bar]
+
+    def updateStatus(self, status, exception=False):
+        self._status = status
+        isconnected = status != 'disconnected'
+        self.actionStopNow.setEnabled(isconnected and status != 'idle')
+        self.actionStopLater.setEnabled(isconnected and status != 'idle')
+        self.actionEmergencyStop.setEnabled(isconnected)
+
+    @pyqtSlot()
+    def on_actionStopNow_triggered(self):
+        self.client.tell_action('stop', BREAK_NOW)
+
+    @pyqtSlot()
+    def on_actionStopLater_triggered(self):
+        self.client.tell_action('stop', BREAK_AFTER_STEP)
+
+    @pyqtSlot()
+    def on_actionEmergencyStop_triggered(self):
+        self.client.tell_action('emergency')
 
     def registerKeys(self):
         for k in ('magb/baseline', 'magb/calibration', 'magb/measurement',

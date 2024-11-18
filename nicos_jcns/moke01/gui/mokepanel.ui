@@ -1092,6 +1092,42 @@
     </widget>
    </item>
   </layout>
+  <action name="actionStopNow">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/finish</normaloff>:/finish</iconset>
+   </property>
+   <property name="toolTip">
+    <string>Stop now</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionStopLater">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/stop</normaloff>:/stop</iconset>
+   </property>
+   <property name="toolTip">
+    <string>Stop after current cycle</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionEmergencyStop">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/emergency</normaloff>:/emergency</iconset>
+   </property>
+   <property name="toolTip">
+    <string>Emergency stop</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../resources/nicos-gui.qrc"/>
