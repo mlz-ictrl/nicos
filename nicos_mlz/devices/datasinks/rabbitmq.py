@@ -82,6 +82,7 @@ class Message:
         metainfo: dict,
         statistics: dict,
         counterinfo: dict,
+        canonicalvalues: dict,
     ):
         self.version = MESSAGE_VERSION
         self.id = str(id)
@@ -94,6 +95,7 @@ class Message:
         self.metadata = metainfo
         self.statistics = statistics
         self.counterinfo = counterinfo
+        self.canonicalvalues = canonicalvalues
 
     def __str__(self):
         return json.dumps({**self.__dict__})
@@ -130,6 +132,7 @@ class RabbitSinkHandler(DataSinkHandler):
             metainfo=metadata,
             statistics=valuestats_to_json(dataset.valuestats),
             counterinfo=self.getCounterInfo(dataset),
+            canonicalvalues=dataset.canonical_values,
         )
         self.sink._sendMessage(msg)
 
