@@ -293,9 +293,9 @@ class MagnetWithCalibrationCurves(Magnet):
             'Magnetic field fitting curves',
             type=dict, settable=True, default={'stepwise': {}, 'continuous': {}}
         ),
-        'fielddirection': Param(
-            'Direction in which magnetic field should change',
-            type=oneof('increasing', 'decreasing'), settable=True
+        'prevtarget': Param(
+            'Previous target value',
+            type=float, settable=True, default=0.0,
         ),
         'mode': Param(
             'Measurement mode: stepwise or continuous',
@@ -342,8 +342,9 @@ class MagnetWithCalibrationCurves(Magnet):
         """
         self._check_calibration(self.mode, self.ramp)
         curves = self.calibration[self.mode][str(float(self.ramp))]
+        nexttarget = curves.mean().yvx(current).y
         return curves.increasing()[0].yvx(current).y \
-            if self.fielddirection == 'increasing' \
+            if nexttarget > self.prevtarget \
             else curves.decreasing()[0].yvx(current).y
 
     def _field2current(self, field):
@@ -352,7 +353,7 @@ class MagnetWithCalibrationCurves(Magnet):
         self._check_calibration(self.mode, self.ramp)
         curves = self.calibration[self.mode][str(float(self.ramp))]
         return curves.increasing()[0].xvy(field).x \
-            if self.fielddirection == 'increasing' \
+            if field > self.prevtarget \
             else curves.decreasing()[0].xvy(field).x
 
     def doInit(self, mode):
@@ -369,6 +370,7 @@ class MagnetWithCalibrationCurves(Magnet):
     def doStart(self, target):
         current = self._field2current(target).n
         self._attached_currentsource.start(current)
+        self.prevtarget = target
 
     def doStop(self):
         self._attached_currentsource.stop()

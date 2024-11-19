@@ -76,6 +76,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             self._attached_currentsource.enable()
         else:
             self._attached_currentsource.disable()
+        self.prevtarget = 0
 
     def measure_intensity(self, mrmnt):
         self._measuring = True
@@ -96,17 +97,16 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
 
         try:
             if mrmnt['mode'] == 'stepwise':
-                self.fielddirection = 'increasing' \
-                    if self.read(10) < mrmnt['Bmin'] else 'decreasing'
                 n = int(abs(mrmnt['Bmax'] - mrmnt['Bmin']) / mrmnt['step'])
-                ranges = [(mrmnt['Bmin'], mrmnt['Bmax'], n, False),
-                          (mrmnt['Bmax'], mrmnt['Bmin'], n, False)] * mrmnt['cycles']
+                ranges = [[mrmnt['Bmin'], mrmnt['Bmax'], n, False],
+                          [mrmnt['Bmax'], mrmnt['Bmin'], n, False]] * mrmnt['cycles']
+                ranges[-1][2] += 1
+                ranges[-1][3] = True
                 self._BvI, self._IntvB = Curve2D(), Curve2D()
                 self.maxprogress = sum(len(numpy.linspace(*r)) for r in ranges)
                 for i, r in enumerate(ranges):
                     if not i % 2:
                         session.breakpoint(2)
-                    self.fielddirection = 'increasing' if r[1] > r[0] else 'decreasing'
                     self.cycle = i // 2
                     for _B in numpy.linspace(*r):
                         session.breakpoint(3)
@@ -126,9 +126,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                                             ufloat(Int, self._intensity.readStd(Int))))
                         self.progress += 1
             elif mrmnt['mode'] == 'continuous':
-                self.fielddirection = 'increasing'
                 IBmax = self._field2current(mrmnt['Bmax']).n
-                self.fielddirection = 'decreasing'
                 IBmin = self._field2current(mrmnt['Bmin']).n
                 self.start(mrmnt['Bmin'])
                 self._hw_wait()

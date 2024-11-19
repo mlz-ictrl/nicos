@@ -38,7 +38,6 @@ try:
 except ImportError:
     tango = None
 
-from nicos.core import NicosError
 from nicos.utils.functioncurves import AffineScalarFunc, Curve2D, \
     CurvePoint2D, Curves
 
@@ -69,6 +68,7 @@ def test_cycle_currentsource(session):
     v1, v2, n = randint(-400, -1), randint(1, 400), randint(1, 5)
     # ramp is set to 1 A/min for simplicity
     magb.cycle_currentsource(float(v1), float(v2), 1, n)
+    magb.disable()
     dIs = [v.y.n - magb._Ivt[i - 1].y.n for i, v in enumerate(magb._Ivt) if i]
     for dI in dIs:
         assert pytest.approx(abs(dI)) == pytest.approx((v2 - v1) / 100)
@@ -81,21 +81,16 @@ def test_cycle_currentsource(session):
 def test_magnet(session):
     ramp = 400 # A/min
     magb = session.getDevice('MagB')
-    magb.calibration = {'stepwise': {}, 'continuous': {}}
-    with pytest.raises(NicosError):
-        magb._check_calibration('stepwise', ramp)
-
     temp = magb.calibration.copy()
     temp['stepwise'][str(float(ramp))] = Curves([[(-400, -800), (400, 0)],
                                                  [(400, 800), (-400, 0)]])
-    magb._check_calibration('stepwise', ramp)
-
-    magb.fielddirection = 'increasing'
+    magb.calibration = temp
     # kinda y = x - 400
+    magb.prevtarget = -800
     assert magb._current2field(100).n == -300.0
     assert magb._field2current(-300).n == 100
-    magb.fielddirection = 'decreasing'
     # kinda y = x + 400
+    magb.prevtarget = 800
     assert magb._current2field(-100).n == 300.0
     assert magb._field2current(300).n == -100
 
@@ -142,16 +137,16 @@ def test_calibration(session):
 def test_intensity_measurement(session):
     magsensor = session.getDevice('Mag_sensor')
     # there are two extra read() before and after `measure_intensity`
-    magsensor.testqueue = [1, 2] + list(range(-400, 400, 40)) + \
-                          list(range(400, -400, -40)) + [3, 4]
+    magsensor.testqueue = [1,] + list(range(-400, 400, 40)) + \
+                          list(range(400, -400, -40)) + [-400, 2, 3]
     magsensor.simulate = True
     mrmnt = {'Bmin': -400.0, 'Bmax': 400.0, 'ramp': 400.0, 'cycles': 1,
              'step': 40.0, 'steptime': 1, 'mode': 'stepwise',
              'exp_type': 'ell', 'field_orientation': 'polar', 'id': 'test'}
     magb = session.getDevice('MagB')
     temp = magb.calibration.copy()
-    temp['stepwise'][str(mrmnt['ramp'])] = Curves([[(-400, -400), (400, 400)],
-                                                    [(400, 400), (-400, -400)]])
+    temp[mrmnt['mode']][str(mrmnt['ramp'])] = \
+        Curves([[(-400, -400), (400, 400)], [(400, 400), (-400, -400)]])
     magb.calibration = temp
     magb.userlimits = (-400, 400)
     magb.measure_intensity(mrmnt)
