@@ -1,4 +1,4 @@
-description = 'virtual single crytsal diffractometer'
+description = 'virtual single crystal diffractometer'
 group = 'basic'
 
 modules = ['nicos.commands.sxtal']
