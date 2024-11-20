@@ -4,7 +4,6 @@
 caproto
 confluent-kafka>=2.1.0
 ess-streaming-data-types>=0.21.0
-file-writer-control>=1.1.5
 graypy
 h5py>=2.6
 kafka-logging-handler<=0.2.4
