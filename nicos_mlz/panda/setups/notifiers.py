@@ -34,11 +34,11 @@ devices = dict(
         subject = '[PANDA]',
     ),
     smser = device('nicos.devices.notifiers.SMSer',
-        server = 'triton.admin.frm2',
+        server = 'triton.admin.frm2.tum.de',
         receivers = ['015788345341'],
     ),
     smsastr = device('nicos.devices.notifiers.SMSer',
-        server = 'triton.admin.frm2',
+        server = 'triton.admin.frm2.tum.de',
         receivers = ['01795385391'],
     ),
 )
