@@ -1,54 +1,16 @@
 """SANS1 GUI default configuration."""
 
-# evaluated by code in: nicos.clients.gui.panels.__init__.createWindowItem
-
-# vsplit( content1, content2, ... )
-# hsplit( content1, content2, ... )
-# tapped( (tabname1, content1), (tabname2, content2),... )
-# docked( content1, (tabname, content2), ... )
-## if with tabname, content panels can be stacked, then a tabbar is displayed with the tabnames..
-
-# window( <Button/WindowName>, <icon-name>, bool, content )
-# icons are defined in resources/nicos-gui.qrc
-## known icons: setup, editor, plotter, find, table, errors, live
-
-# tool( Menu-entry-str, <modulepath>, [, kwargs ] )
-## options for all: runatstartup=True/False
-## known <modulepaths> below nicos.clients.gui.tools:
-# 'nicos.clients.gui.tools.calculator.CalculatorTool'
-# 'nicos.clients.gui.tools.website.WebsiteTool'
-# 'nicos.clients.gui.tools.estop.EmergencyStopTool'
-# 'nicos.clients.gui.tools.scan.ScanTool'
-# 'nicos.clients.gui.tools.commands.CommandsTool'
-
-# panel( <modulepath> [, kwargs ] )
-## known <modulepath> below nicos.clients.gui.panels:
-# 'nicos.clients.gui.panels.cmdbuilder.CommandPanel'
-# 'nicos.clients.gui.panels.commandline.CommandLinePanel'
-# 'nicos.clients.gui.panels.console.ConsolePanel'
-# 'nicos.clients.gui.panels.devices.DevicesPanel' icons = True/False: Show/hide status icons
-# 'nicos.clients.gui.panels.editor.EditorPanel'
-# 'nicos.clients.gui.panels.elog.ELogPanel'
-# 'nicos.clients.gui.panels.errors.ErrorPanel'
-# 'nicos.clients.gui.panels.expinfo.ExpInfoPanel'
-# loads an uifile='path-to-uifile.ui' from dir='directory-containing-ui-file', also connects to cache ...
-# 'nicos.clients.gui.panels.generic.GenericPanel'
-# 'nicos.clients.gui.panels.history.HistoryPanel'
-# 'nicos.clients.gui.panels.live.LiveDataPanel'
-# 'nicos.clients.gui.panels.logviewer.LogViewerPanel'
-# 'nicos.clients.gui.panels.scans.ScansPanel'
-# 'nicos.clients.gui.panels.scriptbuilder.CommandsPanel'
-# 'nicos.clients.gui.panels.setup_panel.SetupPanel'
-# 'nicos.clients.gui.panels.status.ScriptStatusPanel'
-# 'nicos.clients.gui.panels.watch.WatchPanel'
-
-
 main_window = docked(
     vsplit(
-        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-        # panel('watch.WatchPanel'),
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+        panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
+              eta=True,
+              ),
+        # panel('nicos.clients.gui.panels.watch.WatchPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel',
-              watermark='nicos_mlz/sans1/gui/watermark.png'),
+              watermark='nicos_mlz/sans1/gui/watermark.png',
+              hasinput=False,
+              ),
     ),
     # ('Watch Expressions',panel('watch.WatchPanel')),
     ('NICOS devices',
@@ -90,13 +52,13 @@ windows = [
                       image='nicos_mlz/sans1/gui/sampleChanger22.png',
                       # positions = 11, setups='not setup22',)),
                       positions = 22, setups='sc? or ccmsanssc',),
-               ),
+                ),
                ('Sample',
                 panel('nicos.clients.gui.panels.setup_panel.GenericSamplePanel',
                       setups='not (sc? or ccmsanssc)',
                 ),
                ),
-           )
+            ),
     ),
     window('Editor', 'editor',
            vsplit(

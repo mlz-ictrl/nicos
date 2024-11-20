@@ -4,13 +4,10 @@ main_window = docked(
     tabbed(
         ('Command line',
          vsplit(
-            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-                  modules=['nicos.clients.gui.cmdlets'],
-            ),
+            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel', eta=True),
             panel('nicos.clients.gui.panels.console.ConsolePanel',
-                  watermark='nicos_demo/demo/gui/nicos-watermark.png',
-                  hasinput=False),
+                  watermark='nicos_demo/demo/gui/nicos-watermark.png', hasinput=False),
          ),
         ),
     ),
@@ -24,7 +21,7 @@ main_window = docked(
           )
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',),
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
     ),
 )
 

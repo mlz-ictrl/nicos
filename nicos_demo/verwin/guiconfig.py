@@ -4,58 +4,24 @@ main_window = docked(
     tabbed(
         ('Command line',
          vsplit(
-            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-                  modules=['nicos.clients.gui.cmdlets'],
-            ),
+            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel', eta=True),
             panel('nicos.clients.gui.panels.console.ConsolePanel',
                   watermark='nicos_demo/demo/gui/nicos-watermark.png', hasinput=False),
-         ),
-        ),
-        ('SANS',
-         vsplit(
-          panel('nicos_demo.demo.gui.sanspanel.SANSPanel'),
-          panel('nicos.clients.gui.panels.live.LiveDataPanel'),
-          setups='sans',
          ),
         ),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
            dockpos='right',
-           param_display={'tas': 'scanmode',
-                          'Exp': ['lastpoint', 'lastscan']},
+           param_display={'Exp': ['lastpoint', 'lastscan']},
            filters=[('Detector', 'det'),
                     ('Temperatures', '^T'),
                    ],
           )
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-           sample_panel=tabbed(
-               ('Sample changer',
-                panel('nicos_mlz.gui.samplechanger.SamplechangerSetupPanel',
-                      image='nicos_mlz/sans1/gui/sampleChanger11.png',
-                      positions=11, setups='sans and sc1',),
-               ),
-               ('Sample changer',
-                panel('nicos_mlz.gui.samplechanger.SamplechangerSetupPanel',
-                      image='nicos_mlz/sans1/gui/sampleChanger22.png',
-                      positions=22, setups='sans and sc2'),
-               ),
-               ('TAS sample',
-                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
-                      setups='tas',)
-               ),
-               ('SXTAL sample',
-                panel('nicos.clients.gui.panels.setup_panel.SXTalSamplePanel',
-                      setups='sxtal',)
-               ),
-           ),
-           # to configure panels to show on New/FinishExperiment
-           # new_exp_panel=panel('nicos_demo.demo.some.panel'),
-           # finish_exp_panel=panel('nicos_demo.demo.some.panel'),
-          )
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
     ),
 )
 

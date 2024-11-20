@@ -2,10 +2,19 @@
 
 main_window = docked(
     vsplit(
-        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+              modules=[
+                  'nicos.clients.gui.cmdlets.tomo',
+              ],
+        ),
+        panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
+              eta=True,
+              ),
         # panel('nicos.clients.gui.panels.watch.WatchPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel',
-              watermark='nicos_mlz/nectar/watermark.png'),
+              watermark='nicos_mlz/nectar/watermark.png',
+              hasinput=False,
+              ),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
@@ -19,12 +28,7 @@ main_window = docked(
 windows = [
     window('Editor', 'editor',
         vsplit(
-            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel',
-              modules=[
-                  'nicos.clients.gui.cmdlets',
-                  'nicos.clients.gui.cmdlets.tomo',
-              ],
-            ),
+            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
             panel('nicos.clients.gui.panels.editor.EditorPanel',
               tools = [
                   tool('Scan Generator',
@@ -45,7 +49,7 @@ windows = [
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.ImagingLiveDataPanel',
-                 filetype=['fits'],))
+                 filetypes=['fits'],))
 ]
 
 tools = [

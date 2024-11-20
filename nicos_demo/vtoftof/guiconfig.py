@@ -2,12 +2,10 @@
 
 main_window = docked(
     vsplit(
-        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-              modules=['nicos.clients.gui.cmdlets'],
-        ),
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
               eta=True,
-              ),
+              stopcounting=True),
         # panel('nicos.clients.gui.panels.watch.WatchPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel',
               watermark='nicos_demo/demo/gui/nicos-watermark.png',
@@ -38,7 +36,7 @@ main_window = docked(
 windows = [
     window('Editor', 'editor',
         vsplit(
-#           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+            panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
             panel('nicos.clients.gui.panels.editor.EditorPanel',
                   tools = [
 #                     tool('Scan Generator',
@@ -70,6 +68,8 @@ windows = [
     window('Planning', 'strategy',
            panel('nicos_mlz.toftof.gui.resolutionpanel.ResolutionPanel'),
            ),
+    window('Watchdog', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [

@@ -2,9 +2,7 @@
 
 main_window = docked(
     vsplit(
-        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-              modules=['nicos.clients.gui.cmdlets'],
-        ),
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
               eta=True,
               ),
@@ -35,7 +33,7 @@ main_window = docked(
                 ),
                ),
            ),
-           ),
+          ),
     ),
 )
 
