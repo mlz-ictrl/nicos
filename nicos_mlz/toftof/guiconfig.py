@@ -47,12 +47,7 @@ windows = [
     window('Editor', 'editor',
         vsplit(
             panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-            panel('nicos.clients.gui.panels.editor.EditorPanel',
-                  tools = [
-#                     tool('Scan Generator',
-#                          'nicos.clients.gui.panels.tools.ScanTool'),
-                  ],
-                 ),
+            panel('nicos.clients.gui.panels.editor.EditorPanel'),
         ),
     ),
 #   window('Setup', 'setup',

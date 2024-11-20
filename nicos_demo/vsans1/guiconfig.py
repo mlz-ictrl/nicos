@@ -63,13 +63,8 @@ windows = [
     window('Editor', 'editor',
            vsplit(
                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-               panel('nicos.clients.gui.panels.editor.EditorPanel',
-                     tools = [
-                         tool('Scan',
-                              'nicos.clients.gui.tools.scan.ScanTool')
-                     ]
-               )
-           )
+               panel('nicos.clients.gui.panels.editor.EditorPanel'),
+               ),
     ),
     window('Watches', 'leds/blue_on',
            panel('nicos.clients.gui.panels.watch.WatchPanel')),
