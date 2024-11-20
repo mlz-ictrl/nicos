@@ -283,7 +283,7 @@ except the :ref:`description <setup-description>` entry:
    - around 300: 'innermost' optional stuff (cci3he/4he inserts, cold-end-sample
      rotation,...)
 
-   If more than one choice is offered by a setupfile, they should have different
+   If more than one choice is offered by a setup file, they should have different
    priorities (with the less common/sensible option getting a smaller number).
 
 .. _setup-monitor_blocks:

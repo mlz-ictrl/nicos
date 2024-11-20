@@ -8,7 +8,7 @@ The NICOS user scripts are written in Python with some minor restrictions.
 This choice allows for very flexible scripts for complex problems and easy
 interactive use at the same time.
 
-NICOS features an open interface to allow for different communciation backends
+NICOS features an open interface to allow for different communication backends
 to the underlying hardware. Just to name a few, by default NICOS supports
 TANGO_, EPICS_, CARESS_, and SECoP_.
 

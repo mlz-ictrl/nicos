@@ -91,7 +91,7 @@ The monochromator can be added like this::
     'WONI:NXInstrument': {
         'monochromator:NXcrystal': {
             'wavelength': DeviceDataset('wavelength',
-                                        units=NXAttribute('Angstroem', 'string')),
+                                        units=NXAttribute('angstrom', 'string')),
             'rotation_angle': DeviceDataset('mtt'),
             'd_spacing': DeviceAttribute('mono', 'dvalue'),
             'type': ConstDataset('Si', 'string'),
@@ -112,7 +112,7 @@ example this is the ``units`` attribute.  The syntax is::
 
    name = NXAttribute(value, type)
 
-In the example the value of the units attribute is Angstroem, the type is a
+In the example the value of the units attribute is Angstrom, the type is a
 string.
 
 The ``ConstDataset`` is used to put a constant value (in our case it is a

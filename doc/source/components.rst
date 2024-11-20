@@ -176,7 +176,7 @@ instrument.
 
 .. describe:: nicos-daemon
 
-   The execution daemon (in short daemon) is designed to excute the user scripts
+   The execution daemon (in short daemon) is designed to execute the user scripts
    to control the instrument from the point of the user/scientist.
 
    It runs in the background and interacts with the user interfaces, graphical

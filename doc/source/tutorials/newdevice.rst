@@ -67,7 +67,7 @@ Sometimes the inherited class has a parameter definition, which is not exactly
 fulfilling the requirements of the new device.  For this case there is another
 dictionary called ``parameter_overrides``.
 
-It needs the name of the paramter to be changed and instead of using the
+It needs the name of the parameter to be changed and instead of using the
 :class:`~nicos.core.params.Param` the :class:`~nicos.core.params.Override`
 helper is used, which is only given the settings of the parameter to be
 overridden.

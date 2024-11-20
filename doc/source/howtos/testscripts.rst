@@ -5,7 +5,7 @@ The traditional NICOS unit and integration test suite covers a wide range of
 functionality.
 
 However, to test instrument specific code, it is also quite helpful to have
-special scripts, which should run successfully after maintainance at the
+special scripts, which should run successfully after maintenance at the
 instruments either for hardware or for software.
 
 These tests are designed for 2 applications:

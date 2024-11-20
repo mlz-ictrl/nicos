@@ -54,7 +54,7 @@ Read scan data with::
 
     x, y, n = %nicos /val scandata
 
-x the contains the x axis data, y the counts and n the names of the variables used for each.
+x the contains the x-axis data, y the counts and n the names of the variables used for each.
 
 detname must be the name of the detector issuing the live data. The returned var
 is a list of arrays.

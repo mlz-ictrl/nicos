@@ -5,7 +5,7 @@ Sequencer classes
 =================
 
 The :class:`SequencerMixin` is used to perform a dynamically generated
-sequence of actions. This is usefull for devices which needs to
+sequence of actions. This is useful for devices which needs to
 make several intermediate steps to reach their goal, like a
 Monochromator changer, or if some interlocked device need to be
 moved in a certain lock-step sequence.
@@ -24,8 +24,8 @@ Real devices needs to be implemented in classes derived from BaseSequencer and
 define their own ``attached_devices``, ``parameters``,
 the :meth:`_generateSequence` and ``doRead`` methods.
 
-A proper status synchronisation between devices beeing polled by a poller process
-and instance beeing used inside the NICOS daemon is provided by the internal
+A proper status synchronisation between devices being polled by a poller process
+and instances being used inside the NICOS daemon is provided by the internal
 method :meth:`SequencerMixin._set_seq_status`.
 
 This mechanism can also be used by devices wanting to define their own movement thread,
@@ -80,8 +80,8 @@ Each :class:`SequenceItem` needs to define the following methods:
 * :meth:`SequenceItem.retry` This is intended to retry the action for a given number of retries.
   Only needs to be defined for actions which can be retried.
 
-It is encourged to also define a :meth:`__repr__` method returning a NICOS
-aquivalent of the action of the device, where possible, or an *short*,
+It is encouraged to also define a :meth:`__repr__` method returning a NICOS
+equivalent of the action of the device, where possible, or an *short*,
 but descriptive string describing the action.
 The result is used to create the status string.
 

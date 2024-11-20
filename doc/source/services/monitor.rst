@@ -211,7 +211,7 @@ The recognized keys are:
   keys.
 
   This is useful to display device parameters: see the "Triple Axis" block in
-  the example configuration.  The current scanmode (``tas.scanmode`` in NICOS)
+  the example configuration.  The current scan mode (``tas.scanmode`` in NICOS)
   is displayed with the key ``tas/scanmode``.
 
 * ``maxlen`` -- most useful for string values, can be used to cut the value
@@ -255,7 +255,7 @@ them is the "trend plot" widget, which is selected by giving a ``plot`` key:
   of characters.
 
 * ``plotwindow`` -- a number of seconds, which specifies how far back in time the
-  plot X axis will go (default is 1 hour).  For example, ::
+  plot X-axis will go (default is 1 hour).  For example, ::
 
     ...
     Field('TA', plot='temps', plotwindow=7200),
@@ -298,7 +298,7 @@ cache, such as a value display (label/value combination) and a trend plot.
 Backends
 --------
 
-In the example setup above, the Monitor device is confiugred with the class
+In the example setup above, the Monitor device is configured with the class
 :class:`nicos.services.monitor.qt.Monitor`.  This selects the Qt backend, which
 displays the monitor as a window using the Qt GUI toolkit.  Another backend
 exists: :class:`nicos.services.monitor.html.Monitor` writing a HTML file

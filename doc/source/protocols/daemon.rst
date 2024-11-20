@@ -358,7 +358,7 @@ protocols.
                   - `index`: index in the labels array (default=0)
                   - `dtype`: data type of the label values
          - `plotcount`: amount of datasets contained in the associated
-           databuffer
+           data buffer
 
    in short:
 
@@ -385,7 +385,7 @@ protocols.
               ),]
           )
 
-   ``datablobs``: a list of databuffers. Each entry belongs to one of two
+   ``datablobs``: a list of data buffers. Each entry belongs to one of two
    categories:
 
       - `livedata`: the actual data
