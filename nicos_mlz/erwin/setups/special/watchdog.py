@@ -50,6 +50,18 @@ watch_conditions = [
         type = 'neutronguide',
         message = 'ErwiN: P2 is to high (> 10 mbar)',
     ),
+    dict(condition = 'charm2_pdet_status[0] == WARN',
+        type = 'charm',
+        message = 'ErwiN/Charm: Pdet outside [7.70, 7.76 bar',
+    ),
+    dict(condition = 'charm2_ppump1_status[0] == WARN',
+        type = 'charm',
+        message = 'ErwiN/Charm: P pump 1 outside [7.72, 7.78] bar',
+    ),
+    dict(condition = 'charm2_ppump2_status[0] == WARN',
+        type = 'charm',
+        message = 'ErwiN/Charm: P pump 1 outside [7.71, 7.77] bar',
+    ),
 ]
 
 includes = ['notifiers']
@@ -59,6 +71,7 @@ notifiers = {
     'critical': ['email'],
     'neutronguide': ['ngmail'],
     'logspace': ['email', 'logspace_notif'],
+    'charm': ['dmail', 'dsms'],
 }
 
 devices = dict(

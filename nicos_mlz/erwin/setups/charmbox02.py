@@ -11,15 +11,18 @@ devices = dict(
     ),
     charm2_pdet = device('nicos.devices.entangle.Sensor',
         tangodevice = tango_base + 'p1',
-        visibility = ()
+        visibility = (),
+        warnlimits = (7.70, 7.76),
     ),
     charm2_ppump1 = device('nicos.devices.entangle.Sensor',
         tangodevice = tango_base + 'p2',
-        visibility = ()
+        visibility = (),
+        warnlimits = (7.72, 7.78),
     ),
     charm2_ppump2 = device('nicos.devices.entangle.Sensor',
         tangodevice = tango_base + 'p3',
-        visibility = ()
+        visibility = (),
+        warnlimits = (7.71, 7.77),
     ),
 )
 

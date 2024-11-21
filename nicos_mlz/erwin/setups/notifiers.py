@@ -36,4 +36,17 @@ devices = dict(
         ],
         subject = 'ErwiN log space runs full',
     ),
+    dmail = device('nicos.devices.notifiers.Mailer',
+        sender = 'erwin@frm2.tum.de',
+        copies = [
+            ('markus.hoelzel@frm2.tum.de', 'all'),   # gets all messages
+        ],
+        subject = 'Erwin/CHARM detector',
+        mailserver ='mailhost.frm2.tum.de',
+    ),
+    dsms = device('nicos.devices.notifiers.SMSer',
+        server = 'triton.admin.frm2.tum.de',
+        receivers = ['015170151090'], # Markus
+        subject = 'Erwin/CHARM detector',
+    ),
 )
