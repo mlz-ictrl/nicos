@@ -43,7 +43,6 @@ devices = dict(
         readpv = 'SQ:AMOR:pico:FREQ_RBV',
         abslimits = (0, 300000),
         precision = 1,
-        target = 140201,
         visibility = ('metadata', 'namespace'),
     ),
     spin_selection = device('nicos.devices.generic.switcher.Switcher',
@@ -60,3 +59,7 @@ devices = dict(
         visibility = ('devlist', 'metadata', 'namespace'),
     ),
 )
+
+startupcode = '''
+spinflipper_freq.start(140200)
+'''
