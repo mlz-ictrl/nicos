@@ -45,7 +45,7 @@ class Curve2D:
         if not array:
             self._xy = []
         elif isinstance(array, Curve2D):
-            self._xy = array._xy
+            self._xy = array._xy.copy()
         else:
             self._xy = [CurvePoint2D(*xy) for xy in array]
 
