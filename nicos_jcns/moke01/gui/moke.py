@@ -40,6 +40,7 @@ from nicos.guisupport.qt import pyqtSlot, QDate, QMessageBox, QStandardItem, \
 from nicos.guisupport.widget import NicosWidget
 from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP
 from nicos.utils import findResource
+from nicos.utils.functioncurves import Curves, Curve2D
 
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
@@ -48,17 +49,18 @@ class MokePlot(LiveWidget1D):
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
         LiveWidget1D.__init__(self, parent, **kwds)
         self.axes.resetCurves()
-        self.axes.xdual, self.axes.ydual = False, False
+        self.axes.xdual = self.axes.ydual = False
         self.plot.setLegend(True)
         self.setTitles({'x': xlabel, 'y': ylabel})
         self._curves = []
-        self._n = 0
         self.gr.cbm.addHandler(LegendEvent.ROI_CLICKED,
                                self.on_legendItemClicked, LegendEvent)
 
-    def add_curve(self, curve, legend=None):
-        self._n += 1
-        color = self._n % 7 if self._n % 7 else 7
+    def add_curve(self, curve, color=None, legend=None):
+        if not curve:
+            return
+        if color is None:
+            color = len(self._curves) % 7 + 1
         x = y = dx = dy = None
         if curve:
             x = [i for i, _ in curve]
@@ -83,10 +85,25 @@ class MokePlot(LiveWidget1D):
         self.axes.addCurves(self._curves[-1])
         self._update()
 
+    def add_mokecurves(self, curves, legend=None):
+        self.plot.title = legend
+        if isinstance(curves, Curves):
+            for i, curve in enumerate(curves):
+                if i % 2 == 0:
+                    to_plot = Curve2D(curve)
+                else:
+                    to_plot.append(curve)
+                    self.add_curve(to_plot, color=7, legend=str(i // 2 + 1))
+                    # on default make only the last curve visible
+                    if i < len(curves) - 1:
+                        self._curves[-1].visible = False
+            mean = curves.increasing(by_y=False).mean()
+            mean.extend(curves.decreasing(by_y=False).mean())
+            self.add_curve(mean, color=1, legend='mean')
+
     def reset(self):
         self.axes.resetCurves()
         self._curves = []
-        self._n = 0
         self._update()
 
     def _update(self):
@@ -109,6 +126,8 @@ class MokeBase(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         self.plot_IntvB = MokePlot('MagB, T', 'Intensity, V', self)
+        # viewport of IntvB plot is set to accomodate plot title
+        self.plot_IntvB.plot.viewport = (.1, .9, .1, .9)
         self.plot_EvB = MokePlot('MagB, T', 'Ellipticity, a.u.', self)
         self.m = {}
 
@@ -288,7 +307,8 @@ class MokePanel(NicosWidget, MokeBase):
                         IntvB -= self.m['baseline']
                         IntvB -= IntvB.series_to_curves().amean().yvx(0).y
                     self.plot_IntvB.reset()
-                    self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
+                    self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),
+                                                   legend=self.m['name'])
 
     def on_cmb_mode_currentTextChanged(self, mode):
         if mode == 'stepwise':
@@ -364,7 +384,10 @@ class MokePanel(NicosWidget, MokeBase):
         self.client.run(f'MagB.measure_intensity({measurement})')
 
     def on_chk_subtract_baseline_stateChanged(self, _):
-        self.on_keyChange('magb/progress', None, None, None)
+        if self.client.eval('session.getDevice("MagB")._measuring'):
+            self.on_keyChange('magb/progress', None, None, None)
+        else:
+            self.on_keyChange('magb/measurement', self.m, None, None)
 
     def _timeleft(self, progress):
         """Calculates approximate remaining time of a measurement."""
@@ -446,7 +469,6 @@ class MokeHistory(MokeBase):
     def on_disconnected(self):
         self.dt_from.dateChanged.disconnect(self._read_measurements)
         self.dt_to.dateChanged.disconnect(self._read_measurements)
-        self.btn_calc.clicked.disconnect(self.on_btn_calc_clicked)
 
     def _read_measurements(self):
         self.measurements = {}
@@ -472,7 +494,8 @@ class MokeHistory(MokeBase):
             IntvB -= IntvB.series_to_curves().amean().yvx(0).y
         self.plot_IntvB.reset()
         self.plot_EvB.reset()
-        self.plot_IntvB.add_curve(IntvB, legend=self.m["name"])
+        self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),
+                                       legend=self.m['name'])
 
     def on_chk_subtract_baseline_stateChanged(self, _):
         self.on_lst_history_index_changed(self.lst_history.selectionModel().currentIndex())
