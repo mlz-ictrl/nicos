@@ -27,6 +27,7 @@ import os
 
 import numpy
 from gr.pygr import ErrorBar
+from qtgr.events import LegendEvent, MouseEvent
 # pylint: disable=import-error
 from uncertainties.core import AffineScalarFunc
 
@@ -52,6 +53,8 @@ class MokePlot(LiveWidget1D):
         self.setTitles({'x': xlabel, 'y': ylabel})
         self._curves = []
         self._n = 0
+        self.gr.cbm.addHandler(LegendEvent.ROI_CLICKED,
+                               self.on_legendItemClicked, LegendEvent)
 
     def add_curve(self, curve, legend=None):
         self._n += 1
@@ -93,7 +96,11 @@ class MokePlot(LiveWidget1D):
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.MiddleButton:
             self._update()
-        super().mousePressEvent(event)
+
+    def on_legendItemClicked(self, event):
+        if event.getButtons() & MouseEvent.LEFT_BUTTON:
+            event.curve.visible = not event.curve.visible
+            self._update()
 
 
 class MokeBase(Panel):
