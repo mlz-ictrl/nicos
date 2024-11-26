@@ -54,10 +54,13 @@ class Curve2D:
             self.extend(value._xy)
         elif isinstance(value, list):
             self.extend(value)
-        elif not isinstance(value, CurvePoint2D):
+        elif isinstance(value, tuple):
             self._xy.append(CurvePoint2D(*value))
-        else:
+        elif isinstance(value, CurvePoint2D):
             self._xy.append(value)
+        else:
+            raise TypeError(
+                f'Cannot append unsupported type {type(value).__name__}')
 
     def extend(self, __iterable):
         for i in __iterable:
@@ -108,19 +111,19 @@ class Curve2D:
     def x(self):
         """Returns list of all X values.
         """
-        return [p.x for p in self]
+        return [p.x for p in self] if self else None
 
     @property
     def xmin(self):
         """Returns min X value
         """
-        return min(self.x)
+        return min(self.x) if self else None
 
     @property
     def xmax(self):
         """Returns max X value
         """
-        return max(self.x)
+        return max(self.x) if self else None
 
     def xvy(self, y):
         """Linearly interpolates X(Y) on the curve.
@@ -128,35 +131,35 @@ class Curve2D:
         the curve's Y range.
         y: Y component of expected CurvePoint2D
         """
-        ymin, ymax = min(self.y), max(self.y)
-        if y < ymin and len(self) > 1:
-            return CurvePoint2D.interpolate(self[0], self[1], y=y)
-        if y > ymax and len(self) > 1:
-            return CurvePoint2D.interpolate(self[-1], self[-2], y=y)
-        for i, p in enumerate(self):
-            if p.eq_y(y):
-                return p
-            if i:
-                if self[i - 1].y < y < self[i].y or self[i - 1].y > y > self[i].y:
-                    return CurvePoint2D.interpolate(self[i - 1], self[i], y=y)
+        if len(self):
+            if y < self.ymin and len(self) > 1:
+                return CurvePoint2D.interpolate(self[0], self[1], y=y)
+            if y > self.ymax and len(self) > 1:
+                return CurvePoint2D.interpolate(self[-1], self[-2], y=y)
+            for i, p in enumerate(self):
+                if p.eq_y(y):
+                    return p
+                if i:
+                    if self[i - 1].y < y < self[i].y or self[i - 1].y > y > self[i].y:
+                        return CurvePoint2D.interpolate(self[i - 1], self[i], y=y)
 
     @property
     def y(self):
         """Returns list of all Y values.
         """
-        return [p.y for p in self]
+        return [p.y for p in self] if self else None
 
     @property
     def ymin(self):
         """Returns min Y value
         """
-        return min(self.y)
+        return min(self.y) if self else None
 
     @property
     def ymax(self):
         """Returns max Y value
         """
-        return max(self.y)
+        return max(self.y) if self else None
 
     def yvx(self, x):
         """Linearly interpolates Y(X) on the curve.
@@ -182,10 +185,10 @@ class Curve2D:
                     if self[i - 1].x < x < self[i].x or self[i - 1].x > x > self[i].x:
                         return CurvePoint2D.interpolate(self[i], self[i - 1], x=x)
         else:
-            return CurvePoint2D(x, self[0].y)
+            return CurvePoint2D(x, self[0].y) if self else None
 
     def lsm(self):
-        return lsm(self.x, self.y)
+        return lsm(self.x, self.y) if self else None
 
     def __getitem__(self, index):
         result = self._xy[index]
@@ -311,28 +314,29 @@ class Curves:
         if not isinstance(series, Curve2D):
             series = Curve2D(series)
         curves = Curves()
-        if meta:
-            a = 0
-            for b in meta:
-                curves.append(series[a:a + b])
-                a += b
-        else:
-            sep = 0
-            grad0, grad1 = None, None
-            for i, p in enumerate(series):
-                if i:
-                    grad1 = None if p.x.n == series[i - 1][0].n else \
-                        abs(p.x.n - series[i - 1].x.n) / (p.x.n - series[i - 1].x.n)
-                    if grad1 != grad0:
-                        curves.append(series[sep:i])
-                        sep = i - 1
-                    grad0 = grad1
-            curves.append(series[sep:])
-            # clean-up algorithm artifacts
-            mn = mean([len(curve) for curve in curves])
-            to_delete = [i for i, curve in enumerate(curves) if len(curve) < mn.s]
-            for i in to_delete[::-1]:
-                del curves[i]
+        if series:
+            if meta:
+                a = 0
+                for b in meta:
+                    curves.append(series[a:a + b])
+                    a += b
+            else:
+                sep = 0
+                grad0, grad1 = None, None
+                for i, p in enumerate(series):
+                    if i:
+                        grad1 = None if p.x.n == series[i - 1].x.n else \
+                            abs(p.x.n - series[i - 1].x.n) / (p.x.n - series[i - 1].x.n)
+                        if grad1 != grad0:
+                            curves.append(series[sep:i])
+                            sep = i - 1
+                        grad0 = grad1
+                curves.append(series[sep:])
+                # clean-up algorithm artifacts
+                mn = mean([len(curve) for curve in curves])
+                to_delete = [i for i, curve in enumerate(curves) if len(curve) < mn.s]
+                for i in to_delete[::-1]:
+                    del curves[i]
         return curves
 
     def append(self, curve):
