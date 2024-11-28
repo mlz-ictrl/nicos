@@ -40,6 +40,14 @@ Specific classes using one or more PVs
 
 .. autoclass:: EpicsWindowTimeoutDevice()
 
+.. currentmodule:: nicos.devices.epics.pyepics.motor
+
+.. autoclass:: EpicsMotor()
+
+.. autoclass:: EpicsMonitorMotor()
+
+.. autoclass:: HomingProtectedEpicsMotor()
+
 
 Dual protocol bindings
 ----------------------
@@ -80,3 +88,9 @@ Specific classes using one or more PVs
 .. autoclass:: EpicsDigitalMoveable()
 
 .. autoclass:: EpicsMappedMoveable()
+
+.. autoclass:: EpicsMappedReadable()
+
+.. autoclass:: EpicsBoolReadable()
+
+.. autoclass:: EpicsBoolMoveable()

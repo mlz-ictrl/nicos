@@ -36,8 +36,10 @@ from nicos.devices.epics.status import SEVERITY_TO_STATUS
 class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                  Motor):
     """
-    This device exposes some of the functionality provided by the EPICS motor
-    record. The PV names for the fields of the record (readback, speed, etc.)
+    This device exposes some of the functionality provided by the
+    `EPICS motor record <https://epics.anl.gov/bcda/synApps/motor/motorRecord.html>`_.
+
+    The PV names for the fields of the record (readback, speed, etc.)
     are derived by combining the motorpv-parameter with the predefined field
     names.
 

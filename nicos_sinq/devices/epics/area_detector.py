@@ -100,7 +100,8 @@ class ADEnumPar(AutoDevice, EpicsMoveable):
 
 class EpicsAreaDetector(HasAutoDevices, EpicsDetector):
     """
-    Class that implements the basics elements of the EPICS areaDetector.
+    Class that implements the basics elements of the
+    `EPICS areaDetector <https://github.com/areaDetector/areaDetector>`_.
 
     Extends the EpicsDetector adding the acquisition_time preset and the
     acquisition state.
