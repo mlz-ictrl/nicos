@@ -116,6 +116,7 @@ Instrument-specific code was contributed by:
 * Oleg Sobolev <oleg.sobolev@frm2.tum.de>
 * Olaf Soltwedel <olaf.soltwedel@frm2.tum.de>
 * Stefan Söllradl <stefan.soellradl@frm2.tum.de>
+* Jochen Stahn <jochen.stahn@psi.ch>
 * Alexander Steffens <a.steffens@fz-juelich.de>
 * Iwan Sumirat <sumirat@batan.go.id>
 * Henrik Thoma <henrik.thoma@frm2.tum.de>
