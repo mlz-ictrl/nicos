@@ -37,9 +37,9 @@ from nicos import config, session
 from nicos.core import MASTER, SIMULATION, SLAVE
 from nicos.core.sessions.utils import NicosCompleter
 from nicos.core.utils import system_user
-from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, SIM_STATES, \
-    STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
-    STATUS_STOPPING
+from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_IMMEDIATE, \
+    BREAK_NOW, SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, \
+    STATUS_RUNNING, STATUS_STOPPING
 from nicos.services.daemon.debugger import Rpdb
 from nicos.services.daemon.errors import RequestError, ScriptError
 from nicos.services.daemon.pyctl import Controller, ControlStop
@@ -421,10 +421,10 @@ class ExecutionController(Controller):
         session.log.warning('Immediate stop requested by %s', suffix)
         self.block_all_requests()
         if self.status == STATUS_RUNNING:
-            self.set_break(('emergency stop', 5, user.name))
+            self.set_break(('emergency stop', BREAK_IMMEDIATE, user.name))
         else:
             # in break
-            self.set_continue(('emergency stop', 5, user.name))
+            self.set_continue(('emergency stop', BREAK_IMMEDIATE, user.name))
 
     def get_queue(self):
         return self.queue.serialize_queue()

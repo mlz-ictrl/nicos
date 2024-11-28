@@ -33,7 +33,7 @@ from nicos.core.constants import FILE
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.devices.cacheclient import DaemonCacheClient
-from nicos.protocols.daemon import BREAK_AFTER_STEP
+from nicos.protocols.daemon import BREAK_AFTER_STEP, BREAK_NOW
 from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.services.daemon.pyctl import ControlStop
 from nicos.utils.loggers import INFO
@@ -151,7 +151,8 @@ class DaemonSession(NoninteractiveSession):
             self.emitfunc('prompt', self._user_prompt)
 
     def pause(self, prompt, inputcmd=None):
-        self.daemon_device._controller.set_break(('break', 3, 'pause()'))
+        self.daemon_device._controller.set_break(
+            ('break', BREAK_NOW, 'pause()'))
         self._user_prompt = (prompt, str(uuid1()))
         self.emitfunc('prompt', self._user_prompt)
         self.breakpoint(3)
@@ -159,7 +160,8 @@ class DaemonSession(NoninteractiveSession):
         self._user_prompt = None
 
     def userinput(self, prompt, validator=str, default=Ellipsis):
-        self.daemon_device._controller.set_break(('break', 3, 'userinput()'))
+        self.daemon_device._controller.set_break(
+            ('break', BREAK_NOW, 'userinput()'))
         self._user_prompt = (prompt, str(uuid1()), validator, default)
         self.emitfunc('prompt', self._user_prompt)
         # Must be set by the client by calling setUserinput
