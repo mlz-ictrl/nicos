@@ -376,6 +376,43 @@ class CScan(CommonScan):
         return start, end, abs(end - start) / (2*npoints + 1) / ctime, ctime
 
 
+class Center(CommonScan):
+
+    name = 'Center/Move on fit maximum'
+    category = 'Scan'
+    cmdname = 'center'
+    uiName = 'cmdlets/cscan.ui'
+
+    def __init__(self, parent, client, options):
+        CommonScan.__init__(self, parent, client, options)
+        self.contBox.hide()
+        self.label.setText('<b>Center</b> device:')
+
+    def on_range_change(self, *args):
+        numpoints = self.numpoints.value()
+        try:
+            start = float(self.start.text())
+            step = float(self.step.text())
+        except ValueError:
+            edgepos = ''
+        else:
+            edgepos = '%.3f - %.3f %s' % (start - numpoints*step,
+                                          start + numpoints*step,
+                                          self.unit1.text())
+        self.edgePos.setText(edgepos)
+        self.totalPoints.setText('Total: %d points' % (2 * numpoints + 1))
+        self.changed()
+
+    def _getContParams(self, values):
+        center, step, npoints, ctime = (float(values['scanstart']),
+                                        float(values['scanstep']),
+                                        float(values['scanpoints']),
+                                        values['preset'])
+        start = center - npoints * step
+        end = center + npoints * step
+        return start, end, abs(end - start) / (2*npoints + 1) / ctime, ctime
+
+
 class TimeScan(PresetHelper, Cmdlet):
 
     name = 'Time scan'
@@ -692,5 +729,5 @@ def get_priority_sorted_categories():
 
 
 for cmdlet in [Move, Count, Scan, CScan, TimeScan, ContScan,
-               Sleep, Configure, NewSample]:
+               Sleep, Configure, NewSample, Center]:
     register(cmdlet)
