@@ -87,7 +87,7 @@ devices = dict(
         dvalue = 3.355,
         unit = 'meV',
         scatteringsense = 1,
-        abslimits = (10, 100),
+        abslimits = (0.2, 30),
         crystalside = 1,
     ),
     mdif_lower = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',

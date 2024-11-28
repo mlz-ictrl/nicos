@@ -19,23 +19,30 @@ devices = dict(
         readpv = pvdprefix + '.PR2',
         presetpv = pvdprefix + '.PR2',
     ),
+    # The Primary Monitor Signal (CH1) is duplicated and sent to the position
+    # encoder of the middle detectorbank (through the histogrammer to CH3).
+    # There will always be periods of time where the Chopper is out of phase
+    # (these periods aren't counted), so having both the primary and duplicated
+    # signal (which passes through the detector box) we can more easily check
+    # that the signal stayed in sync throughout a measurement by observing
+    # whether the counts are equal.
     monitor1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'First scalar counter channel',
+        description = 'Primary Monitor Signal - just before the sample - (Counterbox CH1)',
+        type = 'monitor',
+        readpv = pvdprefix + '.S2',
+    ),
+    tof_sum = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+        description = 'Duplicated Monitor Signal - histogram sum - (CounterBox CH3)',
         type = 'monitor',
         readpv = pvdprefix + '.S4',
     ),
     beam_monitor = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Second scalar counter channel',
+        description = 'Beam Monitor (Counterbox CH2)',
         type = 'monitor',
         readpv = pvdprefix + '.S3',
     ),
-    tof_sum = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Third scalar counter channel',
-        type = 'monitor',
-        readpv = pvdprefix + '.S4',
-    ),
     protoncount = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Fourth scalar counter channel',
+        description = 'Proton Count (Counterbox CH5)',
         type = 'monitor',
         readpv = pvdprefix + '.S6',
     ),
