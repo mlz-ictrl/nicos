@@ -133,6 +133,10 @@ class ILLAsciiHandler(DataSinkHandler):
                 if count == 3:
                     count = 0
                     self._header += '\nVARIA:'
+            else:
+                session.log.warning("Couldn't find the value of device `%s`" +
+                                    ' to write to ILL file', name)
+
         if not self._header.endswith('\n'):
             self._header += '\n'
 
@@ -146,6 +150,10 @@ class ILLAsciiHandler(DataSinkHandler):
                 if count == 3:
                     count = 0
                     self._header += '\nZEROS:'
+            else:
+                session.log.warning("Couldn't find the offset of `%s` to" +
+                                    ' write to ILL file', name)
+
         if not self._header.endswith('\n'):
             self._header += '\n'
 

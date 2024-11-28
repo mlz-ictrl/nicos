@@ -101,6 +101,7 @@ Instrument-specific code was contributed by:
 * Gaetano Mangiapia <gaetano.mangiapia@hereon.de>
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
+* Stanislav Nikitin <stanislav.nikitin@psi.ch>
 * Dominic Oram <dominic.oram@stfc.ac.uk>
 * Dominik Petz <dominik.petz@frm2.tum.de>
 * Ji Tae Park <jitae.park@frm2.tum.de>
