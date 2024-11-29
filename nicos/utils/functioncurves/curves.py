@@ -366,24 +366,34 @@ class Curves:
     def __delitem__(self, index):
         del self._curves[index]
 
-    def increasing(self):
-        """Filters curves by increasing function. Only makes sense to be used
-        if function gradient doesn't change its sign.
+    def increasing(self, by_y=True):
+        """Filters curves by increasing function or argument.
+        Only makes sense to be used if function or argument gradients don't
+        change their sign.
         """
         curves = []
         for curve in self:
-            if curve[-1].y > curve[0].y:
-                curves.append(curve)
+            if by_y:
+                if curve[-1].y > curve[0].y:
+                    curves.append(curve)
+            else:
+                if curve[-1].x > curve[0].x:
+                    curves.append(curve)
         return Curves(curves)
 
-    def decreasing(self):
-        """Filters curves by decreasing function. Only makes sense to be used
-        if function gradient doesn't change its sign.
+    def decreasing(self, by_y=True):
+        """Filters curves by decreasing function or argument.
+        Only makes sense to be used if function or argument gradients don't
+        change their sign.
         """
         curves = []
         for curve in self:
-            if curve[-1].y < curve[0].y:
-                curves.append(curve)
+            if by_y:
+                if curve[-1].y < curve[0].y:
+                    curves.append(curve)
+            else:
+                if curve[-1].x < curve[0].x:
+                    curves.append(curve)
         return Curves(curves)
 
     def mean(self, std=True):
