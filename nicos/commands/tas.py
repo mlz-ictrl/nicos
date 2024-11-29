@@ -671,7 +671,7 @@ def setalign(hkl, psival=None):
     >>> setalign((4, 0, 0), 90.32)  # align so that 4,0,0 is on 90.32 deg
     """
     tas = session.instrument
-    target = tuple(hkl) + (0,)
+    target = tuple(Q(hkl, E=0))
     psi = tas._attached_psi
     psicalc = tas._calpos(target + (None, None), printout=False)[3]
     if psival is None:
@@ -710,7 +710,7 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
     tas = session.instrument
     ycol = kwargs.pop('ycol', -1)
     accuracy = kwargs.pop('accuracy', None)
-    target = tuple(hkl) + (0,)
+    target = tuple(Q(hkl, E=0))
     tas.maw(target)
     psi = tas._attached_psi
     center = tas._calpos(target + (None, None), printout=False)[3]

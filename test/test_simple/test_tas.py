@@ -289,6 +289,8 @@ def test_setalign(session, tas):
     pos(.5, .5, .5)
     setalign((-.5, .5, .5))
     assertPos(tas.read(0), [-.5, .5, .5, 0])
+    setalign(Q(0.5, 0.5, 0.5, 1))
+    assertPos(tas.read(0), [.5, .5, .5, 0])
 
 
 def test_checkalign(session, tas):
@@ -297,6 +299,7 @@ def test_checkalign(session, tas):
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.57
     checkalign((1, 0, 0), 0.05, 2, tdet, accuracy=0.1)
+    checkalign(Q(1, 0, 0, 2), 0.05, 2, tdet, accuracy=0.1)
 
 
 def test_helper_commands(tas):
