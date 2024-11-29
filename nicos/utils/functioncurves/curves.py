@@ -382,15 +382,24 @@ class Curves:
                 curves.append(curve)
         return Curves(curves)
 
-    def mean(self):
+    def mean(self, std=True):
         """Returns mean curve from curves.
+        std: flag to calculate the standard deviation. If `False`, simple
+        arithmetic mean is calculated.
         """
-        if len(self) == 1:
-            return self[0]
         res = Curve2D()
-        for p in self[0]:
-            points = Curve2D([p])
-            for curve in self[1:]:
-                points.append((p.x, curve.yvx(p.x).y))
-            res.append((p.x, mean(points.y)))
+        if len(self):
+            if len(self) == 1:
+                return self[0]
+            for p in self[0]:
+                ys = [p.y]
+                for curve in self[1:]:
+                    if curve.xmin <= p.x <= curve.xmax:
+                        ys.append(curve.yvx(p.x).y)
+                res.append((p.x, mean(ys) if std else sum(ys)/len(ys)))
         return res
+
+    def amean(self):
+        """Return simple arithmetic mean from curves.
+        """
+        return self.mean(std=False)

@@ -38,10 +38,15 @@ def mean(x, dx=None):
         x = [i.n for i in x]
     x = numpy.array(x)
     dx = numpy.array(dx)
+    mn = std = 0
     n = len(x)
-    mn = numpy.mean(x)
-    std = numpy.std(x) if not dx.any() else \
-        (numpy.sum((x - mn) ** 2 + dx ** 2) / (n - 1)) ** 0.5
+    if n:
+        mn = x[0]
+        std = dx[0] if dx.any() else 0
+    if n > 1:
+        mn = numpy.mean(x)
+        std = numpy.std(x) if not dx.any() else \
+            (numpy.sum((x - mn) ** 2 + dx ** 2) / (n - 1)) ** 0.5
     return ufloat(mn, std)
 
 
