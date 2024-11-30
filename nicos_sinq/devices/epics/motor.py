@@ -59,9 +59,6 @@ class EpicsMotor(EssEpicsMotor):
 
     def doStatus(self, maxage=0):
         if self.can_disable:
-            target = self._get_pv('enable')
-            if target != self._get_pv('enable_rbv'):
-                return status.BUSY, f'{"En" if target else "Dis"}abling motor'
             if not self._get_pv('enable_rbv'):
                 return status.DISABLED, 'Motor is disabled'
         return EssEpicsMotor.doStatus(self, maxage)

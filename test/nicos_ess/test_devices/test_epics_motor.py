@@ -103,18 +103,21 @@ class TestEpicsMotor:
         adjust(self.motor, new_pos)
 
         # Check new offset value
-        assert new_pos == self.motor.offset
+        assert new_pos == -self.motor.offset
+        assert new_pos == self.motor.epics_offset
 
-    def test_adjust_command_causes_absolute_limits_to_be_updated(self):
+    def test_adjust_command_causes_epics_absolute_limits_to_be_updated(self):
         # Get initial limits
         low, high = self.motor.abslimits
+        epics_low, epics_high = self.motor.epics_abslimits
 
         # Redefine current position using 'adjust'
         new_pos = 50
         adjust(self.motor, new_pos)
 
         # Check new limits
-        assert (low + new_pos, high + new_pos) == self.motor.abslimits
+        assert (low, high) == self.motor.abslimits
+        assert (epics_low + new_pos, epics_high + new_pos) == self.motor.epics_abslimits
 
     def test_adjust_command_causes_user_limits_to_be_updated(self):
         # Get initial limits
@@ -138,16 +141,18 @@ class TestEpicsMotor:
         # Check new offset value
         assert new_offset == self.motor.offset
 
-    def test_setting_offset_causes_absolute_limits_to_be_updated(self):
+    def test_setting_offset_causes_epics_absolute_limits_to_be_updated(self):
         # Get initial limits
         low, high = self.motor.abslimits
+        epics_low, epics_high = self.motor.epics_abslimits
 
         # Set offset
         new_offset = 50
         self.motor.offset = new_offset
 
         # Check new limits
-        assert (low + new_offset, high + new_offset) == self.motor.abslimits
+        assert (low, high) == self.motor.abslimits
+        assert (epics_low - new_offset, epics_high - new_offset) == self.motor.epics_abslimits
 
     def test_setting_offset_causes_user_limits_to_be_updated(self):
         # Get initial limits
@@ -158,8 +163,8 @@ class TestEpicsMotor:
         self.motor.offset = new_offset
 
         # Check new limits
-        assert (low + new_offset,
-                high + new_offset) == self.motor.userlimits
+        assert (low - new_offset,
+                high - new_offset) == self.motor.userlimits
 
 
 class TestDerivedEpicsMotor:

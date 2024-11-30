@@ -19,15 +19,17 @@
 # Module authors:
 #   Michael Wedel <michael.wedel@esss.se>
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Edward Wall <edward.wall@psi.ch>
 #
 # *****************************************************************************
 
 from time import time as currenttime
 
+from nicos import session
 from nicos.core import ADMIN, Override, Param, oneof, pvname, status
 from nicos.core.device import requires
-from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
+from nicos.core.params import limits
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics.pyepics import EpicsAnalogMoveable, PVMonitor
 from nicos.devices.epics.status import SEVERITY_TO_STATUS
@@ -51,6 +53,26 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     Another optional PV is the errormsgpv, which contains an error message that
     may originate from the motor controller or the IOC. If it is present,
     doStatus uses it for some of the status messages.
+
+    The EPICS motor record includes an
+    `offset field <https://epics.anl.gov/bcda/synApps/motor/motorRecord.html#Fields_calib>`_,
+    that, when changed, automatically updates the
+    `limits <https://epics.anl.gov/bcda/synApps/motor/motorRecord.html#Fields_limit>`_,
+    `target <https://epics.anl.gov/bcda/synApps/motor/motorRecord.html#Fields_drive>`_,
+    and `current position <https://epics.anl.gov/bcda/synApps/motor/motorRecord.html#Fields_status>`_
+    fields of the same record.  To keep the corresponding parameters in NICOS
+    in sync, each are marked volatile and read directly from EPICS.
+    Unfortunately, however, EPICS applies it's offset in the opposite direction,
+    for which reason this device has both a normal NICOS `offset` and the
+    parameter `epics_offset`, with `epics_offset` reflecting the value within
+    EPICS and `offset` being its inverse.
+
+    Furthermore, NICOS assumes that the absolute limits don't already have the
+    offset applied.  To this end there is both an `epics_abslimits` parameter
+    that reflects the limits in EPICS (i.e. with offset applied) and `abslimits`
+    that follows the NICOS convention.  Together this avoids frustrations when
+    reloading values from the cache, the code for which assumes that the
+    offsets and limits follow a NICOS specific convention.
     """
     parameters = {
         'motorpv':
@@ -83,7 +105,24 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                   default='forward',
                   settable=False,
                   userparam=False,
-                  mandatory=False)
+                  mandatory=False),
+        'epics_abslimits':
+            Param('Epics HLM and LLM fields',
+                  type=limits,
+                  category='limits',
+                  settable=False,
+                  internal=True,
+                  mandatory=False,
+                  userparam=True,
+                  volatile=True),
+        'epics_offset':
+            Param('Epics OFF field',
+                  category='offsets',
+                  settable=False,
+                  internal=True,
+                  mandatory=False,
+                  userparam=True,
+                  volatile=True),
     }
 
     parameter_overrides = {
@@ -91,7 +130,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         'readpv': Override(mandatory=False, userparam=False, settable=False),
         'writepv': Override(mandatory=False, userparam=False, settable=False),
 
-        # speed, limits and offset may change from outside, can't rely on cache
+        # speed, limits offset and target may change from outside,
+        # so can't rely on cache
         'speed': Override(volatile=True),
         'offset': Override(volatile=True, chatty=False),
         'abslimits': Override(volatile=True),
@@ -176,35 +216,31 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
 
         self._put_pv('speed', speed)
 
-    def doReadOffset(self):
+    def doReadEpics_Offset(self):
         return self._get_pv('offset')
+
+    def doReadOffset(self):
+        return -self.epics_offset
 
     def doWriteOffset(self, value):
         # In EPICS, the offset is defined in following way:
         # USERval = HARDval + offset
 
         if self.offset != value:
+            old_offset = self.offset
             diff = value - self.offset
 
             # Set the offset in motor record
-            self._put_pv_blocking('offset', value)
+            self._put_pv_blocking('offset', -value)
 
-            # Read the absolute limits from the device as they have changed.
-            self.abslimits  # pylint: disable=pointless-statement
+            # This also reads the new abslimits
+            self._adjustLimitsToOffset(value, diff)
 
-            # Place new limits into the allowed range..
-            usmin = max(self.userlimits[0] + diff, self.abslimits[0])
-            usmax = min(self.userlimits[1] + diff, self.abslimits[1])
-            # Adjust user limits
-            self.userlimits = (usmin, usmax)
+            # Force a cache update of volatile parameters
+            self.target   # pylint: disable=pointless-statement
+            self.read(0)  # pylint: disable=pointless-statement
 
-            self.log.info('The new user limits are: ' + str(self.userlimits))
-
-    def doAdjust(self, oldvalue, newvalue):
-        diff = oldvalue - newvalue
-        # For EPICS the offset sign convention differs to that of the base
-        # implementation.
-        self.offset -= diff
+            session.elogEvent('offset', (str(self), old_offset, value))
 
     def _get_valid_speed(self, newValue):
         min_speed = self._get_pvctrl('speed', 'lower_ctrl_limit', 0.0)
@@ -313,22 +349,15 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     def doStop(self):
         self._put_pv('stop', 1, False)
 
-    def _checkLimits(self, limits):
-        # Called by doReadUserlimits and doWriteUserlimits
-        low, high = self.abslimits
-        if low == 0 and high == 0:
-            # No limits defined in IOC.
-            # Could be a rotation stage for example.
-            return
-
-        if limits[0] < low or limits[1] > high:
-            raise ConfigurationError('cannot set user limits outside of '
-                                     'absolute limits (%s, %s)' % (low, high))
-
-    def doReadAbslimits(self):
+    def doReadEpics_Abslimits(self):
         absmin = self._get_pv('lowlimit')
         absmax = self._get_pv('highlimit')
         return absmin, absmax
+
+    def doReadAbslimits(self):
+        offset = self.offset
+        absmin, absmax = self.epics_abslimits
+        return absmin + offset, absmax + offset
 
     def doReference(self):
         self._put_pv_blocking('home%s' % self.reference_direction, 1)
