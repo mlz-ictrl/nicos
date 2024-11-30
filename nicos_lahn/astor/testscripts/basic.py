@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-# test: needs = tango
+# test: needs = tango,astropy
 # test: setups = astor
 # test: subdirs = astor
 

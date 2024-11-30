@@ -29,6 +29,7 @@ from unittest.mock import patch
 import pytest
 
 pytest.importorskip('kafka.errors')
+pytest.importorskip('kafka-logging-handler')
 
 from kafka.errors import NoBrokersAvailable
 from pkg_resources import get_distribution, parse_version

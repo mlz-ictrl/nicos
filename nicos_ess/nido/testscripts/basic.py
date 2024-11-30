@@ -2,6 +2,7 @@
 
 # test: subdirs = nido
 # test: setups = area_detectors,forwarder,rotation_stage
+# test: needs = p4p
 # test: needs = streaming_data_types
 # test: needs = confluent_kafka
 # test: needs = yuos_query
