@@ -38,6 +38,9 @@ watch_conditions = [
          actiontimeout = 600,
          # gracetime = 5,
     ),
+]
+
+nguide_conditions = [
     dict(condition = 'p1_nguide_status[0] == WARN',
         # precondition = 'p1_nguide_value < 10',
         # precondtime = 60,
@@ -50,16 +53,22 @@ watch_conditions = [
         type = 'neutronguide',
         message = 'ErwiN: P2 is to high (> 10 mbar)',
     ),
+]
+
+charm_conditions = [
     dict(condition = 'charm2_pdet_status[0] == WARN',
         type = 'charm',
-        message = 'ErwiN/Charm: Pdet outside [7.70, 7.76 bar',
+        setup = 'charmbox02',
+        message = 'ErwiN/Charm: Pdet outside [7.70, 7.76] bar',
     ),
     dict(condition = 'charm2_ppump1_status[0] == WARN',
         type = 'charm',
+        setup = 'charmbox02',
         message = 'ErwiN/Charm: P pump 1 outside [7.72, 7.78] bar',
     ),
     dict(condition = 'charm2_ppump2_status[0] == WARN',
         type = 'charm',
+        setup = 'charmbox02',
         message = 'ErwiN/Charm: P pump 1 outside [7.71, 7.77] bar',
     ),
 ]
@@ -78,7 +87,7 @@ devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
         cache = 'localhost:14869',
         notifiers = notifiers,
-        watch = watch_conditions,
+        watch = watch_conditions + nguide_conditions,  # + charm_conditions,
         loglevel = 'info',
     ),
 )
