@@ -775,7 +775,8 @@ class Intensity(DummyDetector):
 
 
 class HKLScan(Scan):
-    def __init__(self, devices, startpositions, scanmode='omega',
+    def __init__(  # pylint: disable=too-many-positional-arguments
+                 self, devices, startpositions, scanmode='omega',
                  endpositions=None, firstmoves=None,
                  multistep=None, detlist=None, envlist=None,
                  scaninfo=None, subscan=False, **preset):
@@ -1128,7 +1129,8 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
 
 
 class SinqQScan(Scan):
-    def __init__(self, positions, firstmoves=None, multistep=None,
+    def __init__(  # pylint: disable=too-many-positional-arguments
+                 self, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
                  subscan=False):
         inst = session.instrument

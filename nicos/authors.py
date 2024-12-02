@@ -67,6 +67,7 @@ Contributors:
 
 Instrument-specific code was contributed by:
 
+* Nicolai Amin <nicolai.amin@psi.ch>
 * Stefanos Athanasopoul <stefanos.athanasopoulos@ess.eu>
 * Fabian Beule <f.beule@fz-juelich.de>
 * Alexander Book <alexander.book@frm2.tum.de>
