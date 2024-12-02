@@ -37,7 +37,7 @@ change-merged''',
                                       disableStrictForbiddenFileVerification: false,
                                       branches: [[compareType: 'PLAIN', pattern: 'master'],
                                                  [compareType: 'REG_EXP', pattern: 'release-3\\.([8,9]|[1-9][0-9]+)'],
-                                                 [compareType: 'REG_EXP', pattern: 'feature-.*']
+                                                 [compareType: 'REG_EXP', pattern: 'feature-.*'],
                                                  [compareType: 'PLAIN', pattern: 'hidden']
                                                  ],
                                  ]],
