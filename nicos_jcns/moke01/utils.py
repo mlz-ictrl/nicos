@@ -33,8 +33,10 @@ def fit_curve(curve, fittype):
         return
     err = 0.025
     ymin, ymax = curve.ymin, curve.ymax
-    y1 = [p.y for p in curve if ymin * (1 - err) < p.y < ymin * (1 + err)]
-    y2 = [p.y for p in curve if ymax * (1 - err) < p.y < ymax * (1 + err)]
+    emin = err if ymin >= 0 else -err
+    emax = err if ymax >= 0 else -err
+    y1 = [p.y for p in curve if ymin * (1 - emin) < p.y < ymin * (1 + emin)]
+    y2 = [p.y for p in curve if ymax * (1 - emax) < p.y < ymax * (1 + emax)]
     y = y1 if fittype == 'min' else y2
     x = [p.x for p in curve if p.y in y]
     if x and y:
