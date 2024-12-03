@@ -121,6 +121,15 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                   mandatory=False,
                   userparam=True,
                   volatile=True),
+        'speedlimits':
+            Param('Epics VBAS and VMAX fields',
+                  type=limits,
+                  category='limits',
+                  settable=False,
+                  internal=True,
+                  mandatory=False,
+                  userparam=True,
+                  volatile=True),
     }
 
     parameter_overrides = {
@@ -151,6 +160,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         'homeforward': 'HOMF',
         'homereverse': 'HOMR',
         'speed': 'VELO',
+        'basespeed': 'VBAS',
+        'maxspeed': 'VMAX',
         'offset': 'OFF',
         'highlimit': 'HLM',
         'lowlimit': 'LLM',
@@ -204,15 +215,22 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     def doReadSpeed(self):
         return self._get_pv('speed')
 
-    def doWriteSpeed(self, newValue):
-        speed = self._get_valid_speed(newValue)
-
-        if speed != newValue:
+    def doWriteSpeed(self, value):
+        basespeed, maxspeed = self.speedlimits
+        if value < basespeed:
             self.log.warning(
-                'Selected speed %s is outside the parameter '
-                'limits, using %s instead.', newValue, speed)
+                'Selected speed %s is lower than the low limit %s. '
+                'Using low limit %s instead.', value, basespeed, basespeed)
+            value = basespeed
 
-        self._put_pv('speed', speed)
+        elif value > maxspeed:
+            self.log.warning(
+                'Selected speed %s is higher than the high limit %s. '
+                'Using high limit %s instead.', value, maxspeed, maxspeed)
+            value = maxspeed
+
+        self._put_pv('speed', value)
+        return value
 
     def doReadEpics_Offset(self):
         return self._get_pv('offset')
@@ -239,19 +257,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             self.read(0)  # pylint: disable=pointless-statement
 
             session.elogEvent('offset', (str(self), old_offset, value))
-
-    def _get_valid_speed(self, newValue):
-        min_speed = self._get_pvctrl('speed', 'lower_ctrl_limit', 0.0)
-        max_speed = self._get_pvctrl('speed', 'upper_ctrl_limit', 0.0)
-
-        valid_speed = newValue
-        if min_speed != 0.0:
-            valid_speed = max(min_speed, valid_speed)
-
-        if max_speed != 0.0:
-            valid_speed = min(max_speed, valid_speed)
-
-        return valid_speed
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
@@ -348,9 +353,14 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         self._put_pv('stop', 1, False)
 
     def doReadEpics_Abslimits(self):
-        absmin = self._get_pv('lowlimit')
-        absmax = self._get_pv('highlimit')
+        absmin = self._get_pv('lowlimit', use_monitor=False)
+        absmax = self._get_pv('highlimit', use_monitor=False)
         return absmin, absmax
+
+    def doReadSpeedlimits(self):
+        basespeed = self._get_pv('basespeed', use_monitor=False)
+        maxspeed = self._get_pv('maxspeed', use_monitor=False)
+        return basespeed, maxspeed
 
     def doReadAbslimits(self):
         offset = self.offset
@@ -379,6 +389,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         self._put_pv('writepv', pos)
         self._put_pv('set', 0)
         self._put_pv('foff', 0)
+
+    def doPoll(self, n, maxage):
+        self.pollParams(blocking=True)
 
 
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):
