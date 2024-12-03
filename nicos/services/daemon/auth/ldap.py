@@ -49,6 +49,9 @@ def ldapuri(val=None):
     return val
 
 
+FORBIDDEN = -1
+
+
 class Authenticator(BaseAuthenticator):
     """Authenticates against the configured LDAP server.
 
@@ -115,8 +118,7 @@ class Authenticator(BaseAuthenticator):
         if error:
             raise AuthenticationError('LDAP connection failed (%s)' % error)
 
-        userlevel = -1
-
+        userlevel = FORBIDDEN
         # check if the user has explicit rights
         if username in self.userroles:
             userlevel = self._access_levels[self.userroles[username]]
@@ -130,7 +132,7 @@ class Authenticator(BaseAuthenticator):
                 userlevel = max(userlevel,
                                 self._access_levels[self.grouproles[group]])
 
-        if userlevel >= 0:
+        if userlevel != FORBIDDEN:
             return User(username, userlevel)
 
         raise AuthenticationError('Login not permitted for the given user')
