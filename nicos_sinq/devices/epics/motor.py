@@ -17,78 +17,92 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Michele Brambilla <mnichele.brambilla@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
+#   Stefan Mathis <stefan.mathis@psi.ch>
 #
 # *****************************************************************************
-from time import time as currenttime
 
-from nicos.core import MASTER, Device, Param, status
-from nicos.core.constants import SIMULATION
-from nicos.devices.epics.pyepics import PVMonitor, pvget
-from nicos.devices.epics.pyepics.motor import EpicsMotor as EssEpicsMotor
+from nicos.core import Param, status
+from nicos.core.errors import UsageError
+from nicos.core.params import none_or, oneof
+from nicos.devices.epics.pyepics.motor import EpicsMotor as CoreEpicsMotor
 
 
-class EpicsMotor(EssEpicsMotor):
+class SinqMotor(CoreEpicsMotor):
+
     parameters = {
         'can_disable': Param('Whether the motor can be enabled/disabled using '
                              'a PV or not.', type=bool, mandatory=False,
-                             settable=False, userparam=False),
-        'auto_enable': Param('Automatically enable the motor when the setup is'
-                             ' loaded', type=bool, default=False,
-                             settable=False),
-        'absolute_encoder': Param('Has an absolute encoder that can be reread',
-                                  type=bool, default=False,
-                                  settable=False),
+                             settable=False, userparam=False, volatile=True),
+        'encoder_type': Param('Encoder type', default=False, settable=False,
+                              type=none_or(oneof('absolute', 'incremental')),
+                              userparam=True, volatile=True),
     }
 
+    def _get_pv_parameters(self):
+        pvs = CoreEpicsMotor._get_pv_parameters(self)
+        pvs.add('can_disable')
+        pvs.add('enable')
+        pvs.add('enable_rbv')
+        pvs.add('encoder_type')
+        return pvs
+
     def _get_pv_name(self, pvparam):
-        if pvparam == 'enable' and self.can_disable:
-            # If it is an ESS EpicsMotor enable points to .CNEN
+        if pvparam == 'enable':
             return self.motorpv + ':Enable'
         elif pvparam == 'enable_rbv':
-            return self.motorpv + ':Enable_RBV'
-        elif pvparam == 'reread_encoder':
-            return self.motorpv + ':Reread_Encoder'
+            return self.motorpv + ':EnableRBV'
+        elif pvparam == 'can_disable':
+            return self.motorpv + ':CanDisable'
+        elif pvparam == 'encoder_type':
+            return self.motorpv + ':EncoderType'
         else:
-            return EssEpicsMotor._get_pv_name(self, pvparam)
-
-    def _setMode(self, mode):
-        if mode == MASTER and self.auto_enable:
-            self.enable()
-        return Device._setMode(self, mode)
+            return CoreEpicsMotor._get_pv_name(self, pvparam)
 
     def doStatus(self, maxage=0):
         if self.can_disable:
             if not self._get_pv('enable_rbv'):
                 return status.DISABLED, 'Motor is disabled'
-        return EssEpicsMotor.doStatus(self, maxage)
+        return CoreEpicsMotor.doStatus(self, maxage)
 
-    def _get_pv_parameters(self):
-        pvs = EssEpicsMotor._get_pv_parameters(self)
-        if self.can_disable:
-            pvs.add('enable')
-            pvs.add('enable_rbv')
-        if self.absolute_encoder:
-            pvs.add('reread_encoder')
-        return pvs
+    def doReadEncoder_Type(self, maxage=0):
+        encoder_type = self._get_pv('encoder_type', as_string=True)
+        if encoder_type.lower() in ('none', ''):
+            return None
+        return encoder_type
+
+    def doReadCan_Disable(self, maxage=0):
+        # This parameter should be reread every time this function is accessed.
+        # If monitor=True (default parameter), the value is read from the
+        # cache, which is not what we want!
+        return self._get_pv('can_disable', use_monitor=False)
 
     def doEnable(self, on):
         if self.can_disable:
-            EssEpicsMotor.doEnable(self, on)
-            self.status()
-            self._cache.put(self, 'status', (status.BUSY,
-                            f'{"En" if on else "Dis"}abling'))
+            done_moving = self._get_pv('donemoving')
+            moving = self._get_pv('moving')
+            if done_moving == 0 or moving != 0:
+                raise UsageError('Motor cannot be disabled during movement!')
+            else:
+                CoreEpicsMotor.doEnable(self, on)
+                self.status()
+                self._cache.put(self, 'status', (status.BUSY,
+                                f'{"En" if on else "Dis"}abling'))
+        else:
+            if on:
+                # The motor cannot be disabled, but it still can be enabled!
+                CoreEpicsMotor.doEnable(self, on)
+                self.status()
+                self._cache.put(self, 'status', (status.BUSY,
+                                f'{"En" if on else "Dis"}abling'))
+            else:
+                self.log.warning('This motor cannot be disabled')
 
     @property
     def isEnabled(self):
         """Shows if the motor is enabled or not"""
-        if self._mode != SIMULATION and self.can_disable:
-            # I need to read this value also in simulation
-            # mode when the PV class has been replaced by a
-            # hardware stub. This is why I read directly here
-            ename = self._get_pv_name('enable_rbv')
-            val = pvget(ename)
-            return bool(val == 1)
+        if not self._sim_intercept:
+            return self._get_pv('enable_rbv') != 0
         return True
 
     def doIsAllowed(self, target):
@@ -96,34 +110,9 @@ class EpicsMotor(EssEpicsMotor):
             return False, 'Motor disabled'
         return True, ''
 
-
-class AbsoluteEpicsMotor(EpicsMotor):
-    """
-    The instances of this class cannot be homed.
-    """
-
     def doReference(self):
-        self.log.warning('This motor does not require '
-                         'homing - command ignored')
-
-
-class EpicsMonitorMotor(PVMonitor, EpicsMotor):
-    def doStart(self, target):
-        try:
-            self._put_pv_blocking('writepv', target, timeout=5)
-        except Exception as e:
-            # Use a generic exception to handle any EPICS binding
-            self.log.warning(e)
-            return
-        if target != self.doRead():
-            self._wait_for_start()
-
-    def _on_status_change_cb(self, pvparam, value=None, char_value='', **kws):
-        self._check_move_state_changed(pvparam, value)
-        PVMonitor._on_status_change_cb(self, pvparam, value, char_value, **kws)
-
-    def _check_move_state_changed(self, pvparam, value):
-        # If the fields indicating whether the device is moving change then
-        # the cache needs to be updated immediately.
-        if pvparam in ['donemoving', 'moving']:
-            self._cache.put(self._name, pvparam, value, currenttime())
+        if self.encoder_type == 'absolute':
+            self.log.warning(
+                'This motor does not require homing - command ignored')
+        else:
+            CoreEpicsMotor.doReference(self)

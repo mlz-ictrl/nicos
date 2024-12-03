@@ -3,14 +3,14 @@ description = 'BOA Table 5'
 pvprefix = 'SQ:BOA:mcu1:'
 
 devices = dict(
-    t5tx = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    t5tx = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Table 5 X Translation',
         motorpv = pvprefix + 'T5TX',
         errormsgpv = pvprefix + 'T5TX-MsgTxt',
         precision = 0.05,
         can_disable = True,
     ),
-    t5ty = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    t5ty = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Table 5 Y Translation',
         motorpv = pvprefix + 'T5TY',
         errormsgpv = pvprefix + 'T5TY-MsgTxt',

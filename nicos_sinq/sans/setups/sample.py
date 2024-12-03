@@ -35,7 +35,7 @@ devices = dict(
         errormsgpv = pvprefix + 'xu-MsgTxt',
         precision = 0.01,
     ),
-    sg = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    sg = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Sample table Rotation',
         motorpv = pvprefix + 'sg',
         errormsgpv = pvprefix + 'sg-MsgTxt',

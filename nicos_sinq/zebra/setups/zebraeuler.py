@@ -9,14 +9,14 @@ sysconfig = dict(instrument = 'ZEBRA',)
 pvpref = 'SQ:ZEBRA:mcu'
 
 devices = dict(
-    chi = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    chi = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'CHI rotation',
         motorpv = pvpref + '2:SCH',
         errormsgpv = pvpref + '2:SCH-MsgTxt',
         precision = 0.5,
         can_disable = True,
     ),
-    phi = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    phi = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'PHI rotation',
         motorpv = pvpref + '2:SPH',
         errormsgpv = pvpref + '2:SPH-MsgTxt',

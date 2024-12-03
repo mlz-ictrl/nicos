@@ -5,7 +5,7 @@ pvpref = 'SQ:ZEBRA:mcu3:'
 excludes = ['wagen2']
 
 devices = dict(
-    nu = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    nu = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Detector tilt',
         motorpv = pvpref + 'A4T',
         errormsgpv = pvpref + 'A4T-MsgTxt',
@@ -13,7 +13,7 @@ devices = dict(
         unit = 'degree',
         can_disable = True,
     ),
-    detdist = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    detdist = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Detector distance',
         motorpv = pvpref + 'W1DIST',
         errormsgpv = pvpref + 'W1DIST-MsgTxt',

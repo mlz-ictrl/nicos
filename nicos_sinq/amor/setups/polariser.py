@@ -5,14 +5,14 @@ display_order = 30
 pvprefix = 'SQ:AMOR:mcu1:'
 
 devices = dict(
-    pz1 = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    pz1 = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Polariser Z-translation 1',
         motorpv = pvprefix + 'pz1',
         errormsgpv = pvprefix + 'pz1-MsgTxt',
         can_disable = True,
         visibility = ('metadata', 'namespace'),
     ),
-    pz2 = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    pz2 = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Polariser Z-translation 2',
         motorpv = pvprefix + 'pz2',
         errormsgpv = pvprefix + 'pz2-MsgTxt',

@@ -5,19 +5,19 @@ display_order = 75
 pvprefix = 'SQ:AMOR:mcu3:'
 
 devices = dict(
-    cnu = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    cnu = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Detector tilt',
         motorpv = pvprefix + 'com',
         errormsgpv = pvprefix + 'com-MsgTxt',
         unit = 'deg',
     ),
-    cz = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    cz = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Detector height',
         motorpv = pvprefix + 'coz',
         errormsgpv = pvprefix + 'coz-MsgTxt',
         unit = 'mm'
     ),
-    det_park = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    det_park = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Detector parking motor',
         motorpv = pvprefix + 'park',
         errormsgpv = pvprefix + 'park-MsgTxt',

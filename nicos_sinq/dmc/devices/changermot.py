@@ -25,7 +25,7 @@ from time import sleep
 
 from nicos.core import Param, oneof, status
 
-from nicos_sinq.devices.epics.motor import EpicsMotor
+from nicos_sinq.devices.epics.motor_deprecated import EpicsMotor
 
 
 class ChangerMotor(EpicsMotor):
@@ -98,11 +98,11 @@ class StickMotor(EpicsMotor):
             return self._get_pv('getspeed')
         return EpicsMotor.doReadSpeed(self)
 
-    def doWriteSpeed(self, newValue):
+    def doWriteSpeed(self, value):
         if self.mode == 'continuous':
-            self._put_pv('setspeed', newValue)
+            self._put_pv('setspeed', value)
             return
-        EpicsMotor.doWriteSpeed(self, newValue)
+        EpicsMotor.doWriteSpeed(self, value)
 
     def doIsAllowed(self, target):
         if self.mode == 'continuous':
