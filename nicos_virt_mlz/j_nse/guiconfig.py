@@ -17,7 +17,10 @@ main_window = tabbed(
                     panel('nicos.clients.gui.panels.errors.ErrorPanel')),
             ),
         ),
-        ('Experiment Info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel', dockpos='left')),
+        ('Experiment Info',
+            panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+                  dockpos='left',
+                  sample_panel=panel('nicos_mlz.j_nse.gui.setup_panel.JNSESamplePanel'))),
         ('NICOS devices',
             panel(
                 'nicos.clients.gui.panels.devices.DevicesPanel',
