@@ -45,13 +45,13 @@ nguide_conditions = [
         # precondition = 'p1_nguide_value < 10',
         # precondtime = 60,
         type = 'neutronguide',
-        message = 'ErwiN: P1 is to high (> 10 mbar)',
+        message = 'ErwiN: P1 is too high (> 10 mbar)',
     ),
     dict(condition = 'p2_nguide_status[0] == WARN',
         # precondition = 'p2_nguide_value < 10',
         # precondtime = 60,
         type = 'neutronguide',
-        message = 'ErwiN: P2 is to high (> 10 mbar)',
+        message = 'ErwiN: P2 is too high (> 10 mbar)',
     ),
 ]
 
