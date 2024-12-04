@@ -378,11 +378,11 @@ class ExpPanel(Panel):
         if sample != self._orig_samplename:
             self.client.run('NewSample(%r)' % sample)
             done.append('New sample name set.')
-        if notifEmails != self._orig_propinfo.get('notif_emails'):
+        if notifEmails != self._orig_propinfo.get('notif_emails', []):
             self.client.run('SetMailReceivers(%s)' %
                             ', '.join(map(repr, notifEmails)))
             done.append('New mail receivers set.')
-        if dataEmails != self._orig_propinfo.get('data_emails'):
+        if dataEmails != self._orig_propinfo.get('data_emails', []):
             self.client.run('SetDataReceivers(%s)' %
                             ', '.join(map(repr, dataEmails)))
             done.append('New data mail receivers set.')
