@@ -45,9 +45,10 @@ Contributors:
 * Klaudia Hradil <klaudia.hradil@tuwien.ac.at>
 * Lea Kleesattel <lea.kleesattel@frm2.tum.de>
 * Mark Könnecke <mark.koennecke@psi.ch>
-* Jakob Lass <jakob.lass@gmail.com>
+* Jakob Lass <jakob.lass@psi.ch>
 * Alexander Lenz <alexander.lenz@frm2.tum.de>
 * Peter Link <peter.link@frm2.tum.de>
+* Stefan Mathis <stefan.mathis@psi.ch>
 * Kenan Muric <kenan.muric@ess.eu>
 * Pascal Neubert <pascal.neubert@frm2.tum.de>
 * Tobias Neuwirth <tobias.neuwirth@frm2.tum.de>
@@ -59,7 +60,9 @@ Contributors:
 * Christian Randau <christian.randau@frm2.tum.de>
 * Andreas Schulz <andreas.schulz@frm2.tum.de>
 * Johannes Schwarz <johannes.schwarz@frm2.tum.de>
+* Alexander Söderqvist <alexander.soederqvist@psi.ch>
 * Tobias Unruh <tobias.unruh@krist.uni-erlangen.de>
+* Edward Wall <edward.wall@psi.ch>
 * Michael Wedel <michael.wedel@esss.se>
 * Wolfgang Wein <wein@informatik.tu-muenchen.de>
 * Alexander Zaft <a.zaft@fz-juelich.de>
@@ -100,6 +103,7 @@ Instrument-specific code was contributed by:
 * Adrian Losko <adrian.losko@frm2.tum.de>
 * Avishek Maity <Avishek.Maity@frm2.tum.de>
 * Gaetano Mangiapia <gaetano.mangiapia@hereon.de>
+* Daniel Mazzone <daniel.mazzone@psi.ch>
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
 * Stanislav Nikitin <stanislav.nikitin@psi.ch>
