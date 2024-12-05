@@ -494,6 +494,7 @@ class Device(metaclass=DeviceMeta):
            current execution mode.  This means that if one of these methods
            does hardware access, it must be done only if ``mode != SIMULATION``.
         """
+        self._sim_intercept = self._mode == SIMULATION and self.hardware_access
         self._cache = None
         self._subscriptions = []
 
@@ -686,6 +687,7 @@ class Device(metaclass=DeviceMeta):
             value = self._params[param]
         elif not done:
             value = self._config.get(param, paraminfo.default)
+        # pylint: disable=used-before-assignment
         value = self._validateType(value, param, paraminfo)
         if self._cache:  # will not be there in simulation mode
             self._cache.put(self, param, value)
@@ -758,6 +760,7 @@ class Device(metaclass=DeviceMeta):
             # switching to simulation mode: remove cache entirely
             # and rely on saved _params and values
             self._cache = None
+        self._sim_intercept = mode == SIMULATION and self.hardware_access
 
     def history(self, name='value', fromtime=None, totime=None, interval=None):
         """Return a history of the parameter *name* (can also be ``'value'`` or
@@ -1044,7 +1047,6 @@ class Readable(Device):
                                self._sim_value)
             except Exception as err:
                 self.log.warning('error reading last value', exc=err)
-        self._sim_intercept = sim_intercept
         Device._setMode(self, mode)
 
     def __call__(self, *values):
@@ -1887,7 +1889,6 @@ class Measurable(Waitable):
 
     def _setMode(self, mode):
         # overwritten from Readable: don't read out detectors, it's not useful
-        self._sim_intercept = mode == SIMULATION and self.hardware_access
         Device._setMode(self, mode)
 
     @usermethod
@@ -2265,7 +2266,7 @@ class DeviceAlias(Device):
                           type=str, default='nicos.core.device.Device'),
     }
 
-    _ownattrs = ['_obj', '_mode', '_cache', 'alias']
+    _ownattrs = ['_obj', '_mode', '_cache', '_sim_intercept', 'alias']
     _ownparams = {'alias', 'name', 'devclass', 'visibility'}
     _initialized = False
 
