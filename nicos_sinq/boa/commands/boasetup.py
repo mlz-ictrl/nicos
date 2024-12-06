@@ -73,6 +73,10 @@ table_presence = [('SQ:BOA:xy1:TableIndex', 'translation1'),
 # BOA table names
 tables = ['Table2', 'Table3', 'Table4', 'Table5', 'Table6']
 
+__all__ = [
+    'boadiscover', 'find_unassigned', 'show_table_config',
+]
+
 
 @usercommand
 def boadiscover():

@@ -31,6 +31,9 @@ from nicos.commands.scan import manualscan
 from nicos.core import UsageError
 from nicos.services.daemon.script import parseScript
 
+__all__ = [
+    'antitofel', 'scanmotor', 'tofel',
+]
 
 @usercommand
 @helparglist('scan dev in the range between start and end with stepwidth step'

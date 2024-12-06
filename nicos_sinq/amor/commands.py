@@ -32,6 +32,10 @@ from nicos.core.spm import Bare, spmsyntax
 from nicos_sinq.amor.scan import WallTimeScan
 from nicos_sinq.devices.detector import SinqDetector
 
+__all__ = [
+    'spin', 'walltimecount',
+]
+
 
 @usercommand
 @helparglist('numpoints, walltime, ...')

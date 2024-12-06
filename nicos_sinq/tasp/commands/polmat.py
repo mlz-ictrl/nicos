@@ -38,6 +38,10 @@ Z = 3
 XYZ = (X, Y, Z)
 ALL = (X, Y, Z, -X, -Y, -Z)
 
+__all__ = [
+    'polmat',
+]
+
 
 def normalize(data):
     """normalize counts and calculate sigma ** 2

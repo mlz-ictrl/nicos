@@ -29,6 +29,11 @@ from nicos.commands.device import maw
 from nicos.core.errors import ConfigurationError
 from nicos.utils import findResource
 
+__all__ = [
+    'ShowTimeBinning', 'UpdateTimeBinning', 'LoadThetaArrays', 'chosta',
+    'instpar', 'sampar',
+]
+
 
 @usercommand
 @helparglist('start,step,count')
