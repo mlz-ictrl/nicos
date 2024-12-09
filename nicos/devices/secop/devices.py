@@ -1225,9 +1225,9 @@ class SecopReadable(SecopDevice, Readable):
         'maxage': Override(default=3600, userparam=False, settable=False, volatile=True),
     }
 
-    def status(self):
+    def status(self, maxage=None):
         # do not use SecopDevice.status here
-        return Readable.status(self)
+        return Readable.status(self, maxage)
 
     def doRead(self, maxage=0):
         try:
