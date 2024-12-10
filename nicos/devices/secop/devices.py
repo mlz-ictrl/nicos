@@ -1147,8 +1147,8 @@ class SecopDevice(Device):
     def status(self, maxage=0):
         """simple replacement for Readable.status
 
-        we have to implement it here, as it is called below even when
-        not inheriting from Readable
+        not inherited from SecopReadable. we have to implement it here,
+        as it is called in SecopDevice._cache_update
         """
         if self._sim_intercept:
             return status.OK, 'simulated ok'
@@ -1205,6 +1205,10 @@ class SecopReadable(SecopDevice, Readable):
         # calculated to be slightly higher than maxage on the attached SecNodeDevice
         'maxage': Override(default=3600, userparam=False, settable=False, volatile=True),
     }
+
+    def status(self, maxage=None):
+        # do not use SecopDevice.status here
+        return Readable.status(self, maxage)
 
     def doRead(self, maxage=0):
         try:
