@@ -393,7 +393,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         self._put_pv('foff', 0)
 
     def doPoll(self, n, maxage):
-        self.pollParams(blocking=True)
+        self.pollParams()
 
 
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):
