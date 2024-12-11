@@ -1,4 +1,4 @@
-description = '3He/4He dilution unit from FRM II Sample environment group'
+description = '3He Joule-Thomson unit from FRM II Sample environment group'
 
 group = 'plugplay'
 
@@ -36,9 +36,17 @@ devices = {
         pollinterval = 5,
         maxage = 6,
     ),
-    f'T_{setupname}_sample2': device('nicos.devices.entangle.Sensor',
-        description = 'The 2(nd) sample temperature (if installed)',
+    f'T_{setupname}_coldhead_4K_stage': device('nicos.devices.entangle.Sensor',
+        description = 'The 2(nd) cooling stage of the coldhead',
         tangodevice = tango_base + 'lakeshore/sensorc',
+        unit = 'K',
+        fmtstr = '%.3f',
+        pollinterval = 5,
+        maxage = 6,
+    ),
+    f'T_{setupname}_coldhead_40K_stage': device('nicos.devices.entangle.Sensor',
+        description = 'The 1(st) cooling stage of the coldhead',
+        tangodevice = tango_base + 'lakeshore/sensord',
         unit = 'K',
         fmtstr = '%.3f',
         pollinterval = 5,
@@ -105,8 +113,7 @@ devices = {
 
 alias_config = {
     'T':  {f'T_{setupname}_pot': 300},
-    'Ts': {f'T_{setupname}_pot': 280, f'T_{setupname}_sample': 300,
-           f'T_{setupname}_sample2': 290},
+    'Ts': {f'T_{setupname}_pot': 280, f'T_{setupname}_sample': 300},
 }
 
 monitor_blocks = dict(
@@ -121,10 +128,11 @@ monitor_blocks = dict(
             Field(name='Pot', dev=f'T_{setupname}_pot'),
             Field(name='Manual Heater Power', key=f't_{setupname}_pot/heaterpower',
                   unitkey='t/unit'),
+            Field(name='Sample', dev=f'T_{setupname}_sample'),
         ),
         BlockRow(
-            Field(name='Sample', dev=f'T_{setupname}_sample'),
-            Field(name='Sample2', dev=f'T_{setupname}_sample2'),
+            Field(name='40K stage', dev=f'T_{setupname}_coldhead_40K_stage'),
+            Field(name='4K stage', dev=f'T_{setupname}_coldhead_4K_stage'),
         ),
     ], setups=setupname),
     pressures = Block('Pressures ' + setupname, [
