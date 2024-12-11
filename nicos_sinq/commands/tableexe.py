@@ -59,6 +59,10 @@ from nicos.core import UsageError
 from nicos.protocols.daemon import BREAK_AFTER_STEP
 from nicos.services.daemon.utils import parseScript
 
+__all__ = [
+    'tableexe',
+]
+
 
 def _csvfilename(filename):
     fn = filename

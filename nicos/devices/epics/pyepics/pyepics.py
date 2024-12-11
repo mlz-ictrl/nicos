@@ -39,7 +39,7 @@ from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.utils import HardwareStub
 
 # ca.clear_cache() only works from the main thread
-if not isinstance(threading.currentThread(), threading._MainThread):
+if not isinstance(threading.current_thread(), threading._MainThread):
     raise ImportError('the nicos.devices.epics module must be first '
                       'imported from the main thread')
 
@@ -211,14 +211,15 @@ class EpicsDevice(DeviceMixinBase):
             for key in self._pvs:
                 self._pvs[key] = HardwareStub(self)
 
-    def _get_pv(self, pvparam, as_string=False, count=None):
+    def _get_pv(self, pvparam, as_string=False, count=None, use_monitor=True):
         # since NICOS devices can be accessed from any thread, we have to
         # ensure that the same context is set on every thread
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
         result = self._pvs[pvparam].get(timeout=self.epicstimeout,
                                         as_string=as_string,
-                                        count=count)
+                                        count=count,
+                                        use_monitor=use_monitor)
         if result is None:  # timeout
             raise CommunicationError(self, 'timed out getting PV %r from EPICS'
                                      % self._get_pv_name(pvparam))

@@ -27,6 +27,9 @@ from nicos.commands.device import maw
 from nicos.commands.measure import count as std_count
 from nicos.core.errors import ConfigurationError
 
+__all__ = [
+    'UpdateHRPTBinning', 'count', 'sarot',
+]
 
 @usercommand
 @helparglist('None,on or off')

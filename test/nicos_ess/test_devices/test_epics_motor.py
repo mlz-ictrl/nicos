@@ -23,8 +23,6 @@
 
 import pytest
 
-pytest.importorskip('graypy')
-
 from nicos.commands.device import adjust
 from nicos.devices.epics.pyepics.motor import EpicsMotor
 
@@ -39,6 +37,8 @@ class FakeEpicsMotor(EpicsMotor):
 
     values = {
         'speed': 10,
+        'basespeed': 0,
+        'maxspeed': 10,
         'position': position,
         'stop': 0,
         'lowlimit': -110,
@@ -73,7 +73,7 @@ class FakeEpicsMotor(EpicsMotor):
             self.values['lowlimit'] += value
             self.values['highlimit'] += value
 
-    def _get_pv(self, pvparam, as_string=False):
+    def _get_pv(self, pvparam, as_string=False, use_monitor=True):
         return self.values[pvparam]
 
 
@@ -92,6 +92,8 @@ class TestEpicsMotor:
         self.motor = self.session.getDevice('motor1')
         self.motor.values['lowlimit'] = -110
         self.motor.values['highlimit'] = 110
+        self.motor.values['basespeed'] = 0
+        self.motor.values['maxspeed'] = 10
         self.motor.offset = 0
 
     def test_adjust_command_sets_offset_correctly(self):
@@ -117,7 +119,8 @@ class TestEpicsMotor:
 
         # Check new limits
         assert (low, high) == self.motor.abslimits
-        assert (epics_low + new_pos, epics_high + new_pos) == self.motor.epics_abslimits
+        assert (epics_low + new_pos, epics_high +
+                new_pos) == self.motor.epics_abslimits
 
     def test_adjust_command_causes_user_limits_to_be_updated(self):
         # Get initial limits
@@ -152,7 +155,8 @@ class TestEpicsMotor:
 
         # Check new limits
         assert (low, high) == self.motor.abslimits
-        assert (epics_low - new_offset, epics_high - new_offset) == self.motor.epics_abslimits
+        assert (epics_low - new_offset, epics_high -
+                new_offset) == self.motor.epics_abslimits
 
     def test_setting_offset_causes_user_limits_to_be_updated(self):
         # Get initial limits

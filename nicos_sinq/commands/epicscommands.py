@@ -33,6 +33,11 @@ from nicos.core.errors import UsageError, ConfigurationError
 
 from nicos_sinq.devices.epics.motor import EpicsMotor as SinqEpicsMotor
 
+__all__ = [
+    'DisableSetupMotors', 'EnableSetupMotors', 'caget', 'cainfo', 'caput',
+    'rereadEncoder',
+]
+
 
 @hiddenusercommand
 @helparglist('PV-name,optionaL as_string')

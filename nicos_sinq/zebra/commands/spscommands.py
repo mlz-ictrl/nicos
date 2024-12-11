@@ -24,6 +24,9 @@ from nicos import session
 from nicos.commands import parallel_safe, usercommand
 from nicos.commands.basic import NewSetup
 
+__all__ = [
+    'checkzebra', 'zebraconf',
+]
 
 @usercommand
 @parallel_safe

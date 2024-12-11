@@ -28,6 +28,9 @@ from nicos.commands import usercommand
 from nicos.core.errors import ConfigurationError
 from nicos.utils import findResource
 
+__all__ = [
+    'SelectDetectorAnalyser', 'loadcalibration',
+]
 
 @usercommand
 def loadcalibration():

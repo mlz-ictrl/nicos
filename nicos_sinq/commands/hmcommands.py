@@ -31,6 +31,10 @@ from nicos.core.errors import ConfigurationError
 
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfTofArray
 
+__all__ = [
+    'ShowTimeBinning', 'UpdateTimeBinning',
+]
+
 
 @usercommand
 @helparglist('start,step,count')

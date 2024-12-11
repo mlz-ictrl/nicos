@@ -31,6 +31,10 @@ from nicos.commands.scan import ADDSCANHELP0, ADDSCANHELP2, _handleScanArgs, \
 from nicos_sinq.amor.scan import WallTimeScan
 from nicos_sinq.devices.detector import SinqDetector
 
+__all__ = [
+    'spin', 'walltimecount',
+]
+
 
 @usercommand
 @helparglist('numpoints, walltime, ...')

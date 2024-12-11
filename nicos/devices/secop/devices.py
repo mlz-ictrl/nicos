@@ -1144,7 +1144,7 @@ class SecopDevice(Device):
         return status.OK, ''
 
     @usermethod
-    def status(self, maxage=0):
+    def status(self, maxage=None):
         """simple replacement for Readable.status
 
         not inherited from SecopReadable. we have to implement it here,
