@@ -42,7 +42,7 @@ devices = dict(
     ),
     ccdwww_connector = device('nicos_sinq.boa.devices.ccdwww.CCDWWWConnector',
         description = 'Connector for CCDWWW',
-        baseurl = 'http://pc15281:8080/ccd',
+        baseurl = 'http://pc16783:8080/ccd',
         base64auth = 'xxx',
         byteorder = 'big',
         comdelay = 1.,
