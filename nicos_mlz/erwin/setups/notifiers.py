@@ -40,6 +40,9 @@ devices = dict(
         sender = 'erwin@frm2.tum.de',
         copies = [
             ('markus.hoelzel@frm2.tum.de', 'all'),   # gets all messages
+            ('karl.zeitelhack@frm2.tum.de', 'all'),   # gets all messages
+            ('ilario.defendi@frm2.tum.de', 'all'),   # gets all messages
+            ('alan.howard@frm2.tum.de', 'all'),   # gets all messages
         ],
         subject = 'Erwin/CHARM detector',
         mailserver ='mailhost.frm2.tum.de',
