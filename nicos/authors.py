@@ -83,6 +83,7 @@ Instrument-specific code was contributed by:
 * Weimin Gan <weimin.gan@hereon.de>
 * Holger Gibhardt <hgibhar@gwdg.de>
 * Artur Glavic <artur.glavic@psi.ch>
+* Jose Gomez <Jose.Gomez@frm2.tum.de>
 * Jonathan Hähne <jonathan.haehne@frm2.tum.de>
 * Martin Haese <martin.haese@hereon.de>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
@@ -90,9 +91,10 @@ Instrument-specific code was contributed by:
 * Stefan Huber <stefan.huber@frm2.tum.de>
 * Leonardo Ibáñez <leoo.davinci@gmail.com>
 * Johanna Jochum <johanna.jochum@frm2.tum.de>
-* Stefanie Keuler <s.keuler@fz-juelich.de>
 * Ebad Kamil <ebad.kamil@ess.eu>
+* Stefanie Keuler <s.keuler@fz-juelich.de>
 * Sabrina Kirstein <s.kirstein@fz-juelich.de>
+* Christine Klauser <christine.klauser@psi.ch>
 * Wiebke Lohstroh <wiebke.lohstroh@frm2.tum.de>
 * Adrian Losko <adrian.losko@frm2.tum.de>
 * Avishek Maity <Avishek.Maity@frm2.tum.de>

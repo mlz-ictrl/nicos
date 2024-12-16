@@ -13,6 +13,7 @@ modules = [
     'nicos.commands.standard',
     'nicos_sinq.commands.sics',
     'nicos_sinq.commands.epicscommands',
+    'nicos_sinq.narziss.commands',
 ]
 
 devices = dict(
