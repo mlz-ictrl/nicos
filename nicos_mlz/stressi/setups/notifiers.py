@@ -29,6 +29,7 @@ devices = dict(
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2.tum.de',
+        subject = 'STRESS-SPEC',
         receivers = [],
     ),
     logspace_notif = device('nicos.devices.notifiers.Mailer',

@@ -17,5 +17,6 @@ devices = dict(
         description = 'Reports via SMS',
         server = 'triton.admin.frm2.tum.de',
         receivers = ['017680508564'],
+        subject = 'PUMA',
     ),
 )

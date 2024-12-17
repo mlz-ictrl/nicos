@@ -19,6 +19,7 @@ devices = dict(
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2.tum.de',
         receivers = [],
+        subject = 'NICOS@RESEDA',
     ),
     # slacker = device('nicos.devices.notifiers.slack.Slacker',
     #     receivers = ['#nicos_build-up'],

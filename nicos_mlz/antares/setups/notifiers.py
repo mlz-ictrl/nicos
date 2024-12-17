@@ -29,6 +29,7 @@ devices = dict(
         description = 'SMS notifier',
         receivers = ['015121100909'],
         server = 'triton.admin.frm2.tum.de',
+        subject = 'ANTARES',
     ),
     logspace_notif = device('nicos.devices.notifiers.Mailer',
         description = 'Reports about the limited logspace',

@@ -23,6 +23,7 @@ devices = dict(
             #'015123629866',
             '01799553828',
             ],
+        subject = 'NICOS',
     ),
     logspace_notif = device('nicos.devices.notifiers.Mailer',
         description = 'Reports about the limited logspace',
