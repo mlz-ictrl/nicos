@@ -1,4 +1,4 @@
-description = 'Small charm detector'
+description = 'Standard CHARM detector'
 
 group = 'optional'
 
