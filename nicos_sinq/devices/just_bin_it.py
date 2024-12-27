@@ -259,7 +259,7 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
 
         for msg in messages:
 
-            if not get_schema(msg.value()) in deserialiser_by_schema:
+            if get_schema(msg.value()) not in deserialiser_by_schema:
                 self.log.info('Wrong type of message')
                 continue
 
