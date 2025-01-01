@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,7 +25,6 @@ import importlib
 import h5py
 import numpy
 
-from nicos.core import SLAVE
 from nicos.core.constants import LIVE, POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
@@ -252,10 +251,6 @@ class NexusSink(FileSink):
 
     handlerclass = NexusSinkHandler
     _handlerObj = None
-
-    def doInit(self, mode):
-        if mode == SLAVE:
-            return
 
     # The default implementation creates gazillions of SinkHandlers.
     # For NeXus we do not want this, we want one keeping track of the whole
