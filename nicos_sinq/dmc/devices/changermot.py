@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -98,11 +98,11 @@ class StickMotor(EpicsMotor):
             return self._get_pv('getspeed')
         return EpicsMotor.doReadSpeed(self)
 
-    def doWriteSpeed(self, newValue):
+    def doWriteSpeed(self, value):
         if self.mode == 'continuous':
-            self._put_pv('setspeed', newValue)
+            self._put_pv('setspeed', value)
             return
-        EpicsMotor.doWriteSpeed(self, newValue)
+        EpicsMotor.doWriteSpeed(self, value)
 
     def doIsAllowed(self, target):
         if self.mode == 'continuous':
