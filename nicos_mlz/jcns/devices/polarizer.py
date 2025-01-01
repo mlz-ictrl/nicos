@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2018-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2018-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -38,7 +38,6 @@ class DOFlipper(NamedDigitalOutput, Waitable):
     def doStatus(self, maxage=0):
         tangoState, tangoStatus = NamedDigitalOutput.doStatus(self, maxage)
         state, status = Waitable.doStatus(self, maxage)
-        if tangoState > state:
-            state = tangoState
+        state = max(state, tangoState)
         status = tangoStatus + ', ' + status
         return state, status

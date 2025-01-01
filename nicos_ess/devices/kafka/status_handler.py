@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -144,5 +144,4 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         if self.statusinterval != update_interval:
             self._setROParam('statusinterval', update_interval)
         next_update = currenttime() + self.statusinterval
-        if next_update > self._next_update:
-            self._next_update = next_update
+        self._next_update = max(self._next_update, next_update)
