@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -402,7 +402,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         """
         self.log.debug('%s', quality)
         if quality != FINAL and self.dataset.settype != POINT:
-            return
+            pass
 
     def addSubset(self, subset):
         if not self._wrote_header:
