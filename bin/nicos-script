@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -50,7 +50,7 @@ if len(opts.args) == 1:
 elif len(opts.args) >= 2:
     setup, script = opts.args[:2]
 
-setup = setup.split(',')
+setup = setup.split(',')  # pylint: disable=used-before-assignment
 if path.isfile(script):
     with open(script, 'r', encoding=LOCALE_ENCODING) as f:
         script_text = f.read()
