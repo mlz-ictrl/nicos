@@ -31,7 +31,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Override, Param, listof
-from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
+from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks.scan import TIMEFMT, AsciiScanfileSink, \
     AsciiScanfileSinkHandler
 from nicos.utils import AutoDefaultODict
@@ -382,27 +382,6 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
             self._write_status(bycategory['status'])
         if 'general' in bycategory:
             self._write_general(bycategory['general'])
-
-    def putMetainfo(self, metainfo):
-        self.log.debug('ADD META INFO %r', metainfo)
-
-    def putResults(self, quality, results):
-        """Called when the point dataset main results are updated.
-
-        The *quality* is one of the constants defined in the module:
-
-        * LIVE is for intermediate data that should not be written to files.
-        * INTERMEDIATE is for intermediate data that should be written.
-        * FINAL is for final data.
-        * INTERRUPTED is for data that has been read after the counting was
-          interrupted by an exception.
-
-        Argument *results* contains the new results.  ``dataset.results``
-        contains all results so far.
-        """
-        self.log.debug('%s', quality)
-        if quality != FINAL and self.dataset.settype != POINT:
-            pass
 
     def addSubset(self, subset):
         if not self._wrote_header:
