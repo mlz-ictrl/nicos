@@ -277,6 +277,23 @@ class TestTypedvalue:
 
         assert widget.getValue() == 1
 
+    def test_OneofdictOrWidget(self, qtbot):
+        typ = oneofdict_or({'disabled': 1, 'enabled': 0}, intrange(0, 5))
+        widget = create(None, typ, 1, allow_buttons=False,
+                        allow_enter=True)
+        qtbot.addWidget(widget)
+        widget.show()
+        assert widget.getValue() == 'disabled'
+
+        widget._selector.setCurrentIndex(1)
+        assert widget.getValue() == 'enabled'
+
+        widget._selector.setCurrentIndex(2)
+        assert widget.getValue() == 1
+
+        with qtbot.waitExposed(widget):
+            pass
+
     @pytest.mark.parametrize(
         'typ,curvalue,allow_buttons,res',
         [
