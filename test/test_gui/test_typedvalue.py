@@ -344,9 +344,9 @@ class TestTypedvalue:
             pass
 
         assert np.equal(widget.getValue(),
-                        np.array([[ 0.2, -0. , -0. ],
-                                  [ 0. ,  0.2, -0. ],
-                                  [ 0. ,  0. ,  0.2]])).all()
+                        np.array([[0.2, 0.0, 0.0],
+                                  [0.0, 0.2, 0.0],
+                                  [0.0, 0.0, 0.2]])).all()
 
     @pytest.mark.parametrize('typ,curvalue',
                              [
