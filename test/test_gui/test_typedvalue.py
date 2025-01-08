@@ -43,13 +43,14 @@ pytest.importorskip('pytestqt')
 
 class TestTypedvalue:
 
-    @pytest.mark.parametrize('typ,initvalue,inputs,result', [
-        (str, 'value', ['text'], 'text'),
-        (int, 0, [42, 'text'], 42),
-        (float, 0, [4.2, 'txt'], 4.2),
+    @pytest.mark.parametrize('typ,initvalue,inputs,minmax,result', [
+        (str, 'value', ['text'], None, 'text'),
+        (int, 0, [42, 'text'], [0, 100], 42),
+        (float, 0, [4.2, 'txt'], None, 4.2),
     ])
-    def test_EditWidget(self, qtbot, typ, initvalue, inputs, result):
-        widget = EditWidget(None, typ, initvalue, allow_enter=True)
+    def test_EditWidget(self, qtbot, typ, initvalue, inputs, minmax, result):
+        widget = EditWidget(
+            None, typ, initvalue, minmax=minmax, allow_enter=True)
         qtbot.addWidget(widget)
         widget.show()
 
