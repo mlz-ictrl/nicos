@@ -74,7 +74,7 @@ class NicosSecopClient(SecopClient):
 
         in order to avoid existing NICOS Moveable attributes
         """
-        if name in ('target', 'status', 'stop'):
+        if name in ('target', 'status', 'stop', 'pollinterval'):
             return name
         name = super().internalize_name(name).lower()
         prefix, sep, postfix = name.partition('_')
@@ -1220,6 +1220,7 @@ class SecopReadable(SecopDevice, Readable):
         # (take from SECoP description)
         'unit': Override(default='', mandatory=False),
         # pollinterval is unused as polling is done remotely
+        # may be overridden by the SECoP pollinterval
         'pollinterval': Override(default=None, userparam=False, settable=False),
         # calculated to be slightly higher than maxage on the attached SecNodeDevice
         'maxage': Override(default=3600, userparam=False, settable=False, volatile=True),
