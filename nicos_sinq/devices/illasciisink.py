@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -133,6 +133,10 @@ class ILLAsciiHandler(DataSinkHandler):
                 if count == 3:
                     count = 0
                     self._header += '\nVARIA:'
+            else:
+                session.log.warning("Couldn't find the value of device `%s`" +
+                                    ' to write to ILL file', name)
+
         if not self._header.endswith('\n'):
             self._header += '\n'
 
@@ -146,6 +150,10 @@ class ILLAsciiHandler(DataSinkHandler):
                 if count == 3:
                     count = 0
                     self._header += '\nZEROS:'
+            else:
+                session.log.warning("Couldn't find the offset of `%s` to" +
+                                    ' write to ILL file', name)
+
         if not self._header.endswith('\n'):
             self._header += '\n'
 

@@ -5,7 +5,7 @@ display_order = 40
 pvprefix = 'SQ:AMOR:mmac1:'
 
 devices = dict(
-    ltz_r = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    ltz_r = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Lift (z translation) of deflector & flight tube',
         motorpv = pvprefix + 'ltz',
         errormsgpv = pvprefix + 'ltz-MsgTxt',
@@ -15,7 +15,7 @@ devices = dict(
         can_disable = True,
         auto_enable = False,
     ),
-    lom_r = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    lom_r = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Tilt (pitch) of deflector & flight tube',
         motorpv = pvprefix + 'lom',
         errormsgpv = pvprefix + 'lom-MsgTxt',

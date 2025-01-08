@@ -3,7 +3,7 @@ description = 'Sample devices for SINQ DMC.'
 pvprefix = 'SQ:DMC:mcu2:'
 
 devices = dict(
-    a3s = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    a3s = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Sample omega motor',
         motorpv = f'{pvprefix}A3',
         errormsgpv = f'{pvprefix}A3-MsgTxt',

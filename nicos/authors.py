@@ -67,6 +67,7 @@ Contributors:
 
 Instrument-specific code was contributed by:
 
+* Nicolai Amin <nicolai.amin@psi.ch>
 * Stefanos Athanasopoul <stefanos.athanasopoulos@ess.eu>
 * Fabian Beule <f.beule@fz-juelich.de>
 * Alexander Book <alexander.book@frm2.tum.de>
@@ -83,6 +84,7 @@ Instrument-specific code was contributed by:
 * Weimin Gan <weimin.gan@hereon.de>
 * Holger Gibhardt <hgibhar@gwdg.de>
 * Artur Glavic <artur.glavic@psi.ch>
+* Jose Gomez <Jose.Gomez@frm2.tum.de>
 * Martin Haese <martin.haese@hereon.de>
 * Christoph Herb <christoph.herb@frm2.tum.de>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
@@ -90,15 +92,17 @@ Instrument-specific code was contributed by:
 * Stefan Huber <stefan.huber@frm2.tum.de>
 * Leonardo Ibáñez <leoo.davinci@gmail.com>
 * Johanna Jochum <johanna.jochum@frm2.tum.de>
-* Stefanie Keuler <s.keuler@fz-juelich.de>
 * Ebad Kamil <ebad.kamil@ess.eu>
+* Stefanie Keuler <s.keuler@fz-juelich.de>
 * Sabrina Kirstein <s.kirstein@fz-juelich.de>
+* Christine Klauser <christine.klauser@psi.ch>
 * Wiebke Lohstroh <wiebke.lohstroh@frm2.tum.de>
 * Adrian Losko <adrian.losko@frm2.tum.de>
 * Avishek Maity <Avishek.Maity@frm2.tum.de>
 * Gaetano Mangiapia <gaetano.mangiapia@hereon.de>
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
+* Stanislav Nikitin <stanislav.nikitin@psi.ch>
 * Dominic Oram <dominic.oram@stfc.ac.uk>
 * Dominik Petz <dominik.petz@frm2.tum.de>
 * Ji Tae Park <jitae.park@frm2.tum.de>

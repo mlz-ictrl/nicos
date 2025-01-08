@@ -6,7 +6,30 @@ includes = ['monochromator', 'sample']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 
+pvpref = 'SQ:ZEBRA:kappa:'
+
 devices = dict(
+    omk = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+        description = 'Kappa omega rotation',
+        motorpv = pvpref + 'omk',
+        errormsgpv = pvpref + 'omk-MsgTxt',
+        precision = 0.02,
+        can_disable = True,
+    ),
+    kappa = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+        description = 'Kappa  rotation',
+        motorpv = pvpref + 'kappa',
+        errormsgpv = pvpref + 'kappa-MsgTxt',
+        precision = 0.02,
+        can_disable = True,
+    ),
+    phik = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+        description = 'Kappa phi rotation',
+        motorpv = pvpref + 'phik',
+        errormsgpv = pvpref + 'phik-MsgTxt',
+        precision = 0.02,
+        can_disable = True,
+    ),
     ZEBRA = device('nicos_sinq.sxtal.instrument.KappaSXTal',
         description = 'instrument object',
         instrument = 'SINQ ZEBRA',
@@ -15,9 +38,9 @@ devices = dict(
         facility = 'SINQ, PSI',
         website = 'https://www.psi.ch/sinq/zebra/',
         stt = 'stt',
-        omega = 'som',
-        kappa = 'sch',
-        kphi = 'sph',
+        omega = 'omk',
+        kappa = 'kappa',
+        kphi = 'phik',
         mono = 'wavelength',
         center_counter = 'counts',
         center_steps = [.1, .1, .2, .2],

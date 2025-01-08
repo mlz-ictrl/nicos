@@ -5,7 +5,7 @@ display_order = 35
 pvprefix = 'SQ:AMOR:mcu4:'
 
 devices = dict(
-    d1t = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    d1t = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Slit 1 top blade',
         motorpv = pvprefix + 'd1t',
         errormsgpv = pvprefix + 'd1t-MsgTxt',
@@ -13,7 +13,7 @@ devices = dict(
         precision = .01,
         can_disable = True,
     ),
-    d1b = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    d1b = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Slit 1 bottom blade',
         motorpv = pvprefix + 'd1b',
         errormsgpv = pvprefix + 'd1b-MsgTxt',
@@ -21,7 +21,7 @@ devices = dict(
         precision = .01,
         can_disable = True,
     ),
-    d1l = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    d1l = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Slit 1 left blade',
         motorpv = pvprefix + 'd1l',
         errormsgpv = pvprefix + 'd1l-MsgTxt',
@@ -29,7 +29,7 @@ devices = dict(
         precision = .01,
         can_disable = True,
     ),
-    d1r = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    d1r = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Slit 1 right blade',
         motorpv = pvprefix + 'd1r',
         errormsgpv = pvprefix + 'd1r-MsgTxt',

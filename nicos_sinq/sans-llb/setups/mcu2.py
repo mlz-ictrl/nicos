@@ -3,7 +3,7 @@ description = 'Devices from Motor Controller mcu2'
 pvprefix = 'SQ:SANS-LLB:mcu2:'
 
 devices = dict(
-    sl0yn = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    sl0yn = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Slit 0 Up',
         motorpv = pvprefix + 'sl0yn',
@@ -11,7 +11,7 @@ devices = dict(
         precision = 0.01,
         can_disable = True,
     ),
-    sl0yp = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    sl0yp = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Slit 0 down',
         motorpv = pvprefix + 'sl0yp',
@@ -19,7 +19,7 @@ devices = dict(
         precision = 0.01,
         can_disable = True,
     ),
-    sl0xp = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    sl0xp = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Slit 0 left',
         motorpv = pvprefix + 'sl0xp',
@@ -27,7 +27,7 @@ devices = dict(
         precision = 0.01,
         can_disable = True,
     ),
-    sl0xn = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    sl0xn = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Slit 0 right',
         motorpv = pvprefix + 'sl0xn',
@@ -35,7 +35,7 @@ devices = dict(
         precision = 0.01,
         can_disable = True,
     ),
-    polpos = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    polpos = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Polariser  translation',
         motorpv = pvprefix + 'pol',
@@ -84,7 +84,7 @@ devices = dict(
         alias = 'slit0.centery',
         devclass = 'nicos.devices.generic.slit.CenterYSlitAxis'
     ),
-    attpos = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    attpos = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Attenuator rotation',
         motorpv = pvprefix + 'attpos',

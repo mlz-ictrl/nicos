@@ -9,7 +9,7 @@
 # test: setupcode = Sample.b=3.5
 # test: setupcode = Sample.c=3.5
 
-checkzebra()
+# checkzebra() The SPS Device has been temporarily removed
 zebraconf()
 status()
 Sample.a = 3.5
