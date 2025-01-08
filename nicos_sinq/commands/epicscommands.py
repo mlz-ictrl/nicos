@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,7 +31,8 @@ from nicos.commands import helparglist, hiddenusercommand, usercommand
 from nicos.commands.device import disable, enable
 from nicos.core.errors import UsageError, ConfigurationError
 
-from nicos_sinq.devices.epics.motor import EpicsMotor as SinqEpicsMotor
+from nicos_sinq.devices.epics.motor_deprecated import EpicsMotor as SinqEpicsMotor
+from nicos.devices.epics.pyepics.motor import EpicsMotor
 
 __all__ = [
     'DisableSetupMotors', 'EnableSetupMotors', 'caget', 'cainfo', 'caput',
@@ -64,9 +65,11 @@ def _enableSetupMotors(function, *setupnames):
                                 setupname)
             continue
         for devname in session.getSetupInfo()[setupname]['devices']:
-            device = session.getDevice(devname)
-            if isinstance(device, SinqEpicsMotor):
-                function(device)
+            try:
+                device = session.getDevice(devname, cls=EpicsMotor)
+            except UsageError:
+                continue
+            function(device)
 
 
 @usercommand

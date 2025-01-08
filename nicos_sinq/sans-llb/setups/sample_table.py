@@ -3,7 +3,7 @@ description = 'Setup for the standard sample table'
 pvprefix = 'SQ:SANS-LLB:mcu1:'
 
 devices = dict(
-    stom = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    stom = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample table rotation around Y',
         motorpv = pvprefix + 'stom',
@@ -11,7 +11,7 @@ devices = dict(
         precision = 0.01,
         can_disable=True,
     ),
-    stx = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    stx = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample table translation along X',
         motorpv = pvprefix + 'stx',
@@ -24,7 +24,7 @@ devices = dict(
         unit = 'mm',
         abslimits = (0, 170)
     ),
-    stgn = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    stgn = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample table goniometer (rotation around X)',
         motorpv = pvprefix + 'stgn',
@@ -32,7 +32,7 @@ devices = dict(
         precision = 0.01,
         can_disable=True,
     ),
-    sty = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    sty = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample table translation along Y',
         motorpv = pvprefix + 'sty',
@@ -40,7 +40,7 @@ devices = dict(
         precision = 0.01,
         can_disable=True,
     ),
-    spos = device('nicos_sinq.devices.epics.motor.EpicsMotor',
+    spos = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample chnager position',
         motorpv = pvprefix + 'spos',

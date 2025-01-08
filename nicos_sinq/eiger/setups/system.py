@@ -36,11 +36,11 @@ devices = dict(
     ),
     illsink = device('nicos_sinq.devices.illasciisink.ILLAsciiSink',
         filenametemplate = ['eiger%(year)sn%(scancounter)06d.scn'],
-        scaninfo = ['mon1', 'mon2', 'ctr1', 'elapsedtime', 'protoncount'],
+        scaninfo = ['mon1', 'mon2', 'ctr1', 'elapsedtime', 'mon3'],
         varia = [
-            'vsl', 'vsr', 'a1', 'a2', 'a2rot', 'mch', 'mcv', 'mg', 'mt', 'a3',
-            'a4', 'sgl', 'sgu', 'a5'
-            'a6', 'ach', 'ag', 'atl', 'atu', 'd1l'
+            'vsl', 'vsr', 'a1', 'a2rot', 'mch', 'mcv', 'mg', 'mt', 'a3',
+            'a4', 'sgl', 'sgu', 'a5',
+            'a6_raw', 'ach', 'ag', 'atl', 'atu', 'd1l',
             'd1r', 'd2l', 'd2r', 'msb', 'mst', 'msr', 'msl'
         ],
     ),

@@ -21,11 +21,6 @@ devices = dict(
         readpv = spsprefix + 'EXC-COUNTRATE_RBV',
         visibility = hide,
     ),
-    shutter_error = device('nicos.devices.epics.pyepics.EpicsReadable',
-        description = 'Shutter system error',
-        readpv = spsprefix + 'SHUTTER_ERROR_RBV',
-        visibility = hide,
-    ),
     w1_p = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Wagen 1 pressure failure',
         readpv = spsprefix + 'WG1-P_RBV',
@@ -122,6 +117,14 @@ devices = dict(
             'Off': 0
         }
     ),
+)
+
+"""
+    shutter_error = device('nicos.devices.epics.pyepics.EpicsReadable',
+        description = 'Shutter system error',
+        readpv = spsprefix + 'SHUTTER_ERROR_RBV',
+        visibility = hide,
+    ),
     shbutton = device('nicos.devices.epics.pyepics.EpicsDigitalMoveable',
         description = 'Shutter button',
         readpv = spsprefix + 'SHUTTER_BUTTON',
@@ -144,4 +147,4 @@ devices = dict(
         errorpv = spsprefix + 'SHUTTER_ERROR_RBV',
         timeout = 5,
     ),
-)
+"""

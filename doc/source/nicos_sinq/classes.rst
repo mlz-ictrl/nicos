@@ -58,8 +58,11 @@ SINQ classes
 .. autoclass:: WindowMoveable
 .. autoclass:: EpicsArrayReadable
 
-.. module:: nicos_sinq.devices.epics.motor
+.. module:: nicos_sinq.devices.epics.motor_deprecated
 .. autoclass:: EpicsMotor
+
+.. module:: nicos_sinq.devices.epics.motor
+.. autoclass:: SinqMotor
 
 .. module:: nicos_sinq.devices.epics.proton_counter
 .. autoclass:: SINQProtonCurrent

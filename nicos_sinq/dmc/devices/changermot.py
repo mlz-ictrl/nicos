@@ -25,7 +25,7 @@ from time import sleep
 
 from nicos.core import Param, oneof, status
 
-from nicos_sinq.devices.epics.motor import EpicsMotor
+from nicos_sinq.devices.epics.motor_deprecated import EpicsMotor
 
 
 class ChangerMotor(EpicsMotor):

@@ -20,6 +20,7 @@
 #   Michael Wedel <michael.wedel@esss.se>
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
 #   Edward Wall <edward.wall@psi.ch>
+#   Stefan Mathis <stefan.mathis@psi.ch>
 #
 # *****************************************************************************
 
