@@ -27,9 +27,10 @@
 import numpy as np
 import pytest
 
-from nicos.core.params import anytype, dictof, dictwith, floatrange, host, \
-    intrange, limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
-    nonzero, oneof, oneofdict, oneofdict_or, setof, tupleof, vec3
+from nicos.core.params import Value, anytype, dictof, dictwith, floatrange, \
+    host, intrange, limits, listof, mailaddress, nicosdev, none_or, \
+    nonemptylistof, nonzero, oneof, oneofdict, oneofdict_or, setof, tupleof, \
+    vec3
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
 from nicos.guisupport.qt import Qt
 from nicos.guisupport.typedvalue import AnnotatedWidget, ButtonWidget, \
@@ -204,9 +205,11 @@ class TestTypedvalue:
 
     def test_MultiWidget(self, qtbot):
         typ = tupleof(int, int, int, int, int, int)
+        valinfo = [Value('1'), Value('2'), Value('3'), Value('4'), Value('5'),
+                   Value('6')]
 
         widget = MultiWidget(None, typ.types, (0, 1, 2, 4, 8, 16), None,
-                             allow_enter=True, valinfo=None)
+                             allow_enter=True, valinfo=valinfo)
         qtbot.addWidget(widget)
         widget.show()
         with qtbot.waitExposed(widget):
