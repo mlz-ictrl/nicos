@@ -29,13 +29,14 @@ import pytest
 
 from nicos.core.params import anytype, dictof, dictwith, floatrange, host, \
     intrange, limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
-    oneof, oneofdict, oneofdict_or, setof, tupleof, vec3
+    nonzero, oneof, oneofdict, oneofdict_or, setof, tupleof, vec3
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
+from nicos.guisupport.qt import Qt
 from nicos.guisupport.typedvalue import AnnotatedWidget, ButtonWidget, \
     CheckWidget, ComboWidget, DeviceComboWidget, DictOfWidget, \
     DictWithWidget, EditWidget, ExprWidget, LimitsWidget, ListOfWidget, \
-    MissingWidget, MultiWidget, Qt, SetOfWidget, SpinBoxWidget, TableWidget, \
-    create
+    MissingWidget, MultiWidget, NonzeroWidget, SetOfWidget, SpinBoxWidget, \
+    TableWidget, create
 
 pytest.importorskip('pytestqt')
 
@@ -261,6 +262,17 @@ class TestTypedvalue:
 
         assert widget.getValue() == 'device'
 
+    @pytest.mark.parametrize('curvalue', [1, 0])
+    def test_NonzeroWidget(self, qtbot, curvalue):
+        typ = nonzero(float, 1)
+        widget = NonzeroWidget(None, typ, curvalue, None)
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == 1
+
     @pytest.mark.parametrize(
         'typ,curvalue,allow_buttons,res',
         [
@@ -304,6 +316,8 @@ class TestTypedvalue:
             (anytype, 'blah', False, 'blah'),
             (dictof(str, float), {'blah': 0.1}, False, {'blah': 0.1}),
             (dictwith(key=bool), {'key': False}, False, {'key': False}),
+            (nonzero(float), 1, False, 1),
+            (nonzero(float), 0, False, 1),
         ]
     )
     def test_create(self, qtbot, typ, curvalue, allow_buttons, res):
