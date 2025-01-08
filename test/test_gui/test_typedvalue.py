@@ -32,7 +32,7 @@ from nicos.core.params import Value, anytype, dictof, dictwith, floatrange, \
     nonemptylistof, nonzero, oneof, oneofdict, oneofdict_or, setof, tupleof, \
     vec3
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
-from nicos.guisupport.qt import Qt
+from nicos.guisupport.qt import QPushButton, Qt
 from nicos.guisupport.typedvalue import AnnotatedWidget, ButtonWidget, \
     CheckWidget, ComboWidget, DeviceComboWidget, DictOfWidget, \
     DictWithWidget, EditWidget, ExprWidget, LimitsWidget, ListOfWidget, \
@@ -162,6 +162,12 @@ class TestTypedvalue:
 
             res.update({k: v})
 
+        # Remove all entries
+        for w in widget.frame.children():
+            if pb := w.findChildren(QPushButton):
+                qtbot.mouseClick(pb[-1], Qt.LeftButton)
+        assert not widget.items
+
     def test_ListOfWidget(self, qtbot):
         typ = listof(str)
 
@@ -202,6 +208,12 @@ class TestTypedvalue:
         qtbot.mouseClick(
             widget.items[0].layout().itemAt(arrow_up).widget(), Qt.LeftButton)
         assert widget.getValue() == ['one', 'two']
+
+        # Remove all entries
+        for w in widget.frame.children():
+            if pb := w.findChildren(QPushButton):
+                qtbot.mouseClick(pb[-1], Qt.LeftButton)
+        assert not widget.items
 
     def test_MultiWidget(self, qtbot):
         typ = tupleof(int, int, int, int, int, int)
