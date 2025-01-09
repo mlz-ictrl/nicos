@@ -21,21 +21,22 @@
 #
 # *****************************************************************************
 
-"""Py.test configuration file containing fixtures for individual tests."""
+"""Pytest configuration file containing fixtures for individual tests."""
 
 import os
 import sys
 import time
 from os import path
+from time import monotonic, sleep
 
 import pytest
 
 from nicos import config, session as nicos_session
 from nicos.core import MASTER
-from nicos.utils import updateFileCounter
+from nicos.utils import updateFileCounter, tcpSocket
 
-from test.utils import TestSession, cache_addr, cleanup, killSubprocess, \
-    startCache, startElog
+from test.utils import TestSession, cache_addr, cleanup, daemon_addr, \
+    killSubprocess, startCache, startSubprocess, startElog
 
 
 def pytest_configure(config):
@@ -107,3 +108,30 @@ def log(session):
     handler = session.testhandler
     handler.clear()
     return handler
+
+
+def daemon_wait_cb():
+    start = monotonic()
+    wait = 10
+    sock = None
+    while monotonic() < start + wait:
+        try:
+            sock = tcpSocket(daemon_addr, 0)
+        except OSError:
+            sleep(0.02)
+        else:
+            break
+        finally:
+            if sock:
+                sock.close()
+    else:
+        raise Exception('daemon failed to start within %s sec' % wait)
+
+
+@pytest.fixture(scope='session')
+def daemon():
+    """Start a nicos daemon"""
+
+    daemon = startSubprocess('daemon', wait_cb=daemon_wait_cb)
+    yield
+    killSubprocess(daemon)

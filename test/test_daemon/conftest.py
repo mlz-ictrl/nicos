@@ -27,44 +27,16 @@ import pytest
 
 from nicos.clients.base import ConnectionData, NicosClient
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC
-from nicos.utils import parseConnectionString, tcpSocket
+from nicos.utils import parseConnectionString
 
-from test.utils import daemon_addr, killSubprocess, startSubprocess
-
-
-def daemon_wait_cb():
-    start = monotonic()
-    wait = 10
-    sock = None
-    while monotonic() < start + wait:
-        try:
-            sock = tcpSocket(daemon_addr, 0)
-        except OSError:
-            sleep(0.02)
-        else:
-            break
-        finally:
-            if sock:
-                sock.close()
-    else:
-        raise Exception('daemon failed to start within %s sec' % wait)
+from test.utils import daemon_addr
 
 
-@pytest.fixture(scope='session')
-def daemon():
-    """Start a nicos daemon"""
-
-    daemon = startSubprocess('daemon', wait_cb=daemon_wait_cb)
-    yield
-    killSubprocess(daemon)
-
-
-class TestClient(NicosClient):
+class ClientTestMixin:
     def __init__(self):
         self._signals = []
         self._estatus = STATUS_IDLE
         self._disconnecting = False
-        NicosClient.__init__(self, print)
 
     def signal(self, name, data=None, data2=None):  # pylint: disable=W0221
         if name == 'error':
@@ -107,11 +79,16 @@ class TestClient(NicosClient):
                 break
 
 
-@pytest.fixture(scope='function')
-def client(daemon):
+class TestClient(ClientTestMixin, NicosClient):
+    def __init__(self):
+        ClientTestMixin.__init__(self)
+        NicosClient.__init__(self, print)
+
+
+def client_with_class(client_class, auth):
     """Create a nicos client session and log in"""
-    client = TestClient()
-    parsed = parseConnectionString('user:user@' + daemon_addr, 0)
+    client = client_class()
+    parsed = parseConnectionString(f'{auth}@{daemon_addr}', 0)
     client.connect(ConnectionData(**parsed))
     assert ('connected', None, None) in client._signals
 
@@ -126,18 +103,10 @@ def client(daemon):
 
 
 @pytest.fixture(scope='function')
+def client(daemon):
+    yield from client_with_class(TestClient, 'user:user')
+
+
+@pytest.fixture(scope='function')
 def adminclient(daemon):
-    """Create a nicos admin client session and log in"""
-    adminclient = TestClient()
-    parsed = parseConnectionString('admin:admin@' + daemon_addr, 0)
-    adminclient.connect(ConnectionData(**parsed))
-    assert ('connected', None, None) in adminclient._signals
-
-    # wait until initial setup is done
-    adminclient.wait_idle()
-
-    yield adminclient
-
-    if adminclient.isconnected:
-        adminclient._disconnecting = True
-        adminclient.disconnect()
+    yield from client_with_class(TestClient, 'admin:admin')
