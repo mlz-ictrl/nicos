@@ -26,10 +26,8 @@ from nicos_mlz.sans1.lib.calculations import qrange
 
 from test.utils import approx
 
-session_setup = ''
 
-
-def test_qrange(session):
+def test_qrange():
 
     def check_results(res, expected):
         for v, e in zip(res, expected):
