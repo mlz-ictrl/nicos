@@ -30,7 +30,7 @@ from string import ascii_lowercase
 
 import pytest
 
-pytest.importorskip('streaming_data_types')
+pytest.importorskip('streaming_data_types', minversion='0.16.0')
 pytest.importorskip('confluent_kafka')
 
 from streaming_data_types.logdata_f142 import serialise_f142
