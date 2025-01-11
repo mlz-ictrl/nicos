@@ -32,10 +32,9 @@ main_window = docked(
                       panel('nicos.clients.flowui.panels.status.ScriptStatusPanel',
                             eta=True)),
                  ),
-                 panel(
-                     'nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
-                      modules=['nicos.clients.gui.cmdlets'],
-                    ),
+                 panel('nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
+                       modules=['nicos.clients.gui.cmdlets.qscan'],
+                       ),
 
              ), # vsplit
              panel(

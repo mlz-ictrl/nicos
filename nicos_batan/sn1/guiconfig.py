@@ -3,8 +3,8 @@
 main_window = docked(
     vsplit(
         panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-              modules=['nicos.clients.gui.cmdlets'],
-        ),
+              modules=['nicos.clients.gui.cmdlets.qscan'],
+              ),
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel',
               hasinput=False),

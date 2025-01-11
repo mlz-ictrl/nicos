@@ -50,7 +50,9 @@ windows = [
             )),
         window('Editor', 'editor',
             vsplit(
-                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel',
+                      modules=['nicos.clients.gui.cmdlets.qscan'],
+                      ),
                 panel('nicos.clients.gui.panels.editor.EditorPanel'),
                   )),
         window('Scans', 'plotter',
