@@ -31,9 +31,11 @@ main_window = tabbed(
 windows = [
     window('Editor', 'editor',
         hsplit(
-           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-           panel('nicos.clients.gui.panels.editor.EditorPanel',
-                 tools=[tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')]))),
+           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel',
+                 modules=['nicos.clients.gui.cmdlets.qscan'],
+                 ),
+           panel('nicos.clients.gui.panels.editor.EditorPanel'),
+              )),
     window('Live data', 'live',
            panel('nicos_mlz.reseda.gui.live.CascadeLiveDataPanel',
                  filetypes=['pad', 'tof'],

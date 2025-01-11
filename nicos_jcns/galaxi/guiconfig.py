@@ -37,9 +37,7 @@ main_window = tabbed(
     )),
     ('Script Editor', vsplit(
         panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-        panel('nicos.clients.gui.panels.editor.EditorPanel', tools = [
-            tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
-        ]),
+        panel('nicos.clients.gui.panels.editor.EditorPanel'),
     )),
     ('Live data', panel(
         'nicos.clients.gui.panels.live.LiveDataPanel', instrument='galaxi',

@@ -28,11 +28,7 @@ main_window = tabbed(
     ('Script Editor',
         vsplit(
             panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-            panel('nicos.clients.gui.panels.editor.EditorPanel',
-                tools = [
-                    tool('Scan Generator',
-                         'nicos.clients.gui.tools.scan.ScanTool')
-            ]),
+            panel('nicos.clients.gui.panels.editor.EditorPanel'),
         )),
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting',
