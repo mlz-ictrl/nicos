@@ -826,7 +826,7 @@ class LiveDataPanel(PlotPanel):
             return
 
         # determine 1D array size
-        arraysize = numpy.product(shape)
+        arraysize = numpy.prod(shape)
 
         # check and split the input array `entry` into `count` arrays of size
         # `arraysize`

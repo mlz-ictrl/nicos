@@ -189,7 +189,7 @@ def processDataArrays(index, params, data):
     shape = datadesc['shape']
 
     # determine 1D array size
-    arraysize = numpy.product(shape)
+    arraysize = numpy.prod(shape)
     arrays = numpy.split(data[:count * arraysize], count)
 
     # reshape every array in the list
