@@ -70,12 +70,41 @@ class Hist2dSANSLLB:
                 DeviceParInfo(det_height, str(det_height), '', 'general'))]
 
 
+class Hist2dTOFSINQ:
+    name = 'hist2dsinq'
+
+    @classmethod
+    def get_array_description(cls, name, det_range, num_bins, **ignored):
+        ndet = det_range[0] * det_range[1]
+        return ArrayDesc(name, shape=(ndet, num_bins), dtype=np.float64)
+
+    @classmethod
+    def get_zeroes(cls, det_range, num_bins, **ignored):
+        ndet = det_range[0] * det_range[1]
+        return cls.transform_data(
+            np.zeros(shape=(ndet, num_bins), dtype=np.float64))
+
+    @classmethod
+    def transform_data(cls, data, rotation=None):
+        # For the ESS detector orientation, pixel 0 is at top-left
+        if rotation:
+            return np.rot90(data, k=rotation // 90)
+        return data
+
+    @classmethod
+    def get_info(cls, name, det_range, num_bins, **ignored):
+        ndet = det_range[0] * det_range[1]
+        return [(f'{name} ndet', ndet, str(ndet), '', 'general'),
+                (f'{name} time_bins', num_bins, str(num_bins), '', 'general')]
+
+
 hist_type_by_name = {
     '1-D TOF': Hist1dTof,
     '2-D TOF': Hist2dTof,
     '2-D DET': Hist2dDet,
     '2-D ROI': Hist2dRoi,
     '2-D SANSLLB': Hist2dSANSLLB,
+    '2-D TOFSINQ': Hist2dTOFSINQ,
 }
 
 
