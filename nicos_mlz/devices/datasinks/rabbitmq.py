@@ -22,8 +22,10 @@
 # *****************************************************************************
 
 import json
+import os
 import uuid
 from datetime import datetime, timezone
+from os import path
 
 import pika
 
@@ -53,23 +55,23 @@ class Message:
 
     # pylint: disable=too-many-positional-arguments
     def __init__(
-            self,
-            id: uuid.UUID,  # pylint: disable=redefined-builtin
-            scanid: uuid.UUID,
-            blockid: uuid.UUID,
-            event: str,
-            started: str,
-            filepaths: list,
-            mapping: dict,
-            metainfo: dict,
-            statistics: dict,
+        self,
+        id: uuid.UUID,  # pylint: disable=redefined-builtin
+        scanid: uuid.UUID,
+        blockid: uuid.UUID,
+        event: str,
+        started: str,
+        fileinfos: list,
+        mapping: dict,
+        metainfo: dict,
+        statistics: dict,
     ):
         self.id = str(id)
         self.blockid = str(blockid) or None
         self.scanid = str(scanid) or None
         self.event = event
         self.creation_timestamp = started
-        self.filepaths = filepaths
+        self.fileinfos = fileinfos
         self.mapping = mapping
         self.metadata = metainfo
         self.statistics = statistics
@@ -98,8 +100,7 @@ class RabbitSinkHandler(DataSinkHandler):
             blockid=blockds.uid if blockds else None,
             event=event,
             started=started,
-            filepaths=dataset.filepaths,
-            # DEVICE_INFO_MAPPING,
+            fileinfos=self._handleFileInfo(dataset),
             mapping={
                 'experiment': session.experiment.name,
                 'sample': session.experiment.sample.name,
@@ -124,6 +125,32 @@ class RabbitSinkHandler(DataSinkHandler):
             elif ds.settype == SCAN:
                 scands = ds
         return blockds, scands
+
+    def _handleFileInfo(self, dataset):
+        finfos = []
+        for fname, fpath in zip(dataset.filenames, dataset.filepaths):
+            stat = {}
+            try:
+                st = os.stat(fpath)
+                stat['size']= st.st_size
+                stat['atime'] = st.st_atime
+                stat['mtime'] = st.st_mtime
+                stat['ctime'] = st.st_ctime
+                stat['mode'] = st.st_mode
+                stat['uid'] = st.st_uid
+                stat['gid'] = st.st_gid
+                stat['inode'] = st.st_ino
+            except OSError:
+                # not all sinks really write the files, some do it
+                # indirectly
+                pass
+            finfos.append({
+                'name': fname,
+                'path': fpath,
+                'stat': stat,
+                'samplepath': path.realpath(session.experiment.samplepath),
+            })
+        return finfos
 
     def addSubset(self, subset):
         # do not take into account addSubset of scans to blocks
