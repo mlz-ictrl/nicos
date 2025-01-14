@@ -167,9 +167,12 @@ class RabbitSinkHandler(DataSinkHandler):
             try:
                 st = os.stat(fpath)
                 stat['size']= st.st_size
-                stat['atime'] = st.st_atime
-                stat['mtime'] = st.st_mtime
-                stat['ctime'] = st.st_ctime
+                stat['atime'] = datetime.fromtimestamp(st.st_atime,
+                                                       tz=timezone.utc).isoformat()
+                stat['mtime'] = datetime.fromtimestamp(st.st_mtime,
+                                                       tz=timezone.utc).isoformat()
+                stat['ctime'] = datetime.fromtimestamp(st.st_ctime,
+                                                       tz=timezone.utc).isoformat()
                 stat['mode'] = st.st_mode
                 stat['uid'] = st.st_uid
                 stat['gid'] = st.st_gid
