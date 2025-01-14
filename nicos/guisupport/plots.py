@@ -166,6 +166,10 @@ class NicosPlotAxes(PlotAxes):
     """Plot axes that enable automatic extension of the window by a tick
     distance in order to keep the curves from the edge of the grid.
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setYtickCallback(self.ytickCallBack)
+        self._ytick_labels = [0]
 
     def scaleWindow(self, xmin, xmax, xtick, ymin, ymax, ytick):
         dx, dy = 0, 0
@@ -188,7 +192,16 @@ class NicosPlotAxes(PlotAxes):
                 return original_win
         return PlotAxes.doAutoScale(self, curvechanged)
 
+    @property
+    def yLabelLength(self):
+        return max(self._ytick_labels)
+
+    def ytickCallBack(self, x, y, svalue, _):
+        self._ytick_labels.append(len(svalue))
+        gr.text(x, y, svalue)
+
     def drawGR(self):
+        self._ytick_labels = [0]
         lwidth = gr.inqlinewidth()
         gr.setlinewidth(0.1)
         PlotAxes.drawGR(self)
