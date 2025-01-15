@@ -42,6 +42,10 @@ def metainfo_to_json(metainfo):
     return metadata
 
 
+def valuestats_to_json(valuestats):
+    return {k: v._asdict() for k, v in valuestats.items()}
+
+
 class Message:
     id: str  # pylint: disable=redefined-builtin
     type: str  # pylint: disable=redefined-builtin
@@ -109,7 +113,7 @@ class RabbitSinkHandler(DataSinkHandler):
                 'instrument': session.instrument.name,
             },
             metainfo=metadata,
-            statistics=dataset.valuestats,
+            statistics=valuestats_to_json(dataset.valuestats),
         )
         for retry in range(3):
             try:
