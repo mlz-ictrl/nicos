@@ -87,6 +87,7 @@ class SeqWaitValue(SequenceItem):
     A little class which waits until a readable device has reached a certain
     value
     """
+
     def __init__(self, dev, wait_value, tolerance):
         SequenceItem.__init__(self)
         self._dev = dev
@@ -173,7 +174,7 @@ class VSLambda(Moveable):
     def _lambdaToSpeed(self, wavelength):
         if wavelength == 0:
             return 0
-        return 3.569084E+2/wavelength - 2.807392
+        return 3.569084E+2 / wavelength - 2.807392
 
     def isAllowed(self, pos):
         speed = self._lambdaToSpeed(pos)
@@ -185,5 +186,5 @@ class VSLambda(Moveable):
     def doRead(self, maxage=0):
         speed = self._attached_speed.read(maxage)
         if speed >= 6:
-            return 1./(2.801839E-3*speed + 7.865861E-3)
+            return 1. / (2.801839E-3 * speed + 7.865861E-3)
         return 0

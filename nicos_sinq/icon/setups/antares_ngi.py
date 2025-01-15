@@ -2,7 +2,7 @@ description = 'Neutron Grating Interferometer at ICON'
 
 group = 'optional'
 
-tango_host = 'pcp080468.psi.ch'
+tango_host = 'phytron2.psi.ch'
 
 tango_base = f'tango://{tango_host}:10000/box/'
 
