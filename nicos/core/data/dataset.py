@@ -23,6 +23,7 @@
 
 """Dataset classes."""
 
+from collections import namedtuple
 from math import sqrt
 from threading import Lock
 from time import localtime, time as currenttime
@@ -34,6 +35,9 @@ from nicos.core.errors import ProgrammingError
 from nicos.utils import lazy_property, number_types
 
 SETTYPES = (POINT, SCAN, SUBSCAN, BLOCK)
+
+
+Statistics = namedtuple('Statistics', ['mean', 'stddev', 'min', 'max'])
 
 
 class finish_property(lazy_property):
@@ -163,7 +167,7 @@ class BaseDataset:
                 else:
                     mean = lastv
                     stdev = float('inf')
-                res[devname] = mean, stdev, mini, maxi
+                res[devname] = Statistics(mean, stdev, mini, maxi)
         return res
 
     def __str__(self):
