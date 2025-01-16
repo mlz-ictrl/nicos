@@ -60,14 +60,24 @@ devices = dict(
         pollinterval = 2,
         maxage = 5,
     ),
-
+    T_ch9 = device('nicos.devices.entangle.Sensor',
+        description = 'Channel 9 readout',
+        tangodevice = tango_base + 'ri/t9',
+        pollinterval = 2,
+        maxage = 5,
+    ),
+    T_ch9_raw = device('nicos.devices.entangle.Sensor',
+        description = 'Channel 9 raw readout',
+        tangodevice = tango_base + 'ri/t9raw',
+        pollinterval = 2,
+        maxage = 5,
+    ),
     T_control = device('nicos.devices.entangle.TemperatureController',
         description = 'Mixing Chamber control loop',
         tangodevice = tango_base + 'ri/temp',
         pollinterval = 2,
         maxage = 5,
     ),
-
     p1_mixture = device('nicos.devices.entangle.Sensor',
         description = 'Pressure in mixture tank',
         tangodevice = tango_base + 'ri/p1',
@@ -117,8 +127,6 @@ devices = dict(
         pollinterval = 2,
         maxage = 5,
     ),
-
-
     T_cooler_water_in = device('nicos.devices.entangle.Sensor',
         description = 'Temperature of the water input to the cooler',
         tangodevice = tango_base + 'ri/cooler_wit',
@@ -143,7 +151,6 @@ devices = dict(
         pollinterval = 5,
         maxage = 15,
     ),
-
     triton_cryostat = device('nicos_mgml.devices.cryostat.DummyCryostat',
         description = 'triton cryostat',
         unit = '',
