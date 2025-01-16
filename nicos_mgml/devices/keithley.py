@@ -170,7 +170,7 @@ class Deltameter(Measurable):
         d = self.commCurrent(':SOUR:DELTA:COUNT?', response=True)
         if int(d) != t:  # abort arm
             armed = int(self.commCurrent(':SOUR:DELTA:ARM?', response=True))
-            if armed == 0:
+            if armed == 1:  # need to disarm
                 self.commCurrent(':SOUR:SWE:ABOR')
                 time.sleep(2)
                 self.commCurrent(':SOUR:DELTA:COUNT %i' % t)
@@ -239,13 +239,17 @@ class Deltameter(Measurable):
         self.log.debug('test 2: %s', self._lastStatus)
         if oper == 0:  # no change in status
             if self._lastStatus[0] == status.ERROR:
-                self.log.debug('going to idle after %s recovered error', self._lastStatus[1])
+                self.log.debug('going to idle after %s recovered error',
+                               self._lastStatus[1])
                 self._lastStatus = (status.OK, 'idle')
             self._statusCounter += 1
             if self._statusCounter > 5:
                 self._lastStatus = (status.OK, 'idle')
-                self.log.debug('going to idle after %d attemps', self._statusCounter)
+                self.log.debug(
+                    'going to idle after %d attemps', self._statusCounter)
                 self._statusCounter = 0
+            self.log.debug('No change in status, returning lastStatus %s',
+                           self._lastStatus)
             return self._lastStatus
         self._statusCounter = 0
         self.log.debug('test 3')
