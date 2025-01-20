@@ -185,8 +185,9 @@ class RabbitSinkHandler(DataSinkHandler):
                 'name': fname,
                 'path': fpath,
                 'stat': stat,
-                'samplepath': path.realpath(session.experiment.samplepath),
                 'dataroot': path.realpath(session.experiment.dataroot),
+                'proposalpath': path.realpath(session.experiment.proposalpath),
+                'samplepath': path.realpath(session.experiment.samplepath),
             })
         return finfos
 
