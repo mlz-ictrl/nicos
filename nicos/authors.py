@@ -100,6 +100,7 @@ Instrument-specific code was contributed by:
 * Adrian Losko <adrian.losko@frm2.tum.de>
 * Avishek Maity <Avishek.Maity@frm2.tum.de>
 * Gaetano Mangiapia <gaetano.mangiapia@hereon.de>
+* Stefan Mathis <stefan.mathis@psi.ch>
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
 * Stanislav Nikitin <stanislav.nikitin@psi.ch>
@@ -119,6 +120,7 @@ Instrument-specific code was contributed by:
 * Anatoliy Senyshyn <anatoliy.senyshyn@frm2.tum.de>
 * Oleg Sobolev <oleg.sobolev@frm2.tum.de>
 * Olaf Soltwedel <olaf.soltwedel@frm2.tum.de>
+* Alexander Söderquist <alexander.söderquist@psi.ch>
 * Stefan Söllradl <stefan.soellradl@frm2.tum.de>
 * Jochen Stahn <jochen.stahn@psi.ch>
 * Alexander Steffens <a.steffens@fz-juelich.de>
@@ -126,6 +128,7 @@ Instrument-specific code was contributed by:
 * Henrik Thoma <henrik.thoma@frm2.tum.de>
 * Lukas Vogl <lukas.vogl@frm2.tum.de>
 * Michael Wagener <m.wagener@fz-juelich.de>
+* Edward Wall <edward.wall@psi.ch>
 * Alexander Weber <al.weber@fz-juelich.de>
 * Tobias Weber <tobias.weber@frm2.tum.de>
 * Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
