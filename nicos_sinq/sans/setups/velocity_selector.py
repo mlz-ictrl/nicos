@@ -21,7 +21,8 @@ devices = dict(
         errormsgpv = 'SQ:SANS:mcu1:tilt-MsgTxt',
         precision = .01,
         limit = 50,
-        vs_rotation = 'vs_speed'
+        vs_rotation = 'vs_speed',
+        can_disable = True,
     ),
     vs_lambda = device('nicos_sinq.devices.velocity_selector.VSLambda',
         description = 'Velocity Selector Wavelength Control',
