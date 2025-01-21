@@ -13,6 +13,5 @@ devices = dict(
             'OFF': False,
             'ON': True
         },
-        visibility = ('metadata', 'namespace', 'devlist'),
     ),
 )

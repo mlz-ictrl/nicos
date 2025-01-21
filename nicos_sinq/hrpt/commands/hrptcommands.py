@@ -31,9 +31,17 @@ __all__ = [
     'UpdateHRPTBinning', 'count', 'sarot',
 ]
 
+
 @usercommand
-@helparglist('None,on or off')
+@helparglist('op=None')
 def sarot(op=None):
+    '''
+    Command to rotate the sample. Inherited from SICS.
+    op arguments corresponds to the following:
+    None/no-argument: Return the state, on or off.
+    'on': Rotate the sample
+    'off': Do not rotate the sample
+    '''
     motc = session.getDevice('motc')
     if op is None:
         res = int(motc.execute('ac 3'))
@@ -48,11 +56,13 @@ def sarot(op=None):
         motc.execute('ac 3 0')
         return 'ok'
     else:
-        session.log.error('Wrong argument to sarot: only understand None, on, off')
+        session.log.error('Wrong argument to sarot: '
+                          'only understand None, on, off')
+
 
 @usercommand
-@helparglist('offset,divisor,length')
-def UpdateHRPTBinning(offset,divisor,length):
+@helparglist('offset, divisor, length')
+def UpdateHRPTBinning(offset, divisor, length):
     """Change the time binning for histogramming the data.
 
     This is for setting the proper parameters for the calculated stroboscopic
@@ -71,7 +81,6 @@ def UpdateHRPTBinning(offset,divisor,length):
         session.log.error('The configurator device not found. Cannot proceed')
 
 
-
 @usercommand
 @helparglist('[detectors], [presets]')
 def count(*detlist, **preset):
@@ -83,9 +92,9 @@ def count(*detlist, **preset):
         session.log.warning('Radial collimator not found, skipping tests')
     else:
         if racoll.startcheck():
-            maw(racoll,'on')
+            maw(racoll, 'on')
 
-    std_count(*detlist,**preset)
+    std_count(*detlist, **preset)
 
     if racoll is not None:
         racoll.stopcheck()
