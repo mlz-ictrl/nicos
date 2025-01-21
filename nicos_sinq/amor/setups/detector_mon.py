@@ -5,6 +5,7 @@ display_order = 15
 excludes = ['detector']
 
 sysconfig = dict(datasinks = ['jbi_liveview'],)
+#sysconfig = dict(datasinks = ['jbi_liveview', 'synchronize_daq'],)
 
 sumpv = 'SQ:AMOR:sumi:'
 
@@ -16,7 +17,7 @@ devices = dict(
     proton_monitor = device('nicos_sinq.devices.epics.proton_counter.SINQProtonMonitor',
         description = 'Proton monitor',
         pvprefix = sumpv,
-        unit = 'uA',
+        unit = 'mC',
         type = 'monitor',
     ),
     m1 = device('nicos_sinq.devices.counters.KafkaCounter',
@@ -46,6 +47,8 @@ devices = dict(
         images = ['det_image'],
     ),
     jbi_liveview = device('nicos.devices.datasinks.LiveViewSink',
+    ),
+    synchronize_daq = device('nicos_sinq.amor.devices.datasinks.SyncDaqSink',
     ),
 )
 

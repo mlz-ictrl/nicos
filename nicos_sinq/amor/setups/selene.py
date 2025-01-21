@@ -66,7 +66,7 @@ for p in range(1, 37):
         pvprefix = 'SQ:AMOR:SEL2',
         readpv = f'SQ:AMOR:SEL2:P{p}:Selected',
         fmtstr = '%d',
-        pollinterval = 5
+        pollinterval = 5,
     )
 
 #for l in range(1, 7):

@@ -16,4 +16,3 @@ devices = dict(
         visibility = ('devlist', 'metadata', 'namespace'),
     ),
 )
-alias_config = {'sz': {'stz': 90}}

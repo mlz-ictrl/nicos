@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,17 +24,19 @@
 
 import copy
 import json
+import time
 from os import path
-from time import time as currenttime
 
 import numpy
 
 from nicos import session
 from nicos.core import FINAL, LIVE
+from nicos.core.data import DataSink, DataSinkHandler
 from nicos.utils import byteBuffer, safeName
 
 from nicos_ess.devices.datasinks.nexus_structure import NexusStructureTemplate
 from nicos_ess.nexus.converter import NexusTemplateConverter
+from nicos_sinq.amor.commands import synchronize_daq
 from nicos_sinq.devices.datasinks import SinqNexusFileSink
 from nicos_sinq.devices.imagesink import ImageKafkaDataSink, \
     ImageKafkaDataSinkHandler
@@ -108,7 +110,7 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
                  filenames=tags,
                  dtypes=['<u4'],
                  shapes=list(zip(nx, ny, nz)),
-                 time=currenttime() - self.dataset.started),
+                 time=time.time() - self.dataset.started),
             data)
 
 
@@ -135,6 +137,7 @@ class AmorStructureTemplate(NexusStructureTemplate):
     1) Remove optional components from the template
     2) Puts the distances offset in
     """
+
     def _delete_keys_from_dict(self, dict_del, keys):
         for key in list(keys):
             if key in dict_del.keys():
@@ -169,6 +172,39 @@ class AmorStructureTemplate(NexusStructureTemplate):
         template = copy.deepcopy(self._template)
         template = self._remove_optional_components(template)
         self._add_start_time(dataset)
+
         converter = NexusTemplateConverter()
         structure = converter.convert(template, dataset.metainfo)
         return json.dumps(structure)
+
+
+class SyncDaqHandler(DataSinkHandler):
+
+    def prepare(self):
+        synchronize_daq()
+
+    def begin(self):
+        DataSinkHandler.begin(self)
+
+    def end(self):
+        DataSinkHandler.end(self)
+
+
+class SyncDaqSink(DataSink):
+    """
+    A simple DataSink which calls the synchronize_daq user command at the start
+    of each measurement.
+    """
+
+    handlerclass = SyncDaqHandler
+    _handlerObj = None
+
+    def createHandlers(self, dataset):
+        if not self._handlerObj:
+            self._handlerObj = self.handlerclass(self, dataset, None)
+        else:
+            self._handlerObj.dataset = dataset
+        return [self._handlerObj]
+
+    def end(self):
+        self._handlerObj = None

@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2025 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -93,8 +93,10 @@ class ValueLabel(QLabel, NicosWidget):
     value_index = PropDef('value_index', int, -1, 'Index in the value if its '
                                                   'length is > 1')
     offset = PropDef('offset', int, 0, 'Offset to add to the value')
-    zname = PropDef('zname', str, '', 'Value to display instead of raw value 0')
-    oname = PropDef('oname', str, '', 'Value to display instead of raw value 1')
+    zname = PropDef('zname', str, '',
+                    'Value to display instead of raw value 0')
+    oname = PropDef('oname', str, '',
+                    'Value to display instead of raw value 1')
 
     def __init__(self, parent, designMode=False):
         QLabel.__init__(self, parent)

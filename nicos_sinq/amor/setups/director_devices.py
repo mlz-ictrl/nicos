@@ -97,4 +97,3 @@ devices = dict(
         devclass = 'nicos.core.device.Moveable'
     ),
 )
-alias_config = {'sz': {'szoffset': 20}}

@@ -47,8 +47,6 @@ amor_streaming = {
         },
         "proposal_id": DeviceDataset("Exp", "proposal"),
         "start_time": DeviceDataset("dataset", "starttime"),
-        "start_time_epoch": DeviceDataset("dataset", "starttimeepoch"),
-        "end_time_epoch": DeviceDataset("dataset", "endtimeepoch"),
         "comment": DeviceDataset("Exp", "remark"),
         # measurement data
         "area_detector:NXData": {
@@ -381,9 +379,9 @@ amor_streaming = {
                     "units": "mC",
                 },
                 "proton_current:NXevent_data": {
-                    "value": EventStream(topic='AMOR_epics',
-                                         source="SQ:AMOR:sumi:BEAMCPY",
-                                         mod="f142",
+                    "value": EventStream(topic=metaTopic,
+                                         source="proton_current",
+                                         mod=metaMod,
                                          dtype="double", ),
                     "units": "uA",
                 },
@@ -494,7 +492,6 @@ amor_streaming = {
             },
             "kad": DeviceDataset("kad"),
             # alignment parameters !!! redundand, see sample_stage
-            # new names: 'roll', 'pitch', 'height'?
             "sch": DeviceDataset("sch"),
             "mud": DeviceDataset("mud"),
             "base_height": DeviceDataset("szoffset"),
@@ -537,19 +534,33 @@ amor_streaming = {
                 },
             },
             "temperature:NXevent_data": {
-                "value": EventStream(topic=metaTopic,
-                                     # source="temperature",
-                                     source="se_tt",
-                                     mod=metaMod,
-                                     dtype="double", ),
-                "units": "K",
+                    "value": EventStream(topic=metaTopic,
+                                         source="temperature",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "K",
+                    "cue_index": 30,
             },
             "magnetic_field:NXevent_data": {
-                "value": EventStream(topic=metaTopic,
-                                     source="magnetic_field",
-                                     mod=metaMod,
-                                     dtype="double", ),
-                "units": "A",
+                    "value": EventStream(topic=metaTopic,
+                                         source="magnetic_field",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "T",
+            },
+            "electrical_potential:NXlog": {
+                    "value": EventStream(topic=metaTopic,
+                                         source="electrical_potential",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "V",
+            },
+            "electrical_current:NXlog": {
+                    "value": EventStream(topic=metaTopic,
+                                         source="electrical_current",
+                                         mod=metaMod,
+                                         dtype="double", ),
+                    "units": "A"
             },
             # geometry
             "distance": DeviceDataset("distances", "sample",
