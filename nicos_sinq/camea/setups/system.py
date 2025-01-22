@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 display_order = 10
 
-includes = ['cameabasic', 'mono_slit']
+includes = ['cameabasic', 'mono_slit', 'detector']
 
 sysconfig = dict(
     cache = 'localhost',
