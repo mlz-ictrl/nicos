@@ -23,6 +23,8 @@
 
 name = 'test_antares setup'
 
+includes = ['stdsystem']
+
 devices = dict(
     mono = device('nicos_mlz.antares.devices.Monochromator',
         dvalue1 = 3.354,
@@ -120,5 +122,14 @@ devices = dict(
             unit = '',
         ),
         abslimits = (-20, 20),
-     ),
+    ),
+    G1tx = device('nicos.devices.generic.VirtualMotor',
+        unit = 'mum',
+        abslimits = (-500, 25000),
+        precision = 0.1,
+    ),
+    fastshutter = device('nicos.devices.generic.ManualSwitch',
+        states = ['closed', 'open'],
+        unit = '',
+    ),
 )

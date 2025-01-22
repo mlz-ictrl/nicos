@@ -111,7 +111,6 @@ class TestBlur:
         yield blur._attached_d
         blur._attached_d.maw(2)
 
-
     @pytest.fixture(scope='function')
     def length(self, blur):
         old_l = blur._attached_l.read(0)
