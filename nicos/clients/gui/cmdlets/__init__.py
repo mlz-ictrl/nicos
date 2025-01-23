@@ -25,7 +25,7 @@
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.colors import colors
-from nicos.guisupport.qt import QAbstractSpinBox, QWidget, pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QAbstractSpinBox, QWidget, pyqtSignal
 from nicos.guisupport.typedvalue import DeviceParamEdit
 from nicos.guisupport.utils import DoubleValidator, setBackgroundColor
 from nicos.utils import findResource, formatDuration
