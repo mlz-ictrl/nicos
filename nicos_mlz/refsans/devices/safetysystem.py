@@ -28,13 +28,10 @@ from nicos.devices.tango import PyTangoDevice
 
 
 class Shs(PyTangoDevice, Readable):
-    """
-    Basic IO Device object for devices in refsans'
-    contains common things for all devices.
-    """
-    _buffer_old = None
+    """Basic IO Device object for devices in refsans.
 
-    hardware_access = True
+    Contains common things for all devices.
+    """
 
     parameters = {
         'address': Param('Starting offset (words) of IO area',
@@ -46,15 +43,13 @@ class Shs(PyTangoDevice, Readable):
                        userparam=False, default=[0x300, 0x400])
     }
 
-    def doInit(self, mode):
-        # switch off watchdog, important before doing any write access
-        pass
+    hardware_access = True
 
     def _readBuffer(self):
         buf = ()
         for bank in self.banks:
-            Notausgang = 1
-            while True:
+            Notausgang = 0
+            while Notausgang < 6:
                 self.log.debug('bank: 0x%04X', bank)
                 for _ in range(2):
                     session.delay(0.1)
@@ -66,13 +61,11 @@ class Shs(PyTangoDevice, Readable):
                     break
                 self.log.debug('Data from wrong bank %d != %d', bu[2], bank)
                 Notausgang += 1
+                session.delay(0.5 * Notausgang)
                 if Notausgang > 6:
                     self.log.info('NOTAUSGANG<')  # raise error ???
-                    break
-                session.delay(0.5 * Notausgang)
 
         self.log.debug('buffer: %s', buf)
-        self._buffer_old = buf
         return buf
 
     def doRead(self, maxage=0):
@@ -84,32 +77,84 @@ class Shs(PyTangoDevice, Readable):
 
 _groups = {
     'open': ['Endschalter_Ex_Shutter'],
-    'Service': ['Schluesselschalter_Wartung', 'Hupentest', 'Druck_service',
-                'Lampentest', 'Handbetrieb_tube', 'Ampeltest'],
+    'Service': [
+        'Schluesselschalter_Wartung',
+        'Hupentest',
+        'Druck_service',
+        'Lampentest',
+        'Handbetrieb_tube',
+        'Ampeltest',
+    ],
     'Handbetrieb_tube': ['Handbetrieb_tube'],
-    'Ampel': ['gruen', 'gelb', 'rot'],
+    'Ampel': [
+        'gruen',
+        'gelb',
+        'rot',
+    ],
     'Power_PO': ['PO-Aus-Schalter'],
-    'techOK': ['Drucksensor_CB', 'Drucksensor_SFK', 'Drucksensor_Tube',
-               'Chopper_Drehzahl'],
-    'doors': ['Tuer_PO', 'Verbindungstuer', 'Tuer_SR'],
+    'techOK': [
+        'Drucksensor_CB',
+        'Drucksensor_SFK',
+        'Drucksensor_Tube',
+        'Chopper_Drehzahl',
+    ],
+    'doors': [
+        'Tuer_PO',
+        'Verbindungstuer',
+        'Tuer_SR',
+    ],
     'NOT-AUS': ['Not-Aus_Kreis'],
     'Instrumentenverantwortlicher': ['Instrumentenverantwortlicher'],
     'Betreten_Verboten': ['Betreten_Verboten'],
-    'USER': ['externer_User_Kontakt_A', 'externer_User_Kontakt_B'],
+    'USER': [
+        'externer_User_Kontakt_A',
+        'externer_User_Kontakt_B',
+    ],
     'P-Key': ['Personenschluessel_Terminal'],
-    'Warte': ['Freigabe_von_Warte_fuer_ESShutter', 'Schnellschluss-Shutter',
-              '6-fach-Shutter', 'Verbindung_zu_Warte_iO'],
-    'PO_save': ['Probenort_Geraeumt', 'Verbindungstuer', 'Tuer_PO'],
-    'SR_save': ['Streurohr_Geraeumt', 'Verbindungstuer', 'Tuer_SR'],
-    'save': ['Instrumentenverantwortlicher', 'PO_save', 'SR_save',
-             'Personenschluessel_Terminal'],
+    'Warte': [
+        'Freigabe_von_Warte_fuer_ESShutter',
+        'Schnellschluss-Shutter',
+        '6-fach-Shutter',
+        'Verbindung_zu_Warte_iO',
+    ],
+    'PO_save': [
+        'Probenort_Geraeumt',
+        'Verbindungstuer',
+        'Tuer_PO',
+    ],
+    'SR_save': [
+        'Streurohr_Geraeumt',
+        'Verbindungstuer',
+        'Tuer_SR',
+    ],
+    'save': [
+        'Instrumentenverantwortlicher',
+        'PO_save',
+        'SR_save',
+        'Personenschluessel_Terminal',
+    ],
     'Wartung_Key': ['Schluesselschalter_Wartung'],
     'Freigabe_Hub_Streurohr': ['Freigabe_Hub_Streurohr'],
-    'Freigabe_Wartung': ['IV_key', 'PO_save', 'SR_save'],
-    'tube': ['Handbetrieb_tube', 'Keine_Freigabe_Hub_Streurohr',
-             'Freigabe_Hub_Streurohr'],
-    'Freigabe': ['IV_key', 'techOK', 'NOT-AUS', 'USER', 'PO_save', 'SR_save',
-                 'P-Key', 'Warte'],
+    'Freigabe_Wartung': [
+        'IV_key',
+        'PO_save',
+        'SR_save',
+    ],
+    'tube': [
+        'Handbetrieb_tube',
+        'Keine_Freigabe_Hub_Streurohr',
+        'Freigabe_Hub_Streurohr',
+    ],
+    'Freigabe': [
+        'IV_key',
+        'techOK',
+        'NOT-AUS',
+        'USER',
+        'PO_save',
+        'SR_save',
+        'P-Key',
+        'Warte',
+    ],
 }
 
 
@@ -130,11 +175,11 @@ class Group(Readable):
     }
 
     attached_devices = {
-        'shs': Attach('shs', Readable),
+        'shs': Attach('shs', Shs),
     }
 
     parameter_overrides = {
-        'unit': Override(default='', volatile=True, mandatory=False),
+        'unit': Override(volatile=True, mandatory=False),
         'fmtstr': Override(default='%s'),
     }
 

@@ -13,8 +13,8 @@ wichtig = [
     ]
 for ele in ['b2']:
     for axis in ['r', 's']:
-        CreateDevice(ele+axis+'_motor')
-lmsg = '_dower_down'
+        CreateDevice(f'{ele}{axis}_motor')
+lmsg = '_power_down'
 for line in wichtig:
     printinfo(line)
 set('chopper', 'delay', 0.0)
@@ -24,24 +24,27 @@ set('chopper4', 'phase', 10.0)
 set('chopper5', 'phase', 10.0)
 set('chopper6', 'phase', 10.0)
 
-Liste = [[
-          # det_yoke, 0,
-          'hv_anode', 0,
-          'hv_drift1', 0,
-          'hv_drift2', 0,
-          'hv_mon1', 0,
-          'hv_mon2', 0,
-          'hv_mon3', 0,
-          'hv_mon4', 0,
-          chopper_speed, 0,
-          b2r_motor, b2r_motor.usermax,
-          ], [
-          b2s_motor, b2s_motor.usermin,
-          chopper2_pos, 1,
-          disc3,disc3.usermin,
-          disc4,disc4.usermin,
-          sc2,sc2.usermax,
-          ]]
+Liste = [
+    [
+        # det_yoke, 0,
+        'hv_anode', 0,
+        'hv_drift1', 0,
+        'hv_drift2', 0,
+        'hv_mon1', 0,
+        'hv_mon2', 0,
+        'hv_mon3', 0,
+        'hv_mon4', 0,
+        chopper_speed, 0,
+        b2r_motor, b2r_motor.usermax,  # TODO: check if really user limits!!
+    ],
+    [
+        b2s_motor, b2s_motor.usermin,  # TODO: check if really user limits!!
+        chopper2_pos, 1,
+        disc3, disc3.usermin,
+        disc4, disc4.usermin,
+        sc2, sc2.usermax,
+    ]
+]
 
 for sub in Liste:
     maw(*sub)

@@ -4,6 +4,9 @@
 # test: setups = 07_refsans_full
 # test: skip
 
+from nicos import session
+from nicos.core import status as ncstatus
+
 # userinterface ++
 tus = 'group'       # alle auf ein mal schneller
 # tus = 'seriell'    # einen nach dem anderen, Diagnose!
@@ -21,9 +24,6 @@ poti_only = False
 # userinterface --
 
 lmsg = 'optic_reference'
-
-from nicos import session
-from nicos.core import status as ncstatus
 
 Elemente = [
     'shutter_gamma',
@@ -48,7 +48,7 @@ if ana_pos_check:
 try:
     avg_read
 except:
-    run_it.append('please run nicos.py first')
+    run_it.append('please run refsans.py first')
 # try:
 #     lyric
 # except:

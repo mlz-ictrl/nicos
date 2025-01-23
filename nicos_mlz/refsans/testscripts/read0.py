@@ -10,7 +10,7 @@ analyse = True  # and False
 
 """
 writing complex class D4A to make further user
-reading elements vs read with string? read with strings: if eg _acc has been read, _motor and _poti can be scipped ### todo
+reading elements vs read with string? read with strings: if eg _acc has been read, _motor and _poti can be skipped ### todo
 """
 
 import threading

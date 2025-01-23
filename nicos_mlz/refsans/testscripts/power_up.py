@@ -5,7 +5,7 @@
 
 wichtig = [
     'this script MOVES!',
-    'it should be uses after a power down',
+    'it should be used after a power down',
     'elements are referenced',
     'and moved in home',
     'BUT you are at REFSANS',
@@ -34,23 +34,23 @@ except:
 
 if True:
     try:
-        for tag in ['_motor', '_enc']:
-            CreateDevice('det_yoke'+tag)
+        for tag in ['motor', 'enc']:
+            CreateDevice(f'det_yoke_{tag}')
         det_yoke_motor.setPosition(det_yoke_enc.read(0))
     except:
         fails.append('det_yoke')
 
 Liste_refmove = [
-  'disc3',
-  'disc4',
-  'sc2',
-  ]
+    'disc3',
+    'disc4',
+    'sc2',
+]
 
 Liste_homing1 = [
     'disc3', 0,
     'disc4', 0,
     'sc2', 0,
-    ]
+]
 
 for tag in Liste_refmove:
     reference(tag)

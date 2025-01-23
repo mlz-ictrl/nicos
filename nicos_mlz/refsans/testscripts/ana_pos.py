@@ -1,40 +1,42 @@
 # pylint: skip-file
 
-printinfo('die werte der potis statt spline WICHTIG!')
 # user ++
 # user --
 
-from nicos import session
-from numpy import array
-from nicos.core import status as ncstatus
-
 import time
 
+from numpy import array
+
+from nicos import session
+from nicos.core import status as ncstatus
+
+printinfo('die werte der potis statt spline WICHTIG!')
+
 Elemente = [
-          # 'shutter_gamma',      # 1
-          'nok2',               # 2
-          'nok3',               # 3
-          'nok4',               # 4
-          # 'disc3',             # 5
-          # 'disc4',             # 6
-          # 'b1',                # 7
-          # 'nok5a',             # 8
-          # 'zb0',               # 9
-          # 'nok5b',             # 10
-          # 'zb1',               # 11
-          'nok6',               # 12
-          'zb2',                # 13
-          'nok7',               # 14
-          'zb3',                # 15
-          'nok8',               # 16
-          'bs1',                # 17
-          'nok9',               # 18
-          # 'sc2',               # 19
-          # 'b2',                # 20
-          # 'b3h3',              #
-          # 'primary_aperture',  #
-          # 'last_aperture',     #
-        ]
+    # 'shutter_gamma',      # 1
+    'nok2',               # 2
+    'nok3',               # 3
+    'nok4',               # 4
+    # 'disc3',             # 5
+    # 'disc4',             # 6
+    # 'b1',                # 7
+    # 'nok5a',             # 8
+    # 'zb0',               # 9
+    # 'nok5b',             # 10
+    # 'zb1',               # 11
+    'nok6',               # 12
+    'zb2',                # 13
+    'nok7',               # 14
+    'zb3',                # 15
+    'nok8',               # 16
+    'bs1',                # 17
+    'nok9',               # 18
+    # 'sc2',               # 19
+    # 'b2',                # 20
+    # 'b3h3',              #
+    # 'primary_aperture',  #
+    # 'last_aperture',     #
+]
 
 test_dic = {
     'null': {
@@ -85,27 +87,27 @@ test_dic = {
 
 
 def ana_avg_read(Elemente, anz, pause, tag='analog'):
-    print('ana_pos ana_avg_read tag {0:s}'.format(tag))
+    print(f'ana_pos ana_avg_read tag {tag}')
     dic = {}
     for ele in Elemente:
-        tmp = ele+'_%s' % tag
+        tmp = f'{ele}_{tag}'
         if tmp in session.devices.keys():
             dic[ele] = []
         else:
-            dic[ele+'r'] = []
-            dic[ele+'s'] = []
-    printinfo("ana_avg_read {0:d}x{1:.4f}sec={2:.4f}sec {3:.4f}Elemente".format(anz, pause, anz * pause, len(dic)))
+            dic[f'{ele}r'] = []
+            dic[f'{ele}s'] = []
+    printinfo(f'ana_avg_read {anz:d}x{pause:.4f}sec={anz * pause:.4f}sec {len(dic):d}Elemente')
     for i in range(anz):
         for ele in dic.keys():
-            dic[ele].append(session.devices[ele+'_%s' % tag].read(0))
+            dic[ele].append(session.devices[f'{ele}_{tag}'].read(0))
         line = ''
         sleep(pause)
-    printinfo("{0:6s} {1:9s} +/- {2:s}".format('ele', 'abspos', 'std'))
-    for lable in dic.keys():
-        dic[lable] = array(dic[lable])
-        mean = dic[lable].mean()
-        printinfo("{0:6s} {1:9.5f} +/- {2:.5f}".format(lable, mean, dic[lable].std()))
-        dic[lable] = mean
+    printinfo(f"{'ele':6s} {'abspos':9s} +/- std")
+    for label in dic.keys():
+        dic[label] = array(dic[label])
+        mean = dic[label].mean()
+        printinfo(f'{label:6s} {mean:9.5f} +/- {dic[label].std():.5f}')
+        dic[label] = mean
     return dic
 
 
@@ -177,8 +179,7 @@ class cl_ana_pos():
             pos_tag = optic.mode + '+' + optic.read(1)
         printinfo(pos_tag)
         self.akt_dic = ana_avg_read(self._Elemente, anz=100, pause=.6, tag='analog')
-        line = ""
-        line += "  '"
+        line = "  '"
         line += pos_tag
         line += "'" + (35 - len(line)) * " "
         line += ":{"
@@ -193,12 +194,12 @@ class cl_ana_pos():
 
     def line_dic(self, dic):
         line = '{'
-        for lable in self._Elemente:
-            if lable in dic.keys():
-                line += "'%s':%10.4f, " % (lable, dic[lable])
+        for label in self._Elemente:
+            if label in dic.keys():
+                line += "'%s':%10.4f, " % (label, dic[label])
             else:
                 for pos in ['r', 's']:
-                    line += "'%s%s':%10.4f, " % (lable, pos, dic[lable+pos])
+                    line += "'%s%s':%10.4f, " % (label, pos, dic[label+pos])
         line += '}'
         return line
 
@@ -370,16 +371,16 @@ class cl_ana_pos():
             self.akt_dic = dic
 
         for pos_tag in self._ana_pos:
-            printinfo('tag %s' % pos_tag)
+            printinfo(f'tag {pos_tag}')
             self.history.append({
                     'tag': pos_tag,
                     'werte': [],
                     })
             for ele in self.akt_dic.keys():
-                # printinfo('{0:14s} {1:6.2f} {2:6.2f}'.format(ele,self._ana_pos[pos_tag][ele],self.akt_dic[ele][0]))
+                # printinfo(f'{ele:14s} {self._ana_pos[pos_tag][ele]:6.2f} {self.akt_dic[ele][0]:6.2f}')
                 # dif = abs(self._ana_pos[pos_tag][ele] - self.akt_dic[ele][0])
                 dif = abs(self._ana_pos[pos_tag][ele] - self.akt_dic[ele])
-                self.history[-1]['werte'].append(['%07.3f' % dif, ele])
+                self.history[-1]['werte'].append([f'{dif:07.3f}', ele])
             self.history[-1]['werte'].sort()
             self.history[-1]['werte'].reverse()
             # printinfo(self.history[-1]['werte'][0][0])
@@ -390,7 +391,7 @@ class cl_ana_pos():
         mm = min(res.values())
         for tag in res:
             akt = res[tag]
-            printinfo('{0:30s} {1:7.3f} {2:s}'.format(tag, akt, str(akt == mm)))
+            printinfo(f'{tag:30s} {akt:7.3f} {(akt == mm)}')
             if akt == mm:
                 pos_tag = tag
         printinfo('try:', pos_tag, mm)
@@ -408,7 +409,7 @@ if True and False:
     # selbsttest
     res = []
     for tag in ana_pos._ana_pos.keys():
-        res.append(str(ana_pos.best_of(ana_pos._ana_pos(tag)) == tag) + ' ' + tag)
+        res.append(str(ana_pos.best_of(ana_pos._ana_pos[tag]) == tag) + ' ' + tag)
     for line in res:
         printinfo(line)
 

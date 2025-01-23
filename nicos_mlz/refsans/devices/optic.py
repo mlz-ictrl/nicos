@@ -126,10 +126,11 @@ class Optic(Moveable):
     def doStart(self, target):
         # Calculate positions and move devices
         self.log.debug('Start to: %s', target)
-        for ele in self.setting[target].keys():
+        for ele in self.setting[target]:
             line = 'move ' + ele
-            if hasattr(self, '_attached_' + ele):
-                f = getattr(self, '_attached_' + ele)
+            adev = f'_attached_{ele}'
+            f = getattr(self, adev, None)
+            if f is not None:
                 if self.setting[target][ele] == 'debug':
                     line += ' debug'
                 else:
@@ -141,10 +142,10 @@ class Optic(Moveable):
                     for ele in post:
                         f.maw(self.setting[target][ele])
                     line += ' %s' % self.setting[target][ele]
-                self.log.debug(line)
+                self.log.debug('%s', line)
             else:
-                line += ' not attached'
-                self.log.warning(line)
+                line = f'{ele} not attached'
+                self.log.warning('%s', line)
 
     def doWriteMode(self, target):
         # Calculate positions and move devices

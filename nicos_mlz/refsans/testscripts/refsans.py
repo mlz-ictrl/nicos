@@ -1,15 +1,15 @@
 # pylint: skip-file
 
-printinfo('tools 4 nicos MP 2023-10-12 08:03:20')
-
-printinfo('todo read(0) pollinterval optic')
-
 # import ++
 from nicos import session
 from numpy import array
 import time
 import threading
 # import --
+
+printinfo('tools 4 nicos MP 2023-10-12 08:03:20')
+
+printinfo('todo read(0) pollinterval optic')
 
 # tools ++
 time_units = [
@@ -34,7 +34,7 @@ def avg_read(Elemente, anz, pause, style='val', param=None, verbose=True):
         param = 'read'
     for ii in range(len(Elemente)):
         res.append([])
-    printinfo("avg_read from #nicos {0:d}x{1:.4f}sec={2:.4f}sec {3:.4f}Elemente style {4:s}".format(anz, pause, anz * pause, len(Elemente), style))
+    printinfo(f'avg_read from #nicos {anz:d}x{pause:.4f}sec={anz * pause:.4f}sec {len(Elemente):.4f}Elemente style {style:s}')
     if verbose:
         for ele in Elemente:
             printinfo(ele.name)
@@ -54,15 +54,15 @@ def avg_read(Elemente, anz, pause, style='val', param=None, verbose=True):
             printinfo("{0:d}/{1:d}".format(i, anz) + line)
         sleep(pause)   # kein tread
     if verbose:
-        printinfo("avg_read from #nicos {0:d}x{1:.4f}sec={2:.4f}sec {3:.4f}Elemente style {4:s}".format(anz, pause, anz * pause, len(Elemente), style))
-    printinfo('in {0:.2f} sec'.format(time.time() - tt))
-    for i in range(len(Elemente)):
+        printinfo(f'avg_read from #nicos {anz:d}x{pause:.4f}sec={anz * pause:.4f}sec {len(Elemente):.4f}Elemente style {style:s}')
+    printinfo(f'in {time.time() - tt:.2f} sec')
+    for i, elem in enumerate(Elemente):
         res[i] = array(res[i])
         mean = res[i].mean()
         std = res[i].std()
         mm = min(res[i])
         xx = max(res[i])
-        printinfo("{0:d}: {1:s} {2:.5f} +/- {3:.5f}".format(i, Elemente[i].name, mean, std))
+        printinfo(f'{i:d}: {elem.name:s} {mean:.5f} +/- {std:.5f}')
         if style == 'val':
             res[i] = mean
         elif style == 'std':
@@ -76,7 +76,8 @@ def avg_read(Elemente, anz, pause, style='val', param=None, verbose=True):
 
 
 class cl_zweig(threading.Thread):
-    '''A thread class describing an instrument used to measure time averaged signals from a data source '''
+    '''A thread class describing an instrument used to measure time averaged
+    signals from a data source '''
     dataLock = threading.Lock()
     id = 0
 
@@ -100,13 +101,9 @@ class cl_zweig(threading.Thread):
         Debug = self.__Debug  # and False
         self.result = {}
         if Debug:
-            line = 'Debugging run '
-            line += 'name %s ' % self.name
-            line += 'type %s ' % type(self.name)
-            line += 'Order %s ' % self.Order
-            line += 'methode %s ' % self.method
-            line += 'argument %s ' % self.argument
-            line += 'type %s ' % type(self.argument)
+            line = f'Debugging run name {self.name} type {type(self.name)}' \
+                   f'Order {self.Order} method {self.method} argument {self.argument}' \
+                   f'type {type(self.argument)}'
             printinfo(line)
         if self.Order == 'method':
             if self.argument is None:
