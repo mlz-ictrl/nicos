@@ -206,9 +206,8 @@ class NemoWrapper(NemoConnector):
             try:
                 res = self.queryExperiment(ses['id'], sessions)
             except Exception:
-                session.log.warning('error querying session %s',
-                                    ses['id'],
-                                    exc=1)
+                session.log.warning(
+                    'error querying session %s', ses['id'], exc=1)
             else:
                 result.append(res)
 

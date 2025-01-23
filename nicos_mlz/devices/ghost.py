@@ -139,8 +139,8 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
             sessions = self.getTodaysSessions()
         except Exception:
             if not self.is_local_contact:
-                session.log.warning("error querying today's sessions from GhOST",
-                                    exc=1)
+                session.log.warning(
+                    "error querying today's sessions from GhOST", exc=1)
                 return []
         if proposal is not None:
             sessions = [ses for ses in sessions

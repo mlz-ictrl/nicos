@@ -37,7 +37,7 @@ class HePolarizer(NamedDigitalOutput):
                            unit='flips', type=int, category='general'),
     }
     parameter_overrides = {
-        'mapping': Override(mandatory=False, default=dict(up=1,down=-1)),
+        'mapping': Override(mandatory=False, default=dict(up=1, down=-1)),
     }
 
     @usermethod

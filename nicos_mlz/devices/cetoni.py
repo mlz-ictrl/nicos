@@ -131,7 +131,7 @@ class CetoniSyringe(Motor):
         Motor.doReset(self)
 
     def set_fill_level(self, level, speed):
-        self.status(0) # updates self.indicator
+        self.status(0)  # updates self.indicator
         # bypasses doStart() to not break possible PID mode
         self.speed = speed
         self._dev.value = level
@@ -245,9 +245,8 @@ class CetoniSyringe(Motor):
             if 0.999 < pressure / target_pressure < 1.001:
                 break
             if t > 10000:
-                raise errors.InvalidValueError(self,
-                                               "PID controller can't reach the"
-                                               ' condition.')
+                raise errors.InvalidValueError(
+                    self, "PID controller can't reach the condition.")
 
         # once good precision is obtained on virtual syringe, it is transferred
         # to the real one

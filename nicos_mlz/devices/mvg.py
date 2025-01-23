@@ -61,7 +61,7 @@ class MVG(TangoVectorInput):
         if self.displaymode == 'time':
             res = [
                 datetime.fromtimestamp(d).time().strftime('%H:%M') for d in raw
-                if d > now+ self.deltaoffset
+                if d > now + self.deltaoffset
             ][0:self.limit]
         else:
             deltas = [d - now for d in raw if d > now + self.deltaoffset]

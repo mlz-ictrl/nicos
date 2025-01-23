@@ -39,7 +39,7 @@ class Trigger(PyTangoDevice, Moveable):
                              type=str, settable=True, unit=''),
     }
     parameter_overrides = {
-        'unit' : Override(default='', mandatory=False),
+        'unit': Override(default='', mandatory=False),
     }
 
     def doInit(self, mode):
