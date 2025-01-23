@@ -1,34 +1,34 @@
 This is the NICOS instrument control system
 ===========================================
 
-The project homepage is at:
+Project homepage
+----------------
 
-https://nicos-controls.org
+The NICOS project has an [official homepage](https://nicos-controls.org).
 
 Documentation:
+--------------
 
-https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/
+There is a documentation of the
+[current release](https://forge.frm2.tum.de/nicos/doc/nicos-stable/documentation)
+and the [devlopment branch](https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/) available.
 
+Repository
+----------
 
-The primary repository is at:
+Our [primary repository](https://forge.frm2.tum.de/review/q/project:frm2%252Fnicos%252Fnicos)
+has a (read-only) mirror on [GitHub](https://github.com/mlz-ictrl/nicos).
 
-https://forge.frm2.tum.de/review/q/project:frm2%252Fnicos%252Fnicos
+Issue tracker
+-------------
 
-We also provide a (read-only) github mirror:
-
-https://github.com/mlz-ictrl/nicos
-
-
-The bugtracker is here:
-
-https://forge.frm2.tum.de/redmine/projects/nicos
-
+We strongly recommend to put all bug reports and feature request to the
+[project issue tracker](https://forge.frm2.tum.de/redmine/projects/nicos)
 
 Requirements
 ------------
 
 See the `INSTALL` file.
-
 
 Demo
 ----
