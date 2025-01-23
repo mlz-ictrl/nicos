@@ -17,6 +17,13 @@ watch_conditions = [
         type = 'neutronguide',
         gracetime = 60,
     ),
+    dict(condition = 'p1_nguide_status[0] == WARN',
+        setup = 'nguide',
+        precondition = 'p1_nguide_value < 10',
+        precondtime = 60,
+        type = '',  # neutronguide',
+        message = 'ErwiN: P1 is to high (> 10 mbar)',
+    ),
 ]
 
 devices = dict(
@@ -25,6 +32,7 @@ devices = dict(
         notifiers = {
             'default': [],
             'critical': [],
+            'neutronguide': [],
         },
         watch = watch_conditions,
         loglevel = 'info',
