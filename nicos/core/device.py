@@ -138,7 +138,7 @@ class DeviceMeta(DeviceMixinMeta):
                                        'not all-lowercase' % (name, adevname))
             if not isinstance(entry, Attach):
                 raise ProgrammingError("Please use 'Attach' to define an "
-                                       "attached device.")
+                                       'attached device.')
 
         # create parameter properties
         for param, info in newtype.parameters.items():
@@ -638,7 +638,7 @@ class Device(metaclass=DeviceMeta):
             if param in self._config and paraminfo.internal:
                 self.log.warning(
                     "'%s' is configured in a setup file although "
-                    "declared as internal parameter",
+                    'declared as internal parameter',
                     param
                 )
 

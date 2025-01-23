@@ -756,7 +756,7 @@ class Session:
             self.log.error('the following devices could not be created:')
             self.log.error(', '.join(failed_devs))
             self.log.info("use CreateDevice('device') or CreateAllDevices() "
-                          "later to retry")
+                          'later to retry')
 
         for setupname in setupnames:
             if self._setup_info[setupname]['extended'].get('dynamic_loaded'):
@@ -1663,6 +1663,7 @@ class Session:
         for setup in self.loaded_setups:
             helpdict.update(self._setup_info[setup].get('help_topics', {}))
         return helpdict
+
 
 # must be imported after class definitions due to module interdependencies
 from nicos.devices.experiment import Experiment  # isort:skip
