@@ -2,6 +2,8 @@ description = 'system setup'
 
 group = 'lowlevel'
 
+nroot='/home/nicos/nicos/'
+
 sysconfig = dict(
     cache = 'localhost',
     instrument = 'ORION',
@@ -42,6 +44,7 @@ devices = dict(
         dataroot = configdata('config.DATA_PATH'),
         serviceexp = 'Service',
         sample = 'Sample',
+        forcescandata = True,
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
@@ -60,7 +63,7 @@ devices = dict(
     asciisink = device('nicos_sinq.sxtal.datasink.SxtalScanSink',
         description = 'Sink for writing SINQ ASCII files',
         filenametemplate = ['orion%(year)sn%(scancounter)06d.dat'],
-        templatefile = 'nicos_sinq/orion/orion.hdd',
+        templatefile = nroot + 'nicos_sinq/orion/orion.hdd',
         scaninfo = [
             ('COUNTS', 'counts'), ('MONITOR1', 'monitor1'),
             ('TIME', 'elapsedtime')
@@ -69,7 +72,7 @@ devices = dict(
     cclsink = device('nicos_sinq.sxtal.datasink.CCLSink',
         description = 'Sink for writing SINQ ASCII files',
         filenametemplate = ['orion%(year)sn%(scancounter)06d.ccl'],
-        templatefile = 'nicos_sinq/orion/mess.hdd',
+        templatefile = nroot + 'nicos_sinq/orion/mess.hdd',
         detector = 'counts',
         scaninfo = [
             ('COUNTS', 'counts'), ('MONITOR1', 'monitor1'),
