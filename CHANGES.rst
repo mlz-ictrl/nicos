@@ -8,9 +8,55 @@ Release 3.12.0
 
   - Dropped support for TACO devices.
 
+  - New parameter types/validators ``nonzero`` and ``secret``.
+
+  - Enable stop of waiting devices
+
+  - Refactored the device polling interface.
+
+  - Improved documentation of ``usermethod``\ s, which is displayed in the
+    help window.
+
+  - Added new elog event to hide/show events.
+
 * Commands
 
+  - The ``stop`` command stops and prints only busy devices.
+
   - Added the ``userinput`` command to request input interactively.
+
+  - Dropped support of ``Simple Parameter Mode``
+
+  - Refactored interface of Q scan related commands to allow more user friendly
+    parameter formats.
+
+  - ``SetMode`` is not a visible user command anymore.
+
+  - ``waitfor_stable`` is now a common command.
+
+  - The ``help`` command now allows the ``usermethod``\ s of a device as
+    parameters.
+
+* GUI
+
+  - Enable a configurable connection dialog.
+
+  - Moved the ``tomo`` command cmdlet into a separate file to remove it as
+    standard cmdlet.
+
+  - Added a ``center`` command cmdlet.
+
+  - Removed the ``ScanTool`` tool (substituted by scan cmdlets).
+
+  - Help windows shows device ``usermethod``\ s.
+
+* Services
+
+  - Dropped the ``pushversioninfo`` service.
+
+* Documentation
+
+  - Added elog messages format and data description.
 
 
 Release 3.11.0
