@@ -41,7 +41,7 @@ windows = [
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
-         sender='demo@frm2.tum.de',
+         sender='kompass@frm2.tum.de',
         ),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
     tool('Neutron cross-sections',
