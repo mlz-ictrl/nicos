@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""NICOS axis test suite."""
+"""NICOS session test suite."""
 
 from os import path
 
