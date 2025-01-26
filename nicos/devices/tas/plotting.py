@@ -138,7 +138,8 @@ class SpaceMap:
                 hkl, E = list(hkl), self.E
             ny = self._thz(E)
             try:
-                angles = self.cell.cal_angles(hkl, ny, self.mode, self.const,
+                angles = self.cell.cal_angles(
+                    hkl, ny, self.mode, self.const,
                     self.tasinfo['scatteringsense'][1],
                     self.tasinfo['axiscoupling'], self.tasinfo['psi360'])
             except ComputationError:
@@ -202,7 +203,8 @@ class SpaceMap:
     def display_hkl(self, x, y, textobj):
         hkl = self.cell.Qcart2hkl(array([x, y, 0]))
         try:
-            angles = self.cell.cal_angles(hkl, self.ny, self.mode, self.const,
+            angles = self.cell.cal_angles(
+                hkl, self.ny, self.mode, self.const,
                 self.tasinfo['scatteringsense'][1], self.tasinfo['axiscoupling'],
                 self.tasinfo['psi360'])
         except Exception as err:
@@ -272,6 +274,7 @@ class SpaceMap:
         ax.set_axisbelow(True)  # draw grid lines below plotted points
         # register event handler to pylab
         pylab.connect('key_press_event', pylab_key_handler)
+
         def click_handler(event):
             if not event.inaxes:
                 return
@@ -296,7 +299,8 @@ class SpaceMap:
         pylab.subplots_adjust(bottom=0.1)
 
         self.clicktext = pylab.text(0.5, 0.01, '(click to show angles)', size='small',
-            horizontalalignment='center', transform=pylab.gcf().transFigure)
+                                    horizontalalignment='center',
+                                    transform=pylab.gcf().transFigure)
 
         # plot origin
         self.plot_hkl((0, 0, 0), color='black')
@@ -331,7 +335,7 @@ class SpaceMap:
         # plot limits of phi/psi
         for v in lim1, lim2, lim3, lim4:
             v = array(v)
-            pylab.plot(v[:,0], v[:,1], color='0.7', zorder=-1)
+            pylab.plot(v[:, 0], v[:, 1], color='0.7', zorder=-1)
 
 
 def plot_hklmap(cfg, par, tasinfo, kwds):
@@ -362,11 +366,11 @@ def plot_resatpoint(cfg, par, fignum='Resolution calculation', resmat=None):
     pylab.subplot(221)
     pylab.xlabel(r'Q$_x$ (\AA$^{-1}$)')
     pylab.ylabel(r'Q$_y$ (\AA$^{-1}$)')
-    pylab.plot(x,y)
-    pylab.plot(xslice,yslice)
+    pylab.plot(x, y)
+    pylab.plot(xslice, yslice)
 
     ax1 = pylab.gca()
-    text  = r"""\noindent\underline{Spectrometer Setup:}\newline
+    text = r"""\noindent\underline{Spectrometer Setup:}\newline
 \begin{tabular}{ll}
 d-spacings: & $d_M=%(dm)1.4f$\,\AA~~~$d_A=%(da)1.4f$\,\AA \\
 mosaic:     & $\eta_M=%(etam)3.1f'$~~~$\eta_S=%(etas)3.1f'$~~~$\eta_A=%(etaa)3.1f'$ \\
@@ -387,7 +391,7 @@ $\beta_{1\rightarrow4}$:  & %(beta1)i-Mono-%(beta2)i-Sample-%(beta3)i-Ana-%(beta
     pylab.plot(xxqslice, yxqslice)
 
     ax2 = pylab.gca()
-    text  = r"""\noindent\underline{Sample Parameters:}\newline
+    text = r"""\noindent\underline{Sample Parameters:}\newline
 \begin{tabular}{llllll}
 $a$ (\AA) & $b$ (\AA) & $c$ (\AA) & $\alpha$ ($^{\circ}$) & $\beta$ ($^{\circ}$) & $\gamma$ ($^{\circ}$) \\
 %(as)2.3f & %(bs)2.3f & %(cs)2.3f & %(aa)3.1f & %(bb)3.1f & %(cc)3.1f \\
@@ -409,14 +413,14 @@ $a$ (\AA) & $b$ (\AA) & $c$ (\AA) & $\alpha$ ($^{\circ}$) & $\beta$ ($^{\circ}$)
     pylab.subplot(223)
     pylab.xlabel(r'Q$_y$ (\AA$^{-1}$)')
     pylab.ylabel(r'Energy (meV)')
-    pylab.plot(xyq,yyq)
-    pylab.plot(xyqslice,yyqslice)
+    pylab.plot(xyq, yyq)
+    pylab.plot(xyqslice, yyqslice)
 
     pylab.subplot(224)
     ax3 = pylab.gca()
     pylab.axis('off')
     pylab.rc('text', usetex=True)
-    text  = r'\noindent\underline{\textbf{Resolution Info:}}\newline ' + \
+    text = r'\noindent\underline{\textbf{Resolution Info:}}\newline ' + \
         r'Resolution Volume: $R_0 = %7.5g$ (\AA$^{-3}$\,meV)\newline\newline ' % resmat.R0
     mat = resmat.NP.tolist()
     text += r'Resolution Matrix (in frame $Q_x$, $Q_y$, $Q_z$, $E$):\newline '

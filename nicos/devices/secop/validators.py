@@ -33,6 +33,7 @@ from nicos.utils import readonlydict
 # all types must either be vanilla NICOS types or inherit from them
 # as we want to avoid pickling
 
+
 # pylint: disable=redefined-builtin
 def Secop_double(min=None, max=None, use_limits=False, **kwds):
     if use_limits and (min, max) != (None, None):

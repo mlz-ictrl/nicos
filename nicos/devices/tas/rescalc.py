@@ -90,7 +90,7 @@ class unitcell:
              [0, 0, sing / (c * phi)]]
         )
 
-        #----- Real space lattice vectors
+        # ----- Real space lattice vectors
 
         self.a_vec = self.crys2cart(1, 0, 0).transpose()
         self.b_vec = self.crys2cart(0, 1, 0).transpose()
@@ -107,35 +107,35 @@ class unitcell:
         self.V = dot(array(self.a_vec)[0],
                      cross(array(self.b_vec)[0], array(self.c_vec)[0]))
 
-        #----- Reciprocal space lattice basis vectors
+        # ----- Reciprocal space lattice basis vectors
         self.a_star_vec = 2 * pi * cross(array(self.b_vec)[0], array(self.c_vec)[0]) / self.V
         self.b_star_vec = 2 * pi * cross(array(self.c_vec)[0], array(self.a_vec)[0]) / self.V
         self.c_star_vec = 2 * pi * cross(array(self.a_vec)[0], array(self.b_vec)[0]) / self.V
 
-        #----- Reciprocal lattice index (r.l.u.) to cartesian matrix
+        # ----- Reciprocal lattice index (r.l.u.) to cartesian matrix
         self.rlu2cartMat = concatenate((matrix(self.a_star_vec).T,
                                         matrix(self.b_star_vec).T,
                                         matrix(self.c_star_vec).T), 1)
         self.cart2rluMat = inv(self.rlu2cartMat)
 
-        #----- Reciprocal lattice constants; note that there is a factor
+        # ----- Reciprocal lattice constants; note that there is a factor
         # 2*pi difference to CrysFML definition
         self.a_star = sqrt(dot(self.a_star_vec, self.a_star_vec))
         self.b_star = sqrt(dot(self.b_star_vec, self.b_star_vec))
         self.c_star = sqrt(dot(self.c_star_vec, self.c_star_vec))
 
-        #----- Reciprocal lattice angles
+        # ----- Reciprocal lattice angles
         self.ralpha = arccos(dot(self.b_star_vec, self.c_star_vec) / (self.b_star * self.c_star))
         self.rbeta = arccos(dot(self.a_star_vec, self.c_star_vec) / (self.a_star * self.c_star))
         self.rgamma = arccos(dot(self.b_star_vec, self.a_star_vec) / (self.b_star * self.a_star))
 
-        #----- Reciprocal cell volume
+        # ----- Reciprocal cell volume
         self.VR = dot(self.a_star_vec, cross(self.b_star_vec, self.c_star_vec))
 
-        #----- Review this array, I think it has to be transposed to be useful
+        # ----- Review this array, I think it has to be transposed to be useful
         self.Q2c = matrix([self.a_star_vec, self.b_star_vec, self.c_star_vec])
 
-        #----- Metric tensors
+        # ----- Metric tensors
         self.GD = zeros([3, 3])
         self.GR = zeros([3, 3])
 
@@ -265,7 +265,7 @@ CFGNAMES = [
     'vertical curvature of analyser (cm-1)',
     'distance monochromator-monitor',
     'width monitor',
-    'height monitor'
+    'height monitor',
 ]
 
 MEV2AA2 = 0.48259642  # hbar**2/(2 * m_n)
@@ -293,8 +293,8 @@ class resmat:
         self.ERROR = None
 
         # magnitude of scattering vector
-        #----- calculate q0
-        #-----input a, b, c; alpha, beta, gamma; qx, qy, qz
+        # ----- calculate q0
+        # -----input a, b, c; alpha, beta, gamma; qx, qy, qz
         self.unitc = unitcell(self.par['as'], self.par['bs'], self.par['cs'],
                               self.par['aa'], self.par['bb'], self.par['cc'])
         self.q0 = self.unitc.QCartMag(self.par['qx'], self.par['qy'], self.par['qz'])
@@ -312,11 +312,11 @@ class resmat:
         # reset errors before new calculation
         self.ERROR = None
 
-        #----- recalculate q0
-        #-----input a, b, c; alpha, beta, gamma; qx, qy, qz
+        # ----- recalculate q0
+        # -----input a, b, c; alpha, beta, gamma; qx, qy, qz
         self.q0 = self.unitc.QCartMag(self.par['qx'], self.par['qy'], self.par['qz'])
 
-        #----- INPUT SPECTROMETER PARAMETERS.
+        # ----- INPUT SPECTROMETER PARAMETERS.
         q0 = self.q0
 
         dm = self.par['dm']  # monochromator d-spacing in Angs
@@ -365,7 +365,6 @@ class resmat:
         xmon = self.cfg[13]  # thickness of monochromator [cm].
         ymon = self.cfg[14]  # width of monochromator [cm].
         zmon = self.cfg[15]  # height of monochromator [cm].
-
 
         xana = self.cfg[16]  # thickness of analyser [cm].
         yana = self.cfg[17]  # width of analyser [cm].
@@ -578,7 +577,7 @@ class resmat:
         NP = 5.545 * M  # Correction factor as input parameters
         N = NP
 
-        #----- Normalisation factor
+        # ----- Normalisation factor
 
         # mon = 1          # monochromator reflectivity
         # ana = 1          # detector and analyser crystal efficiency function. [const.]
@@ -629,8 +628,8 @@ class resmat:
         RM_[3, 1] = M[2, 1]
         RM_[1, 3] = M[1, 2]
         R0 = R0 / (2 * pi)**2 * sqrt(det(RM_))
-        #---------------------------------------------------------------------------------------------
-        # Include kf/ki part of cross-section
+        # ---------------------------------------------------------------------
+        # Include kf/ki part of cross section
         R0 = R0 * kf / ki
         # include monitor efficiency
         # Normalisation to flux monitor
@@ -660,14 +659,14 @@ class resmat:
         d[1, 5] = 0
         d[1, 6] = 1 / L1mon
         d[3, 4] = -1 / L1mon
+        # first term can be written as pi/2 = (2*pi)**2 /8 *pi
         Rmon = (2 * pi)**2 / (8 * pi * sin(thetam)) * \
-               sqrt(det(f) / det((d * (s + t.transpose() * f * t)**(-1) * d.transpose())**(-1) + g))
-               # first term can be written as pi/2 = (2*pi)**2 /8 *pi
+            sqrt(det(f) / det((d * (s + t.transpose() * f * t)**(-1) * d.transpose())**(-1) + g))
         Rmon = Rmon * ki**3 / tan(thetam)
         R0 = R0 * ki  # 1/ki monitor efficiency
         R0 = R0 / Rmon
-        #------ END OF ZHELUDEV's CORRECTION
-        #----- Final error check
+        # ------ END OF ZHELUDEV's CORRECTION
+        # ----- Final error check
         if NP.imag.all() == 0:
             self.ERROR = None
         else:
@@ -753,13 +752,13 @@ Resolution Info:
         scattering plane (zone axis).
         """
 
-        #----- Work out transformations
+        # ----- Work out transformations
         a = self
         A1 = matrix([a.par['ax'], a.par['ay'], a.par['az']]).transpose()
         A2 = matrix([a.par['bx'], a.par['by'], a.par['bz']]).transpose()
         V1 = self.Q2c * A1
         V2 = self.Q2c * A2
-        #----- Form unit vectors V1, V2, V3 in scattering plane
+        # ----- Form unit vectors V1, V2, V3 in scattering plane
 
         V3 = cross(V1.transpose(), V2.transpose())
         V2 = cross(V3, V1.transpose())
@@ -888,16 +887,16 @@ Resolution Info:
         """Returns the projections of the resolution ellipse of a triple axis."""
         A = self.NP
 
-        #----- Remove the vertical component from the matrix.
+        # ----- Remove the vertical component from the matrix.
         B = [[A[0, 0], A[0, 1], A[0, 3]],
              [A[1, 0], A[1, 1], A[1, 3]],
              [A[3, 0], A[3, 1], A[3, 3]]]
         B = matrix(B)
-        #----- Work out projections for different cuts through the ellipse
+        # ----- Work out projections for different cuts through the ellipse
 
-        #----- S is the rotation matrix that diagonalises the projected ellipse
+        # ----- S is the rotation matrix that diagonalises the projected ellipse
 
-        #----- 1. Qx, Qy plane
+        # ----- 1. Qx, Qy plane
         # (this is maximal extension of the resolution ellipsoid parallel to x and
         # y, whereas the slice added later is just a cut through the ellipsoid in
         # the xy-plane)
@@ -912,7 +911,7 @@ Resolution Info:
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
         xys_x, xys_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
-        #----- 2. Qx, W plane
+        # ----- 2. Qx, W plane
         _R0P, MP = GaussInt(1, R0, B)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
         xw_x, xw_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
@@ -922,7 +921,7 @@ Resolution Info:
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
         xws_x, xws_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
-        #----- 3. Qy, W plane
+        # ----- 3. Qy, W plane
         _R0P, MP = GaussInt(0, R0, B)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
         yw_x, yw_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
@@ -980,6 +979,7 @@ def calcEllipseAxis(MP):
     hwhm_yp = const / sqrt(MP[1, 1])
     return hwhm_xp, hwhm_yp, theta
 
+
 def GaussInt(index, r0, m):
     """Function that takes a matrix and performs a Gaussian integral
     over the row and column specified by index and returns
@@ -1000,6 +1000,7 @@ def GaussInt(index, r0, m):
         mp[index:len(m) - 1, index:len(m) - 1] = m[index + 1:len(m), index + 1:len(m)]
     mp = mp - 1. / (4 * m[index, index]) * b.transpose() * b
     return r, mp
+
 
 def ellipse_coords(a, b, phi):
     """Return coordinates for ellipse with semiaxes a, b and rotated by phi."""

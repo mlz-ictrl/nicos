@@ -203,9 +203,9 @@ class SecNodeDevice(Readable):
     """
 
     parameters = {
-        'prefix':      Param("Prefix for the generated devices\n\n"
+        'prefix':      Param('Prefix for the generated devices\n\n'
                              "'$' will be replaced by the equipment id."
-                             " It should end with a trailing underscore",
+                             ' It should end with a trailing underscore',
                              type=str, default='$_', settable=True),
         'uri':         Param('tcp://<host>:<port>', type=str, settable=True),
         'auto_create': Param('Flag for automatic creation of devices',

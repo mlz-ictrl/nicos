@@ -110,7 +110,7 @@ class Oscillator(Moveable):
         if not self.stoppable:
             if self._osc_thread:
                 self.log.error("Please use: 'move(%s, %r)' to stop the moving "
-                               "device", self, self._targets[0])
+                               'device', self, self._targets[0])
                 return
         self._stop()
 

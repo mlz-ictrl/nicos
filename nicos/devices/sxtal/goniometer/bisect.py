@@ -53,11 +53,10 @@ class Bisecting(PositionBase):
             self.omega = self._r2d(psi, _rad)
             self.chi = self._r2d(chi, _rad)
             self.phi = self._r2d(phi, _rad)
-            self.psi = self._r2d( psi, _rad)
+            self.psi = self._r2d(psi, _rad)
 
     def asC(self, wavelength=None):
-        """ Conversion. Part of Position subclass protocol.
-        """
+        """Conversion. Part of Position subclass protocol."""
         if wavelength is None:
             wavelength = session.instrument.wavelength or None
         if not wavelength:

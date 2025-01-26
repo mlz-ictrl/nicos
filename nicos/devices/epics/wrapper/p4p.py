@@ -36,6 +36,7 @@ from nicos.devices.epics.status import SEVERITY_TO_STATUS
 # we want to do this manually to avoid information loss
 _CONTEXT = Context('pva', nt=False)
 
+
 @hiddenusercommand
 @helparglist('name[, timeout]')
 def pvget(name, timeout=3.0):

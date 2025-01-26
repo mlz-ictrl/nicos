@@ -45,6 +45,7 @@ def get_spacegroup(sg):
             'space group %r not recognized (valid values are: num, (num, '
             'setting) or "HMsym")' % (sg,)) from None
 
+
 def check_refcond(n, h, k, l):
     """Check reflection condition *n* against h, k, l.
 
@@ -117,6 +118,7 @@ def check_refcond(n, h, k, l):
     else:
         assert False, 'invalid condition number'
 
+
 def can_reflect(sg, h, k, l):
     h = int(h)
     k = int(k)
@@ -160,7 +162,7 @@ def can_reflect(sg, h, k, l):
     return can
 
 
-## output of the script "convert_pcwspgr.py" follows
+# output of the script "convert_pcwspgr.py" follows
 
 sg_by_num = {
     (1, 1)   : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

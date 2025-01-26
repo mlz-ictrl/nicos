@@ -141,8 +141,7 @@ class PyEpicsMonitor(DeviceMixinBase):
                                             as_string=as_string)
             if result is None:  # timeout
                 raise CommunicationError(self, 'timed out getting PV %r from '
-                                               'EPICS' % self._get_pv_name(
-                    pvparam))
+                                         'EPICS' % self._get_pv_name(pvparam))
             return result
 
         corresponding_cache_key = self.pv_cache_relations.get(

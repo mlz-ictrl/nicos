@@ -84,6 +84,7 @@ STATUS_TO_MESSAGE = {
 # Same context can be shared across all devices.
 _Context = Context()
 
+
 @hiddenusercommand
 @helparglist('name[, timeout]')
 def caget(name, timeout=3.0):

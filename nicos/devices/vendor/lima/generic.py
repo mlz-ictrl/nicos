@@ -184,6 +184,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
         # optional components
         self._shutter = None
+
         self._initOptionalComponents()
         if self._dev.camera_model.startswith('SIMCAM'):
             self.log.warning("Using lima simulation camera! If that's not "

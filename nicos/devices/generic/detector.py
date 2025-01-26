@@ -472,24 +472,24 @@ class Detector(Measurable):
 
         for tup in self.postprocess:
             if tup[0] not in session.configured_devices:
-                self.log.warning("device %r not found but configured in "
+                self.log.warning('device %r not found but configured in '
                                  "'postprocess' parameter. No "
-                                 "post processing for this device. Please "
-                                 "check the detector setup.", tup[0])
+                                 'post processing for this device. Please '
+                                 'check the detector setup.', tup[0])
                 continue
             postdev = session.getDevice(tup[0])
             if not isinstance(postdev, PostprocessPassiveChannel):
                 raise ConfigurationError("Device '%s' is not a "
-                                         "PostprocessPassiveChannel" %
+                                         'PostprocessPassiveChannel' %
                                          postdev.name)
             if postdev not in self._channels:
                 raise ConfigurationError("Device '%s' has not been configured "
-                                         "for this detector" % postdev.name)
+                                         'for this detector' % postdev.name)
             img_or_passive_devs = [session.getDevice(name) for name in tup[1:]]
             for dev in img_or_passive_devs:
                 if dev not in self._channels:
                     raise ConfigurationError("Device '%s' has not been "
-                                             "configured for this detector" %
+                                             'configured for this detector' %
                                              dev.name)
                 elif isinstance(dev, PassiveChannel):
                     self._postpassives.append(dev)

@@ -52,11 +52,11 @@ def euler_from_rotmat(R):
 
     http://www.staff.city.ac.uk/~sbbh653/publications/euler.pdf
     """
-    if abs(R[2,0]) != 1:
-        theta1 = -np.arcsin(R[2,0])
+    if abs(R[2, 0]) != 1:
+        theta1 = -np.arcsin(R[2, 0])
         costh1 = np.cos(theta1)
-        psi1 = np.arctan2(R[2,1]/costh1, R[2,2]/costh1)
-        phi1 = np.arctan2(R[1,0]/costh1, R[0,0]/costh1)
+        psi1 = np.arctan2(R[2, 1]/costh1, R[2, 2]/costh1)
+        phi1 = np.arctan2(R[1, 0]/costh1, R[0, 0]/costh1)
         # -- second solution:
         # theta2 = np.pi - theta1
         # costh2 = np.cos(theta2)
@@ -65,12 +65,12 @@ def euler_from_rotmat(R):
         return psi1, theta1, phi1
     else:
         phi = 0
-        if R[2,0] == -1:
+        if R[2, 0] == -1:
             theta = np.pi/2
-            psi = phi + np.arctan2(R[0,1], R[0,2])
+            psi = phi + np.arctan2(R[0, 1], R[0, 2])
         else:
             theta = -np.pi/2
-            psi = -phi + np.arctan2(-R[0,1], -R[0,2])
+            psi = -phi + np.arctan2(-R[0, 1], -R[0, 2])
         return psi, theta, phi
 
 

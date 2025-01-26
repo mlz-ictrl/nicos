@@ -93,10 +93,10 @@ class Euler(PositionBase):
             cospsi = signth * coschi
         psi = np.arctan2(sinpsi, cospsi)
         return PositionFactory(ptype='br',
-            theta=self.theta,
-            phi=normalangle(phib),
-            chi=normalangle(chib),
-            psi=normalangle(psi))
+                               theta=self.theta,
+                               phi=normalangle(phib),
+                               chi=normalangle(chib),
+                               psi=normalangle(psi))
 
     def asC(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
@@ -131,10 +131,10 @@ class Euler(PositionBase):
         phi = self.phi - omega
         omega = -omega + self.omega
         return PositionFactory(ptype='kr',
-            theta=self.theta,
-            omega=normalangle(omega),
-            kappa=normalangle(kappa),
-            phi=normalangle(phi))
+                               theta=self.theta,
+                               omega=normalangle(omega),
+                               kappa=normalangle(kappa),
+                               phi=normalangle(phi))
 
     def asL(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.

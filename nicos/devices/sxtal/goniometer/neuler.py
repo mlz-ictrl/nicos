@@ -144,10 +144,10 @@ class NEuler(PositionBase):
         f0 = 1.0 - fraction
         f1 = fraction
         return self.With(_rad=True,
-            theta=self.theta * f0 + other.theta * f1,
-            omega=self.omega * f0 + other.omega * f1,
-            chi=self.chi * f0 + other.chi * f1,
-            phi=self.phi * f0 + other.phi * f1)
+                         theta=self.theta * f0 + other.theta * f1,
+                         omega=self.omega * f0 + other.omega * f1,
+                         chi=self.chi * f0 + other.chi * f1,
+                         phi=self.phi * f0 + other.phi * f1)
 
     def __repr__(self):
         """ Representation. Part of Position subclass protocol.

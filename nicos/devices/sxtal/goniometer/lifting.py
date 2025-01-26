@@ -41,7 +41,7 @@ class Lifting(PositionBase):
     omega_clockwise = 1
 
     def __init__(self, p=None, gamma=None, omega=None, nu=None, signtheta=1,
-                  psi=None, _rad=False):
+                 psi=None, _rad=False):
         """ Constructor. Part of Position subclass protocol.
         """
         PositionBase.__init__(self)
