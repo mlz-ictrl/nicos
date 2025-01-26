@@ -27,11 +27,10 @@ Utility classes to access and store credentials
 
 
 class NicosKeyStore:
-    """Abstract base class for nicos key stores
-    """
+    """Abstract base class for nicos key stores."""
 
     def getCredential(self, credid, domain='nicos'):
-        """return a stored credential
+        """Return a stored credential.
 
         *credid*  The id /username for which we want to get the credential
 
@@ -41,7 +40,7 @@ class NicosKeyStore:
         raise NotImplementedError
 
     def setCredential(self, credid, passwd, domain='nicos'):
-        """set a credential in the store
+        """Set a credential in the store.
 
         *credid*  The id /username for which we want to set the credential
 
@@ -54,7 +53,7 @@ class NicosKeyStore:
         raise NotImplementedError
 
     def delCredential(self, credid, domain='nicos'):
-        """delete a stored credential
+        """Delete a stored credential.
 
         *credid*  The id /username for which we want to get the credential
 

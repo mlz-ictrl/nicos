@@ -53,8 +53,7 @@ from . import NicosKeyStore
 
 
 class NicosKeyRing(EncryptedKeyring):
-    """Keyring that allows easy setting of storage location
-    """
+    """Keyring that allows easy setting of storage location."""
 
     def __init__(self, storepath=''):
         EncryptedKeyring.__init__(self)
@@ -69,7 +68,7 @@ class NicosKeyRing(EncryptedKeyring):
 
 
 class EncryptedNicosKeyStore(NicosKeyStore):
-    """Multi-keyring keystore
+    """Multi-keyring keystore.
 
     This keystore uses multiple keyrings, but allows write access only to
     the last one in the list.

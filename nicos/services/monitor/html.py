@@ -53,7 +53,7 @@ except ImportError:
     pygr = None
 
 
-HEAD = """\
+HEAD = """
 <html>
 <head>
 <meta charset="utf-8"/>

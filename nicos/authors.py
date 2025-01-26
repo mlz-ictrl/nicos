@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-authors_list = """\
+authors_list = """
 NICOS is maintained by:
 
 * Georg Brandl <g.brandl@fz-juelich.de>
