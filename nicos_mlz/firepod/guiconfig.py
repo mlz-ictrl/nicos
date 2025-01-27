@@ -5,7 +5,6 @@ main_window = docked(
         ('Command line',
          vsplit(
             panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-                  modules=['nicos.clients.gui.cmdlets'],
             ),
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel', eta=True),
             panel('nicos.clients.gui.panels.console.ConsolePanel',

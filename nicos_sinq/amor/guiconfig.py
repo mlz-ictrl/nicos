@@ -73,7 +73,7 @@ main_window = docked(
                          device='selene'),),
                  ),
                  panel('nicos_sinq.amor.gui.panels.cmdbuilder.CommandPanel',
-                       modules=['nicos.clients.gui.cmdlets'],),
+                       ),
                 ),  # vsplit
                 panel('nicos.clients.flowui.panels.devices.DevicesPanel',
                       dockpos='right',

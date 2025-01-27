@@ -26,7 +26,6 @@ windows = [
            vsplit(
                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel',
                     modules=[
-                        'nicos.clients.gui.cmdlets',
                         'nicos.clients.gui.cmdlets.tomo',
                     ],
                ),

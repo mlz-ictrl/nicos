@@ -22,7 +22,6 @@ main_window = docked(
              vbox(
                  panel(
                      'nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
-                      modules=['nicos.clients.gui.cmdlets'],
                     ),
                  tabbed(
                      ('Output',

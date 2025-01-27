@@ -44,8 +44,8 @@ class CommandPanel(Panel):
 
     Options:
 
-    * ``modules`` (default ``[]``) -- list of additional Python modules that
-      contain cmdlets and should be loaded.
+    * ``modules`` (default ``['nicos.clients.gui.cmdlets']``) -- list of
+      additional Python modules that contain cmdlets and should be loaded.
     * ``add_presets`` (default ``[]``) -- list of tuples consisting of
       additional preset keys and names (e.g. ``[('m', 'monitor counts')]``).
     """
@@ -75,7 +75,7 @@ class CommandPanel(Panel):
         client.mode.connect(self.on_client_mode)
         client.simresult.connect(self.on_client_simresult)
 
-        modules = options.get('modules', [])
+        modules = options.get('modules', ['nicos.clients.gui.cmdlets'])
         for module in modules:
             importString(module)  # should register cmdlets
 

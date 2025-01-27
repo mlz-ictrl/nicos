@@ -17,7 +17,6 @@ main_window = docked(
                  panel(
                      'nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
                       modules=[
-                          'nicos.clients.gui.cmdlets',
                           'nicos.clients.gui.cmdlets.tomo',
                       ],
                     ),
