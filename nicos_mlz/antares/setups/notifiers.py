@@ -9,6 +9,7 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         copies = [
             ('michael.schulz@frm2.tum.de', 'important'),
+            ('tobias.neuwirth@frm2.tum.de', 'important'),
             ('burkhard.schillinger@frm2.tum.de', 'important'),
             ('dominik.bausenwein@frm2.tum.de', 'important'),
         ],
@@ -20,6 +21,7 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         copies = [
             ('michael.schulz@frm2.tum.de', 'all'),
+            ('tobias.neuwirth@frm2.tum.de', 'all'),
             ('burkhard.schillinger@frm2.tum.de', 'all'),
             ('dominik.bausenwein@frm2.tum.de', 'all'),
         ],

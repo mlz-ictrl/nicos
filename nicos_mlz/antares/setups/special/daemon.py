@@ -8,6 +8,7 @@ devices = dict(
          ghosthost = 'ghost.mlz-garching.de',
          aliases = {
              'ms': ('michael.schulz@frm2.tum.de', 'admin'),
+             'tb': ('tobias.neuwirth@frm2.tum.de', 'admin'),
          },
          loglevel = 'info',
     ),
