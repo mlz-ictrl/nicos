@@ -94,7 +94,7 @@ def darkimage(shutter=None, nimages=1, *detlist, **preset):
 # pylint: disable=keyword-arg-before-vararg
 def nGI_stepping(n_points, n_periods=1, img_per_step=1, start_pos=0, *detlist,
                  **preset):
-    """Performs an nGI stepping scan of G1tx over n_periods over n_points,
+    """Perform an nGI step scan of G1tx over n_periods over n_points,
     taking img_per_step images for each position.
 
     n_periods: number of periods the grating will be moved
