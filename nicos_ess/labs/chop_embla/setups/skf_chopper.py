@@ -57,13 +57,6 @@ devices = dict(
         readpv='{}Cmd'.format(pv_root),
         writepv='{}Cmd'.format(pv_root),
         requires={'level': 'user'},
-        mapping={
-            'Clear chopper': 8,
-            'Start chopper': 6,
-            'Async start': 5,
-            'Stop chopper': 3,
-            'Reset chopper': 1,
-        },
     ),
     skf_speed=device(
         'nicos.devices.epics.pva.EpicsAnalogMoveable',

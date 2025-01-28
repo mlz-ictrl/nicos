@@ -438,7 +438,7 @@ class EpicsMappedReadable(MappedReadable, EpicsReadable):
         # MBBI, BI, etc. do not have units
         'unit': Override(mandatory=False, settable=False, volatile=False),
         # Mapping values are read from EPICS
-        'mapping': Override(mandatory=False, settable=False, userparam=False)
+        'mapping': Override(internal=True, mandatory=False, userparam=False)
     }
 
     def _get_pv_parameters(self):
@@ -490,7 +490,7 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
         # MBBI, BI, etc. do not have units
         'unit': Override(mandatory=False, settable=False, volatile=False),
         # Mapping values are read from EPICS
-        'mapping': Override(mandatory=False, settable=False, userparam=False)
+        'mapping': Override(internal=True, mandatory=False, userparam=False)
     }
 
     def _get_pv_parameters(self):

@@ -32,19 +32,11 @@ devices = dict(
         description='Outputting DC',
         readpv='{}OutputState-RBV'.format(pv_root),
         writepv='{}OutputState-S'.format(pv_root),
-        mapping={
-            'Off': 0,
-            'On': 1
-        },
     ),
     ls155_shape=device(
         'nicos.devices.epics.pva.EpicsMappedMoveable',
         description='Outputting DC',
         readpv='{}FunctionShape-RBV'.format(pv_root),
         writepv='{}FunctionShape-S'.format(pv_root),
-        mapping={
-            'DC': 0,
-            'AC (Sinusoid)': 1
-        },
     ),
 )
