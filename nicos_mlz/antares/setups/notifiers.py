@@ -7,9 +7,11 @@ devices = dict(
         description = 'Email notifier',
         sender = 'antares@frm2.tum.de',
         mailserver = 'mailhost.frm2.tum.de',
+        receivers = [
+            'tobias.neuwirth@frm2.tum.de',
+        ],
         copies = [
             ('michael.schulz@frm2.tum.de', 'important'),
-            ('tobias.neuwirth@frm2.tum.de', 'important'),
             ('burkhard.schillinger@frm2.tum.de', 'important'),
             ('dominik.bausenwein@frm2.tum.de', 'important'),
         ],
@@ -19,9 +21,11 @@ devices = dict(
         description = 'Watchdog email notifier',
         sender = 'antares@frm2.tum.de',
         mailserver = 'mailhost.frm2.tum.de',
+        receivers = [
+            'tobias.neuwirth@frm2.tum.de',
+        ],
         copies = [
             ('michael.schulz@frm2.tum.de', 'all'),
-            ('tobias.neuwirth@frm2.tum.de', 'all'),
             ('burkhard.schillinger@frm2.tum.de', 'all'),
             ('dominik.bausenwein@frm2.tum.de', 'all'),
         ],
@@ -37,6 +41,9 @@ devices = dict(
         description = 'Reports about the limited logspace',
         sender = 'antares@frm2.tum.de',
         mailserver = 'mailhost.frm2.tum.de',
+        receivers = [
+            'tobias.neuwirth@frm2.tum.de',
+        ],
         copies = [
             ('jens.krueger@frm2.tum.de', 'important'),
         ],
