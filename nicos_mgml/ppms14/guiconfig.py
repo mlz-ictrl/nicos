@@ -15,10 +15,7 @@ main_window = docked(
          ),
         ),
        ('Script Editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel',
-               tools = [
-                   tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
-               ]),
+           panel('nicos.clients.gui.panels.editor.EditorPanel'),
        ),
        ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
        ('Log files', panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
