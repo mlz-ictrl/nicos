@@ -123,7 +123,7 @@ class EchoTime(Moveable):
             raise InvalidValueError(
                 f'target {target} not in range {min(entries)} - {max(entries)}') from err
         for entry in self.currenttable:
-            if abs(entry - target) < 1e-12:
+            if abs(entry - target) < 1e-3:
                 value = entry
                 break
         else:
