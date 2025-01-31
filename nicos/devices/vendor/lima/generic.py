@@ -249,9 +249,9 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             elif deltaTime <= (self._curexpotime):
                 remaining = self._curexpotime - deltaTime
                 limaStatus += ' (Exposing; Remaining: %.2f s)' % remaining
-            elif self._shutter and deltaTime <= sum(self._curshutteropentime,
-                                                    self._curexpotime,
-                                                    self._curshutterclosetime):
+            elif self._shutter and deltaTime <= sum((self._curshutteropentime,
+                                                     self._curexpotime,
+                                                     self._curshutterclosetime)):
                 limaStatus += ' (Closing shutter)'
             else:
                 limaStatus += ' (Readout)'
