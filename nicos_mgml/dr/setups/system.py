@@ -57,8 +57,8 @@ devices = dict(
         visibility = (),
     ),
 #    Bus = device('nicos_mgml.devices.bus.Bus',
-#        description = "Next departure of the bus from station 'Kuchynka' "
-#                      'to the Nádrazi Holesovice',
+#        description = "Next departure of the bus from station 'Kuchyňka' "
+#                      'to the Nádraží Holešovice',
 #        fmtstr = '%s'
 #    ),
 )
