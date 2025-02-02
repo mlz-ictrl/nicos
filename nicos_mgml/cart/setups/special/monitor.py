@@ -9,14 +9,10 @@ _expcolumn = Column(
                   maxlen=20),
             Field(name='Current status', key='exp/action', width=40,
                   istext=True, maxlen=40),
-            Field(name='Last scan file', key='exp/lastscan',
-                  setups='tas'),
-            Field(name='Last image file', key='exp/lastpoint',
-                  setups='sans'),
         ),
-        BlockRow(
-            Field(dev='Bus1', name='Bus')
-        )
+        # BlockRow(
+        #     Field(dev='Bus1', name='Bus')
+        # )
     ],
     ),
 )

@@ -8,10 +8,6 @@ _expcolumn = Column(
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=30,
                        istext=True),
-                 Field(name='Last scan file', key='exp/lastscan',
-                       setups='tas or vstressi'),
-                 Field(name='Last image file', key='exp/lastpoint',
-                       setups='sans or refsans'),
                 ),
         BlockRow(
                  Field(name='Next bus departure',    key='bus/value',    width=20,
