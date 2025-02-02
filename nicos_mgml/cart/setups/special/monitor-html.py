@@ -81,8 +81,8 @@ _colD = Column(_cryoconblock)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
-        title = '20T status monitor',
-        filename = '/mnt/statmons/20t.html',
+        title = 'CART status monitor',
+        filename = '/mnt/statmons/cart.html',
         loglevel = 'info',
         interval = 5,
         cache = 'localhost:14869',
