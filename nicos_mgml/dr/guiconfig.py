@@ -51,16 +51,9 @@ windows = [
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-    # window('Downtime', 'mail',
-    #        panel('nicos.clients.gui.tools.downtime.DownTimeTool')),
 ]
 
 tools = [
-    tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
-         receiver='mgml@mgml.eu',
-         mailserver='smtp.frm2.tum.de',
-         sender='demo@frm2.tum.de',
-        ),
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
 ]

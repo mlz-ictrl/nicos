@@ -51,21 +51,14 @@ windows = [
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-    #window('Live data', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel',
-    #                                 cachesize = 40,
-    #                                 showcached = True,
-    #                                 instrument = 'alsa',
-    #                                 filetypes = ['tiff'])),
-    # window('Downtime', 'mail',
-    #        panel('nicos.clients.gui.tools.downtime.DownTimeTool')),
+    # window('Live data', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel',
+    #                                   cachesize = 40,
+    #                                   showcached = True,
+    #                                   instrument = 'alsa',
+    #                                   filetypes = ['tiff'])),
 ]
 
 tools = [
-    tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
-         receiver='mgml@mgml.eu',
-         mailserver='smtp.frm2.tum.de',
-         sender='demo@frm2.tum.de',
-        ),
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
 ]
