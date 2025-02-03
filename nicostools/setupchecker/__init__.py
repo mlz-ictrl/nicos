@@ -453,7 +453,7 @@ class SetupChecker:
                 extra=self.find_global('exclude')
             )
 
-        if os.path.basename(self.filename) == 'startup.py':
+        if self.setupname == 'startup':
             if self.ns.get('includes', []):
                 self.log_error(
                     "The 'includes' in 'startup.py' must be empty!",
