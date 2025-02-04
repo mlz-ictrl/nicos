@@ -81,11 +81,14 @@ class Message:
     version: str
 
     # pylint: disable=too-many-positional-arguments
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         id: uuid.UUID,  # pylint: disable=redefined-builtin
         scanid: uuid.UUID,
         blockid: uuid.UUID,
+        info: str,
+        userinfo: str,
         event: str,
         started: str,
         dataroot: str,
@@ -104,6 +107,8 @@ class Message:
         self.id = str(id)
         self.blockid = str(blockid) or None
         self.scanid = str(scanid) or None
+        self.info = info
+        self.userinfo = userinfo
         self.event = event
         self.creation_timestamp = started
         self.dataroot = dataroot
@@ -141,6 +146,8 @@ class RabbitSinkHandler(DataSinkHandler):
                 id=dataset.uid,
                 scanid=scands.uid if scands else None,
                 blockid=blockds.uid if blockds else None,
+                info=dataset.info,
+                userinfo=dataset.userinfo,
                 event=event,
                 started=started,
                 dataroot=path.realpath(session.experiment.dataroot),
