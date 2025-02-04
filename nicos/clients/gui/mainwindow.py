@@ -101,6 +101,7 @@ class MainWindow(DlgUtils, QMainWindow):
 
     ui = 'main.ui'
     default_facility_logo = None
+    default_connect_dialog_cls = 'nicos.clients.gui.dialogs.auth.ConnectionDialog'
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         QMainWindow.__init__(self)
@@ -819,8 +820,7 @@ class MainWindow(DlgUtils, QMainWindow):
         self.actionConnect.setChecked(False)  # gets set by connection event
         connectionDialog_cls = importString(
             self.gui_conf.options.get(
-                'connection_dialog_class',
-                'nicos.clients.gui.dialogs.auth.ConnectionDialog'))
+                'connection_dialog_class', self.default_connect_dialog_cls))
         ret = connectionDialog_cls.getConnectionData(
             self, self.connpresets, self.lastpreset, self.conndata, self.tunnel)
         new_name, new_data, save, tunnel = ret
