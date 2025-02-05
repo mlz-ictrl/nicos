@@ -2,17 +2,9 @@ description = 'Reading Keysight multimeter'
 
 group = 'optional'
 
-tango_base = 'tango://localhost:10000/cart/'
-
+includes = ['busk34450']
 
 devices = dict(
-
-    busk34450 = device('nicos.devices.entangle.StringIO',
-        tangodevice = tango_base + 'edu34450a/io',
-        loglevel = 'info',
-        visibility = (),
-    ),
-
     MultiReader = device('nicos_mgml.devices.k34450.MultiReader',
         description = 'Keysight k23350 multimeter',
         fmtstr = '%.6f',
