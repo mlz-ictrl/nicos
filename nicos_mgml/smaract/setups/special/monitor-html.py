@@ -8,6 +8,7 @@ _expcolumn = Column(
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=30,
                        istext=True),
+                 ),
         BlockRow(
                  Field(name='Next bus departure',    key='bus/value',    width=20,
                        istext=True, maxlen=20),
