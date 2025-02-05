@@ -4,13 +4,9 @@ group = 'optional'
 
 tango_base = 'tango://localhost:10000/dr/'
 
+includes = ['busk6221']
 
 devices = dict(
-    busk6221 = device('nicos.devices.entangle.StringIO',
-        tangodevice = tango_base + 'k6221/io',
-        loglevel = 'info',
-        visibility = (),
-    ),
     busk7001 = device('nicos.devices.entangle.StringIO',
         tangodevice = tango_base + 'k7001/io',
         loglevel = 'info',

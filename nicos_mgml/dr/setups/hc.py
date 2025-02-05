@@ -4,20 +4,14 @@ group = 'optional'
 
 tango_base = 'tango://localhost:10000/dr/'
 
+includes = ['busk6221']
 
 devices = dict(
-
-    busk6221 = device('nicos.devices.entangle.StringIO',
-        tangodevice = tango_base + 'k6221/io',
-        loglevel = 'info',
-        visibility = (),
-    ),
     busk6221heat = device('nicos.devices.entangle.StringIO',
         tangodevice = tango_base + 'k6221-heater/io',
         loglevel = 'info',
         visibility = (),
     ),
-
     HC = device('nicos_mgml.devices.heatcap.HCmeter',
         description = 'HC meter',
         fmtstr = '%.8f',
