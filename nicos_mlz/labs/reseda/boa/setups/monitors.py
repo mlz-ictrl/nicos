@@ -2,6 +2,8 @@ description = 'BOA monitor and timer devices'
 
 counterprefix = 'SQ:BOA:counter'
 
+excludes = ['single_el737']
+
 devices = dict(
     timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',
