@@ -85,6 +85,7 @@ class Message:
         started: str,
         fileinfos: list,
         mapping: dict,
+        propinfo: dict,
         metainfo: dict,
         statistics: dict,
         counterinfo: dict,
@@ -98,6 +99,7 @@ class Message:
         self.creation_timestamp = started
         self.fileinfos = fileinfos
         self.mapping = mapping
+        self.propinfo = propinfo
         self.metadata = metainfo
         self.statistics = statistics
         self.counterinfo = counterinfo
@@ -135,6 +137,7 @@ class RabbitSinkHandler(DataSinkHandler):
                 'instrument': session.instrument.name,
                 'environment': [dev.name for dev in dataset.environment],
             },
+            propinfo=session.experiment.propinfo,
             metainfo=metadata,
             statistics=valuestats_to_json(dataset.valuestats),
             counterinfo=self.getCounterInfo(dataset),
