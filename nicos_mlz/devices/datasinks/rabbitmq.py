@@ -63,6 +63,12 @@ def valuestats_to_json(valuestats):
     return {k: v._asdict() for k, v in valuestats.items()}
 
 
+def json_serial(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError('Object of type %s is not JSON serializable' % type(obj))
+
+
 class Message:
     id: str  # pylint: disable=redefined-builtin
     event: str
@@ -98,7 +104,7 @@ class Message:
         self.canonicalvalues = canonicalvalues
 
     def __str__(self):
-        return json.dumps({**self.__dict__})
+        return json.dumps({**self.__dict__}, default=json_serial)
 
 
 class RabbitSinkHandler(DataSinkHandler):
