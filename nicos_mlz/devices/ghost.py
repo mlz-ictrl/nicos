@@ -197,11 +197,117 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
             'name': sessinfo['localcontact'],
             'email': sessinfo['localcontact_email'],
         }]
+        info['mainproposer'] = sessinfo['userdetails']['mainproposer']
         info['samples'] = samples['registeredsamples']
         info['data_emails'] = [user['email'] for user in info['users']]
         info['notif_emails'] = [user['email'] for user in info['users']] + \
             [c['email'] for c in info['localcontacts']]
         return info
+
+
+# The information from Ghost for queryExperiment:
+# sessinfo looks like this:
+# (as of 02/25)
+# {
+#     'number': 'E00012-01A',
+#     'start': '2025-02-04 08:00:00',
+#     'end': '2025-02-07 08:00:00',
+#     'proposal': 'P00012-01',
+#     'title': 'Phonons in Lead',
+#     'beamdays': '3',
+#     'ID': '35cd5c41-29ea-480c-9148-a3f7fdbd605c',
+#     'localcontact': 'Björn Pedersen',
+#     'localcontact_email': 'bjoern.pedersen@frm2.tum.de',
+#     'reactorcycle': 'Virtual Cycle 4',
+#     'status': 'Users invited',
+#     'instrument': 'VTAS',
+#     'instrument_id': 'd2a686df-f429-4291-8e90-a7133437bcac',
+#     'userdetails': {
+#         'mainproposer': {
+#             'name': 'Björn Pedersen',
+#             'email': 'bjoern.pedersen@frm2.tum.de',
+#             'affilation': 'Technische Universität München,  (München)'
+#         },
+#         'coproposers': [
+#             {
+#                 'name': 'Christian Felder',
+#                 'email': 'c.felder@fz-juelich.de',
+#                 'affilation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
+#             },
+#             {
+#                 'name': 'Alexander Zaft',
+#                 'email': 'a.zaft@fz-juelich.de',
+#                 'affilation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
+#             }
+#         ],
+#         'sessionteam': [
+#             {
+#                 'name': 'Björn Pedersen',
+#                 'email': 'bjoern.pedersen@frm2.tum.de',
+#                 'affilation': 'Technische Universität München,  (München)'
+#             },
+#             {
+#                 'name': 'Christian Felder',
+#                 'email': 'c.felder@fz-juelich.de',
+#                 'affilation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
+#             },
+#             {
+#                 'name': 'Alexander Zaft',
+#                 'email': 'a.zaft@fz-juelich.de',
+#                 'affilation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
+#             }
+#         ]
+#     }
+# }
+# samples looks like this:
+# (as of 02/25)
+# {
+#     "basesamples": [
+#         {
+#             "substance": "Virtual",
+#             "formula": "VIrTUAl",
+#             "mass": "2",
+#             "volume": null,
+#             "spgr": "R3c",
+#             "cell": "4.00 4.00 4.00 90.00 90.00"
+#         }
+#     ],
+#     "registeredsamples": [
+#         {
+#             "SampleTrackerID": "21",
+#             "name": "Sample1",
+#             "formula": "C4H60",
+#             "mass": "1.000",
+#             "volume": "12.00",
+#             "exposure": "3456000",
+#             "activation": "Not determined yet",
+#             "registrationNeeded": "no",
+#             "registered": "no"
+#         },
+#         {
+#             "SampleTrackerID": "22",
+#             "name": "Sample2",
+#             "formula": "C4H6S",
+#             "mass": "1.000",
+#             "volume": "12.00",
+#             "exposure": "3456000",
+#             "activation": "Not determined yet",
+#             "registrationNeeded": "no",
+#             "registered": "no"
+#         },
+#         {
+#             "SampleTrackerID": "23",
+#             "name": "Sample3",
+#             "formula": "C4H6Se",
+#             "mass": "1.000",
+#             "volume": "12.00",
+#             "exposure": "3456000",
+#             "activation": "Not determined yet",
+#             "registrationNeeded": "no",
+#             "registered": "no"
+#         }
+#     ]
+# }
 
 
 class Authenticator(BaseAuthenticator):
