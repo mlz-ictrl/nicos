@@ -17,8 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
-#   Christian Felder <c.felder@fz-juelich.de>
+#   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
 
@@ -28,7 +27,7 @@ from nicos.guisupport.livewidget import \
 
 
 class ProvidesTitleSetter:
-    """Provides function to set the the title of the plot
+    """Provides function to set the plot title.
     """
 
     def setPlotTitle(self, title):
