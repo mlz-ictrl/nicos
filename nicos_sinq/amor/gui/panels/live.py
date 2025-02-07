@@ -24,8 +24,7 @@
 
 from nicos.clients.gui.panels.live import LiveDataPanel as BaseLiveDataPanel
 from nicos.guisupport.livewidget import \
-    IntegralLiveWidget as BaseIntegralLiveWidget, \
-    LiveWidget1D as BaseLiveWidget1D, Plot
+    IntegralLiveWidget as BaseIntegralLiveWidget, LiveWidget1D, Plot
 
 
 class ProvidesTitleSetter:
@@ -37,9 +36,9 @@ class ProvidesTitleSetter:
             self.plot.title = title
 
 
-class SingleDetectorLiveWidget(ProvidesTitleSetter, BaseLiveWidget1D):
+class SingleDetectorLiveWidget(ProvidesTitleSetter, LiveWidget1D):
     def __init__(self, parent, **kwargs):
-        BaseLiveWidget1D.__init__(self, parent, **kwargs)
+        LiveWidget1D.__init__(self, parent, **kwargs)
         self.plot.viewport = [0.1, .95, 0.1, .85]
 
 
