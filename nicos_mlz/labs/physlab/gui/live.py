@@ -21,36 +21,10 @@
 #
 # *****************************************************************************
 
-"""Special Live panel with auto scaling display."""
+"""Special Live panel with auto-scaling display."""
 
-from nicos.clients.gui.panels.live import LiveDataPanel
-from nicos.guisupport.livewidget import IntegralLiveWidget, LiveWidget1D
-
-
-class AutoScaleLiveWidget1D(LiveWidget1D):
-
-    def __init__(self, parent=None, **kwargs):
-        kwargs.update({'xscale': 'decimal'})
-        LiveWidget1D.__init__(self, parent, **kwargs)
-
-    def getYMax(self):
-        minupperedge = 1
-        if self._arrays is not None:
-            minupperedge = max(array.max() for array in self._arrays)
-            minupperedge *= 2.15 if self._logscale else 1.05
-        return minupperedge
-
-    def getYMin(self):
-        maxloweredge = 0.09 if self._logscale else 0
-        if self._arrays is not None:
-            maxloweredge = min(array.min() for array in self._arrays)
-            maxloweredge *= 0.5 if self._logscale else 0.95
-        return maxloweredge
-
-    def _getNewYRange(self):
-        ymax = self.getYMax()
-        ymin = self.getYMin()
-        return ymin, ymax, ymax
+from nicos.clients.gui.panels.live import AutoScaleLiveWidget1D, LiveDataPanel
+from nicos.guisupport.livewidget import IntegralLiveWidget
 
 
 class AutoScaleLiveDataPanel(LiveDataPanel):

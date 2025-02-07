@@ -1091,8 +1091,9 @@ class LiveDataPanel(PlotPanel):
 
 class AutoScaleLiveWidget1D(LiveWidget1D):
 
-    def __init__(self, parent=None):
-        LiveWidget1D.__init__(self, parent, xscale='decimal')
+    def __init__(self, parent=None, **kwargs):
+        kwargs['xscale'] = 'decimal'
+        LiveWidget1D.__init__(self, parent, **kwargs)
 
     def getYMax(self):
         minupperedge = 1
