@@ -132,17 +132,6 @@ class ResolutionPlot(PlotWidget):
         self.plot.logscale(True)
 
 
-class IntensityPlot(PlotWidget):
-
-    def __init__(self, direction, parent=None, **kwds):
-        PlotWidget.__init__(self, 'Calculated intensity at PSD for spin-%s '
-                            'neutrons' % direction,
-                            'PSD channel position (cm)', 'intensity',
-                            parent=parent, **kwds)
-        self.plot._curves[0].legend = 'without analyzer'
-        self.plot._curves[1].legend = 'with analyzer'
-
-
 class ResolutionPanel(NicosWidget, Panel):
 
     ch_dev = PropDef('ch_dev', str, 'ch', 'Chopper device')
