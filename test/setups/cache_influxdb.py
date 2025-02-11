@@ -30,10 +30,10 @@ name = 'setup for cache stresstest with influxdb db'
 devices = dict(
     Server = device('nicos.services.cache.server.CacheServer',
         server = alt_cache_addr,
-        db = 'DB2',
+        db = 'DB5',
         loglevel = 'debug',
     ),
-    DB2 = device('nicos.services.cache.database.influxdb.InfluxDBCacheDatabase',
+    DB5 = device('nicos.services.cache.database.influxdb.InfluxDBCacheDatabase',
         url = os.environ.get('INFLUXDB_URI', 'http://localhost:8086'),
         org = 'mlz',
         bucket = 'nicos-test',
