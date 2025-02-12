@@ -21,10 +21,6 @@
 #
 # *****************************************************************************
 
-"""Some convenience classes, methods for NeXus data writing."""
-
-from nicos_mlz.nexus.elements import Reflection, ScanDeviceDataset
-from nicos_mlz.nexus.structures import CounterMonitor, Flipper, LocalContact, \
-    Polarizer, ReactorSource, Selector, TimerMonitor, User, aa, axis1, axis2, \
-    counts, nounit, seconds, signal
-from nicos_mlz.nexus.template import MLZTemplateProvider
+from nicos_mlz.nexus.nexus_templates.tas import TasTemplateProvider
+from nicos_mlz.nexus.nexus_templates.tomo import TomoTemplateProvider
+from nicos_mlz.nexus.nexus_templates.powder import PowderTemplateProvider
