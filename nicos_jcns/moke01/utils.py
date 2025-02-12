@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 from nicos.utils.functioncurves import Curve2D, Curves
+from nicos.utils.functioncurves.calcs import mean
 
 
 def fit_curve(curve, fittype):
@@ -31,18 +32,14 @@ def fit_curve(curve, fittype):
     fittypes = ['min', 'max']
     if fittype not in fittypes:
         return
-    err = 0.025
-    ymin, ymax = curve.ymin, curve.ymax
-    emin = err if ymin >= 0 else -err
-    emax = err if ymax >= 0 else -err
-    y1 = [p.y for p in curve if ymin * (1 - emin) < p.y < ymin * (1 + emin)]
-    y2 = [p.y for p in curve if ymax * (1 - emax) < p.y < ymax * (1 + emax)]
-    y = y1 if fittype == 'min' else y2
-    x = [p.x for p in curve if p.y in y]
-    if x and y:
-        return Curve2D.from_x_y(x, y).lsm()
-    else:
-        return 0, 0
+    curve_max = Curve2D([p for p in curve if p.x > 0])
+    curve_min = Curve2D([p for p in curve if p.x < 0])
+    if curve_max.ymax < curve_min.ymax:
+        curve_min, curve_max = curve_max, curve_min
+    c = curve_min if fittype == 'min' else curve_max
+    e = mean(c.y)
+    c = Curve2D([p for p in c if e.n - e.s < p.y.n < e.n + e.s])
+    return c.lsm()
 
 
 def calc_ellipticity(imin, imax, ext, angle):
