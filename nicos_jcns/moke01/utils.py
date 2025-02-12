@@ -72,7 +72,7 @@ def calculate(IntvB, angle, ext):
     fit_min = fit_curve(IntvB, 'min')
     fit_max = fit_curve(IntvB, 'max')
 
-    # calculate kerr angle/ellipticity
+    # calculate kerr angle/ellipticity in [urad]
     kerr = calc_ellipticity(fit_min[1], fit_max[1], ext, angle)
 
     # rescale intensity into ellipticity curves

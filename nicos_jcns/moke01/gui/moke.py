@@ -128,7 +128,7 @@ class MokeBase(Panel):
         self.plot_IntvB = MokePlot('MagB, T', 'Intensity, V', self)
         # viewport of IntvB plot is set to accomodate plot title
         self.plot_IntvB.plot.viewport = (.1, .9, .1, .9)
-        self.plot_EvB = MokePlot('MagB, T', 'Ellipticity, a.u.', self)
+        self.plot_EvB = MokePlot('MagB, T', 'Ellipticity, urad.', self)
         self.m = {}
 
     @pyqtSlot()
@@ -148,8 +148,8 @@ class MokeBase(Panel):
             IntvB -= self.m['baseline']
             IntvB -= IntvB.series_to_curves().amean().yvx(0).y
         angle = float(self.ln_canting_angle.text()) # [SKT]
-        # recalculate angle in SKT to mrad
-        angle *= 0.7 / 25 / 180 * math.pi * 1000 # [mrad]
+        # recalculate angle in SKT to urad
+        angle *= math.radians(1.5 / 25) * 1e6 # [urad]
         ext = float(self.ln_extinction.text()) # V
         try:
             fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, angle, ext)
