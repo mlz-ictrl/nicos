@@ -25,7 +25,7 @@ devices = {
             unit = '',),
         precision = 0.5,
         mapping = {'off': 0, '1 mW': 1, '10 mW': 2, '100 mW': 3,
-                  # '1 W': 4, '10 W': 5
+                   '1 W': 4, '10 W': 5
                   },
     ),
     f'T_{setupname}_sample': device('nicos.devices.entangle.Sensor',
