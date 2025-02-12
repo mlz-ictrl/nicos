@@ -53,6 +53,7 @@ from threading import Event, RLock
 
 from frappy.client import SecopClient
 from frappy.errors import CommunicationFailedError, ReadFailedError
+from frappy.datatypes import StatusType
 
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
@@ -64,8 +65,6 @@ from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
 from nicos.utils import createThread, importString, printTable
-
-SECOP_ERROR = 400
 
 
 class NicosSecopClient(SecopClient):
@@ -1206,11 +1205,12 @@ class SecopDevice(Device):
 
 
 STATUS_MAP = {
-    0: status.DISABLED,
-    1: status.OK,
-    2: status.WARN,
-    3: status.BUSY,
-    4: status.ERROR,
+    # division by 100: merge SECoP substates
+    StatusType.DISABLED // 100: status.DISABLED,
+    StatusType.IDLE // 100: status.OK,
+    StatusType.WARN // 100: status.WARN,
+    StatusType.BUSY // 100: status.BUSY,
+    StatusType.ERROR // 100: status.ERROR,
 }
 
 
@@ -1236,7 +1236,7 @@ class SecopReadable(SecopDevice, Readable):
         except NicosError:
             st = self.doStatus(0)
             if st[0] == status.DISABLED:
-                raise make_nicos_error(st[1], 'disabled') from None
+                raise NicosError('disabled') from None
             raise
 
     def doReset(self):
@@ -1254,15 +1254,16 @@ class SecopReadable(SecopDevice, Readable):
             return st
         try:
             code, text = self._read('status', maxage, None)
+            # code is a SECoP status code here (StatusType.<name> below)
         except NicosError as e:
             return status.ERROR, str(e)
-        if 390 <= code < 400:  # SECoP status finalizing
+        if StatusType.FINALIZING <= code < StatusType.ERROR:
             return status.OK, text
-        if self._param_errors:
+        if self._param_errors and code != StatusType.DISABLED:
             exc = self._param_errors.get('value')
-            if exc and code < 300:  # error reading value and status < ERROR
+            if exc and code < StatusType.BUSY:  # error reading value and status IDLE or WARN
                 return status.ERROR, f'can not read value: {get_exc_name(exc)} - {exc}'
-            if code < 200:  # error in any other parameter and status < WARNING
+            if code < StatusType.WARN:  # error in any other parameter and status IDLE
                 return self.paramWarning()
         # treat SECoP code 401 (unknown) as error - should be distinct from
         # NICOS status unknown
