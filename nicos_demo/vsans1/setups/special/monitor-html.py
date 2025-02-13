@@ -44,24 +44,8 @@ _pressurecolumn = Column(
     ),
 )
 
-_table2 = Column(
-    Block('Sample Table 2', [
-        BlockRow(
-                 Field(name='st2_z', dev='st2_z', width=13),
-                 ),
-        BlockRow(
-                 Field(name='st2_y', dev='st2_y', width=13),
-                 ),
-        BlockRow(
-                 Field(name='st2_x', dev='st2_x', width=13),
-                 ),
-        ],
-        setups='sample_table_2',
-    ),
-)
-
-_table1 = Column(
-    Block('Sample Table 1', [
+_table = Column(
+    Block('Sample Table', [
         BlockRow(
                  Field(name='st1_phi', dev='st1_phi', width=13),
                  Field(name='st1_y', dev='st1_y', width=13),
@@ -75,7 +59,7 @@ _table1 = Column(
                  Field(name='st1_x', dev='st1_x', width=13),
                 ),
         ],
-        setups='sample_table_1',
+        setups='sample_table',
     ),
 )
 
@@ -310,7 +294,7 @@ devices = dict(
         fontsize = 17,
         layout = [
             Row(_expcolumn),
-            Row(_sans1general, _table2, _table1, _sans1det),
+            Row(_sans1general, _table, _sans1det),
             Row(_pressurecolumn, _p_filter),
             Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
             Row(_sc1, _sc2, _sc_t, _ccmsanssc, _julabo, _tisane_counts),

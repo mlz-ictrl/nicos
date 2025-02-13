@@ -2,7 +2,7 @@ description = 'sample changer temperature device'
 
 group = 'optional'
 
-includes = ['sample_changer', 'sample_table_1']
+includes = ['sample_changer', 'sample_table']
 
 devices = dict(
     sc_t_y = device('nicos.devices.generic.Axis',

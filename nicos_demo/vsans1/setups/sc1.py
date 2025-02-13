@@ -2,7 +2,7 @@ description = 'sample changer 1 devices'
 
 group = 'optional'
 
-includes = ['sample_changer', 'sample_table_1']
+includes = ['sample_changer', 'sample_table']
 
 devices = dict(
     sc1_y = device('nicos.devices.generic.Axis',
