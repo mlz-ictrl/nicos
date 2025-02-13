@@ -342,7 +342,8 @@ class MokePanel(NicosWidget, MokeBase):
             field = self.m['field_orientation']
             ramp = str(self.m['ramp'])
             self.plot_baseline.add_curve(
-                self.m['IntvB'].series_to_curves().mean(),
+                self.m['IntvB'].series_to_curves().mean() -
+                self.m['IntvB'].series_to_curves().mean().yvx(0).y,
                 legend=f'{mode}, {field} @ {ramp} A/min'
             )
 
@@ -354,7 +355,8 @@ class MokePanel(NicosWidget, MokeBase):
             ramp = self.m['ramp']
             self.client.run('temp = MagB.baseline.copy()')
             self.client.run(f'temp["{mode}"]["{field}"]["{ramp}"] = '
-                             'MagB.measurement["IntvB"].series_to_curves().mean()')
+                             'MagB.measurement["IntvB"].series_to_curves().mean()'
+                             ' - MagB.measurement["IntvB"].series_to_curves().mean().yvx(0).y')
             self.client.run('MagB.baseline = temp')
 
     @pyqtSlot()
