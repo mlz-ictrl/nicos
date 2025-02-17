@@ -9,9 +9,8 @@ devices = dict(
         sender = 'dns@frm2.tum.de',
         copies = [
             ('y.su@fz-juelich.de', 'all'),
-            ('t.mueller@fz-juelich.de', 'all'),
+            ('s.hammouda@fz-juelich.de', 'all'),
             ('g.brandl@fz-juelich.de', 'all'),
-            ('l.fleischhauer-fuss@fz-juelich.de', 'important'),
         ],
         subject = '[NICOS] DNS',
     ),
