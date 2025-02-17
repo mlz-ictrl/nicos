@@ -1,4 +1,3 @@
-
 description = 'High pressure Cetoni syringe pumps, valves and pressure sensors.'
 
 group = 'plugplay'
@@ -45,12 +44,16 @@ for i in range(1, 4):
 def topic(cmd):
     return f'{cmd}_\n\n.. _{cmd}: cmd:{cmd}\n\n'
 
+def topic_dev(dev):
+    return f'{dev}_\n\n.. _{dev}: dev:{dev}\n\n'
+
 import importlib
 
 excluded = ['helparglist', 'usercommand']
-help_topics = {'Cetoni commands': ''}
+help_topics = {'Cetoni commands': '', 'Cetoni syringes': ''}
 for mod in modules:
     mod = importlib.import_module(mod)
     help_topics['Cetoni commands'] = help_topics['Cetoni commands'].join(
         [topic(i) for i in dir(mod) \
          if callable(getattr(mod, i)) and i not in excluded])
+help_topics['Cetoni syringes'] = ''.join([topic_dev(f'syringe{i}') for i in range(1, 4)])
