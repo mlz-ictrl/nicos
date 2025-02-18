@@ -22,16 +22,17 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.nexus.elements import ConstDataset, DeviceAttribute, \
-    DeviceDataset, ImageDataset, NexusSampleEnv, NXAttribute, NXLink, NXTime
-from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
-from nicos.nexus.specialelements import NicosProgramDataset
+from nicos.core.device import Readable
+from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
+    NexusSampleEnv, NXAttribute, NXLink
 
-from nicos_mlz.nexus import CounterMonitor, ReactorSource, TimerMonitor
+from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Polarizer, \
+    Selector, TimerMonitor
 from nicos_sinq.nexus.specialelements import OptionalDeviceDataset
 
 all_devices_dict = {
-    key: val for key, val in session.devices.items() if 'read' in dir(val)
+    key: val for key, val in session.devices.items()
+    if isinstance(val, Readable)
 }
 
 for key in list(all_devices_dict.keys()):
@@ -70,198 +71,6 @@ for key in list(all_devices_dict.keys()):
         all_devices_dict.pop(key)
 
 
-reseda_detector = {
-    'data': ImageDataset(0, 0, signal=NXAttribute(1, 'int32')),
-    # 'distance': DeviceDataset('det1_x'),
-    'x_pixel_size': ConstDataset(1.5625, 'float',
-                                 units=NXAttribute('mm', 'string')),
-    'y_pixel_size': ConstDataset(1.5625, 'float',
-                                 units=NXAttribute('mm', 'string')),
-    'polar_angle': ConstDataset(0, 'float',
-                                units=NXAttribute('degree', 'string')),
-    'azimuthal_angle': ConstDataset(0, 'float',
-                                    units=NXAttribute('degree', 'string')),
-    'rotation_angle': ConstDataset(0, 'float',
-                                   units=NXAttribute('degree', 'string')),
-    'aequatorial_angle': ConstDataset(0, 'float',
-                                      units=NXAttribute('degree', 'string')),
-    'beam_center_x': ConstDataset(0, 'float',
-                                  units=NXAttribute('mm', 'string')),
-    'beam_center_y': ConstDataset(0, 'float',
-                                  units=NXAttribute('mm', 'string')),
-    'type': ConstDataset('Cascade', 'string'),
-    'layout': ConstDataset('area', 'string'),
-    # 'diameter': ConstDataset(8, 'float',
-    #                          units=NXAttribute('mm', 'string')),
-    # TODO: find out how to set the correct value for tisane
-    'acquisition_mode': ConstDataset('histogrammed', 'string'),
-}
-
-URL = 'https://manual.nexusformat.org/classes/applications/NXsas.html'
-
-reseda_default = {
-    'NeXus_Version': 'v2022.07',
-    'instrument': DeviceAttribute(session.instrument.name, 'instrument'),
-    'owner': DeviceAttribute(session.instrument.name, 'responsible'),
-    'entry1:NXentry': {
-        'entry': 'entry1',
-        'program_name': NicosProgramDataset(),
-        'title': DeviceDataset(session.experiment.name, 'title'),
-        'experiment_description': DeviceDataset(session.experiment.name,
-                                                'title'),
-        'experiment_identifier': DeviceDataset(session.experiment.name,
-                                               'proposal'),
-        # 'collection_identifier': {},
-        # 'collection_description': {},
-        # 'entry_identifier': {},
-        # 'entry_uuid': {},
-        'start_time': NXTime(),
-        'end_time': NXTime(),
-        'definition': ConstDataset('NXsas', 'string',
-                                   version=NXAttribute('mm', 'string'),
-                                   URL=NXAttribute(URL, 'string')),
-        'local_contact:NXuser': {
-            'role': ConstDataset('local_contact', 'string'),
-            # TODO: split name from email address
-            'name': DeviceDataset(session.experiment.name, 'localcontact'),
-            'email': DeviceDataset(session.experiment.name, 'localcontact'),
-        },
-        'proposal_user:NXuser': {
-            'role': ConstDataset('principal_investigator', 'string'),
-            # TODO: split name from email address
-            'name': DeviceDataset(session.experiment.name, 'users'),
-            'email': DeviceDataset(session.experiment.name, 'users')
-        },
-        'instrument:NXinstrument': {
-            'source:NXsource': ReactorSource('FRM II', 'ReactorPower'),
-            'monochromator:NXmonochromator': {
-                'wavelength': NXLink(
-                    '/entry1/instrument/monochromator/velocity_selector/wavelength'),
-                'wavelength_spread': NXLink(
-                    '/entry1/instrument/monochromator/velocity_selector/wavelength_spread'),
-                'velocity_selector:NXvelocity_selector': {
-                    'type': ConstDataset('Astrium Velocity Selector',
-                                         'string'),
-                    'rotation_speed': DeviceDataset('selector_speed'),
-                    # TODO: 'diameter' / 2
-                    'radius': DeviceDataset(
-                        'selector_delta_lambda', 'diameter', dtype='float'),
-                    'spwidth': DeviceDataset(
-                        'selector_delta_lambda', 'd_lamellae'),
-                    'length': DeviceDataset('selector_lambda', 'length'),
-                    'num': DeviceDataset(
-                        'selector_delta_lambda', 'n_lamellae', dtype='int'),
-                    'twist': DeviceDataset('selector_lambda', 'twistangle'),
-                    'wavelength': DeviceDataset(
-                        'selector_lambda', dtype='float'),
-                    'wavelength_spread': DeviceDataset(
-                        'selector_delta_lambda', dtype='float'),
-                    'beamcenter': DeviceDataset(
-                        'selector_lambda', 'beamcenter'),
-                    'tilt': DeviceDataset('selector_tilt'),
-                },
-            },
-            'MiezePydata:NXResolution': {
-                'cbox0a_frequency': DeviceDataset('cbox_0a_fg_freq',
-                                                  dtype='float'),
-                'cbox0b_frequency': DeviceDataset('cbox_0b_fg_freq',
-                                                  dtype='float'),
-                'L_sd': DeviceDataset('L_sd', dtype='float'),
-                'L_ab': DeviceDataset('L_ab', dtype='float'),
-                'L_ad': DeviceDataset('L_bd', dtype='float'),
-            },
-            # 'all_devices:NXCollection': {
-            #     device: {
-            #         key: DeviceDataset(key) for key in keys
-            #     } for device, keys in all_devices_dict.items()
-            # },
-            # 'collimator:NXcollimator': {
-            #     'geometry:NXgeometry': {
-            #         'shape:NXshape': {
-            #             'shape': ConstDataset('nxbox', 'string'),
-            #             'size': DeviceDataset('col', dtype='float'),
-            #         },
-            #     },
-            # },
-            # 'detector:NXdetector': {},
-            'name': ConstDataset(session.instrument.instrument, 'string'),
-            'attenuator:NXattenuator': {
-                'attenuator_transmission': DeviceDataset('att', dtype='float'),
-            },
-            # 'beam_stop:NXbeam_stop': {
-            #     'x': DeviceDataset('bs1_xax'),
-            #     'y': DeviceDataset('bs1_xax'),
-            #     'status': DeviceDataset('bs1'),
-            #     'description': ConstDataset('rectangular', 'string'),
-            # },
-            'timer:NXmonitor': TimerMonitor('psd_timer'),
-            'monitor1:NXmonitor': CounterMonitor('monitor1'),
-            # 'monitor2:NXmonitor': CounterMonitor('monitor2'),
-        },  # instrument
-        # 'sample:NXSample': {},
-        'control:NXmonitor': {
-            'mode': NXLink('/entry1/instrument/monitor1/mode'),
-            'preset': NXLink('/entry1/instrument/monitor1/preset'),
-            'integral': NXLink('/entry1/instrument/monitor1/integral'),
-            'type': NXLink('/entry1/instrument/monitor1/type'),
-        },  # control
-        'data:NXdata': {
-            'signal': 'data',
-            'data': NXLink('/entry1/instrument/detector/data'),
-        },  # data
-    }  # entry
-}  # root
-
-
-def polarizer(name, typ='supermirror', **kwds):
-    """Create a NXpolarizer structure with
-
-        type -
-
-    Optional keywords:
-
-        reflection - default=0.99
-        efficiency - default=0.7
-        composition - default=''
-
-    """
-
-    return {
-        f'{name}:NXpolarizer': {
-            'type': ConstDataset(typ, 'string'),
-            # 'reflection': ConstDataset(kwds.get('reflection', 0.99), 'float'),
-            # 'efficiency': ConstDataset(kwds.get('efficiency', 0.7), dtype='float'),
-            # 'composition': ConstDataset(kwds.get('composition', '', 'string'),
-        }
-    }
-
-
-def flipper(name, typ='', **kwds):
-    """Create a NXflipper structure with
-
-        type -
-
-    Optional keywords:
-        -
-
-    """
-    return {
-        f'{name}:NXflipper': {
-            'type': ConstDataset(typ, 'string'),
-        }
-    }
-
-
-sample_common = {
-    'name': DeviceDataset('Sample', 'samplename'),
-    'hugo': NexusSampleEnv(),
-    'temperature': DeviceDataset('temperature', defaultval=0.0),
-    'magfield': DeviceDataset('magfield', defaultval=0.0),
-    'aequatorial_angle': ConstDataset(0, 'float',
-                                      units=NXAttribute('degree', 'string')),
-    'stick_rotation': OptionalDeviceDataset('dom'),
-}
-
 sample_std = {
     'x_position': DeviceDataset('xo'),
     'x_null': DeviceDataset('xo', 'offset'),
@@ -287,19 +96,128 @@ sample_magnet = {
 }
 
 
-class ResedaTemplateProvider(NexusTemplateProvider):
-    def getTemplate(self):
-        full = copy_nexus_template(reseda_default)
-        instrument = full['entry1:NXentry']['instrument:NXinstrument']
-        instrument['detector:NXdetector'] = copy_nexus_template(reseda_detector)
-        instrument['pol1:NXpolarizer'] = copy_nexus_template(polarizer('pol1'))
-        instrument['pol2:NXpolarizer'] = copy_nexus_template(polarizer('pol2'))
-        if 'sample' in session.loaded_setups:
-            full['entry1:NXentry']['sample:NXsample'] = \
-                dict(sample_common, **sample_std)
-        elif 'emagnet_sample' in session.loaded_setups:
-            full['entry1:NXentry']['sample:NXsample'] = \
-                dict(sample_common, **sample_magnet)
+class ResedaTemplateProvider(MLZTemplateProvider):
+
+    entry = 'entry1'
+    definition = 'NXsas'
+
+    def updateInstrument(self):
+        selectorlink = f'/{self.entry}/{self.instrument}/monochromator/velocity_selector'
+        self._inst.update({
+            'monochromator:NXmonochromator': {
+                'wavelength': NXLink(f'{selectorlink}/wavelength'),
+                'wavelength_spread': NXLink(
+                    f'{selectorlink}/wavelength_spread'),
+                'velocity_selector:NXvelocity_selector': Selector(
+                    'selector_speed', 'selector_lambda', 'selector_delta_lambda',
+                    'selector_tilt'),
+            },
+            'MiezePydata:NXResolution': {
+                'cbox0a_frequency': DeviceDataset('cbox_0a_fg_freq',
+                                                  dtype='float'),
+                'cbox0b_frequency': DeviceDataset('cbox_0b_fg_freq',
+                                                  dtype='float'),
+                'L_sd': DeviceDataset('L_sd', dtype='float'),
+                'L_ab': DeviceDataset('L_ab', dtype='float'),
+                'L_ad': DeviceDataset('L_bd', dtype='float'),
+            },
+            # 'collimator:NXcollimator': {
+            #     'geometry:NXgeometry': {
+            #         'shape:NXshape': {
+            #             'shape': ConstDataset('nxbox', 'string'),
+            #             'size': DeviceDataset('col', dtype='float'),
+            #         },
+            #     },
+            # },
+            'attenuator:NXattenuator': {
+                'attenuator_transmission': DeviceDataset('att', dtype='float'),
+            },
+            # 'beam_stop:NXbeam_stop': {
+            #     'x': DeviceDataset('bs1_xax'),
+            #     'y': DeviceDataset('bs1_xax'),
+            #     'status': DeviceDataset('bs1'),
+            #     'description': ConstDataset('rectangular', 'string'),
+            # },
+            'pol1:NXpolarizer': Polarizer('3He'),
+            'pol2:NXpolarizer': Polarizer('3He'),
+            # 'all_devices:NXCollection': {
+            #     device: {
+            #         key: DeviceDataset(key) for key in keys
+            #     } for device, keys in all_devices_dict.items()
+            # },
+        })
+
+    def updateDetector(self):
+        self._det.update({
+            'data': ImageDataset(0, 0, signal=NXAttribute(1, 'int32')),
+            'distance': DeviceDataset('L_sd'),
+            'x_pixel_size': ConstDataset(1.5625, 'float',
+                                         units=NXAttribute('mm', 'string')),
+            'y_pixel_size': ConstDataset(1.5625, 'float',
+                                         units=NXAttribute('mm', 'string')),
+            'polar_angle': ConstDataset(0, 'float',
+                                        units=NXAttribute('deg', 'string')),
+            'azimuthal_angle': ConstDataset(
+                0, 'float', units=NXAttribute('deg', 'string')),
+            'rotation_angle': ConstDataset(0, 'float',
+                                           units=NXAttribute('deg', 'string')),
+            'aequatorial_angle': ConstDataset(
+                0, 'float', units=NXAttribute('deg', 'string')),
+            'beam_center_x': ConstDataset(0, 'float',
+                                          units=NXAttribute('mm', 'string')),
+            'beam_center_y': ConstDataset(0, 'float',
+                                          units=NXAttribute('mm', 'string')),
+            'type': ConstDataset('Cascade', 'string'),
+            'layout': ConstDataset('area', 'string'),
+            # 'diameter': ConstDataset(8, 'float',
+            #                          units=NXAttribute('mm', 'string')),
+            'acquisition_mode': ConstDataset('histogrammed', 'string'),
+        })
+        self._inst.update({
+            'timer:NXmonitor': TimerMonitor('psd_timer'),
+            'monitor1:NXmonitor': CounterMonitor('monitor1'),
+        })
+        preset = session.getDevice('psd').preset()
+        if preset.get('monitor1'):
+            monitor = 'monitor1'
         else:
-            full['entry1:NXentry']['sample:NXsample'] = sample_common
-        return full
+            monitor = 'timer'
+        monitor = 'monitor1'
+        monitorlink = f'/{self.entry}/{self.instrument}/{monitor}'
+        self._entry.update({
+            'control:NXmonitor': {
+                'mode': NXLink(f'{monitorlink}/mode'),
+                'preset': NXLink(f'{monitorlink}/preset'),
+                'integral': NXLink(f'{monitorlink}/integral'),
+            },
+        })
+        if monitor != 'timer':
+            self._entry['control:NXmonitor'].update({
+                'type': NXLink(f'{monitorlink}/type'),
+            })
+
+    def updateData(self):
+        self._entry['data:NXdata'].update({
+            'signal': 'data',
+            'data': NXLink('/entry1/instrument/detector/data'),
+        })
+
+    def updateSample(self):
+        self._sample.update({
+            'hugo': NexusSampleEnv(),
+            'temperature': DeviceDataset('temperature', defaultval=0.0),
+            'magfield': DeviceDataset('magfield', defaultval=0.0),
+            'aequatorial_angle': ConstDataset(
+                0, 'float', units=NXAttribute('degree', 'string')),
+            'stick_rotation': OptionalDeviceDataset('dom'),
+        })
+        if 'sample' in session.loaded_setups:
+            self._sample.update(sample_std)
+        elif 'emagnet_sample' in session.loaded_setups:
+            self._sample.update(sample_magnet)
+
+    def completeTemplate(self):
+        MLZTemplateProvider.completeTemplate(self)
+        self._entry.update({
+            'entry': f'{self.entry}',
+        })
