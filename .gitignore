@@ -23,9 +23,11 @@ doc/source/nicos_*/**/setups
 .coverage
 .cache/
 .pytest_cache/
+.hypothesis/
 htmlcov/
 test/root/
 pylint_*.txt
+webroot/
 
 \#*
 .#*
