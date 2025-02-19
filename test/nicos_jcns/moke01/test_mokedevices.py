@@ -163,16 +163,17 @@ def test_kerr_calc():
     B = randint(20, 90)
     Bmin = - B / 100
     Bmax = - Bmin
-    width = randint(10, 40)
+    width = randint(3, 15)
     x = numpy.linspace(Bmin, Bmax, 100, True)
-    y1 = scipy.special.erf(x * width + 1) / 2 + 1.5
-    y2 = scipy.special.erf(x * width - 1) / 2 + 1.5
+    y1 = scipy.special.erf(x * 200 + width) / 2 + 1.5
+    y2 = scipy.special.erf(x * 200 - width) / 2 + 1.5
     IntvB = Curve2D.from_x_y(x, y1)
     IntvB.append(Curve2D.from_x_y(x[::-1], y2[::-1]))
     # angle and extinction values are of the typical range, randomized
-    angle = randint(100, 150) / 10
+    int_mean = IntvB.series_to_curves().amean().yvx(0).y
+    angle = randint(100, 250) / 10
     extinction = randint(10, 90) / 100
-    fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, angle, extinction)
+    fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean, angle, extinction)
     # erfcs are designed to have min and max Y values at 1 and 2,
     # fits are expected to be horizontal,
     # but `fit_curve` filters points with some tolerance

@@ -42,13 +42,13 @@ def fit_curve(curve, fittype):
     return c.lsm()
 
 
-def calc_ellipticity(imin, imax, ext, angle):
+def calc_ellipticity(imin, imax, int_mean, ext, angle):
     """Calculates ellipticity values from intensity values."""
 
     if imin == imax:
         raise ValueError('calc_ellipticity(i, imin, imax) cannot be finished '
                          'when imin == imax. Check input data.')
-    return (imax - imin) / ((imin + imax) / 2 - ext) * angle / 4
+    return (imax - imin) / (int_mean - ext) * angle / 4
 
 
 def scale_intensity(i, imin, imax, kerr):
@@ -61,19 +61,19 @@ def scale_intensity(i, imin, imax, kerr):
     return (i - (imin + imax) / 2) / (imax - imin) * 2 * kerr
 
 
-def calculate(IntvB, angle, ext):
+def calculate(IntvB, int_mean, angle, ext):
     """MOKE-specific measurement analysis."""
 
     # separate increasing and decreasing curves, mean them, and fit the means
-    series = Curves.from_series(IntvB)
+    curves = Curves.from_series(IntvB)
     IntvB = Curve2D()
-    IntvB.append(series.increasing().mean())
-    IntvB.append(series.decreasing().mean())
+    IntvB.append(curves.increasing().mean())
+    IntvB.append(curves.decreasing().mean())
     fit_min = fit_curve(IntvB, 'min')
     fit_max = fit_curve(IntvB, 'max')
 
     # calculate kerr angle/ellipticity in [urad]
-    kerr = calc_ellipticity(fit_min[1], fit_max[1], ext, angle)
+    kerr = calc_ellipticity(fit_min[1], fit_max[1], int_mean, ext, angle)
 
     # rescale intensity into ellipticity curves
     EvB = Curve2D()
@@ -97,6 +97,7 @@ def generate_output(measurement, angle=None, ext=None):
         return ''
     BvI = measurement['BvI']
     IntvB = measurement['IntvB']
+    int_mean = IntvB.series_to_curves().amean().yvx(0)
     baseline = measurement['baseline']
 
     # Measurement settings
@@ -115,7 +116,7 @@ def generate_output(measurement, angle=None, ext=None):
     output += f'Number of cycles: {measurement["cycles"]}\n\n'
 
     try:
-        IntvB_sub = IntvB - baseline
+        IntvB_sub = IntvB - baseline - int_mean.y
     except Exception as e:
         IntvB_sub = IntvB
         output += f'Warning, subtraction of the baseline has failed:\n{str(e)}\n\n'
@@ -134,7 +135,7 @@ def generate_output(measurement, angle=None, ext=None):
     else:
         # analysis output
         try:
-            fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, angle, ext)
+            fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, int_mean.y, angle, ext)
             output += f'Minimum intensity: {fit_min[1]} (V)\n'
             output += f'Maxmimum intensity: {fit_max[1]} (V)\n'
             output += f'Canting angle: {angle} (SKT)\n'
