@@ -40,13 +40,13 @@
       <widget class="QLabel" name="label">
        <property name="minimumSize">
         <size>
-         <width>242</width>
+         <width>229</width>
          <height>93</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>242</width>
+         <width>229</width>
          <height>93</height>
         </size>
        </property>
@@ -75,13 +75,13 @@
       <widget class="QLabel" name="label_13">
        <property name="minimumSize">
         <size>
-         <width>132</width>
+         <width>149</width>
          <height>80</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>132</width>
+         <width>149</width>
          <height>80</height>
         </size>
        </property>
@@ -101,21 +101,15 @@
      </item>
      <item>
       <widget class="QLabel" name="label_12">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize">
         <size>
-         <width>132</width>
+         <width>172</width>
          <height>80</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>132</width>
+         <width>172</width>
          <height>80</height>
         </size>
        </property>
@@ -135,21 +129,15 @@
      </item>
      <item>
       <widget class="QLabel" name="label_11">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize">
         <size>
-         <width>132</width>
+         <width>129</width>
          <height>80</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>132</width>
+         <width>129</width>
          <height>80</height>
         </size>
        </property>

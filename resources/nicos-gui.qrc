@@ -66,9 +66,9 @@
     <file alias="polarization">icons/polarization.png</file>
     <file alias="strategy">icons/strategy.png</file>
     <file alias="nicos-logo">nicos-logo.svg</file>
-    <file alias="mlz-logo-auth">mlz-logo-auth.svg</file>
+    <file alias="mlz-logo-auth">mlz-logo-auth.png</file>
     <file alias="ess-logo-auth">ess-logo-auth.svg</file>
-    <file alias="psi-logo-auth">psi-logo-auth.svg</file>
+    <file alias="psi-logo-auth">psi-logo-auth.png</file>
   </qresource>
   <qresource prefix="leds">
     <file alias="status_white">leds/simplewhite.png</file>
