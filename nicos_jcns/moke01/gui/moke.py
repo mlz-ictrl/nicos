@@ -204,6 +204,7 @@ class MokePanel(NicosWidget, MokeBase):
         self.bar.addAction(self.actionStopNow)
         self.bar.addAction(self.actionStopLater)
         self.bar.addAction(self.actionEmergencyStop)
+        self.bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
 
     def getToolbars(self):
         return [self.bar]
