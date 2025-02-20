@@ -29,7 +29,7 @@ from nicos.clients.gui.utils import ScriptExecQuestion
 from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QApplication, QColor, QCompleter, QEvent, \
     QKeyEvent, QLineEdit, QMessageBox, QPalette, QRegularExpression, \
-    QRegularExpressionValidator, QStringListModel, Qt, pyqtSignal
+    QRegularExpressionValidator, Qt, pyqtSignal
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
 
 wordsplit_re = re.compile(r'[ \t\n\"\\\'`@$><=;|&{(\[]')
@@ -77,7 +77,7 @@ class HistoryLineEdit(QLineEdit):
             if len(fullmatches) == 1:
                 self.setText(fullmatches[0])
             else:
-                self._completer.setModel(QStringListModel(fullmatches, self))
+                self._completer.model().setStringList(fullmatches)
                 self._completer.complete()
             return True
         return QLineEdit.event(self, event)
@@ -138,7 +138,7 @@ class HistoryLineEdit(QLineEdit):
                 # append to history, but only if it isn't equal to the last
                 self.history.append(text)
             self._completer.setCompletionPrefix('')
-            self._completer.setModel(QStringListModel([], self))
+            self._completer.model().setStringList([])
             QLineEdit.keyPressEvent(self, kev)
 
         else:
