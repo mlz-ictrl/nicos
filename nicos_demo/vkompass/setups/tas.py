@@ -1,4 +1,4 @@
-description = 'Kompass standard instrument'
+description = 'Kompass triple axis configuration'
 
 group = 'basic'
 
