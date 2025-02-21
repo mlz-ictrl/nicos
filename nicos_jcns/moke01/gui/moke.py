@@ -57,6 +57,7 @@ class MokePlot(LiveWidget1D):
                                self.on_legendItemClicked, LegendEvent)
 
     def add_curve(self, curve, color=None, legend=None):
+        self.plot.title = legend
         if not curve:
             return
         if color is None:
@@ -86,7 +87,6 @@ class MokePlot(LiveWidget1D):
         self._update()
 
     def add_mokecurves(self, curves, legend=None):
-        self.plot.title = legend
         if isinstance(curves, Curves):
             for i, curve in enumerate(curves):
                 if i % 2 == 0:
@@ -100,6 +100,7 @@ class MokePlot(LiveWidget1D):
             mean = curves.increasing(by_y=False).mean()
             mean.extend(curves.decreasing(by_y=False).mean())
             self.add_curve(mean, color=1, legend='mean')
+        self.plot.title = legend
 
     def reset(self):
         self.axes.resetCurves()
