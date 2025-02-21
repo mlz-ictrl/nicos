@@ -210,7 +210,7 @@ class Curve2D:
         """There should not be user case for this feature."""
         return NotImplemented
 
-    def __add__(self, value):
+    def _operation(self, value, direct, func):
         if not value:
             return self
         elif isinstance(value, Curve2D):
@@ -219,62 +219,39 @@ class Curve2D:
             if start > end:
                 return None
             res = Curve2D()
-            for p in self:
+            (c1, c2) = (self, value) if direct else (value, self)
+            for p in c1:
                 if p.x < start or p.x > end:
                     continue
-                res.append(p + value.yvx(p.x))
+                res.append(func(p, c2.yvx(p.x)))
             return res
         elif isinstance(value, _compatible_types):
-            return Curve2D([p + value for p in self])
+            return Curve2D([func(p, value) for p in self])
         raise TypeError(
             f'Cannot perform operation with {type(value).__name__}')
 
+    def __add__(self, value):
+        return self._operation(value, True, lambda a, b: a + b)
+
     def __radd__(self, value):
-        if not value:
-            return self
-        elif isinstance(value, Curve2D):
-            start = max(self.xmin, value.xmin)
-            end = min(self.xmax, value.xmax)
-            if start > end:
-                return None
-            res = Curve2D()
-            for p in value:
-                if p.x < start or p.x > end:
-                    continue
-                res.append(p + self.yvx(p.x))
-            return res
-        elif isinstance(value, _compatible_types):
-            return Curve2D([p + value for p in self])
-        raise TypeError(
-            f'Cannot perform operation with {type(value).__name__}')
+        return self._operation(value, False, lambda a, b: a + b)
 
     # def __iadd__(self, value):
 
     def __sub__(self, value):
-        if not value:
-            return self
-        elif isinstance(value, Curve2D):
-            start = max(self.xmin, value.xmin)
-            end = min(self.xmax, value.xmax)
-            if start > end:
-                return None
-            res = Curve2D()
-            for p in self:
-                if p.x < start or p.x > end:
-                    continue
-                res.append(p - value.yvx(p.x))
-            return res
-        elif isinstance(value, _compatible_types):
-            return Curve2D([p - value for p in self])
-        raise TypeError(
-            f'Cannot perform operation with {type(value).__name__}')
+        return self._operation(value, True, lambda a, b: a - b)
 
     def __rsub__(self, value):
-        return self.__neg__().__radd__(value)
+        return self._operation(value, False, lambda a, b: a - b)
 
     # def __isub__(self, value):
-    # def __mul__(self, value):
-    # def __rmul__(self, value):
+
+    def __mul__(self, value):
+        return self._operation(value, True, lambda a, b: a * b)
+
+    def __rmul__(self, value):
+        return self._operation(value, False, lambda a, b: a * b)
+
     # def __imul__(self, value):
     # def __truediv__(self, value):
     # def __rtruediv__(self, value):

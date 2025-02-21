@@ -89,6 +89,14 @@ def test_arithmetics():
     assert (curve2 - curve0).y == curve1.y
 
 
+def test_multiplication():
+    curve0 = Curve2D([(i, 6) for i in range(10)])
+    curve1 = Curve2D([(i, 2) for i in range(10)])
+    assert (curve1 * 3).y == curve0.y
+    curve2 = Curve2D([(i, 3) for i in range(-1, 11)])
+    assert (curve1 * curve2).y == curve0.y
+
+
 def test_interpolation():
     curve = Curve2D([(1, 2), (9, 18)])
     assert curve.xvy(11).x == 5.5
