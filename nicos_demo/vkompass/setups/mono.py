@@ -2,8 +2,6 @@ description = 'Monochromator tower devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
-
 devices = dict(
     # A1
     mth = device('nicos.devices.generic.Axis',

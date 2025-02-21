@@ -2,26 +2,13 @@ description = 'Selector related devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
-
 devices = dict(
-    nvslift_m = device('nicos.devices.entangle.Motor',
-        description = 'Neutron selector lift motor',
-        tangodevice = tango_base + 'lift/motor',
-        # unit = 'mm',
-        visibility = (),
-    ),
-    nvslift_c = device('nicos.devices.entangle.Sensor',
-        description = 'Selector lift coder',
-        tangodevice = tango_base + 'lift/coder',
-        fmtstr = '%.2f',
-        visibility = (),
-    ),
     nvslift_ax = device('nicos.devices.generic.Axis',
         description = 'Selector lift position',
-        motor = 'nvslift_m',
-#        coder = 'nvslift_c',  # temporarily, as the coder seems broken
-        coder = 'nvslift_c',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (0, 406),
+            unit = 'mm',
+        ),
         fmtstr = '%.2f',
         precision = 0.1,
     ),
