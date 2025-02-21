@@ -11,12 +11,15 @@ devices = dict(
         ),
         fmtstr = '%.2f',
         precision = 0.1,
+        visibility = (),
     ),
     nvslift = device('nicos.devices.generic.Switcher',
         description = 'Neutron selector lift',
         moveable = 'nvslift_ax',
-        mapping = {'out': 0.,
-                   'in': 405.377},
+        mapping = {
+            'out': 0.,
+            'in': 405.377
+        },
         fallback = '',
         fmtstr = '%s',
         precision = 1.0,
