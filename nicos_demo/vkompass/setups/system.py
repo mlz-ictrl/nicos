@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'Kompass',
+    instrument = 'kompass',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
@@ -18,7 +18,7 @@ includes = [
 ]
 
 devices = dict(
-    Kompass = device('nicos.devices.tas.TAS',
+    kompass = device('nicos.devices.tas.TAS',
         description = 'instrument object',
         instrument = 'KOMPASS',
         responsible = 'Dmitry Gorkov <dmitry.gorkov@frm2.tum.de>',
@@ -66,21 +66,21 @@ devices = dict(
         description = 'incoming wavevector, also sets constant-ki mode when moved',
         unit = 'A-1',
         base = 'mono',
-        tas = 'Kompass',
+        tas = 'kompass',
         scanmode = 'CKI',
     ),
     Ei = device('nicos.devices.tas.Energy',
         description = 'incoming energy, also sets constant-ki mode when moved',
         unit = 'meV',
         base = 'mono',
-        tas = 'Kompass',
+        tas = 'kompass',
         scanmode = 'CKI',
     ),
     lam = device('nicos.devices.tas.Wavelength',
         description = 'incoming wavelength for diffraction',
         unit = 'AA',
         base = 'mono',
-        tas = 'Kompass',
+        tas = 'kompass',
         scanmode = 'CKI',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
