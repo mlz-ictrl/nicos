@@ -303,7 +303,7 @@ class MappedMoveable(MappedReadable, TransformedMoveable):
     def doInit(self, mode):
         # be restrictive?
         if not self.relax_mapping:
-            self.valuetype = oneof(*sorted(self.mapping, key=num_sort))
+            self.valuetype = oneof(*self.mapping)
         MappedReadable.doInit(self, mode)
 
     def _mapTargetValue(self, target):
