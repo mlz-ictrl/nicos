@@ -60,6 +60,7 @@ a = (11.4, 0.0, 0.1, 3.397, 7.953, 8.028, 9.925, 10.0)
 Lsd = 4                                 # flight distance sample-detector
 Lpm = a[7] - a[1]                       # flight distance chopper1-chopper7
 Lms = a[0] - a[7]                       # flight distance chopper7-sample
+Lpre_sample = a[0] - a[5]
 
 # offsets of chopper zero position in deg (definition of the sign is unknown
 # chopperOffset = (0.00, 0.00, -0.25, 0.45, 0.39, -0.25, 0.13, 0.36)
