@@ -224,25 +224,6 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QSpinBox" name="speed">
-          <property name="suffix">
-           <string> rpm</string>
-          </property>
-          <property name="minimum">
-           <number>3000</number>
-          </property>
-          <property name="maximum">
-           <number>22000</number>
-          </property>
-          <property name="singleStep">
-           <number>1000</number>
-          </property>
-          <property name="value">
-           <number>14000</number>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -289,6 +270,31 @@
           </property>
           <property name="value">
            <number>4</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QDoubleSpinBox" name="speed">
+          <property name="accelerated">
+           <bool>true</bool>
+          </property>
+          <property name="prefix">
+           <string/>
+          </property>
+          <property name="suffix">
+           <string> rpm</string>
+          </property>
+          <property name="decimals">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <double>22000.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>1000.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>14000.000000000000000</double>
           </property>
          </widget>
         </item>

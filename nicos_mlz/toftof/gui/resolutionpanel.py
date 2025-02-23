@@ -151,7 +151,7 @@ class ResolutionPanel(NicosWidget, Panel):
         else:
             self.buttonBox.rejected.connect(self.close)
 
-        self.speed.valueChanged['int'].connect(self.recalculate)
+        self.speed.valueChanged['double'].connect(self.recalculate)
         self.waveLength.valueChanged['double'].connect(self.recalculate)
         self.ratio.valueChanged['int'].connect(self.recalculate)
         self.slits.currentIndexChanged.connect(self.recalculate)
