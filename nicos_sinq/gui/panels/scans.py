@@ -24,7 +24,7 @@
 """NICOS GUI scan plot window -- SINQ flavour."""
 
 from nicos.clients.flowui.panels import get_icon
-from nicos.clients.flowui.panels.scans import ScansPanel as FlowUIScansPanel
+from nicos.clients.flowui.panels.scans import ScansPanel as FlowuiScansPanel
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
 from nicos.devices.datasinks.scan import AsciiScanfileReader
 from nicos.guisupport.qt import QDialog, QToolBar, pyqtSlot
@@ -32,14 +32,14 @@ from nicos.guisupport.qt import QDialog, QToolBar, pyqtSlot
 from nicos_sinq.devices.illasciisink import ILLAsciiScanfileReader
 
 
-class ScansPanel(FlowUIScansPanel):
+class ScansPanel(FlowuiScansPanel):
 
     def set_icons(self):
-        FlowUIScansPanel.set_icons(self)
+        FlowuiScansPanel.set_icons(self)
         self.actionOpen.setIcon(get_icon('folder_open-24px.svg'))
 
     def createPanelToolbar(self):
-        default_bar, fitbar = FlowUIScansPanel.createPanelToolbar(self)
+        default_bar, fitbar = FlowuiScansPanel.createPanelToolbar(self)
         bar = QToolBar('Scans')
         bar.addAction(self.actionOpen)
         for action in default_bar.actions():
