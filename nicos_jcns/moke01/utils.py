@@ -48,7 +48,7 @@ def calc_ellipticity(imin, imax, int_mean, ext, angle):
     if imin == imax:
         raise ValueError('calc_ellipticity(i, imin, imax) cannot be finished '
                          'when imin == imax. Check input data.')
-    return (imax - imin) / (int_mean - ext) * angle / 4
+    return (imax - imin) / (int_mean - ext) * angle / 4 # [µrad]
 
 
 def scale_intensity(i, imin, imax, kerr):
@@ -58,25 +58,25 @@ def scale_intensity(i, imin, imax, kerr):
     if imin == imax:
         raise ValueError('calc_ellipticity(i, imin, imax) cannot be finished '
                          'when imin == imax. Check input data.')
-    return (i - (imin + imax) / 2) / (imax - imin) * 2 * kerr
+    return (i - (imin + imax) / 2) / (imax - imin) * 2 * kerr # [µrad]
 
 
 def calculate(IntvB, int_mean, angle, ext):
     """MOKE-specific measurement analysis."""
 
     # separate increasing and decreasing curves, mean them, and fit the means
-    curves = Curves.from_series(IntvB)
+    curves = Curves.from_series(IntvB) # ([mT, mV])
     IntvB = Curve2D()
     IntvB.append(curves.increasing().mean())
     IntvB.append(curves.decreasing().mean())
-    fit_min = fit_curve(IntvB, 'min')
-    fit_max = fit_curve(IntvB, 'max')
+    fit_min = fit_curve(IntvB, 'min') # [mV]
+    fit_max = fit_curve(IntvB, 'max') # [mV]
 
-    # calculate kerr angle/ellipticity in [urad]
+    # calculate kerr angle/ellipticity in [µrad]
     kerr = calc_ellipticity(fit_min[1], fit_max[1], int_mean, ext, angle)
 
     # rescale intensity into ellipticity curves
-    EvB = Curve2D()
+    EvB = Curve2D() # ([mT, µrad])
     for B, Int in IntvB:
         EvB.append((B, scale_intensity(Int, fit_min[1], fit_max[1], kerr)))
 
@@ -109,9 +109,9 @@ def generate_output(measurement, angle=None, ext=None):
     output += f'Measurement mode: {measurement["mode"]}\n'
     output += f'Field orientation: {measurement["field_orientation"]}\n'
     output += f'Power supply ramp: {measurement["ramp"]} [A/min]\n'
-    output += f'Lower value of the field range Bmin: {measurement["Bmin"]} (T)\n'
-    output += f'Upper value of the field range Bmax: {measurement["Bmax"]} (T)\n'
-    output += f'Step size: {measurement["step"] if measurement["mode"] == "stepwise" else "n/a"} (T)\n'
+    output += f'Lower value of the field range Bmin: {measurement["Bmin"]} (mT)\n'
+    output += f'Upper value of the field range Bmax: {measurement["Bmax"]} (mT)\n'
+    output += f'Step size: {measurement["step"] if measurement["mode"] == "stepwise" else "n/a"} (mT)\n'
     output += f'Step time: {measurement["steptime"] if measurement["mode"] == "stepwise" else "n/a"} (s)\n'
     output += f'Number of cycles: {measurement["cycles"]}\n\n'
 
@@ -124,9 +124,9 @@ def generate_output(measurement, angle=None, ext=None):
     if not angle and not ext:
         output += 'Measured curves of intensity vs magnetic field:\n'
         output += 'I (A)\tdI (A)\t' \
-                  'B (T)\tdB (T)\t' \
-                  'Int (V)\tdInt (V)\t' \
-                  'Int_subtracted (V)\tdInt_subtracted (V)\n'
+                  'B (mT)\tdB (mT)\t' \
+                  'Int (mV)\tdInt (mV)\t' \
+                  'Int_subtracted (mV)\tdInt_subtracted (mV)\n'
         for (I, _), (B, Int), (_, Int_sub) in zip(BvI, IntvB, IntvB_sub):
             output += f'{I.n}\t{I.s}\t' \
                       f'{B.n}\t{B.s}\t' \
@@ -136,16 +136,16 @@ def generate_output(measurement, angle=None, ext=None):
         # analysis output
         try:
             fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, int_mean.y, angle, ext)
-            output += f'Minimum intensity: {fit_min[1]} (V)\n'
-            output += f'Maxmimum intensity: {fit_max[1]} (V)\n'
+            output += f'Minimum intensity: {fit_min[1]} (mV)\n'
+            output += f'Maxmimum intensity: {fit_max[1]} (mV)\n'
             output += f'Canting angle: {angle} (SKT)\n'
-            output += f'Extinction: {ext} (V)\n'
-            output += f'Kerr angle: {kerr} (mrad)\n\n'
+            output += f'Extinction: {ext} (mV)\n'
+            output += f'Kerr angle: {kerr} (µrad)\n\n'
             output += 'Mean intensity and ellipticity curves:\n'
             output += 'I (A)\tdI (A)\t' \
-                      'B (T)\tdB (T)\t' \
-                      'Int (V)\tdInt (V)\t' \
-                      'Int_subtracted (V)\tdInt_subtracted (V)\t' \
+                      'B (mT)\tdB (mT)\t' \
+                      'Int (mV)\tdInt (mV)\t' \
+                      'Int_subtracted (mV)\tdInt_subtracted (mV)\t' \
                       'E (a.u.)\tdE (a.u.)\n'
             for (I, _), (B, Int), (_, Int_sub), (_, E) in \
                     zip(BvI[:len(IntvB_sub)], IntvB, IntvB_sub, EvB):

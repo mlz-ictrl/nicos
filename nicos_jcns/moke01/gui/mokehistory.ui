@@ -149,7 +149,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Extinction (V):</string>
+            <string>Extinction (mV):</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -260,7 +260,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Kerr angle (urad):</string>
+            <string>Kerr angle (µrad):</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

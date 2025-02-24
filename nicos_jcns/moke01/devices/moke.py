@@ -236,7 +236,8 @@ class MokeTeslameter(Sensor):
         self._T = self._attached_temperature
 
     def readStd(self, value):
-        value = abs(value)
+        # value is ÷/* 1000 because the NICOS device displays values in mT
+        value = abs(value) / 1000
         i = self._dev.GetProperties().index('range')
         _range = float(self._dev.GetProperties()[i + 1].split(' T')[0])
         Tdeg = self._T.read(0)
@@ -246,7 +247,7 @@ class MokeTeslameter(Sensor):
         return (1e-4 * value + 6e-5 * _range +
                 (1e-5 * value + (1e-6 + 3e-6 * _range)) * abs(Tdeg - 25) +
                 3e-6 * self.probe_wire_length * abs(Tdeg - 25) +
-                years * 1e-3 * value)
+                years * 1e-3 * value) * 1000
 
 
 class MokeVoltmeter(Sensor):
@@ -299,7 +300,8 @@ class MokeVoltmeter(Sensor):
         self._T = self._attached_temperature
 
     def readStd(self, value):
-        value = abs(value)
+        # value is ÷/* 1000 because the NICOS device displays values in mV
+        value = abs(value) / 1000
         days = (datetime.now() -
                 datetime.strptime(self.calibration_date, '%Y-%m-%d')).days
         meas_range = None
@@ -315,4 +317,4 @@ class MokeVoltmeter(Sensor):
         temp = self._T.read(60)
         if not 18 < temp < 28:
             err += MokeVoltmeter.temp_coefs[meas_range]
-        return (value * err[0] + meas_range * err[1]) * 1e-6
+        return (value * err[0] + meas_range * err[1]) * 1e-6 * 1000

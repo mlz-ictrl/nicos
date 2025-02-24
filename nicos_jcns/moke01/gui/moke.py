@@ -126,10 +126,10 @@ class MokeBase(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        self.plot_IntvB = MokePlot('MagB, T', 'Intensity, V', self)
+        self.plot_IntvB = MokePlot('MagB, mT', 'Intensity, mV', self)
         # viewport of IntvB plot is set to accomodate plot title
         self.plot_IntvB.plot.viewport = (.1, .9, .1, .9)
-        self.plot_EvB = MokePlot('MagB, T', 'Ellipticity, urad.', self)
+        self.plot_EvB = MokePlot('MagB, mT', 'Ellipticity, µrad.', self)
         self.m = {}
 
     @pyqtSlot()
@@ -145,16 +145,16 @@ class MokeBase(Panel):
             return
 
         IntvB = self.m['IntvB']
-        int_mean = IntvB.series_to_curves().amean().yvx(0)
+        int_mean = IntvB.series_to_curves().amean().yvx(0) # [mV]
         if self.chk_subtract_baseline.isChecked():
             if 'baseline' in self.m and self.m['baseline']:
-                IntvB -= self.m['baseline']
+                IntvB -= self.m['baseline'] # ([mT, mV])
             if int_mean:
-                IntvB -= int_mean.y
+                IntvB -= int_mean.y # ([mT, mV])
         angle = float(self.ln_canting_angle.text()) # [SKT]
-        # recalculate angle in SKT to urad
-        angle *= math.radians(1.5 / 25) * 1e6 # [urad]
-        ext = float(self.ln_extinction.text()) # V
+        # recalculate angle in SKT to µrad
+        angle *= 1.5 / 25 / 180 * math.pi * 1e6 # [µrad]
+        ext = float(self.ln_extinction.text()) # mV
         try:
             fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean.y, angle, ext)
         except Exception as e:
@@ -192,10 +192,10 @@ class MokePanel(NicosWidget, MokeBase):
         loadUi(self, findResource('nicos_jcns/moke01/gui/mokepanel.ui'))
         self.tabWidget.setCurrentIndex(0)
         self.calibration = {}
-        self.plot_calibration = MokePlot('PS_current, A', 'MagB, T', self)
+        self.plot_calibration = MokePlot('PS_current, A', 'MagB, mT', self)
         self.lyt_plot_calibration.addWidget(self.plot_calibration)
         self.baseline = {}
-        self.plot_baseline = MokePlot('MagB, T', 'Intensity, V', self)
+        self.plot_baseline = MokePlot('MagB, mT', 'Intensity, mV', self)
         self.lyt_plot_baseline.addWidget(self.plot_baseline)
         self.lyt_plot_IntvB.addWidget(self.plot_IntvB)
         self.lyt_plot_EvB.addWidget(self.plot_EvB)
