@@ -5,7 +5,7 @@ sysconfig = dict(
     cache = configdata('config_data.cache_host'),
     instrument = 'puma',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'nxsink'],
     notifiers = [],
 )
 
@@ -37,10 +37,17 @@ devices = dict(
         zipdata = True,
         mailserver = 'mailhost.frm2.tum.de',
         mailsender = 'puma@frm2.tum.de',
+        serviceexp = 'service',
     ),
     Sample = device('nicos.devices.tas.TASSample',
         description = 'Currently used sample',
         lattice = [4.05, 4.05, 4.05],
+    ),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass = 'nicos_mlz.nexus.nexus_templates.TasTemplateProvider',
+        filenametemplate = ['puma%(scancounter)07d.nxs'],
+        settypes = {'scan', 'point'},  # 'subscan', },
+        filemode = 0o440,
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         filenametemplate = [

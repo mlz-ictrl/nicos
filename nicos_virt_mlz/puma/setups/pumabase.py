@@ -34,6 +34,7 @@ devices = dict(
         scatteringsense = (-1, 1, -1),
         energytransferunit = 'meV',
         axiscoupling = True,
+        autodevice_visibility = {'metadata', 'namespace',},
     ),
     ki = device('nicos.devices.tas.Wavevector',
         description = 'initial wavevector',

@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'kompassctrl',
     instrument = 'kompass',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'nxsink'],
     notifiers = ['email', 'smser'],
 )
 
@@ -87,6 +87,13 @@ devices = dict(
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass = 'nicos_mlz.nexus.nexus_templates.TasTemplateProvider',
+        filenametemplate = ['%(scancounter)07d.nxs'],
+        settypes = {'scan', 'point'},  # 'subscan', },
+        filemode = 0o440,
+        device_mapping = dict(det='det1', sgx='scx', sgy='scy', phi='stt', psi='sth'),
+    ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = None,

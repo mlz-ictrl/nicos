@@ -5,7 +5,7 @@ sysconfig = dict(
     cache = 'pumahw.puma.frm2.tum.de',
     instrument = 'puma',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'nxsink'],
     notifiers = ['email'],
 )
 
@@ -58,6 +58,12 @@ devices = dict(
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
         description = 'handles I/O inside daemon',
+    ),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass = 'nicos_mlz.nexus.nexus_templates.TasTemplateProvider',
+        filenametemplate = ['%(scancounter)07d.nxs'],
+        settypes = {'scan', 'point'},  # 'subscan', },
+        filemode = 0o440,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',

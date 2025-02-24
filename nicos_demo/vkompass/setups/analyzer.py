@@ -29,4 +29,11 @@ devices = dict(
         abslimits = (-180, 180),
         precision = 0.05,
     ),
+    Ef = device('nicos.devices.tas.Energy',
+        description = 'final energy',
+        unit = 'meV',
+        base = 'ana',
+        tas = 'kompass',
+        scanmode = 'CKF',
+    ),
 )

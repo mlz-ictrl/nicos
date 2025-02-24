@@ -53,6 +53,13 @@ devices = dict(
         scatteringsense = 1,
         crystalside = 1,
     ),
+    Ef = device('nicos.devices.tas.Energy',
+        description = 'final energy',
+        unit = 'meV',
+        base = 'ana',
+        tas = 'kompass',
+        scanmode = 'CKF',
+    ),
 )
 
 # ath (A5)
