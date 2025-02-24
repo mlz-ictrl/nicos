@@ -35,8 +35,8 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
-from nicos.guisupport.qt import pyqtSlot, QDate, QMessageBox, QStandardItem, \
-    QStandardItemModel, Qt, QToolBar
+from nicos.guisupport.qt import pyqtSlot, QDate, QFont, QMessageBox, \
+    QStandardItem, QStandardItemModel, Qt, QToolBar
 from nicos.guisupport.widget import NicosWidget
 from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP
 from nicos.utils import findResource
@@ -199,6 +199,7 @@ class MokePanel(NicosWidget, MokeBase):
         self.lyt_plot_baseline.addWidget(self.plot_baseline)
         self.lyt_plot_IntvB.addWidget(self.plot_IntvB)
         self.lyt_plot_EvB.addWidget(self.plot_EvB)
+        self.txt_rawdata.setFont(QFont('Courier New'))
         NicosWidget.__init__(self)
         self.setClient(self.client)
         self.bar = QToolBar('Script control')
@@ -466,6 +467,7 @@ class MokeHistory(MokeBase):
         self.lst_history.setModel(self._model)
         self.lst_history.selectionModel().currentChanged.\
             connect(self.on_lst_history_index_changed)
+        self.txt_rawdata.setFont(QFont('Courier New'))
         self.measurements = {}
         date1 = datetime.datetime.now().date()
         date0 = date1 - datetime.timedelta(days=30)
