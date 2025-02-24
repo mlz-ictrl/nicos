@@ -144,8 +144,8 @@ class NexusSinkHandler(DataSinkHandler):
                 try:
                     val.create(key, h5obj, self)
                 except Exception as e:
-                    self.log.warning('Exception %s while creating NeXus entry'
-                                     'for %s', str(e), key)
+                    self.log.warning('Exception %r while creating NeXus entry '
+                                     'for %r', str(e), key)
             else:
                 self.log.warning('Cannot write %r of type %r', key, type(val))
 
