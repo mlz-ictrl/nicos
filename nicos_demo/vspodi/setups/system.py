@@ -7,7 +7,7 @@ sysconfig = dict(
     instrument = 'Spodi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'spodilivesink',
-        'spodisink',
+        'spodisink', 'nxsink',
     ],
     # notifiers = ['email', 'smser'],
 )
@@ -41,6 +41,7 @@ devices = dict(
             # owner = 'spodi',
             # group = 'spodi'
         ),
+        forcescandata = False,
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
@@ -54,6 +55,11 @@ devices = dict(
     ),
     spodilivesink = device('nicos_mlz.spodi.datasinks.LiveViewSink',
         correctionfile='nicos_mlz/spodi/data/detcorrection.dat'
+    ),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass='nicos_mlz.nexus.nexus_templates.PowderTemplateProvider',
+        settypes = {'point',},
+        filenametemplate = ['m1%(pointcounter)08d.nxs'],
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

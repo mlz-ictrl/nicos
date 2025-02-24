@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'erwin',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'filesink', 'livesink'],
+    datasinks = ['conssink', 'dmnsink', 'filesink', 'livesink', 'nxsink'],
     notifiers = ['email'],
 )
 
@@ -50,6 +50,11 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos_mlz.erwin.datasinks.LiveViewSink'),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass='nicos_mlz.nexus.nexus_templates.PowderTemplateProvider',
+        settypes = {'point',},
+        filenametemplate = ['%(pointcounter)08d.nxs'],
+    ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         warnlimits = (5., None),
