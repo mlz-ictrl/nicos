@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+import math
+
 from nicos.utils.functioncurves import Curve2D, Curves
 from nicos.utils.functioncurves.calcs import mean
 
@@ -102,26 +104,27 @@ def generate_output(measurement, angle=None, ext=None):
 
     # Measurement settings
     output = f'Measurement name: {measurement["name"]}\n'
-    output += f'Id: {measurement["id"]}\n'
+    output += f'Sample id: {measurement["id"]}\n'
     output += f'Description: {measurement["description"]}\n'
-    output += f'Measurement time: {measurement["time"]}\n'
+    output += f'Measurement start time: {measurement["time"]}\n'
     output += f'Measurement type: {measurement["exp_type"]}\n'
     output += f'Measurement mode: {measurement["mode"]}\n'
     output += f'Field orientation: {measurement["field_orientation"]}\n'
     output += f'Power supply ramp: {measurement["ramp"]} [A/min]\n'
-    output += f'Lower value of the field range Bmin: {measurement["Bmin"]} (mT)\n'
-    output += f'Upper value of the field range Bmax: {measurement["Bmax"]} (mT)\n'
+    output += f'Bmin: {measurement["Bmin"]} (mT)\n'
+    output += f'Bmax: {measurement["Bmax"]} (mT)\n'
     output += f'Step size: {measurement["step"] if measurement["mode"] == "stepwise" else "n/a"} (mT)\n'
     output += f'Step time: {measurement["steptime"] if measurement["mode"] == "stepwise" else "n/a"} (s)\n'
-    output += f'Number of cycles: {measurement["cycles"]}\n\n'
+    output += f'Number of cycles planned: {measurement["cycles"]}\n'
+    output += f'Number of cycles completed: {int(math.floor(len(Curves.from_series(IntvB)) / 2))}\n\n'
 
     try:
         IntvB_sub = IntvB - baseline - int_mean.y
     except Exception as e:
         IntvB_sub = IntvB
         output += f'Warning, subtraction of the baseline has failed:\n{str(e)}\n\n'
-    # raw measurement output
     if not angle and not ext:
+        # raw measurement output
         output += 'Measured curves of intensity vs magnetic field:\n'
         output += 'I (A)\tdI (A)\t' \
                   'B (mT)\tdB (mT)\t' \
@@ -135,10 +138,9 @@ def generate_output(measurement, angle=None, ext=None):
     else:
         # analysis output
         try:
-            fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, int_mean.y, angle, ext)
-            output += f'Minimum intensity: {fit_min[1]} (mV)\n'
-            output += f'Maxmimum intensity: {fit_max[1]} (mV)\n'
-            output += f'Canting angle: {angle} (SKT)\n'
+            _, _, IntvB_sub, EvB, kerr = calculate(IntvB_sub, int_mean.y, angle, ext)
+            output += f'Canting angle: {angle / (1.5 / 25 / 180 * math.pi * 1e6)} (SKT)' \
+                      f' {angle / 1000 :.3f} (mrad)\n'
             output += f'Extinction: {ext} (mV)\n'
             output += f'Kerr angle: {kerr} (µrad)\n\n'
             output += 'Mean intensity and ellipticity curves:\n'

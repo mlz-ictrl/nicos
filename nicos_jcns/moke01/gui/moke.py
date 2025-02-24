@@ -276,8 +276,7 @@ class MokePanel(NicosWidget, MokeBase):
             # before measurement is finished and stored to `MagB.measurement`
             # IntvB can be fetched from MagB._IntvB
             if self.m:
-                IntvB = self.client.eval('session.getDevice("MagB")._IntvB') \
-                    or self.m['IntvB']
+                IntvB = self.client.eval('session.getDevice("MagB")._IntvB')
                 int_mean = IntvB.series_to_curves().amean().yvx(0)
                 if self.chk_subtract_baseline.isChecked() and IntvB:
                     if 'baseline' in self.m and self.m['baseline']:
@@ -286,7 +285,10 @@ class MokePanel(NicosWidget, MokeBase):
                         IntvB -= int_mean.y
                 self.plot_IntvB.reset()
                 self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
-                self.display_rawdata(generate_output(self.m))
+                m = self.m
+                m['IntvB'] = IntvB
+                m['BvI'] = self.client.eval('session.getDevice("MagB")._BvI')
+                self.display_rawdata(generate_output(m))
         elif key == 'magb/measurement':
             self.m = value.copy()
             keys = ['id', 'mode', 'exp_type', 'field_orientation', 'steptime',
