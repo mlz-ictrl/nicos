@@ -1,31 +1,31 @@
-description = 'Double cristal monochromator at ICON.'
+description = 'Double crystal monochromator at ICON.'
 
 display_order = 20
 
 devices = dict(
     mth1 = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'Double cristal monochromator, Theta 1',
+        description = 'Double crystal monochromator, Theta 1',
         motorpv = 'SQ:ICON:dcm:mth1',
         errormsgpv = 'SQ:ICON:dcm:mth1-MsgTxt',
         precision = 0.02,
         reference_direction = 'reverse',
     ),
     mth2 = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'Double cristal monochromator, Theta 2',
+        description = 'Double crystal monochromator, Theta 2',
         motorpv = 'SQ:ICON:dcm:mth2',
         errormsgpv = 'SQ:ICON:dcm:mth2-MsgTxt',
         precision = 0.02,
         reference_direction = 'reverse',
     ),
     mtz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'Double cristal monochromator, translation Z',
+        description = 'Double crystal monochromator, translation Z',
         motorpv = 'SQ:ICON:dcm:mtz',
         errormsgpv = 'SQ:ICON:dcm:mtz-MsgTxt',
         precision = 0.02,
         reference_direction = 'reverse',
     ),
     dcm_lambda = device('nicos_sinq.devices.doublemono.DoubleMonochromator',
-        description = 'ICON double cristal monochromator',
+        description = 'ICON double crystal monochromator',
         unit = 'Angstroem',
         safe_position = 0.,
         dvalue = 3.335,
