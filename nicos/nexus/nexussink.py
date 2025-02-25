@@ -30,7 +30,7 @@ from nicos.core.constants import LIVE, POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.data.sink import DataFileBase
 from nicos.core.errors import NicosError
-from nicos.core.params import Param
+from nicos.core.params import Param, dictof, nicosdev
 from nicos.devices.datasinks import FileSink
 from nicos.nexus.elements import NexusElementBase, NXAttribute, NXScanLink, \
     NXTime
@@ -57,6 +57,13 @@ class NexusTemplateProvider:
     template. Because the template may be dependent on the setup or other
     instrument conditions.
     """
+
+    def init(self, **kwargs):
+        """Initialize the provider.
+
+        In some cases the provider can be used for different instrument with
+        the same provider but different devices for the same NeXus elements.
+        """
 
     def getTemplate(self):
         """Return a dictionary containing the desired NeXus structure."""
@@ -313,6 +320,9 @@ class NexusSink(FileSink):
         'templateclass': Param('Python class implementing '
                                'NexusTemplateProvider',
                                type=str, mandatory=True),
+        'device_mapping': Param('Mapping the template devices to real NICOS '
+                                'devices',
+                                type=dictof(nicosdev, nicosdev), default={}),
     }
 
     handlerclass = NexusSinkHandler
@@ -334,5 +344,6 @@ class NexusSink(FileSink):
             self._handlerObj = None
 
     def loadTemplate(self):
-        class_ = importString(self.templateclass)
-        return class_().getTemplate()
+        tp = importString(self.templateclass)()
+        tp.init(**self.device_mapping)
+        return tp.getTemplate()
