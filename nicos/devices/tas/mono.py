@@ -28,7 +28,7 @@ from math import asin, cos, degrees, pi, radians, sin
 
 from nicos.core import MASTER, SIMULATION, Attach, HasLimits, HasPrecision, \
     LimitError, Moveable, Override, Param, listof, multiReset, multiStatus, \
-    oneof, status
+    oneof, status, tupleof
 from nicos.devices.generic.mono import ANG2MEV, THZ2MEV, \
     Monochromator as BaseMonochromator, from_k, to_k
 
@@ -103,6 +103,13 @@ class Monochromator(HasLimits, HasPrecision, BaseMonochromator):
                              '180 degrees to avoid scattering from the back '
                              'of the crystal holder)',
                              type=oneof(1, -1), mandatory=True),
+        'material': Param('Crystal material',
+                          type=oneof('PG', 'Ge', 'Si', 'Cu', 'Fe3Si',  'CoFe',
+                                     'Heusler', 'Diamond', 'Multilayer'),
+                          mandatory=True, category='instrument'),
+        'reflection': Param('Used hkl parameter of the reflection',
+                            type=tupleof(int, int, int), mandatory=True,
+                            category='instrument'),
     }
 
     parameter_overrides = {

@@ -82,6 +82,8 @@ devices = dict(
         vfocuspars = [0],
         scatteringsense = 1,
         crystalside = 1,
+        material = 'PG',
+        reflection = (0, 0, 2),
         dvalue = 3.355,
     ),
     mshl = device('nicos.devices.generic.Axis',

@@ -60,6 +60,8 @@ devices = dict(
         vfocuspars = [220.528, -40.485, 2.789],
         scatteringsense = -1,
         crystalside = -1,
+        material = 'PG',
+        reflection = (0, 0, 2),
         dvalue = 3.355,
     ),
     co_m2tx = device('nicos.devices.entangle.Sensor',

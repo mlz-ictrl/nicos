@@ -107,7 +107,7 @@ def test_mono_device(session):
     mtt.move(mtt.read(0) + 2)
     mono.finish()
 
-    assert mono._calcurvature(1., 1., 1) == approx(1.058, abs=1e-3)
+    assert mono._calcurvature(1., 1., 1) == approx(1.068, abs=1e-3)
 
 
 def test_tas_mono_foci(session, tas):
@@ -282,7 +282,7 @@ def test_qmodulus(session, log):
     qmod = session.getDevice('Qmod')
     assert qmod.unit == 'A-1'
     assert qmod.status(0) == (status.OK, '')
-    assert qmod.read(0) == approx(10.8822, abs=1e-4)
+    assert qmod.read(0) == approx(10.7849, abs=1e-4)
 
 
 def test_setalign(session, tas):

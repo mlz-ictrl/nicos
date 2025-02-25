@@ -22,7 +22,9 @@ devices = dict(
         vfocuspars = [0],
         abslimits = (1, 10),
         userlimits = (1, 10),
-        dvalue = 3.455,
+        material = 'Si',
+        reflection = (1, 1, 1),
+        dvalue = 3.455,   # 3.13
         scatteringsense = -1,
         crystalside = -1,
     ),
