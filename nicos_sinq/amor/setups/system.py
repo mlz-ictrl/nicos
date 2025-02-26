@@ -11,11 +11,12 @@ sysconfig = dict(
     datasinks = ['conssink', 'dmnsink', 'FileWriterControl'],
 )
 
+# Commented out on 27.11.2024 (Stefan Mathis). To be checked in shutdown - is this ever needed?
+#  'nicos_ess.commands.filewriter',
 modules = [
     'nicos.commands.standard',
     'nicos_sinq.amor.commands',
     'nicos_sinq.commands.sics',
-    'nicos_ess.commands.filewriter',
     'nicos_sinq.commands.epicscommands',
 ]
 
@@ -68,7 +69,7 @@ devices = dict(
         templatename = 'amor_streaming',
     ),
     proton_current = device('nicos_sinq.devices.epics.proton_counter.SINQProtonCurrent',
-        description = 'Proton current monitor',
+        description = 'Proton current',
         readpv = 'SQ:AMOR:sumi:BEAMCPY',
         unit = 'uA',
         fmtstr = '%6.1f',
@@ -95,9 +96,7 @@ devices = dict(
         alias = 'ltz_sim',
         devclass = 'nicos.core.device.Moveable'
         ),
+    syncdaqsink = device('nicos_sinq.amor.devices.datasinks.SyncDaqSink',
+        description = 'Sink for synchronizing the DAQ PC and the ring modules at the start of each measurement'
+    ),
 )
-alias_config = {'lom': {'lom_sim': 10}, 'ltz': {'ltz_sim': 10}}
-
-startupcode = """
-Exp._setROParam('propinfo', {'proposal': 'ESS wrong'})
-"""

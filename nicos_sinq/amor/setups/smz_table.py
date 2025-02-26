@@ -4,7 +4,7 @@ display_order = 53
 
 pvprefix = 'SQ:AMOR:mmac1:'
 
-excludes = ['stz_table', 'SampleMagnet']
+excludes = ['stz_table']
 
 devices = dict(
     smz = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
@@ -16,4 +16,6 @@ devices = dict(
         visibility = ('devlist', 'metadata', 'namespace'),
     ),
 )
-alias_config = {'sz': {'smz': 100}}
+
+alias_config = {'sz': {'smz': 10}}
+

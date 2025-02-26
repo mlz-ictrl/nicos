@@ -20,7 +20,6 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-
 from nicos.clients.gui.panels import Panel
 from nicos.guisupport.qt import QHBoxLayout, QLabel, QScrollArea, \
     QSizePolicy, Qt
@@ -35,8 +34,10 @@ class CommandOutput(Panel):
         scroll.setSizePolicy(QSizePolicy.Policy.Expanding,
                              QSizePolicy.Policy.Minimum)
         scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setMaximumHeight(40)
 
         self.outputMessage = QLabel()

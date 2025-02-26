@@ -26,4 +26,3 @@ devices = dict(
         auto_enable = False,
     ),
 )
-alias_config = {'lom': {'lom_r': 20}, 'ltz': {'ltz_r': 20}}

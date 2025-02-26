@@ -21,6 +21,7 @@ devices = dict(
         description = 'Detector parking motor',
         motorpv = pvprefix + 'park',
         errormsgpv = pvprefix + 'park-MsgTxt',
+        abslimits = (-110, 10),
     ),
     turmcontrol = device('nicos_sinq.amor.devices.turmcontrol.DetectorController',
         description = 'Prevent moving com and coz in park position',

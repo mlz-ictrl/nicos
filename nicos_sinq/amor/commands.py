@@ -18,10 +18,14 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Stefan Mathis <stefan.mathis@psi.ch>
+#   Jochen Stahn <jochen.stahn@psi.ch>
 #
 # *****************************************************************************
 
 """AMOR specific commands and routines"""
+
+import subprocess
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
@@ -31,9 +35,31 @@ from nicos.commands.scan import ADDSCANHELP0, ADDSCANHELP2, _handleScanArgs, \
 from nicos_sinq.amor.scan import WallTimeScan
 from nicos_sinq.devices.detector import SinqDetector
 
-__all__ = [
-    'spin', 'walltimecount',
-]
+
+@usercommand
+def synchronize_daq():
+    """Synchronize the time on the data acquisition computer with that of the
+    ring modules.
+
+    The local clocks on the ESS data acquisition PC and on the ring modules go
+    quickly out of sync, which causes time offsets between the neutron signal
+    and the proton current signal. To combat this, it is necessary to
+    synchronize the clocks before each measurement with this command.
+    """
+    with subprocess.Popen(['ssh', '-t', 'essdaq@det-efu02'],
+                          stdin=subprocess.PIPE,
+                          stdout=subprocess.PIPE) as sshProcess:
+
+        command = b"""
+                  essdaq; cd /home/essdaq/detg_git/dgro_master/
+                  python_slow_ctl2/utgard_kc705_vmm; sh update_rmm_time.sh
+                  """
+        (_, error) = sshProcess.communicate(command)
+        if error:
+            session.log.error('Synchronizing the DAQ time failed. Check if '
+                              'the computer det-efu02 is online.')
+        else:
+            session.log.info('Synchronization successfull.')
 
 
 @usercommand
