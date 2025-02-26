@@ -119,32 +119,29 @@ def main(argv):
     with open(opts.configfile, 'rb') as fp:
         configcode = fp.read()
     gui_conf = processGuiConfig(configcode)
-    gui_conf.stylefile = ''
-
-    if gui_conf.options.get('facility') in ['ess', 'sinq']:
-        gui_conf.stylefile = f"{config.nicos_root}" \
-                             f"/nicos/clients/flowui/guiconfig.qss"
-
-    stylefiles = [path.join(userpath, 'style-%s.qss' % sys.platform),
-        path.join(userpath, 'style.qss'),
-        path.splitext(opts.configfile)[0] + '-%s.qss' % sys.platform,
-        path.splitext(opts.configfile)[0] + '.qss', ]
-
-    for stylefile in [gui_conf.stylefile] or stylefiles:
-        if path.isfile(stylefile):
-            try:
-                with open(stylefile, 'r', encoding='utf-8') as fd:
-                    app.setStyleSheet(fd.read())
-                gui_conf.stylefile = stylefile
-                break
-            except Exception:
-                log.warning('Error setting user style sheet from %s',
-                            stylefile, exc=1)
 
     mainwindow_cls = importString(
         gui_conf.options.get('mainwindow_class',
                              'nicos.clients.gui.mainwindow.MainWindow'))
     mainwindow = mainwindow_cls(log, gui_conf, opts.viewonly, opts.tunnel)
+
+    stylefiles = [
+        path.join(userpath, 'style-%s.qss' % sys.platform),
+        path.join(userpath, 'style.qss'),
+        path.splitext(opts.configfile)[0] + '-%s.qss' % sys.platform,
+        path.splitext(opts.configfile)[0] + '.qss',
+    ]
+
+    for stylefile in mainwindow.defaultStylefiles() or stylefiles:
+        if path.isfile(stylefile):
+            try:
+                with open(stylefile, 'r', encoding='utf-8') as fd:
+                    app.setStyleSheet(fd.read())
+                break
+            except Exception:
+                log.warning('Error setting user style sheet from %s',
+                            stylefile, exc=1)
+
     log.addHandler(DebugHandler(mainwindow))
 
     if opts.connect:

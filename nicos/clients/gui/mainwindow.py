@@ -232,6 +232,9 @@ class MainWindow(DlgUtils, QMainWindow):
         # create initial state
         self._init_toolbar()
 
+    def defaultStylefiles(self):
+        return []
+
     def _init_toolbar(self):
         self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
                                   margin=5, minimumSize=QSize(30, 10))

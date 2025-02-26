@@ -30,8 +30,9 @@ from time import time as current_time
 from nicos.clients.flowui import uipath
 from nicos.clients.flowui.panels import get_icon, root_path
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
-from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
-    QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
+from nicos.guisupport.qt import QIcon, QLabel, QMenu, QPixmap, QPoint, \
+    QSizePolicy, Qt, QWidget, pyqtSlot
+from nicos.utils import findResource
 
 
 def decolor_logo(pixmap, color):
@@ -57,7 +58,6 @@ class MainWindow(DefaultMainWindow):
         self.client.experiment.connect(self._update_toolbar_info)
         self.add_logo()
         self.set_icons()
-        self.style_file = gui_conf.stylefile
 
         self.editor_wintype = self.gui_conf.find_panel(
             ('editor.EditorPanel',
@@ -82,6 +82,9 @@ class MainWindow(DefaultMainWindow):
         self._init_instrument_name()
         self._init_experiment_name()
         self.on_client_disconnected()
+
+    def defaultStylefiles(self):
+        return [findResource('nicos/clients/flowui/guiconfig.qss')]
 
     def _init_toolbar(self):
         self.status_label = QLabel()
@@ -171,24 +174,6 @@ class MainWindow(DefaultMainWindow):
         if experiment is not None:
             self.experiment_label.setText('     Experiment:')
             self.experiment_text.setText(experiment[0:max_text_length])
-
-    def reloadQSS(self):
-        self.setQSS(self.stylefile)
-
-    def selectQSS(self):
-        style_file = QFileDialog.getOpenFileName(
-            self, filter='Qt Stylesheet Files (*.qss)')[0]
-        if style_file:
-            self.style_file = style_file
-            self.setQSS(self.style_file)
-
-    @staticmethod
-    def setQSS(style_file):
-        with open(style_file, 'r', encoding='utf-8') as fd:
-            try:
-                QApplication.instance().setStyleSheet(fd.read())
-            except Exception as e:
-                print(e)
 
     def setStatus(self, status, exception=False):
         if status == self.current_status:

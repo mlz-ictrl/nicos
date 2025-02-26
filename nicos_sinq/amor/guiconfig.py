@@ -128,6 +128,5 @@ tools = [
 ]
 
 options = {
-    'facility' : 'sinq',
     'mainwindow_class': 'nicos_sinq.gui.mainwindow.MainWindow',
 }

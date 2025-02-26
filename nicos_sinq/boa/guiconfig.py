@@ -90,6 +90,5 @@ tools = [
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
 ]
 options = {
-    'facility': 'sinq',
     'mainwindow_class': 'nicos_sinq.gui.mainwindow.MainWindow',
 }
