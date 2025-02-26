@@ -1,8 +1,6 @@
-description = 'Polariser devices in the SINQ AMOR.'
+description = 'Monochromator devices in the SINQ AMOR.'
 
 pvprefix = 'SQ:AMOR:motb:'
-
-includes = ['logical_motors']
 
 devices = dict(
     mom=device('nicos_ess.devices.epics.motor.EpicsMotor',
