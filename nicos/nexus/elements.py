@@ -81,13 +81,13 @@ class NexusElementBase:
             if isinstance(self.value, tuple):
                 if isinstance(self.value[0], int):
                     if self.value[0] < 2**32:
-                        self.dtype = "int32"
+                        self.dtype = 'int32'
                     else:
-                        self.dtype = "int64"
+                        self.dtype = 'int64'
                 elif isinstance(self.value[0], float):
-                    self.dtype = "double"
+                    self.dtype = 'double'
                 elif isinstance(self.value[0], str):
-                    self.dtype = "string"
+                    self.dtype = 'string'
 
             if isinstance(self.value, str):
                 self.dtype = 'string'
@@ -644,7 +644,7 @@ class CalcData(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
-        self.dtype = "float32"
+        self.dtype = 'float32'
 
     def create(self, name, h5parent, sinkhandler):
         self.testAppend(sinkhandler)
@@ -690,8 +690,8 @@ class CalcData(NexusElementBase):
         dset.resize(shape)
 
     def _shape(self, dataset):
-        raise NotImplementedError("Derived class must implement _shape(dset)")
+        raise NotImplementedError('Derived class must implement _shape(dset)')
 
     def _calcData(self, dataset):
-        raise NotImplementedError("Derived class must implement "
-                                  "_calcData(dset)")
+        raise NotImplementedError('Derived class must implement '
+                                  '_calcData(dset)')
