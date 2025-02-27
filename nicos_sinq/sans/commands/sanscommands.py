@@ -37,7 +37,8 @@ from nicos.commands.device import maw
 from nicos.commands.measure import live, preset
 from nicos.commands.output import printerror, printinfo, printwarning
 from nicos.commands.scan import manualscan
-from nicos.core import ConfigurationError, UsageError
+from nicos.core import ConfigurationError, UsageError, status
+from nicos.core.mixins import HasPrecision
 from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
 
@@ -231,12 +232,10 @@ def holder(htype, position=0, prefix='', clear=True):
 
 
 @usercommand
-@helparglist("dev, target, waitNICOScommand='sleep(10)'")
+@helparglist("dev, target, [waitNICOScommand='sleep(10)']")
 def wait4dev(dev, target, waitNICOScommand='sleep(10)'):
-    """
-       move device dev to target within precision of device and execute
-       the command waitNICOScommand until reaching target value or device
-       problems.
+    """Move device to target within precision of device and execute the a NICOS
+       command until reaching target value or device problems.
 
        dev:              movable device name supplied as a string
        target:           real value to which the device should be moved
@@ -247,33 +246,31 @@ def wait4dev(dev, target, waitNICOScommand='sleep(10)'):
         printerror('waitNICOScommand is not a string!')
         return
     else:
-        DD = getDevice(dev)
-        variable = DD()
+        DD = session.getDevice(dev)
+        if not isinstance(DD, HasPrecision):
+            raise UsageError(DD, "doesn't have a precision")
+        variable = DD.read()
         DD.move(target)
         code, _ = parseScript(waitNICOScommand)
         while isinstance(waitNICOScommand, str):
-            if DD.status()[0] == 200:
-                printinfo(DD.name + " reached target value " + str(target) +
-                          DD.unit + "(actual:" + str(DD()) + DD.unit + ").")
+            stat, msg = DD.status()
+            if stat == status.OK:
+                printinfo('%s reached target value %s (actual: %s).' % (
+                    DD, DD.format(target, True), DD.format(variable, True)))
                 try:
-                    printinfo("Required precision is +-" +
-                              str(DD.precision) + DD.unit)
+                    printinfo('Required precision is +-%s' %
+                              DD.formatParameter('precision', DD.precision))
                 except BaseException:
                     pass
                 break
-            elif DD.status()[0] == 220:
-                printwarning(
-                    DD.name +
-                    " = " +
-                    str(variable) +
-                    " is still moving. Executing meanwhile waitNICOScommand")
+            elif stat == status.BUSY:
+                printwarning('%s = %s is still moving. Executing meanwhile %r' % (
+                    DD, DD.format(variable), waitNICOScommand))
+
                 for _, c in enumerate(code):
                     exec(c, session.namespace)
             else:
-                printerror(
-                    DD.name +
-                    " stoped with message:\n" +
-                    DD.status()[1])
+                printerror('%s stopped with message:\n%s' % (DD, msg))
                 break
 
 
