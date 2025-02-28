@@ -101,7 +101,7 @@ class TestNexusSink:
                 'name': DeviceDataset('Exp', 'title'),
                 'title': DeviceDataset('Exp', 'title2',
                                        defaultval='Default title'),
-                'def': ConstDataset('NXmonopd', 'string'),
+                'definition': ConstDataset('NXmonopd', 'string'),
                 'sry': DeviceDataset('sry',
                                      units=NXAttribute('deg', 'string')),
             },
@@ -116,13 +116,13 @@ class TestNexusSink:
         with h5py.File(path.join(session.experiment.datapath,
                                  f'test{year}n000047.hdf'), 'r') as fin:
             ds = fin['entry/name']
-            assert (ds[0] == b'GurkenTitle')
+            assert (ds[()] == b'GurkenTitle')
 
             ds = fin['entry/title']
-            assert (ds[0] == b'Default title')
+            assert (ds[()] == b'Default title')
 
-            ds = fin['entry/def']
-            assert (ds[0] == b'NXmonopd')
+            ds = fin['entry/definition']
+            assert (ds[()] == b'NXmonopd')
 
             ds = fin['entry/sry']
             assert (ds[0] == 23.7)
