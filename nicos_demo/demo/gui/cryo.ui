@@ -82,7 +82,6 @@
      <property name="valueFont" stdset="0">
       <font>
        <family>Monospace</family>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>

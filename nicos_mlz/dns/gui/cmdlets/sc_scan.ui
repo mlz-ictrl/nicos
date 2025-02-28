@@ -28,7 +28,6 @@
         <widget class="QLabel" name="Label_scan">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -223,7 +222,6 @@
         <widget class="QLabel" name="Label_sf">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -277,7 +275,6 @@
         <widget class="QLabel" name="Label_nsf">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>

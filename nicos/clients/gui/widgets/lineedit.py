@@ -251,8 +251,8 @@ class CommandLineEdit(HistoryLineEdit):
 
 class ShadowTextLineEdit(QLineEdit):
 
-    def __init__(self, *args):
-        QLineEdit.__init__(self, *args)
+    def __init__(self, *args, **kwds):
+        QLineEdit.__init__(self, *args, **kwds)
         self._textcolor = self.palette().color(QPalette.ColorRole.Text)
         self._shadowcolor = self.palette().color(QPalette.ColorRole.Dark)
         self._shadowed = True

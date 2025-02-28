@@ -31,7 +31,6 @@
     <widget class="QLabel" name="label_3">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>

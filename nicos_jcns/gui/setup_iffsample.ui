@@ -20,7 +20,6 @@
       <widget class="QLabel" name="samplenameLabel">
        <property name="font">
         <font>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
@@ -50,7 +49,6 @@
       <widget class="QLabel" name="sampleidLabel">
        <property name="font">
         <font>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
