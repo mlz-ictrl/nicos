@@ -32,10 +32,7 @@
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
          <bold>true</bold>
-         <strikeout>false</strikeout>
-         <kerning>true</kerning>
         </font>
        </property>
        <property name="text">

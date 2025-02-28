@@ -46,7 +46,6 @@
     <widget class="QComboBox" name="presetOrAddr">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -257,7 +256,6 @@
     <widget class="QLineEdit" name="userName">
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -283,7 +281,6 @@
      </property>
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
