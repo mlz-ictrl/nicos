@@ -47,6 +47,18 @@ def isInt(ctl, minval=None, maxval=None):
     return isFloat(ctl, minval, maxval, int)
 
 
+def toSeconds(ctl, unitctl):
+    """Return the value of the control in seconds, considering the unit
+    selected in *unitctl*."""
+    val = ctl.value()
+    unit = unitctl.currentText()
+    if unit == 'minutes':
+        val *= 60
+    elif unit == 'hours':
+        val *= 3600
+    return val
+
+
 class Cmdlet(QWidget):
 
     name = ''
@@ -195,6 +207,104 @@ class Move(Cmdlet):
         return cmd + '(' + ', '.join('%s, %r' % (
             self._getDeviceRepr(frm.device.currentText()), frm.target.getValue())
             for frm in self.multiList.entries()) + ')'
+
+
+class WaitFor(Cmdlet):
+
+    name = 'Wait for'
+    category = 'Device'
+
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, 'cmdlets/waitfor.ui')
+        self.stacker.setCurrentIndex(0)
+        self.device.addItems(self._getDeviceList())
+        self.on_device_change(self.device.currentText())
+        self.device.currentTextChanged.connect(self.on_device_change)
+        self.timeout.valueChanged.connect(self.changed)
+        self.timeoutUnit.currentTextChanged.connect(self.changed)
+        self.condOp.currentTextChanged.connect(self.changed)
+        self.condTarget.setClient(self.client)
+        self.condTarget.valueModified.connect(self.changed)
+        self.stableTarget.setClient(self.client)
+        self.stableTarget.valueModified.connect(self.changed)
+        self.stableAcc.setClient(self.client)
+        self.stableAcc.valueModified.connect(self.changed)
+        self.stableTime.valueChanged.connect(self.changed)
+        self.stableTimeUnit.currentTextChanged.connect(self.changed)
+
+    def on_device_change(self, text):
+        self.condTarget.dev = text
+        self.stableTarget.dev = text
+        self.stableAcc.dev = text
+        self.changed()
+
+    def on_conditionBtn_toggled(self, on):
+        self.stacker.setCurrentIndex(0 if on else 1)
+        prev_selected = self.device.currentText()
+        self.device.clear()
+        if on:
+            self.device.addItems(self._getDeviceList())
+        else:
+            # Only devices with floating values can usefully be used with
+            # waitfor_stable().
+            self.device.addItems(self._getDeviceList(
+                'isinstance(d.valuetype(), (float, int))'))
+        idx = self.device.findText(prev_selected)
+        if idx > -1:
+            self.device.setCurrentIndex(idx)
+        self.changed()
+
+    def getValues(self):
+        return {'dev': self.device.currentText(),
+                'usecond': self.conditionBtn.isChecked(),
+                'timeout': self.timeout.value(),
+                'timeoutunit': self.timeoutUnit.currentText(),
+                'condop': self.condOp.currentText(),
+                'condtarget': self.condTarget.getValue(),
+                'stabletarget': self.stableTarget.getValue(),
+                'stableacc': self.stableAcc.getValue(),
+                'stabletime': self.stableTime.value(),
+                'stabletimeunit': self.stableTimeUnit.currentText()}
+
+    def setValues(self, values):
+        self._setDevice(values)
+        if 'usecond' in values:
+            self.conditionBtn.setChecked(values['usecond'])
+            self.stabilityBtn.setChecked(not values['usecond'])
+        if 'timeout' in values:
+            self.timeout.setValue(values['timeout'])
+        if 'timeoutunit' in values:
+            self.timeoutUnit.setCurrentText(values['timeoutunit'])
+        if 'condop' in values:
+            self.condOp.setCurrentText(values['condop'])
+        if 'condtarget' in values:
+            self.condTarget.setValue(values['condtarget'])
+        if 'stabletarget' in values:
+            self.stableTarget.setValue(values['stabletarget'])
+        if 'stableacc' in values:
+            self.stableAcc.setValue(values['stableacc'])
+        if 'stabletime' in values:
+            self.stableTime.setValue(values['stabletime'])
+        if 'stabletimeunit' in values:
+            self.stableTimeUnit.setCurrentText(values['stabletimeunit'])
+
+    def isValid(self):
+        use_cond = self.conditionBtn.isChecked()
+        min_timeout = 0 if use_cond else \
+            toSeconds(self.stableTime, self.stableTimeUnit)
+        timeout = toSeconds(self.timeout, self.timeoutUnit)
+        return self.markValid(self.timeout, timeout > min_timeout),
+
+    def generate(self):
+        vals = self.getValues()
+        vals['timeout'] = toSeconds(self.timeout, self.timeoutUnit)
+        if vals['usecond']:
+            return 'waitfor(%(dev)r, "%(condop)s %(condtarget)r", ' \
+                'timeout=%(timeout)r)' % vals
+
+        vals['stabletime'] = toSeconds(self.stableTime, self.stableTimeUnit)
+        return 'waitfor_stable(%(dev)r, %(stabletarget)r, %(stableacc)r, ' \
+            'time_stable=%(stabletime)r, timeout=%(timeout)r)' % vals
 
 
 class PresetHelper:
@@ -728,6 +838,6 @@ def get_priority_sorted_categories():
     return categories
 
 
-for cmdlet in [Move, Count, Scan, CScan, TimeScan, ContScan,
+for cmdlet in [Move, WaitFor, Count, Scan, CScan, TimeScan, ContScan,
                Sleep, Configure, NewSample, Center]:
     register(cmdlet)

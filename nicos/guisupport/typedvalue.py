@@ -55,6 +55,9 @@ class DeviceValueEdit(NicosWidget, QWidget):
     updateValue = PropDef('updateValue', bool, False,
                           'Update the editor when the device value changes?')
     showUnit = PropDef('showUnit', bool, True, 'Show the unit next to the input')
+    initDefault = PropDef('initDefault', bool, False,
+                          'Initialize with a default value instead of the '
+                          'current device value?')
 
     def __init__(self, parent, designMode=False, **kwds):
         self._inner = None
@@ -107,7 +110,8 @@ class DeviceValueEdit(NicosWidget, QWidget):
             fmtstr = params.get('fmtstr', '%s')
             if curvalue is None:
                 curvalue = params.get('target')
-            if curvalue is None and valuetype is not None:
+            if (self.props['initDefault'] or curvalue is None) \
+               and valuetype is not None:
                 curvalue = valuetype()
         else:
             valuetype = str
