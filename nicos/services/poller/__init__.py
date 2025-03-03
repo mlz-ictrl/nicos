@@ -341,7 +341,7 @@ class Poller(Device):
         self.log.info('%s poller startup complete', setup)
 
     def _checker(self, setupname):
-        if setupname not in session._setup_info:
+        if not session._setup_info.get(setupname):
             # setup has errors or has disappeared, try the file directly
             fn = [findSetup(session._setup_paths, setupname)]
             # no luck? can't watch anything
