@@ -1187,7 +1187,7 @@ class ControlDialog(QDialog):
             return
         value = cache_load(value)
         self.paramvalues[subkey] = value
-        self.paramItems[subkey].setText(1, str(value))
+        self.paramItems[subkey].setText(2, str(value))
 
     def on_paramList_itemClicked(self, item):
         pname = item.text(0)
