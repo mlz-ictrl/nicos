@@ -49,6 +49,8 @@ Release 3.12.0
 
   - Added a ``center`` command cmdlet.
 
+  - Added a ``waitfor`` and ``waitfor_stable`` command cmdlet.
+
   - Removed the ``ScanTool`` tool (substituted by scan cmdlets).
 
   - Help windows shows device ``usermethod``\ s.
