@@ -170,7 +170,7 @@ class Move(Cmdlet):
             self.changed()
         entry.device.addItems(self._getDeviceList())
         on_device_change(entry.device.currentText())
-        entry.device.currentIndexChanged['QString'].connect(on_device_change)
+        entry.device.currentTextChanged.connect(on_device_change)
         entry.target.setClient(self.client)
         entry.target.valueModified.connect(self.changed)
 
@@ -258,7 +258,7 @@ class CommonScan(PresetHelper, Cmdlet):
         self._addPresets(self.presetunit)
         self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
-        self.device.currentIndexChanged[str].connect(self.on_device_change)
+        self.device.currentTextChanged.connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
         self.step.setValidator(DoubleValidator(self))
         self.start.textChanged.connect(self.on_range_change)
@@ -439,7 +439,7 @@ class ContScan(Cmdlet):
         Cmdlet.__init__(self, parent, client, options, 'cmdlets/contscan.ui')
         self.device.addItems(self._getDeviceList('hasattr(d, "speed")'))
         self.on_device_change(self.device.currentText())
-        self.device.currentIndexChanged[str].connect(self.on_device_change)
+        self.device.currentTextChanged.connect(self.on_device_change)
         self.start.setValidator(DoubleValidator(self))
         self.stop.setValidator(DoubleValidator(self))
         self.speed.setValidator(DoubleValidator(self))
@@ -522,7 +522,7 @@ class Tomo(PresetHelper, Cmdlet):
         self._addPresets(self.presetunit)
         self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
-        self.device.currentIndexChanged[str].connect(self.changed)
+        self.device.currentTextChanged.connect(self.changed)
         self.imgPerAngle.valueChanged.connect(self.changed)
         self.numpoints.valueChanged.connect(self.changed)
         self.preset.valueChanged.connect(self.changed)
@@ -622,8 +622,8 @@ class Configure(Cmdlet):
         self.hlayout.insertWidget(5, self.target)
         self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
-        self.device.currentIndexChanged[str].connect(self.on_device_change)
-        self.parameter.currentIndexChanged[str].connect(
+        self.device.currentTextChanged.connect(self.on_device_change)
+        self.parameter.currentTextChanged.connect(
             self.on_parameter_change)
 
     def on_device_change(self, text):

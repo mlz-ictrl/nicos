@@ -69,7 +69,7 @@ class CenterPeak(Cmdlet):
 
     def on_entryAdded(self, entry):
         entry.device.addItems(self._getDeviceList())
-        entry.device.currentIndexChanged['QString'].connect(self.changed)
+        entry.device.currentTextChanged.connect(self.changed)
         entry.step.textChanged.connect(self.changed)
         entry.steps.textChanged.connect(self.changed)
 
