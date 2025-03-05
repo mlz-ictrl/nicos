@@ -158,15 +158,25 @@
     </layout>
    </item>
    <item>
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Copyright © 2009-2025 by the NICOS contributors.&lt;br/&gt;Distributed under the terms of the GNU General Public License version 2 or later.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Copyright © 2009-2025 by the NICOS contributors.&lt;br/&gt;Distributed under the terms of the &lt;a href=&quot;https://www.gnu.org/licenses/old-licenses/gpl-2.0.html.en&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;GNU General Public License version 2&lt;/span&gt;&lt;/a&gt; or later.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::RichText</enum>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -182,6 +192,9 @@
       <set>Qt::AlignCenter</set>
      </property>
      <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
       <bool>true</bool>
      </property>
     </widget>
