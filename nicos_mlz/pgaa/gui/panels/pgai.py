@@ -434,9 +434,8 @@ class PGAIPanel(Panel):
         self.pointTable.pointRemove.connect(w.pointRemove)
         self.buttonBox.accepted.connect(self.runScript)
         self.pointTable.valueChanged.connect(self.cellValueModified)
-        self.sampleShape.currentIndexChanged[str].connect(w.sampleShapeChanged)
-        self.sampleShape.currentIndexChanged[str].connect(
-            self.sampleShapeChanged)
+        self.sampleShape.currentTextChanged.connect(w.sampleShapeChanged)
+        self.sampleShape.currentTextChanged.connect(self.sampleShapeChanged)
         self.dimValue1.valueChanged.connect(w.dim1Changed)
         self.dimValue2.valueChanged.connect(w.dim2Changed)
         self.dimValue3.valueChanged.connect(w.dim3Changed)

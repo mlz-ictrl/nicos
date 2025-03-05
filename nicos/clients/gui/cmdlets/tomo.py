@@ -39,7 +39,7 @@ class Tomo(PresetHelper, Cmdlet):
         self._addPresets(self.presetunit)
         self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
-        self.device.currentIndexChanged[str].connect(self.changed)
+        self.device.currentTextChanged.connect(self.changed)
         self.imgPerAngle.valueChanged.connect(self.changed)
         self.numpoints.valueChanged.connect(self.changed)
         self.preset.valueChanged.connect(self.changed)

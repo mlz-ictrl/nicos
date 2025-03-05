@@ -98,7 +98,7 @@ class MeasureTable(Cmdlet):
         self.updateTable()
 
     @pyqtSlot(str)
-    def on_outerLoop_currentIndexChanged(self, oloop):
+    def on_outerLoop_currentTextChanged(self, oloop):
         self.middleLoop.clear()
         for loop in LOOPS:
             if loop != oloop:
@@ -106,7 +106,7 @@ class MeasureTable(Cmdlet):
         self.middleLoop.setCurrentIndex(0)
 
     @pyqtSlot(str)
-    def on_middleLoop_currentIndexChanged(self, mloop):
+    def on_middleLoop_currentTextChanged(self, mloop):
         oloop = self.outerLoop.currentText()
         self.innerLoop.clear()
         for loop in LOOPS:
