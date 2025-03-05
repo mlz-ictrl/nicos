@@ -9,7 +9,6 @@
     <file alias="appicon">icons/32x32/nicos.png</file>
     <file alias="up">icons/go-up.png</file>
     <file alias="down">icons/go-down.png</file>
-    <file>nicos-logo-mlz.png</file>
     <file alias="finish">icons/media-playback-stop-grey.png</file>
     <file alias="pausecount">icons/media-playback-pause-red.png</file>
     <file alias="simulate">icons/media-playback-start-2.png</file>
