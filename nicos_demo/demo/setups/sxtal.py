@@ -133,7 +133,7 @@ if mth() == 0:
     mono(0.7)
 SetDetectors(vdetsxtal)
 printinfo("===============================================================")
-printinfo("Welcome to the NICOS singe xtal demo setup.")
+printinfo("Welcome to the NICOS single xtal demo setup.")
 printinfo("This demo is configured as a virtual single crystal instrument.")
 printinfo("===============================================================")
 '''
