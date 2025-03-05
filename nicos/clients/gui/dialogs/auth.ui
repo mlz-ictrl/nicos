@@ -401,14 +401,14 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>172</width>
-          <height>80</height>
+          <width>144</width>
+          <height>84</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>172</width>
-          <height>80</height>
+          <width>144</width>
+          <height>84</height>
          </size>
         </property>
         <property name="text">
@@ -435,14 +435,14 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>197</width>
-          <height>80</height>
+          <width>200</width>
+          <height>84</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>197</width>
-          <height>80</height>
+          <width>200</width>
+          <height>84</height>
          </size>
         </property>
         <property name="text">
