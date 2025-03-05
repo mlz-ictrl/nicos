@@ -49,7 +49,7 @@ devices = dict(
                     filenametemplate = ['NERO%(scancounter)08d.hdf5'],
                     subdir = 'nxdata',
                     detectors = ['det'],
-                    settypes = set(['point','scan']),
+                    settypes = {'point', 'scan'},
                     ),
 
     Space = device('nicos.devices.generic.FreeSpace',

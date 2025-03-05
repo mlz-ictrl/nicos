@@ -26,9 +26,7 @@ devices = dict(
         settypes = {'point'},
         detectors = ['_60p'],  # 'LEGe'],
     ),
-    csvsink = device('nicos_mlz.pgaa.datasinks.CSVDataSink',
-        settypes = {'point'},
-    ),
+    csvsink = device('nicos_mlz.pgaa.datasinks.CSVDataSink'),
 )
 
 startupcode = """
