@@ -498,9 +498,10 @@ class Session:
                 raise ConfigurationError(msg)
             all_setups.add(name)
             include_chain.append(name)
-            for include in self._setup_info[name]['includes']:
-                if include not in all_setups:
-                    add_setup(include, include_chain)
+            if self._setup_info[name]:
+                for include in self._setup_info[name]['includes']:
+                    if include not in all_setups:
+                        add_setup(include, include_chain)
             include_chain.pop()
 
         # generate a set of *all* setups loaded after adding new setups
@@ -511,8 +512,9 @@ class Session:
         # generate a list of exclusions
         excluded_setups = {}
         for name in all_setups:
-            for exclude in self._setup_info[name]['excludes']:
-                excluded_setups.setdefault(exclude, set()).add(name)
+            if self._setup_info[name]:
+                for exclude in self._setup_info[name]['excludes']:
+                    excluded_setups.setdefault(exclude, set()).add(name)
 
         conflicts = set()
         for name in all_setups:
@@ -653,10 +655,14 @@ class Session:
            'system' not in self.loaded_setups:
             load_setupnames.insert(0, 'system')
         for setupname in load_setupnames:
-            self.log.info("loading setup '%s' (%s)",
-                          setupname,
-                          self._setup_info[setupname]['description'])
-            inner_load(setupname, sysconfig, devlist, startupcode)
+            if self._setup_info[setupname]:
+                self.log.info("loading setup '%s' (%s)",
+                              setupname,
+                              self._setup_info[setupname]['description'])
+                inner_load(setupname, sysconfig, devlist, startupcode)
+            else:
+                self.log.error("cannot load setup '%s', it has errors",
+                               setupname)
 
         # sort the preferred aliases by priority
         for ac in self.alias_config.values():
