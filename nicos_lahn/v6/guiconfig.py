@@ -53,3 +53,7 @@ tools = [
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
 ]
+
+options = {
+    'facility_logo': 'resources/lahn-logo-auth.png',
+}
