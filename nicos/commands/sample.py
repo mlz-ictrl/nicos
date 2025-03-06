@@ -62,6 +62,11 @@ def NewSample(name, **parameters):
     >>> NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
 
     see also: `SetSample`, `SelectSample`, `ClearSamples`, `ListSamples`
+
+    .. note::
+
+        It clears the list of existing samples!
+
     """
     parameters['name'] = name
     session.experiment.sample.new(parameters)
