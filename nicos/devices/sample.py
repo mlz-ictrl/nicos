@@ -127,17 +127,24 @@ class Sample(Moveable):
         if number_or_name in self.samples:
             return number_or_name
         # look by name
-        found = None
+        found = []
         for (number, parameters) in self.samples.items():
             if parameters['name'] == number_or_name:
                 if found is not None:
-                    # two samples with same name found...
-                    raise InvalidValueError(self, 'two samples with name %r '
-                                            'were found, please use the '
-                                            'sample number (%s or %s)' %
-                                            (number_or_name, found, number))
-                found = number
-        return found
+                    found.append(number)
+                else:
+                    found = [number]
+
+        # more the one sample with same name found...
+        if len(found) > 1:
+            raise InvalidValueError(
+                self, 'At least two samples with name %r were found, please '
+                ' use the sample number (%s or %s)' % (
+                    number_or_name, ', '.join(str(f) for f in found[:-1]),
+                    found[-1]))
+        elif len(found) == 1:
+            return found[0]
+        return None
 
     def _applyParams(self, number, parameters):
         """Apply sample parameters.  Override in subclasses.
