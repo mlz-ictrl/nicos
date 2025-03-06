@@ -130,10 +130,7 @@ class Sample(Moveable):
         found = []
         for (number, parameters) in self.samples.items():
             if parameters['name'] == number_or_name:
-                if found is not None:
-                    found.append(number)
-                else:
-                    found = [number]
+                found.append(number)
 
         # more the one sample with same name found...
         if len(found) > 1:
