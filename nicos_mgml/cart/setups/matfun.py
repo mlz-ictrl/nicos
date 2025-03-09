@@ -28,6 +28,10 @@ devices = dict(
     ),
 )
 
+extended = {
+    'autodevices': ['matfun_mgml_tt', 'matfun_mgml_mf'],
+}
+
 alias_config = {
     'T': {'matfun_mgml_tt': 180},
     'Ts': {'matfun_mgml_tt': 60},

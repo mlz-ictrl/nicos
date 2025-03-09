@@ -28,6 +28,10 @@ devices = dict(
     ),
 )
 
+extended = {
+    'autodevices': ['ppms9_mgml_tt', 'ppms9_mgml_mf'],
+}
+
 alias_config = {
     'T': {'ppms9_mgml_tt': 180},
     'Ts': {'ppms9_mgml_tt': 60},
