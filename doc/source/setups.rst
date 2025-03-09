@@ -356,6 +356,10 @@ except the :ref:`description <setup-description>` entry:
      * *poller_cache_reader* - List of devices for which in the poller process,
        ``CacheReaders`` should be created if they are not found in the
        configuration
+     * *autodevices* - List of devices which will be generated automatically,
+       but not configured in the setup file itself, i.e. from SECoP
+       ``SecNodeDevice`` and should be used in alias configuration
+       (``alias_config``).
 
    Example::
 

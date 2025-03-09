@@ -517,8 +517,10 @@ class SetupChecker:
                         )
                         break
                     if target not in devs:
+                        autodevices = self.ns.get('extended', {}).get(
+                            'autodevices', [])
                         basedev = target.partition('.')[0]
-                        if basedev not in devs:
+                        if basedev not in devs and basedev not in autodevices:
                             self.log_error(
                                 'alias_config device target should '
                                 'be a device from the current setup',
