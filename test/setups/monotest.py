@@ -1,0 +1,16 @@
+devices = dict(
+    thm = device('nicos.devices.generic.VirtualMotor',
+        abslimits = (12, 78),
+        unit = 'deg',
+    ),
+    tthm = device('nicos.devices.generic.VirtualMotor',
+        abslimits = (50, 156),
+        unit = 'deg',
+    ),
+    mono = device('nicos.devices.generic.CrystalMonochromator',
+        theta = 'thm',
+        twotheta = 'tthm',
+        material = 'Ge',
+        reflection = (3, 3, 1),
+    ),
+)

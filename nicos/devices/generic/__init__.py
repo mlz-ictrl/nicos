@@ -36,6 +36,7 @@ from nicos.devices.generic.detector import ActiveChannel, \
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet, \
     CalibratedMagnet
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
+from nicos.devices.generic.mono import CrystalMonochromator
 from nicos.devices.generic.oscillator import Oscillator
 from nicos.devices.generic.paramdev import ParamDevice, ReadonlyParamDevice
 from nicos.devices.generic.pulse import Pulse

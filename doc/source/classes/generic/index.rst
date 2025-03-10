@@ -21,6 +21,7 @@ setup file.
    detector
    magnet
    manual
+   mono
    oscillator
    paramdev
    pulse
