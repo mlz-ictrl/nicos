@@ -104,9 +104,12 @@ class Switcher(MappedMoveable):
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
         # reflect its status
-        move_status = self._attached_moveable.status(maxage)
-        if move_status[0] not in (status.OK, status.WARN):
-            return move_status
+        (move_status, move_msg) = self._attached_moveable.status(maxage)
+        if move_status == status.BUSY:
+            return move_status, f'moving to {self.format(self.target)}'
+        elif move_status not in (status.OK, status.WARN):
+            return (move_status, move_msg)
+
         # otherwise, we have to check if we are at a known position,
         # and otherwise return an error status
         try:
