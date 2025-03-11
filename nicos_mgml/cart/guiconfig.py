@@ -56,3 +56,7 @@ tools = [
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
 ]
+
+options = {
+    'mainwindow_class': 'nicos_mgml.gui.mainwindow.MainWindow',
+}

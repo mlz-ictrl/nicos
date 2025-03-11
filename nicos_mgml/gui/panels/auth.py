@@ -24,16 +24,11 @@
 """NICOS MGML GUI auth module."""
 
 from nicos.clients.gui.dialogs.auth import ConnectionDialog as ParentConDiag
-from nicos.guisupport.qt import Qt
-from nicos.utils import findResource
-
-from nicos_mgml.gui import uipath
+from nicos.guisupport.qt import QSizePolicy, Qt
 
 
 class ConnectionDialog(ParentConDiag):
     """Simple panel showing image."""
-
-    ui = findResource(f'{uipath}/panels/auth.ui')
 
     def __init__(self, parent, connpresets, lastpreset, lastdata, tunnel=''):
         ParentConDiag.__init__(self, parent, connpresets, lastpreset, lastdata,
@@ -43,4 +38,17 @@ class ConnectionDialog(ParentConDiag):
             | Qt.CustomizeWindowHint
             | Qt.FramelessWindowHint
             | Qt.Tool)
+        # the positions of the spacers are taken from the UI file
+        # verticalSpacerTop
+        self.layout().itemAtPosition(0, 1).changeSize(
+            1, 1, vPolicy=QSizePolicy.Policy.MinimumExpanding)
+        # verticalSpacerBottom
+        self.layout().itemAtPosition(6, 1).changeSize(
+            1, 1, vPolicy=QSizePolicy.Policy.MinimumExpanding)
+        # horizontalSpacerLeft
+        self.layout().itemAtPosition(1, 0).changeSize(
+            1, 1, hPolicy=QSizePolicy.Policy.MinimumExpanding)
+        # horizontalSpacerRight
+        self.layout().itemAtPosition(1, 3).changeSize(
+            1, 1, hPolicy=QSizePolicy.Policy.MinimumExpanding)
         self.showFullScreen()

@@ -70,6 +70,9 @@
     <file alias="psi-logo-auth">psi-logo-auth.png</file>
     <file alias="ess-logo-auth">ess-logo-auth.png</file>
   </qresource>
+  <qresource prefix="mgml">
+    <file alias="mgml-logo-auth">../nicos_mgml/resources/mgml-logo-auth.png</file>
+  </qresource>
   <qresource prefix="lahn">
     <file alias="lahn-logo-auth">../nicos_lahn/resources/lahn-logo-auth.png</file>
   </qresource>

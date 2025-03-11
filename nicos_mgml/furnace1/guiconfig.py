@@ -19,7 +19,7 @@ main_window = docked(
     ('Information',
        vsplit(
         panel('nicos_mgml.gui.panels.utils.ImagePanel',
-                      image='nicos_mgml/gui/logo.png'),
+              image='nicos_mgml/resources/logo.png'),
         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
                     ),
     ),)
@@ -29,3 +29,7 @@ windows = [ ]
 
 tools = [
 ]
+
+options = {
+    'mainwindow_class': 'nicos_mgml.gui.mainwindow.MainWindow',
+}

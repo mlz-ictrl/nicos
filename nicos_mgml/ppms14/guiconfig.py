@@ -25,7 +25,7 @@ main_window = docked(
     ('Information',
        vsplit(
         panel('nicos_mgml.gui.panels.utils.ImagePanel',
-                      image='nicos_mgml/gui/logo.png'),
+              image='nicos_mgml/resources/logo.png'),
         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
                     ),
         panel('nicos.clients.gui.panels.devices.DevicesPanel',
@@ -43,3 +43,7 @@ tools = [
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
 ]
+
+options = {
+    'mainwindow_class': 'nicos_mgml.gui.mainwindow.MainWindow',
+}
