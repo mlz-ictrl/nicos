@@ -131,7 +131,8 @@ class ConnectionDialog(QDialog):
             if not host:
                 self.remoteHost.setFocus()
 
-        self.presetFrame.hide()
+        self.presetLabel.hide()
+        self.newPresetName.hide()
         self.resize(QSize(self.width(), self.minimumSize().height()))
 
     @pyqtSlot(int)
@@ -142,9 +143,11 @@ class ConnectionDialog(QDialog):
             self.userName.setText(conn.user)
             self.viewonly.setChecked(conn.viewonly)
             self.expertmode.setChecked(conn.expertmode)
-            self.presetFrame.hide()
+            self.presetLabel.hide()
+            self.newPresetName.hide()
         else:
-            self.presetFrame.show()
+            self.presetLabel.show()
+            self.newPresetName.show()
 
     def on_presetOrAddr_editTextChanged(self, text):
         # If the text is not the currently selected preset,
@@ -152,7 +155,8 @@ class ConnectionDialog(QDialog):
         # to save as a preset.
         index = self.presetOrAddr.currentIndex()
         if text != self.presetOrAddr.itemText(index):
-            self.presetFrame.show()
+            self.presetLabel.show()
+            self.newPresetName.show()
 
     def on_quickList_itemClicked(self, item):
         self.presetOrAddr.setCurrentIndex(
