@@ -5,7 +5,7 @@ pvprefix = 'SQ:TASP:mupad:'
 modules = ['nicos_sinq.tasp.commands.polmat']
 
 devices = dict(
-    i1 = device('nicos_sinq.tasp.devices.slsmagnet.SLSMagnet',
+    i1 = device('nicos_sinq.devices.epics.sample_magnet.SampleMagnet',
         epicstimeout = 3.0,
         description = 'Magnet 1',
         readpv = pvprefix + 'I1:CurRBV',
@@ -15,7 +15,7 @@ devices = dict(
         precision = .1,
         abslimits = (-20., 20.)
     ),
-    i2 = device('nicos_sinq.tasp.devices.slsmagnet.SLSMagnet',
+    i2 = device('nicos_sinq.devices.epics.sample_magnet.SampleMagnet',
         epicstimeout = 3.0,
         description = 'Magnet 2',
         readpv = pvprefix + 'I2:CurRBV',
@@ -25,7 +25,7 @@ devices = dict(
         renable = pvprefix + 'I2:STATUS_RBV',
         precision = .1,
     ),
-    i3 = device('nicos_sinq.tasp.devices.slsmagnet.SLSMagnet',
+    i3 = device('nicos_sinq.devices.epics.sample_magnet.SampleMagnet',
         epicstimeout = 3.0,
         description = 'Magnet 3',
         readpv = pvprefix + 'I3:CurRBV',
@@ -35,7 +35,7 @@ devices = dict(
         renable = pvprefix + 'I3:STATUS_RBV',
         precision = .1,
     ),
-    i4 = device('nicos_sinq.tasp.devices.slsmagnet.SLSMagnet',
+    i4 = device('nicos_sinq.devices.epics.sample_magnet.SampleMagnet',
         epicstimeout = 3.0,
         description = 'Magnet 4',
         readpv = pvprefix + 'I4:CurRBV',
@@ -45,7 +45,7 @@ devices = dict(
         renable = pvprefix + 'I4:STATUS_RBV',
         precision = .1,
     ),
-    i5 = device('nicos_sinq.tasp.devices.slsmagnet.SLSMagnet',
+    i5 = device('nicos_sinq.devices.epics.sample_magnet.SampleMagnet',
         epicstimeout = 3.0,
         description = 'Magnet 5',
         readpv = pvprefix + 'I5:CurRBV',
@@ -55,7 +55,7 @@ devices = dict(
         renable = pvprefix + 'I5:STATUS_RBV',
         precision = .1,
     ),
-    i6 = device('nicos_sinq.tasp.devices.slsmagnet.SLSMagnet',
+    i6 = device('nicos_sinq.devices.epics.sample_magnet.SampleMagnet',
         epicstimeout = 3.0,
         description = 'Magnet 6',
         readpv = pvprefix + 'I6:CurRBV',

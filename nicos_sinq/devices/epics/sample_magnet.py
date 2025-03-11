@@ -18,24 +18,35 @@
 #
 # Module authors:
 #   Mark Koennecke <mark.koennecke@psi.ch>
+#   Stefan Mathis <stefan.mathis@psi.ch>
 #
 # *****************************************************************************
 
-from nicos.core import Moveable, Param, pvname
+from nicos.core import Moveable, Param, pvname, status
+from nicos.core.constants import MASTER
 from nicos.core.mixins import CanDisable
 from nicos.devices.epics.pyepics import EpicsMoveable
 
 from nicos_sinq.devices.epics.generic import WindowMoveable
 
 
-class SLSMagnet(CanDisable, WindowMoveable):
+class SampleMagnet(CanDisable, WindowMoveable):
 
     parameters = {
         'wenable': Param('PV to enable the magnet',
                          type=pvname),
         'renable': Param('PV to read if the magnet is on',
                          type=pvname),
+        'on': Param('Equals the on value from the latest doEnable call',
+                    type=bool, internal=True, settable=True),
     }
+
+    def doInit(self, mode):
+        WindowMoveable.doInit(self, mode)
+
+        # Set initial target = current status
+        if mode == MASTER:
+            self.on = self.isEnabled
 
     def _get_pv_parameters(self):
         pvs = EpicsMoveable._get_pv_parameters(self)
@@ -46,7 +57,32 @@ class SLSMagnet(CanDisable, WindowMoveable):
     def doEnable(self, on):
         self._pvs['wenable'].put(int(on))
 
+        # Register in the cache that an enable command has been given
+        self.on = on
+
+    @property
+    def isEnabled(self):
+        """Shows if the magnet is enabled or not"""
+        if not self._sim_intercept:
+            return self._get_pv('renable') != 0
+        return True
+
+    def doStatus(self, maxage=0):
+
+        # Check if an enable command has been given
+        isEnabled = self.isEnabled
+        if self.on:
+            # Enable command has been given
+            if isEnabled:
+                return WindowMoveable.doStatus(self, maxage)
+            return status.BUSY, 'Enabling'
+        else:
+            # Disable command has been given
+            if isEnabled:
+                return status.BUSY, 'Disabling'
+            return status.DISABLED, 'Magnet is disabled'
+
     def isAllowed(self, pos):
-        if not self._pvs['renable'].get():
+        if not self.isEnabled:
             return False, 'Magnet disabled'
         return Moveable.isAllowed(self, pos)
