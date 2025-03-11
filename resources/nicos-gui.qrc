@@ -65,6 +65,7 @@
     <file alias="polarization">icons/polarization.png</file>
     <file alias="strategy">icons/strategy.png</file>
     <file alias="nicos-logo">nicos-logo.svg</file>
+    <file alias="demo-logo-auth">demo-logo-auth.png</file>
     <file alias="mlz-logo-auth">mlz-logo-auth.png</file>
     <file alias="psi-logo-auth">psi-logo-auth.png</file>
     <file alias="ess-logo-auth">ess-logo-auth.png</file>
