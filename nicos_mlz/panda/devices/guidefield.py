@@ -49,7 +49,7 @@ class VectorCoil(PowerSupply):
     sample position.
 
     Basically it is a powersupply device, working in Amps and having two
-    additional parameters for calibration the vectorfield, for which these
+    additional parameters for calibration the vector field, for which these
     coil devices are used.
     """
 
@@ -163,9 +163,8 @@ class GuideField(MappedMoveable):
             # set requested field (may try to compensate background)
             self._setfield(self.field * target)
         else:  # switch off completely
-            self.coils[0].doStart(0.0)
-            self.coils[1].doStart(0.0)
-            self.coils[2].doStart(0.0)
+            for coil in self.coils:
+                coil.move(0.0)
 
     # no _readRaw, as self.target is the unmapped (Higher level) value
     def doRead(self, maxage=0):
@@ -201,7 +200,7 @@ class GuideField(MappedMoveable):
         return np.dot(RR, np.dot(self._currentmatrix, I))
 
     def _setfield(self, B=np.array([0, 0, 0])):
-        r"""Set the given field.
+        """Set the given field.
 
         Field components are:
 
@@ -219,16 +218,16 @@ class GuideField(MappedMoveable):
 
         # now check limits
         valueOk = True
-        for i, d in enumerate(self.coils):
-            check = d.isAllowed(F[i])
+        for c, f in zip(self.coils, F):
+            check = c.isAllowed(f)
             if not check[0]:
                 self.log.error("Can't set %s to %s: %s",
-                               d, d.format(F[i], unit=True), check[1])
+                               c, c.format(f, unit=True), check[1])
                 valueOk = False
 
         if not valueOk:
             raise LimitError(check[1])
 
         # go there
-        for i, d in enumerate(self.coils):
-            d.start(F[i])
+        for c, f in zip(self.coils, F):
+            c.move(f)
