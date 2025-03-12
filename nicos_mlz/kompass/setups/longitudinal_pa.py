@@ -4,6 +4,8 @@ group = 'optional'
 
 tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
+excludes = ['lpa_kompass', 'lpa_panda']
+
 devices = dict(
     coil_1 = device('nicos_mlz.panda.devices.guidefield.VectorCoil',
         description = 'Powersupply for horizontal field 1 at sample',
