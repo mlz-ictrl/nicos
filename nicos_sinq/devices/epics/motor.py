@@ -23,8 +23,9 @@
 # *****************************************************************************
 
 from nicos.core import Param, status
+from nicos.core.constants import MASTER
 from nicos.core.errors import UsageError
-from nicos.core.params import none_or, oneof
+from nicos.core.params import Override, none_or, oneof, pvname
 from nicos.devices.epics.pyepics.motor import EpicsMotor as CoreEpicsMotor
 
 
@@ -34,10 +35,29 @@ class SinqMotor(CoreEpicsMotor):
         'can_disable': Param('Whether the motor can be enabled/disabled using '
                              'a PV or not.', type=bool, mandatory=False,
                              settable=False, userparam=False, volatile=True),
-        'encoder_type': Param('Encoder type', default=False, settable=False,
+        'encoder_type': Param('Encoder type', default=None, settable=False,
                               type=none_or(oneof('absolute', 'incremental')),
                               userparam=True, volatile=True),
     }
+
+    parameter_overrides = {
+        'errormsgpv': Override(settable=True),
+        'errorbitpv': Override(settable=True),
+        'reseterrorpv': Override(settable=True),
+    }
+
+    def doInit(self, mode):
+        if mode == MASTER:
+            # The PVs for the error message, the error bit and the error reset
+            # are standardised for SINQ motors. Hence, if no custom PV names
+            # have been set, the standard names are used.
+            if not self.errormsgpv:
+                self.errormsgpv = pvname(self.motorpv + '-MsgTxt')
+            if not self.errorbitpv:
+                self.errorbitpv = pvname(self.motorpv + ':StatusProblem')
+            if not self.reseterrorpv:
+                self.reseterrorpv = pvname(self.motorpv + ':Reset')
+        return CoreEpicsMotor.doInit(self, mode)
 
     def _get_pv_parameters(self):
         pvs = CoreEpicsMotor._get_pv_parameters(self)
@@ -45,6 +65,13 @@ class SinqMotor(CoreEpicsMotor):
         pvs.add('enable')
         pvs.add('enable_rbv')
         pvs.add('encoder_type')
+
+        # Since the doInit function provides default PV names for these
+        # parameters, they are added by default (instead of optionally as in
+        # the parent EpicsMotor class)
+        pvs.add('errormsgpv')
+        pvs.add('errorbitpv')
+        pvs.add('reseterrorpv')
         return pvs
 
     def _get_pv_name(self, pvparam):
@@ -56,6 +83,12 @@ class SinqMotor(CoreEpicsMotor):
             return self.motorpv + ':CanDisable'
         elif pvparam == 'encoder_type':
             return self.motorpv + ':EncoderType'
+        elif pvparam == 'errormsgpv' and not self.errormsgpv:
+            return self.motorpv + '-MsgTxt'
+        elif pvparam == 'errorbitpv' and not self.errorbitpv:
+            return self.motorpv + ':StatusProblem'
+        elif pvparam == 'reseterrorpv' and not self.reseterrorpv:
+            return self.motorpv + ':Reset'
         else:
             return CoreEpicsMotor._get_pv_name(self, pvparam)
 

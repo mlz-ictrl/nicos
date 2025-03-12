@@ -68,10 +68,3 @@ for p in range(1, 37):
         fmtstr = '%d',
         pollinterval = 5,
     )
-
-#for l in range(1, 7):
-#    devices[f'lift{l}'] = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
-#        description = 'Motor for the movement of the segment %d' % l,
-#        motorpv = 'SQ:AMOR:SEL2:L%d' % l,
-#        errormsgpv = 'SQ:AMOR:SEL2:L%d-MsgTxt' % l,
-#    )

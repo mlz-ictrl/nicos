@@ -9,12 +9,10 @@ devices = dict(
         offset = -238,
         visibility = ()
     ),
-    xlz = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    xlz = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Counter z position distance laser motor',
         motorpv = 'SQ:AMOR:mota:xlz',
-        errormsgpv = 'SQ:AMOR:mota:xlz-MsgTxt',
         visibility = (),
-        can_disable = True,
     ),
     laser_positioner = device('nicos.devices.generic.Switcher',
         description = 'Position laser to read components',
