@@ -33,6 +33,9 @@ Release 3.12.0
   - Refactored interface of Q scan related commands to allow more user friendly
     parameter formats.
 
+  - Added ``HideLog`` command to temporarily hide content by default in the
+    electronic log.
+
   - ``SetMode`` is not a visible user command anymore.
 
   - ``waitfor_stable`` is now a common command.
