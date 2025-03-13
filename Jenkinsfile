@@ -36,7 +36,7 @@ change-merged''',
                                       compareType: 'PLAIN',
                                       disableStrictForbiddenFileVerification: false,
                                       branches: [[compareType: 'PLAIN', pattern: 'master'],
-                                                 [compareType: 'REG_EXP', pattern: 'release-3\\.([8,9]|[1-9][0-9]+)'],
+                                                 [compareType: 'REG_EXP', pattern: 'release-.*'],
                                                  [compareType: 'REG_EXP', pattern: 'feature-.*'],
                                                  [compareType: 'PLAIN', pattern: 'hidden']
                                                  ],
@@ -52,7 +52,7 @@ change-merged''',
                                     )])
     ])
 
-// ************ Global arrays  ***/
+// ************* Global arrays  ***/
 
 this.verifyresult = [:]
 this.pipissues = []
@@ -64,20 +64,20 @@ def checkoutSource() {
     echo(GERRIT_PROJECT)
     deleteDir()
     gerrit_checkout()
-    sh '''git describe'''
+    sh "git describe"
 }
 
 def publishGerrit(name, value) {
-    def map = [(-1) :"FAILED", 0:"RUNNING", 1:"SUCCESSFUL"]
-    gerritPostCheck(["jenkins:${name}":map[value]])
+    def map = [(-1): "FAILED", 0: "RUNNING", 1: "SUCCESSFUL"]
+    gerritPostCheck(["jenkins:${name}": map[value]])
 }
 
 
 def refreshVenv(info="" , venv='$NICOS3VENV', checkupdates=false) {
     try {
-        sh("./ciscripts/run_venvupdate.sh $venv $info")
-    } catch(all) { 
-        echo (" Could not run venv update, let's hope the image has all dependencies") 
+        sh "./ciscripts/run_venvupdate.sh $venv $info"
+    } catch (all) {
+        echo "Could not run venv update, let's hope the image has all dependencies"
     }
 
     if (info?.trim()) {
@@ -85,7 +85,7 @@ def refreshVenv(info="" , venv='$NICOS3VENV', checkupdates=false) {
     }
     if (checkupdates) {
         // currently only core requirements are checked
-        this.pipissues.add(scanForIssues( tool: groovyScript(id: 'pip-updates',
+        this.pipissues.add(scanForIssues(tool: groovyScript(id: 'pip-updates',
                                          name: 'pip updates',
                                          parserId: 'pip-output-updated-ng',
                                          pattern: 'pip-core-*.log')))
@@ -108,7 +108,9 @@ def runPylint(info='', venv='$NICOS3VENV') {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
             try {
                 refreshVenv("$idtag", venv)
-            } catch (all) { echo  "refreshVenv failed"}
+            } catch (all) {
+                echo "refreshVenv failed"
+            }
 
             sh "./ciscripts/run_pylint.sh $venv"
 
@@ -166,7 +168,7 @@ def runIsort() {
         verifyresult.put('isort',-1)
     }
     archiveArtifacts([allowEmptyArchive: true, artifacts: "isort_all.txt"])
-    echo "isort: result=" + verifyresult['isort']
+    // echo "isort: result=" + verifyresult['isort']
     publishGerrit('isort', verifyresult['isort'])
     recordIssues([enabledForFailure: true,
                   ignoreQualityGate: true,
@@ -188,7 +190,7 @@ def runIsort() {
 
 def runSetupcheck() {
     verifyresult.put('sc', 0)
-    publishGerrit('setupcheck',verifyresult['sc'])
+    publishGerrit('setupcheck', verifyresult['sc'])
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP',
                                 variable: 'GERRITHTTP')]) {
@@ -223,9 +225,8 @@ def runSetupcheck() {
                   healthy: 1,
                   ])
 
-
     if (verifyresult['sc'] < 0) {
-         error('Failure in setupcheck')
+        error('Failure in setupcheck')
     }
 }
 
@@ -250,11 +251,10 @@ addopts = --junit-xml=pytest-${pyver}.xml
     verifyresult.put(pyver, 0)
     publishGerrit('pytest-'+pyver, verifyresult[pyver])
     try {
-         timeout(14) {
-
-           sh "./ciscripts/run_pytest.sh $venv"
-           verifyresult.put(pyver, 1)
-         } // timeout
+        timeout(14) {
+            sh "./ciscripts/run_pytest.sh $venv"
+            verifyresult.put(pyver, 1)
+        } // timeout
     } catch(all) {
         verifyresult.put(pyver, -1)
     }
@@ -310,7 +310,7 @@ def runDocTest() {
     }
 }
 
-// *************End Function defs ***/
+// ************* End Function defs ***/
 
 // ************* Start main script ***/
 timestamps {
@@ -357,14 +357,14 @@ try {
                 buildimage_deb.inside('-v /home/git:/home/git') {
                     runPylint('py3')
                 }
-            } //ws
+            } // ws
         } // stage
     }, isort: {
         stage(name: 'isort') {
             buildimage_deb.inside('-v /home/git:/home/git') {
                 runIsort()
             }
-        } //stage
+        } // stage
     }, setup_check: {
         stage(name: 'Nicos Setup check') {
             buildimage_deb.inside('-v /home/git:/home/git') {
@@ -372,7 +372,7 @@ try {
                     runSetupcheck()
                 }
             }
-        } //stage
+        } // stage
     }, test_rocky: {
         stage(name: 'Test on RockyLinux') {
             ws {
@@ -397,10 +397,10 @@ try {
                 checkoutSource()
                 def kafkaversion="2.12-2.7.0"
                 docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/kafka:${kafkaversion}").withRun() { kafka ->
-                    def kafkasuccess=false;
+                    def kafkasuccess = false;
                     def tries = 0;
-                    while (kafkasuccess==false){
-                        sleep(time:5, unit: 'SECONDS')  // needed to allow kafka to start
+                    while (kafkasuccess == false){
+                        sleep(time: 5, unit: 'SECONDS')  // needed to allow kafka to start
                         try {
                         sh """
                             docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1
@@ -412,37 +412,37 @@ try {
                             if (tries> 5) { error('could not start kafka') }
                         }
                     }
-                    def influxdbversion="0.0.2"
+                    def influxdbversion = "0.0.2"
                     docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/influxdb:${influxdbversion}").withRun() { influxdb ->
                         token = sh (
                            script: """
                                docker exec ${influxdb.id} sh -c \"influx config ls --json | jq -r '.default.token'\"
                            """,
                            returnStdout: true
-                       ).trim()
-                       buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
-                        sh """
+                        ).trim()
+                        buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
+                            sh """
                             . \$NICOS3VENV/bin/activate
                             ./bin/nicos-keystore add influxdb --storagepw nicos --password ${token}
-                        """
-                        runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
-                       } // image.inside
+                            """
+                            runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
+                        } // image.inside
                     } // influxdb.WithRun
                 } // kafka.WithRun
             } // ws
-        } //stage
+        } // stage
     }, test_docs: {
         stage(name: 'Test docs') {
             docimage = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs')
             docimage.pull()
-            docimage.inside(){
+            docimage.inside() {
                 runDocTest()
-            }  // image.inside
+            } // image.inside
         } // stage
     },
     failFast: false
 } finally {
-    /*** set final vote **/
+    // set final vote
     if (this.pipissues) {
         publishIssues(issues: this.pipissues,
                       ignoreFailedBuilds: false,
