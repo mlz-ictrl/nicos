@@ -67,5 +67,5 @@ tools = [
 ]
 
 options = {
-    'facility_logo': 'resources/lahn-logo-auth.png',
+    'facility_logo': ':/lahn/lahn-logo-auth',
 }

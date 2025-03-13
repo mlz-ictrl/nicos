@@ -70,6 +70,9 @@
     <file alias="psi-logo-auth">psi-logo-auth.png</file>
     <file alias="ess-logo-auth">ess-logo-auth.png</file>
   </qresource>
+  <qresource prefix="lahn">
+    <file alias="lahn-logo-auth">../nicos_lahn/resources/lahn-logo-auth.png</file>
+  </qresource>
   <qresource prefix="leds">
     <file alias="status_white">leds/simplewhite.png</file>
     <file alias="status_unknown">leds/simpleunknown.png</file>
