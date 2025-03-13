@@ -191,7 +191,7 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
             info['users'].append({
                 'name': user['name'],
                 'email': user['email'],
-                'affiliation': user['affilation'],
+                'affiliation': user['affiliation'],
             })
         info['localcontacts'] = [{
             'name': sessinfo['localcontact'],
@@ -226,35 +226,35 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
 #         'mainproposer': {
 #             'name': 'Björn Pedersen',
 #             'email': 'bjoern.pedersen@frm2.tum.de',
-#             'affilation': 'Technische Universität München,  (München)'
+#             'affiliation': 'Technische Universität München,  (München)'
 #         },
 #         'coproposers': [
 #             {
 #                 'name': 'Christian Felder',
 #                 'email': 'c.felder@fz-juelich.de',
-#                 'affilation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
+#                 'affiliation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
 #             },
 #             {
 #                 'name': 'Alexander Zaft',
 #                 'email': 'a.zaft@fz-juelich.de',
-#                 'affilation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
+#                 'affiliation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
 #             }
 #         ],
 #         'sessionteam': [
 #             {
 #                 'name': 'Björn Pedersen',
 #                 'email': 'bjoern.pedersen@frm2.tum.de',
-#                 'affilation': 'Technische Universität München,  (München)'
+#                 'affiliation': 'Technische Universität München,  (München)'
 #             },
 #             {
 #                 'name': 'Christian Felder',
 #                 'email': 'c.felder@fz-juelich.de',
-#                 'affilation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
+#                 'affiliation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
 #             },
 #             {
 #                 'name': 'Alexander Zaft',
 #                 'email': 'a.zaft@fz-juelich.de',
-#                 'affilation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
+#                 'affiliation': 'Forschungszentrum Jülich GmbH,  (Jülich)'
 #             }
 #         ]
 #     }
