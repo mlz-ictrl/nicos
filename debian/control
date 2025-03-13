@@ -51,9 +51,8 @@ Depends: ${misc:Depends},
  python3-pil,
  python3-pyqt5,
  python3-gr
-# python3-ads,
 Description: The NICOS base package
- This package contains the base for the  "Networked Instrument COntrol Sytem".
+ This package contains the base for the "Networked Instrument COntrol System".
  It installs the basic components.
  .
  This package contains the Python3 version of nicos.
