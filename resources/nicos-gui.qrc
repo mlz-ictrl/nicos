@@ -73,6 +73,9 @@
   <qresource prefix="lahn">
     <file alias="lahn-logo-auth">../nicos_lahn/resources/lahn-logo-auth.png</file>
   </qresource>
+  <qresource prefix="brin">
+    <file alias="brin-logo-auth">../nicos_batan/resources/brin-logo-auth.png</file>
+  </qresource>
   <qresource prefix="leds">
     <file alias="status_white">leds/simplewhite.png</file>
     <file alias="status_unknown">leds/simpleunknown.png</file>

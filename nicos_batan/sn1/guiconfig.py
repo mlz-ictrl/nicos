@@ -64,3 +64,7 @@ tools = [
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
 ]
+
+options = {
+    'facility_logo': ':/brin/brin-logo-auth',
+}
