@@ -50,7 +50,7 @@ def daemon_wait_cb():
         raise Exception('daemon failed to start within %s sec' % wait)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='session')
 def daemon():
     """Start a nicos daemon"""
 
