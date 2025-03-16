@@ -41,6 +41,8 @@ from nicos.guisupport.typedvalue import AnnotatedWidget, ButtonWidget, \
 
 pytest.importorskip('pytestqt')
 
+session_setup = ''
+
 
 class TestTypedvalue:
 
@@ -275,8 +277,8 @@ class TestTypedvalue:
             widget.checkbox.setCheckState(Qt.CheckState.Unchecked)
             assert widget.getValue() is None
 
-    def test_DeviceComboWidget(self, qtbot):
-        widget = DeviceComboWidget(None, 'device', None, allow_enter=True)
+    def test_DeviceComboWidget(self, guiclient, qtbot):
+        widget = DeviceComboWidget(None, 'device', guiclient, allow_enter=True)
         qtbot.addWidget(widget)
         widget.show()
         with qtbot.waitExposed(widget):
