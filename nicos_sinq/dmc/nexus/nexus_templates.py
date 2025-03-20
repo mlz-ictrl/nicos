@@ -157,7 +157,7 @@ dmc_event_mode = {
                 'data':
                     EventStream(topic='DMC_metadata',
                                 mod='f142',
-                                source='SQ:DMC:mcu1:SOM',
+                                source='SQ:DMC:turboPmac1:SOM',
                                 chunk_size=1,
                                 dtype='float')
             },
@@ -188,7 +188,7 @@ dmc_event_mode = {
                     'data':
                         EventStream(topic='DMC_metadata',
                                     mod='f142',
-                                    source='SQ:DMC:mcu1:MCV',
+                                    source='SQ:DMC:turboPmac1:MCV',
                                     chunk_size=1,
                                     dtype='float')
                 },
@@ -205,7 +205,7 @@ dmc_event_mode = {
                     'data':
                         EventStream(topic='DMC_metadata',
                                     mod='f142',
-                                    source='SQ:DMC:mcu1:A1',
+                                    source='SQ:DMC:turboPmac1:A1',
                                     chunk_size=1,
                                     dtype='float')
                 },
@@ -213,7 +213,7 @@ dmc_event_mode = {
                     'data':
                         EventStream(topic='DMC_metadata',
                                     mod='f142',
-                                    source='SQ:DMC:mcu1:A2',
+                                    source='SQ:DMC:turboPmac1:A2',
                                     chunk_size=1,
                                     dtype='float')
                 },
@@ -222,7 +222,7 @@ dmc_event_mode = {
                     'data':
                         EventStream(topic='DMC_metadata',
                                     mod='f142',
-                                    source='SQ:DMC:mcu1:MTL',
+                                    source='SQ:DMC:turboPmac1:MTL',
                                     chunk_size=1,
                                     dtype='float')
                 },
@@ -230,7 +230,7 @@ dmc_event_mode = {
                     'data':
                         EventStream(topic='DMC_metadata',
                                     mod='f142',
-                                    source='SQ:DMC:mcu1:MTU',
+                                    source='SQ:DMC:turboPmac1:MTU',
                                     chunk_size=1,
                                     dtype='float')
                 },
@@ -238,7 +238,7 @@ dmc_event_mode = {
                     'data':
                         EventStream(topic='DMC_metadata',
                                     mod='f142',
-                                    source='SQ:DMC:mcu1:MGL',
+                                    source='SQ:DMC:turboPmac1:MGL',
                                     chunk_size=1,
                                     dtype='float')
                 },
@@ -246,7 +246,7 @@ dmc_event_mode = {
                     'data':
                         EventStream(topic='DMC_metadata',
                                     mod='f142',
-                                    source='SQ:DMC:mcu1:MGU',
+                                    source='SQ:DMC:turboPmac1:MGU',
                                     chunk_size=1,
                                     dtype='float')
                 },

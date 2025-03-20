@@ -1,38 +1,22 @@
 description = 'Sample table devices for SINQ POLDI NEW.'
 excludes = ['sample_old', 'sample_zwick', 'sample_euler']
-pvprefix = 'SQ:POLDI:MCU1:'
+pvprefix = 'SQ:POLDI:turboPmac1:'
 
 devices = dict(
-    sa=device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    sa=device('nicos_sinq.devices.epics.motor.SinqMotor',
                description='Sample table rotation',
                motorpv=f'{pvprefix}SA-NZE',
-               errormsgpv=f'{pvprefix}SA-NZE-MsgTxt',
-               precision = 0.01,
-               can_disable = True,
-               absolute_encoder = True,
                ),
-    shl=device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    shl=device('nicos_sinq.devices.epics.motor.SinqMotor',
                description='Sample table X translation',
                motorpv=f'{pvprefix}SHL-NE',
-               errormsgpv=f'{pvprefix}SHL-NE-MsgTxt',
-               precision = 0.01,
-               can_disable = True,
-               absolute_encoder = True,
                ),
-    shu=device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    shu=device('nicos_sinq.devices.epics.motor.SinqMotor',
                description='Sample table Y translation',
                motorpv=f'{pvprefix}SHU-NE',
-               errormsgpv=f'{pvprefix}SHU-NE-MsgTxt',
-               precision = 0.01,
-               can_disable = True,
-               absolute_encoder = True,
                ),
-    sv=device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    sv=device('nicos_sinq.devices.epics.motor.SinqMotor',
                description='Sample table hub Z translation',
                motorpv=f'{pvprefix}SV',
-               errormsgpv=f'{pvprefix}SV-MsgTxt',
-               precision = 0.01,
-               can_disable = True,
-               absolute_encoder = True,
                ),
  )

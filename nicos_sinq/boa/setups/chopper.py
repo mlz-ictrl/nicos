@@ -1,15 +1,13 @@
 description = 'BOA Chopper'
 
-pvprefix = 'SQ:BOA:mcu3:'
+pvprefix = 'SQ:BOA:turboPmac3:'
 
 devices = dict(
-    ch1 = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    ch1 = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Chopper 1 Motor',
         motorpv = pvprefix + 'CH1',
-        errormsgpv = pvprefix + 'CH1-MsgTxt',
-        can_disable = True,
     ),
-    ch2 = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    ch2 = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Chopper 2 Motor',
         motorpv = pvprefix + 'CH2',
         errormsgpv = pvprefix + 'CH2-MsgTxt',

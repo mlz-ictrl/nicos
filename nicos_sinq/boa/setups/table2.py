@@ -1,6 +1,6 @@
 description = 'BOA Table 2'
 
-pvprefix = 'SQ:BOA:mcu2:'
+pvprefix = 'SQ:BOA:turboPmac2:'
 
 devices = dict(
     t2tx = device('nicos.devices.epics.pyepics.EpicsReadable',

@@ -33,7 +33,7 @@ class ChangerMotor(EpicsMotor):
 
     def _get_pv_name(self, pvparam):
         if pvparam == 'forceread':
-            return 'SQ:DMC:mcu2:READCH'
+            return 'SQ:DMC:turboPmac2:READCH'
         return EpicsMotor._get_pv_name(self, pvparam)
 
     def _get_pv_parameters(self):
@@ -63,13 +63,13 @@ class StickMotor(EpicsMotor):
 
     def _get_pv_name(self, pvparam):
         if pvparam == 'setmode':
-            return 'SQ:DMC:mcu2:STICKMODE'
+            return 'SQ:DMC:turboPmac2:STICKMODE'
         elif pvparam == 'getmode':
-            return 'SQ:DMC:mcu2:STICKMODE_RBV'
+            return 'SQ:DMC:turboPmac2:STICKMODE_RBV'
         elif pvparam == 'setspeed':
-            return 'SQ:DMC:mcu2:STICKSPEED'
+            return 'SQ:DMC:turboPmac2:STICKSPEED'
         elif pvparam == 'getspeed':
-            return 'SQ:DMC:mcu2:STICKSPEED_RBV'
+            return 'SQ:DMC:turboPmac2:STICKSPEED_RBV'
         return EpicsMotor._get_pv_name(self, pvparam)
 
     def _get_pv_parameters(self):
