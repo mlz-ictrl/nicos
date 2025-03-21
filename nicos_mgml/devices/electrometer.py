@@ -25,8 +25,7 @@
 
 import time
 
-from nicos.core import SIMULATION, Attach, Measurable, Override, \
-    status
+from nicos.core import SIMULATION, Attach, Measurable, Override, status
 from nicos.devices.entangle import StringIO
 
 

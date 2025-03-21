@@ -31,8 +31,8 @@ Debug = True and False
 LDeveloping = True and False
 readonly = False
 home = '.refsans.frm2'
-import threading
 import os
+import threading
 import time
 
 print('ping pong')

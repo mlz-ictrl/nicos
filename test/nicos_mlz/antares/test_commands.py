@@ -25,7 +25,6 @@
 
 from nicos_mlz.antares.commands import nGI_stepping, reset_grating
 
-
 session_setup = 'antares'
 
 

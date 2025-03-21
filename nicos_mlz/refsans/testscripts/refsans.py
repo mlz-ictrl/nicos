@@ -1,10 +1,13 @@
 # pylint: skip-file
 
 # import ++
-from nicos import session
-from numpy import array
-import time
 import threading
+import time
+
+from numpy import array
+
+from nicos import session
+
 # import --
 
 printinfo('tools 4 nicos MP 2023-10-12 08:03:20')

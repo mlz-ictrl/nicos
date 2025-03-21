@@ -28,8 +28,8 @@ from time import time as currenttime
 
 import numpy as np
 
-from nicos.core import Attach, Device, Measurable, Override, \
-    Param, Waitable, status
+from nicos.core import Attach, Device, Measurable, Override, Param, Waitable, \
+    status
 from nicos.core.mixins import HasWindowTimeout
 from nicos.core.params import Value, none_or, oneof
 from nicos.devices.entangle import StringIO
