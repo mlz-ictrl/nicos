@@ -24,7 +24,7 @@
 import ast
 
 from nicos.guisupport.led import ClickableOutputLed
-from nicos.guisupport.qt import Qt, QCheckBox
+from nicos.guisupport.qt import QCheckBox, Qt
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 

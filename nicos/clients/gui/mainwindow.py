@@ -49,9 +49,9 @@ from nicos.core.utils import ADMIN
 from nicos.guisupport import typedvalue
 from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
-    QApplication, QColorDialog, QDialog, QDialogButtonBox, QFontDialog, QIcon, \
-    QLabel, QMainWindow, QMenu, QMessageBox, QPixmap, QSize, QSystemTrayIcon, \
-    Qt, QTimer, QWebView, pyqtSignal, pyqtSlot
+    QApplication, QColorDialog, QDialog, QDialogButtonBox, QFontDialog, \
+    QIcon, QLabel, QMainWindow, QMenu, QMessageBox, QPixmap, QSize, \
+    QSystemTrayIcon, Qt, QTimer, QWebView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT

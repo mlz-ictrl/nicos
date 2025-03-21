@@ -24,11 +24,12 @@
 
 """Data sink classes for MGML NICOS."""
 
+from io import TextIOWrapper
+
 from nicos import session
 from nicos.core import Override
-from nicos.devices.datasinks.scan import AsciiScanfileSinkHandler as assh
-from nicos.devices.datasinks.scan import AsciiScanfileSink as ass
-from io import TextIOWrapper
+from nicos.devices.datasinks.scan import AsciiScanfileSink as ass, \
+    AsciiScanfileSinkHandler as assh
 
 
 class AsciiScanfileSinkHandler(assh):

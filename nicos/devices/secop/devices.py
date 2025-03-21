@@ -52,8 +52,8 @@ from math import floor, log10
 from threading import Event, RLock
 
 from frappy.client import SecopClient
-from frappy.errors import CommunicationFailedError, ReadFailedError
 from frappy.datatypes import StatusType
+from frappy.errors import CommunicationFailedError, ReadFailedError
 
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \

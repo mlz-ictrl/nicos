@@ -22,9 +22,9 @@
 # *****************************************************************************
 import copy
 
-from nicos.nexus.elements import DetectorDataset, DeviceAttribute, \
-    DeviceDataset, EndTime, NXAttribute, StartTime, ConstDataset, \
-    NamedImageDataset
+from nicos.nexus.elements import ConstDataset, DetectorDataset, \
+    DeviceAttribute, DeviceDataset, EndTime, NamedImageDataset, NXAttribute, \
+    StartTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_sinq.nexus.specialelements import SaveSampleEnv

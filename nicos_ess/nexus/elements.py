@@ -24,7 +24,6 @@
 
 from nicos import session
 from nicos.core import ConfigurationError
-
 from nicos.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
 
