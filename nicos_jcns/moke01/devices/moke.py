@@ -32,7 +32,7 @@ import numpy
 from uncertainties import ufloat  # pylint: disable=import-error
 
 from nicos import session
-from nicos.core import Attach, Param, device, errors, status, CanDisable
+from nicos.core import Attach, CanDisable, Param, device, errors, status
 from nicos.core.sessions.utils import MASTER
 from nicos.devices.entangle import AnalogInput, PowerSupply, Sensor
 from nicos.devices.generic.magnet import MagnetWithCalibrationCurves

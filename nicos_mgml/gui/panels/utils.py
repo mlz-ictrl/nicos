@@ -25,10 +25,7 @@
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.panels.generic import GenericPanel
-from nicos.guisupport.qt import \
-    QLabel, QPixmap, \
-    Qt, QVBoxLayout, \
-    pyqtSlot
+from nicos.guisupport.qt import QLabel, QPixmap, Qt, QVBoxLayout, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_mgml.gui import uipath

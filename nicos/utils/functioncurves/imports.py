@@ -27,5 +27,6 @@
 try:
     from uncertainties.core import AffineScalarFunc, ufloat
 except Exception:
-    from .types import FloatWithStdError as AffineScalarFunc, \
-        FloatWithStdError as ufloat # pylint: disable=reimported
+    from .types import \
+        FloatWithStdError as ufloat  # pylint: disable=reimported
+    from .types import FloatWithStdError as AffineScalarFunc

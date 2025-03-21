@@ -13,12 +13,12 @@ writing complex class D4A to make further user
 reading elements vs read with string? read with strings: if eg _acc has been read, _motor and _poti can be skipped ### todo
 """
 
+import sys
 import threading
 import time
-import sys
 
-from nicos.core import status as ncstatus
 from nicos import session
+from nicos.core import status as ncstatus
 
 
 def D4A_nicos(name):

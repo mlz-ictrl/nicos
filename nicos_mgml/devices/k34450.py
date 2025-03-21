@@ -25,8 +25,8 @@
 
 import time
 
-from nicos.core import Attach, Device, Measurable, Override, \
-    Param, Readable, Value, oneof, status
+from nicos.core import Attach, Device, Measurable, Override, Param, Readable, \
+    Value, oneof, status
 from nicos.devices.entangle import StringIO
 
 

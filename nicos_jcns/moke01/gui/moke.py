@@ -35,12 +35,12 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
-from nicos.guisupport.qt import pyqtSlot, QDate, QFont, QMessageBox, \
-    QStandardItem, QStandardItemModel, Qt, QToolBar
+from nicos.guisupport.qt import QDate, QFont, QMessageBox, QStandardItem, \
+    QStandardItemModel, Qt, QToolBar, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
-from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP
+from nicos.protocols.daemon import BREAK_AFTER_STEP, BREAK_NOW
 from nicos.utils import findResource
-from nicos.utils.functioncurves import Curves, Curve2D
+from nicos.utils.functioncurves import Curve2D, Curves
 
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 

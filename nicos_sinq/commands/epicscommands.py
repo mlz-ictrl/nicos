@@ -29,10 +29,11 @@ import epics
 from nicos import session
 from nicos.commands import helparglist, hiddenusercommand, usercommand
 from nicos.commands.device import disable, enable
-from nicos.core.errors import UsageError, ConfigurationError
-
-from nicos_sinq.devices.epics.motor_deprecated import EpicsMotor as SinqEpicsMotor
+from nicos.core.errors import ConfigurationError, UsageError
 from nicos.devices.epics.pyepics.motor import EpicsMotor
+
+from nicos_sinq.devices.epics.motor_deprecated import \
+    EpicsMotor as SinqEpicsMotor
 
 __all__ = [
     'DisableSetupMotors', 'EnableSetupMotors', 'caget', 'cainfo', 'caput',

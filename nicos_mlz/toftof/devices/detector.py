@@ -28,8 +28,7 @@ from time import time as currenttime
 import numpy
 
 from nicos import session
-from nicos.core import Attach, Moveable, NicosError, Param, \
-    intrange, listof
+from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
 from nicos.core.constants import INTERMEDIATE, SIMULATION
 from nicos.devices.generic.detector import Detector as GenericDetector
 
