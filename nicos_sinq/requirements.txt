@@ -3,7 +3,8 @@ lxml>=2.3.2
 colorcet
 polarTransform>=2.0.0
 python-logstash-async
-ess-streaming-data-types>=0.16.0
-confluent-kafka
-py-elog
+ess-streaming-data-types==0.20.0
+confluent-kafka==2.6.0
+# Py Elog isn't available via the normal channels.
+https://github.com/paulscherrerinstitute/py_elog/archive/refs/tags/1.3.16.tar.gz
 flatbuffers==1.12
