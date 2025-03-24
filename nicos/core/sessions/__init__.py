@@ -1364,7 +1364,7 @@ class Session:
         ``detectors``: New standard detectors
            | From `Experiment.setDetectors` and the `Set/AddDetectors` commands
            | Data: detector device names
-        ``directory``: New | Data directory
+        ``directory``: New data directory
            | From Experiment device
            | Data: directory, instrument, proposal
         ``hidden``: New events should be hidden by default or not
