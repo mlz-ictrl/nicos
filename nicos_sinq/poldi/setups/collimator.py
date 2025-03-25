@@ -1,6 +1,6 @@
 description = 'POLDI collimator'
 
-pvpref = 'SQ:POLDI:MCU2:'
+pvpref = 'SQ:POLDI:turboPmac2:'
 
 devices = dict(
     cr1 = device('nicos_sinq.devices.epics.motor.SinqMotor',

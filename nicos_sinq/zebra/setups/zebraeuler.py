@@ -6,23 +6,17 @@ includes = ['monochromator', 'sample']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 
-pvpref = 'SQ:ZEBRA:mcu'
+pvpref = 'SQ:ZEBRA:turboPmac2:'
 
 devices = dict(
-    chi = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    chi = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'CHI rotation',
-        motorpv = pvpref + '2:SCH',
-        errormsgpv = pvpref + '2:SCH-MsgTxt',
-        precision = 0.5,
-        can_disable = True,
+        motorpv = pvpref + 'SCH',
     ),
-    phi = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    phi = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'PHI rotation',
-        motorpv = pvpref + '2:SPH',
-        errormsgpv = pvpref + '2:SPH-MsgTxt',
-        precision = 0.5,
+        motorpv = pvpref + 'SPH',
         userlimits = (-180, 180),
-        can_disable = True,
     ),
     ZEBRA = device('nicos_sinq.zebra.devices.sinqxtal.SinqEuler',
         description = 'instrument object',

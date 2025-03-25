@@ -52,12 +52,8 @@ devices = dict(
         templateclass =
         'nicos_sinq.poldi.nexus.nexus_templates.POLDITemplateProvider',
     ),
-    phimun = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    phimun = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description='Unknown motor',
-        motorpv='SQ:POLDI:MCU1:PHIMUN',
-        errormsgpv='SQ:POLDI:MCU1:PHIMUN-MsgTxt',
-        precision = 0.01,
-        can_disable=True,
-        auto_enable=False,
+        motorpv='SQ:POLDI:turboPmac1:PHIMUN',
     ),
 )

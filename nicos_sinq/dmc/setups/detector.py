@@ -5,10 +5,10 @@ pvprefix = 'SQ:DMC:counter'
 sysconfig = dict(datasinks = ['jbi_liveview'])
 
 devices = dict(
-    a4 = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    a4 = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Detector angle (s2t)',
-        motorpv = 'SQ:DMC:mcu1:A4',
-        errormsgpv = 'SQ:DMC:mcu1:A4-MsgTxt',
+        motorpv = 'SQ:DMC:turboPmac1:A4',
+        errormsgpv = 'SQ:DMC:turboPmac1:A4-MsgTxt',
         can_disable = True,
     ),
     det_timer = device('nicos.devices.generic.VirtualTimer',

@@ -1,6 +1,6 @@
 description = 'Sample changer devices for SINQ DMC.'
 
-pvprefix = 'SQ:DMC:mcu2:'
+pvprefix = 'SQ:DMC:turboPmac2:'
 
 devices = dict(
     chmot = device('nicos_sinq.dmc.devices.changermot.ChangerMotor',

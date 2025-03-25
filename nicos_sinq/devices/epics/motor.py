@@ -149,3 +149,7 @@ class SinqMotor(CoreEpicsMotor):
                 'This motor does not require homing - command ignored')
         else:
             CoreEpicsMotor.doReference(self)
+
+    def doPoll(self, n, maxage):
+        self.pollParams('can_disable', 'encoder_type')
+        CoreEpicsMotor.doPoll(self, n, maxage)

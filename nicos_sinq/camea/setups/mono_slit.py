@@ -2,36 +2,24 @@ description = 'Monochromator slit devices'
 
 display_order = 30
 
-pvmcu = 'SQ:CAMEA:mcu2:'
+pvmcu = 'SQ:CAMEA:turboPmac2:'
 
 devices = dict(
-    mst = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    mst = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Monochromator slit top',
         motorpv = pvmcu + 'mst',
-        errormsgpv = pvmcu + 'mst-MsgTxt',
-        precision = 0.02,
-        can_disable = True,
     ),
-    msb = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    msb = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Monochromator slit bottom',
         motorpv = pvmcu + 'msb',
-        errormsgpv = pvmcu + 'msb-MsgTxt',
-        precision = 0.02,
-        can_disable = True,
     ),
-    msr = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    msr = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Monochromator slit right',
         motorpv = pvmcu + 'msr',
-        errormsgpv = pvmcu + 'msr-MsgTxt',
-        precision = 0.02,
-        can_disable = True,
     ),
-    msl = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    msl = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Monochromator slit left',
         motorpv = pvmcu + 'msl',
-        errormsgpv = pvmcu + 'msl-MsgTxt',
-        precision = 0.02,
-        can_disable = True,
     ),
     mslit = device('nicos.devices.generic.slit.Slit',
         description = 'Monochromator slit with left, right, bottom and '

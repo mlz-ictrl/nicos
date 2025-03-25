@@ -1,21 +1,15 @@
 description = 'BOA Table 6'
 
-pvprefix = 'SQ:BOA:mcu1:'
+pvprefix = 'SQ:BOA:turboPmac1:'
 
 devices = dict(
-    t6tx = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    t6tx = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Table 6 X Translation',
         motorpv = pvprefix + 'T6TX',
-        errormsgpv = pvprefix + 'T6TX-MsgTxt',
-        precision = 0.05,
-        can_disable = True,
     ),
-    t6ty = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    t6ty = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Table 6 Y Translation',
         motorpv = pvprefix + 'T6TY',
-        errormsgpv = pvprefix + 'T6TY-MsgTxt',
-        precision = 0.05,
-        can_disable = True,
     ),
     Table6 = device('nicos_sinq.devices.componenttable.ComponentTable',
         description = 'Table 6',
