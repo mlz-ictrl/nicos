@@ -33,9 +33,9 @@ ccm8v = Block('ccm8v - 8T MAGNET', [
              Field(name='LN2', dev='se/ccm8v_LN2'),
             ),
 
-    BlockRow(Field(plot='p_ccm8v', name='LHe', key='se/ccm8v_LHe/value',
+    BlockRow(Field(plot='p_ccm8v', name='LHe', key='se/ccm8v_lhe/value',
                 plotwindow=36000, width=40, height=30, fontsize=20),
-                Field(plot='p_ccm8v', name='LN2', key='se/ccm8v_LN2/value')
+                Field(plot='p_ccm8v', name='LN2', key='se/ccm8v_ln2/value')
             ),
 ])
 
@@ -48,11 +48,11 @@ ccm3a_1 = Block('ccm3a - HTS 3T', [
                  Field(name='T3', dev='se/ccm3a_TA', unit='K'),
                  Field(name='T4', dev='se/ccm3a_TB', unit='K'),
                 ),
-        BlockRow(Field(plot='ccm3a_plot', name='T1', key='se/ccm3a_T1/value',
-                       plotwindow=3600, width=40, height=30, fontsize=20),
-                  Field(plot='ccm3a_plot', name='T2',key='se/ccm3a_T2/value'),
-                  Field(plot='ccm3a_plot', name='T3',key='se/ccm3a_TA/value'),
-                  Field(plot='ccm3a_plot', name='T4',key='se/ccm3a_TB/value'),
+        BlockRow(Field(plot='ccm3a_plot', name='T1', key='se/ccm3a_t1/value',
+                       plotwindow=36000, width=40, height=30, fontsize=20),
+                 Field(plot='ccm3a_plot', name='T2', key='se/ccm3a_t2/value'),
+                 Field(plot='ccm3a_plot', name='T3', key='se/ccm3a_ta/value'),
+                 Field(plot='ccm3a_plot', name='T4', key='se/ccm3a_tb/value'),
                 ),
 ])
 
@@ -62,17 +62,17 @@ cct6_1 = Block('cct6 - SPHERES CRYO', [
                  Field(name='T sample', dev='se/cct6_T_sample',   unit='K'),
                 ),
         '---',
-        BlockRow(Field(name='tube SP',  key='se/cct6_T_tube/setpoint',   unit='K'),
+        BlockRow(Field(name='tube SP',  key='se/cct6_t_tube/setpoint',   unit='K'),
                  Field(name='sample SP',dev='se/cct6_setpoint', unit='K'),
                  Field(name='pressure', dev='se/cct6_c_pressure', unit='mbar'),
                 ),
         BlockRow(Field(name='heater tube',   key='se/cct6_t_tube/heateroutput',   unit='%'),
-                 Field(name='heater sample', key='se/cct6_T_sample/heateroutput', unit='%'),
+                 Field(name='heater sample', key='se/cct6_t_sample/heateroutput', unit='%'),
                 ),
         BlockRow(Field(plot='temp_cct6', name='T sample', key='se/cct6_T_sample/value',
-                       plotwindow=3600, width=30, height=30, fontsize=60),
+                       plotwindow=36000, width=40, height=30, fontsize=20),
                  Field(plot='temp_cct6', name='T tube', key='se/cct6_T_tube/value'),
-                 Field(plot='temp_cct6', name='T sample2', key='se/cct6_T_c_pressure/value'),
+                 Field(plot='temp_cct6', name='pressure', key='se/cct6_c_pressure/value'),
                 ),
 ])
 
@@ -92,8 +92,8 @@ devices = dict(
         title = '',
         loglevel = 'info',
         cache = 'jcnsmon.jcns.frm2',
-        font = 'Droid Sans',
-        valuefont = 'Droid Sans Mono',
+        font = 'Open Sans',
+        valuefont = 'Mononoki',
         fontsize = 16,
         padding = 2,
         layout = layout2,
