@@ -2,7 +2,7 @@ description = 'Detector setup'
 group = 'lowlevel'
 display_order = 20
 
-includes = ['gedet', 'vacuumsys']
+includes = ['vacuumsys']
 excludes = ['virtual_detector']
 
 presets = configdata('config_detector.DETECTOR_PRESETS')

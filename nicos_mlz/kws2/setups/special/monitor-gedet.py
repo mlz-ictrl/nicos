@@ -49,8 +49,8 @@ devices = dict(
         # the same machine, otherwise use the hostname (official
         # computer name) or an IP address.
         cache = 'phys',
-        font = 'Luxi Sans',
-        valuefont = 'Consolas',
+        font = 'Open Sans',
+        valuefont = 'Mononoki',
         padding = 0,
         noexpired = True,
         layout = [Row(_column1, _column1b, _column2, _column3),
