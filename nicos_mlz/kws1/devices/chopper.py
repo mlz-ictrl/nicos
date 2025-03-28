@@ -264,8 +264,10 @@ class Chopper(Moveable):
         if params[0] < 1.0:
             return 'off'
         # TODO: take from isAtTarget
-        if abs(params[0] - self.calcresult[0]) < self._attached_params._attached_freq1.precision and \
-           abs(params[1] - self.calcresult[1]) < self._attached_params._attached_phase1.precision:
+        freq_prec = self._attached_params._attached_freq1.precision
+        phase_prec = self._attached_params._attached_phase1.precision
+        if abs(params[0] - self.calcresult[0]) < freq_prec and \
+           abs(params[1] - self.calcresult[1]) < phase_prec:
             if self._attached_daq.mode == 'tof' and \
                self._attached_daq.tofchannels == self.channels and \
                self._attached_daq.tofinterval == self.calcresult[2] and \

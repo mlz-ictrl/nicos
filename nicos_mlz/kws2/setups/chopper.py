@@ -10,7 +10,6 @@ devices = dict(
     chopper = device('nicos_mlz.kws1.devices.chopper.Chopper',
         description = 'high-level chopper/TOF presets',
         resolutions = [2.5, 5, 10],
-        fmtstr = '%.2f Hz, %.0f deg',
         selector = 'selector',
         det_pos = 'detector',
         params = 'chopper_params',
