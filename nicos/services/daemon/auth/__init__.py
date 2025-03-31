@@ -31,13 +31,24 @@ class AuthenticationError(Exception):
     pass
 
 
+class AccessDeniedError(AuthenticationError):
+    """Errors on successful authentication that still deny login
+       (e.g. no proposal available)
+    """
+
+
 class Authenticator(Device):
 
     def authenticate(self, username, password):
         """Authenticate a user with given username and password hash.
 
         On success, must return a User object.  On failure, must raise
-        `AuthenticationError`.
+        an `AuthenticationError`.
+
+        An implementation may raise the subclass `AccessDeniedError`, which
+        indicates successful authentication with username and password that is
+        still rejected for other reasons. These will be prioritized when
+        reporting the user.
 
         The default implementation accepts any user and password and grants
         ADMIN user level.

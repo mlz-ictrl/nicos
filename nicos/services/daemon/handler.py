@@ -40,7 +40,7 @@ from nicos.core.data import ScanData
 from nicos.protocols.daemon import BREAK_NOW, DAEMON_COMMANDS, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
     STATUS_STOPPING, CloseConnection
-from nicos.services.daemon.auth import AuthenticationError
+from nicos.services.daemon.auth import AccessDeniedError, AuthenticationError
 from nicos.services.daemon.script import RequestError, ScriptError, \
     ScriptRequest
 from nicos.services.daemon.utils import LoggerWrapper, SizedQueue
@@ -210,7 +210,12 @@ class ConnectionHandler:
                     self.user = auth.authenticate(login, password)
                     break
                 except AuthenticationError as err:
-                    auth_err = err  # "err" is cleared after the except block
+                    # An AccessDenied error indicates that credentials are
+                    # valid, but the login is not accepted due to other
+                    # factors. So we want to keep the first such error for
+                    # reporting.
+                    if not isinstance(auth_err, AccessDeniedError):
+                        auth_err = err  # "err" is cleared after the except block
                     continue
             else:  # no "break": all authenticators failed
                 self.log.error('authentication failed: %s', auth_err)

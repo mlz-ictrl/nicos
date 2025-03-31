@@ -32,8 +32,8 @@ import ghostapi.rest
 
 from nicos import session
 from nicos.core import USER, Param, User, dictof, nonemptystring
-from nicos.services.daemon.auth import AuthenticationError, \
-    Authenticator as BaseAuthenticator
+from nicos.services.daemon.auth import AccessDeniedError, \
+    AuthenticationError, Authenticator as BaseAuthenticator
 from nicos.services.daemon.auth.params import UserLevelAuthEntry
 
 DTFORMAT = '%Y-%m-%d %H:%M:%S'
@@ -91,11 +91,11 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         if session.experiment.proptype == 'user':
             if not any(ses['proposal_number'] == session.experiment.proposal
                        for ses in sessions):
-                raise AuthenticationError('user is neither local contact '
-                                          'nor member of current proposal')
+                raise AccessDeniedError('user is neither local contact '
+                                        'nor member of current proposal')
         elif not sessions:
-            raise AuthenticationError('user is neither local contact '
-                                      'nor has a proposal scheduled today')
+            raise AccessDeniedError('user is neither local contact '
+                                    'nor has a proposal scheduled today')
 
     def keepalive(self):
         """Called every now and then to refresh our session timeout."""
