@@ -252,7 +252,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             diff = value - self.offset
 
             # Set the offset in motor record
-            self._put_pv_blocking('offset', -value)
+            self._put_pv('offset', -value)
 
             # This also reads the new abslimits
             self._adjustLimitsToOffset(value, diff)
@@ -382,7 +382,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         return absmin + offset, absmax + offset
 
     def doReference(self):
-        self._put_pv_blocking('home%s' % self.reference_direction, 1)
+        self._put_pv('home%s' % self.reference_direction, 1)
 
     def doReset(self):
         if self.errorbitpv and self.reseterrorpv:
