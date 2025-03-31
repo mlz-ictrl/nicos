@@ -26,6 +26,8 @@
 
 from time import time as currenttime
 
+import numpy as np
+
 from nicos import session
 from nicos.core import ADMIN, Override, Param, oneof, pvname, status
 from nicos.core.device import requires
@@ -363,6 +365,15 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     def doReadSpeedlimits(self):
         basespeed = self._get_pv('basespeed', use_monitor=False)
         maxspeed = self._get_pv('maxspeed', use_monitor=False)
+
+        # maxspeed == 0 in the EPICS motor record means that the maximum
+        # velocity range checking is disabled. In NICOS, we replace this zero
+        # value for maxspeed with infinity, so the NICOS user can clearly
+        # understand that there is no maximum speed limit. See also
+        # https://epics.anl.gov/bcda/synApps/motor/motorRecord.html#Fields_motion
+        if maxspeed == 0:
+            maxspeed = np.inf
+
         return basespeed, maxspeed
 
     def doReadAbslimits(self):
