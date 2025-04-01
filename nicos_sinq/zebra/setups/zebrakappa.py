@@ -6,29 +6,20 @@ includes = ['monochromator', 'sample']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 
-pvpref = 'SQ:ZEBRA:kappa:'
+pvpref = 'SQ:ZEBRA:masterMacs1:'
 
 devices = dict(
-    omk = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    omk = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Kappa omega rotation',
         motorpv = pvpref + 'omk',
-        errormsgpv = pvpref + 'omk-MsgTxt',
-        precision = 0.02,
-        can_disable = True,
     ),
-    kappa = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    kappa = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Kappa  rotation',
         motorpv = pvpref + 'kappa',
-        errormsgpv = pvpref + 'kappa-MsgTxt',
-        precision = 0.02,
-        can_disable = True,
     ),
-    phik = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
+    phik = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Kappa phi rotation',
         motorpv = pvpref + 'phik',
-        errormsgpv = pvpref + 'phik-MsgTxt',
-        precision = 0.02,
-        can_disable = True,
     ),
     ZEBRA = device('nicos_sinq.sxtal.instrument.KappaSXTal',
         description = 'instrument object',
