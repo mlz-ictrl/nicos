@@ -1,10 +1,12 @@
+# WARNING 555: This is a test version for development
+
 description = 'Installs the Triple Axis Calculations into ORION '
 
-# WARNING 555: This is a test version for development
+group = 'basic'
 
 includes = ['orion']
 
-excludes = ['euler', 'eulerorion']
+sysconfig = dict(instrument = 'ORION',)
 
 devices = dict(
     ana = device('nicos.devices.generic.mono.Monochromator',

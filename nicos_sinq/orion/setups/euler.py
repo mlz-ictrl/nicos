@@ -1,11 +1,13 @@
 description = 'Installs the Eulerian cradle into NICOS'
 
+group = 'basic'
+
 includes = ['orion']
 
-excludes = ['eulerorion', 'oriontas']
+sysconfig = dict(instrument = 'ORION',)
 
 devices = dict(
-    ORION = device('nicos_sinq.sxtal.instrument.EulerSXTal',
+    ORION = device('nicos_sinq.orion.devices.orion.OrionSXTal',
         description = 'instrument object',
         instrument = 'SINQ ORION',
         responsible = 'Oksana Zaharko <oksana.zaharko@psi.ch>',

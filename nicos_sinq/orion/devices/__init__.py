@@ -32,5 +32,5 @@ class MonoSwitcher(Switcher):
     """
     parameter_overrides = {
         'mapping': Override(type=dictof(float, float)),
-        'fallback': Override(userparam=False, type=none_or(float)),
+        'fallback': Override(userparam=False, default='-', type=str),
     }

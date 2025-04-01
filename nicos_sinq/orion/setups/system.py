@@ -6,7 +6,6 @@ nroot='/home/nicos/nicos/'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'ORION',
     experiment = 'Exp',
     datasinks = [
         'conssink', 'dmnsink', 'livesink', 'quiecksink', 'asciisink', 'cclsink'
