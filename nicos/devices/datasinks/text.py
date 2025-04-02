@@ -41,6 +41,7 @@ class NPImageSinkHandler(MultipleFileSinkHandler):
 
 
 class NPFileSink(ImageSink):
+    """Numpy text format filesink using `numpy.savetxt`"""
     handlerclass = NPImageSinkHandler
 
 
@@ -64,6 +65,7 @@ class NPGZImageSinkHandler(NPImageSinkHandler):
 
 
 class NPGZFileSink(ImageSink):
+    """Compressed Numpy text format filesink using `numpy.savetxt`"""
     handlerclass = NPGZImageSinkHandler
 
 
