@@ -10,7 +10,6 @@ devices = dict(
     stz = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample z lift (above omega and chi rotations)',
         motorpv = pvprefix + 'stz',
-        precision = .01,
         visibility = ('devlist', 'metadata', 'namespace'),
     ),
 )

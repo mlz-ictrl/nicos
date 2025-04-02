@@ -44,6 +44,7 @@ class SinqMotor(CoreEpicsMotor):
         'errormsgpv': Override(settable=True),
         'errorbitpv': Override(settable=True),
         'reseterrorpv': Override(settable=True),
+        'precision': Override(volatile=True),
     }
 
     def doInit(self, mode):
@@ -65,6 +66,7 @@ class SinqMotor(CoreEpicsMotor):
         pvs.add('enable')
         pvs.add('enable_rbv')
         pvs.add('encoder_type')
+        pvs.add('resolution')
 
         # Since the doInit function provides default PV names for these
         # parameters, they are added by default (instead of optionally as in
@@ -83,6 +85,8 @@ class SinqMotor(CoreEpicsMotor):
             return self.motorpv + ':CanDisable'
         elif pvparam == 'encoder_type':
             return self.motorpv + ':EncoderType'
+        elif pvparam == 'resolution':
+            return self.motorpv + '.MRES'
         elif pvparam == 'errormsgpv' and not self.errormsgpv:
             return self.motorpv + '-MsgTxt'
         elif pvparam == 'errorbitpv' and not self.errorbitpv:
@@ -142,6 +146,9 @@ class SinqMotor(CoreEpicsMotor):
         if not self.isEnabled:
             return False, 'Motor disabled'
         return True, ''
+
+    def doReadPrecision(self):
+        return self._get_pv('resolution')
 
     def doReference(self):
         if self.encoder_type == 'absolute':
