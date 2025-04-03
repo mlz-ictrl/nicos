@@ -179,7 +179,7 @@ def make_nicos_error(exc, category=None):
 
 
 class SecNodeDevice(Readable):
-    """SEC node device
+    """SEC node device.
 
     want to have a status -> based on Readable
     """
@@ -726,9 +726,9 @@ class SecNodeDevice(Readable):
 
 
 class SecopDevice(Device):
-    """for Devices representing a SECoP module
+    """Represent a SECoP module.
 
-    has a status (for the connection and errors on parameters)
+    Has a status (for the connection and errors on parameters)
     but no value, therefore not based on Readable
     """
     attached_devices = {
@@ -1196,6 +1196,7 @@ STATUS_MAP = {
 
 
 class SecopReadable(SecopDevice, Readable):
+    """Represent a SECoP "Readable"."""
     parameter_overrides = {
         # do not force to give unit in setup file
         # (take from SECoP description)
@@ -1276,6 +1277,7 @@ class SecopReadable(SecopDevice, Readable):
 
 
 class SecopWritable(SecopReadable, Moveable):
+    """Represent the SECoP "Writable"."""
 
     def doReadTarget(self):
         try:
@@ -1299,6 +1301,7 @@ class SecopWritable(SecopReadable, Moveable):
 
 
 class SecopMoveable(SecopWritable):
+    """Represent the SECoP "Drivable"."""
 
     def doStop(self):
         if self.doStatus()[0] == status.BUSY:
@@ -1311,7 +1314,7 @@ class SecopMoveable(SecopWritable):
 
 
 class SecopHasOffset(HasOffset):
-    """modified HasOffset mixin
+    """Modified HasOffset mixin.
 
     goal: make the class to be accepted by the adjust command
     """

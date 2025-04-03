@@ -1,8 +1,11 @@
 description = 'Installs normal beam geometry into ORION. This is for testing purposes' \
               'only, ORION does not do normal beam'
 
+group = 'basic'
+
 includes = ['orion']
-excludes = ['eulerorion', 'euler', 'oriontas']
+
+sysconfig = dict(instrument = 'ORION',)
 
 devices = dict(
     ORION = device('nicos_sinq.sxtal.instrument.LiftingSXTal',

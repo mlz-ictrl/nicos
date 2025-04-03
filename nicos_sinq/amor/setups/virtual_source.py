@@ -22,7 +22,6 @@ devices = dict(
     dvv_motor = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Virtual source vertical motor',
         motorpv = 'SQ:AMOR:turboPmac4:dvv',
-        precision = 0.1,
         visibility = (),
     ),
     dvh = device('nicos_sinq.amor.devices.virtual_source.NumberSwitcher',
@@ -44,7 +43,6 @@ devices = dict(
     dvh_motor = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Virtual source horiziontal motor',
         motorpv = 'SQ:AMOR:turboPmac4:dvh',
-        precision = 0.1,
         visibility = (),
     ),
     dmf = device('nicos_sinq.amor.devices.virtual_source.NumberSwitcher',
@@ -63,7 +61,6 @@ devices = dict(
     dmf_motor = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Diaphragm at middle focus, motor',
         motorpv = 'SQ:AMOR:turboPmac4:dmf',
-        precision = 0.1,
         visibility = (),
     ),
 )

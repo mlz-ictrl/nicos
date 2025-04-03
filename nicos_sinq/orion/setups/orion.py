@@ -1,5 +1,7 @@
 description = 'Base setup file for ORION devices'
 
+group = 'lowlevel'
+
 pvmcu1 = 'SQ:ORION:turboPmac1:'
 pvmcu2 = 'SQ:ORION:turboPmac2:'
 pvdet = 'SQ:ORION:counter'
@@ -53,6 +55,7 @@ devices = dict(
     mcv1 = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Monochromator vertical curvature',
         motorpv = pvmcu2 + 'mcv1',
+        fmtstr = '%8.3f',
     ),
     mono = device('nicos_sinq.orion.devices.MonoSwitcher',
         description = 'monochromator',
@@ -62,7 +65,7 @@ devices = dict(
             1.73: 31.49,
             1.32: 21.25,
         },
-        precision = .1,
+        precision = .01,
         unit = 'A',
     ),
     timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',

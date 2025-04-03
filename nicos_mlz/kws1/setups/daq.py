@@ -2,7 +2,7 @@ description = 'Detector data acquisition setup'
 group = 'lowlevel'
 display_order = 25
 
-includes = ['counter']
+includes = ['counter', 'gedet']
 excludes = ['virtual_daq']
 
 sysconfig = dict(

@@ -2,7 +2,7 @@ description = 'Virtual detector setup'
 group = 'lowlevel'
 display_order = 20
 
-includes = ['virtual_gedet']
+includes = []
 
 presets = configdata('config_detector.DETECTOR_PRESETS')
 offsets = configdata('config_detector.DETECTOR_OFFSETS')

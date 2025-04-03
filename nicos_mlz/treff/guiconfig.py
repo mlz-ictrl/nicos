@@ -43,7 +43,7 @@ main_window = tabbed(
         ),
         ('Experiment Info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel', dockpos='left')),
         ('NICOS devices',
-            panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right')),
+            panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, show_target=True, dockpos='right')),
     )),
     ('Script Editor',
         vsplit(

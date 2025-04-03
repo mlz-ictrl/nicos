@@ -32,6 +32,7 @@ from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 
 
 class TimerChannel(BaseTimerChannel):
+    """Detector channel to measure time."""
 
     def doFinish(self):
         self.doStatus(0)
@@ -43,6 +44,7 @@ class TimerChannel(BaseTimerChannel):
 
 
 class CounterChannel(BaseCounterChannel):
+    """Detector channel to count events."""
 
     def doFinish(self):
         self.doStatus(0)
@@ -54,6 +56,10 @@ class CounterChannel(BaseCounterChannel):
 
 
 class ImageChannel(QMesyDAQImage, BaseImageChannel):
+    """Detector channel for delivering images.
+
+    It automatically returns the sum of all counts.
+    """
 
     parameters = {
         'readout': Param('Readout mode of the Detector', settable=True,
