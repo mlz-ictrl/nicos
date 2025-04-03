@@ -1,0 +1,35 @@
+seqdiag {
+    autonumber = True;
+
+    "scan command" =&gt; "Data manager" [label="beginScan", note="initialize ScanDataset"]{
+        "Data manager" =&gt; "Data sink" [label="prepare", note="ScanDataset"];
+        "Data manager" =&gt; "Data sink" [label="begin"];
+    }
+
+    "scan command" =&gt; "Data manager" [label="beginPoint", note="initialize PointDataset"]
+    {
+        "Data manager" =&gt; "Data sink" [label="prepare", note="PointDataset"];
+        "Data manager" =&gt; "Data sink" [label="begin"];
+    }
+    "scan command" =&gt; "scan command" [label="move devices", note="read new positions"];
+
+    "scan command" =&gt; "Data manager" [label="putValues", note="updated positions"]{
+        "Data manager" =&gt; "Data sink" [label="putValues", note="updated positions"];
+    }
+
+    "scan command" =&gt; "scan command" [label="start count"];
+
+    "scan command" =&gt; "Data manager" [label="updateMetainfo"]{
+        "Data manager" =&gt; "Data sink" [label="putMetainfo", note="PointDataset"];
+    }
+
+    "scan command" =&gt; "scan command" [label="count finished"];
+
+    "scan command" =&gt; "Data manager" [label="finishPoint"] {
+        "Data manager" =&gt; "Data sink" [label="end", note="PointDataset"];
+    }
+
+    "scan command" =&gt; "Data manager" [label="finishScan"] {
+        "Data manager" =&gt; "Data sink" [label="end", note="ScanDataset"];
+    }
+}

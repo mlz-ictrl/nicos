@@ -64,36 +64,10 @@ Count command
 
 If the user calls the :func:`~count` command in NICOS the following happens:
 
-.. seqdiag::
-   :caption: Interaction of count command, data manager, and data sink
+.. figure:: dataapi-count.png
 
-   seqdiag {
-        autonumber = True;
+   Interaction of count command, data manager, and data sink
 
-        "count command" => "Data manager" [label="beginPoint", rightnote="initialize PointDataset"]{
-            "Data manager" => "Data sink" [label="prepare"];
-            "Data manager" => "Data sink" [label="begin"];
-        }
-
-        "count command" => "Data manager" [label="updateMetainfo", rightnote="collect metainfo"]{
-            "Data manager" => "Data sink" [label="putMetainfo"];
-        }
-
-        "count command" -> "count command" [label="start\ndetectors", leftnote="start detectors\nand wait until\nfinshed or stopped"]{
-            "Cache" => "Data manager" [label="update value", note="new value found"];
-            "Data manager" => "Data sink" [label="putValues"];
-        }
-
-        "count command" -> "count command" [label="read detector\ndata", leftnote="detectors\nfinished or stopped"];
-
-        "count command" => "Data manager" [label="putResults"]{
-            "Data manager" => "Data sink" [label="putResults"];
-        }
-
-        "count command" => "Data manager" [label="finishPoint"]{
-            "Data manager" => "Data sink" [label="end"];
-        }
-   }
 
 Scan commmand
 ~~~~~~~~~~~~~
@@ -104,44 +78,10 @@ Scan commmand
 In case of calling the :func:`~scan` or related command there is the following
 interaction between the components:
 
-.. seqdiag::
-   :caption: Interaction of a scan command, data manager, and data sink
+.. figure:: dataapi-scan.png
 
-   seqdiag {
-        autonumber = True;
+   Interaction of a scan command, data manager, and data sink
 
-        "scan command" => "Data manager" [label="beginScan", note="initialize ScanDataset"]{
-            "Data manager" => "Data sink" [label="prepare", note="ScanDataset"];
-            "Data manager" => "Data sink" [label="begin"];
-        }
-
-        "scan command" => "Data manager" [label="beginPoint", note="initialize PointDataset"]
-        {
-            "Data manager" => "Data sink" [label="prepare", note="PointDataset"];
-            "Data manager" => "Data sink" [label="begin"];
-        }
-        "scan command" => "scan command" [label="move devices", note="read new positions"];
-
-        "scan command" => "Data manager" [label="putValues", note="updated positions"]{
-            "Data manager" => "Data sink" [label="putValues", note="updated positions"];
-        }
-
-        "scan command" => "scan command" [label="start count"];
-
-        "scan command" => "Data manager" [label="updateMetainfo"]{
-            "Data manager" => "Data sink" [label="putMetainfo", note="PointDataset"];
-        }
-
-        "scan command" => "scan command" [label="count finished"];
-
-        "scan command" => "Data manager" [label="finishPoint"] {
-            "Data manager" => "Data sink" [label="end", note="PointDataset"];
-        }
-
-        "scan command" => "Data manager" [label="finishScan"] {
-            "Data manager" => "Data sink" [label="end", note="ScanDataset"];
-        }
-   }
 
 ----------
 Components

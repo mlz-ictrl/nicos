@@ -1,0 +1,27 @@
+seqdiag {
+        autonumber = True;
+
+        "count command" =&gt; "Data manager" [label="beginPoint", rightnote="initialize PointDataset"]{
+            "Data manager" =&gt; "Data sink" [label="prepare"];
+            "Data manager" =&gt; "Data sink" [label="begin"];
+        }
+
+        "count command" =&gt; "Data manager" [label="updateMetainfo", rightnote="collect metainfo"]{
+            "Data manager" =&gt; "Data sink" [label="putMetainfo"];
+        }
+
+        "count command" -&gt; "count command" [label="start\ndetectors", leftnote="start detectors\nand wait until\nfinshed or stopped"]{
+            "Cache" =&gt; "Data manager" [label="update value", note="new value found"];
+            "Data manager" =&gt; "Data sink" [label="putValues"];
+        }
+
+        "count command" -&gt; "count command" [label="read detector\ndata", leftnote="detectors\nfinished or stopped"];
+
+        "count command" =&gt; "Data manager" [label="putResults"]{
+            "Data manager" =&gt; "Data sink" [label="putResults"];
+        }
+
+        "count command" =&gt; "Data manager" [label="finishPoint"]{
+            "Data manager" =&gt; "Data sink" [label="end"];
+        }
+   }
