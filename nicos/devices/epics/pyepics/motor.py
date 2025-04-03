@@ -344,7 +344,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             return '', status.OK, ''
 
     def _log_epics_msg_info(self, msg_txt, stat, epics_status):
-        if stat == status.OK or stat == status.UNKNOWN:
+        if stat in (status.OK, status.UNKNOWN):
             return
         msg_to_log = '%s (%s)'
         if stat == status.WARN:
@@ -399,6 +399,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
 
 
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):
+    """Extended EpicsMotor class with automatic status detection."""
 
     def doStart(self, target):
         try:

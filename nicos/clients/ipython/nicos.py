@@ -54,7 +54,7 @@ class IpythonNicosClient(NicosClient):
             self.livedata[data['det'] + '_live'] = converted_data
         elif name == 'status':
             status, _ = data
-            if status == STATUS_IDLE or status == STATUS_IDLEEXC:
+            if status in (STATUS_IDLE, STATUS_IDLEEXC):
                 self.status = 'idle'
             else:
                 self.status = 'run'

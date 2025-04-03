@@ -1779,8 +1779,8 @@ def getNumArgs(obj):
     """Return the number of "normal" arguments a callable object takes."""
     sig = inspect.signature(obj)
     return sum(1 for p in sig.parameters.values()
-               if p.kind == inspect.Parameter.POSITIONAL_ONLY or
-               p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD)
+               if p.kind in (inspect.Parameter.POSITIONAL_ONLY,
+                             inspect.Parameter.POSITIONAL_OR_KEYWORD))
 
 
 def tupelize(iterable, n=2):
