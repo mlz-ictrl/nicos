@@ -3,7 +3,7 @@ group = 'special'
 
 devices = dict(
     NemoAuth = device('nicos_mlz.devices.nemo.Authenticator',
-        nemourl = 'https://physicslab.frm2.tum.de',
+        nemourl = 'https://physicslab.mlz-garching.de',
         instrument = 23,
         aliases = {
             'bveltel': ('bveltel', 'admin', True),
