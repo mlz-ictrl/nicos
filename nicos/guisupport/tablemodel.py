@@ -82,7 +82,7 @@ class TableModel(QAbstractTableModel):
         return copy.copy(self._table_data)
 
     def data(self, index, role):
-        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             row, column = self._get_row_and_column(index)
             return self._table_data[row][column]
 

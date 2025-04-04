@@ -96,10 +96,22 @@ class SinqMotor(CoreEpicsMotor):
         else:
             return CoreEpicsMotor._get_pv_name(self, pvparam)
 
+    def _register_pv_callbacks(self):
+        CoreEpicsMotor._register_pv_callbacks(self)
+
+        def update_position(**kw):
+            self.read(0)
+
+        def update_status(**kw):
+            self.status(0)
+
+        self._pvs['errormsgpv'].add_callback(update_status)
+        self._pvs['enable_rbv'].add_callback(update_status)
+        self._pvs['readpv'].add_callback(update_position)
+
     def doStatus(self, maxage=0):
-        if self.can_disable:
-            if not self._get_pv('enable_rbv'):
-                return status.DISABLED, 'Motor is disabled'
+        if not self._get_pv('enable_rbv'):
+            return status.DISABLED, 'Motor is disabled'
         return CoreEpicsMotor.doStatus(self, maxage)
 
     def doReadEncoder_Type(self, maxage=0):
