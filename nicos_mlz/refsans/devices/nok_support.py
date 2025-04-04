@@ -228,7 +228,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     def doIsAtTarget(self, pos, target):
         traveldists = [t - (akt + ofs)
                        for t, akt, ofs in zip(target, pos, self.offsets)]
-        self.log.debug('doIsAtTarget', target, 'traveldists', traveldists)
+        self.log.debug('doIsAtTarget %s traveldists %s', target, traveldists)
         return max(abs(v) for v in traveldists) <= self.precision
 
     def doStop(self):

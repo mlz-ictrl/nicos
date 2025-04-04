@@ -150,7 +150,7 @@ class BOATemplateProvider(NexusTemplateProvider):
         elif name == 'ccdwww':
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
-        elif name == 'andorccd' or name == 'andorccd-l':
+        elif name in ('andorccd', 'andorccd-l'):
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
             content['time_stamp'] = AbsoluteTime()

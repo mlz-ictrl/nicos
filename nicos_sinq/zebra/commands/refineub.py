@@ -927,7 +927,7 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
         session.log.error(
             'It is not possible to optimize omega. ' +
             'Please pick another angle to optimize')
-        TypeError()
+        raise TypeError()
 
     # Setting initial parameter guess, as well as which parameters can vary
     # using p0_bounds()

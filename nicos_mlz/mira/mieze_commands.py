@@ -45,7 +45,7 @@ class MiezeScan(Scan):
         self._nsettings = 1
         self._notherdevs = len(devices)
         if settings is not None:
-            if settings == '*' or settings == -1:
+            if settings in ('*',  -1):
                 settings = [sett['_name_'] for sett in miezedev.curtable]
             elif isinstance(settings, (str, int)):
                 settings = [settings]
@@ -86,7 +86,7 @@ class MiezeManualScan(ManualScan):
                             preset, scaninfo, scantype)
         self._envlist.append(self.miezedev)
         if settings is not None:
-            if settings == '*' or settings == -1:
+            if settings in ('*', -1):
                 self.settings = [sett['_name_']
                                  for sett in self.miezedev.curtable]
             elif isinstance(settings, (str, int)):

@@ -142,7 +142,7 @@ class PressureController(entangle.TemperatureController):
 
         if cval - self.pressuretolerance < target < cval + self.pressuretolerance:
             self.log.warning('Pressure already within tolerance of %.2f mbar ',
-                             self.pressuretolerance, target)
+                             self.pressuretolerance)
         else:
             self._controller.setPressure(target)
 
