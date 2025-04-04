@@ -460,7 +460,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
         :return:
         """
         if not self._attached_digital_input[pitch - 1].selectable:
-            self.log.warning('pitch %d is not selectable' % pitch)
+            self.log.warning('pitch %d is not selectable', pitch)
 
         # disable current pitch and update the position
         if self._pitch != UNSELECTED and self.enabled:
@@ -504,7 +504,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
         :param maxage: not used
         :return: the current motor position
         """
-        self.log.warning('update position of pitch %d' % self.pitch)
+        self.log.warning('update position of pitch %d', self.pitch)
         position = list(self.position)
         position[self._pitch] =\
             self._attached_motor[self._get_motor_id()].read(0)
@@ -528,7 +528,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
         if not on:
             if not self.enabled:
                 return
-            self.log.info('disable pitch %d' % self.pitch)
+            self.log.info('disable pitch %d', self.pitch)
             self.update_position()
             self._attached_digital_input[self._pitch].disable()
             self._attached_digital_input[self._pitch].read()

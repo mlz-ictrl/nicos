@@ -114,9 +114,9 @@ class PyEpicsMonitor(DeviceMixinBase):
 
     def _on_connection_cb(self, pv_name='', connection=None, **kws):
         if connection:
-            self.log.info('Connected to PV: %r' % pv_name)
+            self.log.info('Connected to PV: %r', pv_name)
         else:
-            self.log.warning('Disconnected from PV: %r' % pv_name)
+            self.log.warning('Disconnected from PV: %r', pv_name)
 
     def _register_pv_update_callback(self, pvparam, on_value_change_cb=None,
                                      **kws):

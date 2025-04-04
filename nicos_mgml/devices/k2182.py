@@ -192,7 +192,7 @@ class VoltageDev(HasWindowTimeout, BaseK2182, Waitable):
                 stb = int(self.commVoltage(':STAT:OPER:COND?', True))
                 break
             except Exception as ex:
-                self.log.debug(f'Exc: {ex}')
+                self.log.debug('Exc: %s', ex)
                 time.sleep(0.05)
         else:
             return (status.UNKNOWN, 'cant get status bits')

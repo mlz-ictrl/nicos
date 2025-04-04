@@ -300,7 +300,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
                 continue
             hist = deserialiser(message)
             info = json.loads(hist['info'])
-            self.log.debug('received unique id = {}'.format(info['id']))
+            self.log.debug('received unique id = %s', info['id'])
             if info['id'] != self._unique_id:
                 continue
             if info['state'] in ['COUNTING', 'INITIALISED']:

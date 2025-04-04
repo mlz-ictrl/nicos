@@ -93,11 +93,11 @@ class Current(Measurable):
         voltage = float(self.commCurrent(':SOUR:VOLT?', response=True))
         if self.voltage != voltage:
             self.commCurrent(f':SOUR:VOLT  {self.voltage:e}')
-            self.log.debug(f'voltage changed to {voltage}')
+            self.log.debug('voltage changed to %s', voltage)
         protection = float(self.commCurrent(':SENS:CURR:PROT?', response=True)) * 1000
         if self.current_compliance != protection:
             self.commCurrent(f':SENS:CURR:PROT  {self.current_compliance/1000:e}')
-            self.log.debug(f'current compliance changed to {protection}')
+            self.log.debug('current compliance changed to %s', protection)
         self._values = [0] * len(self.channels)
         self._currentChannel = 0
         self._measuring = True
@@ -117,10 +117,10 @@ class Current(Measurable):
         time.sleep(0.1)
 
         if self._currentChannel < len(self.channels):
-            self.log.debug(f'Measuring of channel {self._currentChannel} finished.')
+            self.log.debug('Measuring of channel %d finished.', self._currentChannel)
             self._measureNext()
         else:
-            self.log.debug(f'Measuring of all channels finished, last was {self._currentChannel}')
+            self.log.debug('Measuring of all channels finished, last was %d', self._currentChannel)
             self._measuring = False
 
     def _setChannel(self, n):

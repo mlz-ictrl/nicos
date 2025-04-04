@@ -57,7 +57,7 @@ class ScanningDetector(SubscanMeasurable):
         fit = self.fitcls()
         res = fit.run(xs, ys, dys)
         if res._failed:
-            self.log.warning('Fit failed: %s.' % res._message)
+            self.log.warning('Fit failed: %s.', res._message)
             self.readresult = [0] * (self._nparams * 2)
         else:
             session.notifyFitCurve(ds, fit.fit_title, res.curve_x, res.curve_y)

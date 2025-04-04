@@ -82,9 +82,9 @@ class PVMonitor(DeviceMixinBase):
         :param kws: optional keyword-only parameters
         """
         if conn:
-            self.log.debug('Connected to PV: %r' % pv_name)
+            self.log.debug('Connected to PV: %r', pv_name)
         else:
-            self.log.warning('Disconnected from PV: %r' % pv_name)
+            self.log.warning('Disconnected from PV: %r', pv_name)
 
 #    def _status_cb(self, pvname=None, value=None, char_value=None, **kws):
 #        # The default 'on_value_change' cb already register the change. It's

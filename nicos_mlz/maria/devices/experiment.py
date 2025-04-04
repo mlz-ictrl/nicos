@@ -43,7 +43,7 @@ class Experiment(_Experiment):
 
         self.sampledir = safeName(parameters["name"])
         _Experiment.newSample(self, parameters)
-        self.log.debug("changed samplepath to: %s" % self.samplepath)
+        self.log.debug("changed samplepath to: %s", self.samplepath)
         # expand/copy templates
         if self.getProposalType(self.proposal) != 'service' and self.templates:
             params = dict(parameters) if parameters else {}

@@ -1015,7 +1015,7 @@ class Session:
                 argspec = '(%s)' % real_func.help_arglist
             else:
                 argspec = formatArgs(real_func)
-            self.log.info('Usage: ' + real_func.__name__ + argspec)
+            self.log.info('Usage: %s', real_func.__name__ + argspec)
             for line in formatDocstring(real_func.__doc__ or '', '   '):
                 self.log.info(line)
 

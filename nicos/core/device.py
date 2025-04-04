@@ -2464,7 +2464,7 @@ class DeviceAlias(Device):
                 # If this is a recursive call (another target already failed),
                 # do not try others to avoid infinite looping through the
                 # alias config here.
-                self.log.exception('cannot point to %s' % devname)
+                self.log.exception('cannot point to %s', devname)
                 self.doUpdateAlias('')
 
     def _reinitParams(self):

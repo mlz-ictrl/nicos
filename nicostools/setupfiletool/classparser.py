@@ -69,7 +69,7 @@ def init(log):
             mod = session._nicos_import(moduleName)
             modules[moduleName] = mod
         except (ImportError, KeyError, NameError) as e:
-            log.warning('Error importing ' + moduleName + ': ' + str(e))
+            log.warning('Error importing %s: %s', moduleName, e)
 
 
 def getDeviceClasses(instrumentPrefix):

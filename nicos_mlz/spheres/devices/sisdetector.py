@@ -339,7 +339,7 @@ class SISChannel(ImageChannel):
             for j, arr in enumerate(entry):
                 if j == 0:
                     continue
-                arr.__iadd__(increment[i][j])
+                arr.__iadd__(increment[i][j])  # pylint: disable=unnecessary-dunder-call
 
     def _processCounts(self, edata, cdata):
         """
@@ -366,7 +366,7 @@ class SISChannel(ImageChannel):
             return
 
     def resetIncremental(self, message):
-        self.log.warning(message + ' Switching to non incremental mode.')
+        self.log.warning('%s', message + ' Switching to non incremental mode.')
         self.incremental = False
         self._last_edata = None
         self._last_cdata = None
@@ -438,5 +438,5 @@ class SISDetector(Detector):
             if self.autoshutter:
                 self._attached_shutter.maw('open')
             else:
-                self.log.warning('Shutter closed while counting: %s'
-                                 % self._attached_shutter.status()[1])
+                self.log.warning('Shutter closed while counting: %s',
+                                 self._attached_shutter.status()[1])

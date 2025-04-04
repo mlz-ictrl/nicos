@@ -78,7 +78,7 @@ class HVSwitcher(Switcher):
         for epicsid, pvs in self.pv_values.items():
             for pvname, pvvalue in pvs:
                 fullpvname = '%s:%s_W' % (epicsid, pvname)
-                self.log.debug('setting %s = %s' % (fullpvname, pvvalue))
+                self.log.debug('setting %s = %s', fullpvname, pvvalue)
                 epics.caput(fullpvname, pvvalue)
         session.delay(2)
 

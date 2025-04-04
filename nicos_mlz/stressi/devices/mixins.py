@@ -100,7 +100,7 @@ class TransformRead(DeviceMixinBase):
         return self._attached_dev.unit
 
     def doUpdateInformula(self, formula):
-        self.log.debug('Informula: %r' % formula)
+        self.log.debug('Informula: %r', formula)
         self._informula = Formula(formula)
         return formula
 

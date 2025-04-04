@@ -164,7 +164,7 @@ class EchoTime(Moveable):
                 wait_on.add(dev)
             else:
                 self.log.warning('tune device %r from table not in tunedevs! '
-                                 'movement to %r ignored !' % (tunedev, val))
+                                 'movement to %r ignored !', tunedev, val)
         self.log.debug('waiting for devices...')
         multiWait(wait_on)
         self.log.debug('devices now at configured values')

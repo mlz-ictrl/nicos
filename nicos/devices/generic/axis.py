@@ -105,9 +105,9 @@ class Axis(CanReference, AbstractAxis):
            abs(self.motor.read() - self.coder.read()) > self.precision:
             self.log.warning('motor and encoder have different positions '
                              '(%s vs. %s), setting motor position to coder '
-                             'position' % (
-                                 self.motor.format(self.motor.read()),
-                                 self.coder.format(self.coder.read())))
+                             'position',
+                             self.motor.format(self.motor.read()),
+                             self.coder.format(self.coder.read()))
             self._updateMotorPosition()
 
     def _updateMotorPosition(self):

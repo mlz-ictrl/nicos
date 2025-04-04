@@ -277,7 +277,7 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
                     if (msgkey == key and not entry.expired and
                             fromtime <= entry.time <= totime and
                             entry.value is not None):
-                        self.log.info("%s -> %s" % (msgkey, entry))
+                        self.log.info("%s -> %s", msgkey, entry)
                         found_some = True
                         yield entry
 

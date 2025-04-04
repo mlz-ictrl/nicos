@@ -135,7 +135,7 @@ class CascadeDetector(VirtualImage):
         ty = shaped[self.fitfoil].sum((1, 2))
         ry = shaped[self.fitfoil, :, y1:y2, x1:x2].sum((1, 2))
 
-        self.log.debug('fitting %r and %r' % (ty, ry))
+        self.log.debug('fitting %r and %r', ty, ry)
 
         self.readresult = [
             roi, total,

@@ -258,7 +258,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             usmax = min(self.userlimits[1] + diff, self.abslimits[1])
             self.userlimits = (usmin, usmax)
 
-            self.log.info('The new user limits are: ' + str(self.userlimits))
+            self.log.info('The new user limits are: %s', self.userlimits)
 
     def doAdjust(self, oldvalue, newvalue):
         # For EPICS the offset sign convention differs to that of the base
