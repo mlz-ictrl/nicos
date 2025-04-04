@@ -442,18 +442,18 @@ def waitfor_stable(device, target, accuracy, time_stable, timeout=3600):
             in_range_tmr.remaining_time() <= dev._base_loop_delay)
 
         if cond_fulfilled:
-            session.log.info("Waiting for %s finished", cond)
+            session.log.info('Waiting for %s finished', cond)
             in_range_tmr.stop()
             tmr.stop()
 
-    session.beginActionScope(f"Waiting until {cond}")
+    session.beginActionScope(f'Waiting until {cond}')
     try:
         # max wait time 1 hour if not set
         tmr = Timer(timeout if timeout else 3600)
         tmr.wait(dev._base_loop_delay, check, (target, accuracy, time_stable))
     finally:
         if not cond_fulfilled:
-            raise NicosTimeoutError(dev, f"Waiting for {cond} timed out.")
+            raise NicosTimeoutError(dev, f'Waiting for {cond} timed out.')
         session.endActionScope()
 
 

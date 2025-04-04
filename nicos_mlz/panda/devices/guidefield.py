@@ -222,7 +222,7 @@ class GuideField(MappedMoveable):
         for i, d in enumerate(self.coils):
             check = d.isAllowed(F[i])
             if not check[0]:
-                self.log.error('Can\'t set %s to %s: %s',
+                self.log.error("Can't set %s to %s: %s",
                                d, d.format(F[i], unit=True), check[1])
                 valueOk = False
 

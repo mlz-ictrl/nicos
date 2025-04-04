@@ -26,7 +26,7 @@ from numpy import pi, sqrt, tan
 
 pytest.importorskip('epics')
 
-session_setup = "sinq_amor"
+session_setup = 'sinq_amor'
 
 
 class TestSlitDivergence:

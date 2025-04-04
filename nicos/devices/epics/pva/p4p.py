@@ -128,7 +128,7 @@ class P4pWrapper:
             # and scalar-array types
             pass
 
-        return type(result["value"])
+        return type(result['value'])
 
     def get_alarm_status(self, pvname):
         result = _CONTEXT.get(pvname, timeout=self._timeout)
@@ -188,7 +188,7 @@ class P4pWrapper:
             self.disconnected.add(pvname)
 
         request = _CONTEXT.makeRequest(
-            "field(value,timeStamp,alarm,control,display)")
+            'field(value,timeStamp,alarm,control,display)')
 
         callback = partial(self._callback, pvname, pvparam, change_callback,
                            connection_callback, as_string)

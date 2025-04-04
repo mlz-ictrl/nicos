@@ -76,10 +76,10 @@ error_message = {
 }
 
 fail_message = {
-    "code": "FAIL",
-    "job_id": "8bacf956-02a3-11e9-af16-64006a47d649",
-    "message": "Unexpected std::exception while handling "
-    "command:{\n  "
+    'code': 'FAIL',
+    'job_id': '8bacf956-02a3-11e9-af16-64006a47d649',
+    'message': 'Unexpected std::exception while handling '
+    'command:{\n  '
     '"cmd": "FileWriter_new",\n  "broker": '
     '"127.0.0.1:9092",\n  "job_id": '
     '"8bacf956-02a3-11e9-af16-64006a47d649",'
@@ -90,38 +90,38 @@ fail_message = {
     '  {\n            "type": "group",\n           '
     ' "name": '
     '"my_test_group",\n            "children": [\n '
-    "            "
+    '            '
     ' {\n                "type": "stream",\n       '
-    "         "
+    '         '
     '"stream": {\n                  "dtype": '
     '"double",'
     '\n                  "writer_module": "f142",'
-    "\n            "
+    '\n            '
     '      "source": "my_test_pv",\n               '
-    "   "
+    '   '
     '"topic": "LOQ_sampleEnv"\n                }\n '
-    "            "
+    '            '
     ' }\n            ],\n            "attributes": ['
-    "\n           "
+    '\n           '
     '   {\n                "name": "units",\n      '
-    "          "
+    '          '
     '"values": "ms"\n              }\n            '
-    "]\n          "
-    "}\n        ]\n      }\n}\n\nError in "
-    "CommandHandler::tryToHandle\n  Failed to "
-    "initializeHDF: can "
-    "not initialize hdf file /data_files/test.nxs\n    "
-    "can not "
-    "initialize hdf file "
-    "/Users/user/Code/Repos/DMSC/kafka-to-nexus"
-    "/cmake-build"
-    "-debug/bin/test.nxs\n      The file "
+    ']\n          '
+    '}\n        ]\n      }\n}\n\nError in '
+    'CommandHandler::tryToHandle\n  Failed to '
+    'initializeHDF: can '
+    'not initialize hdf file /data_files/test.nxs\n    '
+    'can not '
+    'initialize hdf file '
+    '/Users/user/Code/Repos/DMSC/kafka-to-nexus'
+    '/cmake-build'
+    '-debug/bin/test.nxs\n      The file '
     '"/Users/user/Code/Repos/DMSC/kafka-to'
-    "-nexus/cmake"
+    '-nexus/cmake'
     '-build-debug/bin/test.nxs" exists already.',
-    "service_id": "kafka-to-nexus--host:SERVERNAME--pid:10307",
-    "timestamp": 1551344628813,
-    "type": "filewriter_event",
+    'service_id': 'kafka-to-nexus--host:SERVERNAME--pid:10307',
+    'timestamp': 1551344628813,
+    'type': 'filewriter_event',
 }
 
 

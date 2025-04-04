@@ -34,10 +34,10 @@ from nicos.utils import File
 class NPImageSinkHandler(MultipleFileSinkHandler):
     """Numpy text format filesaver using `numpy.savetxt`"""
 
-    filetype = "txt"
+    filetype = 'txt'
 
     def writeData(self, fp, image):
-        numpy.savetxt(fp, numpy.asarray(image), fmt="%u")
+        numpy.savetxt(fp, numpy.asarray(image), fmt='%u')
 
 
 class NPFileSink(ImageSink):
@@ -46,7 +46,7 @@ class NPFileSink(ImageSink):
 
 
 class NPImageFileReader(ImageFileReader):
-    filetypes = [("txt", "Numpy Text Format (*.txt)")]
+    filetypes = [('txt', 'Numpy Text Format (*.txt)')]
 
     @classmethod
     def fromfile(cls, filename):
@@ -57,11 +57,11 @@ class NPImageFileReader(ImageFileReader):
 class NPGZImageSinkHandler(NPImageSinkHandler):
     """Compressed Numpy text format filesaver using `numpy.savetxt`"""
 
-    filetype = "npgz"
+    filetype = 'npgz'
     fileclass = GzipFile
 
     def writeData(self, fp, image):
-        numpy.savetxt(fp, numpy.asarray(image), fmt="%u")
+        numpy.savetxt(fp, numpy.asarray(image), fmt='%u')
 
 
 class NPGZFileSink(ImageSink):
@@ -70,7 +70,7 @@ class NPGZFileSink(ImageSink):
 
 
 class NPGZImageFileReader(ImageFileReader):
-    filetypes = [("npgz", "Compressed Numpy Text Format (*.gz)")]
+    filetypes = [('npgz', 'Compressed Numpy Text Format (*.gz)')]
 
     @classmethod
     def fromfile(cls, filename):

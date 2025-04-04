@@ -57,7 +57,7 @@ class TestMovable:
         self.device.maw(initial)  # Reset the device to its original position
         self.device = None
 
-    @pytest.mark.parametrize("target", [1.0, -1.0])
+    @pytest.mark.parametrize('target', [1.0, -1.0])
     def test_successful_drive(self, target):
         """
         Test that after a device is moved to a certain position

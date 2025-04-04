@@ -502,7 +502,7 @@ class CellBase:
         temp = pi / d / Ei_f
         if temp < 1:
             return degrees(arcsin(temp)) * sense
-        raise ComputationError("arcsin > 1 when calculating theta")
+        raise ComputationError('arcsin > 1 when calculating theta')
 
     def cal_angles(self, Qhkl, ny, SM, SC, sense, coupled=False, psi360=True):
         """

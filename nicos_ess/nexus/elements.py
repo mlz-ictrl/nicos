@@ -99,17 +99,17 @@ class NXDataset(NexusElementBase):
             self.value = info[0]
             if info[2]:
                 # Write the units attribute
-                self.attrs["units"] = NXAttribute(info[2])
+                self.attrs['units'] = NXAttribute(info[2])
 
         # Return nothing if value is None
         if self.value is None:
             return {}
 
         root_dict = {
-            "module": "dataset",
-            "config": {
-                "name": name,
-                "values": self.value,
+            'module': 'dataset',
+            'config': {
+                'name': name,
+                'values': self.value,
             }
         }
 
@@ -117,13 +117,13 @@ class NXDataset(NexusElementBase):
         if not self.dtype:
             if isinstance(self.value, list) and self.value:
                 if isinstance(self.value[0], int):
-                    self.dtype = "int32"
+                    self.dtype = 'int32'
                     if self.value[0].bit_length > 32:
-                        self.dtype = "int64"
+                        self.dtype = 'int64'
                 elif isinstance(self.value[0], float):
-                    self.dtype = "double"
+                    self.dtype = 'double'
                 elif isinstance(self.value[0], str):
-                    self.dtype = "string"
+                    self.dtype = 'string'
 
             if isinstance(self.value, str):
                 self.dtype = 'string'
@@ -160,12 +160,12 @@ class NXGroup(NexusElementBase):
 
     def structure(self, name, metainfo):
         val = {
-            "type": "group",
-            "name": name,
-            "attributes": {
-                "NX_class": self.nxclass
+            'type': 'group',
+            'name': name,
+            'attributes': {
+                'NX_class': self.nxclass
             },
-            "children": []
+            'children': []
         }
 
         # Add the children
@@ -174,9 +174,9 @@ class NXGroup(NexusElementBase):
                 if isinstance(entry, NexusElementBase):
                     for child_dict in entry.structure(ename, metainfo):
                         if child_dict:
-                            val["children"].append(child_dict)
+                            val['children'].append(child_dict)
                 else:
-                    session.log.info("%s does not provide value!!", ename)
+                    session.log.info('%s does not provide value!!', ename)
 
         # Add the attributes
         if self.attrs:
@@ -189,7 +189,7 @@ class NXGroup(NexusElementBase):
                         if attr_structure:
                             attr_dict.update(attr_structure)
 
-            val["attributes"].update(attr_dict)
+            val['attributes'].update(attr_dict)
 
         return [val]
 
@@ -254,8 +254,8 @@ class KafkaStream(NexusElementBase):
 
     def structure(self, name, metainfo):
         stream_dict = {
-            "type": "stream",
-            "stream": {k: v
+            'type': 'stream',
+            'stream': {k: v
                        for k, v in self.stream.items() if v}
         }
 
@@ -271,7 +271,7 @@ class KafkaStream(NexusElementBase):
                         if attr_structure:
                             attr_dict.update(attr_structure)
 
-            stream_dict["attributes"] = attr_dict
+            stream_dict['attributes'] = attr_dict
 
 
 class CacheStream(DeviceValuePlaceholder, KafkaStream):
@@ -303,13 +303,13 @@ class CacheStream(DeviceValuePlaceholder, KafkaStream):
         self.set('source', key)
 
         # Add the attributes
-        self.stream_attrs["nicos_name"] = NXAttribute(self.device)
-        self.stream_attrs["nicos_param"] = NXAttribute(self.parameter)
-        self.stream_attrs["source_name"] = NXAttribute(key)
+        self.stream_attrs['nicos_name'] = NXAttribute(self.device)
+        self.stream_attrs['nicos_param'] = NXAttribute(self.parameter)
+        self.stream_attrs['source_name'] = NXAttribute(key)
 
         info = self.fetch_info(metainfo)
         if info:
-            self.stream_attrs["units"] = NXAttribute(info[2])
+            self.stream_attrs['units'] = NXAttribute(info[2])
 
         if self.separate_log:
             self.store_latest_into(name)
@@ -319,7 +319,7 @@ class CacheStream(DeviceValuePlaceholder, KafkaStream):
 
         group_dict = NXGroup('NXlog').structure(gname, metainfo)[0]
         stream_dicts = KafkaStream.structure(self, name, metainfo)
-        group_dict["children"] += stream_dicts
+        group_dict['children'] += stream_dicts
 
         struct = [group_dict]
 
@@ -395,6 +395,6 @@ class DeviceDataset(NXDataset):
 
         # Set the NICOS data as attributes
         if defaultval is not None:
-            self.attrs["default_value"] = NXAttribute(defaultval)
-        self.attrs["nicos_name"] = NXAttribute(device)
-        self.attrs["nicos_param"] = NXAttribute(parameter)
+            self.attrs['default_value'] = NXAttribute(defaultval)
+        self.attrs['nicos_name'] = NXAttribute(device)
+        self.attrs['nicos_param'] = NXAttribute(parameter)

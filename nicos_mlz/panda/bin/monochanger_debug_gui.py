@@ -147,7 +147,7 @@ class BaseDev(QWidget):
         return str(value)
 
     def _status(self, value):
-        return "no status decoder implemented"
+        return 'no status decoder implemented'
 
 
 class ReadWord(BaseDev):
@@ -382,9 +382,9 @@ class MainWindow(QMainWindow):
             self._bus = ModbusTcpClient('wechsler.panda.frm2')
             self._bus.connect()
             self._sync()
-            print("PLC conforms to spec %.4f" % self.ReadFloat(0))
+            print('PLC conforms to spec %.4f' % self.ReadFloat(0))
         except Exception:
-            print("Modbus failed, using demo mode!")
+            print('Modbus failed, using demo mode!')
             self._bus = None
 
         self._sync()
@@ -488,5 +488,5 @@ def main():
     sys.exit(app.exec())
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

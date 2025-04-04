@@ -142,14 +142,14 @@ class InstrumentViewPanel(Panel):
         # NICOS completely, when you try to switch setups, with a message of:
         # > Instrument view: workspace doesn't exist
         if self._workspace is not None:
-            simpleapi.DeleteWorkspace("ws")
+            simpleapi.DeleteWorkspace('ws')
             self._workspace = None
 
         if new_idf is not None:
             self._workspace = simpleapi.LoadEmptyInstrument(
-                new_idf, OutputWorkspace="ws")
+                new_idf, OutputWorkspace='ws')
             self._widget = mpy.MantidQt.MantidWidgets.InstrumentWidget(
-                "ws", self)
+                'ws', self)
             self.layout().addWidget(self._widget)
             self._watcher.setClient(self.client)
 

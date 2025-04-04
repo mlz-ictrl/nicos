@@ -194,7 +194,7 @@ class ComparisonPanel(LiveDataPanel):
 
         def _extract_data(blob):
             labels, data = blob
-            return labels["x"] if labels else np.arange(data.shape[0]), data
+            return labels['x'] if labels else np.arange(data.shape[0]), data
 
         x1, y1, x2, y2 = [None] * 4
         if data_blob:
@@ -251,7 +251,7 @@ class ComparisonPanel(LiveDataPanel):
 
         name, labels, data = blob
         msg = f'Reference: {name} \nSet at: '
-        update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         if data.ndim == 1:
             self.reference_data_1d = (labels, data)

@@ -496,7 +496,7 @@ class EditorPanel(Panel):
             editor.setIndentationWidth(0)
             editor.setBraceMatching(QsciScintilla.BraceMatch.SloppyBraceMatch)
             editor.setFolding(QsciScintilla.FoldStyle.PlainFoldStyle)
-            editor.setIndentationGuidesForegroundColor(QColor("#CCC"))
+            editor.setIndentationGuidesForegroundColor(QColor('#CCC'))
             editor.setWrapMode(QsciScintilla.WrapMode.WrapCharacter)
             editor.setMarginLineNumbers(1, True)
             editor.setMarginWidth(

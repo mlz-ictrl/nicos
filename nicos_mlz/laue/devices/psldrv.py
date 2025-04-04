@@ -20,11 +20,11 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-'''Detector driver for the laue PSL detector via the windows server
+"""Detector driver for the laue PSL detector via the windows server
 
   To ease offline testing (without nicos) this is a standalone module without
   NICOS dependencies.
-'''
+"""
 
 import socket
 import zlib
@@ -38,7 +38,7 @@ class PSLdrv:
     def communicate(self, cmd):
         s = socket.create_connection((self.address, self.port), timeout=30.)
         s.send(cmd + '\n')
-        if cmd == "GetImage":
+        if cmd == 'GetImage':
             # Get Image data in chunks
             # the detector first sends a line with size info
             nx, ny, data_len = s.recv(1024).split(';')
@@ -51,7 +51,7 @@ class PSLdrv:
 
             # default:  data is zlib compressed
             data = ((ny, nx), zlib.decompress(data))
-        elif cmd == "Snap":
+        elif cmd == 'Snap':
             # don't wait for a reply, it would block until the end
             # of the exposure before returning 'TRUE'
             data = b''

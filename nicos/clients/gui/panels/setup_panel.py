@@ -88,16 +88,16 @@ class ProposalDelegate(QStyledItemDelegate):
                 dates = ', %s to %s' % (startdate, enddate)
             else:
                 dates = ''
-            html = f'''<img src=":/appicon-16" width="16">&nbsp;
+            html = f"""<img src=":/appicon-16" width="16">&nbsp;
             <big><b>{prop['proposal']}</b></big> - {prop['title']}<br>
             {prop['users'][0]['name']}{dates}
-            '''
+            """
             index.model().setData(index, html, Qt.ItemDataRole.UserRole + 1)
         palette = self.parent().palette()
         document = QTextDocument()
         document.setDefaultFont(option.font)
         if option.state & QStyle.StateFlag.State_Selected:
-            document.setHtml("<font color=%s>%s</font>" %
+            document.setHtml('<font color=%s>%s</font>' %
                              (palette.highlightedText().color().name(), html))
             color = palette.highlight().color()
         else:
@@ -746,14 +746,14 @@ class DetEnvPanel(Panel):
 
     @pyqtSlot()
     def on_envHelpBtn_clicked(self):
-        self.showInfo('''\
+        self.showInfo("""\
 The devices selected as "environment" get special treatment in some places, \
 depending on the instrument.
 
 For instruments with scans, they will get their own column in scan tables.
 
 For other instruments, they will get written to the data file where \
-sample environment is placed.''')
+sample environment is placed.""")
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)

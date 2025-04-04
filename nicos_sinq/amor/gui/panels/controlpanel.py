@@ -70,7 +70,7 @@ class AmorControlPanel(GenericPanel):
         # Set the validator for monitor preset edit
         # Regular expression for scientific notation: [\d.]+(?:e\d+)?
         self.monitorPresetBox.setValidator(
-            QRegularExpressionValidator(QRegularExpression(r"[\d.]+(?:e\d+)?"),
+            QRegularExpressionValidator(QRegularExpression(r'[\d.]+(?:e\d+)?'),
                                         self))
 
         self.setMonitorPreset(True)

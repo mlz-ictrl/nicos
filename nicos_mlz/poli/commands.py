@@ -758,7 +758,7 @@ def IndexPeaks(max_deviation=0.2, listname='default'):
     # write input file for Indexus
     root = session.experiment.samplepath
     with open(path.join(root, 'indexus.txt'), 'w', encoding='utf-8') as fp:
-        fp.write('''\
+        fp.write("""\
 poli                             ! instrument
 n                                ! extended output
 %d                               ! num of spots
@@ -769,7 +769,7 @@ n                                ! extended output
 %.4f %.4f %.4f  %.3f %.3f %.3f   ! lattice parameters
 .0 .1 -1.0 1.0                   ! offset gamma, step, low and high limits
 .0 .1 -1.0 1.0                   ! offset nu, step, low and high limits
-''' % params)
+""" % params)
     R2D = math.degrees
     with open(path.join(root, 'angles.txt'), 'w', encoding='utf-8') as fp:
         fp.write('   gamma    omega       nu        I     sigI\n')

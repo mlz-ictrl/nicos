@@ -24,8 +24,8 @@
 from nicos.core.params import oneof
 from nicos.devices.polarized.flipper import MezeiFlipper
 
-UP = "up"
-DOWN = "down"
+UP = 'up'
+DOWN = 'down'
 
 
 class Flipper(MezeiFlipper):

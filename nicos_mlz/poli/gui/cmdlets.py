@@ -179,9 +179,9 @@ class RefineMatrix(Cmdlet):
                             self._boxes):
             text = box.currentText()
             if text == '= a':
-                kwargs.append((p, '\'a\''))
+                kwargs.append((p, "'a'"))
             elif text == '= alpha':
-                kwargs.append((p, '\'alpha\''))
+                kwargs.append((p, "'alpha'"))
             elif text != 'free':
                 kwargs.append((p, '%.4f' % float(text)))
         code = cmd + '(' + ', '.join('%s=%s' % i for i in kwargs) + ')'

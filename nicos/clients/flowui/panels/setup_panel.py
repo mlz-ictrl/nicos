@@ -56,7 +56,7 @@ class ExpPanel(DefaultExpPanel):
                                self.proposalNum, self.sampleName)
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
-        self.buttonBox.addButton("Discard Changes",
+        self.buttonBox.addButton('Discard Changes',
                                  QDialogButtonBox.ButtonRole.ResetRole)
 
     def on_client_connected(self):

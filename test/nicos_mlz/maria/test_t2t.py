@@ -27,13 +27,13 @@ import pytest
 
 pytest.importorskip('tango')
 
-session_setup = "t2t"
+session_setup = 't2t'
 
 
 def test_maria_t2t(session):
-    omega = session.getDevice("omega")
-    detarm = session.getDevice("detarm")
-    t2t = session.getDevice("t2t")
+    omega = session.getDevice('omega')
+    detarm = session.getDevice('detarm')
+    t2t = session.getDevice('t2t')
 
     target = 2
     slavepos = t2t.scale * target

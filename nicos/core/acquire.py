@@ -210,12 +210,12 @@ def stop_acquire_thread():
     if session._thd_acquire and session._thd_acquire.is_alive():
         session.log.info('live() counting in progress, stopping detectors.')
         for det in session.experiment.data._current.detectors:
-            session.log.debug("stop detector: %s", det)
+            session.log.debug('stop detector: %s', det)
             det.stop()
-        session.log.debug("joining acquire thread")
+        session.log.debug('joining acquire thread')
         session._thd_acquire.join()
         session._thd_acquire = None
-        session.log.debug("acquire thread terminated.")
+        session.log.debug('acquire thread terminated.')
 
 
 class DevStatistics:

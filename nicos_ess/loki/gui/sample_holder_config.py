@@ -448,25 +448,25 @@ class LokiSampleHolderPanel(PanelBase):
     def _show_context_menu(self):
         menu = QMenu()
 
-        copy_action = QAction("Copy", self)
+        copy_action = QAction('Copy', self)
         copy_action.triggered.connect(
             self.table_helper.copy_selected_to_clipboard)
-        copy_action.setIcon(get_icon("file_copy-24px.svg"))
+        copy_action.setIcon(get_icon('file_copy-24px.svg'))
         menu.addAction(copy_action)
 
-        cut_action = QAction("Cut", self)
+        cut_action = QAction('Cut', self)
         cut_action.triggered.connect(self._on_cut)
-        cut_action.setIcon(get_icon("cut_24px.svg"))
+        cut_action.setIcon(get_icon('cut_24px.svg'))
         menu.addAction(cut_action)
 
-        paste_action = QAction("Paste", self)
+        paste_action = QAction('Paste', self)
         paste_action.triggered.connect(self._on_paste)
-        paste_action.setIcon(get_icon("paste_24px.svg"))
+        paste_action.setIcon(get_icon('paste_24px.svg'))
         menu.addAction(paste_action)
 
-        clear_action = QAction("Clear", self)
+        clear_action = QAction('Clear', self)
         clear_action.triggered.connect(self._on_clear)
-        clear_action.setIcon(get_icon("remove-24px.svg"))
+        clear_action.setIcon(get_icon('remove-24px.svg'))
         menu.addAction(clear_action)
 
         menu.exec(QCursor.pos())
@@ -479,7 +479,7 @@ class LokiSampleHolderPanel(PanelBase):
                 QKeySequence.StandardKey.Copy,
                 self.table_helper.copy_selected_to_clipboard
             ),
-            ("Ctrl+Backspace", self._on_clear),
+            ('Ctrl+Backspace', self._on_clear),
         ]:
             self._create_shortcut_key(key, to_call)
 

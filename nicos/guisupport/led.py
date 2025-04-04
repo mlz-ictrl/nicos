@@ -32,7 +32,7 @@ from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
 from nicos.guisupport.qt import QLabel, QPixmap, QSize, Qt, QWidget
 from nicos.guisupport.widget import NicosWidget, PropDef
 
-ledColors = {"blue", "green", "red", "yellow", "orange", "gray"}
+ledColors = {'blue', 'green', 'red', 'yellow', 'orange', 'gray'}
 
 
 class BaseLed(QLabel, NicosWidget):
@@ -67,7 +67,7 @@ class BaseLed(QLabel, NicosWidget):
         color = self.props['ledColor']
         if inverted:
             status = not status
-        status = status and "on" or "off"
+        status = status and 'on' or 'off'
         ledName = self._ledPatternName.format(color=color, status=status)
         pixmap = QPixmap(ledName).scaled(self.size(),
                                          Qt.AspectRatioMode.KeepAspectRatio,

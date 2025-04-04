@@ -183,16 +183,16 @@ def rscan(dev, *args, **kwargs):
                 if numpoints[0] > 1:
                     return mk(starts, steps, numpoints[0])
                 else:
-                    raise UsageError("invalid number of points. At least two "
-                                     "points are necessary to define a range "
-                                     "scan. Please check parameters.")
+                    raise UsageError('invalid number of points. At least two '
+                                     'points are necessary to define a range '
+                                     'scan. Please check parameters.')
             else:
-                raise UsageError("negative number of points. Please check "
-                                 "parameters. Maybe step parameter has wrong"
-                                 "sign.")
+                raise UsageError('negative number of points. Please check '
+                                 'parameters. Maybe step parameter has wrong'
+                                 'sign.')
         else:
-            raise UsageError("all entries must generate the same number of "
-                             "points")
+            raise UsageError('all entries must generate the same number of '
+                             'points')
 
     scanstr = _infostr('rscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
@@ -206,7 +206,7 @@ def rscan(dev, *args, **kwargs):
             speed = math.fabs(step / float(preset['t']))
             dev.speed = speed
         else:
-            raise UsageError("missing preset parameter t.")
+            raise UsageError('missing preset parameter t.')
         RScan(devs, values[:-1], values[1:], move, multistep, detlist,
               envlist, preset, scaninfo).run()
     finally:

@@ -45,7 +45,7 @@ from nicos_sinq.devices.epics.status import ADKafkaStatus
 
 from test.nicos_sinq.utils import create_hs00
 
-session_setup = "sinq_area_detector"
+session_setup = 'sinq_area_detector'
 
 
 #@pytest.mark.skip(reason="flaky test")
@@ -236,14 +236,14 @@ class TestKafkaPlugin:
 
     def test_status_on_connecting(self):
         if not self.PVstatus:
-            pytest.skip('Can\'t change PV status')
+            pytest.skip("Can't change PV status")
         self.PVstatus.put(ADKafkaStatus.CONNECTING)
         sleep(.5)
         assert self.detector.doStatus()[0] == status.WARN
 
     def test_status_on_disconnected(self):
         if not self.PVstatus:
-            pytest.skip('Can\'t change PV status')
+            pytest.skip("Can't change PV status")
         self.PVstatus.put(ADKafkaStatus.DISCONNECTED)
         sleep(.5)
         st = self.detector.doStatus()
@@ -251,7 +251,7 @@ class TestKafkaPlugin:
 
     def test_status_on_error(self):
         if not self.PVstatus:
-            pytest.skip('Can\'t change PV status')
+            pytest.skip("Can't change PV status")
         self.PVstatus.put(ADKafkaStatus.ERROR)
         sleep(.5)
         st = self.detector.doStatus()
@@ -259,7 +259,7 @@ class TestKafkaPlugin:
 
     def test_status_on_message(self):
         if not self.PVmessage or not self.PVmessage.connected:
-            pytest.skip('Can\'t change PV status')
+            pytest.skip("Can't change PV status")
         msg = 'Any Kafka status message'
         self.PVmessage.put(msg)
         st = self.detector.doStatus()
@@ -475,14 +475,14 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
 
     def test_status_on_connecting(self, restore_pvs):
         if not self.PVstatus:
-            pytest.skip('Can\'t change PV status')
+            pytest.skip("Can't change PV status")
         self.PVstatus.put(ADKafkaStatus.CONNECTING)
         sleep(.5)
         assert self.detector.doStatus() == (status.WARN, 'Connecting')
 
     def test_status_on_disconnected(self):
         if not self.PVstatus:
-            pytest.skip('Can\'t change PV status')
+            pytest.skip("Can't change PV status")
         self.PVstatus.put(ADKafkaStatus.DISCONNECTED)
         self.PVmessage.put('A meaningful disconnected error message')
         sleep(.5)
@@ -491,7 +491,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
 
     def test_status_on_error(self):
         if not self.PVstatus:
-            pytest.skip('Can\'t change PV status')
+            pytest.skip("Can't change PV status")
         self.PVstatus.put(ADKafkaStatus.ERROR)
         self.PVmessage.put('A meaningful error message')
         sleep(.5)
@@ -519,7 +519,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
         assert (raw[max(timestamps)] == self.detector.readArrays(LIVE)).all()
 
 
-@pytest.mark.skip(reason="flaky test")
+@pytest.mark.skip(reason='flaky test')
 class TestEpicsAreaDetector1(unittest.TestCase):
 
     def create_patch(self, name):

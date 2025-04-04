@@ -20,12 +20,12 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-'''
+"""
 Euler
 
 class for stroing clockwise eulerian angles
 
-'''
+"""
 
 import numpy as np
 
@@ -114,7 +114,7 @@ class Euler(PositionBase):
         co = np.sin(self.alpha) ** 2 - si ** 2
         con3 = np.cos(self.kappamax / 2.0) ** 2 * np.sin(self.alpha) ** 2
         if con3 > co:
-            self.log.warning("Chi can not be reached on this hardware")
+            self.log.warning('Chi can not be reached on this hardware')
             kappa = np.deg2rad(180.0)
             omega = np.deg2rad(90.0)
             # raise error("Chi high")
@@ -203,14 +203,14 @@ class Euler(PositionBase):
     def __repr__(self):
         """ Representation. Part of Position subclass protocol.
         """
-        s = "[Eulerian angles:"
+        s = '[Eulerian angles:'
         if self.theta is not None:
-            s = s + " theta=%8.3f" % (np.rad2deg(self.theta))
+            s = s + ' theta=%8.3f' % (np.rad2deg(self.theta))
         if self.phi is not None:
-            s = s + " phi=%8.3f" % (np.rad2deg(self.phi))
+            s = s + ' phi=%8.3f' % (np.rad2deg(self.phi))
         if self.omega is not None:
-            s = s + " omega=%8.3f" % (np.rad2deg(self.omega))
+            s = s + ' omega=%8.3f' % (np.rad2deg(self.omega))
         if self.chi is not None:
-            s = s + " chi=%8.3f" % (np.rad2deg(self.chi))
-        s = s + "]"
+            s = s + ' chi=%8.3f' % (np.rad2deg(self.chi))
+        s = s + ']'
         return s

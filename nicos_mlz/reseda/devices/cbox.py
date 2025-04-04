@@ -356,14 +356,14 @@ class CBoxResonanceFrequency(BaseSequencer):
         return result
 
     def _getBankCapacity(self, coil, bank):
-        '''Reads current bank setup and calculates the bank capacity.'''
+        """Reads current bank setup and calculates the bank capacity."""
         bits = self._adevs['coil%d_c%d' % (coil, bank)].read(0)
         result = self._calcBankCapacity(bank, bits)
         self.log.debug('Coil %d, bank %d capacity: %g', coil, bank, result)
         return result
 
     def _calcBankCapacity(self, bank, bits):
-        '''Calculates accumulated bank capacity.'''
+        """Calculates accumulated bank capacity."""
         # accumulate the set capacities
         result = 0
         for i, capacity in enumerate(self.BANK_CAPACITIES[bank - 1]):

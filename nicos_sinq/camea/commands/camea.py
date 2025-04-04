@@ -267,14 +267,14 @@ def printToDiscord(message):
     Print the message to the discord server if it is running.
     """
     with open('/home/camea/Documents/DiscordBot/status.txt', 'a',
-              encoding="utf-8") as f:
+              encoding='utf-8') as f:
         f.write(message)
 
 
 @usercommand
 def writeToLogbook(logbook, values):
 
-    with open(logbook, 'a+', encoding="utf-8") as f:
+    with open(logbook, 'a+', encoding='utf-8') as f:
         if f.tell() == 0:  # empty file
             f.write(','.join([fmt.format(v) for fmt, v in zip(
                 logbookTitlesFormats, logbookTitles)])+'\n')
@@ -568,7 +568,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
     # Get temperature in order to actually do a scan
     temperature = session.getDevice('T')
     if temperature is None:
-        session.log.info('No temperature found, this can\'t be right, can it?')
+        session.log.info("No temperature found, this can't be right, can it?")
 
     # Get temperature in order to actually do a scan
     B = session.getDevice('B')

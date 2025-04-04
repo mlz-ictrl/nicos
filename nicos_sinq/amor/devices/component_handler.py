@@ -153,8 +153,8 @@ class DistancesHandler(BaseSequencer):
         if component in self.fixedcomponents:
             self.__dict__[component] = self.fixedcomponents.get(component)
             if printValues:
-                self._logvalues([component, "", getattr(self, component),
-                                 "FIXED"])
+                self._logvalues([component, '', getattr(self, component),
+                                 'FIXED'])
             return
 
         if component in self.components:
@@ -162,13 +162,13 @@ class DistancesHandler(BaseSequencer):
             if raw is None:
                 self.__dict__[component] = 'UNKNOWN'
                 if printValues:
-                    self._logvalues([component, "", "", "UNKNOWN"])
+                    self._logvalues([component, '', '', 'UNKNOWN'])
                 return
 
             if raw > 8000:
                 self.__dict__[component] = 'NOT ACTIVE'
                 if printValues:
-                    self._logvalues([component, raw, "", "NOT ACTIVE"])
+                    self._logvalues([component, raw, '', 'NOT ACTIVE'])
                 return
 
             offsets = self.components[component]
@@ -178,7 +178,7 @@ class DistancesHandler(BaseSequencer):
             markoffset = offsets[0]
             self.__dict__[component] = abs(scaleoffset - raw - markoffset)
             if printValues:
-                self._logvalues([component, raw, getattr(self, component), ""])
+                self._logvalues([component, raw, getattr(self, component), ''])
 
     def _logvalues(self, values, isheader=False):
         if isheader:

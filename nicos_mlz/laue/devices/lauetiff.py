@@ -64,7 +64,7 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
         # without correct PIL version.
         if Image is None:
             raise NicosError(self, 'PIL/Pillow module is not available. Check'
-                             ' if it\'s installed and in your PYTHONPATH')
+                             " if it's installed and in your PYTHONPATH")
 
     def writeHeader(self, fp, metainfo, image):
         self.metainfo = metainfo

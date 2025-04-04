@@ -354,7 +354,7 @@ class Scan:
         return False
 
     def acquire(self, point, preset):
-        preset.pop("live", None)
+        preset.pop('live', None)
         acquire(point, preset, iscompletefunc=self.acquireCompleted)
 
     def _inner_run(self):

@@ -37,14 +37,14 @@ try:
             # try to format exception information if present
             if record.exc_info:
                 try:
-                    full_message = "\n".join(
+                    full_message = '\n'.join(
                         traceback.format_exception(*record.exc_info))
                 except TypeError as _:
                     full_message = "Can't format exception traceback"
             if record.exc_text:
                 full_message = record.exc_text
             if full_message:
-                gelf_dict["full_message"] = full_message
+                gelf_dict['full_message'] = full_message
 
 except ImportError:
     ESSGELFTCPHandler = None

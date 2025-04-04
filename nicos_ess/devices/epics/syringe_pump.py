@@ -128,7 +128,7 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
             return
         curr_state = self._attached_status.read(0)
         if curr_state == 'Stopped':
-            self.log.warning("Stop request ignored as pump already stopped")
+            self.log.warning('Stop request ignored as pump already stopped')
             return
         self._put_pv('stop_pv', 2)
 
@@ -161,6 +161,6 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
             return
         curr_state = self._attached_status.read(0)
         if curr_state != 'Paused':
-            self.log.warning("Resume request ignored as pump is not paused")
+            self.log.warning('Resume request ignored as pump is not paused')
             return
         self._put_pv('pause_pv', 5)

@@ -42,44 +42,44 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
     for MAATEL Image Plate Detectors.
     """
 
-    DEFAULT_URL_FMT = "tango://%s/EMBL/Microdiff/General#dbase=no"
+    DEFAULT_URL_FMT = 'tango://%s/EMBL/Microdiff/General#dbase=no'
 
     tango_status_mapping = dict(PyTangoDevice.tango_status_mapping)
     tango_status_mapping[DevState.STANDBY] = status.OK
     tango_status_mapping[DevState.ALARM] = status.ERROR
 
-    POS_ERASE = "erase"
-    POS_EXPO = "expo"
-    POS_READ = "read"
+    POS_ERASE = 'erase'
+    POS_EXPO = 'expo'
+    POS_READ = 'read'
 
     valuetype = oneof(POS_ERASE, POS_EXPO, POS_READ)
 
     parameters = {
-        "drumpos":     Param("Drum position in degree",
+        'drumpos':     Param('Drum position in degree',
                              type=float, settable=True, volatile=True,
-                             category="general"),
-        "readheadpos": Param("Read head motor position in mm",
+                             category='general'),
+        'readheadpos': Param('Read head motor position in mm',
                              type=float, settable=True, volatile=True,
-                             category="general"),
-        "drumexpo":    Param("Drum expo position in degree",
+                             category='general'),
+        'drumexpo':    Param('Drum expo position in degree',
                              type=float, settable=True, volatile=True,
-                             category="general"),
-        "readspeed":   Param("Readout velocity for the detector drum in rpm",
+                             category='general'),
+        'readspeed':   Param('Readout velocity for the detector drum in rpm',
                              type=float, settable=True, volatile=True,
-                             category="general"),
-        "erasespeed":  Param("Erase velocity for the detector drum in rpm",
+                             category='general'),
+        'erasespeed':  Param('Erase velocity for the detector drum in rpm',
                              type=float, settable=True, volatile=True,
-                             category="general"),
-        "freqlaser":   Param("Frequency for the laser diode in Hz",
+                             category='general'),
+        'freqlaser':   Param('Frequency for the laser diode in Hz',
                              type=float, settable=True, volatile=True,
-                             category="general"),
-        "timeerase":   Param("Erasure time in seconds",
+                             category='general'),
+        'timeerase':   Param('Erasure time in seconds',
                              type=float, settable=True, volatile=True,
-                             category="general"),
+                             category='general'),
     }
 
     parameter_overrides = {
-        "unit": Override(default="", mandatory=False, settable=False)
+        'unit': Override(default='', mandatory=False, settable=False)
     }
 
     def doInit(self, mode):
@@ -101,7 +101,7 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
         }
 
     def doStart(self, target):
-        self.log.debug("doStart: pos: %s", target)
+        self.log.debug('doStart: pos: %s', target)
         myStatus = self.status(0)
         if myStatus[0] == status.OK:
             self._moveTo = target
@@ -111,16 +111,16 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
                             "'%s'" % (status.statuses[myStatus[0]]))
 
     def doStop(self):
-        self.log.debug("doStop")
+        self.log.debug('doStop')
         if self._moveTo in self._mapStop:
             self._mapStop[self._moveTo]()
         else:
             myStatus = self.status(0)
             if myStatus[0] == status.OK:
-                self.log.warning("Device already stopped.")
+                self.log.warning('Device already stopped.')
             else:
-                raise NicosError(self, "Internal moveTo state unknown. "
-                                       "Check device status.")
+                raise NicosError(self, 'Internal moveTo state unknown. '
+                                       'Check device status.')
 
     def doRead(self, maxage=0):
         return self.target
@@ -130,11 +130,11 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
         # operation has _not_ been completed.
         st, msg = PyTangoDevice.doStatus(self, maxage)
         if self._lastStatus == status.BUSY and st != status.BUSY:
-            self.log.debug("doStatus: leaving busy state (%d)? %d. "
-                           "Check again after a short delay.", status.BUSY, st)
+            self.log.debug('doStatus: leaving busy state (%d)? %d. '
+                           'Check again after a short delay.', status.BUSY, st)
             session.delay(5)
             st, msg = PyTangoDevice.doStatus(self, 0)
-            self.log.debug("doStatus: recheck result: %d", st)
+            self.log.debug('doStatus: recheck result: %d', st)
         self._lastStatus = st
         return st, msg
 
@@ -194,26 +194,26 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
     }
 
     attached_devices = {
-        "imgdrum": Attach("Image Plate Detector Drum control device.",
+        'imgdrum': Attach('Image Plate Detector Drum control device.',
                           ImagePlateDrum),
     }
 
     parameters = {
-        "erase":          Param("Erase image plate on next start?",
+        'erase':          Param('Erase image plate on next start?',
                                 type=bool, settable=True, mandatory=False,
                                 default=True),
-        "roi":            Param("Region of interest",
+        'roi':            Param('Region of interest',
                                 type=tupleof(int, int, int, int),
                                 default=(0, 0, 0, 0),
                                 settable=True, volatile=True,
-                                category="general"),
-        "pixelsize":      Param("Pixel size in microns",
+                                category='general'),
+        'pixelsize':      Param('Pixel size in microns',
                                 type=oneof(125, 250, 500), default=500,
-                                settable=True, volatile=True, category="general"),
-        "file":           Param("Image file location on maatel computer",
+                                settable=True, volatile=True, category='general'),
+        'file':           Param('Image file location on maatel computer',
                                 type=str, settable=True, volatile=True,
-                                category="general"),
-        "readout_millis": Param("Timeout in ms for the readout",
+                                category='general'),
+        'readout_millis': Param('Timeout in ms for the readout',
                                 type=int, settable=True, default=60000),
     }
 
@@ -257,8 +257,8 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
         return self._attached_imgdrum._dev.ImageFile
 
     def doWriteRoi(self, value):
-        self.log.warning("setting x offset and width are not supported "
-                         "- ignored.")
+        self.log.warning('setting x offset and width are not supported '
+                         '- ignored.')
         self._attached_imgdrum._dev.InterestZoneY = value[1]
         self._attached_imgdrum._dev.InterestZoneH = value[3]
 
@@ -274,15 +274,15 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
 class BiodiffDetector(Detector):
 
     attached_devices = {
-        "gammashutter": Attach("Gamma shutter", Moveable),
-        "photoshutter": Attach("Photo shutter", Moveable),
+        'gammashutter': Attach('Gamma shutter', Moveable),
+        'photoshutter': Attach('Photo shutter', Moveable),
     }
 
     parameters = {
-        "ctrl_gammashutter": Param("Control gamma shutter?",
+        'ctrl_gammashutter': Param('Control gamma shutter?',
                                    type=bool, settable=True, mandatory=False,
                                    default=True),
-        "ctrl_photoshutter": Param("Control photo shutter?",
+        'ctrl_photoshutter': Param('Control photo shutter?',
                                    type=bool, settable=True, mandatory=False,
                                    default=True),
     }

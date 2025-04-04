@@ -55,11 +55,11 @@ class Formula:
         return self._formula
 
 
-ext_formula_desc = '''
+ext_formula_desc = """
     The formula must be given in the form that all parameters are numbers, but
     the value to be transformed is called 'x'. The 'x' value may occur more
     than once.
-'''
+"""
 
 
 class TransformRead(DeviceMixinBase):

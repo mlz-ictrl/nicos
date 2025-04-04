@@ -154,12 +154,12 @@ class EulerianCradle(Moveable):
         Bmat = self._Bmat
 
         # calculate phi from q, ki, kf
-        self.log.debug("Bmat = %s", Bmat)
+        self.log.debug('Bmat = %s', Bmat)
         # was: ec_q = dot(Bmat, target_q)
         ec_q = self._attached_cell.hkl2Qcart(*target_q)
-        self.log.debug("ec_q = %s", ec_q)
+        self.log.debug('ec_q = %s', ec_q)
         phi = self._attached_cell.cal_phi(ec_q, ki, kf, sense)
-        self.log.debug("phi = %s", phi)
+        self.log.debug('phi = %s', phi)
         ec_ql = norm(ec_q)
         ec_a = dot(Bmat, another)
 

@@ -160,7 +160,7 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
             try:
                 res = self.queryExperiment(ses['number'])
             except Exception:
-                session.log.warning("error querying session %s", ses['number'],
+                session.log.warning('error querying session %s', ses['number'],
                                     exc=1)
             else:
                 result.append(res)

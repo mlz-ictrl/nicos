@@ -106,7 +106,7 @@ class SeopPlot(LiveWidget1D):
 
 class SeopPlotPanel(Panel):
     panelName = 'Seop Plot'
-    dformat = "%Y-%m-%d %H:%M:%S.%f"
+    dformat = '%Y-%m-%d %H:%M:%S.%f'
     numPts = 20  # only relevant for Amplitude and Phase
 
     def __init__(self, parent, client, options):
@@ -126,7 +126,7 @@ class SeopPlotPanel(Panel):
         if not self.xtime:
             self.numPtsWidgets.hide()
 
-        cache = self.client.getCacheKey("nmr/value")
+        cache = self.client.getCacheKey('nmr/value')
         if cache:
             _, last_time = cache
             self.last_timestamp = datetime.strptime(last_time, self.dformat)
@@ -164,7 +164,7 @@ class SeopPlotPanel(Panel):
         if event.getWindow():  # inside plot
             self.mouselocation = event
             wc = event.getWC(self.plot.plot.viewport)
-            self.statusBar.showMessage("X = %g, Y = %g" % (wc.x, wc.y))
+            self.statusBar.showMessage('X = %g, Y = %g' % (wc.x, wc.y))
         else:
             self.statusBar.clearMessage()
 

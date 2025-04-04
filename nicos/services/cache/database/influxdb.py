@@ -84,18 +84,18 @@ class InfluxDBWrapper:
         """
 
         def readKeys():
-            msg = f'''import "influxdata/influxdb/schema"
+            msg = f"""import "influxdata/influxdb/schema"
                 schema.measurements(bucket: "{self._bucket}",
-                start: 2007-01-01T00:00:00Z, stop: now())'''
+                start: 2007-01-01T00:00:00Z, stop: now())"""
             tables = self._client.query_api().query(msg)
             keys = [record['_value'] for record in tables[0].records]
             return sorted(keys)
 
         async def readSubkeys(client, key):
-            msg = f'''import "influxdata/influxdb/schema"
+            msg = f"""import "influxdata/influxdb/schema"
                 schema.measurementFieldKeys(bucket: "{self._bucket}",
                 measurement: "{key}",
-                start: 2007-01-01T00:00:00Z, stop: now())'''
+                start: 2007-01-01T00:00:00Z, stop: now())"""
             tables = await client.query_api().query(msg)
             subkeys = [record['_value'] for table in tables for record in table]
             return sorted(subkeys)
@@ -104,12 +104,12 @@ class InfluxDBWrapper:
             result = []
             year = datetime.now().year
             while not result and year >= 2007:
-                msg = f'''from(bucket:"{self._bucket}")
+                msg = f"""from(bucket:"{self._bucket}")
                     |> range(start: {year}-01-01T00:00:00Z, stop: now())
                     |> filter(fn:(r) => r._measurement == "{key}")
                     |> filter(fn:(r) => r._field == "{subkey}")
                     |> last(column: "_time")
-                    |> drop(columns: ["_start", "_stop"])'''
+                    |> drop(columns: ["_start", "_stop"])"""
                 result = await client.query_api().query(msg)
                 year -= 1
             return result
@@ -147,9 +147,9 @@ class InfluxDBWrapper:
         # query bucket with the latest values if exists and check if is complete
         last_ts, n_records = 0, 0
         if self._bucket_latest in self.getBucketNames():
-            msg = f'''from(bucket:"{self._bucket_latest}")
+            msg = f"""from(bucket:"{self._bucket_latest}")
                 |> range(start: 2007-01-01T00:00:00Z, stop: now())
-                |> drop(columns: ["_start", "_stop"])'''
+                |> drop(columns: ["_start", "_stop"])"""
             for table in self._client.query_api().query(msg):
                 for record in table:
                     if record['_measurement'] == 'signing':
@@ -162,11 +162,11 @@ class InfluxDBWrapper:
 
         # query the cache bucket for any newer values
         if last_ts and result:
-            t1 = datetime.utcfromtimestamp(last_ts).strftime("%Y-%m-%dT%H:%M:%SZ")
-            msg = f'''from(bucket:"{self._bucket}")
+            t1 = datetime.utcfromtimestamp(last_ts).strftime('%Y-%m-%dT%H:%M:%SZ')
+            msg = f"""from(bucket:"{self._bucket}")
                 |> range(start: {t1}, stop: now())
                 |> last(column: "_time")
-                |> drop(columns: ["_start", "_stop"])'''
+                |> drop(columns: ["_start", "_stop"])"""
             for table in self._client.query_api().query(msg):
                 for record in table:
                     result.append(record)
@@ -181,27 +181,27 @@ class InfluxDBWrapper:
 
     def queryLastValue(self, measurement, field, totime):
         self._update()
-        t = datetime.utcfromtimestamp(totime).strftime("%Y-%m-%dT%H:%M:%SZ")
-        msg = f'''from(bucket:"{self._bucket}")
+        t = datetime.utcfromtimestamp(totime).strftime('%Y-%m-%dT%H:%M:%SZ')
+        msg = f"""from(bucket:"{self._bucket}")
                 |> range(start: 2007-01-01T00:00:00Z, stop: {t})
                 |> filter(fn:(r) => r._measurement == "{measurement}")
                 |> filter(fn:(r) => r._field == "{field}")
                 |> last(column: "_time")
-                |> drop(columns: ["_start", "_stop"])'''
+                |> drop(columns: ["_start", "_stop"])"""
         yield self._client.query_api().query_stream(msg)
 
     def queryHistory(self, measurement, field, fromtime, totime, interval):
         """Queries history from InfluxDB.
         """
         self._update()
-        t1 = datetime.utcfromtimestamp(fromtime).strftime("%Y-%m-%dT%H:%M:%SZ")
-        t2 = datetime.utcfromtimestamp(totime).strftime("%Y-%m-%dT%H:%M:%SZ")
-        msg = f'''from(bucket:"{self._bucket}")
+        t1 = datetime.utcfromtimestamp(fromtime).strftime('%Y-%m-%dT%H:%M:%SZ')
+        t2 = datetime.utcfromtimestamp(totime).strftime('%Y-%m-%dT%H:%M:%SZ')
+        msg = f"""from(bucket:"{self._bucket}")
                 |> range(start: {t1}, stop: {t2})
                 |> filter(fn:(r) => r._measurement == "{measurement}")
                 |> filter(fn:(r) => r._field == "{field}")
                 {f'|> aggregateWindow(every: {interval}s, fn: last, createEmpty: false)' if interval else ''}
-                |> drop(columns: ["_start", "_stop"])'''
+                |> drop(columns: ["_start", "_stop"])"""
         yield self._client.query_api().query_stream(msg)
 
     def update(self, measurement, ts, field, value, expired):

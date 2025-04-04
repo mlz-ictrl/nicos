@@ -235,7 +235,7 @@ opkeys = OP_TELL + OP_ASK + OP_WILDCARD + OP_SUBSCRIBE + OP_UNSUBSCRIBE + \
     OP_TELLOLD + OP_LOCK + OP_REWRITE
 
 # regular expression matching a cache protocol message
-msg_pattern = re.compile(r'''
+msg_pattern = re.compile(r"""
     ^ (?:
       \s* (?P<time>\d+\.?\d*)?                   # timestamp
       \s* (?P<ttlop>[+-]?)                       # ttl operator
@@ -246,7 +246,7 @@ msg_pattern = re.compile(r'''
     \s* (?P<op>[%(opkeys)s])                        # operator
     \s* (?P<value>[^\r\n]*?)                     # value
     \s* $
-    ''' % dict(opkeys=opkeys), re.X)
+    """ % dict(opkeys=opkeys), re.X)
 
 line_pattern = re.compile(br'([^\r\n]*)\r?\n')
 

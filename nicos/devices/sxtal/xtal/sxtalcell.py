@@ -184,7 +184,7 @@ class SXTalCell:
             gamma = np.rad2deg(np.arccos(np.sum(a * b)))
             return CellParam(length[0], length[1], length[2], alpha, beta, gamma)
         else:
-            raise RuntimeError("Zero axis length")
+            raise RuntimeError('Zero axis length')
 
     def hkl(self, c):
         """Calculate the HKL indices for the given C vector."""
@@ -217,7 +217,7 @@ class SXTalCell:
 
         """
         if s0 is None:
-            raise RuntimeError("Cannot calculate Shkl without knowing hardware")
+            raise RuntimeError('Cannot calculate Shkl without knowing hardware')
         return np.dot(self.CMatrix(p), reflections) + self.s0
 
     def DirectVector(self, indices):

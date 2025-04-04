@@ -70,7 +70,7 @@ else:
                     ))
 
 
-FRAMESET = '''\
+FRAMESET = """\
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -81,9 +81,9 @@ FRAMESET = '''\
 <frame src="content.html" name="content">
 </frameset>
 </html>
-'''
+"""
 
-PROLOG = b'''\
+PROLOG = b"""\
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
@@ -202,15 +202,15 @@ function msghide() {
 <title>NICOS electronic logbook</title>
 </head>
 <body>
-'''
+"""
 
-PROLOG_TOC = b'''\
+PROLOG_TOC = b"""\
 <p class="showlinks">
   <a href="javascript:parent.content.msgshow()">Show all messages</a><br>
   <a href="javascript:parent.content.msghide()">Hide all messages</a>
 </p>
 <p class="contenthead">Contents</p>
-'''
+"""
 
 
 class HtmlWriter:

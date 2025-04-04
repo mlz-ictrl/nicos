@@ -102,7 +102,7 @@ class Monochromator(Moveable):
         return self.target
 
     def doStatus(self, maxage=0):
-        return status.OK, ""
+        return status.OK, ''
 
     def doReadPrecision(self):
         return 0

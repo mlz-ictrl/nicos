@@ -63,7 +63,7 @@ class FileFilterDialog(QFileDialog):
             if isinstance(child, QLineEdit):
                 break
         else:
-            raise NicosError("QLineEdit not found in QFileDialog")
+            raise NicosError('QLineEdit not found in QFileDialog')
         child.textChanged.connect(filterproxy.setFilterWildcard)
         child.returnPressed.disconnect(self.accept)
         child.returnPressed.connect(self.on_returnPressed)

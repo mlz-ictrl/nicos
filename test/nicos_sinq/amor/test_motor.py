@@ -79,8 +79,8 @@ class TestEpicsMotor:
         self.device.maw(initial_pos)
         self.device = None
 
-    @pytest.mark.parametrize("offset", [0.1, -0.1])
-    @pytest.mark.parametrize("target", [1, -1])
+    @pytest.mark.parametrize('offset', [0.1, -0.1])
+    @pytest.mark.parametrize('target', [1, -1])
     def test_motor_operations(self, offset, target):
         """
         Test that after a device is moved to a certain position

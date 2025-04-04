@@ -127,7 +127,7 @@ class ScansPanel(PlotPanel):
         self.actionNormalized.triggered.connect(
             self.on_actionNormalized_triggered)
 
-        quickfit = QShortcut(QKeySequence("G"), self)
+        quickfit = QShortcut(QKeySequence('G'), self)
         quickfit.activated.connect(self.on_quickfit)
 
         self.user_color = Qt.GlobalColor.white
@@ -523,8 +523,8 @@ class ScansPanel(PlotPanel):
     def on_actionOpen_triggered(self):
         """Open image file using registered reader classes."""
         ftypes = {'Scan files (*.dat)': 'dat'}
-        fdialog = FileFilterDialog(self, "Open data files", "",
-                                   ";;".join(ftypes.keys()))
+        fdialog = FileFilterDialog(self, 'Open data files', '',
+                                   ';;'.join(ftypes.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
         if fdialog.exec() != QDialog.DialogCode.Accepted:

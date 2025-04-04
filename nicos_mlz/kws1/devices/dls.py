@@ -197,7 +197,7 @@ class DLSDetector(Measurable):
         return retval
 
 
-FILETEMPLATE = '''\
+FILETEMPLATE = """\
 FPGA-CORRELATOR
 Date :	"%(date)s"
 Time :	"%(time)s"
@@ -230,7 +230,7 @@ MeanCR2 [kHz]   :	%(mean2)14.5f
 MeanCR3 [kHz]   :	%(mean3)14.5f
 
 "Correlation"
-'''
+"""
 
 
 class DLSFileSinkHandler(DataSinkHandler):

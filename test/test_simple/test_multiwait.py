@@ -82,5 +82,5 @@ class TestMultiWait:
         dev1._iscompleted_exception = NicosTimeoutError('multi_dev1')
         dev3._iscompleted_exception = ComputationError('multi_dev3')
 
-        with log.assert_errors(regex=".*multi_dev1.*", count=1):
+        with log.assert_errors(regex='.*multi_dev1.*', count=1):
             assert raises(ComputationError, multiWait, [dev1, dev2, dev3, dev4])

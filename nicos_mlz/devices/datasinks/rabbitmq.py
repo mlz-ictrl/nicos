@@ -203,7 +203,7 @@ class RabbitSinkHandler(DataSinkHandler):
         self._handleMessage(subset.settype, subset, self.dataset, blockds)
 
     def begin(self):
-        self.log.debug("begin: dataset.settype = %s", self.dataset.settype)
+        self.log.debug('begin: dataset.settype = %s', self.dataset.settype)
         # need to skip begin of ScanDataset as metainfo is not available
         # before the first point. This is handled on the first point in
         # `addSubset`.
@@ -211,7 +211,7 @@ class RabbitSinkHandler(DataSinkHandler):
             self._handleMessage(self.dataset.settype, self.dataset)
 
     def end(self):
-        self.log.debug("end: dataset.settype = %s", self.dataset.settype)
+        self.log.debug('end: dataset.settype = %s', self.dataset.settype)
         blockds, scands = None, None
         if self.dataset.settype in (SCAN, SUBSCAN):
             # the `ScanDataset` has been popped from DataManager's stack before

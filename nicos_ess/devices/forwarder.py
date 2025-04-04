@@ -63,8 +63,8 @@ class EpicsKafkaForwarder(KafkaStatusHandler):
             return
 
         self._forwarded = {
-            stream["channel_name"]
-            for stream in message["streams"]
+            stream['channel_name']
+            for stream in message['streams']
         }
 
         status_msg = 'Forwarding..' if self._forwarded else 'idle'

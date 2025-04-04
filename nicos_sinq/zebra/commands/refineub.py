@@ -206,7 +206,7 @@ def UKVectorFromAngles(reflection):
     Calculate the B&L U vector from normal beam geometry angles
     Not using normal function as it uses wrong references
     """
-    session.log.warning("Kappa not implemented yet")
+    session.log.warning('Kappa not implemented yet')
     return 0
 
 
@@ -309,7 +309,7 @@ def newUB(  # pylint: disable=too-many-positional-arguments
 
     # HT = matFromTwoVectors(h1, h2) TODO this isn't used?
 
-    if refine_type == "NB":
+    if refine_type == 'NB':
         u1 = UNBVectorFromAngles(r12)
         u2 = UNBVectorFromAngles(r22)
         u1, u2 = vecori(u1, u2, dials)
@@ -318,7 +318,7 @@ def newUB(  # pylint: disable=too-many-positional-arguments
         TR1PO = tr1p(u1, u2)
         U = np.dot(TR1PO, TTR1PC)
         sample.ubmatrix = list(np.dot(U, B).flatten())
-    elif refine_type == "Euler":
+    elif refine_type == 'Euler':
         u1 = UVectorFromAngles(instr, h1, r12)
         u2 = UVectorFromAngles(instr, h2, r22)
         u1, u2 = vecori(u1, u2, dials)
@@ -327,7 +327,7 @@ def newUB(  # pylint: disable=too-many-positional-arguments
         TR1PCT = np.linalg.inv(TR1PC)
         U = np.dot(TRIPO, TR1PCT)
         sample.ubmatrix = list(np.dot(U, B).flatten())
-    elif refine_type == "Kappa":
+    elif refine_type == 'Kappa':
         u1 = UKVectorFromAngles(r12)
         u2 = UKVectorFromAngles(r22)
 
@@ -336,7 +336,7 @@ def displacements(refine_type, angle, disps, index):
     DEG2RAD = np.pi/180
 
     disp = 0
-    if refine_type == "NB":
+    if refine_type == 'NB':
 
         D = session.getDevice('detdist').target
 
@@ -388,13 +388,13 @@ def calc_euler_angles(sample, instr, hkl, obs, offsets):
     hkl, h02 = normv(h01)
 
     if hkl < 0.000001:
-        session.log.error("HKL is too small for calculation")
+        session.log.error('HKL is too small for calculation')
         raise TypeError()
 
     l = instr.wavelength  # noqa: E741
     sintheta = hkl * l / 2.0
     if abs(sintheta) > 1.0:
-        session.log.error("Calculated Sin(theta) > 1")
+        session.log.error('Calculated Sin(theta) > 1')
         raise TypeError()
 
     tt = np.arcsin(sintheta)
@@ -494,9 +494,9 @@ def residuals(  # pylint: disable=too-many-positional-arguments
     # Loop through reflections
     for i, hkl in enumerate(hkls):
         # Calculate positions of angles
-        if refine_type == "NB":
+        if refine_type == 'NB':
             poslist = np.array(instr._extractPos(instr._calcPos(hkl)))
-        if refine_type == "Euler":
+        if refine_type == 'Euler':
             poslist, psi = calc_euler_angles(  # noqa: E501 pylint: disable=unused-variable
                 sample,
                 instr,
@@ -506,7 +506,7 @@ def residuals(  # pylint: disable=too-many-positional-arguments
         diff_temp = []
         calc_temp = []
         for j, ang in enumerate(poslist):
-            if refine_type == "NB":
+            if refine_type == 'NB':
                 a = float(ang[1]) + offsets[j]
                 a += displacements(refine_type, a, disps, j)
                 if a > 180:
@@ -515,7 +515,7 @@ def residuals(  # pylint: disable=too-many-positional-arguments
                     calc_temp.append(a+360)
                 else:
                     calc_temp.append(a)
-            if refine_type == "Euler":
+            if refine_type == 'Euler':
                 a = float(ang)
                 a += displacements(refine_type, a, disps, j)
                 calc_temp.append(a)
@@ -728,7 +728,7 @@ def refinement(  # pylint: disable=too-many-positional-arguments
             refine_type,
             verb)
 
-        if refine_type == "Euler":
+        if refine_type == 'Euler':
             c0 = c0[:, :3]
 
         cost.append(sum(((c0/RAD2DEG).flatten())**2))
@@ -753,7 +753,7 @@ def refinement(  # pylint: disable=too-many-positional-arguments
                 refine_type,
                 0)
 
-            if refine_type == "Euler":
+            if refine_type == 'Euler':
                 c = c[:, :3]
             p0[p_idxs[j]] -= eps
             DYC[j] = -c/eps/RAD2DEG
@@ -775,7 +775,7 @@ def refinement(  # pylint: disable=too-many-positional-arguments
         X, D = SID(X)
         if verbose > 0:
             session.log.info(
-                "Sums: %5f, Std.Dev.: %5f, Deter.: %5e",
+                'Sums: %5f, Std.Dev.: %5f, Deter.: %5e',
                 cost[i],
                 dev[i],
                 D)
@@ -791,18 +791,18 @@ def refinement(  # pylint: disable=too-many-positional-arguments
         # Print change in parameter
         if verbose > 0:
             pr = ' '.join(['{:8.5f}'.format(i) for i in DELP])
-            session.log.info("Change in P: %s", pr)
+            session.log.info('Change in P: %s', pr)
             pr = ' '.join(['{:8.5f}'.format(i) for i in np.array(p0)[p_idxs]])
-            session.log.info("New Paras: %s", pr)
+            session.log.info('New Paras: %s', pr)
 
         # Convergence possibility either cost is not lowering or the parameters
         # aren't
         if i > 2:
             if (cost[i-1]/cost[i-1] - 1 <= 10**(-6)):
-                session.log.info("Converged with respect to residuals")
+                session.log.info('Converged with respect to residuals')
                 break
         if any(np.abs(DELP) < 10**(-6)):
-            session.log.info("Converged with respect to parameters")
+            session.log.info('Converged with respect to parameters')
             break
 
     # Log Final cycle, costs and return the new values, vairances and
@@ -907,23 +907,23 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
 
     # Get instrument mode
     if isinstance(instr, SinqNB):
-        refine_type = "NB"
+        refine_type = 'NB'
     elif isinstance(instr, SinqEuler):
-        refine_type = "Euler"
+        refine_type = 'Euler'
     # TODO changed from SinqKappa as it doesn't exist
     elif isinstance(instr, KappaSXTal):
-        refine_type = "Kappa"
+        refine_type = 'Kappa'
     else:
         session.log.warning(
             'Instrument mode not found (not NB, Euler or Kappa). ' +
             'Resorting to NB, but please fix')
-        refine_type = "NB"
+        refine_type = 'NB'
 
     # For normal beam, omega cannot be optimized. This is due to the fact that
     # a rotation in omega is arbitrary, and will cause no difference in the
     # calculated angles. It will however, completely mess up the inversion of
     # gradient matrix, causing a singular matrix after enough iterations.
-    if ("om" in args) and (refine_type == "NB"):
+    if ('om' in args) and (refine_type == 'NB'):
         session.log.error(
             'It is not possible to optimize omega. ' +
             'Please pick another angle to optimize')
@@ -931,7 +931,7 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
 
     # Setting initial parameter guess, as well as which parameters can vary
     # using p0_bounds()
-    names = ["a", "b", 'c', 'alpha', 'beta', 'gamma'] +\
+    names = ['a', 'b', 'c', 'alpha', 'beta', 'gamma'] +\
             [mot.name for mot in motors] +\
             ['dx', 'dy', 'dz']
     limits = [0]*len(names)
@@ -953,7 +953,7 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
             else:
                 # Will alert if a variable is set incorrectly
                 session.log.warning('Variable "%s" does not exist', arg)
-    names += ["Rotation X", "Rotation Y", "Rotation Z"]
+    names += ['Rotation X', 'Rotation Y', 'Rotation Z']
     limits += [1, 1, 1]
     p0, bounds = p0_bounds(limits, instr, sample)  # noqa:E501 pylint: disable=unused-variable
     p_init = p0.copy()
@@ -1023,14 +1023,14 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
     # Print reflections
     session.log.info('')
     session.log.info('Reflections:')
-    if refine_type == "Euler":
+    if refine_type == 'Euler':
 
         session.log.info(  # pylint: disable=logging-not-lazy
             ' H   K   L  ' +
-            '{:^9}  {:^9}  {:^9}  {:^9}'.format("2Theta",
-                                                "Omega",
-                                                "Chi",
-                                                "Phi"))
+            '{:^9}  {:^9}  {:^9}  {:^9}'.format('2Theta',
+                                                'Omega',
+                                                'Chi',
+                                                'Phi'))
 
         for i in range(len(hkls)):
             session.log.info(  # pylint: disable=logging-not-lazy
@@ -1042,13 +1042,13 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
                                                                obs[i, 2],
                                                                obs[i, 3]))
 
-    elif refine_type == "NB":
+    elif refine_type == 'NB':
 
         session.log.info(  # pylint: disable=logging-not-lazy
             ' H   K   L  ' +
-            '{:^9}  {:^9}  {:^9}'.format("2Theta",
-                                         "Omega",
-                                         "Chi"))
+            '{:^9}  {:^9}  {:^9}'.format('2Theta',
+                                         'Omega',
+                                         'Chi'))
 
         for i in range(len(hkls)):
             session.log.info(  # pylint: disable=logging-not-lazy
@@ -1153,7 +1153,7 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
                                                                  pr))
         num += 1
     session.log.info('')
-    session.log.info("Refined UB matrix.")
+    session.log.info('Refined UB matrix.')
     for i in range(3):
         session.log.info(  # pylint: disable=logging-not-lazy
             ' {:>11.8f}  {:>11.8f}  {:>11.8f}'.format(sample.ubmatrix[i*3],
@@ -1171,4 +1171,4 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
         sample.alpha = p_init[3]
         sample.beta = p_init[4]
         sample.gamma = p_init[5]
-    session.log.info("Done, Goodbye :)")
+    session.log.info('Done, Goodbye :)')

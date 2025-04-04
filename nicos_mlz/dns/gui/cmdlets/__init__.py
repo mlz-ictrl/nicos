@@ -440,7 +440,7 @@ class SlitScan(Cmdlet):
             'pol_x_left': [-60, 40],
             'pol_x_right': [-40, 60],
         }
-        full_slit_name = "{}_{}".format(slittype, slit)
+        full_slit_name = '{}_{}'.format(slittype, slit)
         limits = self.client.getDeviceParam(full_slit_name, 'userlimits')
         if limits is None:  # not connected
             limits = fixed_limits[full_slit_name]

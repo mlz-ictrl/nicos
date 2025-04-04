@@ -578,7 +578,7 @@ def ClearCache(*devnames):
     """
     if not devnames:
         raise UsageError('At least one device name is required, use '
-                         'ClearCache(\'*\') to clear everything')
+                         "ClearCache('*') to clear everything")
     if devnames == ('*',):
         session.cache.clear_all()
         session.log.info('cleared ALL cached information - you probably want '

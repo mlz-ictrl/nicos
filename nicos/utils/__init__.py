@@ -152,7 +152,7 @@ class readonlydict(dict):
 
 class BoundedOrderedDict(OrderedDict):
     def __init__(self, *args, **kwds):
-        self.maxlen = kwds.pop("maxlen", None)
+        self.maxlen = kwds.pop('maxlen', None)
         OrderedDict.__init__(self, *args, **kwds)
         self._checklen()
 
@@ -570,7 +570,7 @@ def terminalSize():
 
 def parseConnectionString(s, defport):
     """Parse a string in the format 'user:pass@host:port"."""
-    res = re.match(r"(?:([^:]+)(?::([^@]*))?@)?([\w.-]+)(?::(\d+))?$", s)
+    res = re.match(r'(?:([^:]+)(?::([^@]*))?@)?([\w.-]+)(?::(\d+))?$', s)
     if res is None:
         return None
     return {
@@ -813,8 +813,8 @@ def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
     disableFileMode default to 0400 (-r--------).
     owner or group will only be changed if specified.
     """
-    owner = kwargs.get("disableOwner", owner)
-    group = kwargs.get("disableGroup", group)
+    owner = kwargs.get('disableOwner', owner)
+    group = kwargs.get('disableGroup', group)
     failflag = enableDisableDirectory(startdir,
                                       disableDirMode, disableFileMode,
                                       owner, group, enable=False, logger=logger)
@@ -836,8 +836,8 @@ def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
     enableFileMode default to 0644 (-rw-r--r--).
     owner or group will only be changed if specified.
     """
-    owner = kwargs.get("enableOwner", owner)
-    group = kwargs.get("enableGroup", group)
+    owner = kwargs.get('enableOwner', owner)
+    group = kwargs.get('enableGroup', group)
     failflag = enableDisableDirectory(startdir,
                                       enableDirMode, enableFileMode,
                                       owner, group, enable=True, logger=logger)
@@ -1677,7 +1677,7 @@ def squeeze(shape, n=0):
     return type(shape)(dims)
 
 
-DURATION_RE = re.compile(r'''
+DURATION_RE = re.compile(r"""
     ((?P<days>[0-9]+(\.[0-9]*)?)d(ays?)?   # days as 'xd[ays]'
     \ *:?\ *)?                             # split with '', ' ' and/or ':'
     ((?P<hours>[0-9]+(\.[0-9]*)?)hr?       # hours as 'xh[r]'
@@ -1686,11 +1686,11 @@ DURATION_RE = re.compile(r'''
     \ *:?\ *)?                             # split with '', ' ' and/or ':'
     ((?P<seconds>[0-9]+(\.[0-9]*)?)s(ec)?  # seconds as 'xs[ec]'
     )?$                                    # ensure whole string matches
-    ''', re.X)
+    """, re.X)
 
 DURATION_HINT = 'Provide value as %s or %s.' % (
-    "<number>",
-    "[-+][<number>d[ays]][:][<number>h[r]][:][<number>m[in]][:][<number>s[ec]]",
+    '<number>',
+    '[-+][<number>d[ays]][:][<number>h[r]][:][<number>m[in]][:][<number>s[ec]]',
 )
 
 

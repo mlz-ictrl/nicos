@@ -238,7 +238,7 @@ class NicosMetaWriterMixin:
                 results.append((detname.name, str(detvalue)))
         return bycategory
 
-    def writeMetaInformation(self, fp, title="Device snapshot",
+    def writeMetaInformation(self, fp, title='Device snapshot',
                              update_headerinfo=None):
         """utility method for writing a standard nicos header
 

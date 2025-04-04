@@ -56,6 +56,6 @@ class Andor2LimaCCD(BaseAndor2LimaCCD):
 
     def _com_raise(self, err, info):
         reason = self._tango_exc_reason(err)
-        if reason == "PyDs_PythonError":
+        if reason == 'PyDs_PythonError':
             raise PyDs_PythonError(self, self._tango_exc_desc(err))
         BaseAndor2LimaCCD._com_raise(self, err, info)

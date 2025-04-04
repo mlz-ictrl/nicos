@@ -246,14 +246,14 @@ class TrendPlot(NicosWidget, QWidget):
     # colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan,
     #           Qt.darkGray]
 
-    devices = PropDef('devices', 'QStringList', [], '''
+    devices = PropDef('devices', 'QStringList', [], """
 List of devices or cache keys that the plot should display.
 
 For devices use device name. For keys use cache key with "." or "/" separator,
 e.g. T.heaterpower.
 
 To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
-''')
+""")
     names = PropDef('names', 'QStringList', [], 'Names for the plot curves, '
                     'defaults to the device names/keys.')
     legend = PropDef('legend', bool, False, 'If a legend should be shown.')

@@ -63,9 +63,9 @@ def parseargs():
                                              'TUNNEL is a string with the following form:'
                                              ' [user_name@]host.')
     parser.add_argument('connect', nargs='?', default=None,
-                        help='''A connection string with the following form:
+                        help="""A connection string with the following form:
 
-                        [user_name[:password[@host[:port]]]]''')
+                        [user_name[:password[@host[:port]]]]""")
     return parser.parse_args()
 
 

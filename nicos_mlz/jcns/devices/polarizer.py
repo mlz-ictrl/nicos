@@ -31,7 +31,7 @@ class DOFlipper(NamedDigitalOutput, Waitable):
     status."""
 
     attached_devices = {
-        "powersupplies": Attach("Monitored power supplies", Readable,
+        'powersupplies': Attach('Monitored power supplies', Readable,
                                 multiple=True),
     }
 

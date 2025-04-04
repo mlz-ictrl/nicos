@@ -25,7 +25,7 @@ import pytest
 session_setup = 'sinq_zebra_wl'
 
 
-@pytest.mark.parametrize("target", [1.178, 2.305, 1.383, 0.778])
+@pytest.mark.parametrize('target', [1.178, 2.305, 1.383, 0.778])
 def test_zebrawl(session, target):
     wl = session.getDevice('wl')
     # The simple test below is enough as wl.read() checks

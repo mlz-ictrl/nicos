@@ -322,7 +322,7 @@ class CacheServer(Device):
         'server': Param('Address to bind to (host or host:port)',
                         type=host(defaultport=DEFAULT_CACHE_PORT),
                         mandatory=True,
-                        ext_desc="The default port is ``14869``."),
+                        ext_desc='The default port is ``14869``.'),
     }
 
     attached_devices = {

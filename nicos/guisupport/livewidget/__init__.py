@@ -67,12 +67,12 @@ def sgn(x):
 @lru_cache()
 def colormap_from_file(filename):
     try:
-        with open(filename, 'r', encoding="ascii") as f:
+        with open(filename, 'r', encoding='ascii') as f:
             data = numpy.loadtxt(f)
         if numpy.amax(data) > 1:
             return data / 256
     except Exception as e:
-        log.error('%s: can\'t use %s', e, filename)
+        log.error("%s: can't use %s", e, filename)
         return None
     return data
 
@@ -142,7 +142,7 @@ class GRWidget(InteractiveGRWidget):
     def mousePan(self, event):
         self.widget.pan(event.getNDC(), event.getOffset())
 
-    def _save(self, extension=".pdf"):
+    def _save(self, extension='.pdf'):
         fd, pathname = tempfile.mkstemp(extension)
         self.save(pathname)
         os.close(fd)

@@ -26,5 +26,5 @@ from nicos.devices.generic import Switcher
 
 class NumberSwitcher(Switcher):
     parameter_overrides = {
-        "mapping": Override(type=dictof(int, anytype)),
+        'mapping': Override(type=dictof(int, anytype)),
     }

@@ -81,7 +81,7 @@ def directToReciprocalLattice(directLattice):
 
 reciprocalToDirectLattice = directToReciprocalLattice
 reciprocalToDirectLattice.__doc__ = \
-    "Calculate direct lattice from reciprocal lattice"
+    'Calculate direct lattice from reciprocal lattice'
 
 
 def calculateBMatrix(direct):

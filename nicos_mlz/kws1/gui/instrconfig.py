@@ -27,14 +27,14 @@ from nicos.clients.gui.utils import DlgUtils, loadUi
 from nicos.guisupport.qt import QButtonGroup, QLabel, QMainWindow, QRadioButton
 from nicos.utils import findResource
 
-TEMPLATE = '''\
+TEMPLATE = """\
 description = %(description)r
 group = 'basic'
 
 modules = %(modules)s
 
 includes = %(includes)s
-'''
+"""
 
 
 class InstrumentConfigTool(DlgUtils, QMainWindow):

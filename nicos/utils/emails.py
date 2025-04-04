@@ -37,7 +37,7 @@ from nicos.core.params import mailaddress
 
 
 def sendMail(mailserver, receiverlist, mailsender, topic, body,
-             attach_files=(), debuglevel=0, security="none",
+             attach_files=(), debuglevel=0, security='none',
              username=None, keystoretoken='mailserver_password'):
     """Sends an email to a list of receivers with given topic and content via
     the given server.

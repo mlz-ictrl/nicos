@@ -85,7 +85,7 @@ class SerComIO(Device):
             self.log.debug('cmd: %r', cmd)
             self._dev.write(cmd + CRLF)
             res = [l.strip() for l in self._dev.read(10000).splitlines()]
-            res = [l for l in res if l if l != ">>>"]
+            res = [l for l in res if l if l != '>>>']
             res = res[-1] if res else ''
             self.log.debug('got: %r', res)
             return res
@@ -149,7 +149,7 @@ class MicroPythonServo(HasOffset, Motor):
     def doStart(self, target):
         duration = abs(self.read(0) - target) / self.speed
         target = target + self.offset
-        cmd = ("s%d.angle(%f,%d)" %
+        cmd = ('s%d.angle(%f,%d)' %
                (self.channel, target, int(duration * 1000)))
         self.log.debug(cmd)
         self._attached_io.communicate(cmd)

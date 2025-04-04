@@ -175,7 +175,7 @@ class Param:
         txt += '\n    * Default value: ``' + repr(self.default) + '``'
         if self.unit is not None:
             if self.unit == 'main':
-                txt += '\n    * Unit: \'main\' -> get unit from Device'
+                txt += "\n    * Unit: 'main' -> get unit from Device"
             else:
                 txt += '\n    * Unit: ' + self.unit
         if self.settable:
@@ -309,7 +309,7 @@ class Attach:
             for item in multiple:
                 try:
                     if item != int(item):
-                        complain(multiple, 'list items should be int\'s')
+                        complain(multiple, "list items should be int's")
                     if item < 0:
                         complain(multiple, 'list items should be positive')
                 except (TypeError, ValueError):
@@ -354,16 +354,16 @@ class Attach:
         if self.single:
             if check_count(self.multiple, self.optional, len(args)):
                 return args or [None]
-            raise ConfigurationError(dev, "device misses device %r in "
-                                     "configuration" % aname)
+            raise ConfigurationError(dev, 'device misses device %r in '
+                                     'configuration' % aname)
 
         # Don't change it to more pythonic style since we want to check for
         # the boolean 'True' value
         if self.multiple is True:
             if check_count(self.multiple, self.optional, len(args)):
                 return args
-            raise ConfigurationError(dev, "wrong number of devices (%d) for %r"
-                                     " in configuration (specified=%r)" %
+            raise ConfigurationError(dev, 'wrong number of devices (%d) for %r'
+                                     ' in configuration (specified=%r)' %
                                      (len(args), aname, args))
 
         # here we have:
@@ -377,18 +377,18 @@ class Attach:
 
         # check number of devices
         if len(args) < mindevs:
-            raise ConfigurationError(dev, "not enough devices (%d<%d) for %r"
-                                     " in configuration (specified=%r)" %
+            raise ConfigurationError(dev, 'not enough devices (%d<%d) for %r'
+                                     ' in configuration (specified=%r)' %
                                      (len(args), mindevs, aname, args))
         if len(args) > maxdevs:
-            raise ConfigurationError(dev, "too many devices (%d>%d) for %r in "
-                                          "configuration (specified=%r)" %
+            raise ConfigurationError(dev, 'too many devices (%d>%d) for %r in '
+                                          'configuration (specified=%r)' %
                                           (len(args), maxdevs, aname, args))
 
         if check_count(self.multiple, self.optional, len(args)):
             return args
-        raise ConfigurationError(dev, "wrong number of devices (%d) for %r in "
-                                      "configuration (specified=%r)" %
+        raise ConfigurationError(dev, 'wrong number of devices (%d) for %r in '
+                                      'configuration (specified=%r)' %
                                       (len(args), aname, args))
 
     def __repr__(self):
@@ -953,7 +953,7 @@ class host:
     """
 
     def __init__(self, defaulthost='', defaultport=None):
-        self.__doc__ = "a host[:port] value"
+        self.__doc__ = 'a host[:port] value'
         self.defaulthost = defaulthost
         if defaultport is not None:
             self.defaultport = self._checkport(defaultport)

@@ -572,7 +572,7 @@ def test_simclock():
 
 
 @pytest.mark.parametrize(
-    "expr, expected, defaulted_keys, missing_keys", [
+    'expr, expected, defaulted_keys, missing_keys', [
     ('literal', 'literal', [], []),
     ('a{{b}}c', 'axc', [], []),
     ('a{{key}}b', 'ab', [], ['key']),
@@ -599,7 +599,7 @@ def test_expandTemplate(expr, expected, defaulted_keys, missing_keys):
 
 
 @pytest.mark.parametrize(
-    "expr, expected, defaulted_keys, missing_keys", [
+    'expr, expected, defaulted_keys, missing_keys', [
     ('{{key1}}', '{{key1}}', [], []),
     ('{{{{key1!key1}}}}', '{{key1}}', [], []),
     ],

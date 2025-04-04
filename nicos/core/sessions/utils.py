@@ -161,7 +161,7 @@ class NicosCompleter:
         instances, class members are also considered.)
         """
 
-        match = re.match(r"(\w+(\.\w+)*)\.(\w*)", text)
+        match = re.match(r'(\w+(\.\w+)*)\.(\w*)', text)
         if not match:
             return []
         expr, attr = match.group(1, 3)

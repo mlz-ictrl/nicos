@@ -337,7 +337,7 @@ class PolyFit(PredefinedFit):
 
     def __init__(self, parstart=None, xmin=None, xmax=None, n=None):
         if n is None:
-            raise ValueError("Polynomial fit requires the order (n) to be given")
+            raise ValueError('Polynomial fit requires the order (n) to be given')
         self._n = n
         PredefinedFit.__init__(self, parstart, xmin, xmax)
 
@@ -351,7 +351,7 @@ class PolyFit(PredefinedFit):
 
     @property
     def fit_title(self):
-        return "poly(%d)" % self._n
+        return 'poly(%d)' % self._n
 
     def fit_model(self, x, *v, **args):
         if args and not v:

@@ -540,7 +540,7 @@ class LiveDataPanel(PlotPanel):
         self.actionsROI = QActionGroup(self)
         self.actionsROI.setExclusive(False)
         for detname in detectors:
-            self.log.debug('checking rois for detector \'%s\'', detname)
+            self.log.debug("checking rois for detector '%s'", detname)
             for tup in self.client.eval(detname + '.postprocess', ''):
                 roi = tup[0]
                 cachekey = roi + '/roi'
@@ -731,7 +731,7 @@ class LiveDataPanel(PlotPanel):
                     self.log.exception(e)
 
     def on_client_livedata(self, params, blobs):
-        self.log.debug("on_client_livedata: %r", params)
+        self.log.debug('on_client_livedata: %r', params)
         # blobs is a list of data blobs and labels blobs
         if self._allowed_detectors \
                 and params['det'] not in self._allowed_detectors:
@@ -1003,11 +1003,11 @@ class LiveDataPanel(PlotPanel):
         if item in self.liveitems and item.data(FILETAG) == 'live':
             # set _livechannel to show live image
             self._livechannel = int(item.data(FILENAME))
-            self.log.debug("set livechannel: %d", self._livechannel)
+            self.log.debug('set livechannel: %d', self._livechannel)
         else:
             # no live channel selected
             self._livechannel = None
-            self.log.debug("no direct display")
+            self.log.debug('no direct display')
 
         self._show()
 
@@ -1018,8 +1018,8 @@ class LiveDataPanel(PlotPanel):
                   for ftype, ffilter in ReaderRegistry.filefilters()
                   if not self._allowed_filetypes
                   or ftype in self._allowed_filetypes}
-        fdialog = FileFilterDialog(self, "Open data files", "",
-                                   ";;".join(ftypes.keys()))
+        fdialog = FileFilterDialog(self, 'Open data files', '',
+                                   ';;'.join(ftypes.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
         if fdialog.exec() != QDialog.DialogCode.Accepted:
@@ -1050,7 +1050,7 @@ class LiveDataPanel(PlotPanel):
         cachesize = self._cachesize - 1
         # add first `cachesize` files to cache
         for _, f in enumerateWithProgress(files[:cachesize],
-                                          "Loading data files...",
+                                          'Loading data files...',
                                           parent=fdialog):
             _cacheFile(f, filetype)
         # add further files to file list (open on request/itemClicked)

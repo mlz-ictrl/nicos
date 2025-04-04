@@ -515,7 +515,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
                 p('%-10s %7.3f  %7.3f  %7.3f  %7.3f%s' % (
                     dhkls[abs(el[0])], el[0], el[1], peaks_fit[i],
                     peaks_fit[i] - el[1],
-                    '' if abs(peaks_fit[i] - el[1]) < 0.10 else " **"))
+                    '' if abs(peaks_fit[i] - el[1]) < 0.10 else ' **'))
             p('')
             rms += sum((pobs - pfit)**2 for (pobs, pfit) in
                        zip([el[1] for el in peaks], peaks_fit)) / len(peaks)

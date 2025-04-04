@@ -58,12 +58,12 @@ def getter(attrib):
 def ProxyFactory(obj, names, proxyclass=NicosProxy):
     """Factory function for Proxies that can delegate magic names."""
     # Build class.
-    cls = type("%sNicosProxy" % obj.__class__.__name__,
+    cls = type('%sNicosProxy' % obj.__class__.__name__,
                (proxyclass,), {})
     # Add magic names.
     for name in names:
         # Filter magic names.
-        if name.startswith("__") and name.endswith("__"):
+        if name.startswith('__') and name.endswith('__'):
             if hasattr(obj.__class__, name):
                 # Set attribute.
                 setattr(cls, name, getter(name))

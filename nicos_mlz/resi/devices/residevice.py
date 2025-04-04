@@ -86,19 +86,19 @@ class ResiPositionProxy:
 
 
 class ResiDevice(Moveable):
-    '''
+    """
     Main device for RESI
 
      * talks to the HUBER controller for all 4 axes.
      * handles cell calculations
 
-    '''
+    """
     name = None
 
     def doPreinit(self, mode):
-        '''
+        """
         Constructor
-        '''
+        """
         # the hardware will use a dummy driver if no hardware is detected
         if HuberScan is None:
             raise NicosError(self, 'Nonius scan libraries not found on this '
@@ -151,10 +151,10 @@ class ResiDevice(Moveable):
         self._hardware.Finish()
 
     def dogetScanDataSet(self, **kw):
-        ''' Get a list of reflections to scan from the unit cell infomation
+        """ Get a list of reflections to scan from the unit cell infomation
 
         arguments: either thmin/thmax  or dmin/dmax have to be specified
-        '''
+        """
         return self._hardware.getScanDataset(**kw)
 
 

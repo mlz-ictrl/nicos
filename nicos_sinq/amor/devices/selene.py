@@ -388,7 +388,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
         low, high = self._attached_motor[self._get_motor_id()].userlimits
         if low <= adevtarget <= high:
             return True, ''
-        return False, 'target is outside limits, can\'t be moved'
+        return False, "target is outside limits, can't be moved"
 
     @check_pitch
     def doStart(self, target):
@@ -635,7 +635,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
     def unselect(self):
         # disable current pitch and update the position
         if self.range == WIDE and not self.isAtParkingPosition():
-            self.log.error('can\'t unselect in wide range')
+            self.log.error("can't unselect in wide range")
             return
         if self.enabled:
             self.disable()
@@ -675,7 +675,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
             'high_limit_wide',
         ]:
             with open(os.path.join(self.backup_path, backup_folder, field),
-                      'w', encoding="utf8") as f:
+                      'w', encoding='utf8') as f:
                 j = json.loads(json.dumps(getattr(self, field)))
                 json.dump(j, f)
 
@@ -698,6 +698,6 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
             'high_limit_wide',
         ]:
             with open(os.path.join(self.backup_path, folder, field), 'r',
-                      encoding="utf8") as f:
+                      encoding='utf8') as f:
                 value = json.load(f)
                 self._setROParam(field, value)

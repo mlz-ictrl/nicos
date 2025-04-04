@@ -178,10 +178,10 @@ class MainWindow(QMainWindow):
             self._bus = ModbusTcpClient('drum.panda.frm2')
             self._bus.connect()
             self._sync()
-            print("Modbus synced!")
+            print('Modbus synced!')
             print(self.ReadWord(0x20), self.ReadWord(0x21))
         except Exception as err:
-            print("Modbus failed: %r, using demo mode!" % err)
+            print('Modbus failed: %r, using demo mode!' % err)
             self._bus = None
 
         self._sync()
@@ -229,24 +229,24 @@ class MainWindow(QMainWindow):
             print(addr)
             self.reset(addr)
         else:
-            print("resetter: device %d has no status" % index)
+            print('resetter: device %d has no status' % index)
 
     def stopper(self, index):
         w = self.widgets[index]
         if w.has_target:
             addr = w.base_address
             if w.name == 'enable_word':
-                print("stopper: DISABLING %d" % (addr))
+                print('stopper: DISABLING %d' % (addr))
                 self.WriteWord(addr, 0)
             else:
                 addr += w.offset
                 if w.has_target:
                     addr += w.offset
-                print("stopper: stopping on addr %d" % (addr))
+                print('stopper: stopping on addr %d' % (addr))
                 self.stop(addr)
 
         else:
-            print("stopper: cannot stop - no target %d" % index)
+            print('stopper: cannot stop - no target %d' % index)
 
     def targeter(self, index, valuestr):
         w = self.widgets[index]
@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
             if w.offset == 2:
                 v = float(v)
                 addr += w.offset
-                print("targeter: setting addr %d to %f" % (addr, v))
+                print('targeter: setting addr %d to %f' % (addr, v))
                 self.WriteFloat(addr, v)
             else:
                 if v.startswith('0x') or v.startswith('0X'):
@@ -269,10 +269,10 @@ class MainWindow(QMainWindow):
                     v = int(v)
                 if w.name != 'enable_word':
                     addr += w.offset
-                print("targeter: setting addr %d to %r" % (addr, valuestr))
+                print('targeter: setting addr %d to %r' % (addr, valuestr))
                 self.WriteWord(addr, v)
         else:
-            print("targeter: device fas no target %d:%r" % (index, valuestr))
+            print('targeter: device fas no target %d:%r' % (index, valuestr))
 
     def ReadWord(self, addr):
         return self._registers[int(addr)]
@@ -499,5 +499,5 @@ def main():
     sys.exit(app.exec())
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

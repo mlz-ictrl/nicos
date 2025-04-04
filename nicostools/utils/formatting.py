@@ -30,7 +30,7 @@ import re
 import yapf
 
 # Style specification for yapf
-STYLE_CONFIG = '''{
+STYLE_CONFIG = """{
 ALIGN_CLOSING_BRACKET_WITH_VISUAL_INDENT : True,
 ALLOW_MULTILINE_LAMBDAS : True,
 BLANK_LINE_BEFORE_NESTED_CLASS_OR_DEF : False,
@@ -50,7 +50,7 @@ SPLIT_BEFORE_FIRST_ARGUMENT : False,
 SPLIT_BEFORE_LOGICAL_OPERATOR : True,
 SPLIT_BEFORE_NAMED_ASSIGNS : True,
 USE_TABS : False,
-}'''
+}"""
 
 def format_setup_text(origin):
     result = yapf.yapf_api.FormatCode(origin, style_config=STYLE_CONFIG)[0]

@@ -111,10 +111,10 @@ hist_type_by_name = {
 def create_kafka_consumer(broker):
     consumer = Consumer(
         {
-            "bootstrap.servers": broker,
-            "group.id": f'{session.appname}-{uuid.uuid4()}',
-            "auto.offset.reset": "latest",
-            "api.version.request": True,
+            'bootstrap.servers': broker,
+            'group.id': f'{session.appname}-{uuid.uuid4()}',
+            'auto.offset.reset': 'latest',
+            'api.version.request': True,
         }
     )
     return consumer
@@ -123,7 +123,7 @@ def create_kafka_consumer(broker):
 def create_kafka_producer(broker):
     consumer = Producer(
         {
-            "bootstrap.servers": broker,
+            'bootstrap.servers': broker,
         }
     )
     return consumer
@@ -337,10 +337,10 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
         if session.sessiontype == POLLER:
             return
         message = json.dumps({
-            "cmd": "stop",
-            "msg_id": self._command_id,
-            "hist_id": self._hist_id,
-            "id": self._hist_id
+            'cmd': 'stop',
+            'msg_id': self._command_id,
+            'hist_id': self._hist_id,
+            'id': self._hist_id
         })
         self._send_command(self.command_topic, message.encode())
 

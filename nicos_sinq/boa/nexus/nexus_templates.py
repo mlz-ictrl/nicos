@@ -51,44 +51,44 @@ class BOATemplateProvider(NexusTemplateProvider):
     """
       NeXus template generation for BOA at SINQ
     """
-    _boa_default = {"NeXus_Version": "4.3.0", "instrument": "BOA",
-                    "owner": DeviceAttribute('BOA', 'responsible'),
-                    "entry:NXentry": {"title": DeviceDataset('Exp', 'title'),
-                                      "proposal_title": DeviceDataset('Exp',
+    _boa_default = {'NeXus_Version': '4.3.0', 'instrument': 'BOA',
+                    'owner': DeviceAttribute('BOA', 'responsible'),
+                    'entry:NXentry': {'title': DeviceDataset('Exp', 'title'),
+                                      'proposal_title': DeviceDataset('Exp',
                                                                       'title'),
-                                      "proposal_id": DeviceDataset('Exp',
+                                      'proposal_id': DeviceDataset('Exp',
                                                                    'proposal'),
-                                      "start_time": NXTime(),
-                                      "end_time": NXTime(), "user:NXuser": {
-                            "name": DeviceDataset('Exp', 'users'),
-                            "email": DeviceDataset('Exp', 'localcontact')},
-                                      "sample:NXsample": {
+                                      'start_time': NXTime(),
+                                      'end_time': NXTime(), 'user:NXuser': {
+                            'name': DeviceDataset('Exp', 'users'),
+                            'email': DeviceDataset('Exp', 'localcontact')},
+                                      'sample:NXsample': {
 
-                                          "sample_name": DeviceDataset(
+                                          'sample_name': DeviceDataset(
                                               'Sample', 'samplename'),
-                                          "hugo": NexusSampleEnv(), },
-                                      "control:NXmonitor": {
-                                          "mode": DetectorDataset('mode',
-                                                                  "string"),
-                                          "Monitor": DetectorDataset(
+                                          'hugo': NexusSampleEnv(), },
+                                      'control:NXmonitor': {
+                                          'mode': DetectorDataset('mode',
+                                                                  'string'),
+                                          'Monitor': DetectorDataset(
                                               'monitorval', 'float32',
                                               units=NXAttribute('counts',
                                                                 'string')),
-                                          "preset": DetectorDataset('preset',
+                                          'preset': DetectorDataset('preset',
                                                                     'float32'),
-                                          "time": DetectorDataset(
+                                          'time': DetectorDataset(
                                               'elapsedtime', 'float32',
                                               units=NXAttribute('seconds',
                                                                 'string')), },
-                                      "proton_beam:NXmonitor": {
-                                          "data": DetectorDataset(
+                                      'proton_beam:NXmonitor': {
+                                          'data': DetectorDataset(
                                                    'protoncurr',
                                                    'int32',
                                                    units=NXAttribute(
                                                        'counts',
                                                        'string'))},
-                                      "white_beam:NXmonitor": {
-                                          "data": DetectorDataset(
+                                      'white_beam:NXmonitor': {
+                                          'data': DetectorDataset(
                                                'monitorval',
                                                'int32',
                                                units=NXAttribute('counts',

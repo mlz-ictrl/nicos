@@ -166,15 +166,15 @@ def test_experiment(session, cleanup):
 
 def test_expanduser_dataroot(session):
     exp = session.experiment
-    dataroot = "~/data"
-    exp._setROParam("dataroot", dataroot)
+    dataroot = '~/data'
+    exp._setROParam('dataroot', dataroot)
     assert exp.dataroot == path.expanduser(dataroot)
 
 
 def test_expandenv_dataroot(session):
     exp = session.experiment
     os.environ['TESTVAR'] = path.join(runtime_root, 'xxx')
-    dataroot2 = "$TESTVAR" if sys.platform != "win32" else "%TESTVAR%"
+    dataroot2 = '$TESTVAR' if sys.platform != 'win32' else '%TESTVAR%'
     exp._setROParam('dataroot', dataroot2)
     assert exp.dataroot == path.expandvars(dataroot2)
     exp.finish()

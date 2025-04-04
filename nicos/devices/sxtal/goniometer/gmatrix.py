@@ -20,11 +20,11 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-'''
+"""
 Gmatrix
 
 store position as goniometer matrix
-'''
+"""
 import numpy as np
 
 from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
@@ -163,7 +163,7 @@ class GMatrix(PositionBase):
         """ Representation. Part of Position subclass protocol.
         """
         if self.theta is not None:
-            theta = "%8.3f" % (np.rad2deg(self.theta))
+            theta = '%8.3f' % (np.rad2deg(self.theta))
         else:
-            theta = "None"
-        return "[Goniometermatrix: theta=%s matrix=%s]" % (theta, repr(self.matrix))
+            theta = 'None'
+        return '[Goniometermatrix: theta=%s matrix=%s]' % (theta, repr(self.matrix))

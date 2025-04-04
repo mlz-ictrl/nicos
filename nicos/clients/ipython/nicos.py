@@ -64,7 +64,7 @@ class IpythonNicosClient(NicosClient):
                 pass
 
     def command(self, line):
-        com = "%s" % line.strip()
+        com = '%s' % line.strip()
         if self.status == 'idle':
             self.run(com)
             return com
@@ -73,7 +73,7 @@ class IpythonNicosClient(NicosClient):
     def connect(self, conndata, eventmask=None):
         NicosClient.connect(self, conndata, eventmask)
         if self.daemon_info.get('protocol_version') < 22:
-            raise RuntimeError("incompatible nicos server")
+            raise RuntimeError('incompatible nicos server')
 
 
 @magics_class

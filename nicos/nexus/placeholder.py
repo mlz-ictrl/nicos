@@ -55,7 +55,7 @@ class DeviceValuePlaceholder(PlaceholderBase):
         self.defaultval = defaultval
 
     def __repr__(self):
-        return "(Device: %s and Parameter: %s)" % (self.device, self.parameter)
+        return '(Device: %s and Parameter: %s)' % (self.device, self.parameter)
 
     def fetch_info(self, metainfo):
         """Fetch the device info and it's parameter from the provided metainfo.

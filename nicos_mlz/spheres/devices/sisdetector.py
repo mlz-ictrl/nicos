@@ -228,7 +228,7 @@ class SISChannel(ImageChannel):
         return list(self._dev.GetRegularDetectors())
 
     def valueInfo(self):
-        return Value(name=TOTAL, type="counter", fmtstr="%d", unit="cts"),
+        return Value(name=TOTAL, type='counter', fmtstr='%d', unit='cts'),
 
     def _readLiveData(self):
         if self.measuremode == INELASTIC:
@@ -274,9 +274,9 @@ class SISChannel(ImageChannel):
         return live, params, edata, cdata
 
     def _readData(self, target):
-        '''Read the requested data from the hardware and generate the according
+        """Read the requested data from the hardware and generate the according
         histogram tuples to make further processing easier.
-        '''
+        """
 
         if target == ENERGY:
             targettuple = EnergyHisto

@@ -46,7 +46,7 @@ class HistogramFlatbuffersSerializer:
     Encode the histogram using the flatbuffers schema hs00
     """
 
-    file_identifier = "hs00"
+    file_identifier = 'hs00'
     uint32_bytes = uint32_bytes
 
     def _encodeMetadata(self, b, desc):

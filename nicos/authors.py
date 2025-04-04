@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-authors_list = '''\
+authors_list = """\
 NICOS is maintained by:
 
 * Georg Brandl <g.brandl@fz-juelich.de>
@@ -144,4 +144,4 @@ Logos were contributed by:
 
 It is free software, and can be distributed under the terms of the
 GNU General Public license version 2 or later (see LICENSE).
-'''
+"""

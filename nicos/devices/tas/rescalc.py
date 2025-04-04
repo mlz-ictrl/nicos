@@ -173,15 +173,15 @@ class unitcell:
         """Generates string for output on console or file with information about
         unitcell.
         """
-        repstr = "<Unit cell object>\n"
-        repstr += "a      b      c      alpha   beta   gamma\n"
-        degree_sym = "deg"
+        repstr = '<Unit cell object>\n'
+        repstr += 'a      b      c      alpha   beta   gamma\n'
+        degree_sym = 'deg'
         # pylint: disable=bad-string-format-type
-        repstr += "%2.3fA %2.3fA %2.3fA %3.1f%s   %3.1f%s   %3.1f%s\n" % \
+        repstr += '%2.3fA %2.3fA %2.3fA %3.1f%s   %3.1f%s   %3.1f%s\n' % \
             (self.a, self.b, self.c, degrees(self.alpha), degree_sym,
              degrees(self.beta), degree_sym, degrees(self.gamma), degree_sym)
-        repstr += "a*     b*     c*     alpha*  beta*  gamma*\n"
-        repstr += "%2.3fA-1 %2.3fA-1 %2.3fA-1 %3.1f%s   %3.1f%s   %3.1f%s\n" % \
+        repstr += 'a*     b*     c*     alpha*  beta*  gamma*\n'
+        repstr += '%2.3fA-1 %2.3fA-1 %2.3fA-1 %3.1f%s   %3.1f%s   %3.1f%s\n' % \
             (self.a_star, self.b_star, self.c_star, degrees(self.ralpha), degree_sym,
              degrees(self.rbeta), degree_sym, degrees(self.rgamma), degree_sym)
         return repstr
@@ -236,36 +236,36 @@ class unitcell:
 
 # instrumental setup description
 CFGNAMES = [
-    "=0 for circular source, =1 for rectangular source",
-    "width/diameter of the source (cm)",
-    "height/diameter of the source (cm)",
-    "=0 no Guide, =1 for Guide",
-    "horizontal guide divergence (minutes/Angs)",
-    "vertical guide divergence (minutes/Angs)",
-    "=0 for cylindrical sample, =1 for cuboid sample",
-    "sample width/diameter perp. to Q (cm)",
-    "sample width/diameter along Q (cm)",
-    "sample height (cm)",
-    "=0 for circular detector, =1 for rectangular detector",
-    "width/diameter of the detector (cm)",
-    "height/diameter of the detector (cm)",
-    "thickness of monochromator (cm)",
-    "width of monochromator (cm)",
-    "height of monochromator (cm)",
-    "thickness of analyser (cm)",
-    "width of analyser (cm)",
-    "height of analyser (cm)",
-    "distance between source and monochromator (cm)",
-    "distance between monochromator and sample (cm)",
-    "distance between sample and analyser (cm)",
-    "distance between analyser and detector (cm)",
-    "horizontal curvature of monochromator 1/radius (cm-1)",
-    "vertical curvature of monochromator (cm-1)",
-    "horizontal curvature of analyser (cm-1)",
-    "vertical curvature of analyser (cm-1)",
-    "distance monochromator-monitor",
-    "width monitor",
-    "height monitor"
+    '=0 for circular source, =1 for rectangular source',
+    'width/diameter of the source (cm)',
+    'height/diameter of the source (cm)',
+    '=0 no Guide, =1 for Guide',
+    'horizontal guide divergence (minutes/Angs)',
+    'vertical guide divergence (minutes/Angs)',
+    '=0 for cylindrical sample, =1 for cuboid sample',
+    'sample width/diameter perp. to Q (cm)',
+    'sample width/diameter along Q (cm)',
+    'sample height (cm)',
+    '=0 for circular detector, =1 for rectangular detector',
+    'width/diameter of the detector (cm)',
+    'height/diameter of the detector (cm)',
+    'thickness of monochromator (cm)',
+    'width of monochromator (cm)',
+    'height of monochromator (cm)',
+    'thickness of analyser (cm)',
+    'width of analyser (cm)',
+    'height of analyser (cm)',
+    'distance between source and monochromator (cm)',
+    'distance between monochromator and sample (cm)',
+    'distance between sample and analyser (cm)',
+    'distance between analyser and detector (cm)',
+    'horizontal curvature of monochromator 1/radius (cm-1)',
+    'vertical curvature of monochromator (cm-1)',
+    'horizontal curvature of analyser (cm-1)',
+    'vertical curvature of analyser (cm-1)',
+    'distance monochromator-monitor',
+    'width monitor',
+    'height monitor'
 ]
 
 MEV2AA2 = 0.48259642  # hbar**2/(2 * m_n)

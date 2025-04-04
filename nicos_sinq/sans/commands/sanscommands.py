@@ -56,7 +56,7 @@ def ASCIIplot():
     x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
                  11, 12, 13, 14, 15, 16, 17, 18, 19])
     y = np.array([1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0, 2, 3, 4, 5, 8, 8, 8, 8])
-    txt = txtplot(x, y, "x", "y", height=30, width=120)
+    txt = txtplot(x, y, 'x', 'y', height=30, width=120)
     for t in txt:
         printinfo(t)
 
@@ -308,7 +308,7 @@ def scandev(dev, start, end, step, NICOScommand):
     with manualscan():
         for ind in range(npos):
             # print scan progress
-            printinfo("")
+            printinfo('')
             print(f'Position {ind+1} of {int(npos)}')
             print(f'Moving {dev} to {np.round(start + ind * step,3)} '
                   f'in scandev from {np.round(start,3)} to {np.round(end,3)} '
@@ -334,9 +334,9 @@ def scandev(dev, start, end, step, NICOScommand):
                                                           (ind + 1)))))
 
     # nxsink.settypes = ['point', 'scan']
-    printinfo("")
+    printinfo('')
     print(f'Scan completed at {dt_obj.strftime("%H:%M:%S")}.')
-    printinfo("")
+    printinfo('')
 
 
 @usercommand
@@ -364,10 +364,10 @@ def detcalib():
     RemoveSetup('detector_strobo')
     AddSetup('detector')
     dev = session.getDevice('port14')
-    with open("/home/nicos/nicos/nicos_sinq/sans/detector.calib",
-              encoding="utf-8") as detcalib_file:
+    with open('/home/nicos/nicos/nicos_sinq/sans/detector.calib',
+              encoding='utf-8') as detcalib_file:
         for line in detcalib_file:
-            cmdstr = line.strip() + "\r"
+            cmdstr = line.strip() + '\r'
             printinfo(f'>{dev.execute(cmdstr)}< >{cmdstr}<')
             sleep(0.01)
         antitofel()
@@ -382,13 +382,13 @@ def tofel():
     AddSetup('detector_strobo')
     dev = session.getDevice('port14')
     cmdstr = 'EL1D\r'
-    printinfo(f">{dev.execute(cmdstr)}< >cmdstr<")
+    printinfo(f'>{dev.execute(cmdstr)}< >cmdstr<')
     sleep(3)
     cmdstr = 'TIWI 8\r'
-    printinfo(f">{dev.execute(cmdstr)}< >TIWI 8<")
+    printinfo(f'>{dev.execute(cmdstr)}< >TIWI 8<')
     sleep(3)
     cmdstr = 'COIN 7\r'
-    printinfo(f">{dev.execute(cmdstr)}< >COIN 7<")
+    printinfo(f'>{dev.execute(cmdstr)}< >COIN 7<')
     sleep(3)
 
 
@@ -400,13 +400,13 @@ def antitofel():
     AddSetup('detector')
     dev = session.getDevice('port14')
     cmdstr = 'EL2D\r'
-    printinfo(f">{dev.execute(cmdstr)}< >EL2D<")
+    printinfo(f'>{dev.execute(cmdstr)}< >EL2D<')
     sleep(3)
     cmdstr = 'TIWI 8\r'
-    printinfo(f">{dev.execute(cmdstr)}< >TIWI 8<")
+    printinfo(f'>{dev.execute(cmdstr)}< >TIWI 8<')
     sleep(3)
     cmdstr = 'COIN 7\r'
-    printinfo(f">{dev.execute(cmdstr)}< >COIN 7<")
+    printinfo(f'>{dev.execute(cmdstr)}< >COIN 7<')
     sleep(3)
 
 
@@ -720,7 +720,7 @@ def count2(totsum, tmax=3600, poll=1):
         for iprog in range(9):
             if float(1.0 * totalsum / totsum) > float(iprog + 1.) / 10.0:
                 if (count2progress[iprog] == 0):
-                    print("####### Progress {:2.1%}".format(float(
+                    print('####### Progress {:2.1%}'.format(float(
                         totalsum / totsum)) + ': ' + str(totalsum) + ' of ' +
                         str(totsum) + ' counts detected.')
                     count2progress[iprog] = 1

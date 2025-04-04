@@ -20,14 +20,14 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-'''
+"""
 cvector
 
 store a position as realspace diffraction vector.
 
 see the `Unitcell` class for conversion to reciprocal space
 
-'''
+"""
 
 import numpy as np
 
@@ -64,7 +64,7 @@ class CVector(PositionBase):
         if wavelength is None:
             wavelength = session.instrument.wavelength or None
         if not wavelength:
-            raise NicosError("Cannot perform conversion without knowing wavelength")
+            raise NicosError('Cannot perform conversion without knowing wavelength')
         cosx = np.sqrt(self.c[0] ** 2 + self.c[1] ** 2)
         chi = np.arctan2(self.c[2], cosx)
         if cosx < 1.0E-6:
@@ -73,7 +73,7 @@ class CVector(PositionBase):
             try:
                 phi = np.arctan2(-self.c[0], self.c[1])
             except ValueError:
-                print("Oops: ", self)
+                print('Oops: ', self)
                 phi = 0
         sinx = np.sqrt(cosx ** 2 + self.c[2] ** 2) * wavelength / 2.0
         if sinx >= 1.0:
@@ -95,7 +95,7 @@ class CVector(PositionBase):
         if wavelength is None:
             wavelength = session.instrument.wavelength or None
         if not wavelength:
-            raise NicosError("Cannot perform conversion without knowing wavelength")
+            raise NicosError('Cannot perform conversion without knowing wavelength')
 
         cxy = np.sqrt(self.c[0]**2 + self.c[1]**2)
         cabs2 = self.c[0]**2 + self.c[1]**2 + self.c[2]**2
@@ -151,7 +151,7 @@ class CVector(PositionBase):
         """ Representation. Part of Position subclass protocol.
         """
         if self.psi is not None:
-            psi = "%8.3f" % (np.rad2deg(self.psi))
+            psi = '%8.3f' % (np.rad2deg(self.psi))
         else:
-            psi = "None"
-        return "[C-vector: c=%s psi=%s]" % (repr(self.c), psi)
+            psi = 'None'
+        return '[C-vector: c=%s psi=%s]' % (repr(self.c), psi)

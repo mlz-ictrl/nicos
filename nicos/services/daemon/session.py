@@ -62,11 +62,11 @@ class DaemonSession(NoninteractiveSession):
     # to set a point where the "break" command can break, it suffices to execute
     # some piece of code in a frame with the filename starting with "<break>";
     # these objects are such a piece of code (the number designates the level)
-    _bpcode = [None, compile("pass", "<break>1", "exec"),
-               compile("pass", "<break>2", "exec"),
-               compile("pass", "<break>3", "exec"),
-               compile("pass", "<break>4", "exec"),
-               compile("pass", "<break>5", "exec")]
+    _bpcode = [None, compile('pass', '<break>1', 'exec'),
+               compile('pass', '<break>2', 'exec'),
+               compile('pass', '<break>3', 'exec'),
+               compile('pass', '<break>4', 'exec'),
+               compile('pass', '<break>5', 'exec')]
 
     _user_prompt = None
     _user_input = Ellipsis

@@ -53,7 +53,7 @@ else:
 
 
 
-STYLE = '''
+STYLE = """
 body    { font-family: 'Helvetica', 'Arial', sans-serif;
           font-size: 12pt; line-height: 120%; }
 pre, tt { font-family: 'Consolas', 'Dejavu Sans Mono', monotype;
@@ -75,7 +75,7 @@ pre.literal-block, pre.doctest-block
           border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
 .usage tt
         { font-size: 13pt; }
-'''
+"""
 
 
 def lower(s):

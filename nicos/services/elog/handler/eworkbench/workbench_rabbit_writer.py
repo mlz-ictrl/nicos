@@ -421,11 +421,11 @@ def wb_format(wb_line):
 
 
 def wb_timestring_1(time):
-    return datetime.fromtimestamp(time).strftime("%b %d %Y %H:%M:%S")
+    return datetime.fromtimestamp(time).strftime('%b %d %Y %H:%M:%S')
 
 
 def wb_timestring_2(time):
-    return datetime.fromtimestamp(time).strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def rb_headers_note(proposal, subject, line_count, loglevel=None):
