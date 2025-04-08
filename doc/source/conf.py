@@ -47,7 +47,6 @@ extensions = [
     'ext.setupdoc',
     'ext.daemondoc',
     'ext.nicosclassdoc',
-    'sphinxcontrib.seqdiag',
     #'alabaster',
 ]
 

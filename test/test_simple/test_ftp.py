@@ -102,7 +102,7 @@ class MyTestFS(AbstractedFS):
 
     def chdir(self, path):
         "Path changes are virtual"
-        if path == self.cmd_channel.ds.mkdirpath or path == '/':
+        if path in (self.cmd_channel.ds.mkdirpath, '/'):
             self.cmd_channel.ds.chdirpath = path
         return '/'
 

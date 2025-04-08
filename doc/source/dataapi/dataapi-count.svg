@@ -1,0 +1,184 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg viewBox="0 0 900 2077" xmlns="http://www.w3.org/2000/svg" xmlns:inkspace="http://www.inkscape.org/namespaces/inkscape" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs id="defs_block">
+    <filter height="1.504" id="filter_blur" inkspace:collect="always" width="1.1575" x="-0.07875" y="-0.252">
+      <feGaussianBlur id="feGaussianBlur3780" inkspace:collect="always" stdDeviation="4.2" />
+    </filter>
+  </defs>
+  <title>blockdiag</title>
+  <desc>   seqdiag {
+        autonumber = True;
+
+        "count command" =&gt; "Data manager" [label="beginPoint", rightnote="initialize PointDataset"]{
+            "Data manager" =&gt; "Data sink" [label="prepare"];
+            "Data manager" =&gt; "Data sink" [label="begin"];
+        }
+
+        "count command" =&gt; "Data manager" [label="updateMetainfo", rightnote="collect metainfo"]{
+            "Data manager" =&gt; "Data sink" [label="putMetainfo"];
+        }
+
+        "count command" -&gt; "count command" [label="start\ndetectors", leftnote="start detectors\nand wait until\nfinshed or stopped"]{
+            "Cache" =&gt; "Data manager" [label="update value", note="new value found"];
+            "Data manager" =&gt; "Data sink" [label="putValues"];
+        }
+
+        "count command" -&gt; "count command" [label="read detector\ndata", leftnote="detectors\nfinished or stopped"];
+
+        "count command" =&gt; "Data manager" [label="putResults"]{
+            "Data manager" =&gt; "Data sink" [label="putResults"];
+        }
+
+        "count command" =&gt; "Data manager" [label="finishPoint"]{
+            "Data manager" =&gt; "Data sink" [label="end"];
+        }
+   }
+</desc>
+  <rect fill="rgb(0,0,0)" height="1914" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="177" y="141" />
+  <rect fill="rgb(0,0,0)" height="385" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="369" y="141" />
+  <rect fill="rgb(0,0,0)" height="240" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="369" y="606" />
+  <rect fill="rgb(0,0,0)" height="80" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="369" y="1020" />
+  <rect fill="rgb(0,0,0)" height="240" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="369" y="1434" />
+  <rect fill="rgb(0,0,0)" height="240" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="369" y="1754" />
+  <rect fill="rgb(0,0,0)" height="80" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="561" y="206" />
+  <rect fill="rgb(0,0,0)" height="80" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="561" y="366" />
+  <rect fill="rgb(0,0,0)" height="80" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="561" y="686" />
+  <rect fill="rgb(0,0,0)" height="80" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="561" y="1180" />
+  <rect fill="rgb(0,0,0)" height="80" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="561" y="1514" />
+  <rect fill="rgb(0,0,0)" height="80" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="8" x="561" y="1834" />
+  <polygon fill="rgb(0,0,0)" points="389,134 543,134 551,142 551,149 389,149 389,134" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" />
+  <polygon fill="rgb(0,0,0)" points="389,599 501,599 509,607 509,614 389,614 389,599" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" />
+  <polygon fill="rgb(0,0,0)" points="33,919 157,919 165,927 165,960 33,960 33,919" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" />
+  <polygon fill="rgb(0,0,0)" points="773,1013 879,1013 887,1021 887,1028 773,1028 773,1013" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" />
+  <polygon fill="rgb(0,0,0)" points="27,1339 157,1339 165,1347 165,1367 27,1367 27,1339" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="117" y="46" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="309" y="46" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="501" y="46" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="693" y="46" />
+  <path d="M 178 80 L 178 2065" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="8 4" />
+  <rect fill="moccasin" height="1914" stroke="rgb(0,0,0)" width="8" x="174" y="135" />
+  <path d="M 370 80 L 370 2065" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="8 4" />
+  <rect fill="moccasin" height="385" stroke="rgb(0,0,0)" width="8" x="366" y="135" />
+  <rect fill="moccasin" height="240" stroke="rgb(0,0,0)" width="8" x="366" y="600" />
+  <rect fill="moccasin" height="80" stroke="rgb(0,0,0)" width="8" x="366" y="1014" />
+  <rect fill="moccasin" height="240" stroke="rgb(0,0,0)" width="8" x="366" y="1428" />
+  <rect fill="moccasin" height="240" stroke="rgb(0,0,0)" width="8" x="366" y="1748" />
+  <path d="M 562 80 L 562 2065" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="8 4" />
+  <rect fill="moccasin" height="80" stroke="rgb(0,0,0)" width="8" x="558" y="200" />
+  <rect fill="moccasin" height="80" stroke="rgb(0,0,0)" width="8" x="558" y="360" />
+  <rect fill="moccasin" height="80" stroke="rgb(0,0,0)" width="8" x="558" y="680" />
+  <rect fill="moccasin" height="80" stroke="rgb(0,0,0)" width="8" x="558" y="1174" />
+  <rect fill="moccasin" height="80" stroke="rgb(0,0,0)" width="8" x="558" y="1508" />
+  <rect fill="moccasin" height="80" stroke="rgb(0,0,0)" width="8" x="558" y="1828" />
+  <path d="M 754 80 L 754 2065" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="8 4" />
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="114" y="40" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="78" x="178.0" y="66">count command</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="306" y="40" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="72" x="370.0" y="66">Data manager</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="498" y="40" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="54" x="562.0" y="66">Data sink</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="690" y="40" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="30" x="754.0" y="66">Cache</text>
+  <path d="M 186 135 L 362 135" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="354,131 362,135 354,139" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(255,182,193)" points="386,128 540,128 548,136 548,143 386,143 386,128" stroke="rgb(0,0,0)" />
+  <path d="M 540 128 L 540 136" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 540 136 L 548 136" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="138" x="463.0" y="141">initialize PointDataset</text>
+  <path d="M 378 200 L 554 200" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="546,196 554,200 546,204" stroke="rgb(0,0,0)" />
+  <path d="M 378 280 L 554 280" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="386,276 378,280 386,284" stroke="rgb(0,0,0)" />
+  <path d="M 378 360 L 554 360" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="546,356 554,360 546,364" stroke="rgb(0,0,0)" />
+  <path d="M 378 440 L 554 440" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="386,436 378,440 386,444" stroke="rgb(0,0,0)" />
+  <path d="M 186 520 L 362 520" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="194,516 186,520 194,524" stroke="rgb(0,0,0)" />
+  <path d="M 186 600 L 362 600" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="354,596 362,600 354,604" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(255,182,193)" points="386,593 498,593 506,601 506,608 386,608 386,593" stroke="rgb(0,0,0)" />
+  <path d="M 498 593 L 498 601" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 498 601 L 506 601" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="96" x="442.0" y="606">collect metainfo</text>
+  <path d="M 378 680 L 554 680" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="546,676 554,680 546,684" stroke="rgb(0,0,0)" />
+  <path d="M 378 760 L 554 760" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="386,756 378,760 386,764" stroke="rgb(0,0,0)" />
+  <path d="M 186 840 L 362 840" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="194,836 186,840 194,844" stroke="rgb(0,0,0)" />
+  <path d="M 186 933 L 299 933" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 299 933 L 299 949" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 299 949 L 186 949" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="194,945 186,949 194,953" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(255,182,193)" points="30,913 154,913 162,921 162,954 30,954 30,913" stroke="rgb(0,0,0)" />
+  <path d="M 154 913 L 154 921" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 154 921 L 162 921" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="90" x="83.0" y="926">start detectors</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="84" x="80.0" y="939">and wait until</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="108" x="92.0" y="952">finshed or stopped</text>
+  <path d="M 378 1014 L 746 1014" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="386,1010 378,1014 386,1018" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(255,182,193)" points="770,1007 876,1007 884,1015 884,1022 770,1022 770,1007" stroke="rgb(0,0,0)" />
+  <path d="M 876 1007 L 876 1015" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 876 1015 L 884 1015" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="90" x="823.0" y="1020">new value found</text>
+  <path d="M 378 1094 L 746 1094" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="738,1090 746,1094 738,1098" stroke="rgb(0,0,0)" />
+  <path d="M 378 1174 L 554 1174" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="546,1170 554,1174 546,1178" stroke="rgb(0,0,0)" />
+  <path d="M 378 1254 L 554 1254" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="386,1250 378,1254 386,1258" stroke="rgb(0,0,0)" />
+  <path d="M 186 1347 L 299 1347" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 299 1347 L 299 1363" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 299 1363 L 186 1363" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="194,1359 186,1363 194,1367" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(255,182,193)" points="24,1333 154,1333 162,1341 162,1361 24,1361 24,1333" stroke="rgb(0,0,0)" />
+  <path d="M 154 1333 L 154 1341" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 154 1341 L 162 1341" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="54" x="59.0" y="1346">detectors</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="114" x="89.0" y="1359">finished or stopped</text>
+  <path d="M 186 1428 L 362 1428" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="354,1424 362,1428 354,1432" stroke="rgb(0,0,0)" />
+  <path d="M 378 1508 L 554 1508" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="546,1504 554,1508 546,1512" stroke="rgb(0,0,0)" />
+  <path d="M 378 1588 L 554 1588" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="386,1584 378,1588 386,1592" stroke="rgb(0,0,0)" />
+  <path d="M 186 1668 L 362 1668" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="194,1664 186,1668 194,1672" stroke="rgb(0,0,0)" />
+  <path d="M 186 1748 L 362 1748" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="354,1744 362,1748 354,1752" stroke="rgb(0,0,0)" />
+  <path d="M 378 1828 L 554 1828" fill="none" stroke="rgb(0,0,0)" />
+  <polygon fill="rgb(0,0,0)" points="546,1824 554,1828 546,1832" stroke="rgb(0,0,0)" />
+  <path d="M 378 1908 L 554 1908" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="386,1904 378,1908 386,1912" stroke="rgb(0,0,0)" />
+  <path d="M 186 1988 L 362 1988" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <polygon fill="rgb(0,0,0)" points="194,1984 186,1988 194,1992" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="78" x="233.0" y="131">1. beginPoint</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="60" x="416.0" y="196">2. prepare</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="12" x="544.0" y="276">3.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="48" x="410.0" y="356">4. begin</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="12" x="544.0" y="436">5.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="12" x="352.0" y="516">6.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="102" x="245.0" y="596">7. updateMetainfo</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="84" x="428.0" y="676">8. putMetainfo</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="12" x="544.0" y="756">9.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="18" x="349.0" y="836">10.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="54" x="217.0" y="916">11. start</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="54" x="217.0" y="929">detectors</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="96" x="694.0" y="1010">12. update value</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="18" x="395.0" y="1090">13.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="78" x="425.0" y="1170">14. putValues</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="18" x="541.0" y="1250">15.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="102" x="241.0" y="1330">16. read detector</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="24" x="202.0" y="1343">data</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="84" x="236.0" y="1424">17. putResults</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="84" x="428.0" y="1504">18. putResults</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="18" x="541.0" y="1584">19.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="18" x="349.0" y="1664">20.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="90" x="239.0" y="1744">21. finishPoint</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="42" x="407.0" y="1824">22. end</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="18" x="541.0" y="1904">23.</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="18" x="349.0" y="1984">24.</text>
+</svg>

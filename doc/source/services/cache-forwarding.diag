@@ -1,0 +1,7 @@
+seqdiag {
+        autonumber = True;
+
+        "source host cache" -&gt; Collector [label="cache event"];
+        Collector -&gt; TargetCache [ label="filter event"];
+        TargetCache --&gt; "target host cache" [leftnote="filtering successful", label="put key value pair"];
+   }

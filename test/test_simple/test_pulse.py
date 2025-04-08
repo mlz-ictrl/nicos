@@ -76,8 +76,8 @@ def test_starting(session):
     del sw._started_to[:]
     pulse1.move('up')
     pulse1.maw('up')
-    assert sw._started_to == ['up', 'down', 'up', 'down'] or \
-           sw._started_to == ['up', 'up', 'down']
+    assert sw._started_to in (['up', 'down', 'up', 'down'],
+                              ['up', 'up', 'down'])
 
     # Test the start if target == read value
     del sw._started_to[:]

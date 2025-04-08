@@ -110,7 +110,7 @@ class MeasureTable(Cmdlet):
         oloop = self.outerLoop.currentText()
         self.innerLoop.clear()
         for loop in LOOPS:
-            if loop != mloop and loop != oloop:
+            if loop not in (mloop, oloop):
                 self.innerLoop.addItem(loop)
                 self.measdef.loops = [oloop, mloop, loop]
                 if mloop:
