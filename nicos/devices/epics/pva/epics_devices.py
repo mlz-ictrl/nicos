@@ -47,6 +47,7 @@ DEFAULT_EPICS_PROTOCOL = os.environ.get('DEFAULT_EPICS_PROTOCOL', 'ca')
 
 
 class EpicsDevice(DeviceMixinBase):
+    """Basic EPICS device."""
     parameters = {
         'epicstimeout': Param('Timeout for getting EPICS PVs',
                               type=none_or(floatrange(0.1, 60)),
@@ -432,6 +433,7 @@ class EpicsDigitalMoveable(EpicsAnalogMoveable):
 
 
 class EpicsMappedReadable(MappedReadable, EpicsReadable):
+    """EPICS device mapping a value to a string."""
     valuetype = str
 
     parameter_overrides = {
@@ -479,6 +481,7 @@ class EpicsMappedReadable(MappedReadable, EpicsReadable):
 
 
 class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
+    """EPICS device maps a value to a string or target string to a value."""
     valuetype = str
 
     parameters = {
@@ -535,12 +538,14 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
 
 
 class EpicsBoolReadable(EpicsMappedReadable):
+    """EPICS device mapping a value to a boolean."""
     parameter_overrides = {
         'mapping': Override(type=dictof(bool, anytype)),
     }
 
 
 class EpicsBoolMoveable(EpicsMappedMoveable):
+    """EPICS device maps a value to a boolean or target boolean to a value."""
     parameter_overrides = {
         'mapping': Override(type=dictof(bool, anytype)),
     }
