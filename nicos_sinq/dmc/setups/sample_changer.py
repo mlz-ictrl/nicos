@@ -1,16 +1,13 @@
 description = 'Sample changer devices for SINQ DMC.'
 
-pvprefix = 'SQ:DMC:turboPmac2:'
+pvprefix = 'SQ:DMC:turboPmac2'
 
 devices = dict(
-    chmot = device('nicos_sinq.dmc.devices.changermot.ChangerMotor',
+    chmot = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample changer motor motor',
-        motorpv = f'{pvprefix}CHPOS',
-        errormsgpv = f'{pvprefix}CHPOS-MsgTxt',
-        can_disable = True,
-        precision = 0.001
+        motorpv = f'{pvprefix}:CHPOS',
     ),
-    chpos = device('nicos.devices.generic.switcher.Switcher',
+    chpos = device('nicos_sinq.dmc.devices.changermot.CHSwitcher',
         description = 'Sample changer choice',
         moveable = 'chmot',
         mapping = {
@@ -23,10 +20,17 @@ devices = dict(
         precision = 1,
     ),
     chstick = device('nicos_sinq.dmc.devices.changermot.StickMotor',
-        description = 'Sample changer stick motor',
-        motorpv = f'{pvprefix}STICK',
-        errormsgpv = f'{pvprefix}STICK-MsgTxt',
-        can_disable = True,
-        precision = 0.001
+        description = 'Sample changer stick motor (Positioning Mode)',
+        motorpv = f'{pvprefix}:STICK',
+        switcher = 'stick_mode',
+    ),
+    chstickvelo = device('nicos_sinq.dmc.devices.changermot.StickMotorVelo',
+        description = 'Sample changer stick motor (Velocity Mode)',
+        motorpv = f'{pvprefix}:STICK',
+    ),
+    stick_mode = device('nicos_sinq.dmc.devices.changermot.StickModeSwitcher',
+        description = 'Device to control switching between Positioning and Velocity mode.',
+        position = 'chstick',
+        velocity = 'chstickvelo',
     ),
 )
