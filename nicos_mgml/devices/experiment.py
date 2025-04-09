@@ -77,7 +77,6 @@ class Experiment(BaseExperiment):
 
     def _canQueryProposals(self):
         """Return true if this Experiment can query user Dashboard."""
-
         loggedUser = session.getExecutingUser()
         return 'token' in loggedUser[2]
 
@@ -134,8 +133,7 @@ class Experiment(BaseExperiment):
 
     @usermethod
     def finish(self):
-        """Submit data to the user dashboard"""
-
+        """Submit data to the user dashboard."""
         try:
             userInfo = session.getExecutingUser()[2]
         except Exception:

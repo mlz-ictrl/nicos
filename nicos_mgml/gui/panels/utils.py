@@ -32,7 +32,7 @@ from nicos_mgml.gui import uipath
 
 
 class ImagePanel(Panel):
-    """Simple panel showing image"""
+    """Simple panel showing image."""
 
     # this needs to be unique!
     panelName = 'Image panel'
@@ -57,7 +57,7 @@ class ImagePanel(Panel):
 
 
 class CryoPanel(GenericPanel):
-    """Cryostat panel allowing to fill the helium"""
+    """Cryostat panel allowing to fill the helium."""
 
     # this needs to be unique!
     panelName = 'Cryostat panel'

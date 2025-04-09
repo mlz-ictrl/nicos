@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure in voltage on K2182A over k6221"""
+"""Allows to measure in voltage on K2182A over k6221."""
 
 import time
 from time import time as currenttime
@@ -266,7 +266,7 @@ class Voltmeter(BaseK2182, Measurable):
         return self._value
 
     def valueInfo(self):
-        """Return list of active channels"""
+        """Return list of active channels."""
         return Value('U', unit=self.unit, fmtstr=self.fmtstr),
 
     def doReset(self):

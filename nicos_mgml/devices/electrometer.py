@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure with RS830 Lock-In amplifier"""
+"""Allows to measure with RS830 Lock-In amplifier."""
 
 import time
 

@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure thermal conductivity"""
+"""Allows to measure thermal conductivity."""
 
 import time
 from time import time as currenttime
@@ -38,7 +38,7 @@ from nicos.devices.entangle import StringIO
 
 
 class Conductivity(SubscanMeasurable):
-    """Measure thermal conductivity of the sample"""
+    """Measure thermal conductivity of the sample."""
 
     attached_devices = {
         'seebeck': Attach('Device for reading Seebeck voltage', Readable),

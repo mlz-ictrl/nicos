@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure in delta mode of K6221 with switcher K7001"""
+"""Allows to measure in delta mode of K6221 with switcher K7001."""
 
 import time
 
@@ -192,8 +192,8 @@ class HCmeter(Measurable):
         d = self.commCurrent(':TRAC:DATA?', response=True)
         self.log.debug('data->: %r', d)
         value, dvalue = self.parseData(d)
-        self._values[self._currentChannel*2 - 2] = value
-        self._values[self._currentChannel*2 - 1] = dvalue
+        self._values[self._currentChannel * 2 - 2] = value
+        self._values[self._currentChannel * 2 - 1] = dvalue
         self.log.debug('vals->: %r', self._values)
         return self._values
 
@@ -249,7 +249,7 @@ class HCmeter(Measurable):
         self.log.debug('test 7')
 
     def valueInfo(self):
-        """Return list of active channels"""
+        """Return list of active channels."""
         ret = ()
         for i in range(1, len(self.channels) + 1):
             ret = ret + (Value('Ch%d' % i, unit=self.unit, fmtstr=self.fmtstr, errors='next'),

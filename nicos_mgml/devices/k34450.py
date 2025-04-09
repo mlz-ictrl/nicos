@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure in voltage on Keysight 34450A"""
+"""Allows to measure in voltage on Keysight 34450A."""
 
 import time
 
@@ -159,7 +159,7 @@ class Multimeter(MultiReader, Measurable):
         return self._value
 
     def valueInfo(self):
-        """Return current value information"""
+        """Return current value information."""
         return Value(self.type, unit=self.unit, fmtstr=self.fmtstr),
 
     def doFinish(self):

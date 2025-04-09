@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure with RS830 Lock-In amplifier"""
+"""Allows to measure with RS830 Lock-In amplifier."""
 
 import time
 
@@ -133,7 +133,7 @@ class Lockinmeter(Measurable):
         return self._lastStatus
 
     def valueInfo(self):
-        """Return list of active channels"""
+        """Return list of active channels."""
         ret = ()
         for chan in self.channels:
             ret = ret + (Value(chan + self.suffix, unit='deg' if chan == 'theta' else self.unit, fmtstr=self.fmtstr),

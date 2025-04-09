@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Lakeshore panel"""
+"""Lakeshore panel."""
 
 from nicos.clients.gui.panels.generic import GenericPanel
 from nicos.guisupport.qt import pyqtSlot
@@ -32,6 +32,7 @@ from nicos_mgml.gui import uipath
 
 class LakeshorePanel(GenericPanel):
     """Better fast control of LS 350 regulator."""
+
     # this needs to be unique!
     panelName = 'Lakeshore panel'
 

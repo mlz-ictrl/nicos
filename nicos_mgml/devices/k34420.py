@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure in voltage on Keysight 34420"""
+"""Allows to measure in voltage on Keysight 34420."""
 
 import time
 from time import time as currenttime
@@ -201,7 +201,7 @@ class Voltmeter(BaseK34420, Measurable):
         return self._value
 
     def valueInfo(self):
-        """Return list of active channels"""
+        """Return list of active channels."""
         return Value('U', unit=self.unit, fmtstr=self.fmtstr),
 
     def doReset(self):

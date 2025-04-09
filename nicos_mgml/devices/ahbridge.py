@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure with AH2500A Capacitance bridge"""
+"""Allows to measure with AH2500A Capacitance bridge."""
 
 import time
 
@@ -104,7 +104,7 @@ class Capacitance(Measurable):
         return (status.OK, 'idle')
 
     def valueInfo(self):
-        """Return list measured values"""
+        """Return list measured values."""
         return (
             Value('C', unit='pF', fmtstr=self.fmtstr),
             Value('L', unit='nS', fmtstr=self.fmtstr),

@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Allows to measure in delta mode of K6221 with switcher K7001"""
+"""Allows to measure in delta mode of K6221 with switcher K7001."""
 
 import time
 
@@ -96,7 +96,7 @@ class Current(Measurable):
             self.log.debug('voltage changed to %s', voltage)
         protection = float(self.commCurrent(':SENS:CURR:PROT?', response=True)) * 1000
         if self.current_compliance != protection:
-            self.commCurrent(f':SENS:CURR:PROT  {self.current_compliance/1000:e}')
+            self.commCurrent(f':SENS:CURR:PROT {self.current_compliance / 1000:e}')
             self.log.debug('current compliance changed to %s', protection)
         self._values = [0] * len(self.channels)
         self._currentChannel = 0
@@ -153,7 +153,7 @@ class Current(Measurable):
         return (status.OK, 'idle')
 
     def valueInfo(self):
-        """Return list of active channels"""
+        """Return list of active channels."""
         ret = ()
         for i in range(1, len(self.channels) + 1):
             ret = ret + (Value('Ch%d' % i, unit=self.unit, fmtstr=self.fmtstr),
