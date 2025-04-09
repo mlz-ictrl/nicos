@@ -126,7 +126,7 @@ class MultiReader(BaseK34450, Readable):
     def doRead(self, maxage=0):
         self._measuring = True
         resp = ''
-        while resp == '':
+        while not resp:
             resp = self.comm('READ?', True)
             time.sleep(0.05)
         self._measuring = False
@@ -144,7 +144,7 @@ class Multimeter(MultiReader, Measurable):
         self.log.debug('asked doStart')
         self._measuring = True
         resp = ''
-        while resp == '':
+        while not resp:
             resp = self.comm('READ?', True)
             time.sleep(0.05)
         self._value = self.getValueInUnits(resp)

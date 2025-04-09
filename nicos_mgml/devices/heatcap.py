@@ -252,9 +252,9 @@ class HCmeter(Measurable):
         """Return list of active channels."""
         ret = ()
         for i in range(1, len(self.channels) + 1):
-            ret = ret + (Value('Ch%d' % i, unit=self.unit, fmtstr=self.fmtstr, errors='next'),
-                         Value('dCh%d' % i, unit=self.unit, fmtstr=self.fmtstr, type='error'),
-                         )
+            ret += (Value('Ch%d' % i, unit=self.unit, fmtstr=self.fmtstr, errors='next'),
+                    Value('dCh%d' % i, unit=self.unit, fmtstr=self.fmtstr, type='error'),
+                    )
         return ret
 
     def doReset(self):

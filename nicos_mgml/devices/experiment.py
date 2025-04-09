@@ -102,7 +102,7 @@ class Experiment(BaseExperiment):
 
     def getProposalType(self, proposal):
         """Determine proposaltype of a given proposalstring."""
-        if proposal in ('template', 'current'):
+        if proposal in {'template', 'current'}:
             raise UsageError(
                 self,
                 'The proposal names "template" and "current"'

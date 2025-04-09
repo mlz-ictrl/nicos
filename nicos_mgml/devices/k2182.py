@@ -121,7 +121,7 @@ class VoltageDev(HasWindowTimeout, BaseK2182, Waitable):
     }
 
     def getValueInUnits(self, resp):
-        if self.unit in ['mbar', 'torr']:
+        if self.unit in {'mbar', 'torr'}:
             c = {
                 'mbar': 5.5,
                 'torr': 5.625,
@@ -147,7 +147,7 @@ class VoltageDev(HasWindowTimeout, BaseK2182, Waitable):
 
     def doRead(self, maxage=0):
         resp = ''
-        while resp == '':
+        while not resp:
             resp = self.commVoltage(':DATA:FRESh?', True)
             time.sleep(0.05)
         return self.getValueInUnits(resp)
@@ -252,7 +252,7 @@ class Voltmeter(BaseK2182, Measurable):
         self.log.debug('asked doStart')
         self._measuring = True
         resp = ''
-        while resp == '':
+        while not resp:
             resp = self.commVoltage('READ?', True)
             time.sleep(0.05)
         self._value = self.getValueInUnits(resp)

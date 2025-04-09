@@ -136,8 +136,8 @@ class Lockinmeter(Measurable):
         """Return list of active channels."""
         ret = ()
         for chan in self.channels:
-            ret = ret + (Value(chan + self.suffix, unit='deg' if chan == 'theta' else self.unit, fmtstr=self.fmtstr),
-                         )
+            ret += (Value(chan + self.suffix, unit='deg' if chan == 'theta' else self.unit, fmtstr=self.fmtstr),
+                    )
         return ret
 
     def doReset(self):

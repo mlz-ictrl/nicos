@@ -42,7 +42,7 @@ class AsciiScanfileSinkHandler(assh):
         )
         self._fname = fp.shortpath
         self._filepath = fp.filepath
-        self._file = TextIOWrapper(fp)
+        self._file = TextIOWrapper(fp, encoding='utf-8')
 
 
 class AsciiScanfileSink(ass):

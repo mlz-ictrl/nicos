@@ -156,8 +156,7 @@ class Current(Measurable):
         """Return list of active channels."""
         ret = ()
         for i in range(1, len(self.channels) + 1):
-            ret = ret + (Value('Ch%d' % i, unit=self.unit, fmtstr=self.fmtstr),
-                         )
+            ret += (Value('Ch%d' % i, unit=self.unit, fmtstr=self.fmtstr), )
         return ret
 
     def doReset(self):
