@@ -356,7 +356,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             header += TISANEHEADER
         for line in header.split('\n'):
             self.log.debug('testing header line: %r', line)
-            self.log.debug(line % metadata)
+            self.log.debug('%s', line % metadata)
             fp.write((line % metadata).encode())
             fp.write(b'\n')
 

@@ -160,7 +160,7 @@ class Conductivity(SubscanMeasurable):
             #     resp = self._attached_delta.commVoltage('READ?', True)
             #     session.delay(0.05)
             U1 = self._attached_seebeck.read(0)
-            self.log.debug(f'U1 recorded: {U1}')
+            self.log.debug('U1 recorded: %s', U1)
 
             self._attached_voltage.start(None)
             time.sleep(2)
@@ -188,7 +188,7 @@ class Conductivity(SubscanMeasurable):
             #     time.sleep(0.05)
             # U2 = float(resp) * 1e6
             U2 = self._attached_seebeck.read(0)
-            self.log.debug(f'U2 recorded: {U2}')
+            self.log.debug('U2 recorded: %s', U2)
             # turn off current:
             self.commCurrent('OUTP OFF')
             self.heater = 0

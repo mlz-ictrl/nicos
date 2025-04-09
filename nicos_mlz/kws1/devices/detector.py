@@ -94,7 +94,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
 
     def _updateMapping(self, selpos):
         self.log.debug('updating the detector mapping for selector '
-                       'setting %s' % selpos)
+                       'setting %s', selpos)
         try:
             pos = self.presets.get(selpos, {})
             new_mapping = {k: [v['x'], v['y'], v['z']] for (k, v) in pos.items()}

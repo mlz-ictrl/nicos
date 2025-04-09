@@ -74,9 +74,9 @@ class Capacitance(Measurable):
                 time.sleep(1)
                 self.log.debug('do readline')
                 response = self._attached_ah2500.readLine()
-                self.log.debug(f'ReadLine: {response}')
+                self.log.debug('ReadLine: %s', response)
             except Exception as e:
-                self.log.debug(f'Error during read from GPIB: {e}')
+                self.log.debug('Error during read from GPIB: %s', e)
                 self._measuring = False
                 return (status.OK, 'done')
             self._measuring = False
@@ -98,7 +98,7 @@ class Capacitance(Measurable):
             if 'C' in results and 'L' in results:
                 self._values = [results['C'][0], results['L'][0]]
             else:
-                self.log.info(f"Did not find values in '{response}'")
+                self.log.info("Did not find values in '%s'", response)
             return (status.OK, 'done')
 
         return (status.OK, 'idle')

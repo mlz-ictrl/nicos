@@ -176,7 +176,7 @@ class Oscillator(Moveable):
         return rmin, rmax
 
     def __oscillation(self):
-        self.log.info('Oscillation of %r started' % self._attached_moveable)
+        self.log.info('Oscillation of %r started', self._attached_moveable)
         _range = self.range
         while not self._stop_request:
             for pos in _range:
@@ -184,4 +184,4 @@ class Oscillator(Moveable):
                 if self._stop_request:
                     break
         self.curvalue = self._targets[0]
-        self.log.info('Oscillation of %r stopped' % self._attached_moveable)
+        self.log.info('Oscillation of %r stopped', self._attached_moveable)

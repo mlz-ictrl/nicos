@@ -128,7 +128,7 @@ class HCmeter(Measurable):
                 dvalue = data.std(ddof=1)[0]  # TODO: Check use of index
             else:
                 dvalue = 0
-            self.log.debug('result %d: %f +- %f' % (len(data), value, dvalue))
+            self.log.debug('result %d: %f +- %f', len(data), value, dvalue)
         else:
             value = 0
             dvalue = 0
@@ -144,7 +144,7 @@ class HCmeter(Measurable):
         time.sleep(2)  # TODO FIX!
         d = self.commHeat(':TRAC:DATA?', response=True)
         self.log.debug('data->: %r', d)
-        self.log.info('Heater Resistivity: %f +- %f' % self.parseData(d))
+        self.log.info('Heater Resistivity: %f +- %f', *self.parseData(d))
 
         # measure thermometer
         doArm(self.commTemp, self._current, self._points)
@@ -153,7 +153,7 @@ class HCmeter(Measurable):
         time.sleep(2)  # TODO FIX!
         d = self.commTemp(':TRAC:DATA?', response=True)
         self.log.debug('data->: %r', d)
-        self.log.info('Thermometer resistivity: %f +- %f' % self.parseData(d))
+        self.log.info('Thermometer resistivity: %f +- %f', *self.parseData(d))
 
     def doStart(self):
         self.log.debug('asked doStart')
@@ -244,7 +244,7 @@ class HCmeter(Measurable):
         if (oper & (1 << 11)) != 0:
             self.log.debug('error happened')
             self._lastStatus = (status.ERROR, 'Error in operation status')
-            self.log.debug('error happened 2: %r' % self._lastStatus)
+            self.log.debug('error happened 2: %r', self._lastStatus)
             return self._lastStatus
         self.log.debug('test 7')
 

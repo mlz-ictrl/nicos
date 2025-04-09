@@ -207,7 +207,7 @@ class KafkaSubscriber(DeviceMixinBase):
         self._stoprequest = False
         self._updater_thread = createThread('updater_' + topic,
                                             self._get_new_messages)
-        self.log.debug('subscribed to updates from topic: %s' % topic)
+        self.log.debug('subscribed to updates from topic: %s', topic)
 
     def _get_new_messages(self):
         while not self._stoprequest:

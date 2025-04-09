@@ -285,7 +285,7 @@ class McStasImage(BaseImage):
         ty = shaped[self.fitfoil].sum((1, 2))
         ry = shaped[self.fitfoil, :, y1:y2, x1:x2].sum((1, 2))
 
-        self.log.debug('fitting %r and %r' % (ty, ry))
+        self.log.debug('fitting %r and %r', ty, ry)
 
         tres = self.fitter.run(x, ty, None)
         if tres._failed:

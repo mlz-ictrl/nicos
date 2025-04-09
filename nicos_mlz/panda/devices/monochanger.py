@@ -232,7 +232,7 @@ class Changer(BaseSequencer):
 
     def CheckMagazinSlotEmpty(self, slot):
         # checks if the given slot in the magazin is empty
-        self.log.info('checking of there IS NOT mono in magazine slot %r' % slot)
+        self.log.info('checking of there IS NOT mono in magazine slot %r', slot)
         if self._attached_magazineocc.status(0)[0] != status.OK:
             raise UsageError(self, 'Magazine occupancy switches are in warning state!')
         index = self.positions.index(slot)
@@ -241,7 +241,7 @@ class Changer(BaseSequencer):
 
     def CheckMagazinSlotUsed(self, slot):
         # checks if the given slot in the magazin is used (contains a monoframe)
-        self.log.info('checking of there IS mono in magazine slot %r' % slot)
+        self.log.info('checking of there IS mono in magazine slot %r', slot)
         if self._attached_magazineocc.status(0)[0] != status.OK:
             raise UsageError(self, 'Magazine occupancy switches are in warning state!')
         index = self.positions.index(slot)

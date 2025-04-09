@@ -198,7 +198,7 @@ class Deltameter(Measurable):
                     dvalue = d.std(ddof=1) / self.current * 1000.0
                 else:
                     dvalue = 0
-                self.log.debug('result %d: %f +- %f' % (len(d), value, dvalue))
+                self.log.debug('result %d: %f +- %f', len(d), value, dvalue)
             else:
                 value = 0
                 dvalue = 0
@@ -236,15 +236,15 @@ class Deltameter(Measurable):
             # try reset
             self.commCurrent(':STAT:QUE:CLE')  # clear error que
             return self._lastStatus
-        self.log.debug(f'test 2: {self._lastStatus}')
+        self.log.debug('test 2: %s', self._lastStatus)
         if oper == 0:  # no change in status
             if self._lastStatus[0] == status.ERROR:
-                self.log.debug(f'going to idle after {self._lastStatus[1]} recovered error')
+                self.log.debug('going to idle after %s recovered error', self._lastStatus[1])
                 self._lastStatus = (status.OK, 'idle')
             self._statusCounter += 1
             if self._statusCounter > 5:
                 self._lastStatus = (status.OK, 'idle')
-                self.log.debug(f'going to idle after {self._statusCounter} attemps')
+                self.log.debug('going to idle after %d attemps', self._statusCounter)
                 self._statusCounter = 0
             return self._lastStatus
         self._statusCounter = 0
@@ -278,7 +278,7 @@ class Deltameter(Measurable):
         if (oper & (1 << 11)) != 0:
             self.log.debug('error happened')
             self._lastStatus = (status.ERROR, 'Error in operation status')
-            self.log.debug('error happened 2: %r' % self._lastStatus)
+            self.log.debug('error happened 2: %r', self._lastStatus)
             return self._lastStatus
         self.log.debug('test 7')
 

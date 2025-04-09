@@ -180,10 +180,10 @@ class Watchdog(BaseCacheClient):
                        (logprefix, entry.type,
                         ', '.join(map(repr, self._notifiers))))
             if 'default' in self._notifiers:
-                self.log.warning(log_msg + '; using default')
+                self.log.warning('%s', log_msg + '; using default')
                 entry.type = 'default'
             else:
-                self.log.warning(log_msg + '; ignoring notifiers')
+                self.log.warning('%s', log_msg + '; ignoring notifiers')
                 entry.type = ''
 
         try:
