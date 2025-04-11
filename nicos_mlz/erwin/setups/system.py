@@ -42,7 +42,7 @@ devices = dict(
             enableFileMode = 0o644,
             disableDirMode = 0o550,
             disableFileMode = 0o440,
-            owner = 'erwin',
+            owner = 'nicd',
             group = 'erwin'
         ),
     ),
