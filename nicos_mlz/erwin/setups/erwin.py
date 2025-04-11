@@ -1,5 +1,5 @@
-group = "basic"
+description = 'Basic ErwiN setup'
 
-includes = ["sampletable", "charmbig", "nguide"]
+group = 'basic'
 
-description = "Basic ERWIN setup"
+includes = ['sampletable', 'charmbox02', 'nguide']
