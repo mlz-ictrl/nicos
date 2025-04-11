@@ -6,7 +6,7 @@ from os import path
 sys.path.insert(0, path.abspath('.'))
 
 from utils import rootdir, find_uis, find_custom, find_gr, find_gr_osx,\
-                  find_modules, find_resources, find_uncertainties
+                  find_modules, find_resources, find_uncertainties, nicos_version
 
 binscript = path.join(rootdir, 'bin', 'nicos-gui')
 
@@ -43,4 +43,4 @@ app = BUNDLE(exe,
          name='nicos-gui.app',
          icon='../resources/icons/nicos.icns',
          bundle_identifier=None,
-         version='3.9.4')
+         version=nicos_version())
