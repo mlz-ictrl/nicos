@@ -36,8 +36,8 @@ guidirs = [path.join('nicos', 'clients', 'gui'),
 
 # Make sure to generate the version file.
 os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + path.pathsep + rootdir
-subprocess.check_call([sys.executable,
-                       path.join(rootdir, 'nicos', '_vendor', 'gitversion.py')])
+version = subprocess.check_output([sys.executable,
+                                   path.join(rootdir, 'nicos', '_vendor', 'gitversion.py')])
 
 
 # Include all modules/files for the facility directories.
@@ -115,3 +115,7 @@ def find_uncertainties():
         (path.join(dirname, '*.*'), 'uncertainties'),
         (path.join(dirname, 'unumpy', '*.*'), path.join('uncertainties', 'unumpy'))
     ]
+
+
+def nicos_version():
+    return '.'.join(version.decode('utf-8').split('.')[:3])
