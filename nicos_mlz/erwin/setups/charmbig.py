@@ -1,4 +1,4 @@
-description = 'ErWIN detector devices'
+description = 'ErwiN detector devices'
 
 group = 'optional'
 

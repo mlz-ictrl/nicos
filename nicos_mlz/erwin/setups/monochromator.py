@@ -8,12 +8,12 @@ devices = dict(
     mtz = device('nicos.devices.entangle.Motor',
         description = 'z translation motor of monochromator system',
         tangodevice = tango_base + 'channel1/motor',
-#        visibility = (),
+        # visibility = (),
     ),
     mom = device('nicos.devices.entangle.Motor',
         description = 'omega motor of monochromator system',
         tangodevice = tango_base + 'channel2/motor',
-#        visibility = (),
+        # visibility = (),
     ),
 
 # XXX: attocubes?
