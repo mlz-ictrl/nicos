@@ -28,6 +28,7 @@ import sys
 from os import path
 
 import gr
+import uncertainties
 
 rootdir = path.abspath('..')
 guidirs = [path.join('nicos', 'clients', 'gui'),
@@ -106,3 +107,11 @@ def find_modules(*modules):
             if mod.endswith('.py'):
                 res.append(startmod + modpath + mod[:-3])
     return res
+
+
+def find_uncertainties():
+    dirname = path.dirname(uncertainties.__file__)
+    return [
+        (path.join(dirname, '*.*'), 'uncertainties'),
+        (path.join(dirname, 'unumpy', '*.*'), path.join('uncertainties', 'unumpy'))
+    ]

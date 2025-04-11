@@ -6,15 +6,16 @@ from os import path
 sys.path.insert(0, path.abspath('.'))
 
 from utils import rootdir, find_uis, find_custom, find_gr, find_gr_osx,\
-                  find_modules, find_resources
+                  find_modules, find_resources, find_uncertainties
 
 binscript = path.join(rootdir, 'bin', 'nicos-gui')
 
 a = Analysis([binscript],
              pathex=[rootdir],
              binaries=[],
-             datas=find_uis() + find_custom() + find_gr_osx() + find_resources() + [
-                 (path.join(rootdir, 'nicos', 'RELEASE-VERSION'), 'nicos')],
+             datas=find_uis() + find_custom() + find_gr_osx() + find_resources() +
+                 find_uncertainties() +
+                 [(path.join(rootdir, 'nicos', 'RELEASE-VERSION'), 'nicos')],
              hiddenimports=
                  find_modules('nicos', 'clients', 'gui') +
                  find_modules('nicos', 'clients', 'flowui') +

@@ -2,6 +2,7 @@
 gr>=1.23.2
 gr==1.23.3;sys_platform=='darwin'
 python-redmine>=2.0.0
+uncertainties<=3.1.7
 
 # Linux: minimum versions of PyQt5
 PyQt5>=5.13.0;sys_platform=='linux'
