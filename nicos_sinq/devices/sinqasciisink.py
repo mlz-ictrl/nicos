@@ -193,6 +193,21 @@ class SINQAsciiSinkHandler(DataSinkHandler):
                 out.write('%-11s' % cter)
             out.write('\n')
 
+            # If no devices it was a count, so finish up.
+            if not self.dataset.devices:
+                # Write 0th scan point to display count results.
+                out.write('%-4s' % '0')
+                for _, cter in self.sink.scaninfo:
+                    val = self.scanvalues[cter][0]
+                    if isinstance(val, int):
+                        out.write('%-10d' % val)
+                    else:
+                        out.write('%-8.3f   ' % val)
+                out.write('\n')
+                # Finish and return
+                out.write('END-OF-DATA\n')
+                return
+
             # The actual scan data...
             name = self.dataset.devices[0].name
             for np in range(len(self.scanvalues[name])):
