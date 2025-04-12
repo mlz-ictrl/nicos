@@ -39,7 +39,7 @@ class PitchButton(QPushButton, NicosWidget):
         self.clicked.connect(self.on_click)
 
     def setClient(self, client):
-        ValueLabel.setClient(self, client)
+        NicosWidget.setClient(self, client)
         self._client.connected.connect(self.on_connected)
 
     def on_connected(self):
