@@ -2,7 +2,7 @@ description = "neutronguide sideMirror noMirror"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'zz_absoluts']
+includes = ['nok_ref', 'zz_absoluts', 'weg03']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -45,22 +45,6 @@ devices = dict(
          device2 = 'nok8r_analog',
          visibility = showcase_values['hide_acc'],
     ),
-    nok8r_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for NOK8, reactor side',
-        reference = 'nok_refc1',
-        measure = 'nok8r_poti',
-        # 2020-04-24 09:37:43 poly = [9.418174, 1001.53 / 3.85],
-        poly = [9.69, 1001.53 / 3.85],
-        serial = 6508,
-        length = 250.0,
-        visibility = showcase_values['hide_poti'],
-    ),
-    nok8r_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for NOK8, reactor side',
-        tangodevice = tango_base + 'test/wb_c/1_4',
-        scale = -1,
-        visibility = (),
-    ),
     nok8s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK8, sample side',
         motor = 'nok8s_motor',
@@ -75,21 +59,5 @@ devices = dict(
          device1 = 'nok8s_motor',
          device2 = 'nok8s_analog',
          visibility = showcase_values['hide_acc'],
-    ),
-    nok8s_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for NOK8, sample side',
-        reference = 'nok_refc2',
-        measure = 'nok8s_poti',
-        # 2020-04-24 09:38:09 poly = [7.252627, 998.722 / 3.85],
-        poly = [7.512, 998.722 / 3.85],
-        serial = 6511,
-        length = 250.0,
-        visibility = showcase_values['hide_poti'],
-    ),
-    nok8s_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for NOK8, sample side',
-        tangodevice = tango_base + 'test/wb_c/2_0',
-        scale = -1,  # mounted from top
-        visibility = (),
     ),
 )

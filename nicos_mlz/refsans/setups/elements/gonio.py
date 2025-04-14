@@ -11,7 +11,7 @@ code_base = instrument_values['code_base']
 devices = dict(
     gonio_x = device('nicos.devices.entangle.Sensor',
         description = 'pos of goniometer in beam direction, with respect to b3',
-        tangodevice = 'tango://ana4gpio01:10000/test/ads/ch1',
+        tangodevice = 'tango://poana4x:10000/test/ads/ch1',
         unit = 'mm',
     ),
     gonio_theta = device('nicos.devices.generic.Axis',

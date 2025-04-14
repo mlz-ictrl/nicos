@@ -20,7 +20,7 @@ includes = [
     'guidehall',
     'h2',
     'humidity',
-    # 'height',
+    'humidity01',
     'memograph',
     'nl2b',
     'optic_elements',

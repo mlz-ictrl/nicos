@@ -1,6 +1,6 @@
 description = 'Refsans 4 analog 1 GPIO on Raspberry'
 
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = f'tango://{setupname}:10000/test/ads/'
 lowlevel = ()

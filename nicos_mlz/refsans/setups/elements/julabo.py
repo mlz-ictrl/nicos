@@ -25,7 +25,7 @@ devices = dict(
     ),
     julabo_flow = device('nicos.devices.entangle.Sensor',
         description = 'flow of julabo at PO by Sensor',
-        tangodevice = 'tango://ana4gpio01:10000/test/ads/ch2',
+        tangodevice = 'tango://poana4x:10000/test/ads/ch2',
         unit = 'l/min',
     ),
     julabo_flow_avg = device(code_base + 'avg.BaseAvg',

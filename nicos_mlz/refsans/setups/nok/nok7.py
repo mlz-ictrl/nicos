@@ -2,7 +2,7 @@ description = "neutronguide sideMirror noMirror"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'zz_absoluts']
+includes = ['nok_ref', 'zz_absoluts', 'weg03']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -45,21 +45,6 @@ devices = dict(
          device2 = 'nok7r_analog',
          visibility = showcase_values['hide_acc'],
     ),
-    nok7r_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for NOK7, reactor side',
-        reference = 'nok_refc1',
-        measure = 'nok7r_poti',
-        poly = [16.262881, 1001.504 / 3.843],
-        serial = 7540,
-        length = 250.0,
-        visibility = showcase_values['hide_poti'],
-    ),
-    nok7r_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for NOK7, reactor side',
-        tangodevice = tango_base + 'test/wb_c/1_0',
-        scale = -1,  # mounted from top
-        visibility = (),
-    ),
     nok7s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK7, sample side',
         motor = 'nok7s_motor',
@@ -74,20 +59,5 @@ devices = dict(
          device1 = 'nok7s_motor',
          device2 = 'nok7s_analog',
          visibility = showcase_values['hide_acc'],
-    ),
-    nok7s_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for NOK7, sample side',
-        reference = 'nok_refc1',
-        measure = 'nok7s_poti',
-        poly = [18.40, 1000.00 / 3.841],
-        serial = 7546,
-        length = 250.0,
-        visibility = showcase_values['hide_poti'],
-    ),
-    nok7s_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for NOK7, sample side',
-        tangodevice = tango_base + 'test/wb_c/1_5',
-        scale = -1,  # mounted from top
-        visibility = (),
     ),
 )

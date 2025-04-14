@@ -6,7 +6,8 @@ instrument_values = configdata('instrument.values')
 tango_base = 'tango://%s:10000/test/ads/' % setupname
 code_base = instrument_values['code_base']
 lowlevel = ()
-visibility = ('devlist', 'metadata', 'namespace')
+#visibility = ('devlist', 'metadata', 'namespace')
+visibility = ('devlist', 'namespace')
 Raspi_VDD = 3.3
 
 devices = dict(

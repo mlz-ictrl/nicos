@@ -2,7 +2,7 @@ description = "neutronguide sideMirror noMirror"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'zz_absoluts']
+includes = ['nok_ref', 'zz_absoluts', 'weg02']
 
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
@@ -46,22 +46,6 @@ devices = dict(
          device2 = 'nok6r_analog',
          visibility = showcase_values['hide_acc'],
     ),
-    nok6r_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for NOK6, reactor side',
-        reference = 'nok_refb2',
-        measure = 'nok6r_poti',
-        # 2020-04-20 13:51:20 poly = [3.823914, 997.832 / 3.846],
-        poly = [3.223914, 997.832 / 3.846],
-        serial = 7538,
-        length = 250.0,
-        visibility = showcase_values['hide_poti'],
-    ),
-    nok6r_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for NOK6, reactor side',
-        tangodevice = tango_base + 'test/wb_b/2_1',
-        scale = -1,  # mounted from top
-        visibility = (),
-    ),
     nok6s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK6, sample side',
         motor = 'nok6s_motor',
@@ -76,21 +60,5 @@ devices = dict(
          device1 = 'nok6s_motor',
          device2 = 'nok6s_analog',
          visibility = showcase_values['hide_acc'],
-    ),
-    nok6s_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for NOK6, sample side',
-        reference = 'nok_refb2',
-        measure = 'nok6s_poti',
-        # 2020-04-20 13:51:36 poly = [16.273013, 999.674 / 3.834],
-        poly = [16.003013, 999.674 / 3.834],
-        serial = 7537,
-        length = 250.0,
-        visibility = showcase_values['hide_poti'],
-    ),
-    nok6s_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for NOK6, sample side',
-        tangodevice = tango_base + 'test/wb_b/2_2',
-        scale = -1,  # mounted from top
-        visibility = (),
     ),
 )

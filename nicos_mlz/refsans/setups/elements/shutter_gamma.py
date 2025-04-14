@@ -2,7 +2,7 @@ description = "neutronguide, leadblock"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'zz_absoluts']
+includes = ['nok_ref', 'zz_absoluts', 'weg01']
 
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
@@ -31,23 +31,6 @@ devices = dict(
         backlash = -2,   # is this configured somewhere?
         precision = 0.05,
         visibility = (),
-    ),
-    # generated from global/inf/poti_tracing.inf
-    shutter_gamma_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for shutter_gamma',
-        reference = 'nok_refa1',
-        measure = 'shutter_gamma_poti',
-        poly = [-13.748035, 996.393 / 3.856],    # off, mul * 1000 / sensitivity, higher orders...
-        serial = 6505,
-        length = 250.0,
-        visibility = (),
-    ),
-    # generated from global/inf/poti_tracing.inf
-    shutter_gamma_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for shutter_gamma',
-        tangodevice = tango_base + 'test/wb_a/1_0',
-        scale = 1,   # mounted from bottom
-        visibility = showcase_values['hide_poti'],
     ),
     shutter_gamma_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',

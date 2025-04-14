@@ -2,7 +2,7 @@ description = "SingleSlit [slit k1] between nok6 and nok7"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'zz_absoluts']
+includes = ['nok_ref', 'zz_absoluts', 'weg02']
 
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
@@ -34,25 +34,10 @@ devices = dict(
         unit = 'mm',
         visibility = (),
     ),
-    zb2_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for ZB2',
-        reference = 'nok_refb2',
-        measure = 'zb2_poti',
-        poly = [-116.898256, 999.872 / 1.921],
-        serial = 7786,
-        length = 500.0,
-        visibility = showcase_values['hide_poti'],
-    ),
     zb2_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          device1 = 'zb2_motor',
          device2 = 'zb2_analog',
          visibility = showcase_values['hide_acc'],
-    ),
-    zb2_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for ZB2',
-        tangodevice = tango_base + 'test/wb_b/2_3',
-        scale = -1,  # mounted from top
-        visibility = (),
     ),
 )

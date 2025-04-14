@@ -2,7 +2,7 @@ description = "neutronguide, radialcollimator"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'zz_absoluts']
+includes = ['nok_ref', 'zz_absoluts', 'weg01']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -45,22 +45,6 @@ devices = dict(
          device2 = 'nok4r_analog',
          visibility = showcase_values['hide_acc'],
     ),
-    nok4r_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for NOK4, reactor side',
-        reference = 'nok_refa2',
-        measure = 'nok4r_poti',
-        # 2020-04-26 10:15:29 poly = [36.179259, 1002.569 / 3.852],
-        poly = [36.454, 1002.569 / 3.852],
-        serial = 6509,
-        length = 250.0,
-        visibility = showcase_values['hide_poti'],
-    ),
-    nok4r_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for NOK4, reactor side',
-        tangodevice = tango_base + 'test/wb_a/2_0',
-        scale = 1,   # mounted from bottom
-        visibility = (),
-    ),
     nok4s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK4, sample side',
         motor = 'nok4s_motor',
@@ -75,21 +59,5 @@ devices = dict(
          device1 = 'nok4s_motor',
          device2 = 'nok4s_analog',
          visibility = showcase_values['hide_acc'],
-    ),
-    nok4s_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for NOK4, sample side',
-        reference = 'nok_refa2',
-        measure = 'nok4s_poti',
-        # 2020-04-26 10:16:47 poly = [4.822946, 998.362 / 3.856],
-        poly = [4.669, 998.362 / 3.856],
-        serial = 6504,
-        length = 250.0,
-        visibility = showcase_values['hide_poti'],
-    ),
-    nok4s_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for NOK4, sample side',
-        tangodevice = tango_base + 'test/wb_a/2_1',
-        scale = 1,   # mounted from bottom
-        visibility = (),
     ),
 )

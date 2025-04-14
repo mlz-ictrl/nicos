@@ -2,7 +2,7 @@ description = "DoubleSlit [slit k1] between nok6 and nok7"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'zz_absoluts']
+includes = ['nok_ref', 'zz_absoluts', 'weg03']
 
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
@@ -70,41 +70,11 @@ devices = dict(
          device2 = 'zb3r_analog',
          visibility = showcase_values['hide_acc'],
     ),
-    zb3r_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for ZB3, reactor side',
-        reference = 'nok_refc1',
-        measure = 'zb3r_poti',
-        poly = [-140.539293, 1004.824 / 1.92],
-        serial = 7778,
-        length = 500.0,
-        visibility = showcase_values['hide_poti'] & showcase_values['NOreference'],
-    ),
-    zb3r_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for ZB3, reactor side',
-        tangodevice = tango_base + 'test/wb_c/1_2',
-        scale = -1,  # mounted from top
-        visibility = (),
-    ),
     zb3s_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          device1 = 'zb3s_motor',
          device2 = 'zb3s_analog',
          visibility = showcase_values['hide_acc'],
-    ),
-    zb3s_analog = device(code_base + 'nok_support.NOKPosition',
-        description = 'Position sensing for ZB3, sample side',
-        reference = 'nok_refc1',
-        measure = 'zb3s_poti',
-        poly = [118.68, 1000. / 1.921],
-        serial = 7781,
-        length = 500.0,
-        visibility = showcase_values['hide_poti'] & showcase_values['NOreference'],
-    ),
-    zb3s_poti = device(code_base + 'nok_sensor.NOKMonitoredVoltage',
-        description = 'Poti for ZB3, sample side',
-        tangodevice = tango_base + 'test/wb_c/1_3',
-        scale = 1,   # mounted from bottom
-        visibility = (),
     ),
 )
 

@@ -2,19 +2,20 @@ description = 'humidity and temperatures'
 
 group = 'lowlevel'
 
-visibility = ('devlist', 'metadata', 'namespace')
+#visibility = ('devlist', 'metadata', 'namespace')
+visibility = ('devlist', 'namespace')
 
 devices = dict(
     humidity_po_rh = device('nicos.devices.entangle.Sensor',
         description = 'humidity sensor rel humidity channel',
-        tangodevice = 'tango://ana4gpio01:10000/test/ads/ch3',
+        tangodevice = 'tango://poana4x:10000/test/ads/ch3',
         fmtstr = '%.4f',
         unit = 'percent',
         visibility = visibility,
     ),
     humidity_po_temp = device('nicos.devices.entangle.Sensor',
         description = 'humidity sensor temperature channel',
-        tangodevice = 'tango://ana4gpio01:10000/test/ads/ch4',
+        tangodevice = 'tango://poana4x:10000/test/ads/ch4',
         fmtstr = '%.4f',
         unit = 'degC',
         visibility = visibility,
