@@ -31,6 +31,7 @@ from nicos.core import MASTER, SIMULATION, ComputationError, Moveable, \
 
 THZ2MEV = 4.1356675
 ANG2MEV = 81.804165
+SPEED_1A = 3956.03401207
 
 
 def from_k(value, unit):
@@ -43,6 +44,8 @@ def from_k(value, unit):
             return ANG2MEV * value ** 2 / (2 * pi) ** 2
         elif unit == 'THz':
             return ANG2MEV / THZ2MEV * value ** 2 / (2 * pi) ** 2
+        elif unit == 'm/s':  # not useful for TAS but for TOF
+            return SPEED_1A * value / (2 * pi)
         else:
             raise ProgrammingError('unknown energy unit %r' % unit)
     except (ArithmeticError, ValueError) as err:
@@ -60,6 +63,8 @@ def to_k(value, unit):
             return 2.0 * pi * sqrt(value / ANG2MEV)
         elif unit == 'THz':
             return 2.0 * pi * sqrt(value * THZ2MEV / ANG2MEV)
+        elif unit == 'm/s':
+            return 2.0 * pi * value / SPEED_1A
         else:
             raise ProgrammingError('unknown energy unit %r' % unit)
     except (ArithmeticError, ValueError) as err:
