@@ -61,8 +61,8 @@ if not Exp.proposal and Exp._mode != SIMULATION:
         NewSample('Gd3CdB7')
 '''
 
-help_topics = dict(
-    nicos_demo = '''
+help_topics = {
+    'NICOS demo': """
 NICOS demo
 ==========
 
@@ -72,5 +72,5 @@ There exist simulations for the following basic types of instruments:
 
 #. TAS instrument (to use, please load the setup **tas**)
 #. SANS instrument (to use, please load the setup **sans**)
-''',
-)
+""",
+}
