@@ -31,8 +31,8 @@ from nicos.utils import findResource, formatDuration
 
 class SScan(Cmdlet):
 
-    name = "Step Scan (start, step, end)"
-    category = "Scan"
+    name = 'Step Scan (start, step, end)'
+    category = 'Scan'
 
     def __init__(self, parent, client, options):
         Cmdlet.__init__(self, parent, client, options,
@@ -57,42 +57,42 @@ class SScan(Cmdlet):
             counttime = float(self.delta.text())
             numpoints = int(round((end - start) / step + 1))
             secs = numpoints * counttime
-            self.totalLabel.setText("Total: %d points, %s" %
+            self.totalLabel.setText('Total: %d points, %s' %
                                     (numpoints, formatDuration(secs)))
         except (ValueError, ArithmeticError):
-            self.totalLabel.setText("Total:")
+            self.totalLabel.setText('Total:')
         self.changed()
 
     def on_device_change(self, text):
-        unit = self.client.getDeviceParam(text, "unit")
-        value = self.client.getDeviceParam(text, "value")
-        fmtstr = self.client.getDeviceParam(text, "fmtstr")
+        unit = self.client.getDeviceParam(text, 'unit')
+        value = self.client.getDeviceParam(text, 'value')
+        fmtstr = self.client.getDeviceParam(text, 'fmtstr')
         try:
             self.start.setText(fmtstr % value)
         except Exception:
             pass
-        self.unit1.setText(unit or "")
-        self.unit2.setText(unit or "")
-        self.unit3.setText(unit or "")
+        self.unit1.setText(unit or '')
+        self.unit2.setText(unit or '')
+        self.unit3.setText(unit or '')
         self.changed()
 
     def getValues(self):
-        return {"dev": self.device.currentText(),
-                "scanstart": self.start.text(),
-                "scanend": self.stop.text(),
-                "scanstep": self.step.text(),
-                "counttime": float(self.delta.text())}
+        return {'dev': self.device.currentText(),
+                'scanstart': self.start.text(),
+                'scanend': self.stop.text(),
+                'scanstep': self.step.text(),
+                'counttime': float(self.delta.text())}
 
     def setValues(self, values):
         self._setDevice(values)
-        if "scanstart" in values:
-            self.start.setText(values["scanstart"])
-        if "scanend" in values:
-            self.stop.setText(values["scanend"])
-        if "scanstep" in values:
-            self.step.setText(values["scanstep"])
-        if "counttime" in values:
-            self.delta.setText(str(values["counttime"]))
+        if 'scanstart' in values:
+            self.start.setText(values['scanstart'])
+        if 'scanend' in values:
+            self.stop.setText(values['scanend'])
+        if 'scanstep' in values:
+            self.step.setText(values['scanstep'])
+        if 'counttime' in values:
+            self.delta.setText(str(values['counttime']))
 
     def isValid(self):
         valid = [
@@ -106,8 +106,8 @@ class SScan(Cmdlet):
     def generate(self):
         values = self.getValues()
         values['dev'] = self._getDeviceRepr(values['dev'])
-        return "sscan(%(dev)s, %(scanstart)s, %(scanstep)s, %(scanend)s, " \
-               "%(counttime)s)" % values
+        return 'sscan(%(dev)s, %(scanstart)s, %(scanstep)s, %(scanend)s, ' \
+               '%(counttime)s)' % values
 
 
 class KScan(Cmdlet):

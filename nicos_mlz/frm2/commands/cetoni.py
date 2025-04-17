@@ -92,7 +92,7 @@ def cetoni_count(pressure, volume1, volume2, time, *detlist, **preset):
     # liquids dispensed from syringes 1 and 2
     vol = max(syringe3.abslimits) - syringe3.read()
     if vol < volume1 + volume2:
-        raise UsageError('Syringe3 doesn\'t have enough of volume to contain '
+        raise UsageError("Syringe3 doesn't have enough of volume to contain "
                          f'liquids from syringes 1 and 2: {volume1} + {volume2}'
                          f' > {vol}')
 

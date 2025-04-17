@@ -114,7 +114,7 @@ class CCRControl(HasLimits, Moveable):
                 self.__start_tube_stick(max(self._attached_tube.absmin, target),
                                         max(self._attached_stick.absmin, target))
             else:
-                raise ProgrammingError(self, 'unknown mode %r, don\'t know how'
+                raise ProgrammingError(self, "unknown mode %r, don't know how"
                                        ' to handle it!' % self.regulationmode)
         else:
             self.log.debug('ignoring mode, as target %r is above %s.absmax',
@@ -130,7 +130,7 @@ class CCRControl(HasLimits, Moveable):
         elif self.regulationmode == 'tube':
             return self._attached_tube.read(maxage)
         else:
-            raise ProgrammingError(self, 'unknown mode %r, don\'t know how to '
+            raise ProgrammingError(self, "unknown mode %r, don't know how to "
                                    'handle it!' % self.regulationmode)
 
     def doPoll(self, n, maxage):
@@ -227,5 +227,5 @@ class CCRControl(HasLimits, Moveable):
         elif self.regulationmode == 'tube':
             return self._attached_tube.setpoint
         else:
-            raise ProgrammingError(self, 'unknown mode %r, don\'t know how to '
+            raise ProgrammingError(self, "unknown mode %r, don't know how to "
                                    'handle it!' % self.regulationmode)

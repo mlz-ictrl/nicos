@@ -101,7 +101,7 @@ class AmorNewExpPanel(GenericPanel):
                                  'does not exist!')
             raise ConfigurationError('')
         if not os.access(proposaldir, os.W_OK):
-            QMessageBox.critical(self, 'Error', 'Don\'t have permission to '
+            QMessageBox.critical(self, 'Error', "Don't have permission to "
                                  'write in the proposal path! Please choose '
                                  'a different one!')
             raise ConfigurationError('')

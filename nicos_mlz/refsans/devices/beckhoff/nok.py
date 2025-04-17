@@ -65,7 +65,7 @@ class BeckhoffBase(PyTangoDevice):
         'firmware': Param('Firmware Version of motor control block',
                           type=str, default='?', unit='', settable=False),
     }
-    parameters['address'].ext_desc = '''
+    parameters['address'].ext_desc = """
     ModBus word-register address of the motor control block to use.
     It consists of a coupler specific offset (0x3000 or 0x4000),
     the base location of the first motor control block (byte offset 64
@@ -74,7 +74,7 @@ class BeckhoffBase(PyTangoDevice):
     (control block 0) and the higest would be 0x47fa (control block 201).
     Normaly, only the first N motor control blocks are used (without gaps).
     If this scheme changes, the check needs to be adapted.
-    '''
+    """
 
     parameter_overrides = {
         'unit': Override(default='mm'),

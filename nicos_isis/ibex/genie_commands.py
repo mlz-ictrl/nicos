@@ -24,4 +24,4 @@
 try:
     from genie_python.genie_startup import *  # pylint: disable=wildcard-import
 except ImportError:
-    print("genie_python not found")
+    print('genie_python not found')

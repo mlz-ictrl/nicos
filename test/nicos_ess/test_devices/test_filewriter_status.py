@@ -62,18 +62,18 @@ def create_stop_request_message(job_id, stop_time=None, success=True):
     outcome = ActionOutcome.Success if success else ActionOutcome.Failure
     return serialise_answ('service_id', job_id, 'command_id',
                           ActionType.SetStopTime, outcome,
-                          "message", 0, stop)
+                          'message', 0, stop)
 
 
 def create_stop_confirmed_message(job_id):
-    metadata = json.dumps({"stop_time": 123456})
+    metadata = json.dumps({'stop_time': 123456})
     return serialise_wrdn('service_id', job_id, False, 'filename', metadata)
 
 
 def create_stop_message_with_error(job_id):
-    metadata = json.dumps({"stop_time": 123456})
+    metadata = json.dumps({'stop_time': 123456})
     return serialise_wrdn('service_id', job_id, True, 'filename', metadata,
-                          "some error")
+                          'some error')
 
 
 def create_start_request_message(job_id, start_time=None, success=True):
@@ -81,7 +81,7 @@ def create_start_request_message(job_id, start_time=None, success=True):
     outcome = ActionOutcome.Success if success else ActionOutcome.Failure
     return serialise_answ('service_id', job_id, 'command_id',
                           ActionType.StartJob, outcome,
-                          "message", 0, start)
+                          'message', 0, start)
 
 
 def prepare_filewriter_status(filewriter_status):

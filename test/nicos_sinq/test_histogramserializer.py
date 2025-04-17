@@ -39,7 +39,7 @@ from nicos_sinq.devices.kafka.area_detector import \
 
 from test.nicos_sinq.utils import create_hs00
 
-session_setup = "sinq_area_detector"
+session_setup = 'sinq_area_detector'
 
 
 class TestHistogramDeserializer:

@@ -61,7 +61,7 @@ class Bisecting(PositionBase):
         if wavelength is None:
             wavelength = session.instrument.wavelength or None
         if not wavelength:
-            raise NicosError("Cannot perform conversion without knowing wavelength")
+            raise NicosError('Cannot perform conversion without knowing wavelength')
         if self.theta >= 0:
             signtheta = 1
         else:
@@ -86,7 +86,7 @@ class Bisecting(PositionBase):
         try:
             chi = np.arctan2(sinche, cosche)
         except ValueError:
-            self.log.warning("B-E Chi problem: %r", self)
+            self.log.warning('B-E Chi problem: %r', self)
             chi = 0.0
         if sinchb == 0 and sinpsi == 0:
             omega = self.theta - 90.0 * (signcb - 1.0)
@@ -99,14 +99,14 @@ class Bisecting(PositionBase):
             try:
                 omega = np.arctan2(sinome, cosome) + self.theta
             except ValueError:
-                self.log.warning("B-E Omega problem: %r", self)
+                self.log.warning('B-E Omega problem: %r', self)
                 omega = 0.0
             sinphe = -signch * signcb * sinpsi
             cosphe = signch * signth * signcb * sinchb * cospsi
         try:
             phi = np.arctan2(sinphe, cosphe) + self.phi
         except ValueError:
-            self.log.warning("B-E Phi problem: %r", self)
+            self.log.warning('B-E Phi problem: %r', self)
             phi = 0.0
         return PositionFactory(ptype='er',
                                theta=self.theta,
@@ -170,14 +170,14 @@ class Bisecting(PositionBase):
     def __repr__(self):
         """ Representation. Part of Position subclass protocol.
         """
-        s = "[Bisecting angles:"
+        s = '[Bisecting angles:'
         if self.theta is not None:
-            s = s + " theta=%8.3f" % (np.rad2deg(self.theta))
+            s = s + ' theta=%8.3f' % (np.rad2deg(self.theta))
         if self.phi is not None:
-            s = s + " phi=%8.3f" % (np.rad2deg(self.phi))
+            s = s + ' phi=%8.3f' % (np.rad2deg(self.phi))
         if self.chi is not None:
-            s = s + " chi=%8.3f" % (np.rad2deg(self.chi))
+            s = s + ' chi=%8.3f' % (np.rad2deg(self.chi))
         if self.psi is not None:
-            s = s + " psi=%8.3f" % (np.rad2deg(self.psi))
-        s = s + "]"
+            s = s + ' psi=%8.3f' % (np.rad2deg(self.psi))
+        s = s + ']'
         return s

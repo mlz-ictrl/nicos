@@ -63,7 +63,7 @@ def tcount(time_to_measure):
 
     # maw(tisane_fg1_sample, 'Off')
     # maw(tisane_fg2_det, 'Off')
-    print("measurement finished")
+    print('measurement finished')
 
 
 @usercommand
@@ -104,16 +104,16 @@ def freqmes(assumed_freq, number_of_counts):
         session.delay(0.1)
     mean_value = numpy.mean(value_list)
     std_value = numpy.std(value_list)
-    print("------------------------------------")
-    print("Erwartungswert              = %f" % assumed_freq)
-    print("Untere Grenze (90)          = %f" % untere_grenze)
-    print("Obere Grenze (110)          = %f" % obere_grenze)
-    print("Anzahl aller Messpunkte     = %i" % number_of_counts)
-    print("Anzahl korrekter Messpunkte = %i" % len(value_list))
-    print("Mittelwert [Hz]             = %f" % mean_value)
-    print("Mittelwert [rpm]            = %f" % (mean_value * 60))
-    print("Standardabweichung          = %f" % std_value)
-    print("Verworfene Werte: %s" % wrong_list)
+    print('------------------------------------')
+    print('Erwartungswert              = %f' % assumed_freq)
+    print('Untere Grenze (90)          = %f' % untere_grenze)
+    print('Obere Grenze (110)          = %f' % obere_grenze)
+    print('Anzahl aller Messpunkte     = %i' % number_of_counts)
+    print('Anzahl korrekter Messpunkte = %i' % len(value_list))
+    print('Mittelwert [Hz]             = %f' % mean_value)
+    print('Mittelwert [rpm]            = %f' % (mean_value * 60))
+    print('Standardabweichung          = %f' % std_value)
+    print('Verworfene Werte: %s' % wrong_list)
 
     maw(armdev, 'idle')
 
@@ -218,12 +218,12 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
                               speed_max) / T_c
     frame_overlap_sample = (cs / speed_min - cs / speed_max) / T_c
 
-    print("Chopper speed             = %f [Hz]" % chop_speed)
-    print("Chopper opening frequency = %f [rpm]" % (chop_speed * 60))
-    print("Chopper numbers           = %f" % chop_num)
-    print("SD                        = %f [m]" % sd)
-    print("Sample frequency          = %.6f [Hz]" % F_s)
-    print("Sample time               = %f [mu s]" % (T_s * 1000000))
-    print("Detector frequency        = %.6f [Hz]" % F_d)
-    print("Frame overlap sample      = %f" % frame_overlap_sample)
-    print("Frame overlap detector    = %f" % frame_overlap_detector)
+    print('Chopper speed             = %f [Hz]' % chop_speed)
+    print('Chopper opening frequency = %f [rpm]' % (chop_speed * 60))
+    print('Chopper numbers           = %f' % chop_num)
+    print('SD                        = %f [m]' % sd)
+    print('Sample frequency          = %.6f [Hz]' % F_s)
+    print('Sample time               = %f [mu s]' % (T_s * 1000000))
+    print('Detector frequency        = %.6f [Hz]' % F_d)
+    print('Frame overlap sample      = %f' % frame_overlap_sample)
+    print('Frame overlap detector    = %f' % frame_overlap_detector)

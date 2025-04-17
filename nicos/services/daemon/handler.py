@@ -331,7 +331,7 @@ class ConnectionHandler:
             self.send_error_reply(str(err))
             return
         except IndexError:
-            self.send_error_reply('script doesn\'t exist')
+            self.send_error_reply("script doesn't exist")
             return
         self.send_ok_reply(None)
 

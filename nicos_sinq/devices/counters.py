@@ -63,10 +63,10 @@ class KafkaChannel(ActiveChannel):
     def doPreinit(self, mode):
         self._consumer = Consumer(
             {
-                "bootstrap.servers": self.brokers[0],
-                "group.id": uuid.uuid4(),
-                "auto.offset.reset": "latest",
-                "api.version.request": True,
+                'bootstrap.servers': self.brokers[0],
+                'group.id': uuid.uuid4(),
+                'auto.offset.reset': 'latest',
+                'api.version.request': True,
             }
         )
         self._consumer.subscribe(topics=[self.topic])

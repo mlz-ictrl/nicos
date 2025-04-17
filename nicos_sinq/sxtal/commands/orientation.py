@@ -22,11 +22,11 @@
 #
 # *****************************************************************************
 
-'''
+"""
 TODO This file should be removed once the functions in
 `nicos_sinq/zebra/commands/refineub.py` have had more real-world testing and
 tests have been added to the test-suite for them
-'''
+"""
 
 import numbers
 

@@ -46,7 +46,7 @@ elements = {
     ('attribute_dev', DeviceAttribute('dev1')):
         {'attribute_dev': 1.0
          },
-    ('dataset', NXDataset(1.0, unit="unit")):
+    ('dataset', NXDataset(1.0, unit='unit')):
         {
             'module': 'dataset',
             'config': {
@@ -118,33 +118,33 @@ template = {
         'child_group:NXchild': {
             'child_child_attr': 1.0
         },
-        'child_dataset': NXDataset(1.0, unit="unit"),
+        'child_dataset': NXDataset(1.0, unit='unit'),
     }
 }
 
 # Converted structure from the dummy template
 converted = {
-    "attributes": {"NX_class": "NXroot"},
-    "children": [
+    'attributes': {'NX_class': 'NXroot'},
+    'children': [
         {
-            "attributes": {"attr": "top_attr", "NX_class": "NXgroup"},
-            "type": "group",
-            "name": "group_dict",
-            "children": [
+            'attributes': {'attr': 'top_attr', 'NX_class': 'NXgroup'},
+            'type': 'group',
+            'name': 'group_dict',
+            'children': [
                 {
-                    "attributes": {"child_child_attr": 1.0,
-                                   "NX_class": "NXchild"},
-                    "type": "group",
-                    "name": "child_group",
-                    "children": []
+                    'attributes': {'child_child_attr': 1.0,
+                                   'NX_class': 'NXchild'},
+                    'type': 'group',
+                    'name': 'child_group',
+                    'children': []
                 },
                 {
-                    "module": "dataset",
-                    "config": {
-                        "name": "child_dataset",
-                        "values": 1.0,
+                    'module': 'dataset',
+                    'config': {
+                        'name': 'child_dataset',
+                        'values': 1.0,
                     },
-                    "attributes": {"unit": "unit"}
+                    'attributes': {'unit': 'unit'}
                 }
             ]
         }
@@ -224,7 +224,7 @@ class TestNexusTemplate:
 
         return True, ''
 
-    @pytest.mark.parametrize("element", elements.keys())
+    @pytest.mark.parametrize('element', elements.keys())
     def test_element_provides_correct_json(self, element):
         """ Test that elements provide correct JSON structures
         """

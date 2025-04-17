@@ -27,63 +27,63 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 andes_default = {
-    "NeXus_Version": "nexusformat v0.5.3",
-    "instrument": "ANDES",
-    "owner": DeviceDataset('Andes', 'responsible'),
-    "entry:NXentry": {
-        "title": DeviceDataset('Exp', 'title'),
-        "proposal_id": DeviceDataset('Exp', 'proposal'),
-        "start_time": NXTime(),
-        "end_time": NXTime(),
-        "user:NXuser": {
-            "name": DeviceDataset('Exp', 'users'),
-            "email": DeviceDataset('Exp', 'localcontact'),
+    'NeXus_Version': 'nexusformat v0.5.3',
+    'instrument': 'ANDES',
+    'owner': DeviceDataset('Andes', 'responsible'),
+    'entry:NXentry': {
+        'title': DeviceDataset('Exp', 'title'),
+        'proposal_id': DeviceDataset('Exp', 'proposal'),
+        'start_time': NXTime(),
+        'end_time': NXTime(),
+        'user:NXuser': {
+            'name': DeviceDataset('Exp', 'users'),
+            'email': DeviceDataset('Exp', 'localcontact'),
         },
-        "ANDES:NXinstrument": {
-            "source:NXsource": {
-                "type": ConstDataset('Reactor Neutron Source', 'string'),
-                "name": ConstDataset('RA10', 'string'),
-                "probe": ConstDataset('neutron', 'string'),
+        'ANDES:NXinstrument': {
+            'source:NXsource': {
+                'type': ConstDataset('Reactor Neutron Source', 'string'),
+                'name': ConstDataset('RA10', 'string'),
+                'probe': ConstDataset('neutron', 'string'),
             },
-            "detector:NXdetector": {
-                "polar_angle": DeviceDataset('stt'),
-                "data": ImageDataset(0, 0),
-                "distance": DeviceDataset('lsd'),
+            'detector:NXdetector': {
+                'polar_angle': DeviceDataset('stt'),
+                'data': ImageDataset(0, 0),
+                'distance': DeviceDataset('lsd'),
             },
-            "monochromator:NXmonochromator": {
-                "polar_angle": DeviceDataset('mtt'),
-                "crystal:NXcrystal": {
-                    "type": DeviceDataset('crystal'),
+            'monochromator:NXmonochromator': {
+                'polar_angle': DeviceDataset('mtt'),
+                'crystal:NXcrystal': {
+                    'type': DeviceDataset('crystal'),
                 },
-                "d_spacing": DeviceDataset('wavelength', 'plane'),
-                "wavelength": DeviceDataset('wavelength', dtype='float',
+                'd_spacing': DeviceDataset('wavelength', 'plane'),
+                'wavelength': DeviceDataset('wavelength', dtype='float',
                                             units='angstrom'),
             }
         },
-        "sample:NXsample": {
-            "name": DeviceDataset('Sample', 'samplename'),
-            "distance": DeviceDataset('lms'),
-            "x_translation": DeviceDataset('x'),
-            "y_translation": DeviceDataset('y'),
-            "z_translation": DeviceDataset('z'),
-            "rotation_angle": DeviceDataset('phi'),
+        'sample:NXsample': {
+            'name': DeviceDataset('Sample', 'samplename'),
+            'distance': DeviceDataset('lms'),
+            'x_translation': DeviceDataset('x'),
+            'y_translation': DeviceDataset('y'),
+            'z_translation': DeviceDataset('z'),
+            'rotation_angle': DeviceDataset('phi'),
         },
-        "monitor:NXmonitor": {
-            "mode": ConstDataset('timer', 'string'),
-            "preset": DetectorDataset('timer', 'float32'),
-            "integral": DetectorDataset('monitor', 'int32'),
+        'monitor:NXmonitor': {
+            'mode': ConstDataset('timer', 'string'),
+            'preset': DetectorDataset('timer', 'float32'),
+            'integral': DetectorDataset('monitor', 'int32'),
         },
-        "data:NXdata": {
-            "data": NXLink('/entry/ANDES/detector/data')
+        'data:NXdata': {
+            'data': NXLink('/entry/ANDES/detector/data')
         },
     }
 }
 
 gashandling = {
-    "name": ConstDataset('Gas Handling', 'string'),
-    "sensor:NXsensor": {
-        "measurement": ConstDataset('temperature', 'string'),
-        "value": DeviceDataset('sensor'),
+    'name': ConstDataset('Gas Handling', 'string'),
+    'sensor:NXsensor': {
+        'measurement': ConstDataset('temperature', 'string'),
+        'value': DeviceDataset('sensor'),
     }
 }
 
@@ -91,5 +91,5 @@ gashandling = {
 class ANDESTemplateProvider(NexusTemplateProvider):
     def getTemplate(self):
         if 'gashandling' in session.loaded_setups:
-            andes_default["entry:NXentry"]["gashandling:NXenvironment"] = gashandling
+            andes_default['entry:NXentry']['gashandling:NXenvironment'] = gashandling
         return andes_default

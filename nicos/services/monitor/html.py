@@ -53,7 +53,7 @@ except ImportError:
     pygr = None
 
 
-HEAD = '''\
+HEAD = """\
 <html>
 <head>
 <meta charset="utf-8"/>
@@ -83,7 +83,7 @@ table { font-family: inherit; font-size: 100%%; }
 <title>%(title)s</title>
 </head>
 <body>
-'''
+"""
 
 
 class Field:

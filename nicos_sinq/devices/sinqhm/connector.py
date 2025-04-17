@@ -68,7 +68,7 @@ class HttpConnector(HasCommunication, Readable):
                         headers=self._get_auth())
 
     def _get_auth(self):
-        return {"Authorization": "Basic %s" % self.base64auth}
+        return {'Authorization': 'Basic %s' % self.base64auth}
 
     def _com_return(self, result, info):
         # Check if the communication was successful

@@ -32,13 +32,13 @@ from nicos.devices.entangle import NamedDigitalInput, NamedDigitalOutput
 
 
 class ShutterCluster(HasTimeout, NamedDigitalOutput):
-    '''
+    """
     Combines the state of different shutters to one overall state.
     Always displays closed if the instrument shutter is closed.
     State is set to warning if the instrument shutter is open,
     but upstream shutters are closed.
     Status messages are set in the setup.
-    '''
+    """
 
     CLOSED = 'closed'
     UPSTREAMCLOSED = 'upstream closed'

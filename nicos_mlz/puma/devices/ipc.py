@@ -69,7 +69,7 @@ class Coder(IPCCoder):
     }
 
     def doWriteConfbyte(self, byte):
-        self.log.warning('Config byte can\'t be changed like this.')
+        self.log.warning("Config byte can't be changed like this.")
         # self._attached_bus.send(self.addr, 154, byte, 3)
 
     def doUpdatePoly(self, poly):
@@ -90,7 +90,7 @@ class Motor(IPCMotor):
     }
 
     def doWriteConfbyte(self, value):
-        self.log.warning('Config byte can\'t be changed like this.')
+        self.log.warning("Config byte can't be changed like this.")
         # if self._hwtype == 'single':
         #     self._attached_bus.send(self.addr, WRITE_CONFIG_BYTE, value, 3)
         # else:

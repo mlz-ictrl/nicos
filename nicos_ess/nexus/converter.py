@@ -53,8 +53,8 @@ class NexusTemplateConverter:
 
         # Need only children and attributes in the top
         return {
-            "children": structure.get("children"),
-            "attributes": structure.get("attributes"),
+            'children': structure.get('children'),
+            'attributes': structure.get('attributes'),
         }
 
     def _populate(self, element, value):
@@ -63,7 +63,7 @@ class NexusTemplateConverter:
 
         # Group keys are named as <name>:<nxclass>
         if ':' not in element:
-            session.log.info('Can\'t write the group %s, no nxclass defined!',
+            session.log.info("Can't write the group %s, no nxclass defined!",
                              element)
             return element, None
 

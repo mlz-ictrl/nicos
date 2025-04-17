@@ -145,7 +145,7 @@ class MultilineChannel(EpicsReadable):
         if len(raw) > 0:
             self._raw = raw
         else:
-            raise CommunicationError(f'Can\'t read {self.readpv}')
+            raise CommunicationError(f"Can't read {self.readpv}")
 
     def doRead(self, maxage=0):
         self._readRaw()

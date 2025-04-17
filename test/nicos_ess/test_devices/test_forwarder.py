@@ -57,9 +57,9 @@ def create_stream(
 ):
     return {
         'channel_name': pv,
-        "protocol": protocol,
-        "output_topic": topic,
-        "schema": schema,
+        'protocol': protocol,
+        'output_topic': topic,
+        'schema': schema,
     }
 
 

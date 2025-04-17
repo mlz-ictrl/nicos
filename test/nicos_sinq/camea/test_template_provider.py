@@ -32,7 +32,7 @@ from nicos.devices.instrument import Instrument
 from nicos_sinq.camea.nexus.nexus_templates import CameaCCDTemplateProvider, \
     CameaTemplateProvider
 
-session_setup = "sinq_camea_nexus"
+session_setup = 'sinq_camea_nexus'
 
 
 class MockInstrument(Instrument):

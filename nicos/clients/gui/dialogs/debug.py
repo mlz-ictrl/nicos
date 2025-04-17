@@ -189,7 +189,7 @@ class DebugConsole(QMainWindow):
         self.resize(800, 500)
         self.setWindowTitle('Debug console')
 
-        self.console = ConsoleBox(parent=self, startup_message='-' * 80 + '''
+        self.console = ConsoleBox(parent=self, startup_message='-' * 80 + """
 NICOS GUI debug console
 Objects in the namespace:
   app             Qt application object
@@ -198,7 +198,7 @@ Objects in the namespace:
 Helper functions:
   watch(*events)  Install a handler for daemon events (all if no arguments)
                   that prints them to this console
-''' + '-' * 80)
+""" + '-' * 80)
         self.outbox = QPlainTextEdit(self)
         self.outbox.document().setDefaultFont(
             self.console.document().defaultFont())

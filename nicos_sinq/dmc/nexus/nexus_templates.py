@@ -395,9 +395,9 @@ def makeSample():
             DeviceDataset('a3',
                           dtype='float32',
                           units=NXAttribute('degree', 'string')),
-        "hugo": SaveSampleEnv(),
-        "temperature_mean": DevStat("Ts:avg"),
-        "temperature_stddev": DevStat("Ts:stddev"),
+        'hugo': SaveSampleEnv(),
+        'temperature_mean': DevStat('Ts:avg'),
+        'temperature_stddev': DevStat('Ts:stddev'),
     }
 
     sample_device = session.experiment.sample

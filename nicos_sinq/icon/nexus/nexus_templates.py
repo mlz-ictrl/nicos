@@ -30,24 +30,24 @@ from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_sinq.nexus.specialelements import AbsoluteTime
 
-icon_default = {"NeXus_Version": "4.4.0",
-                "instrument": "ICON at SINQ",
-                "owner": DeviceAttribute("ICON", "responsible"),
-                "entry:NXentry": {
-                    "title": DeviceDataset("Exp", "title"),
-                    "proposal_title": DeviceDataset("Exp", "title"),
-                    "proposal_id": DeviceDataset("Exp", "proposal"),
-                    "start_time": NXTime(),
-                    "end_time": NXTime(),
-                    "definition": ConstDataset("NXtomo", "string"),
-                    "user:NXuser": {
-                        "name": DeviceDataset("Exp", "users"),
-                        "email": DeviceDataset("Exp", "localcontact")
+icon_default = {'NeXus_Version': '4.4.0',
+                'instrument': 'ICON at SINQ',
+                'owner': DeviceAttribute('ICON', 'responsible'),
+                'entry:NXentry': {
+                    'title': DeviceDataset('Exp', 'title'),
+                    'proposal_title': DeviceDataset('Exp', 'title'),
+                    'proposal_id': DeviceDataset('Exp', 'proposal'),
+                    'start_time': NXTime(),
+                    'end_time': NXTime(),
+                    'definition': ConstDataset('NXtomo', 'string'),
+                    'user:NXuser': {
+                        'name': DeviceDataset('Exp', 'users'),
+                        'email': DeviceDataset('Exp', 'localcontact')
                     },
-                    "proposal_user:NXuser": {
-                        "name": DeviceDataset("Exp", "users"),
+                    'proposal_user:NXuser': {
+                        'name': DeviceDataset('Exp', 'users'),
                     },
-                    "control:NXmonitor": {
+                    'control:NXmonitor': {
                         'data': DeviceDataset('beam_current'),
                         'count_time': DeviceDataset('exp_time'),
                     }
@@ -55,10 +55,10 @@ icon_default = {"NeXus_Version": "4.4.0",
                 }  # root
 
 sample_common = {
-    "name": DeviceDataset("Sample", "samplename"),
-    "hugo": NexusSampleEnv(),
-    "temperature": DeviceDataset("temperature", "value", defaultval=0.0),
-    "magfield": DeviceDataset("magfield", "value", defaultval=0.0),
+    'name': DeviceDataset('Sample', 'samplename'),
+    'hugo': NexusSampleEnv(),
+    'temperature': DeviceDataset('temperature', 'value', defaultval=0.0),
+    'magfield': DeviceDataset('magfield', 'value', defaultval=0.0),
 }
 
 instrument = {

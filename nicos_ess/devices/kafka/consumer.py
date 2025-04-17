@@ -222,7 +222,7 @@ class KafkaSubscriber(DeviceMixinBase):
                 self.new_messages_callback(messages)
             else:
                 self.no_messages_callback()
-        self.log.debug("KafkaSubscriber thread finished")
+        self.log.debug('KafkaSubscriber thread finished')
 
     def new_messages_callback(self, messages):
         """This method is called whenever a new messages appear on

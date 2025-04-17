@@ -34,7 +34,7 @@ from nicos_mlz.jcns.devices.motor import InvertableMotor
 class PollMotor(Motor):
 
     attached_devices = {
-        "polldevs": Attach("Devices polled during movement at same interval",
+        'polldevs': Attach('Devices polled during movement at same interval',
                            Readable, multiple=True, optional=True),
     }
 

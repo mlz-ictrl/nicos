@@ -38,11 +38,11 @@ def test_version(client):
 
 def test_encoding(client):
     load_setup(client, 'daemontest')
-    client.run_and_wait('''\
+    client.run_and_wait("""\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
 scan(dax, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å", ctr1=1)
-''', 'Meßzeit.py')
+""", 'Meßzeit.py')
 
 
 def test_htmlhelp(client):
@@ -122,9 +122,9 @@ def test_dualaccess(client, adminclient):
     load_setup(client, 'daemontest')
     adminclient.run('fix(dm2, "test")', 'adminfix')
     client.wait_idle()
-    assert "fixed by " in client.eval('dm2.fixed')
+    assert 'fixed by ' in client.eval('dm2.fixed')
     client.run('release(dm2)')
-    assert "fixed by " in client.eval('dm2.fixed')
+    assert 'fixed by ' in client.eval('dm2.fixed')
     client.run('count(10)')
     adminclient.tell('exec', 'release(dm2)')
     client.wait_idle()
@@ -152,7 +152,7 @@ def test_get_device_list(client):
 
 def test_live_events(client):
     idx = len(client._signals)
-    client.run_and_wait('''\
+    client.run_and_wait("""\
 import numpy
 from nicos import session
 from nicos.core.constants import LIVE
@@ -168,7 +168,7 @@ session.updateLiveData(dict(
         shapes=(2, 2, 1),
         count=1)]),
     [byteBuffer(arr)])
-''', 'live.py')
+""", 'live.py')
     for name, data, blobs in client.iter_signals(idx, timeout=10.0):
         if name == 'livedata':
             assert data == dict(uid='uid',

@@ -168,7 +168,7 @@ def make_configdata(filepath, all_setups, dep_files):
             setupname, element = name.split('.')
         except ValueError:
             raise ConfigurationError('configdata() argument must be in the '
-                                     'form \'module.valuename\'') from None
+                                     "form 'module.valuename'") from None
         if setupname not in all_setups:
             raise ConfigurationError('config setup "%s" not found' % setupname)
         else:

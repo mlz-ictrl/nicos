@@ -21,9 +21,9 @@
 #
 # ****************************************************************************
 
-'''
+"""
 Sinks which handle the data provided from the SIS detector at SPHERES.
-'''
+"""
 
 
 import os
@@ -129,9 +129,9 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
 
 
 class AYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
-    '''
+    """
     Filesinkhandler which writes the raw SIS data.
-    '''
+    """
 
     savefile = 'raw'
 
@@ -248,9 +248,9 @@ class AYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
 
 
 class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
-    '''
+    """
     Filesinkhandler that writes processed SIS data.
-    '''
+    """
 
     savefile = 'user'
 

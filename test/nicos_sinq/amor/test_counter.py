@@ -31,7 +31,7 @@ import pytest
 
 from nicos.core import status
 
-session_setup = "sinq_amor_counter"
+session_setup = 'sinq_amor_counter'
 
 
 class TestCounter:

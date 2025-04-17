@@ -40,7 +40,7 @@ class XmlHandler(SingleFileSinkHandler):
         timer = self.sink._attached_timer
         mono = self.sink._attached_mono
         write = fp.write
-        write(b'''\
+        write(b"""\
 <measurement_file>
 
 <instrument_name>MIRA</instrument_name>
@@ -53,7 +53,7 @@ class XmlHandler(SingleFileSinkHandler):
 <beam_monitor>%d</beam_monitor>
 <resolution>1024</resolution>
 
-<detector_value>\n''' % (self.sink._attached_sampledet.read(),
+<detector_value>\n""" % (self.sink._attached_sampledet.read(),
                          from_k(to_k(mono.read(), mono.unit), 'A'),
                          timer.read()[0],
                          mon.read()[0]))
@@ -76,13 +76,13 @@ class XmlHandler(SingleFileSinkHandler):
         if filled.shape == (256, 256):
             write((self.sink._format[1] % tuple(filled.ravel() / 4.)).encode())
 
-        write(b'''\
+        write(b"""\
 </detector_value>
 
 </measurement_data>
 
 </measurement_file>
-''')
+""")
 
 
 class XmlSink(ImageSink):

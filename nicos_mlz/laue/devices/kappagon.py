@@ -36,7 +36,7 @@ from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 
 
 class KappaGon(IsController, Moveable):
-    ''' Kappa goniometer base class'''
+    """ Kappa goniometer base class"""
 
     attached_devices = {
         'ttheta': Attach('Two-theta device', Moveable),

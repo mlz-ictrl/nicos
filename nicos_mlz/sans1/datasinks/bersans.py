@@ -291,7 +291,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             Histfile = ''
 
         try:
-            Listfile = metainfo['det1_image', 'listmodefile'][1].split('\'')[1]
+            Listfile = metainfo['det1_image', 'listmodefile'][1].split("'")[1]
         except Exception:
             Listfile = ''
 

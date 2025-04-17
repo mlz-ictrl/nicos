@@ -101,7 +101,7 @@ def print_polmat(result):
     session.log.info("  pix     sigma     piy     sigma     piz    '"
                      " sigma     |Pi|    sigma")
     for i in XYZ:
-        session.log.info('  '.join(["%7.3f %7.3f" % result[i, j] for j
+        session.log.info('  '.join(['%7.3f %7.3f' % result[i, j] for j
                                     in (X, Y, Z, 0)]))
 
 

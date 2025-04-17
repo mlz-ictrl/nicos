@@ -112,11 +112,11 @@ class CustomButtonPanel(Panel):
         obj = self
         while hasattr(obj, 'parent'):
             if isinstance(obj, AuxiliaryWindow):
-                return "tab"
+                return 'tab'
             elif isinstance(obj, DetachedWindow):
-                return "detached"
+                return 'detached'
             obj = obj.parent()
-        return "main"
+        return 'main'
 
     def on_buttonBox_Close_clicked(self):
         self.closeWindow()

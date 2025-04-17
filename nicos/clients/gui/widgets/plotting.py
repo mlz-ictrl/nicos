@@ -745,8 +745,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         dictPrintType = dict(gr.PRINT_TYPE)
         for prtype in [gr.PRINT_JPEG, gr.PRINT_TIF]:
             dictPrintType.pop(prtype)
-        self._saveTypes = (";;".join(dictPrintType.values()) + ";;" +
-                           ";;".join(gr.GRAPHIC_TYPE.values()))
+        self._saveTypes = (';;'.join(dictPrintType.values()) + ';;' +
+                           ';;'.join(gr.GRAPHIC_TYPE.values()))
         self._saveName = None
         self._color = ColorIndexGenerator()
         # avoid the first and therefore most used color being yellow
@@ -802,7 +802,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self._plot.xlabel = self.xaxisName()
         self._plot.ylabel = self.yaxisName()
         if self.normalized:
-            self._plot.ylabel += " (norm: %s)" % self.normalized
+            self._plot.ylabel += ' (norm: %s)' % self.normalized
 
         self.plotcurves = []
         self.addAllCurves()
@@ -919,7 +919,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         if event.getButtons() & MouseEvent.RIGHT_BUTTON:
             if isinstance(event.roi.reference, FitResult):
                 menu = QMenu(self)
-                actionClipboard = QAction("Copy fit values to clipboard", menu)
+                actionClipboard = QAction('Copy fit values to clipboard', menu)
                 menu.addAction(actionClipboard)
                 p0dc = event.getDC()
                 selectedItem = menu.exec(
@@ -940,9 +940,9 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             self.mouselocation = event
             wc = event.getWC(self._plot.viewport)
             if self.statusMessage:
-                msg = "%s (X = %g, Y = %g)" % (self.statusMessage, wc.x, wc.y)
+                msg = '%s (X = %g, Y = %g)' % (self.statusMessage, wc.x, wc.y)
             else:
-                msg = "X = %g, Y = %g" % (wc.x, wc.y)
+                msg = 'X = %g, Y = %g' % (wc.x, wc.y)
             self.parent_window.statusBar.showMessage(msg)
         else:
             self.parent_window.statusBar.clearMessage()
@@ -997,8 +997,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         return self._saveName
 
     def printPlot(self):
-        self.printDialog("Nicos-" + self._saveName if self._saveName
-                         else "untitled")
+        self.printDialog('Nicos-' + self._saveName if self._saveName
+                         else 'untitled')
         return True
 
     @property
@@ -1054,7 +1054,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                                      linecolor=color, markercolor=GRCOLORS['white'])
         self.addPlotCurve(resultcurve, True)
         resultcurve.markertype = GRMARKS['dot']
-        self.parent_window.statusBar.showMessage("Fitting complete")
+        self.parent_window.statusBar.showMessage('Fitting complete')
 
         text = '\n'.join(
             (n + ': ' if n else '') +
@@ -1125,9 +1125,9 @@ class ViewPlot(NicosGrPlot):
         # overridden to show the correct timestamp
         ts = time.strftime(DATEFMT + ' ' + TIMEFMT, time.localtime(wc.x))
         if self.statusMessage:
-            msg = "%s (X = %s, Y = %g)" % (self.statusMessage, ts, wc.y)
+            msg = '%s (X = %s, Y = %g)' % (self.statusMessage, ts, wc.y)
         else:
-            msg = "X = %s, Y = %g" % (ts, wc.y)
+            msg = 'X = %s, Y = %g' % (ts, wc.y)
         self.parent_window.statusBar.showMessage(msg)
 
     def addAllCurves(self):
@@ -1287,10 +1287,10 @@ class DataSetPlot(NicosGrPlot):
         self.setSymbols(True)
 
     def titleString(self):
-        return "Scan %s %s" % (self.dataset.name, self.dataset.scaninfo)
+        return 'Scan %s %s' % (self.dataset.name, self.dataset.scaninfo)
 
     def subTitleString(self):
-        return "started %s" % time.strftime(DATEFMT + ' ' + TIMEFMT,
+        return 'started %s' % time.strftime(DATEFMT + ' ' + TIMEFMT,
                                             self.dataset.started)
 
     def xaxisName(self):

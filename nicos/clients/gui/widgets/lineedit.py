@@ -51,7 +51,7 @@ class HistoryLineEdit(QLineEdit):
         self.idle_color = colors.base
         self.active_fgcolor = colors.text
         self.inactive_fgcolor = colors.cmd_inactive
-        self.error_fgcolor = QColor("#ff0000")
+        self.error_fgcolor = QColor('#ff0000')
         self.history = history or []
         self.scrollWidget = None
         self.completion_callback = lambda text: []
@@ -185,7 +185,7 @@ class CommandLineEdit(HistoryLineEdit):
         HistoryLineEdit.__init__(self, parent, history)
         self.textChanged.connect(self.on_textChanged)
         self.returnPressed.connect(self.on_returnPressed)
-        self.setValidator(QRegularExpressionValidator(QRegularExpression(r"^\S.*"),
+        self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^\S.*'),
                                                       self))
         self.current_status = None
         self.error_status = None

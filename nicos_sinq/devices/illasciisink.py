@@ -452,7 +452,7 @@ def _parse_data(f, dataset):
 
 
 def readFile(filename, dataset):
-    with open(filename, 'r', encoding="utf8") as f:
+    with open(filename, 'r', encoding='utf8') as f:
         _drop_pre_header(f)
         _parse_header(f, dataset)
         _parse_data(f, dataset)

@@ -149,7 +149,7 @@ class TestLogicalMotor:
         self.ath = session.getDevice('ath')
         self.controller = session.getDevice('controller')
 
-    @pytest.mark.parametrize("motortype", logical_motors)
+    @pytest.mark.parametrize('motortype', logical_motors)
     def test_motor_move_status_is_busy(self, motortype):
         motor = getattr(self, motortype)
 
@@ -158,7 +158,7 @@ class TestLogicalMotor:
         assert motor.status()[0] == status.BUSY
         motor.stop()
 
-    @pytest.mark.parametrize("motortype", logical_motors)
+    @pytest.mark.parametrize('motortype', logical_motors)
     def test_motor_stop_target(self, motortype):
         motor = getattr(self, motortype)
 
@@ -175,7 +175,7 @@ class TestLogicalMotor:
         motor.maw(0.5)
         assert motor.read() == approx(0.5, abs=1e-3)
 
-    @pytest.mark.parametrize("motortype", logical_motors)
+    @pytest.mark.parametrize('motortype', logical_motors)
     def test_out_of_bounds_errors_out(self, motortype):
         motor = getattr(self, motortype)
 
@@ -194,7 +194,7 @@ class TestLogicalMotor:
         assert raises(ErrorLogged, motor, hlm - 0.1)
         assert motor.target == approx(motor.read())
 
-    @pytest.mark.parametrize("targets", test_targets.keys())
+    @pytest.mark.parametrize('targets', test_targets.keys())
     def test_motor_has_correct_targets(self, targets, session):
         # Move the motors to targets
         ml = self.controller._get_move_list({

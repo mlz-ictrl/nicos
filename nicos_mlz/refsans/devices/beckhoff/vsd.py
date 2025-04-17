@@ -208,15 +208,15 @@ class VSDIO(PyTangoDevice, Readable):
         """Display all available diagnostic values."""
         if self._sim_intercept:
             return
-        self.log.info("Analog Values:")
+        self.log.info('Analog Values:')
         for k, v in sorted(self._HW_AnalogChannels.items()):
-            self.log.info("%s: %.2f %s", k, v[1] * self._readI16(v[0] // 2),
+            self.log.info('%s: %.2f %s', k, v[1] * self._readI16(v[0] // 2),
                           v[2])
-        self.log.info("Digital Values:")
+        self.log.info('Digital Values:')
         for k, v in sorted(self._HW_DigitalChannels.items()):
             if k.startswith('Merker'):
                 continue
-            self.log.info("%s: %s", k,
+            self.log.info('%s: %s', k,
                           'SET' if self._readU16(v[0] // 2) & (1 << v[1])
                           else 'clear')
         self.log.info('Merkerwords:')

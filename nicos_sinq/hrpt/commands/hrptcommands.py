@@ -35,13 +35,13 @@ __all__ = [
 @usercommand
 @helparglist('op=None')
 def sarot(op=None):
-    '''
+    """
     Command to rotate the sample. Inherited from SICS.
     op arguments corresponds to the following:
     None/no-argument: Return the state, on or off.
     'on': Rotate the sample
     'off': Do not rotate the sample
-    '''
+    """
     motc = session.getDevice('motc')
     if op is None:
         res = int(motc.execute('ac 3'))

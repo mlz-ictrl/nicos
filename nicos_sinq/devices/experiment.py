@@ -123,7 +123,7 @@ class SinqExperiment(Experiment):
             os.makedirs(path.dirname(counterpath))
         lines = ['%3s\n' % value]
         lines.append('NEVER, EVER modify or delete this file\n')
-        lines.append('You\'ll risk eternal damnation and a reincarnation '
+        lines.append("You'll risk eternal damnation and a reincarnation "
                      'as a cockroach!')
         writeFile(counterpath, lines)
 

@@ -43,13 +43,13 @@ except ImportError:  # on Windows (without pyreadline)
     readline = None
 
 
-DEFAULT_BINDINGS = '''\
+DEFAULT_BINDINGS = """\
 tab: complete
 "\\e[5~": history-search-backward
 "\\e[6~": history-search-forward
 "\\e[1;3D": backward-word
 "\\e[1;3C": forward-word
-'''
+"""
 
 
 class NicosInteractiveStop(BaseException):

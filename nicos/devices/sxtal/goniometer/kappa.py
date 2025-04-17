@@ -20,7 +20,7 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-'''
+"""
 Kappa
 
 a class for storing kappa positions
@@ -28,7 +28,7 @@ a class for storing kappa positions
 All angle move clockwise for positive values.
 
 to allow conversions, the kappa-angle alpha needs to be known
-'''
+"""
 
 import numpy as np
 
@@ -96,7 +96,7 @@ class Kappa(PositionBase):
         """ Conversion. Part of Position subclass protocol.
         """
         if self.kappa is None:
-            print("DBG> Convert incomplete kappa to eulerian!")
+            print('DBG> Convert incomplete kappa to eulerian!')
             return PositionFactory(ptype='e',
                                    theta=self.theta)
         halfkappa = 0.5 * self.kappa
@@ -175,14 +175,14 @@ class Kappa(PositionBase):
     def __repr__(self):
         """ Representation. Part of Position subclass protocol.
         """
-        s = "[Kappa angles:"
+        s = '[Kappa angles:'
         if self.theta is not None:
-            s = s + " theta=%8.3f" % (np.rad2deg(self.theta))
+            s = s + ' theta=%8.3f' % (np.rad2deg(self.theta))
         if self.phi is not None:
-            s = s + " phi=%8.3f" % (np.rad2deg(self.phi))
+            s = s + ' phi=%8.3f' % (np.rad2deg(self.phi))
         if self.omega is not None:
-            s = s + " omega=%8.3f" % (np.rad2deg(self.omega))
+            s = s + ' omega=%8.3f' % (np.rad2deg(self.omega))
         if self.kappa is not None:
-            s = s + " kappa=%8.3f" % (np.rad2deg(self.kappa))
-        s = s + "]"
+            s = s + ' kappa=%8.3f' % (np.rad2deg(self.kappa))
+        s = s + ']'
         return s

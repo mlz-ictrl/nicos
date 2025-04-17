@@ -37,6 +37,6 @@ class DetectorController(IsController, Device):
     def isAdevTargetAllowed(self, adev, adevtarget):
         if adev in [self._attached_com, self._attached_coz]:
             if self._attached_park.read(0) < -90:
-                return False, "Cannot move %s when in park position"\
+                return False, 'Cannot move %s when in park position'\
                     % (adev.name)
         return True, ''

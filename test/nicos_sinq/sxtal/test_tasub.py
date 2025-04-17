@@ -48,7 +48,7 @@ def test_Cell_error():
     try:
         import warnings
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")  # Ignore the warnings temporary
+            warnings.simplefilter('ignore')  # Ignore the warnings temporary
             reciprocal = directToReciprocalLattice(cell)
             reciprocal.a = 26.  # Only to satisfy pylint, flake8
         assert False  # pragma: no cover
@@ -75,8 +75,8 @@ def test_Cell_init():
         assert(getattr(nonStandardCell, key) == value)
 
     cellString = str(cell)
-    wantedString = "cell.Cell(a=1.0, b=1.0, c=1.0, " \
-                   "alpha=90.0, beta=90.0, gamma=90.0)"
+    wantedString = 'cell.Cell(a=1.0, b=1.0, c=1.0, ' \
+                   'alpha=90.0, beta=90.0, gamma=90.0)'
     assert(cellString == wantedString)
 
 

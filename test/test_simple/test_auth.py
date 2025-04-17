@@ -58,7 +58,7 @@ session_setup = 'empty'
 
 class TestUserPassLevelAuthEntry:
 
-    @pytest.mark.parametrize("inp, outp", [
+    @pytest.mark.parametrize('inp, outp', [
         [['user', 'passwd', 'user'], ('user', 'passwd', USER)],
         [['user', 'passwd', USER], ('user', 'passwd', USER)],
         [[' user ', 'passwd', USER], ('user', 'passwd', USER)],
@@ -67,7 +67,7 @@ class TestUserPassLevelAuthEntry:
     def test_auth_entry(self, inp, outp):
         assert UserPassLevelAuthEntry(inp) == outp
 
-    @pytest.mark.parametrize("inp", [
+    @pytest.mark.parametrize('inp', [
         (['user', 'passwd', 'xxx']),
         (['user', 'passwd', -1]),
         (['user', 'passwd', ()]),
@@ -83,7 +83,7 @@ class TestUserPassLevelAuthEntry:
 
 class TestUserLevelAuthEntry:
 
-    @pytest.mark.parametrize("inp, outp", [
+    @pytest.mark.parametrize('inp, outp', [
         [['user', 'user'], ('user', USER)],
         [['user', USER], ('user', USER)],
         [[' user ', USER], ('user', USER)],
@@ -91,7 +91,7 @@ class TestUserLevelAuthEntry:
     def test_auth_entry(self, inp, outp):
         assert UserLevelAuthEntry(inp) == outp
 
-    @pytest.mark.parametrize("inp", [
+    @pytest.mark.parametrize('inp', [
         (['user', 'xxx']),
         (['user', -1]),
         (['user', ()]),

@@ -36,7 +36,7 @@ from nicos_mlz.devices.datasinks.yamlbase import YAMLBaseFileSinkHandler
 
 class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
-    filetype = "MLZ.MARIA.2.0-beta1"
+    filetype = 'MLZ.MARIA.2.0-beta1'
 
     def _processArrayInfo(self, arrayinfo):
         # images are not handled by this sink
@@ -48,12 +48,12 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         stack = self.manager._stack
         if len(stack) >= 2 and isinstance(stack[-2], ScanDataset):
             scands = stack[-2]
-            meas["info"] = scands.info
+            meas['info'] = scands.info
         else:
-            meas["info"] = self.dataset.info
+            meas['info'] = self.dataset.info
 
         # store device information
-        devs = meas["devices"] = []
+        devs = meas['devices'] = []
         # all available nicos devices
         devices = dict(session.devices)
         # log all devices in the dataset
@@ -67,11 +67,11 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
                 devices.pop(info.name, None)
                 continue
             entry = self._dict()
-            entry["name"] = info.name
-            entry["unit"] = info.unit
-            entry["value"] = val
-            entry["state"] = state
-            entry["status"] = status
+            entry['name'] = info.name
+            entry['unit'] = info.unit
+            entry['value'] = val
+            entry['state'] = state
+            entry['status'] = status
             devs.append(entry)
             # remove devices already logged here
             devices.pop(info.name, None)
@@ -85,11 +85,11 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
                 except NicosError:
                     dev.log.warning('could not get status for data file')
                     continue
-                entry["name"] = name
-                entry["unit"] = self._devpar(name, "unit")
-                entry["value"] = self._readdev(name)
-                entry["state"] = state
-                entry["status"] = status
+                entry['name'] = name
+                entry['unit'] = self._devpar(name, 'unit')
+                entry['value'] = self._readdev(name)
+                entry['state'] = state
+                entry['status'] = status
                 devs.append(entry)
 
 
@@ -97,10 +97,10 @@ class YAMLFileSink(ImageSink):
     """Saves MARIA image data and header in yaml format"""
 
     parameter_overrides = {
-        "filenametemplate": Override(mandatory=False, settable=False,
+        'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
-                                     default=["%(proposal)s_"
-                                              "%(pointcounter)010d.yaml"],
+                                     default=['%(proposal)s_'
+                                              '%(pointcounter)010d.yaml'],
                                      ),
     }
 

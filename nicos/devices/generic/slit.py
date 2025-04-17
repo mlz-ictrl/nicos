@@ -57,7 +57,7 @@ class Gap(HasAutoDevices, CanReference, Moveable):
                      'centered': '%.2f', 'offcentered': '%.2f, %.2f'},
         ),
         'parallel_ref': Param(
-            'Set to True if the blades\' reference drive can be done in '
+            "Set to True if the blades' reference drive can be done in "
             'parallel.',
             type=bool,
             default=False,
@@ -592,7 +592,7 @@ class TwoAxisSlit(CanReference, Moveable):
     }
 
     parameters = {
-        'parallel_ref': Param('Set to True if the blades\' reference drive '
+        'parallel_ref': Param("Set to True if the blades' reference drive "
                               'can be done in parallel.', type=bool,
                               default=False),
     }

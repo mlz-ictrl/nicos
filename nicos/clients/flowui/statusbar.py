@@ -182,7 +182,7 @@ class TranslucentWidget(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.fillColor = QColor(30, 30, 30, 120)
-        self.penColor = QColor("#333333")
+        self.penColor = QColor('#333333')
 
         self.SIGNALS = TranslucentWidgetSignals()
         self.raise_()

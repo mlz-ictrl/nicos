@@ -97,7 +97,7 @@ class TestFileWriterControl(TestCase):
 
     def test_can_start_job_if_no_job_in_progress(self):
         job_id = 'job id 1'
-        self.mock_controller.request_start.return_value = (job_id, "")
+        self.mock_controller.request_start.return_value = (job_id, '')
 
         self.filewriter_control.start_job()
 
@@ -108,7 +108,7 @@ class TestFileWriterControl(TestCase):
         self._add_job(stopping_job_id, 42)
         self.filewriter_status.mark_for_stop(stopping_job_id, stop_time=12345678)
         new_job_id = 'job id 2'
-        self.mock_controller.request_start.return_value = (new_job_id, "")
+        self.mock_controller.request_start.return_value = (new_job_id, '')
 
         self.filewriter_control.start_job()
 
@@ -120,7 +120,7 @@ class TestFileWriterControl(TestCase):
         self.mock_controller.request_stop.assert_not_called()
 
     def test_can_stop_running_job(self):
-        self.mock_controller.request_start.return_value = ('job id 1', "")
+        self.mock_controller.request_start.return_value = ('job id 1', '')
         self.filewriter_control.start_job()
 
         self.filewriter_control.stop_job()
@@ -130,7 +130,7 @@ class TestFileWriterControl(TestCase):
         assert self.filewriter_status.marked_for_stop
 
     def test_stop_job_ignored_if_existing_job_is_already_stopping(self):
-        self.mock_controller.request_start.return_value = ('job id 1', "")
+        self.mock_controller.request_start.return_value = ('job id 1', '')
         self.filewriter_control.start_job()
         self.filewriter_control.stop_job()
 

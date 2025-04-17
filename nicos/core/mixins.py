@@ -499,9 +499,9 @@ class HasTimeout(DeviceMixinBase):
         if timeoutTime is not None:
             remaining = timeoutTime - monotonic()
             if remaining > 0:
-                self.log.debug("%.2f s left before timeout", remaining)
+                self.log.debug('%.2f s left before timeout', remaining)
             else:
-                self.log.debug("timeout since %.2f s", -remaining)
+                self.log.debug('timeout since %.2f s', -remaining)
             return remaining < 0
         return False
 

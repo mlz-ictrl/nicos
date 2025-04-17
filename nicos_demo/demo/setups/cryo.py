@@ -59,8 +59,8 @@ monitor_blocks = {
     ], setups=setupname),
 }
 
-help_topics = dict(
-    nicos_demo_cryo = '''
+help_topics = {
+    'NICOS demo cryo': """
 The demo cryostat simulation
 ############################
 
@@ -80,5 +80,5 @@ cryostat works.
 
     regulation values are highly specific to the used cryostat, hence the
     values in the simulation are not compatible with those of any real cryostat.
-''',
-)
+""",
+}

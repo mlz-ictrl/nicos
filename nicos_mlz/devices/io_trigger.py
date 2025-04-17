@@ -35,7 +35,7 @@ class Trigger(PyTangoDevice, Moveable):
     parameters = {
         'strings': Param('mapping of nicos-value to pre-configured string',
                          type=dictof(str, str), settable=True, unit=''),
-        'safesetting': Param('selection of a \'safe\' setting',
+        'safesetting': Param("selection of a 'safe' setting",
                              type=str, settable=True, unit=''),
     }
     parameter_overrides = {

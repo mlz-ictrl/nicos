@@ -81,8 +81,8 @@ class TofChannel(TOFChannel):
 
     def valueInfo(self):
         start, end = self.readchannels
-        return tuple(Value("chan-%d" % i, unit="cts", errors="sqrt",
-                           type="counter", fmtstr="%d")
+        return tuple(Value('chan-%d' % i, unit='cts', errors='sqrt',
+                           type='counter', fmtstr='%d')
                      for i in range(start, end + 1))
 
     def doReadArray(self, quality):

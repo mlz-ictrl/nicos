@@ -25,7 +25,7 @@ import pytest
 session_setup = 'sinq_sxtal'
 
 
-@pytest.mark.parametrize("coneang, om, stt, chi, phi", [
+@pytest.mark.parametrize('coneang, om, stt, chi, phi', [
         (30, 7.622, 15.244, 142.239, 145.36),
         (60, 7.622, 15.244, 159.295, 131.035),
         (90, 7.622, 15.244, 180, 126.928)])

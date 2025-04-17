@@ -141,18 +141,18 @@ def sscan(dev, *args, **kwargs):
                 if numpoints[0] > 1:
                     return mk(starts, steps, numpoints[0])
                 else:
-                    raise UsageError("invalid number of points. At least two "
-                                     "points are necessary to define a range "
-                                     "scan. Please check parameters.")
+                    raise UsageError('invalid number of points. At least two '
+                                     'points are necessary to define a range '
+                                     'scan. Please check parameters.')
             else:
-                raise UsageError("negative number of points. Please check "
-                                 "parameters. Maybe step parameter has wrong"
-                                 "sign.")
+                raise UsageError('negative number of points. Please check '
+                                 'parameters. Maybe step parameter has wrong'
+                                 'sign.')
         else:
-            raise UsageError("all entries must generate the same number of "
-                             "points")
+            raise UsageError('all entries must generate the same number of '
+                             'points')
 
-    scanstr = _infostr("sscan", (dev,) + args, kwargs)
+    scanstr = _infostr('sscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)

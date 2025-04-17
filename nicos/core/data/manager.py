@@ -386,7 +386,7 @@ class DataManager:
                 filename = nametmpl % DeviceValueDict(kwds)
             except KeyError as err:
                 if not exc:
-                    exc = KeyError('can\'t create datafile, illegal key %s in '
+                    exc = KeyError("can't create datafile, illegal key %s in "
                                    'filename template %r!' % (err, nametmpl))
                 continue
             except TypeError as err:
@@ -453,7 +453,7 @@ class DataManager:
                     self.log.warning('linking %r to %r failed, ignoring',
                                      linkpath, filepath)
         else:
-            self.log.warning('can\'t link datafiles, no os support!')
+            self.log.warning("can't link datafiles, no os support!")
 
     def createDataFile(self, dataset, nametemplates, *subdirs, **kwargs):
         """Creates and returns a file named according to the given list of

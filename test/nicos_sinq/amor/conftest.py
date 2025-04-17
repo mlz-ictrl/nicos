@@ -31,10 +31,10 @@ test_devices = {
 
 
 def pytest_addoption(parser):
-    parser.addoption("--sinq", action="store_true",
-                     help="run tests for devices in SINQ facility")
-    parser.addoption("--device", action="append", default=[],
-                     help="restrict device to be tested (multiple allowed)")
+    parser.addoption('--sinq', action='store_true',
+                     help='run tests for devices in SINQ facility')
+    parser.addoption('--device', action='append', default=[],
+                     help='restrict device to be tested (multiple allowed)')
 
 
 def pytest_generate_tests(metafunc):

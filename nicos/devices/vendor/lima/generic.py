@@ -181,7 +181,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             self._initOptionalComponents()
 
             if self._dev.camera_model.startswith('SIMCAM'):
-                self.log.warning('Using lima simulation camera! If that\'s not'
+                self.log.warning("Using lima simulation camera! If that's not"
                                  ' intended, please check the cables and '
                                  'restart the camera and the lima server')
 

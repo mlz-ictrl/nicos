@@ -31,164 +31,164 @@ from nicos.nexus.nexussink import NexusTemplateProvider
 from nicos_sinq.nexus.specialelements import SaveSampleEnv
 
 sansllb_default = {
-    "NeXus_Version": "4.4.0",
-    "instrument": "SANS at SINQ",
-    "owner": DeviceAttribute("SANS-LLB", "responsible"),
-    "entry0:NXentry": {
-        "title": DeviceDataset("Exp", "title"),
-        "proposal_title": DeviceDataset("Exp", "title"),
-        "proposal_id": DeviceDataset("Exp", "proposal"),
-        "start_time": NXTime(), "end_time": NXTime(),
-        "definition": ConstDataset("NXsas", "string"),
-        "user:NXuser": {
-            "name": DeviceDataset("Exp", "users"),
-            "email": DeviceDataset("Exp", "localcontact")
+    'NeXus_Version': '4.4.0',
+    'instrument': 'SANS at SINQ',
+    'owner': DeviceAttribute('SANS-LLB', 'responsible'),
+    'entry0:NXentry': {
+        'title': DeviceDataset('Exp', 'title'),
+        'proposal_title': DeviceDataset('Exp', 'title'),
+        'proposal_id': DeviceDataset('Exp', 'proposal'),
+        'start_time': NXTime(), 'end_time': NXTime(),
+        'definition': ConstDataset('NXsas', 'string'),
+        'user:NXuser': {
+            'name': DeviceDataset('Exp', 'users'),
+            'email': DeviceDataset('Exp', 'localcontact')
         },
-        "proposal_user:NXuser": {
-            "name": DeviceDataset("Exp", "users"),
+        'proposal_user:NXuser': {
+            'name': DeviceDataset('Exp', 'users'),
         },
-        "control:NXmonitor": {
-            "preset": DetectorDataset("preset", "float32"),
-            "mode": DetectorDataset("mode", "string"),
-            "count_time": DetectorDataset("elapsedtime", "float32"),
-            "integral": DetectorDataset("monitor1", "int32",
-                                        units=NXAttribute("counts",
-                                                          "string")),
+        'control:NXmonitor': {
+            'preset': DetectorDataset('preset', 'float32'),
+            'mode': DetectorDataset('mode', 'string'),
+            'count_time': DetectorDataset('elapsedtime', 'float32'),
+            'integral': DetectorDataset('monitor1', 'int32',
+                                        units=NXAttribute('counts',
+                                                          'string')),
         },
-        "monitor2:NXmonitor": {
-            "integral": DetectorDataset("monitor2", "int32",
-                                        units=NXAttribute("counts",
-                                                          "string")),
+        'monitor2:NXmonitor': {
+            'integral': DetectorDataset('monitor2', 'int32',
+                                        units=NXAttribute('counts',
+                                                          'string')),
         },
-        "monitor3:NXmonitor": {
-            "integral": DetectorDataset("c3", "int32",
-                                        units=NXAttribute("counts",
-                                                          "string")),
+        'monitor3:NXmonitor': {
+            'integral': DetectorDataset('c3', 'int32',
+                                        units=NXAttribute('counts',
+                                                          'string')),
         },
-        "protoncount:NXmonitor": {
-            "integral": DetectorDataset("protoncount", "int32",
-                                        units=NXAttribute("counts",
-                                                          "string")),
+        'protoncount:NXmonitor': {
+            'integral': DetectorDataset('protoncount', 'int32',
+                                        units=NXAttribute('counts',
+                                                          'string')),
         },
-        "central_detector:NXdata": {
-            "data": NXLink('/entry0/SANS-LLB/central_detector/data'),
+        'central_detector:NXdata': {
+            'data': NXLink('/entry0/SANS-LLB/central_detector/data'),
         },
-        "left_detector:NXdata": {
-            "data": NXLink('/entry0/SANS-LLB/left_detector/data'),
+        'left_detector:NXdata': {
+            'data': NXLink('/entry0/SANS-LLB/left_detector/data'),
         },
-        "bottom_detector:NXdata": {
-             "data": NXLink('/entry0/SANS-LLB/bottom_detector/data'),
+        'bottom_detector:NXdata': {
+             'data': NXLink('/entry0/SANS-LLB/bottom_detector/data'),
         },
     }
 }  # root
 
 inst_default = {
-    "name": ConstDataset("SANS-LLB", "string"),
-    "attenuator:NXAttenuator": {
-        "selection": DeviceDataset("att"),
+    'name': ConstDataset('SANS-LLB', 'string'),
+    'attenuator:NXAttenuator': {
+        'selection': DeviceDataset('att'),
     },
-    "beam_stop:NXstop": {
-        "x": DeviceDataset("bsx"),
-        "y": DeviceDataset("bsy"),
-        "distance": ConstDataset(35, "float",
-                                 units=NXAttribute("degree",
-                                                   "string")),
+    'beam_stop:NXstop': {
+        'x': DeviceDataset('bsx'),
+        'y': DeviceDataset('bsy'),
+        'distance': ConstDataset(35, 'float',
+                                 units=NXAttribute('degree',
+                                                   'string')),
     },
-    "collimator:NXcollimator": {
-        "length": DeviceDataset("coll"),
+    'collimator:NXcollimator': {
+        'length': DeviceDataset('coll'),
     },
-    "polariser:NXpolariser": {
+    'polariser:NXpolariser': {
         'selection': DeviceDataset('pol'),
         'position': DeviceDataset('polpos'),
     },
-    "SINQ:NXsource": {
-        "name": ConstDataset(
-            "SINQ, Paul Scherrer Institute", "string"),
-        "type": ConstDataset(
-            "continuous flux spallation source", "string"),
-        "probe": ConstDataset("neutron", "string"),
+    'SINQ:NXsource': {
+        'name': ConstDataset(
+            'SINQ, Paul Scherrer Institute', 'string'),
+        'type': ConstDataset(
+            'continuous flux spallation source', 'string'),
+        'probe': ConstDataset('neutron', 'string'),
     },
-    "velocity_selector:NXvelocity_selector": {
-        "type": ConstDataset("Dornier Velocity Selector",
-                             "string"),
-        "wavelength": DeviceDataset("wavelength"),
-        "wavelength_spread": DeviceDataset("wavelength", parameter="fwhm"),
-        "rotation_speed": DeviceDataset("vs_speed"),
-        "twist": ConstDataset(0, float,
-                              units=NXAttribute("degree", "string")),
+    'velocity_selector:NXvelocity_selector': {
+        'type': ConstDataset('Dornier Velocity Selector',
+                             'string'),
+        'wavelength': DeviceDataset('wavelength'),
+        'wavelength_spread': DeviceDataset('wavelength', parameter='fwhm'),
+        'rotation_speed': DeviceDataset('vs_speed'),
+        'twist': ConstDataset(0, float,
+                              units=NXAttribute('degree', 'string')),
     },
 }
 
 central_detector = {
-    "x": DeviceDataset("dthx"),
-    "x_set": DeviceDataset("dthx", parameter="target"),
-    "x_offset": DeviceDataset("dthx", parameter="offset"),
-    "distance": DeviceDataset("dthz"),
-    "distance_set": DeviceDataset("dthz", parameter="target"),
-    "z_offset": DeviceDataset("dthz", parameter="offset"),
-    "data": NamedImageDataset('main_det'),
-    "raw_data": NamedImageDataset('det_image'),
-    "x_pixel_size": ConstDataset(5, float,
-                                 units=NXAttribute("mm", "string")),
-    "y_pixel_size": ConstDataset(5, float,
-                                 units=NXAttribute("mm", "string")),
-    "beam_center_x": ConstDataset(62.5, float,
-                                  units=NXAttribute("pixel", "string")),
-    "beam_center_y": ConstDataset(62.5, float,
-                                  units=NXAttribute("pixel", "string")),
-    "type": ConstDataset("monoblock", "string"),
-    "deadtime": ConstDataset(3.5E-6, "float"),
+    'x': DeviceDataset('dthx'),
+    'x_set': DeviceDataset('dthx', parameter='target'),
+    'x_offset': DeviceDataset('dthx', parameter='offset'),
+    'distance': DeviceDataset('dthz'),
+    'distance_set': DeviceDataset('dthz', parameter='target'),
+    'z_offset': DeviceDataset('dthz', parameter='offset'),
+    'data': NamedImageDataset('main_det'),
+    'raw_data': NamedImageDataset('det_image'),
+    'x_pixel_size': ConstDataset(5, float,
+                                 units=NXAttribute('mm', 'string')),
+    'y_pixel_size': ConstDataset(5, float,
+                                 units=NXAttribute('mm', 'string')),
+    'beam_center_x': ConstDataset(62.5, float,
+                                  units=NXAttribute('pixel', 'string')),
+    'beam_center_y': ConstDataset(62.5, float,
+                                  units=NXAttribute('pixel', 'string')),
+    'type': ConstDataset('monoblock', 'string'),
+    'deadtime': ConstDataset(3.5E-6, 'float'),
 }
 
 left_detector = {
-    "x": DeviceDataset("dtlx"),
-    "x_set": DeviceDataset("dtlx", parameter="target"),
-    "x_offset": DeviceDataset("dtlx", parameter="offset"),
-    "distance": DeviceDataset("dtlz"),
-    "distance_set": DeviceDataset("dtlz", parameter="target"),
-    "z_offset": DeviceDataset("dtlz", parameter="offset"),
-    "data": NamedImageDataset('side_det'),
+    'x': DeviceDataset('dtlx'),
+    'x_set': DeviceDataset('dtlx', parameter='target'),
+    'x_offset': DeviceDataset('dtlx', parameter='offset'),
+    'distance': DeviceDataset('dtlz'),
+    'distance_set': DeviceDataset('dtlz', parameter='target'),
+    'z_offset': DeviceDataset('dtlz', parameter='offset'),
+    'data': NamedImageDataset('side_det'),
     # "raw_data": SliceImage('high_q_raw', 256,  0, 16),
-    "x_pixel_size": ConstDataset(12.7, float,
-                                 units=NXAttribute("mm", "string")),
-    "y_pixel_size": ConstDataset(5, float,
-                                 units=NXAttribute("mm", "string")),
-    "beam_center_x": NXLink('/entry0/SANS-LLB/central_detector/beam_center_x'),
-    "beam_center_y": NXLink('/entry0/SANS-LLB/central_detector/beam_center_y'),
-    "type": ConstDataset("monoblock", "string"),
-    "deadtime": ConstDataset(3.5E-6, "float"),
+    'x_pixel_size': ConstDataset(12.7, float,
+                                 units=NXAttribute('mm', 'string')),
+    'y_pixel_size': ConstDataset(5, float,
+                                 units=NXAttribute('mm', 'string')),
+    'beam_center_x': NXLink('/entry0/SANS-LLB/central_detector/beam_center_x'),
+    'beam_center_y': NXLink('/entry0/SANS-LLB/central_detector/beam_center_y'),
+    'type': ConstDataset('monoblock', 'string'),
+    'deadtime': ConstDataset(3.5E-6, 'float'),
 }
 
 
 bottom_detector = {
-    "x": DeviceDataset("dtlx"),
-    "x_set": DeviceDataset("dtlx", parameter="target"),
-    "x_offset": DeviceDataset("dtlx", parameter="offset"),
-    "distance": DeviceDataset("dtlz"),
-    "distance_set": DeviceDataset("dtlz", parameter="target"),
-    "z_offset": DeviceDataset("dtlz", parameter="offset"),
-    "data": NamedImageDataset('lower_det'),
-    "x_pixel_size": ConstDataset(12.7, float,
-                                 units=NXAttribute("mm", "string")),
-    "y_pixel_size": ConstDataset(5, float,
-                                 units=NXAttribute("mm", "string")),
-    "beam_center_x": NXLink('/entry0/SANS-LLB/central_detector/beam_center_x'),
-    "beam_center_y": NXLink('/entry0/SANS-LLB/central_detector/beam_center_y'),
-    "type": ConstDataset("monoblock", "string"),
-    "deadtime": ConstDataset(3.5E-6, "float"),
+    'x': DeviceDataset('dtlx'),
+    'x_set': DeviceDataset('dtlx', parameter='target'),
+    'x_offset': DeviceDataset('dtlx', parameter='offset'),
+    'distance': DeviceDataset('dtlz'),
+    'distance_set': DeviceDataset('dtlz', parameter='target'),
+    'z_offset': DeviceDataset('dtlz', parameter='offset'),
+    'data': NamedImageDataset('lower_det'),
+    'x_pixel_size': ConstDataset(12.7, float,
+                                 units=NXAttribute('mm', 'string')),
+    'y_pixel_size': ConstDataset(5, float,
+                                 units=NXAttribute('mm', 'string')),
+    'beam_center_x': NXLink('/entry0/SANS-LLB/central_detector/beam_center_x'),
+    'beam_center_y': NXLink('/entry0/SANS-LLB/central_detector/beam_center_y'),
+    'type': ConstDataset('monoblock', 'string'),
+    'deadtime': ConstDataset(3.5E-6, 'float'),
 }
 
 sample_common = {
-    "name": DeviceDataset("Sample", "samplename"),
-    "x": DeviceDataset("stx"),
-    "x_set": DeviceDataset("stx", parameter="target"),
-    "y": DeviceDataset("sty"),
-    "y_set": DeviceDataset("sty", parameter="target"),
-    "z": DeviceDataset("stz"),
-    "z_set": DeviceDataset("stz", parameter="target"),
-    "omega": DeviceDataset("stom"),
-    "sgu": DeviceDataset("stgn"),
-    "lieselotte": SaveSampleEnv(),
+    'name': DeviceDataset('Sample', 'samplename'),
+    'x': DeviceDataset('stx'),
+    'x_set': DeviceDataset('stx', parameter='target'),
+    'y': DeviceDataset('sty'),
+    'y_set': DeviceDataset('sty', parameter='target'),
+    'z': DeviceDataset('stz'),
+    'z_set': DeviceDataset('stz', parameter='target'),
+    'omega': DeviceDataset('stom'),
+    'sgu': DeviceDataset('stgn'),
+    'lieselotte': SaveSampleEnv(),
 }
 
 
@@ -209,10 +209,10 @@ class SANSLLBTemplateProvider(NexusTemplateProvider):
             'right': DeviceDataset('sl%dxn' % no),
             'bottom': DeviceDataset('sl%dyp' % no),
             'top': DeviceDataset('sl%dyn' % no),
-            'left_set': DeviceDataset('sl%dxp' % no, parameter="target"),
-            'right_set': DeviceDataset('sl%dxn' % no, parameter="target"),
-            'bottom_set': DeviceDataset('sl%dyp' % no, parameter="target"),
-            'top_set': DeviceDataset('sl%dyn' % no, parameter="target"),
+            'left_set': DeviceDataset('sl%dxp' % no, parameter='target'),
+            'right_set': DeviceDataset('sl%dxn' % no, parameter='target'),
+            'bottom_set': DeviceDataset('sl%dyp' % no, parameter='target'),
+            'top_set': DeviceDataset('sl%dyn' % no, parameter='target'),
             'x_gap': DeviceDataset('sl%dxw' % no),
             'y_gap': DeviceDataset('sl%dyw' % no),
             'x_center': DeviceDataset('sl%dxc' % no),

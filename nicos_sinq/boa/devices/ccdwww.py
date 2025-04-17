@@ -152,7 +152,7 @@ class CCDWWWImageChannel(ImageChannelMixin, ActiveChannel):
         """send XML configuration data to the CCDWWW"""
         # The XML digested by ccdwww is not very standard in that there
         # is no root, thus manual generation
-        xml = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n'
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         for par in self._config_list:
             xml += '<%s>%s</%s>\n' % (par, str(getattr(self, par)), par)
         self.connector.post('configure', data=xml)

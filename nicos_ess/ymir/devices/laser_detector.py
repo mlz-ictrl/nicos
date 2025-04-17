@@ -64,7 +64,7 @@ class LaserDetector(Measurable):
             Param('Store the current device status',
                   internal=True,
                   type=tupleof(int, str),
-                  default=(status.OK, "idle"),
+                  default=(status.OK, 'idle'),
                   settable=True)
     }
 
@@ -78,11 +78,11 @@ class LaserDetector(Measurable):
     _counting_worker = None
 
     def doPrepare(self):
-        self.curstatus = status.OK, "idle"
+        self.curstatus = status.OK, 'idle'
 
     def doStart(self):
         self._stoprequest = False
-        self.curstatus = status.BUSY, "Counting"
+        self.curstatus = status.BUSY, 'Counting'
         self._counting_worker = createThread(
             'start_counting', self._start_counting,
             args=(self._lastpreset.get('t', None), ))
@@ -103,7 +103,7 @@ class LaserDetector(Measurable):
             self.answer = value / counter  # iterative average
             if count_until and time.monotonic() > count_until:
                 break
-        self.curstatus = status.OK, "idle"
+        self.curstatus = status.OK, 'idle'
 
     def doRead(self, maxage=0):
         return [self.answer]
@@ -112,7 +112,7 @@ class LaserDetector(Measurable):
         self._stop_processing()
 
     def doSetPreset(self, **preset):
-        self.curstatus = status.BUSY, "Preparing"
+        self.curstatus = status.BUSY, 'Preparing'
         self._lastpreset = preset
 
     def doStop(self):
@@ -121,7 +121,7 @@ class LaserDetector(Measurable):
 
     def _stop_processing(self):
         self._cleanup_worker()
-        self.curstatus = status.OK, "idle"
+        self.curstatus = status.OK, 'idle'
 
     def _cleanup_worker(self):
         if self._counting_worker and self._counting_worker.is_alive():

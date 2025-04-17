@@ -40,7 +40,7 @@ class KWSSample(Sample):
                             type=tupleof(float, float, float, float),
                             unit='mm', settable=True),
         'position':   Param('Mapping of devices to positions for driving '
-                            'to this sample\'s position',
+                            "to this sample's position",
                             type=dictof(str, anytype), settable=True),
         'timefactor': Param('Measurement time factor for this sample',
                             type=float, settable=True,

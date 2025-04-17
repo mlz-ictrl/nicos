@@ -147,7 +147,7 @@ class Changer(BaseSequencer):
     valuetype = oneof(*(monos + ['None']))
 
     def PrepareChange(self):
-        '''is checking whether all the conditions for a change of mono are met'''
+        """is checking whether all the conditions for a change of mono are met"""
 
         # if not(self.SecShutter_is_closed()):
         #     raise UsageError(self, 'Secondary Shutter needs to be closed, '
@@ -444,13 +444,13 @@ class Changer(BaseSequencer):
         self.change(self.mono_on_table, target)
 
     def change(self, old, whereto):
-        ''' cool kurze Wechselroutine
-        Der Knackpunkt ist in den Hilfsroutinen!'''
+        """ cool kurze Wechselroutine
+        Der Knackpunkt ist in den Hilfsroutinen!"""
         if old not in self.monos + ['None']:
-            raise UsageError(self, '\'%s\' is illegal value for Mono, use one '
+            raise UsageError(self, "'%s' is illegal value for Mono, use one "
                              'of ' % old + ', '.join(self.monos + ['None']))
         if whereto not in self.monos + ['None']:
-            raise UsageError(self, '\'%s\' is illegal value for Mono, use one '
+            raise UsageError(self, "'%s' is illegal value for Mono, use one "
                              'of ' % whereto + ', '.join(self.monos + ['None'])
                              )
         self.PrepareChange()

@@ -140,15 +140,15 @@ class nicosinstall(stinstall):
         if self.instrument:
             section['instrument'] = self.instrument
         else:
-            self.announce("INSTRUMENT not given, please check %s to set the"
-                          " correct instrument! "
-                          "(see Installation guide in docs)" % self.install_conf, 2)
+            self.announce('INSTRUMENT not given, please check %s to set the'
+                          ' correct instrument! '
+                          '(see Installation guide in docs)' % self.install_conf, 2)
         if self.setup_package:
             section['setup_package'] = self.setup_package
         else:
-            self.announce("SETUPPACKAGE not given, please check %s to set the"
-                          " correct setup_package! "
-                          "(see Installation guide in docs)" % self.install_conf, 2)
+            self.announce('SETUPPACKAGE not given, please check %s to set the'
+                          ' correct setup_package! '
+                          '(see Installation guide in docs)' % self.install_conf, 2)
         with open(self.install_conf, 'w', encoding='utf-8') as fp:
             toml.dump(cfg, fp)
 

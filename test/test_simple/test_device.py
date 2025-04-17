@@ -274,7 +274,7 @@ def test_params(session):
     assert dev4.parameters['intexplicit'].userparam is True
     assert dev4.parameters['explicit'].userparam is False
     # ambiguous parameter settings of internal and mandatory should raise
-    assert raises(ProgrammingError, Param, "ambiguous", internal=True,
+    assert raises(ProgrammingError, Param, 'ambiguous', internal=True,
                   mandatory=True)
 
 
@@ -503,7 +503,7 @@ def test_special_params():
     # check that special parameter names cannot be used in "parameters"
     for param in ('value', 'status'):
         assert raises(ProgrammingError,
-                      type, "Dev", (Device,),
+                      type, 'Dev', (Device,),
                       dict(__module__='dummy',
                            parameters={param: Param('...')}))
 

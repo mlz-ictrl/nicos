@@ -90,7 +90,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         return int(self._read_controller('m4080')) / 100.0
 
     def doReadFatal(self):
-        res = int(self._read_controller("m4072"))
+        res = int(self._read_controller('m4072'))
         if res == 0:
             return 'ok'
         # else:

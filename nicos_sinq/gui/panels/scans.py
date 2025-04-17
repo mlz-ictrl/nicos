@@ -53,8 +53,8 @@ class ScansPanel(FlowuiScansPanel):
             'Scan files (*.dat)': AsciiScanfileReader,
             'SINQ TAS files (*.dat *.scn)': ILLAsciiScanfileReader,
         }
-        fdialog = FileFilterDialog(self, "Open data files", "",
-                                   ";;".join(ffilters.keys()))
+        fdialog = FileFilterDialog(self, 'Open data files', '',
+                                   ';;'.join(ffilters.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
         if fdialog.exec() != QDialog.DialogCode.Accepted:

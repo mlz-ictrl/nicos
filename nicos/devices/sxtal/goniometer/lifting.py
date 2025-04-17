@@ -20,12 +20,12 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-'''
+"""
 Lifting
 
 class for storing position using omega and lifting counter
 
-'''
+"""
 
 import numpy as np
 
@@ -69,7 +69,7 @@ class Lifting(PositionBase):
         if wavelength is None:
             wavelength = session.instrument.wavelength or None
         if not wavelength:
-            raise NicosError("Cannot perform conversion without knowing wavelength")
+            raise NicosError('Cannot perform conversion without knowing wavelength')
         cz = np.sin(self.nu) / wavelength
         theta = 0.5 * np.arccos(np.cos(self.gamma) * np.cos(self.nu))
         cabs2 = (2.0 / wavelength * np.sin(theta))**2
@@ -133,14 +133,14 @@ class Lifting(PositionBase):
     def __repr__(self):
         """ Representation. Part of Position subclass protocol.
         """
-        s = "[Lifting:"
+        s = '[Lifting:'
         if self.gamma is not None:
-            s = s + " gamma=%8.3f" % (np.rad2deg(self.gamma))
+            s = s + ' gamma=%8.3f' % (np.rad2deg(self.gamma))
         if self.omega is not None:
-            s = s + " omega=%8.3f" % (np.rad2deg(self.omega))
+            s = s + ' omega=%8.3f' % (np.rad2deg(self.omega))
         if self.nu is not None:
-            s = s + " nu=%8.3f" % (np.rad2deg(self.nu))
+            s = s + ' nu=%8.3f' % (np.rad2deg(self.nu))
         if self.psi is not None:
-            s = s + " psi=%8.3f" % (np.rad2deg(self.psi))
-        s = s + "]"
+            s = s + ' psi=%8.3f' % (np.rad2deg(self.psi))
+        s = s + ']'
         return s

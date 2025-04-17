@@ -144,7 +144,7 @@ def compare(s1, s2):
 
 
 def test():
-    assert compare("test", "test") == len("test") + 1.0
-    assert compare("Test", "test") == len("test") - 1.0 + CAPITALIZESCORE
-    assert compare("rest", "test") == len("test") - 1.0 + NEXTKEYSCORE
-    assert compare("rest", "crest") == len("rest") + GAPOPENPENALTY
+    assert compare('test', 'test') == len('test') + 1.0
+    assert compare('Test', 'test') == len('test') - 1.0 + CAPITALIZESCORE
+    assert compare('rest', 'test') == len('test') - 1.0 + NEXTKEYSCORE
+    assert compare('rest', 'crest') == len('rest') + GAPOPENPENALTY

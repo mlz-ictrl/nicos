@@ -14,7 +14,7 @@ class TestReadableToChannel:
         self.session = session
         self.dev_preset = session.getDevice('dev_preset')
         self.device = session.getDevice('dev')
-        yield "resource"
+        yield 'resource'
         self.dev_preset._preselection_reached = True
         self.dev_preset._history = []
         self.dev_preset.window = 5

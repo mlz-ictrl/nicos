@@ -626,7 +626,7 @@ class DevicesPanel(Panel):
                 dlg.limitMax.setText(str(value[1]))
         elif subkey == 'classes':
             if not value:
-                value = "[]"
+                value = '[]'
             devinfo.classes = set(cache_load(value))
         elif subkey == 'alias':
             if not value:

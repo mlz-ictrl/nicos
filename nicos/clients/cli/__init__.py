@@ -68,13 +68,13 @@ librl = ctypes.cdll[ctypes.util.find_library('readline')]
 rl_vcpfunc_t = ctypes.CFUNCTYPE(None, ctypes.c_char_p)
 
 # some useful default readline keybindings
-DEFAULT_BINDINGS = '''\
+DEFAULT_BINDINGS = """\
 tab: complete
 "\\e[5~": history-search-backward
 "\\e[6~": history-search-forward
 "\\e[1;3D": backward-word
 "\\e[1;3C": forward-word
-'''
+"""
 
 # yay, global state!
 readline_result = Ellipsis
@@ -1059,7 +1059,7 @@ class NicosCmdClient(NicosClient):
 # help texts
 
 HELP = {
-    'main': '''\
+    'main': """\
 This is the NICOS command-line client.  You can enter all NICOS commands
 at the command line; enter "help()" for an overview of NICOS commands
 and devices.
@@ -1097,8 +1097,8 @@ All output prefixed with "#" comes from the client.
 
 To learn how to pre-set your connection parameters, enter "/help connect".
 To learn about debugging commands, enter "/help debug".
-''',
-    'connect': '''\
+""",
+    'connect': """\
 Connection defaults can be given on the command-line, e.g.
 
   nicos-client user@server:port
@@ -1123,8 +1123,8 @@ command line
   nicos-client tas
 
 or by a symlink to "nicos-client" called "tas".
-''',
-    'debug': '''\
+""",
+    'debug': """\
 There are several debugging commands built into the client:
 
 While a script is running:
@@ -1146,7 +1146,7 @@ At any time:
   /debugclient        -- drop into a pdb shell to debug the client:
                          exit using the "c" command
   /subsec             -- toggle subsecond display for message timestamps
-'''
+"""
 }
 
 

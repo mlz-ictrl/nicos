@@ -59,7 +59,7 @@ class SlitGeometryPlaceholder(PlaceholderBase):
         self.defaultval = defaultval
 
     def __repr__(self):
-        return "(Slit: %s)" % self.slit
+        return '(Slit: %s)' % self.slit
 
     def fetch_info(self, metainfo):
         """ Returns the slit geometry [top-bottom, left-right]

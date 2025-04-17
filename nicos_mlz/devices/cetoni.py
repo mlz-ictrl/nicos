@@ -166,7 +166,7 @@ class CetoniSyringe(Motor):
         """
         if self._valve.doRead() not in ('closed', 'outlet'):
             raise errors.NicosError(self, 'Corresponding valve should be either'
-                                    ' in \"closed\" or \"outlet\" state.')
+                                    ' in "closed" or "outlet" state.')
         self.set_pressure(target_pressure, rewrite_xy)
         if not self._pid_thread:
             self.pid_mode = True
@@ -205,7 +205,7 @@ class CetoniSyringe(Motor):
             if step < 0 and pressure >= target_pressure:
                 break
         if not 0 < fill < self._max_volume:
-            raise errors.NicosError(self, 'Can\'t reach the pressure from '
+            raise errors.NicosError(self, "Can't reach the pressure from "
                                           'current syringe fill level.')
         k = (self._y[-1] - self._y[-2]) / (self._x[-1] - self._x[-2])
         b = self._y[-1] - k * self._x[-1]
@@ -247,7 +247,7 @@ class CetoniSyringe(Motor):
             if t > 10000:
                 self.stop_pid()
                 raise errors.InvalidValueError(self,
-                                               'PID controller can\'t reach the'
+                                               "PID controller can't reach the"
                                                ' condition.')
 
         # once good precision is obtained on virtual syringe, it is transferred

@@ -41,4 +41,4 @@ def getResDir():
 
 
 def getClass(_class):
-    return str(_class).strip("<>").split()[-1].strip("'")
+    return str(_class).strip('<>').split()[-1].strip("'")

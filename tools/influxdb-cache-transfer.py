@@ -98,18 +98,18 @@ class InfluxDB:
         self._write_api.write(bucket=self._bucket, record=points)
 
     def read(self, bucket, measurement, field):
-        msg = f'''from(bucket:"{bucket}")
+        msg = f"""from(bucket:"{bucket}")
             |> range(start: 2007-01-01T00:00:00Z, stop: now())
             |> filter(fn:(r) => r._measurement == "{measurement}")
             |> filter(fn:(r) => r._field == "{field}")
-            |> drop(columns: ["_start", "_stop", "_time"])'''
+            |> drop(columns: ["_start", "_stop", "_time"])"""
         tables = self._client.query_api().query(msg)
         return tables
 
     def read_keys(self, bucket, tsfrom=None, tsto=None, measurement=None):
-        fromtime = datetime.utcfromtimestamp(tsfrom).strftime("%Y-%m-%dT%H:%M:%SZ") \
+        fromtime = datetime.utcfromtimestamp(tsfrom).strftime('%Y-%m-%dT%H:%M:%SZ') \
             if tsfrom else '2007-01-01T00:00:00Z'
-        totime = datetime.utcfromtimestamp(tsto).strftime("%Y-%m-%dT%H:%M:%SZ") \
+        totime = datetime.utcfromtimestamp(tsto).strftime('%Y-%m-%dT%H:%M:%SZ') \
             if tsto else 'now()'
         msg = 'import "influxdata/influxdb/schema"\n'
         if measurement:
@@ -227,7 +227,7 @@ def parseFile(measurement, cachefile):
                 except Exception:
                     errorlog.append(line)
                     continue
-                expired = expired == "-"
+                expired = expired == '-'
                 skip_keys = ['', '-']
                 if value and value not in skip_keys:
                     try:
@@ -619,4 +619,4 @@ if __name__ == '__main__':
     elif args.command == 'read-compare-errors':
         read_compare_errors(args.influxUrl)
     else:
-        print(f"Invalid command: {args.command}")
+        print(f'Invalid command: {args.command}')

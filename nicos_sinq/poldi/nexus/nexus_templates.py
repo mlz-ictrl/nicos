@@ -52,15 +52,15 @@ poldi_base = {
                 'rotation_angle': DeviceDataset('cr1'),
             },
             'detector_south:NXdetector': {
-                "histogram": NamedImageDataset('det_south_hist'),
-                "histogram_folded": NamedImageDataset('det_south_hist_folded'),
-                "summed_counts": DetectorDataset(
+                'histogram': NamedImageDataset('det_south_hist'),
+                'histogram_folded': NamedImageDataset('det_south_hist_folded'),
+                'summed_counts': DetectorDataset(
                     'det_south_hist', dtype='uint32',
                     units=NXAttribute('counts', 'string')),
             },
             'diaphragm1:NXaperture': {
                 'distance': ConstDataset(
-                    8000.0, 'float32', units=NXAttribute("mm", "string")),
+                    8000.0, 'float32', units=NXAttribute('mm', 'string')),
                 'left': DeviceDataset('d1hl'),
                 'left_zero': DeviceDataset('d1hl', 'offset', 'float32'),
                 'right': DeviceDataset('d1hr'),
@@ -68,7 +68,7 @@ poldi_base = {
                 },
             'diaphragm2:NXaperture': {
                 'distance':  ConstDataset(
-                    2200.0, 'float32', units=NXAttribute("mm", "string")),
+                    2200.0, 'float32', units=NXAttribute('mm', 'string')),
                 'left': DeviceDataset('d2hl'),
                 'left_zero': DeviceDataset('d2hl', 'offset', 'float32'),
                 'right': DeviceDataset('d2hr'),
@@ -97,7 +97,7 @@ poldi_base = {
             StartTime(),
         'end_time':
             EndTime(),
-        "comment": DeviceDataset("Exp", "remark"),
+        'comment': DeviceDataset('Exp', 'remark'),
         'monitors:NXmonitor': {
             'monitor1_before_chopper':
                 DetectorDataset('monitor3',
@@ -122,15 +122,15 @@ poldi_base = {
 }
 
 poldi_sample = {
-    "name": DeviceDataset("Sample", "samplename"),
-    "environment": SaveSampleEnv(),
-    "sa": DeviceDataset('sa'),
+    'name': DeviceDataset('Sample', 'samplename'),
+    'environment': SaveSampleEnv(),
+    'sa': DeviceDataset('sa'),
     'sa_zero': DeviceDataset('sa', 'offset', 'float32'),
-    "shl": DeviceDataset('shl'),
+    'shl': DeviceDataset('shl'),
     'shl_zero': DeviceDataset('shl', 'offset', 'float32'),
-    "shu": DeviceDataset('shu'),
+    'shu': DeviceDataset('shu'),
     'shu_zero': DeviceDataset('shu', 'offset', 'float32'),
-    "sv": DeviceDataset('sv'),
+    'sv': DeviceDataset('sv'),
     'sv_zero': DeviceDataset('sv', 'offset', 'float32'),
 }
 

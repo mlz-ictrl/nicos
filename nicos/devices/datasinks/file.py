@@ -26,7 +26,7 @@
 from nicos.core.data import DataSink
 from nicos.core.params import Param, intrange, listof, none_or, subdir
 
-TEMPLATE_DESC = '''Templates must contain percent-style placeholders
+TEMPLATE_DESC = """Templates must contain percent-style placeholders
 (e.g. ``%(proposal)s_%(pointcounter)08d``) with the following keys:
 
 * counters:
@@ -44,7 +44,7 @@ TEMPLATE_DESC = '''Templates must contain percent-style placeholders
 
 * all devices and parameters (e.g. ``dev1`` for the value of dev1 and
   ``dev1.param`` for a parameter)
-'''
+"""
 
 
 class FileSink(DataSink):

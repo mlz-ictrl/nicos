@@ -36,7 +36,7 @@ class HistogramFlatbuffersDeserializer:
     """
     Decode the histogram using the flatbuffers schema hs00
     """
-    file_identifier = "hs00"
+    file_identifier = 'hs00'
 
     @staticmethod
     def _read_as_numpy(histogram, dtype=ArrayUInt.ArrayUInt):

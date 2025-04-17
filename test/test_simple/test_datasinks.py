@@ -274,14 +274,14 @@ class TestSinks:
         with open(yamlfile, encoding='utf-8') as df:
             data = df.read()
             # note: whitespace is significant in the following lines!
-            assert '''instrument:
-    name: INSTR''' in data
-            assert '''experiment:
+            assert """instrument:
+    name: INSTR""" in data
+            assert """experiment:
     number: p1234
-    proposal: p1234''' in data
-            assert '''    sample:
+    proposal: p1234""" in data
+            assert """    sample:
         description:
-            name: mysample''' in data
+            name: mysample""" in data
 
     @pytest.mark.skipif(not (quickyaml and yaml),
                         reason='QuickYAML/PyYAML libraries missing')

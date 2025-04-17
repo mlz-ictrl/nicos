@@ -77,13 +77,13 @@ class RefAxis(Axis):
 
         # Check initial conditions
         if self.refpos is None:
-            self.log.error('Can\'t reference, no refpos specified!')
+            self.log.error("Can't reference, no refpos specified!")
             return
         if self._mode not in [MASTER, MAINTENANCE]:
             if self._mode == SIMULATION:
                 self.log.debug('would reference')
             else:
-                self.log.error('Can\'t reference if not in master or '
+                self.log.error("Can't reference if not in master or "
                                'maintenance mode!')
             return
 
@@ -253,13 +253,13 @@ class RotAxis(RefAxis):
                                      '[-%.1f .. %.1f]' % (self.wraparound,
                                                           self.wraparound))
         if self.refpos is None:
-            self.log.error('Can\'t reference, no refpos specified!')
+            self.log.error("Can't reference, no refpos specified!")
             return
         if self._mode not in [MASTER, MAINTENANCE]:
             if self._mode == SIMULATION:
                 self.log.debug('would reference')
             else:
-                self.log.error('Can\'t reference if not in master or '
+                self.log.error("Can't reference if not in master or "
                                'maintenance mode!')
             return
 
@@ -360,7 +360,7 @@ class VirtualRotAxisMotor(VirtualMotor):
     def doStart(self, target):
         if self.curvalue > target:  # going backwards
             if self._refswitch():
-                raise NicosError(self, 'Can\'t go backwards, Limit-switch is '
+                raise NicosError(self, "Can't go backwards, Limit-switch is "
                                  'active!')
         return VirtualMotor.doStart(self, target)
 

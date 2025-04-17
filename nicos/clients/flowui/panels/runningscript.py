@@ -48,7 +48,7 @@ class RunningScriptPanel(Panel):
         Panel.__init__(self, parent, client, options)
         loadUi(self, self.ui)
 
-        pxr = decolor_logo(QPixmap("resources/nicos-logo-high.svg"),
+        pxr = decolor_logo(QPixmap('resources/nicos-logo-high.svg'),
                            Qt.GlobalColor.white)
         self.nicosLabel.setPixmap(pxr)
 

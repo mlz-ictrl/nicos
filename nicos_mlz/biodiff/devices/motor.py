@@ -42,30 +42,30 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
     CODE_TIME = .05   # additional code execution time in polling routine
 
     attached_devices = {
-        "motor": Attach("Motor device which will be moved.", Moveable),
+        'motor': Attach('Motor device which will be moved.', Moveable),
     }
 
     parameters = {
-        "microstep": Param("Software/Pseudo micro step size",
+        'microstep': Param('Software/Pseudo micro step size',
                            type=float, settable=True, mandatory=False,
                            default=0.01),
-        "maxtime": Param("Maximum time for one micro step in seconds",
+        'maxtime': Param('Maximum time for one micro step in seconds',
                          type=float, settable=True, mandatory=False,
                          default=0.8),
-        "maxspeed": Param("Maximum speed",
+        'maxspeed': Param('Maximum speed',
                           type=float, settable=False, mandatory=False),
     }
 
     parameter_overrides = {
-        "abslimits": Override(mandatory=False)
+        'abslimits': Override(mandatory=False)
     }
 
     def doInit(self, mode):
-        self._setROParam("maxspeed", self.microstep / self.maxmovetime)
+        self._setROParam('maxspeed', self.microstep / self.maxmovetime)
         self._delay = self.maxtime
         if self.speed < 1e-8:
-            self.log.warning("speed has not been set, setting maximum "
-                             "speed %.4f", self.maxspeed)
+            self.log.warning('speed has not been set, setting maximum '
+                             'speed %.4f', self.maxspeed)
             self.speed = self.maxspeed
 
     @property
@@ -108,20 +108,20 @@ maxspeed: %.4f
         if value < self.maxspeed or math.fabs(self.maxspeed - value) < 1e-5:
             self._delay = delay
         else:
-            raise LimitError(self, "speed too high, maximum speed is %.4f"
+            raise LimitError(self, 'speed too high, maximum speed is %.4f'
                              % self.maxspeed)
 
     def doWriteMaxtime(self, value):
-        self._setROParam("maxspeed", self.microstep / self._maxmovetime(value))
+        self._setROParam('maxspeed', self.microstep / self._maxmovetime(value))
         if self.speed > self.maxspeed:
-            self.log.warning("speed too high, setting speed to %.4f",
+            self.log.warning('speed too high, setting speed to %.4f',
                              self.maxspeed)
             self.speed = self.maxspeed
 
     def doWriteMicrostep(self, value):
-        self._setROParam("maxspeed", value / self.maxmovetime)
+        self._setROParam('maxspeed', value / self.maxmovetime)
         if self.speed > self.maxspeed:
-            self.log.warning("speed too high, setting speed to %.4f",
+            self.log.warning('speed too high, setting speed to %.4f',
                              self.maxspeed)
             self.speed = self.maxspeed
 
@@ -146,7 +146,7 @@ maxspeed: %.4f
         t = time.time()
         BaseSequencer._sequence(self, sequence)
         t = time.time() - t
-        self.log.info("Movement finished, time elapsed %.4f.", t)
+        self.log.info('Movement finished, time elapsed %.4f.', t)
 
     def doStop(self):
         if not self._seq_is_running():
@@ -165,5 +165,5 @@ class S7InterlockMotor(TangoMotor):
             statebits = self._dev.StateBits
             if statebits & (0x4 | 0x8):  # both limit switch bits set
                 code = status.OK
-                msg = "Interlocked, " + msg
+                msg = 'Interlocked, ' + msg
         return code, msg

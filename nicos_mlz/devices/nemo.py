@@ -82,7 +82,7 @@ class NemoWrapper(NemoConnector):
                 'password': password
             })
             if not res:
-                error = "NEMO: Authentication failed:%r" % res
+                error = 'NEMO: Authentication failed:%r' % res
         except Exception as err:
             # this avoids leaking authentication details via tracebacks
             error = 'NEMO: ' + str(err)
@@ -105,7 +105,7 @@ class NemoWrapper(NemoConnector):
         try:
             data = self.get_users_by_username(username)[0]
         except Exception as e:
-            self.log.error("%r", e)
+            self.log.error('%r', e)
             return {
                 'firstname': 'first_name',
                 'lastname': 'last_name',
@@ -199,7 +199,7 @@ class NemoWrapper(NemoConnector):
             try:
                 res = self.queryExperiment(ses['id'], sessions)
             except Exception:
-                session.log.warning("error querying session %s",
+                session.log.warning('error querying session %s',
                                     ses['id'],
                                     exc=1)
             else:

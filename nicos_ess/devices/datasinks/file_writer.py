@@ -136,7 +136,7 @@ class JobRecord:
         return self.stop_time is not None
 
     def get_state_string(self):
-        return str(self.state).split(".")[1]
+        return str(self.state).split('.')[1]
 
 
 class FileWriterStatus(KafkaStatusHandler):

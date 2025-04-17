@@ -563,15 +563,15 @@ class DeviceValueDict:
                     elif hasattr(dev, '__contains__') and sub in dev:
                         dev = dev[sub]
                     else:
-                        session.log.warning("invalid key %r requested, "
-                                            "returning %r", key, res,
+                        session.log.warning('invalid key %r requested, '
+                                            'returning %r', key, res,
                                             exc=1)
                         break
                 else:
                     # stringify result
                     res = str(dev)
         except Exception:
-            session.log.warning("invalid key %r requested, returning %r",
+            session.log.warning('invalid key %r requested, returning %r',
                                 key, res, exc=1)
         if isinstance(res, bytes):
             res = toAscii(res.decode('latin1', 'ignore'))

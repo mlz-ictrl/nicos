@@ -26,7 +26,7 @@
 
 from nicos.devices.entangle import Sensor
 
-CONFIG = '''
+CONFIG = """
 *RST;
 
 :FUNC "FREQ";
@@ -54,7 +54,7 @@ CONFIG = '''
 :TRIG:DEL +0.00000000000000E+000;
 :TRIG:SLOP NEG;
 :TRIG:SOUR IMM;
-'''
+"""
 
 class FC53210A(Sensor):
     """Support for FC 53210A

@@ -151,7 +151,7 @@ class CaprotoWrapper:
                                             data_type='control')
             return self._convert_value(pvname, result, as_string)
         except CaprotoTimeoutError:
-            raise TimeoutError(f"getting {pvname} timed out") from None
+            raise TimeoutError(f'getting {pvname} timed out') from None
 
     def _convert_value(self, pvname, raw_value, as_string=False):
         if len(raw_value.data) == 1:
@@ -176,7 +176,7 @@ class CaprotoWrapper:
         try:
             self._pvs[pvname].write(value, wait=wait, timeout=self._timeout)
         except CaprotoTimeoutError:
-            raise TimeoutError(f"setting {pvname} timed out") from None
+            raise TimeoutError(f'setting {pvname} timed out') from None
 
     def put_pv_value_blocking(self, pvname, value, block_timeout=60):
         if pvname in self._choices:
@@ -184,7 +184,7 @@ class CaprotoWrapper:
         try:
             self._pvs[pvname].write(value, wait=True, timeout=block_timeout)
         except CaprotoTimeoutError:
-            raise TimeoutError(f"setting {pvname} timed out") from None
+            raise TimeoutError(f'setting {pvname} timed out') from None
 
     def get_pv_type(self, pvname):
         data_type = self._pvs[pvname].channel.native_data_type
@@ -217,7 +217,7 @@ class CaprotoWrapper:
             return result.metadata
         except CaprotoTimeoutError:
             raise TimeoutError(
-                f"getting control values for {pvname} timed out") from None
+                f'getting control values for {pvname} timed out') from None
 
     def get_value_choices(self, pvname):
         # Only works for enum types like MBBI and MBBO

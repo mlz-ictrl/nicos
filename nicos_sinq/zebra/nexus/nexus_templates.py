@@ -34,57 +34,57 @@ from nicos_sinq.sxtal.instrument import EulerSXTal
 
 
 class ZEBRATemplateProvider(NexusTemplateProvider):
-    _zebra_default = {"NeXus_Version": "4.3.0", "instrument": "ZEBRA",
-                      "owner": DeviceAttribute('ZEBRA', 'responsible'),
-                      "entry1:NXentry": {"title": DeviceDataset('Exp',
+    _zebra_default = {'NeXus_Version': '4.3.0', 'instrument': 'ZEBRA',
+                      'owner': DeviceAttribute('ZEBRA', 'responsible'),
+                      'entry1:NXentry': {'title': DeviceDataset('Exp',
                                                                 'title'),
-                                         "proposal_title":
+                                         'proposal_title':
                                              DeviceDataset('Exp', 'title'),
-                                         "proposal_id":
+                                         'proposal_id':
                                              DeviceDataset('Exp', 'proposal'),
-                                         "start_time": NXTime(),
-                                         "zebra_mode":
+                                         'start_time': NXTime(),
+                                         'zebra_mode':
                                              DeviceDataset('zebramode',
                                                            dtype='string'),
-                                         "end_time": NXTime(), "user:NXuser": {
-                                         "name": DeviceDataset('Exp', 'users'),
-                                         "email":
+                                         'end_time': NXTime(), 'user:NXuser': {
+                                         'name': DeviceDataset('Exp', 'users'),
+                                         'email':
                                              DeviceDataset('Exp',
                                                            'localcontact'),
                                          },
-                                         "comment":
+                                         'comment':
                                              DeviceDataset('Exp',
                                                            'remark'),
-                                         "control:NXmonitor": {
-                                             "mode": DetectorDataset('mode',
-                                                                     "string"),
-                                             "Monitor": DetectorDataset(
+                                         'control:NXmonitor': {
+                                             'mode': DetectorDataset('mode',
+                                                                     'string'),
+                                             'Monitor': DetectorDataset(
                                                  'monitorval', 'float32',
                                                  units=NXAttribute('counts',
                                                                    'string')),
-                                             "preset":
+                                             'preset':
                                                  DetectorDataset('preset',
                                                                  'float32'),
-                                             "time": DetectorDataset(
+                                             'time': DetectorDataset(
                                                  'elapsedtime', 'float32',
                                                  units=NXAttribute('seconds',
                                                                    'string')),
                                          },
-                                         "proton_beam:NXmonitor": {
-                                             "data": DetectorDataset(
+                                         'proton_beam:NXmonitor': {
+                                             'data': DetectorDataset(
                                                  'protoncurr',
                                                  'int32',
                                                  units=NXAttribute(
                                                      'counts',
                                                      'string'))},
-                                         "beam_monitor:NXmonitor": {
-                                             "data": DetectorDataset(
+                                         'beam_monitor:NXmonitor': {
+                                             'data': DetectorDataset(
                                                  'monitorval',
                                                  'int32',
                                                  units=NXAttribute('counts',
                                                                    'string'))},
-                                         "area_detector2:NXdata": {
-                                             "data": NXLink(
+                                         'area_detector2:NXdata': {
+                                             'data': NXLink(
                                                  '/entry1/ZEBRA/'
                                                  'area_detector2/data'),
                                              'None': NXScanLink(),
@@ -92,7 +92,7 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
                                          },
                       }
     _zebra_instrument = {
-        "SINQ:NXsource": {
+        'SINQ:NXsource': {
             'name': ConstDataset('SINQ @ PSI', 'string'),
             'type': ConstDataset('Continuous flux spallation source',
                                  'string')
@@ -164,7 +164,7 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
         'k': DeviceDataset('k'),
         'l': DeviceDataset('l'),
         'name': DeviceDataset('Sample', 'samplename'),
-        "lieselotte": SaveSampleEnv(blocklist=_zebrablocklist),
+        'lieselotte': SaveSampleEnv(blocklist=_zebrablocklist),
     }
 
     def getTemplate(self):

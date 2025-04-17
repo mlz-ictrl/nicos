@@ -440,14 +440,14 @@ class MCC2Motor(MCC2core, NicosMotor):
         self.comm('XE%d' % pos)
 
     def doStop(self):
-        ''' send the stop command '''
+        """ send the stop command """
         for _i in range(5):
             if not self.comm('XS'):
                 return
         self.log.error('Stopping failed! no ACK!')
 
     def doSetPosition(self, pos):
-        ''' set current position to given value'''
+        """ set current position to given value"""
         d = int(pos * self.slope * self.microstep)
         self.comm('XP20S%d XP21S%d XP19S%d' % (d, d, d))  # set all counters
 

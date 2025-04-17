@@ -29,7 +29,7 @@ pytest.importorskip('lxml')
 
 from nicos_sinq.dmc.nexus.nexus_templates import DMCTemplateProvider
 
-session_setup = "sinq_dmc_nexus"
+session_setup = 'sinq_dmc_nexus'
 
 
 def flatten(d, parent_key='', sep='_'):

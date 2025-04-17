@@ -36,7 +36,7 @@ class InvertableMotor(HasOffset, TangoMotor):
     """
 
     parameters = {
-        "invert": Param("Invert axis", type=bool, settable=True,
+        'invert': Param('Invert axis', type=bool, settable=True,
                         default=False),
     }
 
@@ -46,13 +46,13 @@ class InvertableMotor(HasOffset, TangoMotor):
     def doRead(self, maxage=0):
         pos = TangoMotor.doRead(self, maxage)
         res = self._invertPosition(pos) - self.offset
-        self.log.debug("[read]  raw: %.3f  res: %.3f    offset: %.3f",
+        self.log.debug('[read]  raw: %.3f  res: %.3f    offset: %.3f',
                        pos, res, self.offset)
         return res
 
     def doStart(self, target):
         pos = self._invertPosition(target + self.offset)
-        self.log.debug("[start] raw: %.3f  res: %.3f    offset: %.3f",
+        self.log.debug('[start] raw: %.3f  res: %.3f    offset: %.3f',
                        target, pos, self.offset)
         return TangoMotor.doStart(self, pos)
 
@@ -74,19 +74,19 @@ class MasterSlaveMotor(Moveable):
     slave motor."""
 
     attached_devices = {
-        "master": Attach("Master motor controlling the movement", Moveable),
-        "slave": Attach("Slave motor following master motor movement",
+        'master': Attach('Master motor controlling the movement', Moveable),
+        'slave': Attach('Slave motor following master motor movement',
                         Moveable),
     }
 
     parameters = {
-        "scale": Param("Factor applied to master target position as slave "
-                       "position", type=float, default=1),
+        'scale': Param('Factor applied to master target position as slave '
+                       'position', type=float, default=1),
     }
 
     parameter_overrides = {
-        "unit": Override(mandatory=False),
-        "fmtstr": Override(default="%.3f %.3f"),
+        'unit': Override(mandatory=False),
+        'fmtstr': Override(default='%.3f %.3f'),
     }
 
     def _slavePos(self, pos):

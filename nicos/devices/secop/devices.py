@@ -210,7 +210,7 @@ class SecNodeDevice(Readable):
                                 type=dictof(str, dictof(str, anytype)),
                                 prefercache=False, default={}, userparam=False),
     }
-    parameters['device_mapping'].ext_desc = '''
+    parameters['device_mapping'].ext_desc = """
     Dictionary name -> mapping where mapping is a dictionary which can contain
     the following keys:
     name -> remapped name of the device
@@ -245,7 +245,7 @@ class SecNodeDevice(Readable):
 
     Barcodes will then be mapped to a NICOS-device called nodname_barcodes and
     examplemodule will become a device named ExampleName.
-    '''
+    """
 
     parameter_overrides = {
         'unit': Override(default='', mandatory=False),
@@ -280,7 +280,7 @@ class SecNodeDevice(Readable):
                 try:
                     self._connect()
                 except Exception:
-                    self.log.exception("during initial connect")
+                    self.log.exception('during initial connect')
             if self.maxage is None:
                 self.maxage = 600
             self.__shutdown = Event()
@@ -874,8 +874,8 @@ class SecopDevice(Device):
         # SecNode) or not, where we need to get it from setup_info.
         if 'secop_properties' not in devcfg:
             devname = secnodedev._get_device_name(devcfg['secop_module'])
-            devcfg["secop_properties"] = secnodedev.setup_info[devname][1].get(
-                "secop_properties", {}
+            devcfg['secop_properties'] = secnodedev.setup_info[devname][1].get(
+                'secop_properties', {}
             )
 
         classname = cls.__name__ + '_' + name

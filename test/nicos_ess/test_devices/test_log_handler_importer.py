@@ -55,7 +55,7 @@ class Config:
 
 
 @pytest.mark.skipif(ESSGELFTCPHandler is None,
-                    reason="graypy module not installed")
+                    reason='graypy module not installed')
 class TestGraylogHandler:
     logging_type = ESSGELFTCPHandler
 
@@ -75,7 +75,7 @@ class TestGraylogHandler:
 
 
 @pytest.mark.skipif(KafkaLoggingHandler is None,
-                    reason="kafka-logging-handler module not installed")
+                    reason='kafka-logging-handler module not installed')
 class TestKafkaHandler:
     logger_type = KafkaLoggingHandler
 
@@ -116,7 +116,7 @@ class TestKafkaHandler:
 
 
 @pytest.mark.skipif(AsynchronousLogstashHandler is None,
-                    reason="logstash handler module not installed")
+                    reason='logstash handler module not installed')
 class TestALogstashHandler:
     logger_type = AsynchronousLogstashHandler
 
@@ -144,8 +144,8 @@ class TestALogstashHandler:
 
 
 @pytest.mark.skipif(KafkaLoggingHandler is None or ESSGELFTCPHandler is None,
-                    reason="graypy and/or kafka-logging-handler module not "
-                           "installed")
+                    reason='graypy and/or kafka-logging-handler module not '
+                           'installed')
 class TestMultipleHandlers:
 
     @patch.object(KafkaLoggingHandler, '__init__', return_value=None)

@@ -277,7 +277,7 @@ class EpicsStringReadable(EpicsReadable):
                               message, **kwargs):
         if isinstance(value, numpy.ndarray):
             # It is a char waveform
-            value = "".join(chr(x) for x in value)
+            value = ''.join(chr(x) for x in value)
         EpicsDevice.value_change_callback(self, name, param, value, units,
                                           severity, message, **kwargs)
 
