@@ -40,7 +40,7 @@ devices = dict(
         abslimits = (-100, 100),
     ),
     table_test = device('nicos_sinq.devices.componenttable.ComponentTable',
-        description = "Boa Table Testing",
+        description = 'Boa Table Testing',
         standard_devices = ['rb', 'rc']
     ),
 )

@@ -10,7 +10,7 @@ sysconfig = dict(datasinks = sinklist,)
 
 devices = dict(
     asciisink = device('nicos_sinq.devices.sinqasciisink.SINQAsciiSink',
-        description = "Sink for  SINQ ASCII writer",
+        description = 'Sink for  SINQ ASCII writer',
         filenametemplate = [
             'test%(year)sn%(scancounter)06d.dat',
         ],

@@ -2,11 +2,11 @@ description = 'Device to be tested in the SINQ_AMOR.'
 
 
 def create_epics_motor(controller_id, device_id):
-    '''
-    Creates a motor with controller id (a/b/c) and
-    name of the motor device. The motor pv will be used as follows:
+    """Create a motor with controller id (a/b/c) and name of the motor device.
+
+    The motor pv will be used as follows:
     SQ:AMOR:mot<controller_id>:device_id
-    '''
+    """
     return device('nicos.devices.epics.pyepics.motor.EpicsMotor',
                   description='Test motor',
                   motorpv='SQ:AMOR:mot' + controller_id + ':' + device_id,
@@ -14,9 +14,7 @@ def create_epics_motor(controller_id, device_id):
 
 
 def create_epics_magnet(device_id):
-    '''
-    Creates a magnet with the given device id
-    '''
+    """Create a magnet with the given device id."""
     return device('nicos_sinq.amor.devices.epics_amor_magnet.EpicsAmorMagnet',
                   description='Test magnet',
                   basepv='SQ:AMOR:' + device_id,
@@ -32,9 +30,7 @@ def create_epics_magnet(device_id):
 
 
 def create_epics_asyn_controller(device_id):
-    """
-    Creates an asyn controller with the given device id
-    """
+    """Create an asyn controller with the given device id."""
     return device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
                   description='Asyn controller for motors in serial1',
                   commandpv=f'SQ:AMOR:{device_id}.AOUT',
