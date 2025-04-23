@@ -24,12 +24,13 @@
 """NICOS commands tests."""
 
 import numpy
+from pytest import approx
 
 from nicos.commands.utility import FloatRange, RangeListByCount, \
     RangeListByStep, RangeListGeneral, RangeListLog
 from nicos.core import UsageError
 
-from test.utils import approx, raises
+from test.utils import raises
 
 
 def test_rangelistbystep():

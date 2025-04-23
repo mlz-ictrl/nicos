@@ -24,11 +24,12 @@
 """ANTARES specific devices tests."""
 
 import pytest
+from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import InvalidValueError, PositionError
 
-from test.utils import approx, raises
+from test.utils import raises
 
 session_setup = 'antares'
 

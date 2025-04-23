@@ -22,9 +22,9 @@
 # *****************************************************************************
 
 
-from nicos_sinq.icon.commands.iconcommands import tomo_run, tomo_setup
+from pytest import approx
 
-from test.utils import approx
+from nicos_sinq.icon.commands.iconcommands import tomo_run, tomo_setup
 
 session_setup = 'sinq_tomoscan'
 

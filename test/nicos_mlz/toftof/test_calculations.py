@@ -24,12 +24,11 @@
 """TOFTOF chopper calculation tests."""
 
 import pytest
+from pytest import approx
 
 from nicos_mlz.toftof.lib.calculations import Eres1, ResolutionAnalysis, \
     alpha, calculateChopperDelay, calculateCounterDelay, calculateFrameTime, \
     phi, phi1, speedRatio, t1, t2
-
-from test.utils import approx
 
 
 class TestBasicCalculations:

@@ -25,8 +25,7 @@
 """Tests for the cell.py HKL transformation routines."""
 
 from numpy import array
-
-from test.utils import approx
+from pytest import approx
 
 session_setup = 'tas'
 
