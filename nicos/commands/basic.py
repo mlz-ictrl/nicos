@@ -35,7 +35,7 @@ from nicos import session
 from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
     usercommand
 from nicos.core import ADMIN, MAINTENANCE, MASTER, SIMULATION, Device, \
-    ModeError, NicosError, Readable, UsageError
+    ModeError, NicosError, Readable, UsageError, requires
 from nicos.devices.notifiers import Mailer
 from nicos.protocols.daemon import BREAK_AFTER_STEP
 from nicos.utils import LOCALE_ENCODING, fixupScript, formatArgs, \
@@ -49,9 +49,9 @@ __all__ = [
     'CreateDevice', 'RemoveDevice', 'CreateAllDevices',
     'NewExperiment', 'FinishExperiment', 'AddUser', 'ListUsers',
     'Remark', 'SetMode',
-    'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
-    'notify', 'SetMailReceivers', 'ListMailReceivers', 'SetDataReceivers',
-    'ListDataReceivers', '_trace', 'timer',
+    'sync', 'ClearCache', 'ClearAllCache', 'UserInfo', '_RunScript', '_RunCode',
+    'run', 'sim', 'notify', 'SetMailReceivers', 'ListMailReceivers',
+    'SetDataReceivers', 'ListDataReceivers', '_trace', 'timer',
     'LogEntry', 'HideLog', '_LogAttach', '_LogAttachImage',
     'SetErrorAbort', 'pause', 'userinput', 'abort',
 ]
@@ -575,21 +575,56 @@ def ClearCache(*devnames):
 
     will clear cache information for devices "om" and "phi" and then reload the
     current setup.
+
+    Clearing the cache of a device means:
+
+    - Parameters whose value is only stored in the cache (such as e.g. the
+      offset parameter) return their initial value given in a setup file (if
+      one was given) or their default value if queried (e.g. 0 for the offset).
+    - Values which have a corresponding ``doRead`` method use it to obtain a
+      new value. Functionally, this is equal to read the value with
+      ``maxage=0``.
+
+    After the parameter has been read / written to, the newly obtained / given
+    value is used to populate the cache again.
     """
     if not devnames:
-        raise UsageError('At least one device name is required, use '
-                         "ClearCache('*') to clear everything")
-    if devnames == ('*',):
-        session.cache.clear_all()
-        session.log.info('cleared ALL cached information - you probably want '
-                         'to restart the session now')
-        return
+        raise UsageError('At least one device name is required')
     for devname in devnames:
         if isinstance(devname, Device):
             devname = devname.name
         session.cache.clear(devname)
         session.log.info('cleared cached information for %s', devname)
 
+
+@hiddenusercommand
+@requires(level=ADMIN,
+          helpmsg='Clear all cached information is only allowed for admin users')
+def ClearAllCache():
+    """Clear all cached information for **ALL** devices
+
+    This command can be used to "reset" the cache entirely by deleting the
+    cached values for all parameters of all devices. This means that parameters
+    only stored in the cache (such as e.g. offsets) are lost and can only be
+    obtained again from the logs.
+
+    Clearing the cache of a device means:
+
+    - Parameters whose value is only stored in the cache (such as e.g. the
+      offset parameter) return their initial value given in a setup file (if
+      one was given) or their default value if queried (e.g. 0 for the offset).
+    - Values which have a corresponding ``doRead`` method use it to obtain a
+      new value. Functionally, this is equal to read the value with
+      ``maxage=0``.
+
+    After the parameter has been read / written to, the newly obtained / given
+    value is used to populate the cache again.
+
+    **Use with caution!**
+    """
+    session.cache.clear_all()
+    session.log.info('cleared ALL cached information - you probably want '
+                     'to restart the session now')
 
 class _Scope:
     def __init__(self, name):
