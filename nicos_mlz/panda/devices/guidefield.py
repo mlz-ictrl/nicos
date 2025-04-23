@@ -217,16 +217,12 @@ class GuideField(MappedMoveable):
         F = self._B2I(B)  # compute currents for requested field
 
         # now check limits
-        valueOk = True
         for c, f in zip(self.coils, F):
             check = c.isAllowed(f)
             if not check[0]:
                 self.log.error("Can't set %s to %s: %s",
                                c, c.format(f, unit=True), check[1])
-                valueOk = False
-
-        if not valueOk:
-            raise LimitError(check[1])
+                raise LimitError(check[1])
 
         # go there
         for c, f in zip(self.coils, F):
