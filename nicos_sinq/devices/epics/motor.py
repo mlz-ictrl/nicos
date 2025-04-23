@@ -109,9 +109,16 @@ class SinqMotor(CoreEpicsMotor):
         self._pvs['readpv'].add_callback(update_position)
 
     def doStatus(self, maxage=0):
-        if not self._get_pv('enable_rbv'):
+        (stat, msg) = CoreEpicsMotor.doStatus(self, maxage)
+
+        # If the motor reports an error, report the error rather than the fact
+        # that the motor is disabled.
+        if not self.isEnabled:
+            if stat == status.ERROR:
+                return (stat, 'Motor is disabled - ' + msg)
             return status.DISABLED, 'Motor is disabled'
-        return CoreEpicsMotor.doStatus(self, maxage)
+
+        return (stat, msg)
 
     def doReadEncoder_Type(self, maxage=0):
         encoder_type = self._get_pv('encoder_type', as_string=True)
