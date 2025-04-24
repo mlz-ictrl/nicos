@@ -572,9 +572,18 @@ def hasGnuplot():
     return True
 
 
-def selfDestructAfter(seconds):
+def selfDestructAfter(seconds=None):
     """If possible, setup a SIGALRM after *seconds* to clean up otherwise
     hanging test processes.
+
+    default timeout is 1200sec (=20 min), can be controlled via the
+    TEST_DAEMONS_TIMEOUT environment variable
+
+    for tools where a shorter timeout is required, pass it as argument
+
     """
+    if not seconds:
+        seconds = int(os.environ.get('TEST_DAEMONS_TIMEOUT', 1200))
+
     if hasattr(signal, 'alarm'):
         signal.alarm(seconds)
