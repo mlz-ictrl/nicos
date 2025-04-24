@@ -293,7 +293,7 @@ class ChopperDiscTranslation(CanReference, IsController, DeviceMixinBase):
         'fmtstr': Override(default='%d'),
     }
 
-    def doReference(self, *args):
+    def doReference(self):
         self.move(1)
 
     def doIsAllowed(self, target):

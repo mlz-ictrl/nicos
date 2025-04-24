@@ -167,11 +167,10 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
                            default=None, settable=False),
     }
 
-    def doReference(self, *args):
+    def doReference(self):
         # if self.status(0)[0] == status.BUSY:
         #   raise NicosError(self, 'cannot reference if device is moving.')
-        refswitch = args[0] if args and isinstance(args[0], str) \
-            else self.refswitch
+        refswitch = self.refswitch
         self.log.debug('reference: %s', refswitch)
         if refswitch == 'high':
             pos = self.absmax

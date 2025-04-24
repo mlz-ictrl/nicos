@@ -1050,7 +1050,7 @@ def resetlimits(*devlist):
 
 
 @usercommand
-def reference(dev, *args):
+def reference(dev):
     """Do a reference drive of the device, if possible.
 
     How the reference drive is done depends on the device settings.
@@ -1063,7 +1063,7 @@ def reference(dev, *args):
     except UsageError:
         session.log.error('%s has no reference function', dev)
         return
-    newpos = dev.reference(*args)
+    newpos = dev.reference()
     dev.log.info('reference drive complete, position is now %s',
                  dev.format(newpos, unit=True))
 

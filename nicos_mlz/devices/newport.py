@@ -61,7 +61,7 @@ class HexapodMaster(PyTangoDevice, CanReference, Readable):
         self._dev.accel = value
         self._dev.decel = value
 
-    def doReference(self, *args):
+    def doReference(self):
         self._dev.Reference()
 
     def doReset(self):

@@ -170,7 +170,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         self._attached_comm.writeLine(line)
         self.log.info('you should be MP!')
 
-    def doReference(self, *args):
+    def doReference(self):
         self.log.info('chopper reference QAD')
         # for dev in self._choppers:
         #     try:

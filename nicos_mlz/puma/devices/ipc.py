@@ -253,8 +253,7 @@ class ReferenceMotor(CanReference, Motor1):
             return (status.BUSY, 'referencing')
         return Motor1.doStatus(self, maxage)
 
-    def doReference(self, *args):
-        refswitch = args[0] if args and isinstance(args[0], str) else None
+    def doReference(self):
         if self.doStatus()[0] == status.BUSY:
             self.stop()
             self.wait()
@@ -272,7 +271,7 @@ class ReferenceMotor(CanReference, Motor1):
             if self._refcontrol is None:
                 threadname = 'referencing %s' % self
                 self._refcontrol = createThread(threadname, self._reference,
-                                                args=(refswitch,))
+                                                args=())
                 session.delay(0.2)
         else:
             raise NicosError(self, 'in error or busy state')

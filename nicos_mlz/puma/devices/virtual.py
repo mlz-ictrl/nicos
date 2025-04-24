@@ -44,9 +44,7 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
                            default='high', settable=False),
     }
 
-    def doReference(self, *args):
-        refswitch = args[0] if args and isinstance(args[0], str) else None
-        self.log.debug('reference: %s', refswitch)
+    def doReference(self):
         self._setrefcounter()
         if self.refpos is not None:
             ret = self.read(0)

@@ -273,7 +273,7 @@ class MultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
         for dev in self._rotation + self._translation:
             dev.reset()
 
-    def doReference(self, *args):
+    def doReference(self):
         if self._seq_is_running():
             if self._mode == SIMULATION:
                 self._seq_thread.join()

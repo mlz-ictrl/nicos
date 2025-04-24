@@ -274,7 +274,7 @@ class MultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             if dev.motor.addr in [71, 77, 83, 89]:
                 dev.reset()
 
-    def doReference(self, *args):
+    def doReference(self):
         # self.doReset()
         # remove all remaining move commands on cards due to touching
         # any limit switch

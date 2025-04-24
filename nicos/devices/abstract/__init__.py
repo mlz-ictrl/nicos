@@ -98,7 +98,7 @@ class CanReference(DeviceMixinBase):
 
     .. automethod:: reference
 
-    .. method:: doReference(*args)
+    .. method:: doReference()
 
        This method is called by `reference` to do the reference drive.  It
        should initiate a reference drive, wait for its completion and set the
@@ -107,7 +107,7 @@ class CanReference(DeviceMixinBase):
     """
 
     @usermethod
-    def reference(self, *args):
+    def reference(self):
         """Do a reference drive of the axis."""
         if self._mode == SLAVE:
             raise ModeError(self, 'referencing not possible in slave mode')
@@ -116,12 +116,12 @@ class CanReference(DeviceMixinBase):
         elif hasattr(self, 'fixed') and self.fixed:
             self.log.error('device fixed, not referencing: %s', self.fixed)
             return
-        newpos = self.doReference(*args)
+        newpos = self.doReference()
         if newpos is None:
             newpos = self.read(0)
         return newpos
 
-    def doReference(self, *args):
+    def doReference(self):
         raise NotImplementedError('implement doReference for concrete devices')
 
 

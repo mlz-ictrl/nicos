@@ -453,10 +453,10 @@ class TestReferenceMotor(VirtualReferenceMotor):
 
     _ref_error = None
 
-    def doReference(self, *args):
+    def doReference(self):
         if self._ref_error:
             raise self._ref_error  # pylint: disable=raising-bad-type
-        VirtualReferenceMotor.doReference(self, args)
+        VirtualReferenceMotor.doReference(self)
 
 
 def cleanup():
