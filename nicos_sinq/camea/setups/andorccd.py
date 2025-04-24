@@ -1,10 +1,11 @@
 description = 'Setup for the ANDOR CCD camera at CAMEA using the CCDWWW server'
 
-# TODO
+group = 'basic'
 
 counterprefix = 'SQ:CAMEA:counter'
 pvprefix = 'SQ:CAMEA:counter'
 
+includes = ['mono_slit', 'cameabasic']
 excludes = ['detector', 'hm_config']
 
 devices = dict(

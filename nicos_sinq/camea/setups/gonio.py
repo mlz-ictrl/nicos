@@ -1,4 +1,4 @@
-description = 'CAMEA basic devices: motors, counters and such'
+description = 'Goniometer'
 
 display_order = 40
 
@@ -25,7 +25,3 @@ devices = dict(
         motorpv = pvmcu1 + 'tu',
     ),
 )
-startupcode = """
-sgl.alias = 'gl'
-sgu.alias = 'gu'
-"""
