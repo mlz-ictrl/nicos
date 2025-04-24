@@ -23,7 +23,6 @@
 """NICOS test suite utilities."""
 
 import contextlib
-import math
 import os
 import re
 import shutil
@@ -75,64 +74,6 @@ config.logging_path = path.join(runtime_root, 'log')
 def raises(exc, *args, **kwds):
     pytest.raises(exc, *args, **kwds)
     return True
-
-
-class approx:
-    """
-    Ported from py.test v3.0, can use pytest.approx from then on.
-    """
-
-    def __init__(self, expected, rel=None, abs=None):  # pylint: disable=redefined-builtin
-        self.expected = expected
-        self.abs = abs
-        self.rel = rel
-
-    def __repr__(self):
-        if isinstance(self.expected, complex):
-            return str(self.expected)
-        if math.isinf(self.expected):
-            return str(self.expected)
-        try:
-            vetted_tolerance = '{:.1e}'.format(self.tolerance)
-        except ValueError:
-            vetted_tolerance = '???'
-        if sys.version_info[0] == 2:
-            return '{0} +- {1}'.format(self.expected, vetted_tolerance)
-        else:
-            return '{0} \u00b1 {1}'.format(self.expected, vetted_tolerance)
-
-    def __eq__(self, actual):
-        if actual == self.expected:
-            return True
-        if math.isinf(abs(self.expected)):
-            return False
-        return abs(self.expected - actual) <= self.tolerance
-
-    __hash__ = None
-
-    def __ne__(self, actual):
-        return not (actual == self)
-
-    @property
-    def tolerance(self):
-        def set_default(x, default):
-            return x if x is not None else default
-        absolute_tolerance = set_default(self.abs, 1e-12)
-        if absolute_tolerance < 0:
-            raise ValueError("absolute tolerance can't be negative: {}".
-                             format(absolute_tolerance))
-        if math.isnan(absolute_tolerance):
-            raise ValueError("absolute tolerance can't be NaN.")
-        if self.rel is None:
-            if self.abs is not None:
-                return absolute_tolerance
-        relative_tolerance = set_default(self.rel, 1e-6) * abs(self.expected)
-        if relative_tolerance < 0:
-            raise ValueError("relative tolerance can't be negative: {}".
-                             format(absolute_tolerance))
-        if math.isnan(relative_tolerance):
-            raise ValueError("relative tolerance can't be NaN.")
-        return max(relative_tolerance, absolute_tolerance)
 
 
 class ErrorLogged(Exception):

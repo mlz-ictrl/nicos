@@ -24,11 +24,12 @@
 """Module to test custom specific modules."""
 
 import pytest
+from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import ConfigurationError, LimitError
 
-from test.utils import approx, raises
+from test.utils import raises
 
 session_setup = 'refsans'
 

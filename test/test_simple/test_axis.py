@@ -26,9 +26,11 @@
 
 from time import sleep
 
+from pytest import approx
+
 from nicos.core import LimitError, status
 
-from test.utils import approx, raises
+from test.utils import raises
 
 session_setup = 'axis'
 

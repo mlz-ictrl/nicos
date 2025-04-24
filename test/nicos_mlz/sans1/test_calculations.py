@@ -22,9 +22,9 @@
 # *****************************************************************************
 """SANS-1 calculation specific tests."""
 
-from nicos_mlz.sans1.lib.calculations import qrange
+from pytest import approx
 
-from test.utils import approx
+from nicos_mlz.sans1.lib.calculations import qrange
 
 
 def test_qrange():

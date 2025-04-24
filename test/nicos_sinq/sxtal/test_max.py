@@ -22,10 +22,9 @@
 # *****************************************************************************
 
 import pytest
+from pytest import approx
 
 from nicos_sinq.sxtal.commands import Center, Max
-
-from test.utils import approx
 
 session_setup = 'sinq_sxtal'
 

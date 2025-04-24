@@ -23,9 +23,9 @@
 
 """SPODI specific chopper tests."""
 
-from nicos.core import status
+from pytest import approx
 
-from test.utils import approx
+from nicos.core import status
 
 session_setup = 'toftof'
 

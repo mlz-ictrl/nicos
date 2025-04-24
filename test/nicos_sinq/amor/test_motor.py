@@ -31,11 +31,12 @@ hpos = sign*(val +zero)
 """
 
 import pytest
+from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import LimitError
 
-from test.utils import ErrorLogged, approx, raises
+from test.utils import ErrorLogged, raises
 
 from .utils import is_at_target, unit_value
 

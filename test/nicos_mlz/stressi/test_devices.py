@@ -24,8 +24,7 @@
 """STRESS-SPEC specific device tests."""
 
 import pytest
-
-from test.utils import approx
+from pytest import approx
 
 session_setup = 'stressi'
 

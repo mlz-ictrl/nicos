@@ -24,10 +24,11 @@
 """NICOS tests for Eulerian cradle code."""
 
 import pytest
+from pytest import approx
 
 from nicos.core.errors import NicosError
 
-from test.utils import approx, raises
+from test.utils import raises
 
 session_setup = 'euler'
 
