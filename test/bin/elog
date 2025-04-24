@@ -76,5 +76,5 @@ try:
 except IndexError:
     setup = 'elog'
 
-selfDestructAfter(1200)
+selfDestructAfter()
 TestElogSession.run(setup, 'Logbook')
