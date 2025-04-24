@@ -25,10 +25,12 @@
 
 from pathlib import Path
 
+from pytest import approx
+
 from nicos_mlz.reseda.commands import img, miezetau, pol, tof
 from nicos_mlz.reseda.tuning_commands import ExportTuning, ImportTuning
 
-from test.utils import ErrorLogged, approx, raises
+from test.utils import ErrorLogged, raises
 
 session_setup = 'reseda'
 

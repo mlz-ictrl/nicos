@@ -26,12 +26,13 @@
 from unittest import mock
 
 import pytest
+from pytest import approx
 
 from nicos.commands.measure import count
 from nicos.core import ConfigurationError, InvalidValueError, LimitError, \
     NicosError, PositionError, status
 
-from test.utils import approx, raises
+from test.utils import raises
 
 session_setup = 'generic'
 

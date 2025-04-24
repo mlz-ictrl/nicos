@@ -27,11 +27,13 @@ import json
 from io import StringIO
 from unittest import mock
 
+from pytest import approx
+
 from nicos.commands.sample import activation, powderfit
 from nicos.commands.scan import cscan
 from nicos.core import UsageError
 
-from test.utils import approx, raises
+from test.utils import raises
 
 session_setup = 'tas'
 

@@ -29,10 +29,9 @@ Generate data with and without noise and check the fit results
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from nicos_mlz.reseda.utils import MiezeFit
-
-from test.utils import approx
 
 
 @pytest.fixture(scope='function')

@@ -25,6 +25,7 @@ from math import radians
 
 import pytest
 from numpy import allclose, array, dot, sqrt
+from pytest import approx
 
 from nicos.commands.measure import count
 from nicos.commands.tas import Q, _resmat_args, acc_bragg, alu, calpos, \
@@ -35,7 +36,7 @@ from nicos.core import ComputationError, ConfigurationError, \
     status
 from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
 
-from test.utils import ErrorLogged, approx, raises
+from test.utils import ErrorLogged, raises
 
 session_setup = 'tas'
 

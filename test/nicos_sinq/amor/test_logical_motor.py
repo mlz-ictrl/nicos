@@ -31,9 +31,11 @@ import pytest
 
 pytest.importorskip('epics')
 
+from pytest import approx
+
 from nicos.core import LimitError, status
 
-from test.utils import ErrorLogged, approx, raises
+from test.utils import ErrorLogged, raises
 
 session_setup = 'sinq_amor_logical_motors'
 

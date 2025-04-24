@@ -23,10 +23,10 @@
 
 """Module to test polarisation routines."""
 
+from pytest import approx
+
 from nicos_mlz.puma.lib.pa.deflector import ddefl, rdefl
 from nicos_mlz.puma.lib.pa.gauss import gaussian
-
-from test.utils import approx
 
 
 def test_gauss():

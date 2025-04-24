@@ -32,7 +32,7 @@ devices = dict(
         description = 'Laser light controlled by SPS',
         readpv = 'SQ:AMOR:SPS1:DigitalInput',
         commandpv = 'SQ:AMOR:SPS1:Push',
-        commandstr = "S0001",
+        commandstr = 'S0001',
         bytelist = [(15, 7)],
         mapping = {'OFF': 0, 'ON': 1}
     ),

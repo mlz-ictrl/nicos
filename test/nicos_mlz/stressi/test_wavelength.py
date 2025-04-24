@@ -23,10 +23,12 @@
 
 """STRESS-SPEC specific wavelength device tests."""
 
+from pytest import approx
+
 from nicos.core import status
 from nicos.core.errors import ConfigurationError
 
-from test.utils import approx, raises
+from test.utils import raises
 
 session_setup = 'stressi'
 
