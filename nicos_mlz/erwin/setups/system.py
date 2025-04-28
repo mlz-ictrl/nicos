@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'erwin',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'filesink', 'livesink', 'nxsink'],
+    datasinks = ['conssink', 'dmnsink', 'filesink', 'livesink', 'nxsink', 'spodisink'],
     notifiers = ['email'],
 )
 
@@ -50,6 +50,11 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos_mlz.erwin.datasinks.LiveViewSink'),
+    spodisink = device('nicos_mlz.spodi.datasinks.CaressHistogram',
+        description = 'SPODI specific histogram file format',
+        filenametemplate = ['run%(pointcounter)08d.ctxt'],
+        detectors = ['adet'],
+    ),
     nxsink = device('nicos.nexus.NexusSink',
         templateclass='nicos_mlz.nexus.nexus_templates.PowderTemplateProvider',
         settypes = {'point',},

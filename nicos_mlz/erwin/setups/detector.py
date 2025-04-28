@@ -9,7 +9,7 @@ tango_host = 'erwindet.erwin.frm2.tum.de'
 tango_base = f'tango://{tango_host}:10000/qm/qmesydaq/'
 
 sysconfig = dict(
-    datasinks = ['histogram',],
+    datasinks = ['histogram', 'listmode'],
 )
 
 devices = dict(
@@ -42,6 +42,12 @@ devices = dict(
         description = 'Histogram data written via QMesyDAQ',
         image = 'image',
         subdir = 'mtxt',
-        filenametemplate = ['%(pointcounter)07d.mtxt'],
+        filenametemplate = ['%(pointcounter)08d.mtxt'],
+    ),
+    listmode = device('nicos_mlz.devices.datasinks.qmesydaq.ListmodeSink',
+        description = 'Listmode data written via QMesyDAQ',
+        image = 'image',
+        subdir = 'list',
+        filenametemplate = ['%(pointcounter)08d.mdat'],
     ),
 )

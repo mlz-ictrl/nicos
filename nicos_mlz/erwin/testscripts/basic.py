@@ -1,6 +1,7 @@
 # pylint: skip-file
 
 # test: needs = tango
+# test: needs = dataparser
 # test: setups = detector, charmsmall
 
 read()

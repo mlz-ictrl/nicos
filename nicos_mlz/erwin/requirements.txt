@@ -1,0 +1,2 @@
+--extra-index-url https://forge.frm2.tum.de/simple
+dataparser>=1.0.10
