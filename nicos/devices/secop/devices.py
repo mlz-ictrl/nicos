@@ -65,6 +65,17 @@ from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
 from nicos.utils import createThread, importString, merge_dicts, printTable
+try:
+    # TODO: remove try/except when frappy is updated on all sites
+    from frappy.datatypes import visibility_validator
+except ImportError:
+    LEGACY_VISIBILITY = {'user': 'www', 1: 'www', 'advanced': 'ww-', 2: 'ww-', 'expert': 'w--', 3: 'w--'}
+
+    def visibility_validator(value):
+        value = LEGACY_VISIBILITY.get(value, value)
+        if len(value) == 3 and set(value) <= set('wr-'):
+            return value
+        raise ValueError(f'{value!r} is not a valid visibility')
 
 
 class NicosSecopClient(SecopClient):
@@ -573,7 +584,11 @@ class SecNodeDevice(Readable):
             cls = class_from_interface(module_properties)
             if isinstance(cls, SecopReadable):
                 kwds.setdefault('unit', '')  # unit is mandatory on Readables
-            if module_properties.get('visibility', 1) > self.visibility_level:
+            # convert legacy to new SECoP visibility
+            visibility = visibility_validator(module_properties.get('visibility', 'www'))
+            if visibility[3 - self.visibility_level] != 'w':
+                # example: for "ww-" above is True for visibility level 2 and 3
+                # TODO: handle readonly visibility properly
                 kwds['visibility'] = ()
             desc = dict(secnode=self.name,
                         description=mod_desc.get('properties', {}).get(
