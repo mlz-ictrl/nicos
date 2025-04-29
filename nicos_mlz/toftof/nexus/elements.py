@@ -168,7 +168,7 @@ class Duration(NexusElementBase):
                 duration = time.time() - duration
             else:
                 duration = dataset.finished - duration
-        if self.dtype in ['int', 'int32', 'int64']:
+        if self.dtype in {'int', 'int32', 'int64'}:
             return int(round(duration))
         return duration
 
@@ -484,7 +484,7 @@ class DetectorDistances(DetInfo):
 class TimeOfFlight(NexusElementBase):
 
     def __init__(self, **attrs):
-        NexusElementBase.__init__(self,  **attrs)
+        NexusElementBase.__init__(self, **attrs)
         self.attrs = {}
         for key, val in (attrs | dict(axis=axis1, units='s')).items():
             if not isinstance(val, NXAttribute):
