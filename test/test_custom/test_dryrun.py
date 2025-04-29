@@ -147,7 +147,7 @@ def test_dryrun(session, facility, instr, script):
                 elif parts[2] == 'timing':
                     timing_condition = parts[4].strip()
                 else:
-                    assert False, 'invalid test directive in file: %r' % line
+                    pytest.fail('invalid test directive in file: %r' % line)
             code.append(line)
     code[0:0] = setupcode
     code = ''.join(code)
@@ -174,7 +174,7 @@ def test_dryrun(session, facility, instr, script):
     if emitter.error_record:
         session.log.handle(emitter.error_record)
         # for safety, but logging the ERROR should have failed already
-        assert False, f'error during dry run: {emitter.error_record}'
+        pytest.fail(f'error during dry run: {emitter.error_record}')
     if timing_condition:
         time_estimation, _devices, _script = emitter.result
         assert eval('x ' + timing_condition, {'x': time_estimation})

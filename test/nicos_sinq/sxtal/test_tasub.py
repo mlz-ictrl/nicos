@@ -31,6 +31,7 @@ This implementation has been ported from C to python by Jakob Lass, then
 also at PSI
 """
 import numpy as np
+import pytest
 
 from nicos_sinq.sxtal.cell import Cell, directToReciprocalLattice
 from nicos_sinq.sxtal.tasublib import KToEnergy, calcPlaneNormal, \
@@ -45,16 +46,12 @@ from nicos_sinq.sxtal.trigd import Acosd, Asind, Atand, Atand2, Cosd, Cotd, \
 
 def test_Cell_error():
     cell = Cell(-10, -0.1, -0.2, -0., -0., -90)
-    try:
+    with pytest.raises(AttributeError):
         import warnings
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')  # Ignore the warnings temporary
             reciprocal = directToReciprocalLattice(cell)
             reciprocal.a = 26.  # Only to satisfy pylint, flake8
-        assert False  # pragma: no cover
-    except AttributeError as e:
-        str(e)
-        assert True
 
 
 def test_Cell_init():
@@ -290,13 +287,9 @@ def test_tasReflection_initialization():
         assert (np.isclose(getattr(qe, key), val))
         assert (np.isclose(getattr(qe, key), getattr(qe2, key)))
 
-    # pylint: disable=pointless-statement
-    try:
+    with pytest.raises(AttributeError):
+        # pylint: disable=pointless-statement
         tR2.notExisting
-        assert (False)
-    except AttributeError as e:
-        str(e)
-        assert True
 
 
 def test_calcTheta():
@@ -405,11 +398,10 @@ def test_calcTwoTheta():
         tt = calcTwoTheta(B, r1, 1)
 
         if not np.isclose(tt, res):
-            print('Two theta for ({},{},{})={} '
-                  'but expected {}'.format(h, k, ll, tt, res))
-            assert False
+            pytest.fail('Two theta for ({},{},{})={} '
+                        'but expected {}'.format(h, k, ll, tt, res))
 
-    try:
+    with pytest.raises(RuntimeError):
         h, k, ll = 10, -10, 10
         qm = np.linalg.norm(np.dot(B, [h, k, ll]))  # HKL is far out of reach
         r1 = tasReflection(ki=1.553424, kf=1.553424, qh=h, qk=k, ql=ll, qm=qm,
@@ -417,9 +409,6 @@ def test_calcTwoTheta():
                            sample_two_theta=-200,
                            sgu=0.0, sgl=0.0, analyzer_two_theta=74.2)
         tt = calcTwoTheta(B, r1, 1)
-        assert False
-    except RuntimeError:
-        assert True
 
 
 def test_matFromTwoVectors():
@@ -574,9 +563,8 @@ def test_calcPlaneNormal():
 
         planeNormal = calcPlaneNormal(r1, r2)
         if not np.all(np.isclose(planeNormal, res)):
-            print('Plane normal for {} and {} = '
-                  '{} but expected {}'.format(hkl1, hkl2, planeNormal, res))
-            assert False
+            pytest.fail('Plane normal for {} and {} = {} but '
+                        'expected {}'.format(hkl1, hkl2, planeNormal, res))
 
 
 def test_makeAuxReflection():
@@ -601,11 +589,8 @@ def test_makeAuxReflection():
     assert (np.isclose(r2.a3, 35.875022341))
     assert (np.isclose(r2.sample_two_theta, -64.129182823))
 
-    try:
-        r2 = makeAuxReflection(B, r1, -1.0, [30, 1, -1])
-        assert False
-    except RuntimeError:
-        assert True
+    with pytest.raises(RuntimeError):
+        makeAuxReflection(B, r1, -1.0, [30, 1, -1])
 
 
 def test_calcTasQAngles():

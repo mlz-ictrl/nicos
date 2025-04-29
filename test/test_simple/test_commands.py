@@ -148,7 +148,7 @@ class TestBasic:
         except ErrorLogged:
             pass
         else:
-            assert False, 'no error raised and no error logged'
+            pytest.fail('no error raised and no error logged')
 
         SetErrorAbort(True)
         assert raises(LimitError, wrapped_maw, dev, -150)

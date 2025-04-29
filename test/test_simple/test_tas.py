@@ -209,7 +209,7 @@ def test_error_handling(session, log, tas):
         except MoveError:
             pass
         else:
-            assert False, 'PositionError not raised'
+            pytest.fail('PositionError not raised')
         # but we still arrived with phi
         assert phi() == approx(-46.6, abs=0.1)
 

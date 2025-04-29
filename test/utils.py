@@ -140,7 +140,7 @@ class TestLogHandler(StreamHandler):
                 if rx.search(msg):
                     break
             else:
-                assert False, 'No message matching %r' % regex
+                assert pytest.fail('No message matching %r' % regex)
 
     @contextlib.contextmanager
     def assert_no_msg_matches(self, regexes):
@@ -155,21 +155,21 @@ class TestLogHandler(StreamHandler):
             rx = re.compile(regex)
             for msg in self._messages[start:]:
                 if rx.search(msg):
-                    assert False, 'Message %r matches %r' % (msg, regex)
+                    pytest.fail('Message %r matches %r' % (msg, regex))
 
     def _assert_msglist_contains(self, what, msglist, regex, count):
         emitted = len(msglist)
         if count is not None and emitted != count:
-            assert False, '%d %s emitted, %d expected' % (emitted, what, count)
+            pytest.fail('%d %s emitted, %d expected' % (emitted, what, count))
         elif count is None and not emitted:
-            assert False, 'No %s emitted, at least one expected' % what
+            pytest.fail('No %s emitted, at least one expected' % what)
         if regex is not None:
             rx = re.compile(regex)
             for msg in msglist:
                 if rx.search(msg):
                     break
             else:
-                assert False, 'No %s match %r' % (what, regex)
+                pytest.fail('No %s match %r' % (what, regex))
 
     @contextlib.contextmanager
     def assert_warns(self, regex=None, count=None):

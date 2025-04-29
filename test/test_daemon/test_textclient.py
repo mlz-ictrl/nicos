@@ -26,6 +26,8 @@
 from time import monotonic, sleep
 from unittest import mock
 
+import pytest
+
 from nicos.clients.cli import NicosCmdClient, main as cli_main
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_RUNNING
 from nicos.utils import nocolor
@@ -44,7 +46,7 @@ class CmdClient(NicosCmdClient):
         try:
             cmd = next(self.interact)
         except StopIteration:
-            assert False, 'ran out of commands in input'
+            pytest.fail('ran out of commands in input')
         del self.test_output[:]
         del self.test_signals[:]
         return cmd
@@ -92,7 +94,7 @@ def test_textclient(daemon):
                         have_idle = True
                 if monotonic() > start + timeout:
                     print('!!! events:', sig)
-                    assert False, 'idle wait timeout'
+                    pytest.fail('idle wait timeout')
             print('events:', sig)
 
         # messages after connection

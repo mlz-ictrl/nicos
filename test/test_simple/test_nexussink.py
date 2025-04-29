@@ -310,4 +310,4 @@ class TestNexusSink:
         for warn in log._warnings:
             if warn.find('Failed to create external link') > 0:
                 return
-        assert False
+        pytest.fail('external link created')

@@ -233,7 +233,7 @@ class TestSinks:
             with open(serial_file, 'rb') as fp:
                 datasets = pickle.load(fp)
         except Exception:
-            assert False, 'could not read serialized sink'
+            pytest.fail('could not read serialized sink')
         assert len(datasets) == 1
         assert datasets[43]
         assert raises(KeyError, lambda: datasets[41])
