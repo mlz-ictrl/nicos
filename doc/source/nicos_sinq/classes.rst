@@ -102,9 +102,6 @@ SINQ classes
 .. autoclass:: NiagShutter
 .. autoclass:: NiagExpShutter
 
-.. module:: nicos_sinq.devices.procdevice
-.. autoclass:: ProcDevice
-
 .. module:: nicos_sinq.devices.s5_switch
 .. autoclass:: S5Switch
 .. autoclass:: AmorShutter

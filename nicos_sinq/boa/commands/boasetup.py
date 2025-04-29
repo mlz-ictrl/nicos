@@ -48,8 +48,7 @@ from nicos.commands.basic import AddSetup, RemoveSetup
 # For some devices I can only test presence and not on which table they sit.
 # This
 # is backed by this list containing tuples of PV name and corresponding setup
-test_presence = [('SQ:BOA:MCU4:PRESENT', 'quasi_adaptive_optics'),
-                 ('SQ:BOA:NGIV2:PRESENT', 'ngiv2'),
+test_presence = [('SQ:BOA:NGIV2:PRESENT', 'ngiv2'),
                  ('SQ:BOA:AGILENT:PRESENT', 'agilent'),
                  ('SQ:BOA:PICO:PRESENT', 'picoflipper')]
 
@@ -81,17 +80,13 @@ __all__ = [
 @usercommand
 def boadiscover():
 
-    # IOC restart
-    iocrestart = session.getDevice('iocrestart')
-    iocrestart.maw(47)
-
     to_add = []
     to_remove = []
     loaded_setups = session.loaded_setups
 
     # presence testing
     for comp in test_presence:
-        presence = epics.caget(comp[0], False)
+        presence = epics.caget(comp[0], as_string=False)
         if presence == 1:
             if comp[1] not in loaded_setups:
                 to_add.append(comp[1])
@@ -102,18 +97,14 @@ def boadiscover():
     # table testing
     table_config = {2: [], 3: [], 4: [], 5: [], 6: []}
     for comp in table_presence:
-        idx = epics.caget(comp[0], False)
-        if idx in [0, 1]:
+        idx = epics.caget(comp[0], as_string=False)
+        if idx not in table_config.keys():
             if comp[1] in loaded_setups:
                 to_remove.append(comp[1])
         else:
+            table_config[idx].append(comp[1])
             if comp[1] not in loaded_setups:
                 to_add.append(comp[1])
-            if idx in table_config.keys():
-                table_config[idx].append(comp[1])
-            else:
-                session.log.warning('EPICS discovery set an invalid table ID: '
-                                    '%d, for %s', idx, comp[1])
 
     # Unload and load setups
     RemoveSetup(*to_remove)

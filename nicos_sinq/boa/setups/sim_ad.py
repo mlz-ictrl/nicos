@@ -3,16 +3,15 @@ description = 'Setup for the ANDOR CCD camera at BOA'
 pvprefix = 'KM36:sim:'
 
 detector_channel = 'cam1:'
-motprefix = 'SQ:BOA:mcu1:DCCDATZ'
+motprefix = 'SQ:BOA:turboPmac1:DCCDATZ'
 counterprefix = 'SQ:BOA:counter'
 
 excludes = ['andorccd', 'embl', 'andorccd-l', 'andor', 'fastcomtec', 'camini']
 
 devices = dict(
-    dccdatz = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    dccdatz = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Andor focus motor',
         motorpv = motprefix,
-        errormsgpv = motprefix + '-MsgTxt',
     ),
     el737_preset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',
