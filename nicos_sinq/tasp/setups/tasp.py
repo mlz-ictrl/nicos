@@ -150,7 +150,7 @@ devices = dict(
     ctr1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'The real neutron counter',
         type = 'monitor',
-        readpv = cterprefix + '.S3',
+        readpv = cterprefix + '.S6',
     ),
     mon1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'First scalar counter channel',

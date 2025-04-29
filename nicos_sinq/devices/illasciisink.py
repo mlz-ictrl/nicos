@@ -179,29 +179,37 @@ class ILLAsciiHandler(DataSinkHandler):
         self._header += 'FILE_: %s\n' % str(counters['scancounter'])
         self._header += 'DATE_: %s\n' % time_str
         self._header += 'TITLE: %s\n' % self._findValue('Exp', 'title')
-        self._header += 'COMND: %s\n' % session._currentscan._scaninfo
+
+        # Are we doing a scan (scanning = True) or are we doing a count (scanning = False)
+        scanning = hasattr(session, '_currentscan') and session._currentscan is not None
+
+        if scanning:
+            self._header += 'COMND: %s\n' % session._currentscan._scaninfo
         qe = session.instrument.read(0)
         self._header += 'POSQE: QH=%8.4f, QK=%8.4f, QL=%8.4f, EN=%8.4f, ' \
                         'UN=MEV\n' % tuple(qe)
         self._header += 'STEPS: '
         devidx = 0
-        positions = self.dataset.startpositions
-        for dev in self.dataset.devices:
-            if len(positions) > 1:
-                pnext = positions[1][devidx]
-                start = positions[0][devidx]
-                if isinstance(start, tuple):
-                    # This happens in qscans
-                    names = ['QH', 'QK', 'QL', 'EN']
-                    for name, s, n in zip(names, start, pnext):
-                        self._header += 'D%s= %8.4f, ' % (name, n - s)
-                    devidx += 1
-                    continue
-                step = pnext - start
-            else:
-                step = .0
-            self._header += 'D%s= %8.4f, ' % (dev.name.upper(), step)
-            devidx += 1
+
+        # This part of the header does not exist when we are doing a count
+        if scanning:
+            positions = self.dataset.startpositions
+            for dev in self.dataset.devices:
+                if len(positions) > 1:
+                    pnext = positions[1][devidx]
+                    start = positions[0][devidx]
+                    if isinstance(start, tuple):
+                        # This happens in qscans
+                        names = ['QH', 'QK', 'QL', 'EN']
+                        for name, s, n in zip(names, start, pnext):
+                            self._header += 'D%s= %8.4f, ' % (name, n - s)
+                        devidx += 1
+                        continue
+                    step = pnext - start
+                else:
+                    step = .0
+                self._header += 'D%s= %8.4f, ' % (dev.name.upper(), step)
+                devidx += 1
         self._header += '\n'
         cryst = self._getCrystData()
         self._header += 'PARAM: DM=%8.4f, DA=%8.4f, SM=%2d, SS=%2d, SA=%2d\n' \
