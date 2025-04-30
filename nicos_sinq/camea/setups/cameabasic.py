@@ -7,7 +7,50 @@ pvmcu2 = 'SQ:CAMEA:turboPmac2:'
 pvmcu3 = 'SQ:CAMEA:turboPmac3:'
 pvmcu4 = 'SQ:CAMEA:turboPmac4:'
 
+sysconfig = dict(
+    instrument = 'CAMEA',
+)
+
 devices = dict(
+    CAMEA = device('nicos_sinq.sxtal.instrument.TASSXTal',
+        description = 'instrument object',
+        instrument = 'SINQ CAMEA',
+        responsible = 'Christoph Niedermayer <Christoph.Niedermayer@psi.ch>',
+        operators = ['Paul-Scherrer-Institut (PSI)'],
+        facility = 'SINQ, PSI',
+        website = 'https://www.psi.ch/sinq/camea/',
+        ana = 'ana',
+        a3 = 'a3',
+        a4 = 'a4',
+        sgl = 'sgl',
+        sgu = 'sgu',
+        emode = 'FKE',
+        mono = 'mono',
+        ccl_file = False,
+        center_counter = 'counts',
+        scattering_sense = -1,
+        inelastic = True,
+    ),
+    h = device('nicos.core.device.DeviceAlias',
+        description = 'Alias for the h of hkl',
+        alias = 'CAMEA.h',
+        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
+    ),
+    k = device('nicos.core.device.DeviceAlias',
+        description = 'Alias for the k of hkl',
+        alias = 'CAMEA.k',
+        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
+    ),
+    l = device('nicos.core.device.DeviceAlias',
+        description = 'Alias for the l of hkl',
+        alias = 'CAMEA.l',
+        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
+    ),
+    en = device('nicos.core.device.DeviceAlias',
+        description = 'Alias for the en of hkle',
+        alias = 'CAMEA.en',
+        devclass = 'nicos.devices.sxtal.instrument.SXTalIndex',
+    ),
     s2t = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample two theta',
         motorpv = pvmcu1 + '2t',
@@ -198,12 +241,14 @@ devices = dict(
         ei_values = [
             2, 3.6, 3.8, 5.0,5.5, 6.45,6.5, 6.6, 6.65, 6.8, 6.9,
             7.0, 7.5, 7.7, 8.0, 8.5, 8.6, 8.8, 9, 9.2, 9.4, 9.6, 9.8, 10,
-            10.5, 11, 11.5, 12.0, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16, 16.5, 17
+            10.5, 11, 11.5, 12.0, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16,
+            16.5, 17
         ],
         s2t_values = [
             -79.501, -79.501, -79.501, -79.001, -79.001, -79.001, -79.001, -78.501, -78.501, -78.501, -77.501,
             -77.001, -77.501, -73.501, -72.001, -72.001, -70.001, -66.001, -64.001, -64.001, -64.001, -63.001, -62.001, -60.001,
-            -57.001, -56.001, -54.001, -52.001, -50.001, -47.001, -47.001, -46.001, -44.001, -43.001, -42.001, -41.001, -40.501, -39.501
+            -57.001, -56.001, -54.001, -52.001, -50.001, -47.001, -47.001, -46.001, -44.001, -43.001, -42.001, -41.001,
+            -40.501, -39.501
         ],
         visibility = {},
     ),
@@ -211,8 +256,3 @@ devices = dict(
 
 # when se_om (the sample stick rotation) is present, use this for a3
 alias_config = {'a3': {'som': 10,}}
-
-startupcode = """
-sgl.alias = 'gl_sim'
-sgu.alias = 'gu_sim'
-"""

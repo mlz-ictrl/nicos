@@ -583,7 +583,7 @@ def selfDestructAfter(seconds=None):
 
     """
     if not seconds:
-        seconds = int(os.environ.get('TEST_DAEMONS_TIMEOUT', 1200))
+        seconds = int(os.environ.get('TEST_DAEMONS_TIMEOUT', '1200'))
 
     if hasattr(signal, 'alarm'):
         signal.alarm(seconds)
