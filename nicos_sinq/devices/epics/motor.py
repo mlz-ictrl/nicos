@@ -169,6 +169,9 @@ class SinqMotor(CoreEpicsMotor):
         else:
             CoreEpicsMotor.doReference(self)
 
+    def doReset(self):
+        self._put_pv('reseterrorpv', 1)
+
     def doPoll(self, n, maxage):
         self.pollParams('can_disable', 'encoder_type')
         CoreEpicsMotor.doPoll(self, n, maxage)
