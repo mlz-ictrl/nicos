@@ -119,7 +119,7 @@ device is visible:
 
 .. figure:: images/nicos-step2.png
 
-Now to complete the basic system setup in ``nicos_hynes/wone/setups/system.py``
+Now to complete the basic system setup in ``nicos_hynes/woni/setups/system.py``
 make sure the ``dataroot`` parameter on the ``Exp`` device is set correctly,
 since the data of the measurement commands will be stored there.
 
