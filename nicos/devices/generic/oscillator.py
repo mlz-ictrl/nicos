@@ -133,9 +133,7 @@ class Oscillator(Moveable):
         return self.curstatus
 
     def doPoll(self, n=0, maxage=0):
-        self._pollParam('curvalue')
-        self._pollParam('curstatus')
-        return self.doRead(maxage), self.doStatus(maxage)
+        self.pollParams('curvalue', 'curstatus')
 
     def doReset(self):
         """Reset the moveable controller."""

@@ -30,17 +30,16 @@ devices = dict(
         top = 'mst',
         bottom = 'msb',
         coordinates = 'opposite',
+        min_opening = 0.2, # Should not be changed without consulting Electronics support
     ),
     mslit_height = device('nicos.devices.generic.slit.HeightSlitAxis',
         description = 'Detector Slit height controller',
         slit = 'mslit',
         unit = 'mm',
-        min_opening = 0.2, # Should not be changed without consulting Electronics support
     ),
     mslit_width = device('nicos.devices.generic.slit.WidthSlitAxis',
         description = 'Detector Slit width controller',
         slit = 'mslit',
         unit = 'mm',
-        min_opening = 0.2, # Should not be changed without consulting Electronics support
     ),
 )

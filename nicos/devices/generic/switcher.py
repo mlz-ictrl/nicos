@@ -101,6 +101,10 @@ class Switcher(MappedMoveable):
                              self._attached_moveable.format(value, True))
                             )
 
+    def doIsAllowed(self, target):
+        # Forward the move request to the underlying device
+        return self._attached_moveable.isAllowed(self._mapTargetValue(target))
+
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
         # reflect its status
@@ -129,7 +133,6 @@ class Switcher(MappedMoveable):
 
     def doStop(self):
         self._attached_moveable.stop()
-
 
 class ReadonlySwitcher(MappedReadable):
     """Same as the `Switcher`, but for read-only underlying devices."""

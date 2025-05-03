@@ -46,11 +46,6 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
-    iocrestart = device('nicos_sinq.devices.procdevice.ProcDevice',
-        description = 'BOA IOC restart device',
-        subprocess = 'nicos_sinq/boa/bin/restartboaioc.sh',
-        args = []
-    ),
     mcu3 = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
         description = 'Controller of the devices connected to mcu3',
         commandpv = 'SQ:BOA:turboPmac3.AOUT',

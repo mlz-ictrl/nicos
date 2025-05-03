@@ -116,9 +116,9 @@ class Param:
               ...
           }
 
-          parameters['param'].ext_desc = '''
+          parameters['param'].ext_desc = \"\"\"
           long description
-          '''
+          \"\"\"
     """
 
     _notset = object()
