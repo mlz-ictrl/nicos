@@ -519,6 +519,7 @@ class TestDevice:
         for timespec in ['1 week', '30 minutes', '2012-01-01',
                          '2012-01-01 14:00', '14:00']:
             history(motor, 'value', timespec)
+        history(motor, 'value', '2012-01-01', '2012-12-31')
 
     def test_limits(self, session, log):
         """Check limits() command."""
