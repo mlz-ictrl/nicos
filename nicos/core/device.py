@@ -1858,6 +1858,8 @@ class Moveable(Waitable):
     def fix(self, reason=''):
         """Fix the device: don't allow movement anymore.
 
+        Returns true in case of successful fixing otherwise false.
+
         This blocks :meth:`start` or :meth:`stop` when called on the device.
 
         .. method:: doFix(reason)
@@ -1871,21 +1873,21 @@ class Moveable(Waitable):
             # fixed and not enough rights
             self.log.error('device was fixed by %r already', self.fixedby[0])
             return False
+
+        if self.status()[0] == status.BUSY:
+            self.log.warning('device appears to be busy')
+        if reason:
+            suffix = ' (fixed by %r)' % eu.name
+            if not reason.endswith(suffix):
+                reason += suffix
         else:
-            if self.status()[0] == status.BUSY:
-                self.log.warning('device appears to be busy')
-            if reason:
-                suffix = ' (fixed by %r)' % eu.name
-                if not reason.endswith(suffix):
-                    reason += suffix
-            else:
-                reason = 'fixed by %r' % eu.name
-            # handle self
-            self._setROParam('fixed', reason)
-            self._setROParam('fixedby', (eu.name, eu.level))
-            # handle recursive fixes
-            self.doFix(reason)
-            return True
+            reason = 'fixed by %r' % eu.name
+        # handle self
+        self._setROParam('fixed', reason)
+        self._setROParam('fixedby', (eu.name, eu.level))
+        # handle recursive fixes
+        self.doFix(reason)
+        return True
 
     def doFix(self, reason):
         for _name, attinfo, dev in self._iterAdevDefinitions():
@@ -1896,6 +1898,8 @@ class Moveable(Waitable):
     @usermethod(doc="""Release the device, i.e. undo the effect of fix().""")
     def release(self):
         """Release the device, i.e. undo the effect of fix().
+
+        Returns true in case of successful releasing otherwise false.
 
         .. method:: doRelease()
 
@@ -1909,13 +1913,13 @@ class Moveable(Waitable):
             self.log.error('device was fixed by %r and you are not allowed '
                            'to release it', self.fixedby[0])
             return False
-        else:
-            # handle recursive releases
-            self.doRelease()
-            # handle self
-            self._setROParam('fixed', '')
-            self._setROParam('fixedby', None)
-            return True
+
+        # handle recursive releases
+        self.doRelease()
+        # handle self
+        self._setROParam('fixed', '')
+        self._setROParam('fixedby', None)
+        return True
 
     def doRelease(self):
         for _name, attinfo, dev in self._iterAdevDefinitions():
