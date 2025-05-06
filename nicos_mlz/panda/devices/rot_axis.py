@@ -46,6 +46,7 @@ class RefAxis(Axis):
 
     _moves = 0
     _referencing = False
+    _pos_after_ref = None
 
     def doStart(self, target):
         if target < self.read():
@@ -53,14 +54,16 @@ class RefAxis(Axis):
         elif self.autoref and self.autoref > 0:
             self._moves += 1
 
+        # XXX: rewrite this using SequenceMixin!
         if session.mode != SIMULATION and not self._referencing and \
            self.autoref and self._moves > abs(self.autoref):
             self.log.info('self.autoref limit reached => referencing NOW')
-            self.reference(target)  # WARNING: This takes a while !
+            self._pos_after_ref = target
+            self.reference()  # WARNING: This takes a while !
 
         return Axis.doStart(self, target)  # handles offset as well
 
-    def doReference(self, gotopos=None):
+    def doReference(self):
         """references this axis by finding the reference switch and then
         setting current position to refpos.
         1) Finding the refswitch by going backwards until the refswitch
@@ -103,9 +106,11 @@ class RefAxis(Axis):
             m = self._attached_motor
             oldspeed = m.speed
 
-            # figure out the final position (=current position or gotopos, if
-            # gotopos is given)
-            oldpos = self.doRead() if gotopos is None else gotopos
+            # figure out the final position (=current position or
+            # self._pos_after_ref, if set)
+            oldpos = self._pos_after_ref
+            if oldpos is None:
+                oldpos = self.doRead()
 
             # Step 1) Try to hit the refswitch by turning backwards in a fast
             # way
@@ -185,9 +190,10 @@ class RefAxis(Axis):
             self._moves = 0
         finally:
             m.speed = oldspeed
-            # if gotopos was given, do not wait...
-            if gotopos is None:
+            # if self._pos_after_ref was given, do not wait...
+            if self._pos_after_ref is None:
                 self.wait()
+            self._pos_after_ref = None
             self._referencing = False
 
 
@@ -232,7 +238,7 @@ class RotAxis(RefAxis):
         if self._wrapped:
             session.delay(self.wrapwaittime)
 
-    def doReference(self, gotopos=None):
+    def doReference(self):
         """References this axis by finding the reference switch and then
         setting current position to refpos.
 
@@ -274,9 +280,11 @@ class RotAxis(RefAxis):
             m = self._attached_motor
             oldspeed = m.speed
 
-            # figure out the final position (=current position or gotopos,
-            # if gotopos is given)
-            oldpos = self.doRead() if gotopos is None else gotopos
+            # figure out the final position (=current position or
+            # self._pos_after_ref if set)
+            oldpos = self._pos_after_ref
+            if oldpos is None:
+                oldpos = self.doRead()
 
             # Step 1a) change logical position to below self.wraparound
             curpos = m.doRead(0)
@@ -344,9 +352,10 @@ class RotAxis(RefAxis):
             self._moves = 0
         finally:
             m.speed = oldspeed
-            # if gotopos was given, do not wait...
-            if gotopos is None:
+            # if self._pos_after_ref was given, do not wait...
+            if self._pos_after_ref is None:
                 self.wait()
+            self._pos_after_ref = None
             self._referencing = False
 
 
