@@ -300,8 +300,13 @@ class NewViewDialog(DlgUtils, QDialog):
             return
 
         tree = self.deviceTree
+        try:
+            keys, _, exprs = parseKeyExpression(self.devices.text(),
+                                                multiple=True)
+        except ValueError:
+            return
+
         tree.itemChanged.disconnect(self.on_deviceTree_itemChanged)
-        keys, _, exprs = parseKeyExpression(self.devices.text(), multiple=True)
         for key, exp in zip(keys,  exprs):
             dev, _, param = key.partition('/')
             for i in range(tree.topLevelItemCount()):
@@ -800,7 +805,12 @@ class BaseHistoryWindow:
     def _createViewFromDialog(self, info, row=None):
         if not info['devices'].strip():
             return
-        keys, exprs, descs = parseKeyExpression(info['devices'], multiple=True)
+        try:
+            keys, exprs, descs = parseKeyExpression(info['devices'],
+                                                    multiple=True)
+        except ValueError:
+            self.showError(f'Invalid device expression: {info["devices"]!r}')
+            return
         if self.client is not None:
             meta = self._getMetainfo(keys)
         else:
