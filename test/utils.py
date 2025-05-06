@@ -41,6 +41,7 @@ from nicos.core import ACCESS_LEVELS, AccessError, Attach, DataSink, \
     DataSinkHandler, HasLimits, Moveable, status, system_user
 from nicos.core.mixins import IsController
 from nicos.core.sessions import Session
+from nicos.core.utils import User
 from nicos.devices.cacheclient import CacheClient
 from nicos.devices.generic import VirtualReferenceMotor
 from nicos.devices.notifiers import Mailer
@@ -316,6 +317,9 @@ class TestSession(Session):
                                                         str(self._user_level)),
                                       ACCESS_LEVELS.get(rlevel, str(rlevel))))
         return Session.checkAccess(self, required)
+
+    def getExecutingUser(self):
+        return User(system_user.name, self._user_level, system_user.data)
 
 
 class TestDevice(HasLimits, Moveable):

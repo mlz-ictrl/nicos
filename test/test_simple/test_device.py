@@ -28,7 +28,7 @@ import os
 import pytest
 
 from nicos.commands.basic import NewSetup
-from nicos.core import ADMIN, AccessError, Attach, CanDisable, \
+from nicos.core import ADMIN, GUEST, AccessError, Attach, CanDisable, \
     CommunicationError, ConfigurationError, Device, HasCommunication, \
     HasLimits, HasOffset, LimitError, Moveable, NicosError, Param, \
     ProgrammingError, UsageError, requires, secret, status, usermethod
@@ -413,6 +413,21 @@ def test_fix_and_release(session, log):
         dev2.release()
     dev2.stop()
     assert dev2.status()[0] == status.OK
+
+
+def test_fix_and_release_block(session, log):
+    dev2 = session.getDevice('mot')
+    assert dev2.fix('blah')
+    assert dev2.fix('blubb')
+    assert dev2.fixedby == ('system', ADMIN)
+    dev2._setROParam('fixedby', ('guest', GUEST))
+    assert dev2.fix('blah')
+    with session.withUserLevel(GUEST):
+        with log.allow_errors():
+            assert not dev2.fix('blah')
+            assert not dev2.release()
+    assert dev2.release()
+    assert dev2.release()
 
 
 def test_fix_superdev(session, log):
