@@ -21,7 +21,7 @@ devices = dict(
                     requires = {'level': 0},
                     ),
     air_detector = device('nicos.devices.generic.ManualSwitch',
-                          description = 'virtual air switch of the detecotor',
+                          description = 'virtual air switch of the detector',
                           states = ['unknown', 'on', 'off'],
                           requires = {'level': 0},
                           ),

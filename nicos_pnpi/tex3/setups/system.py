@@ -19,7 +19,7 @@ includes = [
 
 devices = dict(
     Instrument = device('nicos.devices.instrument.Instrument',
-                        description = 'Texture difractometor',
+                        description = 'Texture diffractometer',
                         instrument = 'TEX-3',
                         responsible = 'Dmitry Ipatov <ipatov_da@pnpi.nrcki.ru>',
                         facility = 'Petersburg Nuclear Physics Institute (PNPI)',
