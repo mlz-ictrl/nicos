@@ -138,13 +138,12 @@ class Message(SequenceItem):
 class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
     """
     NIAG runs most of their CCD cameras through Camini.
-    The camera is setup outside off NICOS and then
-    operated through I/O's ever afterwards. This is
+    The camera is set up outside NICOS and then operated through I/O's. This is
     done via a LabView program named Camini.
 
-    No real data transfer happens, the presets are managed
-    outside of NICOS too. But NICOS sends meta data to Camini
-    which is written into image files by Camini
+    No real data transfer happens, the presets are managed outside NICOS too.
+    But NICOS sends metadata to Camini, which is written into image files by
+    Camini
     """
     parameters = {
         'trigpv': Param('PV to send a trigger signal', type=pvname,
@@ -276,7 +275,7 @@ class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
 
         # Write the metadata
         if self.loglevel == DEBUG:
-            seq.append(Message(self, 'Writing meta data...'))
+            seq.append(Message(self, 'Writing metadata...'))
         seq.append(SeqMethod(self, '_writeMetaData'))
 
         # Camini is tired, needs a little sleep
@@ -349,7 +348,7 @@ class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
                     session.log.warning('Offending value: %s', val)
                     value = 'Unknown'
 
-                # Determine maximum possible value length (key dependend).
+                # Determine maximum possible value length (key dependent).
                 maxValLen = 63 - len(key)
 
                 # Split the dataset into several header entries if necessary

@@ -211,7 +211,7 @@ def SetRefAng(idx, reflist=None):
     """
     Replaces the angles stored for reflection idx, with the ones read from
     the instruments current position.
-    :param idx: index of the eflection in the reflection list
+    :param idx: index of the reflection in the reflection list
     :param reflist: optional reflection list parameter when not operating
     on the deault list
     :return:
@@ -803,7 +803,7 @@ class HKLScan(Scan):
 
             subscan = self.dataset.subsets[-1].subsets[-1]
             # If NICOS crashes on this line then the center_counter
-            # for the instrument is set to a non existing value.
+            # for the instrument is set to a non-existing value.
             index = [i for (i, v) in enumerate(subscan.detvalueinfo)
                      if v.name == session.instrument.center_counter][0]
             vals = [x[index] for x in subscan.detvaluelists]

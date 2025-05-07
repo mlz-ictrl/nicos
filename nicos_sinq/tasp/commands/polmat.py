@@ -111,7 +111,7 @@ def test_gufi(gufi):
 
 def check_gufi(gufi):
     """
-    The guide field power supply tends to reset itself. Rather then
+    The guide field power supply tends to reset itself. Rather than
     fixing the hardware we check here if the guide field is OK and
     fix it if it has gone off.
     """

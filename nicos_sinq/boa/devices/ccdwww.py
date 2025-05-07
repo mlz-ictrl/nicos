@@ -38,7 +38,7 @@ from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
 class CCDWWWConnector(HttpConnector):
     """
-    Just a HTTP connector without authentication
+    Just an HTTP connector without authentication
     """
     def _get_auth(self):
         return ''
@@ -176,7 +176,7 @@ class CCDWWWImageChannel(ImageChannelMixin, ActiveChannel):
 
 class AndorCCD(CCDWWWImageChannel):
     """
-    Class for the acutual ANDOR CCD. Just adds the many parameters
+    Class for the actual ANDOR CCD. Just adds the many parameters
     to CCDWWWImageChannel
     """
     parameters = {

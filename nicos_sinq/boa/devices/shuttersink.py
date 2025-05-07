@@ -64,7 +64,7 @@ class BoaShutterSink(DataSink):
 
 class DummyHandler(DataSinkHandler):
     """
-    Just a place holder doing nothing
+    Just a placeholder doing nothing
     """
 
 

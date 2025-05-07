@@ -13,7 +13,7 @@ the geometry can be achieved by loading the appropriate setup. For example, at M
      AddSetup('euler')
      NewSetup()
 
-will load the setup for the eulerian cradle. The command:
+will load the setup for the Eulerian cradle. The command:
 
      ListSetups()
 
@@ -322,9 +322,9 @@ for example:
 
 The parameters are:
 
-- scanmode: either omega or t2t for an omega scan or an omega two theta scan repectivly. When not given,
+- scanmode: either omega or t2t for an omega scan or an omega two theta scan respectively. When not given,
   the default scan mode defined as a parameter to Sample is used
-- skip allows the starr processing the reflection list a t a certain index. Comes in usefule when
+- skip allows the starr processing the reflection list at a certain index. It is useful when
   you need to continue a reflection list scan.
 - reflist is the reflection list to use
 - Preset is the count preset.
@@ -342,7 +342,7 @@ for example:
 
 which generates a list of super structure reflection for a source list by applying
 vector to it. This can be called multiple times. Almost always you wish to measure super
-structure reflections froma separate list as you will require different data collection
+structure reflections from a separate list as you will require different data collection
 parameters.
 
 Miscellaneous commands

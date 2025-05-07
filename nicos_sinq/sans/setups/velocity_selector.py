@@ -56,7 +56,7 @@ devices = dict(
         readpv = selprefix + 'cw_temp_outlet_rbv'
     ),
     vs_cbv = device('nicos.devices.epics.pyepics.EpicsReadable',
-        description = 'Characterestic Bearing Value, front bearing',
+        description = 'Characteristic Bearing Value, front bearing',
         readpv = selprefix + 'cbv_rbv'
     ),
 )

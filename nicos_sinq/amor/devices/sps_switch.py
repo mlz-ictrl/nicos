@@ -113,7 +113,7 @@ class SpsSwitch(EpicsDevice, MappedMoveable):
 class AmorShutter(SpsSwitch):
     """Class to represent AMOR shutter.
 
-    Two bits from PLC are important in determing the shutter state:
+    Two bits from PLC are important to determine the shutter state:
 
      - byte: 4, bit 0 (bit40) - parameters: byte, bit
      - byte: 4, bit 3 (bit43) - parameters: brokenbyte, brokenbit

@@ -27,8 +27,8 @@ from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 class A6Motor(HasPrecision, BaseSequencer):
     """
     A6 at EIGER has to wait for the shielding blocks to be moved.
-    The plan was to to check for this in the SPS, but this feature never
-    materialized. Thus we just wait for wait_period seconds after the motor
+    The plan was to check for this in the SPS, but this feature never
+    materialized. Thus, we just wait for wait_period seconds after the motor
     finished. This is implemented in this class.
     """
 

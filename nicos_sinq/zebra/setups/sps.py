@@ -17,7 +17,7 @@ devices = dict(
         visibility = hide,
     ),
     exc_count = device('nicos.devices.epics.pyepics.EpicsReadable',
-        description = 'Excessive countrate on 2D detector',
+        description = 'Excessive count rate on 2D detector',
         readpv = spsprefix + 'EXC-COUNTRATE_RBV',
         visibility = hide,
     ),

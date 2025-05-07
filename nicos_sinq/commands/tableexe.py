@@ -21,9 +21,9 @@
 #
 # *****************************************************************************
 """
-  At SINQ, we use batch files in the form of speadsheet tables in csv format.
+  At SINQ, we use batch files in the form of spreadsheet tables in csv format.
   The workflow is such that the instrument scientist prepares the header,
-  the user fills in er data and then executes the spreadsheet. For editing,
+  the user fills in their data and then executes the spreadsheet. For editing,
   a normal spreadsheet program is used and the table then exported in csv
   format.
 

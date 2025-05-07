@@ -70,7 +70,7 @@ class ILLAsciiHandler(DataSinkHandler):
         result = {}
         refs = self._findValue(session.instrument.name,
                                'orienting_reflections')
-        # It can happen that the orienting reflections are ill defined
+        # It can happen that the orienting reflections are ill-defined
         if len(refs) == 2:
             rlist = session.getDevice('ublist')
             try:

@@ -29,11 +29,11 @@ from nicos_sinq.devices.epics.extensions import EpicsCommandReply
 class EulerPresent(Readable):
     """
     This is a highly specific little class which reads the
-    connection status of the eulerian cradle from the ZEBRA MCU
+    connection status of the Eulerian cradle from the ZEBRA MCU
     """
     attached_devices = {
         'mcu': Attach('The direct connection to the MCU from which to read '
-                      'the presence of the eulerian cradle',
+                      'the presence of the Eulerian cradle',
                       EpicsCommandReply)
     }
 

@@ -32,7 +32,7 @@ from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
 class HistogramConfElement(Device):
     """ Basic element for configuring the histogram memory.
-    Each element should be able to get a XML.
+    Each element should be able to get an XML.
     """
 
     def getXml(self):
@@ -182,7 +182,7 @@ class HistogramConfAxis(HistogramConfElement):
     *array*: Some axis mappings, tof, lookup, need arrays for their data.
     This attribute gives the name of the array to use.
 
-    Additionally an axis can provide information about it's unit and label
+    Additionally, an axis can provide information about its unit and label
     using parameters. The arrays associated with this axis need to be
     specified using the *array* attached device.
 
@@ -282,8 +282,7 @@ class HistogramConfBank(HistogramConfElement):
 
     @property
     def arrays(self):
-        """ Provides a set of of all the arrays that appear in this
-        bank.
+        """Provide a set of all the arrays that appear in this bank.
         """
         # Collect all the arrays that occur in axis
         return {ax._attached_array for ax in self.axes if ax._attached_array}
@@ -315,16 +314,16 @@ class ConfiguratorBase(HistogramConfElement):
     using:
     *filler* (filler algorithm is used to do the actual histogramming),
     *hdr_daq_mask* (mask with which the headers of the data packets on the
-    fibre optic link are anded),
-    *hdr_daq_active* (the value which the headers of the data packest anded
+    fibre optic link are ANDed),
+    *hdr_daq_active* (the value which the headers of the data packets ANDed
     with hdr daq mask must have in order to be considered a valid packet
-    suitable for histogramming.
+    suitable for histogramming).
     These two attributes allow to histogram only when all veto flags are OK.
 
     These parameters are written as attributes of the <sinqhm> top level
     xml element in the configuration file.
 
-    This <sinqhm> element can have following children:
+    This <sinqhm> element can have the following children:
     *bank*: The memory can split into different banks and each of these banks
     has a rank and the description of corresponding axis.
     *array*: The axes in the banks can have corresponding arrays for tof

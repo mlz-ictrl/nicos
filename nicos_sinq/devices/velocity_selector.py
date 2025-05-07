@@ -57,7 +57,7 @@ class VSTiltMotor(EpicsMotor):
     the selector is standing. This class ensures just that.
     """
     attached_devices = {
-        'vs_rotation': Attach('Velcocity Selector Rotation',
+        'vs_rotation': Attach('Velocity Selector Rotation',
                               Moveable),
     }
 

@@ -32,7 +32,7 @@ class NIAGControl(ControlDetector):
     """"
     A detector control class which implements the NIAG CCD counting
     features:
-    - restart counting when the countrate was to low
+    - restart counting when the count rate was too low
     """
 
     attached_devices = {
@@ -65,7 +65,7 @@ class NIAGControl(ControlDetector):
             mon = mon[0]
         if exp_ok != 1:
             session.log.info('%s, should be > %d uA, is %f uA',
-                             'Restarting because of insuffient count rate',
+                             'Restarting because of insufficient count rate',
                              thres, mon)
             self.start()
             return False

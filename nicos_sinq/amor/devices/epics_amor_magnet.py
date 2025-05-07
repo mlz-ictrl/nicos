@@ -53,7 +53,7 @@ class EpicsAmorMagnet(EpicsWindowTimeoutDeviceSinq):
     HighLim - The upper limit for setting the current
     LowLim - The lower limit for setting the current
     ErrCode - The error code of the magnet
-    ErrText - A human readable representation of the magnet error
+    ErrText - A human-readable representation of the magnet error
     PowerStatusRBV - For reading back if the magnet is on or off
     PowerStatus - A switch for switching the magnet on or off
     CurSet - For setting the magnet current

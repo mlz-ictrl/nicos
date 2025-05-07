@@ -43,12 +43,12 @@ def tomo_scanpos(nproj, nimg, ifirst=1):
 @usercommand
 @helparglist('device, nproj, nimg=1')
 def tomo_setup(device, nproj, nimg=1):
-    """Setup a new tomography run.
+    """Set up a new tomography run.
 
     This commands does not actually start the tomography
     (use "tomo_run()" for this), it only memorizes the
     chosen parameters. If a tomography was previoulsy started
-    and did not finished, it needs either to be aborted with
+    and did not finish, it needs either to be aborted with
     "tomo_abort()" or finished with "tomo_resume()" before another
     tomography can be set up. When several tomographies with the
     same parameters are performed, there is no need to use
@@ -91,8 +91,8 @@ def tomo_run():
     """Start a previously defined tomography.
 
     This command will start the tomography previously defined using the
-    "tomo_setup()" command. If a tomography was previoulsy started and
-    did not finished, it needs either to be aborted with "tomo_abort()"
+    "tomo_setup()" command. If a tomography was previously started and
+    did not finish, it needs either to be aborted with "tomo_abort()"
     or finished with "tomo_resume()" before another tomography can be started.
 
     """

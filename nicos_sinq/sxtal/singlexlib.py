@@ -417,9 +417,8 @@ def directToReciprocalLattice(cell):
 
 def calculateBMatrix(cell):
     """
-    Calculate the B matrix. This calculation is subtly
-    different then the one in cell.py as it is not
-    normalized with 2*PI
+    Calculate the B matrix. This calculation is subtly different from the one
+    in cell.py as it is not normalized with 2*PI
     """
     reciprocal = directToReciprocalLattice(cell)
     if not reciprocal:
@@ -550,8 +549,8 @@ def angleBetweenReflections(B, r1, r2):
 
 def eulerian_to_kappa(omega, chi, phi, alpha, right):
     """
-    Calculate the kappa geometry angles from eulerian cradle
-    angles. omega, chi and phi are the eulerian cradle angels as
+    Calculate the kappa geometry angles from Eulerian cradle
+    angles. omega, chi and phi are the Eulerian cradle angels as
     input. Alpha is the kappa angle. The kappa calculation has two
     solutions: right arm and left arm. This is selected through the
     right boolean. Input angles are in degrees, output angles as well.
@@ -579,7 +578,7 @@ def eulerian_to_kappa(omega, chi, phi, alpha, right):
 
 def kappa_to_eulerian(komega, kappa, kphi, alpha, right):
     """
-    Calculates the eulerian cradle angles omegam chi, phi from
+    Calculates the Eulerian cradle angles omegam chi, phi from
     the kappa angles: komega, kappa, kphi and the kappa angle
     alpha and the handedness of the goniometer.
 

@@ -126,7 +126,7 @@ class NiagShutter(HasTimeout, MappedMoveable):
             if not self._attached_is_enabled.read(maxage):
                 return status.DISABLED, 'disabled'
             r = self.doRead(maxage)
-            # the the device is in the fallback position, it is considered
+            # the device is in the fallback position, it is considered
             # still moving
             if r == self.fallback:
                 return status.BUSY, 'target not yet reached'

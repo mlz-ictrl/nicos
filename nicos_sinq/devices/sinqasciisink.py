@@ -237,7 +237,7 @@ class SINQAsciiSink(FileSink):
     The implementation strives to be as compatible as possible to the old
     format as written by SICS. SINQ ASCII files are constructed from a
     template file.  This template file contains ASCII text which is copied
-    verbatim to the output intermixed with place holder strings.  These are
+    verbatim to the output intermixed with placeholder strings.  These are
     replaced with data from NICOS. In addition, the actual data from the
     scan is collected and written too.  The special placeholders recognized
     are:

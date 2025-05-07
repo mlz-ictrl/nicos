@@ -87,7 +87,7 @@ class ImageKafkaDataSinkHandler(DataSinkHandler):
 class ImageKafkaDataSink(ProducesKafkaMessages, DataSink):
     """ Data sink which writes images to Kafka after serializing
     them. The parameter *channeltostream* provides a dict of all
-    the image channels from which the data is to be be forwarded
+    the image channels from which the data is to be forwarded
     mapped to a tuple of (kafka topic, message source name)
     """
 

@@ -86,7 +86,7 @@ class LLBCalibratedImage(ImageChannelMixin, PassiveChannel):
     }
 
     parameters = {
-        'calibration_file': Param('caclibration file to use',
+        'calibration_file': Param('calibration file to use',
                                   type=str, mandatory=True),
     }
 

@@ -33,7 +33,7 @@ from nicos.utils import closeSocket
 
 class AdamShutter(SequencerMixin, Moveable):
     """
-    At BOA the new SINQ shutter system is controlled via a Adam6051 binary I/O
+    At BOA the new SINQ shutter system is controlled via an Adam6051 binary I/O
     module. This module speaks modbus over TCP/IP.
     """
 

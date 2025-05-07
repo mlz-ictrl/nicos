@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 """
-This is part of the TAS library which implemnts Mark Lumsden's UB matrix
+This is part of the TAS library which implements Mark Lumsden's UB matrix
 algorithm for triple axis. See J. Appl. Cryst. (2005). 38, 405-411
 https://doi.org/10.1107/S0021889805004875 for reference.
 
@@ -312,7 +312,7 @@ def calcTasQAngles(UB, planeNormal, ss, a3offset, qe):
     if np.abs(angles.sgl - 90.) < .5:
         raise RuntimeError('Combination of UB and Q is not valid')
 
-    #    Now, this is slightly different then in the publication by M. Lumsden.
+    #    Now, this is slightly different from the publication by M. Lumsden.
     #    The reason is that the atan2 helps to determine the sign of om
     #    whereas the sin, cos formula given by M. Lumsden yield ambiguous signs
     #    especially for om.

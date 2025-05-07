@@ -454,7 +454,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
     def pitch(self, pitch):
         """
         Select (not enable) a pitch.
-        If a pitch is enable, first eventually deactivate it (if so, store the
+        If a pitch is enabled, first eventually deactivate it (if so, store the
         motor position), then set the new pitch.
         :param pitch:
         :return:
@@ -571,7 +571,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
     @check_pitch
     def move_off_focus(self):
         """
-        Drive the pitch slightly off focus to check alignement without driving
+        Drive the pitch slightly off focus to check alignment without driving
         to parking position.
         :return: None
         """
@@ -607,7 +607,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
     def isAtParkingPosition(self):
         """
         Test if the pitch motor is at endswitch. If the pitch is active and the
-        motor configured, this is posisble using the EPICS LLS and HLS. If not,
+        motor configured, this is possible using the EPICS LLS and HLS. If not,
         one must compare the current position with the endswitch position.
         :return: True if at endswitch, else False
         """
@@ -658,7 +658,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
         Create a backup of the device parameters (positions/limits) serialised
         as JSON arrays. The folder name is generated using the current
         date/time. The path to the folder 'backup path' is set in the
-        setupfile.
+        setup file.
         :return: None
         """
         import json

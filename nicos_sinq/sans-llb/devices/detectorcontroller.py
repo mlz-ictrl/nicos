@@ -28,7 +28,7 @@ class DetectorController(IsController, Device):
     The high Q detector in the SANS-LLB tank could potentially crash
     into a rail. This class is supposed to prevent this. It allows z only to be
     moved when x is beyond a certain threshold. X can only be moved beyond the
-    threshold when z is lower then a threshold value. The latter case serves
+    threshold when z is lower than a threshold value. The latter case serves
     the parking position use case for the detector.
     """
 

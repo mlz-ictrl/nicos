@@ -33,7 +33,7 @@ class CameaA4Motor(Moveable):
     use the standard offset for two reasons:
     - The application of the offset needs to be compatible with SICS
     - This a4offset is fixed and comes from the calibration file. We need
-    the actual motor offset in order to account for the skewedness of the
+    the actual motor offset in order to account for the skewness of the
     instrument and the sample.
     """
 

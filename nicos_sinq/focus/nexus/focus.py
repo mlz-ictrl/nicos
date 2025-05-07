@@ -145,7 +145,7 @@ class FocusCoordinates(NexusElementBase):
             coord = session.getDevice('f2d_coords')
         except ConfigurationError:
             session.log.warning('2D coords not found, cannot write '
-                                '2D detector meta data')
+                                '2D detector metadata')
             return
         xdim = coord.xdim
         ydim = coord.ydim

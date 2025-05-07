@@ -219,7 +219,7 @@ class Collimator(Moveable):
         return self._steps[-1]
 
     def doStart(self, target):
-        # what if colsX is was moved independently?
+        # what if colsX was moved independently?
         for idx, step in enumerate(self._steps):
             if idx == 0 and self._attached_segments[0].read(0) == 'zus':
                 # leave polariser alone

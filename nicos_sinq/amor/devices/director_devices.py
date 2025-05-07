@@ -82,7 +82,7 @@ class AmorDirector(Waitable):
                      default=0.245),
         'kad': Param('Divergence aperture: Beam center offset', type=float,
                      volatile=True, userparam=True, settable=True),
-        'div': Param('Divergence aperture: Incident beam diviergence',
+        'div': Param('Divergence aperture: Incident beam divergence',
                      type=float, userparam=True, settable=True, volatile=True),
         'mu':  Param('Sample: Angle between horizon and sample surface',
                      type=float, userparam=True, settable=True, volatile=True),

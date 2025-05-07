@@ -59,7 +59,7 @@ devices = dict(
         precision = 0.2,
     ),
     m2ch = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
-        description = 'Monochromator 2 horizotal curvature',
+        description = 'Monochromator 2 horizontal curvature',
         motorpv = motb + 'M2CH',
         errormsgpv = motb + 'M2CH-MsgTxt',
         precision = 0.2,

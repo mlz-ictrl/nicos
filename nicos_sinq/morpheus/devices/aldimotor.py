@@ -156,7 +156,7 @@ class AldiMotor(HasPrecision, Moveable):
     slits with an SPS being responsible for switching between the slit
     stages. Whenever a slit stage needs to be changed, some parameters have
     to be sent to the motor controller and a reference run has to be made.
-    This is the responsability of the AldiController defined below.
+    This is the responsibility of the AldiController defined below.
     """
 
     parameters = {

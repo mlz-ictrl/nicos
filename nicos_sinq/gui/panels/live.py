@@ -21,8 +21,8 @@
 #
 # *****************************************************************************
 
-"""NICOS livewidget for SINQ: we want to be able to show plots of scanfiles.
-A slider allows to select which scanpoint to display"""
+"""NICOS livewidget for SINQ: we want to be able to show plots of scan files.
+A slider allows to select which scan point to display"""
 
 import numpy as np
 
@@ -36,7 +36,7 @@ class ScanSlider(QWidget):
         QWidget.__init__(self, parent)
         self.setLayout(QVBoxLayout())
         self.slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.title = QLabel('Scanpoint selection', self)
+        self.title = QLabel('Scan point selection', self)
         self.title.setMaximumHeight(25)
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.slider)
@@ -55,9 +55,9 @@ class LiveDataPanel(FlowuiLiveDataPanel):
 
     def _show(self, data=None):
         """Same as the default, but if data has dimension 3 assumes that the
-        first dimension is the scanpoint set.
+        first dimension is the scan point set.
         In that case shows a slider that allow to scroll and display all the
-        scanpoints images.
+        scan points images.
         """
 
         idx = self.fileList.currentRow()
@@ -81,7 +81,7 @@ class LiveDataPanel(FlowuiLiveDataPanel):
             self.scan_slider.show()
             self.scan_slider.slider.setMaximum(_arrays.shape[1] - 1)
             self.scan_slider.title.setText(
-                f'Scanpoint selection: <# {self.scan_slider.slider.value()+1}>')
+                f'Scan point selection: <# {self.scan_slider.slider.value()+1}>')
 
             _arrays = _arrays[:, self.scan_slider.slider.value(), ...]
         else:

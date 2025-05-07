@@ -83,7 +83,7 @@ class S7Switch(EpicsDevice, MappedMoveable):
 
 class S7Shutter(S7Switch):
     """
-    A shutter as implemented on a SPS S7 programmed by Roman Bürge
+    A shutter as implemented on an SPS S7 programmed by Roman Bürge
     """
     parameters = {
         # The readpv inherited from S7Switch is used to test for shutter open

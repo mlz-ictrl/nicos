@@ -34,7 +34,7 @@ class EpicsScalerRecord(EpicsDetector):
 
     This counter box can set one time preset and one count preset,
     To use the time preset, the count preset should be set to 0 and
-    vice-a-versa.
+    vice versa.
 
     In addition to the standard detector start/pause functions few
     more pvs are provided that provide details on the status and the

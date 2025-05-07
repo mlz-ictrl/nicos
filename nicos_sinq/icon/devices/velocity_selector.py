@@ -38,7 +38,7 @@ class VSState(Moveable):
                      Moveable),
         'off': Attach('Writable I/O for switching off the VS',
                       Moveable),
-        'state': Attach('Readable I/O for the runable state of the VS',
+        'state': Attach('Readable I/O for the runnable state of the VS',
                         Readable),
         'hand': Attach('Readable I/O for manual state VS',
                        Readable),
@@ -102,8 +102,8 @@ class SeqWaitValue(SequenceItem):
 class VSSpeed(BaseSequencer):
     """
     This class controls the speed of the velocity selector. While the
-    readback is a plain analog readable, setting the set point is
-    special: The 12 bit set point is split across two individual
+    readback is a plain analog readable, setting the setpoint is
+    special: The 12 bit setpoint is split across two individual
     bytes of a digital output port.
     """
 

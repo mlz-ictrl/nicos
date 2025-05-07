@@ -254,7 +254,7 @@ class AmorSlitLogicalMotor(LogicalMotor):
 class SlitAxis(DefaultSlitAxis):
     """
     The diaphragm consists of 4 blades, much like a standard slit. The use
-    case is different though: one is no interested in the width and height
+    case is different though: one is not interested in the width and height
     but in the divergence.
     In addition to the slit, this slit axis attaches a controller that
     converts the position of the 4 blades to different quantities related to
@@ -313,7 +313,7 @@ class DivergenceAperture(HasAutoDevices, Device):
 
     class HorizontalDivergence(SlitAxis):
         """
-        Defines the horiziontal divergence of the beam incident on the sample
+        Defines the horizontal divergence of the beam incident on the sample
         """
 
         def _convertRead(self, positions):

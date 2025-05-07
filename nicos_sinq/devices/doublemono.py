@@ -56,7 +56,7 @@ class DoubleMonochromator(HasLimits, HasPrecision, IsController,
 
     @contextmanager
     def _allowed(self):
-        """Indicator: position checks will done by controller itself.
+        """Indicator: position checks will be done by controller itself.
 
         If the controller methods ``doStart`` or ``doIsAllowed`` are called the
         ``isAdevTargetAllowed`` must give back always True otherwise a no

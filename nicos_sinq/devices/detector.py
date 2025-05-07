@@ -122,7 +122,7 @@ class SinqDetector(EpicsScalerRecord):
 
     def doSetPreset(self, **preset):
         # The counter box can set one time and count preset. If the time
-        # preset is set, auto set the count preset to 0 and vice-a-versa.
+        # preset is set, auto set the count preset to 0 and vice versa.
         # Both presets cannot be set at a time.
 
         # This represents the various possible count and time presets

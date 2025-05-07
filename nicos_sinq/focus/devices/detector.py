@@ -164,7 +164,7 @@ class Focus2DData(Device):
     This is class which holds some auxiliary data for storing the
     2D detector data in the NeXus file. It is mainly here to keep
     some parameters such that they are loaded from the cache
-    rather then have to load them at each invocation of NICOS
+    rather than have to load them at each invocation of NICOS
     """
 
     parameters = {

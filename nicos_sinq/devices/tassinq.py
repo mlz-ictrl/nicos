@@ -29,8 +29,8 @@ from nicos.devices.tas import TAS
 
 class SinqTAS(TAS):
     """
-    This just makes the sure that the scanconstant is read from
-    the proper device, as requested by the scanmode
+    This just makes sure that the scanconstant is read from
+    the proper device, as requested by the scan mode
     """
     parameter_overrides = {
         'scanconstant': Override(settable=False, volatile=True),

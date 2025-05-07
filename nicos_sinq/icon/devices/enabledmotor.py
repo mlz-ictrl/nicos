@@ -34,7 +34,7 @@ from nicos.devices.epics.pyepics.motor import EpicsMotor, \
 class EnabledMotor(HomingProtectedEpicsMotor):
     """
     At ICON there are motors which are only allowed to run
-    while a door a is closed. This is indicated by a
+    while a door is closed. This is indicated by a
     Digital I/O. This is implemented in this module.
     """
 

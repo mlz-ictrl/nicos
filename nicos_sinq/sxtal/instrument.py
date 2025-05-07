@@ -454,7 +454,7 @@ class KappaSXTal(SXTalBase):
                                 np.deg2rad(chi),
                                 np.deg2rad(phi))
         else:
-            self.log.error('Failed to convert from kappa to eulerian angles')
+            self.log.error('Failed to convert from kappa to Eulerian angles')
             return [1., 0, 0]
 
     def _readPos(self, maxage=0):
@@ -481,7 +481,7 @@ class KappaSXTal(SXTalBase):
                                                  self.kappa_angle,
                                                  self._right_hand)
         if not status:
-            self.log.error('Failed to convert from kappa to eulerian angles')
+            self.log.error('Failed to convert from kappa to Eulerian angles')
         rd = {}
         rd['h'] = r[0][0]
         rd['k'] = r[0][1]
@@ -511,7 +511,7 @@ class TASSXTal(SXTalBase):
     spectrometer.
 
     At SINQ, we use this in elastic and inelastic modes. This is controlled by
-    the parameter inelastic which causes enegry to be drive when True. When
+    the parameter inelastic which causes energy to be drive when True. When
     false, energy is not driven and the attached analyzer and monochromator
     must be the same device.
     """
@@ -663,7 +663,7 @@ class TASSXTal(SXTalBase):
 
 class SXTalPSI(AutoDevice, Moveable):
     """
-    "Partial" device for the PSI angle of a eulerian cradle instrument
+    "Partial" device for the PSI angle of an Eulerian cradle instrument
     """
 
     attached_devices = {

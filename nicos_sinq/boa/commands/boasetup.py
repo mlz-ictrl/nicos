@@ -33,7 +33,7 @@ instrument configuration. The system works like this:
    And then unloads and loads setups as required.
 4) Where this is possible, the BOA tables are also reconfigured
 5) At the end a messages is produced which tells the user about those bits
-   which cannot be auto configured.
+   which cannot be autoconfigured.
 
 This whole stuff is very specific to BOA and tightly coupled with the IOC
 configuration and startup.

@@ -34,7 +34,7 @@ class BoaControlDetector(ControlDetector):
     A detector control class which implements the BOA CCD counting specific
     features:
     - delay start of the el737 after starting the CCD
-    - restart counting when the countrate was to low
+    - restart counting when the count rate was too low
     - abort and restart when the CCD does not finish timely after the el737
       finished
     """
@@ -76,7 +76,7 @@ class BoaControlDetector(ControlDetector):
         t = dev.read(0)[0]
         if mon < t * self.minimum_rate:
             session.log.info('%s, should %d cts/sec, is %f cts/dec',
-                             'Restarting because of insuffient count rate',
+                             'Restarting because of insufficient count rate',
                              self.minimum_rate, float(mon)/float(t))
             self.start()
             return False

@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 """
-This is part of the TAS library which implemnts Mark Lumsden's UB matrix
+This is part of the TAS library which implements Mark Lumsden's UB matrix
 algorithm for triple axis. See J. Appl. Cryst. (2005). 38, 405-411
 https://doi.org/10.1107/S0021889805004875 for reference.
 

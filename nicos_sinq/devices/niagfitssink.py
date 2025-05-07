@@ -75,7 +75,7 @@ class NIAGFitsSink(FITSImageSink):
                                         dev.name, e, val)
                     value = 'Unknown'
 
-                # Determine maximum possible value length (key dependend).
+                # Determine maximum possible value length (key dependent).
                 maxValLen = 63 - len(key)
 
                 # Split the dataset into several header entries if necessary
