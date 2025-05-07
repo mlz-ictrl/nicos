@@ -28,7 +28,7 @@ group = 'lowlevel'
 modules = ['nicos.commands.basic', 'nicos_isis.ibex.genie_commands']
 
 devices = dict(
-    # NOTE: removing the FreeSpace device doens't hurt the daemon functionality.
+    # NOTE: removing the FreeSpace device doesn't hurt the daemon functionality.
     # However, the daemon seems to die slightly more gracefully on CTRL+C when
     # this device is present
     Space = device('nicos.devices.generic.FreeSpace',
