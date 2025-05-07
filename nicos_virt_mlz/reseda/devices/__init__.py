@@ -141,7 +141,7 @@ class CascadeDetector(VirtualImage):
             roi, total,
         ]
 
-        # also fit per foil data and pack everything together to be send
+        # also fit per foil data and pack everything together to be sent
         # via cache for display
         payload = []
         for foil in self.foilsorder:

@@ -6,7 +6,7 @@ group = 'lowlevel'
 
 devices = dict(
     b3 = device('nicos_mlz.refsans.devices.slits.DoubleSlitSequence',
-        description = 'b3 and h3 inside Samplechamber',
+        description = 'b3 and h3 inside Sample chamber',
         fmtstr = '%.3f mm, %.3f mm',
         adjustment = 'b3h3_frame',
         unit = '',
@@ -44,7 +44,7 @@ devices = dict(
        unit = 'mm',
     ),
     b3_r = device('nicos.devices.generic.Axis',
-        description = 'b3, reactorside',
+        description = 'b3, reactor side',
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (-393.0, 330.0),
             speed = 1.,
@@ -56,7 +56,7 @@ devices = dict(
         visibility = (),
     ),
     b3_s = device('nicos.devices.generic.Axis',
-        description = 'b3, sampleside',
+        description = 'b3, sample side',
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (-102.0, 170.0),
             speed = 1.,

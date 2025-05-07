@@ -84,7 +84,7 @@ devices = dict(
         others = [],
         postprocess = [('det_roi', 'det_img')],
         shutter = 'shutter',
-        liveinterval = None,  # to workaround a current bug
+        liveinterval = None,  # to work around a current bug
     ),
 )
 

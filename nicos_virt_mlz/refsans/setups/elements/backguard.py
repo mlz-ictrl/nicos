@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 devices = dict(
     backguard = device('nicos_mlz.refsans.devices.skew_motor.SkewMotor',
-        description = description + ' adjust in Expertmode',
+        description = description + ' adjust in Expert mode',
         one = 'backguard1',
         two = 'backguard2',
         abslimits = (-60, 60),

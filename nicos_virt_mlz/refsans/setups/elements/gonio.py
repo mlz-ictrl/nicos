@@ -49,7 +49,7 @@ devices = dict(
         precision = 0.01,
     ),
     gonio_x = device('nicos_mlz.refsans.devices.analogencoder.AnalogEncoder',
-        description = 'pos of goniometer in beamdirection, with respect to b3',
+        description = 'pos of goniometer in beam direction, with respect to b3',
         device = device('nicos.devices.generic.ManualMove',
             # default = 0.14501711047921587,
             default = 55,

@@ -47,7 +47,7 @@ class McStasSimulation(BaseSimulation):
         # 'sample_x': Attach('Sample position x', Readable),
         # 'sample_y': Attach('Sample position y', Readable),
         # 'sample_z': Attach('Sample position z', Readable),
-        # 'beamstop': Attach('Beam stop positon', Readable),
+        # 'beamstop': Attach('Beamstop position', Readable),
     }
 
     def _prepare_params(self):

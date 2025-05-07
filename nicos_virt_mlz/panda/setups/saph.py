@@ -1,4 +1,4 @@
-description = 'Setup for the Saphire Filter in primary beam'
+description = 'Setup for the Sapphire Filter in primary beam'
 
 includes = ['monoturm']
 group = 'optional'
@@ -12,7 +12,7 @@ devices = dict(
         curvalue = -8,
     ),
     saph = device('nicos.devices.generic.Switcher',
-        description = 'saphire filter',
+        description = 'sapphire filter',
         moveable = 'saph_mot',
         mapping = {'in': -133,
                    'out': -8},

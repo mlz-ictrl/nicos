@@ -92,7 +92,7 @@ class McStasSimulation(BaseSimulation):
         self._tofchannels = 16
 
     # This method is needed to transfer the number of tofchannels (parameter
-    # of the McStasImage device to the simulation. The solution with an
+    # of the McStasImage device) to the simulation. The solution with an
     # attached image device leads to a circular dependency !
     def setTofChannels(self, tofchannels):
         self._tofchannels = tofchannels
@@ -309,7 +309,7 @@ class McStasImage(BaseImage):
             rres.phase, rres.dphase,  # rres.freq, rres.dfreq,
         ]
 
-        # also fit per foil data and pack everything together to be send via
+        # also fit per foil data and pack everything together to be sent via
         # cache for display
         payload = []
         for foil in self.foilsorder:

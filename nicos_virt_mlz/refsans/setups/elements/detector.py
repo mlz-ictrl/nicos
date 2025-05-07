@@ -8,7 +8,7 @@ devices = dict(
         states = ['off', 'drift1', 'drift2'],
     ),
     det_pivot = device('nicos_mlz.refsans.devices.pivot.PivotPoint',
-        description = 'Pivot point at floor of samplechamber',
+        description = 'Pivot point at floor of sample chamber',
         states = [9] + list(range(1, 9)) + list(range(10, 15)),
         fmtstr = 'Point %d',
         unit = '',
