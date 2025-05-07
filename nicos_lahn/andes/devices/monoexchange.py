@@ -101,7 +101,7 @@ class Exchange(Switcher):
             for dev, value in keywords.items():
                 if dev not in self._monoblock._adevs:
                     raise UsageError(
-                        self, 'device "%s" not defined. Posible devices '
+                        self, 'device "%s" not defined. Possible devices '
                         'are: %s' % (dev, ', '.join(["'%s'" % x for x in
                                                      self._monoblock._adevs])))
                 self._monoblock._adevs[dev].move(value)
