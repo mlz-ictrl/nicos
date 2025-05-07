@@ -43,7 +43,7 @@ from nicos_jcns.devices.dectris import Detector2D as DECTRIS2DDetector, \
 def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
     """Start a new experiment with the given proposal number and title.
 
-    You should also give a argument for the local contact and the primary user.
+    You should also give an argument for the local contact and the primary user.
     More users can be added later with `AddUser`.  Example:
 
     >>> NewExperiment(541, 'Spin waves', 'L. Contact', 'F. User <user@abc.de>')
