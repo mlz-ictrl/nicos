@@ -292,11 +292,12 @@ class OutSampleEnv(NexusSampleEnv):
 
     def create(self, name, h5parent, sinkhandler):
         self.starttime = time.time()
-        for dev in sinkhandler.dataset.environment:
+        for dev, value in zip(sinkhandler.dataset.environment,
+                              sinkhandler.dataset.envvaluelist):
             # There can be DeviceStatistics in the environment.
             # We do not know how to write those
             if isinstance(dev, Readable) and self.isValidDevice(dev):
-                self.createNXlog(h5parent, dev)
+                self.createNXlog(h5parent, dev.name, value)
 
     def updatelog(self, h5parent, dataset):
         current_time = time.time()
@@ -486,8 +487,8 @@ class SaveSampleEnv(NexusElementBase):
             return False
         return isinstance(dev, Readable)
 
-    def createNXlog(self, h5parent, dev):
-        logname = self._get_logname(dev.name)
+    def createNXlog(self, h5parent, devname, value):
+        logname = self._get_logname(devname)
         if self._postfix:
             logname += self._postfix
         loggroup = h5parent.create_group(logname)
@@ -499,20 +500,17 @@ class SaveSampleEnv(NexusElementBase):
                                             time.localtime(self.starttime))
         dset = loggroup.create_dataset('value', (1,), maxshape=(None,),
                                        dtype='float32')
-        try:
-            dset[0] = dev.read()
-        except Exception as e:
-            dev.log.warning('error reading %s: %r', dev, e)
-            dset[0] = float('nan')
-        self._last_update[dev.name] = time.time()
+        dset[0] = value
+        self._last_update[devname] = time.time()
 
     def create(self, name, h5parent, sinkhandler):
         self.starttime = time.time()
-        for dev in sinkhandler.dataset.environment:
+        for dev, value in zip(sinkhandler.dataset.environment,
+                              sinkhandler.dataset.envvaluelist):
             # There can be DeviceStatistics in the environment.
             # We do not know how to write those
             if self.isValidDevice(dev):
-                self.createNXlog(h5parent, dev)
+                self.createNXlog(h5parent, dev.name, value)
         self.createArrays(name, h5parent, sinkhandler)
 
     def updatelog(self, h5parent, dataset):

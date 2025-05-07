@@ -568,8 +568,8 @@ class NexusSampleEnv(NexusElementBase):
         self._last_update = {}
         self._postfix = postfix
 
-    def createNXlog(self, h5parent, dev):
-        logname = dev.name
+    def createNXlog(self, h5parent, devname, value):
+        logname = devname
         if self._postfix:
             logname += self._postfix
         loggroup = h5parent.create_group(logname)
@@ -581,16 +581,17 @@ class NexusSampleEnv(NexusElementBase):
                                             time.localtime(self.starttime))
         dset = loggroup.create_dataset('value', (1,), maxshape=(None,),
                                        dtype='float32')
-        dset[0] = dev.read()
-        self._last_update[dev.name] = time.time()
+        dset[0] = value
+        self._last_update[devname] = time.time()
 
     def create(self, name, h5parent, sinkhandler):
         self.starttime = time.time()
-        for dev in sinkhandler.dataset.environment:
+        for dev, value in zip(sinkhandler.dataset.environment,
+                              sinkhandler.dataset.envvaluelist):
             # There can be DeviceStatistics in the environment.
             # We do not know how to write those
             if isinstance(dev, Readable):
-                self.createNXlog(h5parent, dev)
+                self.createNXlog(h5parent, dev.name, value)
 
     def updatelog(self, h5parent, dataset):
         current_time = time.time()
