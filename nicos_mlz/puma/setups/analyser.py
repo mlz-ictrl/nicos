@@ -1,4 +1,4 @@
-description = 'Analysator'
+description = 'Analyzer'
 
 includes = ['system', 'motorbus6']
 
@@ -94,7 +94,7 @@ devices = dict(
         maxtries = 15,
     ),
 
-    # Focusing horizontal for Ge311 Analysator
+    # Focusing horizontal for Ge311 Analyzer
     st_afge = device('nicos_mlz.puma.devices.Motor1',
         bus = 'motorbus6',
         addr = 68,

@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Analysator stuff for PANDA"""
+"""Analyzer stuff for PANDA"""
 
 from nicos.core import Attach, Moveable, Param, oneofdict, status
 from nicos.devices.entangle import AnalogOutput

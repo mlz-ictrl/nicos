@@ -3,7 +3,7 @@ group = 'optional'
 
 devices = dict(
     analysator_rot = device('nicos.devices.generic.VirtualMotor',
-        description = 'Rotation analyer (motor)',
+        description = 'Rotation analyzer (motor)',
         fmtstr = '%.3f',
         unit = 'deg',
         speed = 5,
