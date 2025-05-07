@@ -44,7 +44,6 @@ class SinqMotor(CoreEpicsMotor):
         'errormsgpv': Override(settable=True),
         'errorbitpv': Override(settable=True),
         'reseterrorpv': Override(settable=True),
-        'precision': Override(volatile=True),
     }
 
     def doInit(self, mode):

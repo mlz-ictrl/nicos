@@ -29,7 +29,7 @@ from time import time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import ADMIN, Override, Param, oneof, pvname, status
+from nicos.core import ADMIN, Override, Param, oneof, pvname, status, UsageError
 from nicos.core.device import requires
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.core.params import limits
@@ -147,6 +147,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         'speed': Override(volatile=True),
         'offset': Override(volatile=True, chatty=False),
         'abslimits': Override(volatile=True),
+        'precision': Override(settable=False, mandatory=False, volatile=True),
     }
 
     _motor_status = (status.OK, '')
@@ -173,6 +174,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         'softlimit': 'LVIO',
         'lowlimitswitch': 'LLS',
         'highlimitswitch': 'HLS',
+        'resolution': 'MRES',
         'enable': 'CNEN',
         'set': 'SET',
         'foff': 'FOFF',
@@ -219,6 +221,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
 
     def doReadSpeed(self):
         return self._get_pv('speed')
+
+    def doReadPrecision(self):
+        return self._get_pv('resolution')
 
     def doWriteSpeed(self, value):
         basespeed, maxspeed = self.speedlimits
@@ -286,6 +291,13 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                 return True
         return False
 
+    def doIsAtTarget(self, pos, target):
+        return self._get_pv('miss') == 0
+
+    def doWritePrecision(self, value):
+        raise UsageError('Precision is read directly from the .MRES field of '
+                         'the motor record and therefore cannot be set')
+
     def doStatus(self, maxage=0):
         stat, message = self._get_status_message()
         self._motor_status = stat, message
@@ -299,11 +311,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         moving = self._get_pv('moving')
         if done_moving == 0 or moving != 0:
             return status.BUSY, message or 'Motor is moving to target...'
-
-        miss = self._get_pv('miss')
-        if miss != 0:
-            return (status.NOTREACHED, message
-                    or 'Did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
