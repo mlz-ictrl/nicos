@@ -14,7 +14,7 @@ devices = dict(
                     # '' will bind the daemon to all network interfaces in the
                     # machine
                     # If server is the hostname (official computer name) or an
-                    # IP address the daemon will be bound the the corresponding
+                    # IP address the daemon will be bound to the corresponding
                     # network interface.
                     # Binding the cache to the 'localhost' leads to trouble if
                     # some other NICOS services are running on different

@@ -9,7 +9,7 @@ group = 'special'
 watchlist = [
     # These 2 entries check the disk space for the data and the log file
     # if there is any underflow in limits the user and/or instrument
-    # responsible will informed via the NICOS alarm channels
+    # responsible will be informed via the NICOS alarm channels
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for the log files becomes too low.',
          type = 'critical',

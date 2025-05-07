@@ -8,7 +8,7 @@ devices = dict(
     # The user level are 'guest, 'user', and 'admin', ascending ordered in
     # respect to the rights
     # The entries for the password hashes are generated from randomized
-    # passwords and not reproduceable, please don't forget to create new ones:
+    # passwords and not reproducible, please don't forget to create new ones:
     # start python
     # >>> import hashlib
     # >>> hashlib.md5('password').hexdigest()

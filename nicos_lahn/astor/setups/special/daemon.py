@@ -9,7 +9,7 @@ devices = dict(
         passwd = [
             #('guest', '', 'guest'),
             # The entries for these password hashes are generated from randomized
-            # passwords and not reproduceable, please don't forget to create new
+            # passwords and not reproducible, please don't forget to create new
             # ones.
             ('user', 'f4513cde245da55a0f00b1c07fee907360a228e7', 'user'),
             ('admin', '165259bdbac85f8408ce44280e046ecca3bc0ec2', 'admin'),
@@ -22,7 +22,7 @@ devices = dict(
         # '' will bind these daemon to all network interfaces in the
         # machine
         # If server is a hostname (official computer name) or an IP
-        # address the daemon service will be bound the the
+        # address the daemon service will be bound to the
         # corresponding network interface.
         server = '',
         authenticators = ['Auth'],

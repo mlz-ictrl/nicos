@@ -16,7 +16,7 @@ devices = dict(
         passwd = [
             ('guest', '', 'guest'),
             # The entries for these password hashes are generated from randomized
-            # passwords and not reproduceable, please don't forget to create new
+            # passwords and not reproducible, please don't forget to create new
             # ones.
             ('user', 'd3bde5ce3e546626df42771c58986d4e', 'user'),
             ('admin', 'f3309476bdb36550aa8fb90ae748c9cc', 'admin'),

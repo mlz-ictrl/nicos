@@ -17,7 +17,7 @@ devices = dict(
                     # '' will bind the daemon to all network interfaces in the
                     # machine
                     # If server is a hostname (official computer name) or an IP
-                    # address the daemon service will be bound the the
+                    # address the daemon service will be bound to the
                     # corresponding network interface.
                     server = '0.0.0.0',
                     authenticators = ['Auth'],

@@ -2,8 +2,8 @@
 # Instrument specific template files for PANDA
 #
 # Hint: all files ending in .template will be templated upon NewExperiment
-# or NewSample and then stored without that suffix into the scriptdirectory
-# (not overwriting exisitng files). Other files are 'just copied over',
+# or NewSample and then stored without that suffix into the script directory
+# (not overwriting existing files). Other files are 'just copied over',
 # overwriting older copies.
 #
 # Templating works by replacing constructs like {{key:default_value#description}}
