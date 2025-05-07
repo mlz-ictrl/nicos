@@ -111,7 +111,7 @@ class DaemonSession(NoninteractiveSession):
         # we have to clear the namespace since the Daemon object and related
         # startup objects are still in there
         self.namespace.clear()
-        # but afterwards we have to automatically import objects again
+        # but afterward we have to automatically import objects again
         self.namespace['__builtins__'] = builtins.__dict__
         self.initNamespace()
 

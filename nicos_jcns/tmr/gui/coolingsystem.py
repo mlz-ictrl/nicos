@@ -139,7 +139,7 @@ class Widget(NicosWidget, QWidget):
             if not devinfo.isdevice or not hasattr(devinfo, 'position'):
                 continue
             pos = devinfo.position
-            # unmark all devices to mark recently selected device afterwards
+            # unmark all devices to mark recently selected device afterward
             if clicked:
                 devinfo.selected = False
             if (pos.x <= x <= pos.x + pos.width

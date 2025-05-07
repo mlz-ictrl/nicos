@@ -217,7 +217,7 @@ class NicosCmdClient(NicosClient):
         return readline_result.decode(term_encoding, 'ignore')
 
     def put(self, string):
-        """Put a line of output, preserving the prompt afterwards."""
+        """Put a line of output, preserving the prompt afterward."""
         self.out.write('\r\x1b[K%s\n' % string)
         self.out.flush()
         os.write(self.wakeup_pipe_w, b' ')

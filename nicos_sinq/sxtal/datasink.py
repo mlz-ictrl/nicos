@@ -192,7 +192,7 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
             # This should not be necessary: the expected settype is scan
             # from the HKLScan. I debugged this to Dataset.dispatch().
             # Before getattr(method)(args) the settype is scan but
-            # afterwards it is subscan. May be, the NICOS team has an
+            # afterward it is subscan. May be, the NICOS team has an
             # opinion on why this happens. Anyway, this now works.
             if self._lastsubscan == self.dataset:
                 session.log.info('Closing CCL file....')

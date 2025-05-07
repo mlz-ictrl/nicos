@@ -346,7 +346,7 @@ class NicosClient:
 
         If *only_explicit* is true, only devices that are in the NICOS
         namespace will be returned (i.e. those with namespace visibility and
-        that have been explicitly created afterwards).
+        that have been explicitly created afterward).
         """
         query = 'list(dn for (dn, d) in session.devices.items() ' \
                 'if %r in d.classes' % needs_class

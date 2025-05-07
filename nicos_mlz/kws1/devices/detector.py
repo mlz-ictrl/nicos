@@ -122,7 +122,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
         seq.append(SeqDev(self._attached_bs_x, target[0], stoppable=True))
         seq.append(SeqDev(det_z, target[2], stoppable=True))
 
-        # if z has to move, reposition beamstop y afterwards by going to
+        # if z has to move, reposition beamstop y afterward by going to
         # some other value (damping vibrations) and back
         if self.beamstopsettlepos is not None and \
            abs(det_z.read(0) - target[2]) > det_z.precision:

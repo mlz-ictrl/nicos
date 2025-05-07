@@ -897,7 +897,7 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False, kvector=None):
     If *kvector* is given, it is a propagation vector, or list of such vectors,
     to add to and subtract from each integer HKL point.
 
-    You can view/edit the CSV file afterwards, and finally do a scan over the
+    You can view/edit the CSV file afterward, and finally do a scan over the
     HKL list using the `ScanDataset()` command.
 
     Example:

@@ -377,7 +377,7 @@ center.__doc__ += _scanFC.__doc__
 def checkoffset(dev, center, step, numpoints, *args, **kwargs):
     """Readjust offset of the given device to the center of a scan.
 
-    The adjustment is done so that afterwards, the given *center* coincides
+    The adjustment is done so that afterward, the given *center* coincides
     with the center of a fit through the scan performed with the given
     stepsize and number of points.
 

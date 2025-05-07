@@ -58,8 +58,8 @@ def scharr_filter(img):
     """
     Analysis function for sharpness of an given numpy array.
 
-    First generates a scharr-filter for the x and y direction. Afterwards
-    it perfroms a convolution of the scharr with the array and calculates
+    First generates a scharr-filter for the x and y direction. Afterward
+    it performs a convolution of the scharr with the array and calculates
     the mean value of the absolute.
     Input: region (numpy array)
     Output: sharpness (scalar)

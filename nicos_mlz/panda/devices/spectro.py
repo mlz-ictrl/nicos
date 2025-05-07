@@ -63,7 +63,7 @@ class PANDA(SequencerMixin, TAS):
         seq = []
         # move mono/sample all at once
         seq.append(movefirst)
-        # afterwards correct ana
+        # afterward correct ana
         if self.scanmode != 'DIFF':
             self.log.debug('moving ana to %s', angles[1])
             seq.append(SeqDev(ana, from_k(angles[1], ana.unit)))

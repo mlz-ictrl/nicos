@@ -395,7 +395,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
 
     def doWritePhase(self, value):
         # Change sign of offset since the sign of the value is now changed
-        # afterwards
+        # afterward
         set_to = (value - self.reference) / self.gear  # SB
         self.log.info('Disk %d angle %0.2f Phase %0.2f gear %d ref %.2f',
                       self.chopper, value, set_to, self.gear, self.reference)

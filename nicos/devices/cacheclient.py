@@ -142,7 +142,7 @@ class BaseCacheClient(Device):
 
     def _connect_action(self):
         # send request for all keys and updates....
-        # (send a single request for a nonexisting key afterwards to
+        # (send a single request for a non-existing key afterward to
         # determine the end of data)
         msg = f'@{self._prefix}{OP_WILDCARD}\n{END_MARKER}{OP_ASK}\n'
         self._socket.sendall(msg.encode())

@@ -1260,7 +1260,7 @@ class Readable(Device):
         (200, '')
     """)
     def reset(self):
-        """Reset the device hardware.  Returns the new status afterwards.
+        """Reset the device hardware. Returns the new status afterward.
 
         This operation is forbidden in slave mode, and a no-op for hardware
         devices in simulation mode.

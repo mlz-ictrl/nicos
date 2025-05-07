@@ -777,7 +777,7 @@ class DetectorForecast(Readable):
 
 class GatedDetector(Detector):
     """A Detector which enables some 'gates' before the measurment
-    and disables them afterwards
+    and disables them afterward.
     """
 
     attached_devices = {
