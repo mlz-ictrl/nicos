@@ -91,10 +91,10 @@ class FPLCTrigger(HasTimeout, Moveable):
 
 
 class FPLCRate(AnalogInput):
-    """Forward the current detector countrate to the FPLC."""
+    """Forward the current detector count rate to the FPLC."""
 
     attached_devices = {
-        'rate':   Attach('device to read countrate', Readable),
+        'rate':   Attach('device to read count rate', Readable),
     }
 
     def doStatus(self, maxage=0):

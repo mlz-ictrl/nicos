@@ -12,7 +12,7 @@ devices = dict(
         visibility = (),
     ),
     linst1 = device('nicos.devices.generic.Axis',
-        description = 'Free useable linear stage',
+        description = 'Freely usable linear stage',
         pollinterval = 5,
         maxage = 12,
         fmtstr = '%.2f',

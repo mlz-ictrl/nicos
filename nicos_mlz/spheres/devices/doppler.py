@@ -54,7 +54,7 @@ class AcqDoppler(VectorInput):
 
 
 class Doppler(SequencerMixin, MultiSwitcher):
-    """Device to change the dopplerspeed.
+    """Device to change the doppler speed.
     It also compares the speed and amplitude 'seen' by the SIS detector to
     the values set in the doppler and notifies the user if these values do
     not match."""
@@ -193,10 +193,10 @@ class Doppler(SequencerMixin, MultiSwitcher):
                                      'doppler, although it has been stopped.')
         elif not self.withinMargins(acq_speed, speed, SPEED):
             return (status.WARN, 'detector observes a speed differing '
-                                 'from the dopplerspeed')
+                                 'from the doppler speed')
         elif not self.withinMargins(acq_ampl, ampl, AMPLITUDE):
             return (status.WARN, 'detector observes an amplitude differing '
-                                 'from the doppleramplitude')
+                                 'from the doppler amplitude')
         elif round(speed, 2) not in self._sm_values \
                 and self.inRange(speed):
             return status.OK, 'Doppler runs at custom speed'

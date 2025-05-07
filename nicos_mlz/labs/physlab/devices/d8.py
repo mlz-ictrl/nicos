@@ -41,7 +41,7 @@ class D8(Readable):
         (0, 7, False): 'Right door switches faulty',
         (1, 0, False): 'Left door switches faulty',
         (1, 1, False): 'Tube window switches faulty',
-        (1, 2, False): 'Tube window open dispaly faulty',
+        (1, 2, False): 'Tube window open display faulty',
         (1, 3, False): 'X-Ray on display faulty',
         (2, 0, True): 'Primary optics not mounted',
         (2, 1, True): 'Tube mount not mounted',

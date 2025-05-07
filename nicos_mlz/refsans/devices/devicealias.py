@@ -28,7 +28,7 @@ from nicos.core.params import Override
 class HighlevelDeviceAlias(DeviceAlias):
     """Ensure the visibility of the DeviceAlias in any case.
 
-    This class may used to hide the lowlevel devices and make only the link
+    This class may be used to hide the low level devices and make only the link
     to them visible.
     """
 

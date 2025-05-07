@@ -35,7 +35,7 @@ from nicos.protocols.daemon import BREAK_AFTER_STEP
 @helparglist('')
 def cetoni_calibrate_sensors():
     """Calculates and stores offsets to atmospheric pressure for pressure
-    sensors installed on cetoni syringes.
+    sensors installed on Cetoni syringes.
     """
     syringe1 = session.getDevice('syringe1')
     syringe2 = session.getDevice('syringe2')

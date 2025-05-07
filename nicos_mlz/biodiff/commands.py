@@ -164,7 +164,7 @@ def rscan(dev, *args, **kwargs):
     >>> rscan(dev, [0, 1, 2, 3, 7, 8, 9, 10])  # scans at the given positions.
 
     For floating point arguments, the length of the result is
-    ``int(round((end - start) / step + 1)``. Because of floating point
+    ``int(round((end - start) / step + 1))``. Because of floating point
     overflow, this rule may result in the last element being greater than
     ``end``, e.g.
 

@@ -29,7 +29,7 @@ devices = dict(
         phasesign = phasesign_val,
     ),
     cpt00 = device(code_base,
-        description = 'Windowsignal itself, 2. flank; check duty cycle' + description,
+        description = 'Window signal itself, 2. flank; check duty cycle' + description,
         url = URL,
         valuekey = 'chopper_act',
         timeout = 3.0,

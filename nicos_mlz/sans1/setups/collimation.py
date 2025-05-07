@@ -16,7 +16,7 @@ devices = dict(
         device = 'col_sw',
         #lockvalue = None,     # go back to previous value
         unlockvalue = 'close',
-        #keepfixed = False,    # dont fix attenuator after movement
+        #keepfixed = False,    # don't fix attenuator after movement
         pollinterval = 15,
         maxage = 60,
     ),

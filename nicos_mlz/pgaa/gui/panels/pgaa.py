@@ -62,7 +62,7 @@ class BasicScriptHandler:
     def extract_data(self, text):
         """Extract templated values from script text.
 
-        Values will be put with their names into a dict an returned.
+        Values will be put with their names into a dict and returned.
         """
         return self.handler.extract_data(text) if text else {}
 

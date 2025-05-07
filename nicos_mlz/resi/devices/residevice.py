@@ -151,7 +151,7 @@ class ResiDevice(Moveable):
         self._hardware.Finish()
 
     def dogetScanDataSet(self, **kw):
-        """ Get a list of reflections to scan from the unit cell infomation
+        """ Get a list of reflections to scan from the unit cell information
 
         arguments: either thmin/thmax  or dmin/dmax have to be specified
         """

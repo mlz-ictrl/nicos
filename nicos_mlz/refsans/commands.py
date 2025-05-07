@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Special commands only useable at REFSANS"""
+"""Special commands only usable at REFSANS"""
 
 from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.device import move

@@ -128,7 +128,7 @@ class SpeedReadout(Readable):
 class PropertyChanger(Moveable):
     """This is essentially a ParamDevice
 
-    and can be replace once Controller uses single setters
+    and can be replaced once Controller uses single setters
     (NICOS-style interface).
     """
 

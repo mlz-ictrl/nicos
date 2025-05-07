@@ -108,11 +108,11 @@ def angles_SC1(wl_min=0.0,
         wl_min: minimum wavelength in AA (float)
         wl_max: maximum wavelength in AA (float)
         d_MCo:  distance from disc1 to disc2 in meters
-        (i.e to the opening disc of MC)
+        (i.e. to the opening disc of MC)
         d_SCc:  distance from disc1 to disc3 in meters
-        (i.e to the closing disc of SC1)
+        (i.e. to the closing disc of SC1)
         d_SCo:  distance from disc1 to disc4 in meters
-        (i.e to the opening disc of SC1)
+        (i.e. to the opening disc of SC1)
         freq:   the chopper frequency in Hertz (float)
 
     Output:
@@ -147,7 +147,7 @@ def angles_SC2(wl_min=0,
         wl_min: minimum wavelength in AA (float)
         wl_max: maximum wavelength in AA (float)
         d_MCo:  distance from disc1 to disc2 in meters,
-        i.e to the opening disc of MC (float)
+        i.e. to the opening disc of MC (float)
         freq:   the chopper frequency in Hertz (float)
 
     Output:
@@ -206,14 +206,14 @@ def chopper_config(wl_min=0.0,
         suppress_parasitic: if set to True, provided an optimized configuration
                             to suppress all the parasitic wavelengths (bool)
         wl_stop:            maximum value to check for the presence of
-                            parasitic wavelengts, in AA (float). This parameter
+                            parasitic wavelengths, in AA (float). This parameter
                             is ignored if suppress_parasitic = False
         gap:                the fraction of a period which should be not
                             illuminated between frame end and next frame start.
                             This parameter only affects the 'default' and None
                             configurations (float)
         interface:          THIS PARAMETER IS NO LONGER USED BUT IS KEPT HERE
-                            JUST IN CASE. Originarily it was used to force
+                            JUST IN CASE. Originally it was used to force
                             the subroutine to return a dictionary which is
                             consistent with other subroutines existing in
                             NICOS
@@ -237,7 +237,7 @@ def chopper_config(wl_min=0.0,
                     configuration as SC2_Mode is chosen
         wl_min:     minimum wavelength transmitted value of the configuration,
                     in AA (float). This value might differ from the input.
-                    This may happens, for example, when
+                    This may happen, for example, when
                     SC2_Mode = 'single_period' in some cases.
         wl_max:     maximum wavelength transmitted value of the configuration,
                     in AA (float). This value might differ from the input. This
@@ -395,7 +395,7 @@ def chopper_config(wl_min=0.0,
                 res['angles'][1] = np.mod(res['angles'][1], 360)
 
                 # Since the phase of disk2 has been moved, we have to check
-                # that the wl_max is really trasmitted from the new
+                # that the wl_max is really transmitted from the new
                 # configuration
                 # Let us evaluate the phase of a neutron with wl_max when it is
                 # at the new disk2_pos. The equation to be solved is
@@ -510,7 +510,7 @@ def chopper_config(wl_min=0.0,
                 # Sets the disc2 in the generic position 6
                 res['angles'][1] = 0.0
 
-    if interface:  # Removes the keys originarily not expected from Jens
+    if interface:  # Removes the keys originally not expected from Jens
         res.pop('freq', None)
         res.pop('delay_time', None)
         res.pop('delay_angle', None)
@@ -525,7 +525,7 @@ def chopper_config(wl_min=0.0,
 # OUTPUT
 # 10.05.2021. In the previous version there was int(rpm) but it is better to
 #             round the value before to make it integer. Here there is an
-#             important change!!! As output a third paramater is provided:
+#             important change!!! As output a third parameter is provided:
 #             disk2_Pos. This is not trivial because NICOS could need to move
 #             the slave disc to a different position with respect to the
 #             actual position.
@@ -556,7 +556,7 @@ def chopper_parasitic(res,
     parasitic bands transmitted
 
     Input:
-        res:        output dictionary as rteturned by chopper_config. The
+        res:        output dictionary as returned by chopper_config. The
                     dictionary must contain, among others, the REAL phases of
                     discs 2-6 in degrees, their rotational speed in rounds per
                     minute, and the REAL position of disc2 (1-5)
@@ -573,11 +573,11 @@ def chopper_parasitic(res,
                     by deg_step (float)
 
     Output:
-        wl_through: output list containing the wavelengths (in AA) which are
-        able to be transmitted by the chopper system. The list is composed by
+        wl_through: output list containing the wavelengths (in AA) which can be
+        transmitted by the chopper system. The list is composed by
         sublist or single elements. A sublist contains the wl_min-wl_max of the
         interval transmitted. A single element represents a single (isolated)
-        wavelength found: usually this means that the wavalengthband
+        wavelength found: usually this means that the wavelength band
         transmitted has a width comparable or smaller than wl_step or is
         transmitted through a narrow region of disc1, which is in extension
         comparable or smaller than deg_step
@@ -946,7 +946,7 @@ def practical_SC2(wl_min=0,
     ang_SC2_single_frame, SC2_opening_single_frame = angles(t_SC2o,
                                                             t_SC2c,
                                                             freq_single_frame)
-    # here overlap is actually underuse of the frames Setting the period of the
+    # here overlap is actually underused of the frames Setting the period of the
     # pulse equal to the time of flight of the slowest neutrons could result in
     # an opening of disks 5 and 6 such to exceed the maximum possible phase
     # difference, especially when a too short disk 1 - detector distance is

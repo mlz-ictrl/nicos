@@ -36,7 +36,7 @@ devices = dict(
         fmtstr = '%.0f',
     ),
     TempHeatsink = device('nicos.devices.entangle.Sensor',
-        description = 'Temperature of the (watercooled) heatsink of the intensifier',
+        description = 'Temperature of the (water-cooled) heat sink of the intensifier',
         tangodevice = tango_base + 'heatsink_temp',
         unit = '°C',
     ),

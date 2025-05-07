@@ -483,9 +483,9 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._detvalues = None
 
     def putMetainfo(self, metainfo):
-        self.log.debug('put meta info: %r', metainfo)
+        self.log.debug('putMetainfo: %r', metainfo)
         for dev, key in metainfo:
-            self.log.debug('put meta info: %s.%s = %r',
+            self.log.debug('putMetainfo: %s.%s = %r',
                            dev, key, metainfo[dev, key][0])
 
     def _write_header(self, point):
@@ -708,7 +708,7 @@ class CaressScanfileSink(FileSink):
     handlerclass = CaressScanfileSinkHandler
 
     parameters = {
-        # Since some devices gives strings back as read values, but the CARESS
+        # Since some devices return strings as read values, but the CARESS
         # format does not accept strings they must be mapped to numbers
         'mapping': Param('Mapping of (string) device values to float values',
                          unit='', settable=False,

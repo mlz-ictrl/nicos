@@ -103,7 +103,7 @@ def setecho(time, f1=None, f2=None):
     """Wrap setting of an echotime.
 
     If frequencies 'f1' and/or 'f2' are not given, they will be taken from
-    the echo time table to configure the cascade setup.
+    the echo timetable to configure the cascade setup.
     """
     echotime = session.getDevice('echotime')
     move(echotime, time)
@@ -117,7 +117,7 @@ def set_cascade(f1=None, f2=None):
     """Set Cascade Frequency Generator Freqs and Trigger.i
 
     If frequencies 'f1' and/or 'f2' are not given, they will be taken from
-    the echo time table.
+    the echo timetable.
     """
     psd_chop_freq = session.getDevice('psd_chop_freq')
     psd_timebin_freq = session.getDevice('psd_timebin_freq')

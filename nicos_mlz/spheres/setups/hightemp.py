@@ -1,4 +1,4 @@
-description = "Hightemperature setup for SPHERES"
+description = "High temperature setup for SPHERES"
 
 group = 'basic'
 

@@ -140,7 +140,7 @@ class Detector(MeasureSequencer):
     def _read_value(self):
         ret = self._attached_detector.read()
         self._data = [sum(x) for x in zip(self._data, ret)]
-        # Detector is not busy anymore, but to early to consider it as
+        # Detector is not busy anymore, but too early to consider it as
         # 'not busy'
         self._det_run = False
         imgret = self._attached_detector.readArrays(FINAL)[0].astype('<u4',

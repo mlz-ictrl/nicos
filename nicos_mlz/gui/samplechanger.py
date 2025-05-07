@@ -82,7 +82,7 @@ class CustomButtonPanel(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
 
-        # make a vertical layout for 'ourself'
+        # make a vertical layout for 'ourselves'
         self.vBoxLayout = QVBoxLayout(self)
 
         # make a buttonBox

@@ -14,7 +14,7 @@ devices = {
         fmtstr = '%.3f',
     ),
     'T_%s_range' % setupname : device('nicos.devices.entangle.NamedDigitalOutput',
-        description = 'Heaterrange of the LS-340',
+        description = 'Heater range of the LS-340',
         tangodevice = tango_base + 'range',
         mapping = dict(off=0, low=1, medium=2, high=3),
     ),

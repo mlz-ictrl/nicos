@@ -68,7 +68,7 @@ class TransformRead(DeviceMixinBase):
     This mixin could be inherited by classes which want to recalculate their
     read values with a formula.
 
-    It adds automtically the `informula` parameter.
+    It automatically adds the `informula` parameter.
     """
 
     _informula = None
@@ -111,7 +111,7 @@ class TransformMove(TransformRead):
     This mixin could be inherited by classes which want to recalculate their
     write value with a formula and write this one.
 
-    It adds automtically the `outformula` parameter.
+    It automatically adds the `outformula` parameter.
     """
 
     _outformula = None

@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Read devices for the beam stop (externally driven)."""
+"""Read devices for the beamstop (externally driven)."""
 
 from nicos.core import Readable, status
 from nicos.core.params import Attach
@@ -39,7 +39,7 @@ class BeamStopDevice(Readable):
 
     def doStatus(self, maxage=0):
         if self._attached_att.read(maxage) < 0.01:
-            return status.ERROR, 'VSD disconected'
+            return status.ERROR, 'VSD disconnected'
         return status.OK, ''
 
 
@@ -60,5 +60,5 @@ class BeamStopCenter(Readable):
 
     def doStatus(self, maxage=0):
         if self.doRead(maxage) == 'None':
-            return status.ERROR, 'VSD disconected'
+            return status.ERROR, 'VSD disconnected'
         return status.OK, ''

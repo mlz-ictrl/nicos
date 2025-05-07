@@ -20,7 +20,7 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Devices accessing the Rohde & Schwarz oscillosope RTE1104"""
+"""Devices accessing the Rohde & Schwarz oscilloscope RTE1104"""
 
 import math
 

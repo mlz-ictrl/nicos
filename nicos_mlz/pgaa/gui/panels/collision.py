@@ -113,7 +113,7 @@ class Rectangle(Object2D):
 
 
 class Square(Rectangle):
-    """Square class paralless to the axes."""
+    """Square class parallel to the axes."""
 
     def __init__(self, x, y, w, rotation=0):
         Rectangle.__init__(self, x, y, w, w, rotation)

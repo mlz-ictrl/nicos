@@ -224,7 +224,7 @@ def timedistancediagram(speed, angles, disk2_pos, D,
     plot.legend(loc='upper center', ncol=6, borderaxespad=0.)
     plot.figure.suptitle(' ', fontsize=16, fontweight='bold')
     if Actual_D is not None:
-        # possible frame overlap. The warning is raised by using a orange frame
+        # possible frame overlap. The warning is raised by using an orange frame
         # and a text on top of the plot
         if Actual_D > D:
             plot.set_facecolor('orange')

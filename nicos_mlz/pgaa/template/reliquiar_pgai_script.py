@@ -1,6 +1,6 @@
 # pylint: skip-file
 # Reliquiar Mainz PGAI
-# attention, due to the roation from 45 to 225 deg, D2C1 is in reality D2C4
+# attention, due to the rotation from 45 to 225 deg, D2C1 is in reality D2C4
 
 # detector preferences
 detector_type = [_60p]

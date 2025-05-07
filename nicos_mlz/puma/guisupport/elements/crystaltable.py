@@ -28,7 +28,7 @@ from nicos.guisupport.qt import QPointF
 
 
 class CrystalTable(Crystal):
-    """Class to display the multi detector crystal table including crystal."""
+    """Class to display the multidetector crystal table including crystal."""
 
     _halowidth = 6
 

@@ -30,13 +30,13 @@ from .xa import xA
 def anaeff(theta0, theta, gamma, alpha, lsa, lsd, x, y, xp, eta, b, r, nv):
     """Calculate analyzer efficiency.
 
-    :param theta0: the nominal analyzer angle (negativ!)
+    :param theta0: the nominal analyzer angle (negative!)
     :param theta: is the analyzer tilt angle
     :param eta: the mosaicity in deg
     :param gamma: the deflector tilt angle
     :param alpha: the divergence angle
     :param lsa: the nominal sample-analyzer distance
-    :param lsd: the sample deflector diatance
+    :param lsd: the sample deflector distance
     :param x: x coordinate for the analyzer center
     :param y: y coordinate for the analyzer center
     :param xp: the scattering position at the sample

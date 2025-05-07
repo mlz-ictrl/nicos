@@ -6,7 +6,7 @@ group = 'optional'
 # BUS 5 (monoturm)
 # channel 1   2   3   4   5   6   7   8
 #         ca1 mgx mtx mty mth mtt ms1 saph
-#                                     saphire is in saph setup
+#                                     sapphire is in saph setup
 #             mono stuff is in monoturm setup
 
 # BUS 4 (spare one)

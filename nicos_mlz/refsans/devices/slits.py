@@ -130,7 +130,7 @@ class DoubleSlit(PseudoNOK, Moveable):
     }
 
     def doInit(self, mode):
-        # Even if the slit could not be become closer then 0 and not more
+        # Even if the slit could not be become closer than 0 and not more
         # opened the maxheight the instrument scientist want to scan over
         # the limits to find out the 'open' and 'closed' point for the neutrons
         self.valuetype = tupleof(float, floatrange(-1, self.maxheight + 1))

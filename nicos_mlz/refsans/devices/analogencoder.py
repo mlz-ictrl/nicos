@@ -55,7 +55,7 @@ class AnalogEncoder(PolynomFit, TransformedReadable):
 
 class AnalogMove(HasPrecision, PolynomFit, TransformedMoveable):
     """Does only work for polynomial order of 1
-    a reverse polynomial can only be done for a order of 1
+    a reverse polynomial can only be done for an order of 1
     """
 
     attached_devices = {
@@ -87,7 +87,7 @@ class AnalogMove(HasPrecision, PolynomFit, TransformedMoveable):
 
 
 class Ohmmeter(TransformedReadable):
-    """Calculates a resistance from a simple voltagedivider"""
+    """Calculates a resistance from a simple voltage divider"""
 
     attached_devices = {
         'device': Attach('Sensing device (ADC etc)', Readable),
@@ -118,7 +118,7 @@ class Ohmmeter(TransformedReadable):
 
 
 class PTxxlinearC(TransformedReadable):
-    """Calculates a resistance from a simple voltagedivider."""
+    """Calculates a resistance from a simple voltage divider."""
 
     attached_devices = {
         'device': Attach('Sensing device a resistor', Readable),

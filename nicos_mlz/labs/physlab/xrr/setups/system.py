@@ -24,7 +24,7 @@ includes = [
 
 devices = dict(
     xrr = device('nicos.devices.instrument.Instrument',
-        description = 'X-ray reflectormeter',
+        description = 'X-ray reflectometer',
         instrument = 'XRR',
         responsible = 'Bastian Veltel <bastian.veltel@frm2.tum.de>',
         website = 'https://mlz-garching.de/physics-lab',

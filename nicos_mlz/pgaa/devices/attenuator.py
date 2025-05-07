@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""The PGAA attentuator."""
+"""The PGAA attenuator."""
 
 from nicos.core import Override, multiWait
 from nicos.core.device import Moveable
@@ -31,7 +31,7 @@ from nicos.devices.generic.switcher import MultiSwitcher
 
 
 class Attenuator(MultiSwitcher):
-    """Attentuator with 3 elements."""
+    """Attenuator with 3 elements."""
 
     attached_devices = {
         'moveables': Attach('The 3 devices which are controlled', Moveable,

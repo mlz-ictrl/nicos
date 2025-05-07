@@ -257,7 +257,7 @@ class ValueData(QStackedWidget):
         self.addWidget(self.timeWidget)
         self.addWidget(self.counts)
 
-        # Init given current widget with data (time.. etc)
+        # Init given current widget with data (time, etc.)
         self.setCurrentWidget(self.widget_types[init_widget_info])
 
         self.setValue(initState)

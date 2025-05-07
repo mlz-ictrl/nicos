@@ -85,7 +85,7 @@ def plot(*args, **kwargs):
                 raise UsageError('Please put a scan before assigning a label')
             scans[-1][1] += ', ' + i
         else:
-            raise UsageError('Unknown type of argument %r. I understand only scans and labelstrings!' % i)
+            raise UsageError('Unknown type of argument %r. I understand only scans and label strings!' % i)
     pars = kwargs.pop('pars', None)        # Parameternames (temperatures/fields/etc) to include in labels
     xcol = kwargs.pop('xcol', myargs[0].colnames[0])    # defaults to first scanarg
     ycol = kwargs.pop('ycol', myargs[0].detcols[-1])    # default to last detector
@@ -268,7 +268,7 @@ def shortlist(l):
 
 class Mapping:
     ''' handles all necessary stuff for mappings '''
-    #DONT USE! It#s not working (yet)
+    #DON'T USE! It's not working (yet)
     fit = None
     def __init__(self, *args, **kwargs):
         if len(args) == 0:

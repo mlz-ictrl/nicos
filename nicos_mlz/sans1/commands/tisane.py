@@ -180,7 +180,7 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
     # sample frequency
     F_s = 1 / T_s
 
-    # calculate the detector repetition tiem using the TISANE equation
+    # calculate the detector repetition time using the TISANE equation
     T_d = T_s * (sd + cs) / cs
 
     # detector frequency
@@ -205,7 +205,7 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
                               ((0.5 * wav_mean * 0.01 * wav_spread)**2)))
 
     # define a cutoff for the slowest and the fastest neutrons
-    # use two sigma for an assumption of the maximal and mininmal
+    # use two sigma for an assumption of the maximal and minimal
     # test_doppler_wavelength_0
     wav_min = wav_mean * (1 - 0.01 * wav_spread)
     wav_max = wav_mean * (1 + 0.01 * wav_spread)

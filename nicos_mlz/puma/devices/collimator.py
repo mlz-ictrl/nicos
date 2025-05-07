@@ -31,7 +31,7 @@ class Collimator(Axis):
     """Polarization collimator device."""
 
     parameters = {
-        'divergency': Param('Divergency of the collimator',
+        'divergency': Param('Divergence of the collimator',
                             type=floatrange(0, None), settable=False,
                             userparam=False, default=0.5, unit='deg'),
     }

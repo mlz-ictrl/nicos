@@ -100,7 +100,7 @@ class Neo(UsesFastshutter, Andor3LimaCCD):
 
 
 def absolute_win_path(val=ntpath.join('C:', ntpath.sep)):
-    """Check for an absolute windows file path."""
+    """Check for an absolute Windows file path."""
     val = str(val)
     if ntpath.isabs(val) and ntpath.splitdrive(val)[0]:
         return val

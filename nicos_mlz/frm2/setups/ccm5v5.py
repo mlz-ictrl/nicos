@@ -13,7 +13,7 @@ devices = {
         abslimits = (-5.555, 5.555),
     ),
     f'sth_{setupname}': device('nicos.devices.generic.Axis',
-        description = 'Cryotstat tube rotation',
+        description = 'Cryostat tube rotation',
         abslimits = (-180, 180),
         motor = device('nicos.devices.entangle.Motor',
             tangodevice = tango_base + 'motor/motor',

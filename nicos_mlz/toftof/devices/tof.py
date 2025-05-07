@@ -59,7 +59,7 @@ class TOFTOFChannel(TOFChannel):
         self.doWriteTimeinterval(wanted_timeinterval)
         # note: if a doReadTimeinterval differs in value from a previous
         #       doWriteTimeinterval,
-        #       HW does actually uses the returned value, not the wanted.
+        #       HW does actually use the returned value, not the wanted.
         #       (in this case: returned < set) so, increase the wanted value
         #       until the used one is big enough
         actual_timeinterval = self.doReadTimeinterval()

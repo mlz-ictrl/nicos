@@ -26,7 +26,7 @@ from nicos.devices.entangle import PowerSupply as TangoPowerSupply
 
 
 class PowerSupply(TangoPowerSupply):
-    """Temporary workaround fro VERY slow power supplies."""
+    """Temporary workaround for VERY slow power supplies."""
     parameter_overrides = {
         'abslimits': Override(volatile=False),
         'current': Override(volatile=False),

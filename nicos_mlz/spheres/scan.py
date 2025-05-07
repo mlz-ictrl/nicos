@@ -232,7 +232,7 @@ def acquireInelasticTime(time, interval=1200):
 def save():
     """Trigger an intermediate save.
     The file will be overwritten every time this is triggered
-    within one datapoint and when the set countduration for
+    within one datapoint and when the set count duration for
     this file is reached."""
 
     getSisDetector().saveIntermediate()

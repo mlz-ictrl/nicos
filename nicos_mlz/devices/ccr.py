@@ -44,8 +44,8 @@ class CCRControl(HasLimits, Moveable):
 
     """
     attached_devices = {
-        'stick': Attach('Temperaturecontroller for the stick', Moveable),
-        'tube':  Attach('Temperaturecontroller for the outer ccr/tube',
+        'stick': Attach('Temperature controller for the stick', Moveable),
+        'tube':  Attach('Temperature controller for the outer ccr/tube',
                         Moveable),
     }
 

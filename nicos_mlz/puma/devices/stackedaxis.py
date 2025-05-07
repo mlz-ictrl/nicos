@@ -73,7 +73,7 @@ class StackedAxis(HasLimits, HasPrecision, Moveable):
 
         Due to the limited range of movement of each individual axis the
         targets must be calculated for each axis.  Since the top axis is
-        cheaper in time it will preferred in use and even the longer way
+        cheaper in time it will be preferred in use and even the longer way
         if moving both.
         """
         targets = (0, 0)

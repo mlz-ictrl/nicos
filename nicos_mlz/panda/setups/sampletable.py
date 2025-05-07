@@ -187,7 +187,7 @@ devices = dict(
     ),
     sgy_enc = device('nicos_mlz.panda.devices.ipc.Coder',
         bus = 'bus1',
-        addr = CODER(4),  # original tripple card on bus2
+        addr = CODER(4),  # original triple card on bus2
         # addr = CODER(8),
         slope = 2**13 / 1.0,
         zerosteps = -16384,  # 3/2021

@@ -28,7 +28,7 @@ from nicos.devices.entangle import CounterChannel
 class CycleCounter(CounterChannel):
     """Special counter channel.
 
-    This devices sets the number of cycles, or in other words it has to add a
+    This device sets the number of cycles, or in other words it has to add a
     1 to the monitor count to create a cycle as difference between to events.
     """
 

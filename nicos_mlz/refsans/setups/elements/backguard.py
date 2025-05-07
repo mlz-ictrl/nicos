@@ -11,7 +11,7 @@ adjust = ('metadata', 'devlist', 'namespace')
 
 devices = dict(
     backguard = device(code_base + 'skew_motor.SkewMotor',
-        description = description + ' adjust in Expertmode',
+        description = description + ' adjust in Expert mode',
         one = 'backguard1',
         two = 'backguard2',
         abslimits = (-30.0, 30.0),

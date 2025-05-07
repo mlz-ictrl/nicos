@@ -51,8 +51,8 @@ class SkewRead(Readable):
 class SkewMotor(HasOffset, SkewRead, Motor):
     """Device moving by using two axes and having a fixed inclination.
 
-    Both axis have a fixed inclination given by the ``skew`` parameter.  The
-    position of the devices is given for the middle between both axis.  The
+    Both axes have a fixed inclination given by the ``skew`` parameter.  The
+    position of the devices is given for the middle between both axes.  The
     ``one`` device has always the smaller position value than the
     ``two`` device.
 

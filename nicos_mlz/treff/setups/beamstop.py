@@ -1,4 +1,4 @@
-description = 'Beam stop device'
+description = 'Beamstop device'
 
 group = 'optional'
 

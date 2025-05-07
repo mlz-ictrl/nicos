@@ -40,7 +40,7 @@ DTFORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 def NemoAliasEntry(val=None):
-    """Provide a 2 or 3-tuple of user and level and localcontact status
+    """Provide a 2 or 3-tuple of user and level and local contact status
 
         * user: string
         * level: oneof(ACCESS_LEVELS)
@@ -279,7 +279,7 @@ class Authenticator(BaseAuthenticator):
         'aliases':
         Param(
             'Map of short user names to NEMO usernames'
-            ' and their desired user level and localcontact status',
+            ' and their desired user level and local contact status',
             type=dictof(nonemptystring, NemoAliasEntry),
         ),
     }

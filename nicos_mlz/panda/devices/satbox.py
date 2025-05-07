@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""PANDA's Attenuator controling device for NICOS."""
+"""PANDA's Attenuator controlling device for NICOS."""
 
 from nicos import session
 from nicos.core import Attach, HasTimeout, InvalidValueError, Moveable, \

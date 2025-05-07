@@ -347,7 +347,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
         if res & 0x800000000 and All:
             line.append('Block Request')
         if res & 0x1000000000 and All:
-            line.append('Abort Deceleraction')
+            line.append('Abort Deceleration')
         if res & 0x2000000000 and All:
             line.append('Desired Velocity Zero')
         if res & 0x4000000000 and All:
@@ -560,7 +560,7 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
 class ChopperDiscTranslationEncoder(ChopperBase, Readable):
 
     parameters = {
-        'addr': Param('addr of encodervalue',
+        'addr': Param('addr of encoder value',
                       type=int, settable=False,
                       mandatory=False, default=7),
     }

@@ -12,7 +12,7 @@ tango_base = 'tango://phys.panda.frm2:10000/panda/'
 # channel 1   2   3   4   5   6   7   8
 # MOTORS ca1 mgx mtx mty mth  -   -  saph
 # CODERS  -  mgx mtx mty mth mtt  -   -
-#                                    saphire is in saph setup
+#                                    sapphire is in saph setup
 #        ca1 is in collimators setup
 
 # BUS 4 (spare one)

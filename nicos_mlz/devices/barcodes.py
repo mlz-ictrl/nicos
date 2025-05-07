@@ -48,7 +48,7 @@ class BarcodeInterpreterMixin:
     consider the calls to the beep()-command on self.
 
     - Currently recognized barcodes must be in QR-Code format and should
-      contain an URI of this format::
+      contain a URI of this format::
 
          nicos+cmd://Command/arg1/arg2/...
 
@@ -144,7 +144,7 @@ class BarcodeInterpreterMixin:
 
 
 class TangoAttrCb:
-    """An base callback class for Tango events"""
+    """Base callback class for Tango events"""
 
     def __init__(self, device):
         self._device = device
@@ -175,7 +175,7 @@ class BarcodeInterpreter(BarcodeInterpreterMixin, StringIO):
     corresponding actions as scripts in the NICOS daemon.
 
     - Currently recognized barcodes must be in QR-Code format and should
-      contain an URI of this format::
+      contain a URI of this format::
 
          nicos+cmd://Command/arg1/arg2/...
 

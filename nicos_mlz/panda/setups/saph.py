@@ -1,11 +1,11 @@
-description = 'Setup for the Saphire Filter in primary beam'
+description = 'Setup for the Sapphire Filter in primary beam'
 
 includes = ['monoturm']
 group = 'optional'
 
 devices = dict(
     saph_mot = device('nicos.devices.vendor.ipc.Motor',
-        description = 'Motor to move the saphire filter',
+        description = 'Motor to move the sapphire filter',
         bus = 'bus5',
         # addr = 66, #old rack, old connectors
         addr = 88,
@@ -25,7 +25,7 @@ devices = dict(
         max = 520640,   # read out from card
     ),
     saph = device('nicos.devices.generic.Switcher',
-        description = 'saphire filter',
+        description = 'sapphire filter',
         moveable = 'saph_mot',
         mapping = {'in': -133,
                    'out': -8},

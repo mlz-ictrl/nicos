@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Special Live panel with auto-scaling display."""
+"""Special Live panel with autoscaling display."""
 
 from nicos.clients.gui.panels.live import AutoScaleLiveWidget1D, LiveDataPanel
 from nicos.guisupport.livewidget import IntegralLiveWidget

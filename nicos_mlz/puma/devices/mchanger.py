@@ -217,7 +217,7 @@ class Mchanger(Moveable):
         self._step('mlock', 'closed')
 
     def _change_alias(self, pos):
-        """Change the alias of the monochomator DeviceAlias."""
+        """Change the alias of the monochromator DeviceAlias."""
         aliastarget = self.mapping.get(pos, None)
         aliasdevice = self._attached_monochromator
         if aliastarget and hasattr(aliasdevice, 'alias'):

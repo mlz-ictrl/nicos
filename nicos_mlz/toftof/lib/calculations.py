@@ -180,7 +180,7 @@ def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1, ch5_90deg_offset=0):
     at chopper *x*.
 
     **Remark**:
-    If the disk slits are switch to non standard values the phase is calculated
+    If the disk slits are switch to non-standard values the phase is calculated
     to the trigger signal __not__ to the neutron package at the first chopper
     disc.
     """

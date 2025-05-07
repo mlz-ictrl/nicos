@@ -26,11 +26,11 @@ from math import degrees, tanh
 from .gauss import gaussian
 
 a0 = 1.
-# all of the following parameters are just fit parameters to the reflectivy
+# all the following parameters are just fit parameters to the reflectivity
 # curve provided by the deflector vendor (SWISS NEUTRONICS)
 xc = 0.  # critical angle
 x0 = 1.05  # angle
-b = 20.  # 1 / 0.05 with .05, where 0.05 is the 'm' value where the reflectivy
+b = 20.  # 1 / 0.05 with .05, where 0.05 is the 'm' value where the reflectivity
          # drops down rapidly
 s = 0.3 / x0 / 3.5 * 4.5  # const from vendor of the deflector
 dx = degrees(0.55 / 40)  # thickness of deflector wafers / deflector height
@@ -39,7 +39,7 @@ dx = degrees(0.55 / 40)  # thickness of deflector wafers / deflector height
 def rdefl(x, nv):
     """Calculate reflectivity curve of deflectors as function of grazing angle.
 
-    :param x: effictive grazing angle of beam at deflector (in deg)
+    :param x: effective grazing angle of beam at deflector (in deg)
     :type x: ``float``
     :param nv: neutron spin: up(1), down(2)
     :type nv: ``1 or 2``
@@ -58,7 +58,7 @@ def rdefl(x, nv):
 
 
 def ddefl(gamma, alpha, L, d, nv):
-    """Calculate the propability of double reflection within deflector.
+    """Calculate the probability of double reflection within deflector.
 
     :param gamma: the tilt angle of the deflector
     :param alpha: the divergence angle of the incident beam (w.r.t. optical axis)

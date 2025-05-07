@@ -37,7 +37,7 @@ class NPGZImageSinkHandler(BaseNPGZImageSinkHandler):
         _, filepaths = self.manager.getFilenames(self.dataset, nametemplates,
                                                  self.sink.subdir,
                                                  **kwargs)
-        # create hardlinks for the idx' file configured in linknametemplate
+        # create hard links for the idx-th file configured in linknametemplate
         self.manager.linkFiles(self._files[idx].filepath, filepaths)
         return fp
 
@@ -46,7 +46,7 @@ class NPGZFileSink(BaseNPGZFileSink):
     handlerclass = NPGZImageSinkHandler
 
     parameters = {
-        'linknametemplate': Param('Template for the data file name hardlinked'
+        'linknametemplate': Param('Template for the data file name hard-linked'
                                   'to the i-th file configured using'
                                   '(i, [nametemplates]).',
                                   type=tupleof(int, list),

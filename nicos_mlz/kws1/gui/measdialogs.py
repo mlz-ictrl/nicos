@@ -81,7 +81,7 @@ class MeasDef:
             return self.devices
 
     def getTable(self):
-        # this is a list of list of dicts:
+        # this is a list of lists of dicts:
         # [[A1, A2, ...], [B1, ...], [C1, ...], ...]
         # where An, Bn, Cn are OrderedDicts with keyword=value for kwscount
         dict_lists = self.getEntries(self.loops[0]) + \

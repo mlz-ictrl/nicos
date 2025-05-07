@@ -1,7 +1,7 @@
 
 ============== from the docu ============
 To run the server, set the IP address of your computer and select a Port value. By
-default, keep the port 50000. If connexion failed try an other port or check the IP of
+default, keep the port 50000. If connection failed try another port or check the IP of
 your computer.
 
 To get the IP number on windows, open the Command Prompt (“All Programs” =>

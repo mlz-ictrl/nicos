@@ -58,8 +58,8 @@ class NOKMotorIPC(CanReference, IPCMotor):
                                      ', overriding card value to 0x%02x',
                                      self.confbyte)
             # make sure that the card has the right "last steps"
-            # This should not applied at REFSANS, since it disturbs the running
-            # TACO server settings
+            # This should not be applied at REFSANS, since it disturbs the
+            # running TACO server settings
             # if self.steps != self.doReadSteps():
             #     self.doWriteSteps(self.steps)
             #     self.log.warning('Resetting stepper position to last known '

@@ -20,7 +20,7 @@
 #   Klaudia Hradil <klaudia.hradil@frm2.tum.de>
 #
 # *****************************************************************************
-"""PUMA multi detector class."""
+"""PUMA multidetector class."""
 
 from itertools import tee
 from math import atan, degrees, radians, tan
@@ -110,7 +110,7 @@ class MultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         """Move device to the ``park`` position.
 
         The park position is given by the ``parkposition`` parameter.
-        It generate ands starts a sequence if none is running.
+        It generates ands starts a sequence if none is running.
 
         The call blocks the daemon execution if ``blocking`` is set to True.
         """
@@ -235,7 +235,7 @@ class MultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         """Move all guides to their final position.
 
         Starting with the most outer guides towards the inner ones all guides
-        may started one after the other, since should have target positions
+        may be started one after the other, since should have target positions
         increasing with their position numbers.
         """
         for n in [10, 0, 9, 1, 8, 2, 7, 3, 6, 4, 5]:
@@ -301,11 +301,11 @@ class MultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         """Drive 'det' and 'guide' devices to references.
 
         The 'det' device will be moved to its reference position, whereas the
-        'guide' device will only moved to a position hitting the upper limit
+        'guide' device will only be moved to a position hitting the upper limit
         switch. So the 'det' and 'guide' devices are in a position all other
         pairs could be referenced too.
 
-        If the 'guide' hits the upper limit switch and the 'det' is not at it's
+        If the 'guide' hits the upper limit switch and the 'det' is not at its
         reference position it will be moved away in steps of 1 deg.
         """
         not_ref_switch = 'low' if guide.motor.refswitch == 'high' else 'high'

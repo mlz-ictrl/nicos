@@ -24,7 +24,7 @@ devices = dict(
     ),
 
     echi = device('nicos.devices.generic.Axis',
-        description = 'Chi Angle of the eulerian gradle',
+        description = 'Chi Angle of the Eulerian cradle',
         motor = 'st_echi',
         coder = 'co_echi',
         precision = 0.01,
@@ -55,7 +55,7 @@ devices = dict(
     ),
 
     ephi = device('nicos.devices.generic.Axis',
-        description = 'Phi Angle of the eulerian gradle',
+        description = 'Phi Angle of the Eulerian cradle',
         motor = 'st_ephi',
         coder = 'co_ephi',
         precision = 0.01,

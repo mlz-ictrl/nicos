@@ -20,7 +20,7 @@
 #   Klaudia Hradil <klaudia.hradil@frm2.tum.de>
 #
 # *****************************************************************************
-"""PUMA specific command for the multi detector/analyzer setup."""
+"""PUMA specific command for the multidetector/analyzer setup."""
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
@@ -226,7 +226,7 @@ def multiadscan(info_header, parnames, parlist, psipos, phipos, monopos,
     """Multi analyzer 'scan'.
 
     This is a single point scan. The detector data (monitor, timer, and the
-    counters) will be rearranged as a 11 point scan.
+    counters) will be rearranged as an 11-point scan.
 
     * infoheader - additional header (maybe stored in data file)
     * parnames - additional parameters (stored in data file)

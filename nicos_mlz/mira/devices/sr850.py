@@ -40,7 +40,7 @@ class Amplifier(PyTangoDevice, Measurable):
 
     parameters = {
         # Lock-in parameters
-        'frequency': Param('Reference freqency', unit='Hz', settable=True,
+        'frequency': Param('Reference frequency', unit='Hz', settable=True,
                            category='general', volatile=True),
         'amplitude': Param('Reference sine amplitude', unit='Vrms',
                            settable=True, category='general', volatile=True),

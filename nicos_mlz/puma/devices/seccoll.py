@@ -49,7 +49,7 @@ class BlockingSequencer(BaseSequencer):
 
 
 class SecCollBlockChanger(Moveable):
-    """Implement the block changing device of he PUMA secondary collimator.
+    """Implement the block changing device of the PUMA secondary collimator.
 
     The mechanics sometimes is blocked and the movement as to done again
     from starting point.
@@ -175,13 +175,13 @@ class SecCollLift(HasTimeout, BlockingSequencer):
                              'unit')
 
     def doStatus(self, maxage=0):
-        """Return highest statusvalue."""
+        """Return highest status value."""
         stati = [self._seq_status]
         for dev in devIter(self._getWaiters(), Readable):
             stat = dev.status(maxage)
             # ignore busy status of attached tt and st devices since they
-            # will used in each device and the state of this device should
-            # not changed if no sequence is running
+            # will be used in each device and the state of this device should
+            # not be changed if no sequence is running
             if dev in [self._attached_tt, self._attached_st]:
                 if stat[0] == status.BUSY:
                     continue

@@ -30,7 +30,7 @@ from nicos.devices.generic import Axis
 class FocusRing(Axis):
 
     parameters = {
-        'lenses': Param('Defintion of userlimits for each of the lenses.',
+        'lenses': Param('Definition of userlimits for each of the lenses.',
                         type=dictof(str, limits), settable=False,
                         mandatory=True, userparam=False),
         'lens': Param('Currently used lens',

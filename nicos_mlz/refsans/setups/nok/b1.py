@@ -56,7 +56,7 @@ devices = dict(
         visibility = (),
     ),
     b1r_motor = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M0x',
-        description = 'CAB1 controlled Blendenschild (M01), reactorside',
+        description = 'CAB1 controlled Blendenschild (M01), reactor side',
         tangodevice = tango_base + 'optic/io/modbus',
         address = 0x3020+index_r*10,  # word adress
         slope = 10000,

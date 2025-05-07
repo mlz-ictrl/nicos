@@ -6,7 +6,7 @@ tango_sample = 'tango://%s:10000/spheres/cct6/' % tangohost
 
 devices = dict(
     cct6_c_temperature = device('nicos_mlz.spheres.devices.sample.SEController',
-        description = 'Temperaturecontroller',
+        description = 'Temperature controller',
         tangodevice = tango_sample + 'controller',
         samplecontroller = 'cct6_T_sample',
         tubecontroller = 'cct6_T_tube',
@@ -38,7 +38,7 @@ devices = dict(
     ),
     cct6_v_flood = device('nicos.devices.entangle.NamedDigitalInput',
         description = 'Valve to flood the sample environment '
-        'with exchangegas',
+        'with replacement gas',
         tangodevice = tango_sample + 'floodvalve',
         mapping = {'closed': 0,
                    'open': 1},

@@ -1,4 +1,4 @@
-description = 'all values for detector positon'
+description = 'all values for detector position'
 
 group = 'lowlevel'
 
@@ -45,7 +45,7 @@ devices = dict(
         precision = 4.0,
     ),
     det_pivot = device(code_base + 'pivot.PivotPoint',
-        description = 'Pivot point at floor of samplechamber',
+        description = 'Pivot point at floor of sample chamber',
         states = list(range(1, 15)),
         fmtstr = 'Point %d',
         unit = '',

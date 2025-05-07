@@ -71,8 +71,8 @@ class BeckhoffBase(PyTangoDevice):
     the base location of the first motor control block (byte offset 64
     = word offset 0x20) and an integer multiple of the size of the
     control blocks (20 Bytes = 10 words). So the lowest legal value is 0x3020
-    (control block 0) and the higest would be 0x47fa (control block 201).
-    Normaly, only the first N motor control blocks are used (without gaps).
+    (control block 0) and the highest would be 0x47fa (control block 201).
+    Normally, only the first N motor control blocks are used (without gaps).
     If this scheme changes, the check needs to be adapted.
     """
 
@@ -272,7 +272,7 @@ class BeckhoffBase(PyTangoDevice):
         return self._steps2phys(self._readPosition())
 
     def doStatus(self, maxage=0):
-        """returns highest statusvalue"""
+        """returns highest status value"""
         if self._mode == SIMULATION:
             return (status.OK, 'simulation')
         return self._HW_status()
@@ -285,7 +285,7 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffBase, BaseSequencer):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
-    Relevant Parameters need to be configured in the setupfile or in the
+    Relevant Parameters need to be configured in the setup file or in the
     Beckhoff PLC.
     """
 
@@ -407,7 +407,7 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffBase, BaseSequencer):
         if store2eeprom:
             if self._HW_readStatusWord() & (1 << 6) == 0:
                 # target reached not set -> problem
-                raise UsageError(self, 'Param acces no possible until target '
+                raise UsageError(self, 'Param access no possible until target '
                                  'reached')
             self.log.warning('writeParameter stores to eeprom !')
 
@@ -646,7 +646,7 @@ class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
 
 class SingleMotorOfADoubleMotorNOK(AutoDevice, Moveable):
     """
-    empty class marking a Motor as beeing useable by a (DoubleMotorNok)
+    empty class marks a Motor as usable by a (DoubleMotorNok)
     """
 
     hardware_access = True
@@ -705,8 +705,8 @@ class SingleMotorOfADoubleMotorNOK(AutoDevice, Moveable):
 
 
 class DoubleMotorBeckhoff(PseudoNOK, BeckhoffMotorBase):
-    """a double motor Beckhoff knows both axis at once!
-    It comunicats direktly by modbuss
+    """a double motor Beckhoff knows both axes at once!
+    It communicates directly by modbus
     """
 
     hardware_access = True

@@ -34,11 +34,11 @@ class GarfieldMagnet(CanDisable, CalibratedMagnet):
     """Garfield Magnet
 
     Uses a polarity switch ('+' or '-') to flip polarity and an onoff switch
-    to cut power (to be able to switch polarity) in addition to an
-    unipolar current source.
+    to cut power (to be able to switch polarity) in addition to a unipolar
+    current source.
 
     Improved version: polarity switching + current ramping now in the PLC,
-    similiar to MiraMagnet.
+    similar to MiraMagnet.
     """
 
     attached_devices = {
@@ -101,7 +101,7 @@ class GarfieldMagnet(CanDisable, CalibratedMagnet):
         CalibratedMagnet.doStart(self, target)
 
     def doEnable(self, on):
-        # disabling via the enable device will rampdown fast, if needed.
+        # disabling via the enable device will ramp down fast, if needed.
         self._attached_enable.maw('on' if on else 'off')
         if self._attached_currentreadback is not None:
             self._attached_currentreadback.enable()  # never disable!

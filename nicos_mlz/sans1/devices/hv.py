@@ -72,7 +72,7 @@ class VoltageSwitcher(Switcher):
 class HV(HasLimits, BaseSequencer):
     valuetype = float
     attached_devices = {
-        'supply':     Attach('NICOS Device for the highvoltage supply',
+        'supply':     Attach('NICOS Device for the high voltage supply',
                              Moveable),
         'discharger': Attach('Switch to activate the discharge resistors',
                              Moveable),

@@ -31,14 +31,14 @@ from nicos_mlz.nexus.structures import nounit
 
 
 class ScanDeviceDataset(DeviceDataset):
-    """Place holder a device which has a value for each scan point."""
+    """Placeholder a device which has a value for each scan point."""
 
     def testAppend(self, sinkhandler):
         NexusElementBase.testAppend(self, sinkhandler)
 
 
 class Reflection(NexusElementBase):
-    """Place holder for reflection of single crystal, stored as an array.
+    """Placeholder for reflection of single crystal, stored as an array.
 
     The sample should be `nicos.devices.tas.Cell` or
     `nicos.devices.sxtal.SXTalSample`.

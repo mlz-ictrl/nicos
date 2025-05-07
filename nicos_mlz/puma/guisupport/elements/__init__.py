@@ -20,7 +20,7 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the PUMA multi detector devices."""
+"""Classes to display the PUMA multidetector devices."""
 
 from .crystaltable import CrystalTable
 from .detbox import DetectorBox

@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
-        description = 'E-Mail notifier',
+        description = 'e-mail notifier',
         mailserver = 'mailhost.frm2.tum.de',
         sender = 'dns@frm2.tum.de',
         copies = [

@@ -433,7 +433,7 @@ class MCC2Motor(MCC2core, NicosMotor):
         return self.doReadAccel()
 
     def doStart(self, target):
-        """go to a absolute postition"""
+        """go to an absolute position"""
         if self.doStatus(0)[0] != status.OK:
             raise MoveError('Can not start, please check status!')
         pos = int(target * self.slope * self.microstep)

@@ -75,7 +75,7 @@ class BaseDev(QWidget):
         self._hlayout.addWidget(self._groupbox)
         self._hlayout.setSpacing(0)
 
-        # inside of the groupbox there is a vbox with 1 or 2 hboxes
+        # inside the groupbox there is a vbox with 1 or 2 hboxes
         self._inner_vbox = QVBoxLayout()
         self._groupbox.setLayout(self._inner_vbox)
 

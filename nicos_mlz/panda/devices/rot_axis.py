@@ -39,7 +39,7 @@ class RefAxis(Axis):
                           'None/0=disable, >0:count all moves, <0:count only '
                           'negative moves',
                           type=none_or(int), default=None, settable=True),
-        'refspeed': Param('Motorspeed when referencing or None/0 to use normal'
+        'refspeed': Param('Motor speed when referencing or None/0 to use normal'
                           'speed setting',
                           type=none_or(float), default=None),
     }
@@ -130,7 +130,7 @@ class RefAxis(Axis):
                 self.start(oldpos)
                 return
 
-            # Step 2) Try find a position without refswitch active, but close
+            # Step 2) Try to find a position without refswitch active, but close
             # to it.
             self.log.info('Referencing: FAST Mode: looking for inactive '
                           'refswitch')

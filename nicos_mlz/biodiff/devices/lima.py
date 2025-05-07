@@ -28,7 +28,7 @@ from nicos.devices.vendor.lima.andor2 import Andor2LimaCCD as BaseAndor2LimaCCD
 
 
 class PyDs_PythonError(CommunicationError):
-    """Error occured in lima library, e.g. no frame(s) available."""
+    """Error occurred in lima library, e.g. no frame(s) available."""
 
 
 # TODO: Remove code duplication and fix MRO issues when inheriting

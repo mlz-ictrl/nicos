@@ -94,7 +94,7 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
                 ifd[tag] = attrVal
 
         ifd = dict(ifd)
-        # increase stripoffset, otherwise ESMERALDA can not read meta data
+        # increase stripoffset, otherwise ESMERALDA can not read metadata
         ifd[STRIPOFFSETS] = 186
         return ifd
 

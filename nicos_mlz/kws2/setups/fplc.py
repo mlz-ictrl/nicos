@@ -17,7 +17,7 @@ devices = dict(
         ),
     ),
     fplc_rate = device('nicos_mlz.kws2.devices.fplc.FPLCRate',
-        description = 'Forwards detector countrate to FPLC',
+        description = 'Forwards detector count rate to FPLC',
         tangodevice = tango_base + 'fplc/countrate',
         pollinterval = 1,
         rate = 'det_img',

@@ -98,8 +98,8 @@ while(b)
             end
             % Check for malformed EOF line
             if (sum(isnan(data(j,:)))==noOfEnt && ~scheck) && ~endOfFile 
-                warning(sprintf(['I think your scan file is improperly formatted (Possible scan ineruption?).\n'...
-                    'Reading data is stopped. If this is in error, disable this feature by creating a global vairable EOF with value 1']))
+                warning(sprintf(['I think your scan file is improperly formatted (Possible scan interruption?).\n'...
+                    'Reading data is stopped. If this is in error, disable this feature by creating a global variable EOF with value 1']))
                 endOfFile=true;
             end
             j=j+1;

@@ -48,7 +48,7 @@ devices = dict(
         postprocess = [('sharpness', 'neo')],
     ),
     socket_neo = device('nicos.devices.entangle.NamedDigitalOutput',
-        description = 'Powersocket 01 (Neo Camera attached)',
+        description = 'Power socket 01 (Neo Camera attached)',
         tangodevice = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
         'fzjdp_digital/Socket01',
         mapping = dict(on = 1, off = 0),

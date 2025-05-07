@@ -1,4 +1,4 @@
-description = 'sample tranlation Z'
+description = 'sample translation Z'
 
 group = 'optional'
 

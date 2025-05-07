@@ -36,7 +36,7 @@ devices = dict(
         visibility = (),
     ),
     keyswitch = device('nicos.devices.entangle.NamedDigitalInput',
-        description = 'Status of shutter keyswitch',
+        description = 'Status of shutter key switch',
         tangodevice = tango_base + 's7_digital/key_switch',
         mapping = dict(on = 1, off = 0),
         visibility = (),

@@ -37,7 +37,7 @@ class Resolution(Readable):
     attached_devices = {
         'detector': Attach('Detector device with size information',
                            Detector),
-        'beamstop': Attach('Beam stop device with size information',
+        'beamstop': Attach('Beamstop device with size information',
                            BeamStop),
         'detpos': Attach('Detector position device', Readable),
         'wavelength': Attach('Wavelength device', Readable),

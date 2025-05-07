@@ -102,7 +102,7 @@ class Switch(HasTimeout, NamedDigitalOutput):
 
 
 class AttenuatorSwitch(Switch):
-    """The attentuator switch must write always a '1' to change the value."""
+    """The attenuator switch must write always a '1' to change the value."""
 
     def _writeValue(self, value):
         self._dev.value = 1

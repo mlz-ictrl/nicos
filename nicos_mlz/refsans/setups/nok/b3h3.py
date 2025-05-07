@@ -15,7 +15,7 @@ devices = dict(
         opmode = 'offcentered',
     ),
     b3 = device(code_base + 'slits.DoubleSlitSequence',
-        description = 'b3 and h3 inside Samplechamber. towards TOFTOF is plus',
+        description = 'b3 and h3 inside Sample chamber. towards TOFTOF is plus',
         fmtstr = '%.3f, %.3f',
         adjustment = 'b3h3_frame',
         unit = 'mm',

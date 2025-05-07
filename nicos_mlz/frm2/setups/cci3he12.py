@@ -87,7 +87,7 @@ devices = {
         unit = 'ml/min',
     ),
     '%s_gashandling' % setupname: device('nicos.devices.entangle.NamedDigitalOutput',
-        description = 'Gashandling fsm',
+        description = 'Gas handling fsm',
         tangodevice = gh_tango_base + 'fsm',
     ),
 }

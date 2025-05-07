@@ -104,7 +104,7 @@ class Motor(IPCMotor):
 
 
 class Motor1(Motor):
-    """Same as puma.ipc.Motor but doesn't care about limit swtches."""
+    """Same as puma.ipc.Motor but doesn't care about limit switches."""
 
     def doStatus(self, maxage=0):
         state = self._attached_bus.get(self.addr, STATUS)
@@ -380,7 +380,7 @@ class ReferenceMotor(CanReference, Motor1):
                         self.log.warning('in _referencing limits not restored '
                                          'after positioning')
                 except NicosError as e:
-                    self.log.warning('error catched in finally positioning %s',
+                    self.log.warning('error caught in final positioning %s',
                                      e)
 
     def _drive_to_limit_switch(self, switch, direction):
@@ -489,7 +489,7 @@ class ReferenceMotor(CanReference, Motor1):
             if self._stoprequest:
                 raise NicosError(self, 'move until reference stopped by user')
             if self.isTimedOut():
-                raise NicosTimeoutError(self, 'timeout occured during '
+                raise NicosTimeoutError(self, 'timeout occurred during '
                                         ' reference drive')
         self._setrefcounter(False)
         # avoid message 'target not reached' in status message

@@ -139,7 +139,7 @@ class TimelineWidget(QGraphicsView):
 
     def _select_item(self, item):
         """Select the given item by drawing a colored circle beneath the
-        selected item (so it looks like a ring around it.
+        selected item (so it looks like a ring around it).
         Also emits the timepointSelected signal."""
 
         # The selection_item used to signal the selection of a timepoint

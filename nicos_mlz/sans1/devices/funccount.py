@@ -59,7 +59,7 @@ CONFIG = """
 class FC53210A(Sensor):
     """Support for FC 53210A
 
-    derived after endless hours of debuging.
+    derived after endless hours of debugging.
     DON'T TRUST THE MANUAL!
     """
     def doReset(self):

@@ -20,7 +20,7 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the PUMA multi detector devices."""
+"""Classes to display the PUMA multidetector devices."""
 
 from nicos.guisupport.elements import Detector
 from nicos.guisupport.elements.halo import Halo
@@ -29,7 +29,7 @@ from nicos.guisupport.qt import QColor, QGraphicsPathItem, QPainterPath, \
 
 
 class DetectorTable(Detector):
-    """Class to display the detector inside the multi detector housing."""
+    """Class to display the detector inside the multidetector housing."""
 
     _halowidth = 6
 

@@ -152,7 +152,7 @@ class Experiment(BaseExperiment):
         # always specify default here !
         #
         # first clean up template
-        data = data.replace('\\par Please replace the place holder in the upper'
+        data = data.replace('\\par Please replace the placeholder in the upper'
                             ' part (brackets <>) by the appropriate values.', '')
         data = data.replace('\\par Description', '\\par\n\\par '
                             'Please check all pre-filled values carefully! '

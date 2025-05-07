@@ -112,7 +112,7 @@ class CBoxResonanceFrequency(BaseSequencer):
                                       type=float, unit='F', default=8e-12),
         'cbox2_output_capacity': Param('Output capacity for cbox2 (coil box)',
                                        type=float, unit='F', default=9e-12),
-        'coil_inductivity': Param('Inductivity of coil 1', unit='H',
+        'coil_inductivity': Param('Inductance of coil 1', unit='H',
                                   type=float, default=28.76e-6),
         'coil_self_capacitance': Param('Self-capacitance of coil 1', unit='F',
                                        type=float, default=5e-12),

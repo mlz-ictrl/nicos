@@ -356,7 +356,7 @@ class SISChannel(ImageChannel):
             self._mergeCounts(self._last_cdata, cdata)
         except IndexError:
             self.resetIncremental('Error while merging arrays. '
-                                  'Lenght of accumulated(%d, %d) differs '
+                                  'Length of accumulated(%d, %d) differs '
                                   'from provided(%d, %d) array. '
                                   'Switching to non incremental mode.'
                                   % (len(self._last_edata),

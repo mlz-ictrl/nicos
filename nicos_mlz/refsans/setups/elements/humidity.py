@@ -20,7 +20,7 @@ devices = dict(
         visibility = visibility,
     ),
     humidity_yoke_rh = device('nicos.devices.entangle.Sensor',
-        description = 'humidity sensor rel humidity canel',
+        description = 'humidity sensor rel humidity channel',
         tangodevice = 'tango://ana4gpio02:10000/test/ads/ch2',
         fmtstr = '%.4f',
         unit = 'percent',

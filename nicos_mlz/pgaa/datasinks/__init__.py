@@ -383,7 +383,7 @@ class CSVSinkHandler(DataSinkHandler):
                 writer.writeheader()
             writer.writerow(addinfo)
 
-        # add some members to the datase to fake the point dataset as a scan
+        # add some members to the dataset to fake the point dataset as a scan
         # point dataset to make the DataHandler happy
         ds = self.dataset
         ds.xindex = 0

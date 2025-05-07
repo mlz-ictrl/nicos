@@ -203,7 +203,7 @@ class SdsRatemeter(JsonBase):
     @usermethod
     def clear(self):
         """
-        Clear interlock for shutter if neutronrate has been exeded
+        Clear interlock for shutter if neutron rate has been exceeded
         """
         if self._sim_intercept:
             return
@@ -231,5 +231,5 @@ class SdsRatemeter(JsonBase):
         res = self._read_controller(['mon_counts_cps_%s' % self.channel])
         res = int(list(res.values())[0])  # Pyth3 res.popitem()[1]
         ret = int(res / 2.46)
-        self.log.info('system %dfoo countrate %dcps', res, ret)
+        self.log.info('system %dfoo count rate %dcps', res, ret)
         return ret

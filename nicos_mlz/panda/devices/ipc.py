@@ -81,7 +81,7 @@ are connected to the other two channels, we try to store the parameters
 (which include the current position) into the internal eeprom before issuing
 a reset. This is a real problem, if not all channels are used for encoded axes!
 
-It is still inclear if the reset is needed at all, or what it really does.
+It is still unclear if the reset is needed at all, or what it really does.
 
 b) is difficult, as NICOS assumes that if Hardware (motordriver) says it moved
 by a certain number of steps, the corresponding motor actually did just that.
@@ -118,7 +118,7 @@ We try to work around this by following the sequence of:
     U N T E S T E D !
 
 Firmware-upgrade of the cards is impossible, as the developer is no longer
-available and we dont have access to the sourcecode....
+available and we don't have access to the sourcecode...
 """
 
 

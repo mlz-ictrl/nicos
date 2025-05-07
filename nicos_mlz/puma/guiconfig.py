@@ -15,7 +15,7 @@ main_window = docked(
                   ),
             ),
         ),
-        ('Multi detector',
+        ('Multidetector',
          panel('nicos_mlz.puma.gui.panels.multiviewpanel.MultiViewPanel',
                setups='multianalysis',
                ),

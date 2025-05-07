@@ -206,7 +206,7 @@ class VirtualKWSImageChannel(VirtualImage):
 
 
 class ROIRateChannel(PostprocessPassiveChannel):
-    """Calculates rate on the detector outside of the beamstop."""
+    """Calculates rate on the detector outside the beamstop."""
 
     attached_devices = {
         'bs_x':  Attach('Beamstop x position', Readable),

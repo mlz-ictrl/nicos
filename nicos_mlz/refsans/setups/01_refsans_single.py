@@ -1,4 +1,4 @@
-description = 'REFSANS singel-sample entering b3h3'
+description = 'REFSANS single-sample entering b3h3'
 
 group = 'basic'
 

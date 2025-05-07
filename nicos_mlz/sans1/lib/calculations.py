@@ -30,7 +30,7 @@ def qrange(wavelength, detpos, rmin, rmax):
 
     - wavelength: given in A or nm
     - detpos: distance between sample and detector in cm
-    - rmin: first cell after beam stop in cm
+    - rmin: first cell after beamstop in cm
     - rmax: last cell in cm
     """
 

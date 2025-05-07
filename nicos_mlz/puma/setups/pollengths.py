@@ -1,4 +1,4 @@
-description = 'Lenght devices for polarisation analysis'
+description = 'Length devices for polarisation analysis'
 
 group = 'lowlevel'
 

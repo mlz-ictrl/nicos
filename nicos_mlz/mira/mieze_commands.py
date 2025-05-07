@@ -156,7 +156,7 @@ def mcscan(settings, dev, *args, **kwargs):
 def msingle(settings, *args, **kwargs):
     """Single MIEZE counting.
 
-    First argument is a list of MIEZE settings or -1 to scan all setings.
+    First argument is a list of MIEZE settings or -1 to scan all settings.
 
     All other arguments are handled like for `count`.
     """

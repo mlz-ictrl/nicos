@@ -93,7 +93,7 @@ devices = dict(
         description = 'Cycle counter of the PLC',
         fmtstr = '0x%04x',
     ),
-    # translate binary values to human readable
+    # translate binary values to human-readable
     lift = device('nicos.devices.generic.Switcher',
         description = 'Lift of Monochanger (MOVEABLE!!!)',
         moveable = 'lift_m',

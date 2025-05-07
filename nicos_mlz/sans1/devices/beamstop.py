@@ -102,7 +102,7 @@ class BeamStop(SequencerMixin, Moveable):
 
     This device represents the beamstops position as (x,y) tuple
 
-    It also allows to change the shape of the beamstop via an parameter change.
+    It also allows to change the shape of the beamstop via a parameter change.
 
     the beamstop may be freely moved within some limits.
     It also is allowed to exceed these limits at predefined paths to
