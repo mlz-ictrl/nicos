@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""An virtual Attentuator"""
+"""A virtual attenuator"""
 
 from nicos.core import Attach, Override, Param, status
 from nicos.core.device import Moveable
@@ -29,7 +29,7 @@ from nicos.core.mixins import HasLimits
 
 
 class Attenuator(HasLimits, Moveable):
-    """Attentuator with 3 elements having a transmission of 1/2, 1/4, and 1/16
+    """Attenuator with 3 elements having a transmission of 1/2, 1/4, and 1/16
     """
 
     attached_devices = {

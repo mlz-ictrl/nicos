@@ -58,7 +58,7 @@ class Network(Readable):
         # it may look stupid, as the poller already has a thread polling read()
         # now imagine several such devices in a setup.... not so stupid anymore
         if session.sessiontype == POLLER:
-            self._thread = createThread('measure networkload', self._run)
+            self._thread = createThread('measure network load', self._run)
 
     def doWriteInterval(self, value):
         self.pollinterval = max(1, 2 * value)

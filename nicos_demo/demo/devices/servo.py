@@ -46,7 +46,7 @@ class SerComIO(Device):
     parameters = {
         'devfile':      Param('Name of device file', type=str,
                               default='/dev/ttyACM0'),
-        'pollinterval': Param('Pollinterval for registered super devices',
+        'pollinterval': Param('Poll interval for registered super devices',
                               type=floatrange(0.01, 10), default=1.,
                               settable=True),
     }
