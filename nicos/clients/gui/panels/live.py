@@ -544,7 +544,7 @@ class LiveDataPanel(PlotPanel):
             for tup in self.client.eval(detname + '.postprocess', ''):
                 roi = tup[0]
                 cachekey = roi + '/roi'
-                # check whether or not this is a roi (cachekey exists).
+                # check whether this is a roi (cachekey exists).
                 keyval = self.client.getCacheKey(cachekey)
                 if keyval:
                     self.on_roiChange(cachekey, keyval[1])

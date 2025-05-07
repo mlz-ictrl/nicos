@@ -659,7 +659,7 @@ class Experiment(Device):
                 )
         kwds['proposal'] = proposal
 
-        # check whether or not this proposal is finished - a thread is alive
+        # check whether this proposal is finished - a thread is alive
         if self.isProposalFinishThreadAlive(proposal):
             raise NicosError('cannot switch to proposal %s as this is '
                              'currently closing.' % proposal)

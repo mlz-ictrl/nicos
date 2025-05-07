@@ -697,7 +697,7 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
 
     def _targetReached(self):
         """Do not call `_clearTimeout` as supposed by `HasTimeout` in order
-        to check whether or not the value has drifted away from its window
+        to check whether the value has drifted away from its window
         also after the target has been reached.
         """
 

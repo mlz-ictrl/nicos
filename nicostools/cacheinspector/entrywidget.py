@@ -89,7 +89,7 @@ class EntryWidget(base_class, ui_class):
     def setupWidgetUi(self, shortKey, showTimeStamp, showTTL):
         """
         Sets up and generate a UI according to the data type of the value
-        and whether or not time to live or time stamp should be shown.
+        and whether time to live or time stamp should be shown.
         """
         entry = self.entry
 

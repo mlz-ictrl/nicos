@@ -133,7 +133,7 @@ maxspeed: %.4f
         s = self.microstep if (target - pos) >= 0 else -self.microstep
         n = int((target - pos) / s)
         # handle floating point overflows
-        # check whether or not one last microstep fits into movement to target.
+        # check whether one last microstep fits into movement to target.
         if (math.fabs((pos + (n + 1) * s) - target)
            < math.fabs(self.microstep / 10)):
             n += 1

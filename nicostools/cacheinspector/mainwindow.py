@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
 
     def toggleTimeStamp(self, on):
         """
-        Toggles whether or not the time stamp is shown and updates the view
+        Toggles whether the time stamp is shown and updates the view
         respectively.
         """
         self.showTimeStamp = on
@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
 
     def toggleTTL(self, on):
         """
-        Toggles whether or not the time to live is shown and updates the view
+        Toggles whether the time to live is shown and updates the view
         respectively.
         """
         self.showTTL = on
