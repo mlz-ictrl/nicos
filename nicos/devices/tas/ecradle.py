@@ -142,7 +142,7 @@ class EulerianCradle(Moveable):
 
     def euler_angles(self, target_q, another, ki, kf, sense,
                      chilimits=(-180, 180), omlimits=(-180, 180)):
-        """Calculates the eulerian angles of *target_q* with the condition
+        """Calculates the Eulerian angles of *target_q* with the condition
         that the scattering plane is spanned by q and the *another* vector.
 
         Local variables used by calec from Eckold start with ec_...
@@ -400,7 +400,7 @@ class EulerianCradle(Moveable):
 
         Given h1,r1 h2,r2 four vectors in laboratory coordinates,
         orient calculates the matrix
-        transforming h1 in r1 and h2 in r2 simultanously.
+        transforming h1 in r1 and h2 in r2 simultaneously.
         """
         # Normalize all vectors
         h1n = h1 / norm(h1)

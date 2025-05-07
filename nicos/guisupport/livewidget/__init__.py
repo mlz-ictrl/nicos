@@ -816,7 +816,7 @@ class LiveWidget1D(LiveWidgetBase):
                             self._axesrange['y'][0], self._axesrange['y'][1])
 
         # add some padding in x range.
-        # 2nd call to avoid copy paste of the xtick function in pygr.
+        # 2nd call to avoid copy/paste of the xtick function in pygr.
         window = self.axes.getWindow()
         self.axes.setWindow(self._axesrange['x'][0] - self.axes.xtick,
                             self._axesrange['x'][1] + self.axes.xtick,

@@ -117,7 +117,7 @@ class TestMttAxis:
             assert mtt.read(0) == t
 
         # The sequence [ax.polypos - 1, ax.polypos + 1] could only be tested if
-        # a simulation of a switch depending on a position of an other device
+        # a simulation of a switch depending on a position of another device
         # is available
         #
         # This test will check the fail due to this missing device

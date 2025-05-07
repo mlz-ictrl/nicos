@@ -308,7 +308,7 @@ class BaseCacheClient(Device):
             except Exception:
                 self.log.debug('exception while sending last batch of updates',
                                exc=1)
-                # no reraise, we'll disconnect below anyways
+                # no reraise, we'll disconnect below anyway
             for _ in range(itemcount):
                 self._queue.task_done()
 
@@ -558,7 +558,7 @@ class CacheClient(BaseCacheClient):
 
     def _call_callbacks(self, key, value, time):
         with self._dblock:
-            # copy is intented here to avoid races with add/removeCallback
+            # copy is intended here to avoid races with add/removeCallback
             callbacks = tuple(self._callbacks[key])
         for callback in callbacks:
             try:

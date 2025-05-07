@@ -515,7 +515,7 @@ class TASConstant(Moveable):
 class Wavevector(TASConstant):
     """
     Device for adjusting initial/final wavevectors of the TAS and also setting
-    the scanmode.
+    the scan mode.
     """
 
     def doRead(self, maxage=0):
@@ -535,7 +535,7 @@ class Wavevector(TASConstant):
 class Energy(TASConstant):
     """
     Device for adjusting initial/final energy of the TAS and also setting
-    the scanmode.
+    the scan mode.
     """
 
     def doRead(self, maxage=0):
@@ -556,7 +556,7 @@ class Energy(TASConstant):
 class Wavelength(TASConstant):
     """
     Device for adjusting initial/final wavelength of the TAS and also setting
-    the scanmode.
+    the scan mode.
     """
 
     def doRead(self, maxage=0):

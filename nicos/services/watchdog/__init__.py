@@ -112,7 +112,7 @@ class Watchdog(BaseCacheClient):
         self._process_updates = False
         # current setups
         self._setups = set()
-        # mapping entry ids to entrys
+        # mapping entry ids to entries
         self._entries = {}
         # (mangled) key to update mail receivers
         self._mailreceiverkey = self.mailreceiverkey.replace('/', '_').lower()

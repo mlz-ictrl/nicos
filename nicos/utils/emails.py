@@ -45,9 +45,9 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     Returns True if successful and list of error-messages else
 
     mailserver is a working E-Mailserver accepting mail from us,
-    receiverlist is a not empty list of valid E-Mail adresses or a string with
-    comma-separated E-Mail adresses
-    sender is a valid E-Mail-address,
+    receiverlist is a not empty list of valid e-mail addresses or a string with
+    comma-separated e-mail addresses
+    sender is a valid e-mail address,
     topic and body are strings and the list of attach_files may be empty
     if attach_files is not empty, it must contain names of existing files!
     debuglevel is passed to SMTP connection, could be 1/True or 2, see smtplib
@@ -56,7 +56,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     It can be one of 'none', 'tls' or 'ssl',
     if username is not empty, login is made using username and password
     retrieved from nicos keyring (domain: nicos) using the ``keystoretoken``
-    as identifier (default is mailserver_password)
+    as identifier (default is mailserver_password).
     """
     # try to check parameters
     errors = []

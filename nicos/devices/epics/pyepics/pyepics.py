@@ -183,7 +183,7 @@ class EpicsDevice(DeviceMixinBase):
 
     def _get_mapped_epics_status(self):
         # Checks the status and severity of all the associated PVs.
-        # Returns the worst status (error prone first) and
+        # Returns the worst status (error-prone first) and
         # a list of all associated pvs having that error
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()

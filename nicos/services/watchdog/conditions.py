@@ -37,11 +37,11 @@ class Condition:
     triggered, it will remove the condition from the warn list and execute the
     ok action, if configured.
 
-    The complex logic regarding preconditions and gracetime is handled by
+    The complex logic regarding preconditions and grace time is handled by
     stacking Condition objects on top of each other.
 
     Besides triggered, the condition can also be "expired": if some cache keys
-    used to calculate the triggered state are not available any more, the
+    used to calculate the triggered state are not available anymore, the
     condition becomes expired and the user is notified.
 
     Finally, conditions can be disabled, which means that their triggered

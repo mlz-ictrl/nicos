@@ -125,7 +125,7 @@ Unsubscribing updates
 Operation: ``OP_UNSUBSCRIBE`` or ``'|'``
 
 - Key must be the same as for the subscription.
-- Unsubscribing keys which were never subscribed has no side-effects.
+- Unsubscribing keys which were never subscribed has no side effects.
 
 Response: none immediately, no updates for the specified keys will be sent
 anymore.

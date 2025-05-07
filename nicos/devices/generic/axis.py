@@ -297,7 +297,7 @@ class Axis(CanReference, AbstractAxis):
     def doWriteDragerror(self, value):
         if not self._hascoder:
             if value != 0:
-                self.log.warning('setting a nonzero value for dragerror only '
+                self.log.warning('setting a non-zero value for drag error only '
                                  'works if a coder was specified in the setup, '
                                  'which is different from the motor')
             return 0.0
@@ -382,8 +382,8 @@ class Axis(CanReference, AbstractAxis):
         delta_curr = abs(pos - target)
         self.log.debug('position delta: %s, was %s', delta_curr, delta_last)
         # at the end of the move, the motor can slightly overshoot during
-        # movement we also allow for small jitter, since airpads usually wiggle
-        # a little resulting in non monotonic movement!
+        # movement we also allow for small jitter, since air pads usually wiggle
+        # a little resulting in non-monotonic movement!
         ok = (delta_last >= (delta_curr - self.jitter)) or \
             delta_curr < self.precision
         # since we allow to move away a little, we want to remember the
@@ -573,4 +573,4 @@ class Axis(CanReference, AbstractAxis):
                     self._setErrorState(MoveError, 'motor did not stop after '
                                         'stop request, aborting')
                     moving = False
-        self.log.debug('inner positioning loop finshed')
+        self.log.debug('inner positioning loop finished')

@@ -414,7 +414,7 @@ class DataManager:
         Registers the first filename in the dataset as 'the' filename.  Returns
         a short path of the first filename and a list of the absolute paths of
         all filenames.  After the counting is finished, you should create the
-        datafile(s) and then call `linkFiles` to create the hardlinks.
+        datafile(s) and then call `linkFiles` to create the hard links.
 
         Keyword argument `nomeasdata` can be set to true in order to not record
         this as a measurement data file in the dataset.  (Useful for either
@@ -441,7 +441,7 @@ class DataManager:
         return filename, filepaths
 
     def linkFiles(self, filepath, linkpaths):
-        """Creates hardlinks in *linkpaths*, pointing to *filepath*."""
+        """Creates hard links in *linkpaths*, pointing to *filepath*."""
         linkfunc = os.link if hasattr(os, 'link') else \
             os.symlink if hasattr(os, 'symlink') else None
         if linkfunc:  # pylint: disable=using-constant-test
@@ -460,8 +460,8 @@ class DataManager:
         nametemplates in the given subdir of the datapath.
 
         The nametemplate can be either a string or a list of strings.  In the
-        second case, the first listentry is used to create the file and the
-        remaining ones will be hardlinked to this file if the os supports this.
+        second case, the first list entry is used to create the file and the
+        remaining ones will be hard-linked to this file if the os supports this.
 
         Filename templates should contain placeholders in ``%(key)s`` format.
         Possible placeholder keys are all counters (see `getCounters`), the

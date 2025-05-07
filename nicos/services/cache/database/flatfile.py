@@ -47,7 +47,7 @@ class FlatfileCacheDatabase(CacheDatabase):
     * The store consists of a two-level subdirectory hierarchy "YYYY/MM-DD"
       below the chosen store path.  The directories contain a file per category
       (with slashes in the name replaced by dashes).
-    * If not deactivated, these files are also hardlinked at another hierarchy,
+    * If not deactivated, these files are also hard-linked at another hierarchy,
       starting with the category, and containing files by year and day.
 
     For example, the cache entries for category "nicos/slit" at 2012-01-05 are
@@ -125,7 +125,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         db = {}
         for line in fd:
             if '\x00' in line:
-                self.log.warning('found nullbyte in store file %s', filename)
+                self.log.warning('found null byte in store file %s', filename)
                 continue
             try:
                 subkey, time, hasttl, value = line.rstrip().split(None, 3)
@@ -282,7 +282,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                 fd.seek(0, os.SEEK_SET)
             for line in fd:
                 if '\x00' in line:
-                    self.log.warning('found nullbyte in file %s', fn)
+                    self.log.warning('found null byte in file %s', fn)
                     continue
                 fields = line.rstrip().split(None, nsplit)
                 if len(fields) != nsplit + 1:

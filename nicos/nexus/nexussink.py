@@ -73,7 +73,7 @@ class NexusTemplateProvider:
 def copy_nexus_template(template):
     """Implement a specialized version of copy.
 
-    The dict structure is deep copied while the placeholders are a shallow
+    The dict structure is deep-copied while the placeholders are a shallow
     copy of the original.
     """
     if isinstance(template, dict):
@@ -88,9 +88,9 @@ class NexusSinkHandler(DataSinkHandler):
     For a scan NICOS sends first a scan dataset and then a point dataset
     for each scan point. This class has to make sure that all this ends up
     in one NeXus file. This requires keeping a copy of the start dataset
-    around and some logic in begin() end end()
+    around and some logic in begin() and end().
 
-    Then it turned out that h5py.flush() does not write a useable file
+    Then it turned out that h5py.flush() does not write a usable file
     to disk for other programs to digest while the data is still being
     collected. Thus it is necessary to keep the file closed and open and
     close it only when data needs to be updated.

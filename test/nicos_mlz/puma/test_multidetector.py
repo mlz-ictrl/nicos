@@ -54,9 +54,9 @@ class TestMultiDetector:
     def test_targets(self, session):
         """Test a set of targets."""
         med = session.getDevice('med')
-        # To less arguments
+        # Too few arguments
         assert not med.isAllowed([0] * 21)[0]
-        # To many arguments
+        # Too many arguments
         assert not med.isAllowed([0] * 23)[0]
         # Detector position outside limits
         assert not med.isAllowed([10] * 11 + [0] * 11)[0]

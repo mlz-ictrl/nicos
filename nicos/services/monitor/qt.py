@@ -196,7 +196,7 @@ class Monitor(BaseMonitor):
             master.showFullScreen()
             master._wantFullScreen = True
             # In some Qt5 versions, showFullScreen is buggy and doesn't
-            # actually resize the window (but hides decoration etc).
+            # actually resize the window (but hides decoration etc.).
             # So, explicitly set the geometry of the first screen.
             master.setGeometry(QApplication.screens()[0].geometry())
             QCursor.setPos(master.geometry().bottomRight())

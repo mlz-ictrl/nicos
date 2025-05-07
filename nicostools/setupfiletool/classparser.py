@@ -40,7 +40,7 @@ def init(log):
     # uses the provided directories to search for *.py files.
     # then tries to import that file.
     # the imported module will be appended to a dictionary, the key being
-    # it's path splitted by dots an without the prepending nicos directory.
+    # its path split by dots and without the prepending nicos directory.
     # e.g. nicos.services.cache.server is the key to the module
     # <nicos directory>/nicos/services/cache/server.py
     # returns the dictionary.

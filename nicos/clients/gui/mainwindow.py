@@ -70,7 +70,7 @@ except ImportError:
 
 
 class ToolAction(QAction):
-    """Extended QAction which is setup depending visible.
+    """Extended QAction which is visible depending on loaded setups.
 
     The action is visible if no special setup is configured or the loaded setup
     matches the ``setups`` rule.
@@ -140,7 +140,7 @@ class MainWindow(DlgUtils, QMainWindow):
         # no wrapping at startup
         self.allowoutputlinewrap = False
 
-        # set-up the initial connection data
+        # set up the initial connection data
         self.setConnData(ConnectionData('localhost', 1301, 'guest', None,
                                         viewonly=viewonly))
 
@@ -363,7 +363,7 @@ class MainWindow(DlgUtils, QMainWindow):
         if self.autoconnect and not self.client.isconnected:
             self.on_actionConnect_triggered(True)
         if sys.platform == 'darwin':
-            # on Mac OS loadBasicWindowSettings seems not to work before show()
+            # on macOS loadBasicWindowSettings seems not to work before show()
             # so we do it here again
             with self.sgroup as settings:
                 loadBasicWindowSettings(self, settings)
@@ -423,7 +423,7 @@ class MainWindow(DlgUtils, QMainWindow):
 
     def saveWindowLayout(self):
         if sys.platform == 'darwin':
-            # on macos geometry saved in maximized window mode cannot be read
+            # on macOS geometry saved in maximized window mode cannot be read
             # again properly, which crashes nicos-gui
             if self.isMaximized():
                 self.showNormal()

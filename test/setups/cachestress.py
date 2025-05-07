@@ -23,7 +23,7 @@
 
 from test.utils import alt_cache_addr
 
-name = 'client setup for stresstest cache tests'
+name = 'client setup for cache stress tests'
 
 sysconfig = dict(
     cache = alt_cache_addr,

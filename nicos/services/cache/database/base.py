@@ -101,7 +101,7 @@ class CacheDatabase(Device):
             subkey = key
         entry = self.getEntry((category, subkey))
 
-        # check for nonexisting or deleted keys
+        # check for non-existing or deleted keys
         if entry is None or entry.value is None:
             if ts:
                 return [f'{entry.time if entry else ""}@{key}{OP_TELLOLD}\n']

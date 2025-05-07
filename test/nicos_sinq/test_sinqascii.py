@@ -83,5 +83,5 @@ def test_sinqascii(session):
     assert contents[-9] == 'Scanning Variables: motor2, Steps: 1.0'
     assert contents[-8] == '5 Points, Mode: Timer, Preset 0.005000'
     assert contents[-7] == 'NP  motor2   COUNTS     MONITOR1   TIME'
-    # cannot test data content because they consist or random runmbers
+    # cannot test data content because they consist of random numbers
     assert contents[-1] == 'END-OF-DATA'

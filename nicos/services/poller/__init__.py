@@ -113,7 +113,7 @@ class Poller(Device):
             """
             Polling a device and react to updates received via cache
 
-            The wait between pollings is controlled by a Queue, so that
+            The wait between polls is controlled by a Queue, so that
             events from other threads (e.g. quit or cache updates) can
             trigger a wakeup.
 

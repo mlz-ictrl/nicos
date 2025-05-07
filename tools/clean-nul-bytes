@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Cleans up Cache data files from stray NUL Bytes e.g. after Harddisk crashes"""
+"""Cleans up Cache data files from stray NUL Bytes e.g. after hard disk crashes"""
 
 import os
 

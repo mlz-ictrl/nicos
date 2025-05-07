@@ -23,7 +23,7 @@
 """
 Euler
 
-class for stroing clockwise eulerian angles
+class for storing clockwise Eulerian angles
 
 """
 

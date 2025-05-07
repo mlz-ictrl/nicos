@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-# Encode unicode strings to RTF 1.5-compatible command codes.
+# Encode Unicode strings to RTF 1.5-compatible command codes.
 # Command codes are of the form `\uN?`, where N is a signed 16-bit integer and
 # ? is a placeholder character for pre-1.5 RTF readers.
 

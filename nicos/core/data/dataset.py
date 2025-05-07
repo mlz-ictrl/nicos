@@ -203,7 +203,7 @@ class BaseDataset:
 
     @lazy_property
     def detvalueinfo(self):
-        """Detector value info info."""
+        """Detector value info."""
         return sum((dev.valueInfo() for dev in self.detectors), ())
 
 
@@ -255,7 +255,7 @@ class PointDataset(BaseDataset):
         """List of all device values.
 
         The order of the values is the same as in the ``devvalueinfo`` list, so
-        mapping between device and value can be made..
+        a mapping between device and value can be made.
         """
         return self._reslist(self.devices, self.canonical_values)
 
@@ -264,7 +264,7 @@ class PointDataset(BaseDataset):
         """List of values of all devices in the ``session.experiment.envlist`` list.
 
         The order of the values is the same as in the ``envvalueinfo`` list, so
-        mapping between environment device and value can be made..
+        a mapping between environment device and value can be made.
         """
         return self._reslist(self.environment, self.values)
 
@@ -273,7 +273,7 @@ class PointDataset(BaseDataset):
         """List of values of all devices in the ``session.experiment.detectors`` list.
 
         The order of the values is the same as in the ``detvalueinfo`` list, so
-        mapping between detector device and value can be made..
+        a mapping between detector device and value can be made.
         """
         return self._reslist(self.detectors, self.results, 0)
 

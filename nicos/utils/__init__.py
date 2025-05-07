@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""NICOS utilities independent from an active session."""
+"""NICOS utilities independent of an active session."""
 
 import ast
 import fnmatch
@@ -1011,7 +1011,7 @@ def setuser(recover=True):
         os.setegid(gid)
     else:
         os.setgid(gid)
-    # initialize the group access list with all of the groups the
+    # initialize the group access list with all the groups the
     # configured user is a member plus gid
     os.initgroups(userentry.pw_name, gid)
     if recover:
@@ -1417,7 +1417,7 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
     max_retries: how often to retry
     timeout: how long to sleep between tries
     ex: only catch specified exceptions, if None, only catch `Exception`
-    actionOnFail: will be called when an exception occured
+    actionOnFail: will be called when an exception occurred
 
     All other args are passed to wrapped function.  If max_retries is
     exhausted, the exception is reraised.
@@ -1449,7 +1449,7 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
 def tabulated(widths, iterable, maxwidth=20):
     """Return strings from iterable spaced as columns with given widths.
 
-    When an entry is is wider than the current width, update the widths.
+    When an entry is wider than the current width, update the widths.
     """
     result = []
     for i, item in enumerate(iterable):
@@ -1815,7 +1815,7 @@ def toAscii(s):
 
 
 def merge_dicts(a, b):
-    """Creates new dict with dictionary b merged into dictionary a recursively."""
+    """Creates new dict with dictionary b merged recursively into dictionary a."""
     out = {}
     for key in set(a).union(b):
         if key in a and key in b:

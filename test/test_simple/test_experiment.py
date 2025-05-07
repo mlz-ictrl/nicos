@@ -44,7 +44,7 @@ session_setup = 'asciisink'
 
 @pytest.fixture()
 def cleanup(session):
-    """Ensure to make all data pathes writable again"""
+    """Ensure to make all data paths writable again"""
 
     yield
     # clean up "disabled" directory so that the next test run can remove it
@@ -65,7 +65,7 @@ def test_experiment(session, cleanup):
     exp._setROParam('dataroot', path.join(runtime_root, 'data'))
     exp._setROParam('proposal', 'service')
     exp._setROParam('proptype', 'service')
-    # if there is no exp.new, we need to adjust proposalpath ourselfs!
+    # if there is no exp.new, we need to adjust proposalpath ourselves!
     exp.proposalpath = exp.proposalpath_of(exp.proposal)
 
     # create the needed script file

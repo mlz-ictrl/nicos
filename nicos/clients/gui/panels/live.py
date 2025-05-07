@@ -105,7 +105,7 @@ class LiveDataPanel(PlotPanel):
       ('binary' or 'decimal')
     * ``defaults`` (default []) - List of strings representing options to be
       set for every configured plot.
-      These options can not be set on a per plot basis since they are global.
+      These options cannot be set on a per-plot basis since they are global.
       Options are as follows:
 
         * ``logscale`` - Switch the logarithic scale on.
@@ -640,7 +640,7 @@ class LiveDataPanel(PlotPanel):
                                          Value is the starting index.
                                          Extract from first available blob.
                                          Remove said blob from list.
-        None: `default`: Start at 0 with stepwidth 1.
+        None: `default`: Start at 0 with step width 1.
 
         Save the axis labels to the datacache.
         """

@@ -239,7 +239,7 @@ class CascadeDetector(ImageChannel):
             rres.phase, rres.dphase,
         ]
 
-        # also fit per foil data and pack everything together to be send
+        # also fit per foil data and pack everything together to be sent
         # via cache for display
         payload = []
         for foil in self.foilsorder:
@@ -298,7 +298,7 @@ class CascadeTofSink(SingleRawImageSink):
         # The McSimulation detector returns a 4 dimensional array, where
         # the number of foils and timechannels are in separate dimensions
         # of the array
-        # The Cascade detector code returns a 3 dimensional array, where
+        # The Cascade detector code returns a 3-dimensional array, where
         # the number of foils and timechannels in one dimension as a product
         # stored
         return len(arraydesc.shape) in [3, 4]

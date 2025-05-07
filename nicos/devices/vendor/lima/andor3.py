@@ -180,7 +180,7 @@ class Andor3LimaCCD(GenericLimaCCD):
 class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
                                   LimaCooler, Moveable):
     """
-    This devices provides access to the cooling feature of Andor3 cameras.
+    This device provides access to the cooling feature of Andor3 cameras.
     """
 
     COOLER_STATUS_MAP = {

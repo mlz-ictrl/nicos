@@ -72,7 +72,7 @@ def requires(**access):
     * ``'level'``: gives the minimum required user access level and can
       have the values ``GUEST``, ``USER`` or ``ADMIN`` as defined in the
       :mod:`nicos.core.utils` module.
-    * ``'mode'``: gives the required exection mode ("master", "slave",
+    * ``'mode'``: gives the required execution mode ("master", "slave",
       "maintenance", "simulation").
     * ``'passcode'``: only usable in the interactive console: gives a
       passcode that the user has to type back.
@@ -723,7 +723,7 @@ class Device(metaclass=DeviceMeta):
         """Set an otherwise read-only parameter.
 
         This is useful for parameters that change at runtime, but indirectly,
-        such as "last filenumber".
+        such as "last file number".
         """
         value = self._validateType(value, param)
         self._params[param] = value
@@ -1710,7 +1710,7 @@ class Moveable(Waitable):
         """Calculate the time to move from one position to another.
 
         Return the estimated moving time in seconds.
-        This is a pure calculatory method which may be overwritten in derived
+        This is a pure calculation method which may be overwritten in derived
         classes.
 
         This basic implementation estimates the moving time
@@ -2257,7 +2257,7 @@ class Measurable(Waitable):
         the array result(s) of the last measurement.
 
         The array results will be read first calling `readArrays` because
-        there migth be side-effects on the scalar result of `read`, e.g.
+        there migth be side effects on the scalar result of `read`, e.g.
         `ImageChannelMixin`'s standard implementation of `doRead` returns
         `self.readresult` which will probably be altered in `doReadArrays`.
         """

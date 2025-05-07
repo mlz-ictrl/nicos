@@ -841,7 +841,7 @@ class SecopDevice(Device):
                         return validate_result(self._call(cname, args))
 
                 elif argument['type'] == 'struct':
-                    # treat SECoP struct as keyworded arguments
+                    # treat SECoP struct as keyword arguments
                     # positional args will be treated in the given order
                     # which is not guaranteed to be kept in SECoP
                     optional = datainfo.get('optional')
@@ -1190,7 +1190,7 @@ class SecopDevice(Device):
         """Register a callback for parameter updates.
 
         The function is executed every time the client receives a new value for
-        the given parameter..
+        the given parameter.
         """
         self._attached_secnode.register_custom_callback(self.secop_module,
                                                         parameter, f)

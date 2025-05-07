@@ -247,7 +247,7 @@ class NicosClient:
             self._close()
 
     def tell(self, command, *args):
-        """Excecute a command that does not generate a response.
+        """Execute a command that does not generate a response.
 
         The arguments are the command and its parameter(s), if necessary.
         """

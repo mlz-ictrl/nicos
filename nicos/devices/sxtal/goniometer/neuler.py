@@ -24,7 +24,7 @@
 """
 NEuler
 
-store eulerian coordinates with all angles except phi counterclockwise.
+store Eulerian coordinates with all angles except phi counterclockwise.
 
 """
 import numpy as np
@@ -35,7 +35,7 @@ from nicos.devices.sxtal.goniometer.posutils import normalangle
 
 
 class NEuler(PositionBase):
-    """ Counter-clockwise rotating eulerian goniostat, phi clockwise!
+    """ Counter-clockwise rotating Eulerian goniostat, phi clockwise!
     """
     ptype = 'n'
     theta_clockwise = 0
@@ -140,7 +140,7 @@ class NEuler(PositionBase):
 
     def towards(self, other, fraction):
         if not other.ptype == self.ptype:
-            raise NicosError('cannot interpolate between different ptyped positions')
+            raise NicosError('cannot interpolate between positions with different ptype')
         f0 = 1.0 - fraction
         f1 = fraction
         return self.With(_rad=True,

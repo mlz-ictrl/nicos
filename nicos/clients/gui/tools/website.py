@@ -35,7 +35,7 @@ class WebsiteTool(QDialog):
 
     Options:
 
-      * ``url`` -- the URL of the web site.
+      * ``url`` -- the URL of the website.
     """
 
     def __init__(self, parent, client, **settings):

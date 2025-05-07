@@ -56,7 +56,7 @@ class DaemonSetup:
 
         All entries will be converted to strings. If the password field
         contains the hashlib call it will generate a NameError which will be
-        catched so the entry will not converted to the hexdigest
+        caught so the entry will not be converted to the hexdigest
         """
         if not self.passwd:
             return []
@@ -65,7 +65,7 @@ class DaemonSetup:
         for pw in pwtuple:
             v1, v2, v3 = str(pw.value[0]), str(pw.value[1]), str(pw.value[2])
             try:
-                # the order is important, the v2 must be check last since it
+                # the order is important, the v2 must be checked last, since it
                 # may contain the 'hashlib' call, which should not be changed
                 v1 = eval(v1)
                 v3 = eval(v3)

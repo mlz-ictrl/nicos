@@ -673,7 +673,7 @@ class SetupChecker:
     def validate_setup_spec(self, spec):
         """Validate the 'setups' option.
 
-        If there is a definitions of the old style of setup dependenciest a
+        If there is a definition of the old style of setup dependencies a
         warning will be given.
         """
         setupspec = spec.options.get('setups', '')

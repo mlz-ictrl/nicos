@@ -54,7 +54,7 @@ class FileSink(DataSink):
         'subdir':           Param('Filetype specific subdirectory name',
                                   type=subdir, mandatory=False, default=''),
         'filenametemplate': Param('List of templates for data file names '
-                                  '(will be hardlinked), can contain '
+                                  '(will be hard-linked), can contain '
                                   'subdirectories',
                                   ext_desc=TEMPLATE_DESC, type=listof(str),
                                   default=['%(pointcounter)08d.dat'],

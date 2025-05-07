@@ -42,9 +42,9 @@ FTP_P = ''.join(map(chr, [78, 103, 115, 65, 57, 84, 98, 67]))
 
 
 def ftpUpload(filename, logger=None):
-    """Uploads the given file to an user-accessible location
+    """Uploads the given file to a user-accessible location
 
-    returns a http download link for download purposes.
+    returns an HTTP download link for download purposes.
     """
     # we like to obscure the data at least a little bit.
     subdir = md5((filename + str(time.time())).encode()).hexdigest()

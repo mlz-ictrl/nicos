@@ -28,7 +28,7 @@ from .table import TableBase
 
 
 class TableTarget(TableBase):
-    """Class to display the target of any of the tables."""
+    """Class to display the target of a table."""
 
     def __init__(self, x, y, size=50, parent=None, scene=None):
         TableBase.__init__(self, x, y, size, parent, scene)

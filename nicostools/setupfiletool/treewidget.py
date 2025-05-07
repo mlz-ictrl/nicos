@@ -172,7 +172,7 @@ class TreeWidget(TreeWidgetContextMenu):
     def getSetupOfDropPos(self, pos):
         # pos is event.pos() when dropping a device
         if self.itemAt(pos).type() == ItemTypes.Device:
-            # dropped inside of the setup's device list
+            # dropped inside the setup's device list
             return self.itemAt(pos).parent()
         else:
             # dropped on the setup itself

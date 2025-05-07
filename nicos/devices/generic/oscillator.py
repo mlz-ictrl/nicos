@@ -77,7 +77,7 @@ class Oscillator(Moveable):
     _osc_thread = None
 
     def doInit(self, mode):
-        if session.sessiontype != POLLER:  # dont run in the poller!
+        if session.sessiontype != POLLER:  # don't run in the poller!
             self._osc_thread = None
             self._stop_request = False
             # Initialize the status

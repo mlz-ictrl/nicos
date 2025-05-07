@@ -62,7 +62,7 @@ def test_multi_switcher(session):
     # case 1: motor in position, but still busy
     y.curstatus = (status.BUSY, 'busy')
     assert sc2.status(0)[0] != status.OK
-    # case 2: motor idle, but wronmg position
+    # case 2: motor idle, but wrong position
     y.curstatus = (status.OK, 'on target')
     y.curvalue = 22.0
     assert sc2.status(0)[0] == status.NOTREACHED

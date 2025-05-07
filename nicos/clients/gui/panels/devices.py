@@ -344,7 +344,7 @@ class DevicesPanel(Panel):
         for (devname, error) in faildevdict.items():
             self._create_device_item(devname, failure=error)
 
-        # close all control dialogs for now nonexisting devices
+        # close all control dialogs for now non-existing devices
         for ldevname in list(self._control_dialogs):
             if ldevname not in self._devitems:
                 self._control_dialogs[ldevname].close()
@@ -524,7 +524,7 @@ class DevicesPanel(Panel):
         devitem = self._devitems[ldevname]
         devinfo = self._devinfo[ldevname]
         if devinfo.failure:
-            # do not present any info for nonexisting devices
+            # do not present any info for non-existing devices
             return
         if subkey == 'value':
             if time < devinfo.valtime:
@@ -1049,7 +1049,7 @@ class ControlDialog(QDialog):
         refreshAction = menu.addAction('Refresh')
         menu.addAction('Refresh all')
 
-        # QCursor.pos is more reliable then the given pos
+        # QCursor.pos is more reliable than the given pos
         action = menu.exec(QCursor.pos())
 
         if action == copyAction:

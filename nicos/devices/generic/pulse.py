@@ -32,7 +32,7 @@ class Pulse(BaseSequencer):
     """The device generates a 'trigger' signal.
 
     The device switches the attached device into the 'on' state (moving
-    attached device to 'onvalue') for 'ontime' seconds and switches the it back
+    attached device to 'onvalue') for 'ontime' seconds and switches it back
     to 'offvalue' after the 'ontime'.
     """
 

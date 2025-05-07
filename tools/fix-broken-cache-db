@@ -41,7 +41,7 @@ def read_and_check_cache_file(fn):
             fd.seek(0, os.SEEK_SET)
         for line in fd:
             if '\x00' in line:
-#                print('found nullbyte in file %s' % fn)
+#                print('found null byte in file %s' % fn)
                 bad = True
                 continue
             try:
@@ -62,7 +62,7 @@ def read_and_check_cache_file(fn):
                     continue
                 if nsplit == 3 and fields[2] not in '+-':
                     bad = True
-#                    print('found bad persistency marker in line %r in file %s' % (line, fn))
+#                    print('found bad persistence marker in line %r in file %s' % (line, fn))
                     continue
             except (ValueError, IndexError):
                 bad = True

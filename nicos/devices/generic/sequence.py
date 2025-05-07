@@ -49,7 +49,7 @@ class SequenceItem:
     number and names of arguments and call this class' __init__ then.
 
     Derived Classes/Items are encouraged to also define a __repr__ returning
-    a NICOS-command aquivalent to the action performed.
+    a NICOS-command equivalent to the action performed.
     """
 
     def __init__(self, **kwargs):
@@ -63,7 +63,7 @@ class SequenceItem:
         """
 
     def run(self):
-        """Initate an action, define in derived classes."""
+        """Initiate an action, define in derived classes."""
 
     def retry(self, retries):
         """Retry the start of an already failed action."""
@@ -93,7 +93,7 @@ class SequenceItem:
 class SeqDev(SequenceItem):
     """Move the given device to the given target and waits until it is there.
 
-    Also works for Measurables/detectors by supporting keyworded arguments.
+    Also works for Measurables/detectors by supporting keyword arguments.
     If you want to be able to interrupt the movement, set the keyword argument
     ``stoppable=True`` when calling the constructor.
     """
@@ -110,7 +110,7 @@ class SeqDev(SequenceItem):
         self.dev.start(self.target)
 
     def isCompleted(self):
-        # dont wait on fixed devices
+        # don't wait on fixed devices
         if hasattr(self.dev, 'fixed') and self.dev.fixed:
             return True
         done = self.dev.isCompleted()
@@ -231,7 +231,7 @@ class SeqWait(SequenceItem):
         pass
 
     def isCompleted(self):
-        # dont wait on fixed devices
+        # don't wait on fixed devices
         if hasattr(self.dev, 'fixed') and self.dev.fixed:
             return True
         done = self.dev.isCompleted()
@@ -463,7 +463,7 @@ class SequencerMixin(DeviceMixinBase):
             raise StopSequence(self, self._seq_status[1])
 
     def doStatus(self, maxage=0):
-        """Return highest statusvalue."""
+        """Return highest status value."""
         stati = [dev.status(maxage)
                  for dev in devIter(self._getWaiters(), Readable)] + \
                 [self._seq_status]
@@ -554,7 +554,7 @@ class SequencerMixin(DeviceMixinBase):
     def _cleanUp(self):
         """Called at the end of the sequence thread.
 
-        It could perform a clean up on derived devices to bring it back into
+        It could perform a cleanup on derived devices to bring it back into
         a 'normal' state.
         """
 
@@ -703,8 +703,8 @@ class MeasureSequencer(SequencerMixin, Measurable):
         """Prepare measurement sequence.
 
         This method will raise a `NicosError` when a sequence is already in
-        progress. Otherwise the internal sequence state is set to `status.OK`
-        which also helps starting a new sequence when a previous sequence ended
+        progress. Otherwise, the internal sequence state is set to `status.OK`
+        which also helps to start a new sequence when a previous sequence ended
         up in fault state.
 
         Derived implementations should first call this method and might call

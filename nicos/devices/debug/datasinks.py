@@ -52,7 +52,7 @@ class DebugDataSinkHandler(DataSinkHandler):
         self.log.debug('   values: %r', values)
 
     def putResults(self, quality, results):
-        # To much output in case of 2D data, but may be enabled by
+        # Too much output in case of 2D data, but may be enabled by
         # loglevel = 'debug'
         self.log.debug('%r: putResults called:', self.dataset.settype)
         self.log.debug('   quality: %r', quality)

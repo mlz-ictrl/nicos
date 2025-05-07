@@ -52,7 +52,7 @@ class FitError(Exception):
 
 
 class FitterMeta(type):
-    """Fittter metaclass.
+    """Fitter metaclass.
 
     Metaclass that adds all `Fit` classes to the Fitter registry.
     """

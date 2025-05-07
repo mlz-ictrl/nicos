@@ -44,7 +44,7 @@ def pytest_configure(config):
 
 
 # This fixture will run during the entire test suite.  Therefore, the special
-# cache stresstests must use a different port.
+# cache stress tests must use a different port.
 @pytest.fixture(scope='session', autouse=True)
 def setup_test_suite():
     """General test suite setup (handles cacheserver and elog server)"""

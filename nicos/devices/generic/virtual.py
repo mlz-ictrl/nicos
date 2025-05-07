@@ -320,7 +320,7 @@ class VirtualCounter(VirtualChannel):
     """
 
     parameters = {
-        'countrate': Param('The maximum countrate', type=float, default=1000.,
+        'countrate': Param('The maximum count rate', type=float, default=1000.,
                            settable=False),
         'gentype':   Param('Type of generating function',
                            type=oneof('const', 'gauss'), default='gauss',
@@ -533,7 +533,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             return
         if self.curstatus[0] < status.OK:  # clean up old status values
             self._setROParam('curstatus', (status.OK, ''))
-        if session.sessiontype != POLLER:  # dont run in the poller!
+        if session.sessiontype != POLLER:  # don't run in the poller!
             self._window = []
             self._statusLock = threading.Lock()
             self._thread = createThread('cryo simulator %s' % self, self.__run)
@@ -542,7 +542,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
         self._stopflag = True
 
     def doStart(self, target):
-        # do nothing more, its handled in the thread...
+        # do nothing more, it's handled in the thread...
         with self._statusLock:
             # insert target position into history
             # if target is far away -> loop goes busy
@@ -664,7 +664,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             # http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
             if self.mode != 'openloop':
                 # fix artefacts due to too big timesteps
-                # actually i would prefer reducing loopdelay, but i have no
+                # actually I would prefer reducing loopdelay, but I have no
                 # good idea on when to increase it back again
                 if heatflow * lastflow != -100:
                     if (newregulation - newsample) * (regulation - sample) < 0:

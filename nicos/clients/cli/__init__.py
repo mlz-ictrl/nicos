@@ -970,7 +970,7 @@ class NicosCmdClient(NicosClient):
     def completer(self, text, state):
         """Try to complete the command line.  Called by readline."""
         if state == 0:
-            # we got a a new bit of text to complete...
+            # we got a new bit of text to complete
             line = readline.get_line_buffer()
             # handle line without command
             if not line.startswith('/'):

@@ -592,7 +592,7 @@ class NicosPlot(DlgUtils):
     def saveQuietly(self):
         """Save plot quietly to temporary files with default formats.
 
-        Return a list of tuples (created filname, extension)
+        Return a list of tuples (created filename, extension)
         """
         raise NotImplementedError
 

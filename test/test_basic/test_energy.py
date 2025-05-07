@@ -32,7 +32,7 @@ from nicos.devices.tas.mono import from_k, to_k
 from test.utils import raises
 
 # input for to/from k tests (input, unit, output)
-# note: specifiy enough precision here for backwards calculation
+# note: specify enough precision here for backwards calculation
 in_fromk = [(1, 'A', 6.28319),
             (1, 'meV', 2.072123),
             (1, 'THz', 0.501037),

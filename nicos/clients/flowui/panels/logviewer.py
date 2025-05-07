@@ -78,7 +78,7 @@ class LogViewerPanel(DefaultLogViewerPanel):
 
         with open(path, 'r', encoding='utf-8', errors='replace') as f:
             # store if last line was added,
-            # this is used to filter tracebacks etc properly
+            # this is used to filter tracebacks etc. properly
             lastLineAdded = False
             lastLevel = ''
 

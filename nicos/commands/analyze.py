@@ -271,7 +271,7 @@ def sigmoid(*columns):
 
         ((a, b, x0, c), (d_a, d_b, d_x0, d_c))
 
-    where the elemets of the second tuple the estimated standard errors of the
+    where the elements of the second tuple are the estimated standard errors of the
     fit parameters.  The fit parameters are:
 
     * a - amplitude of the Sigmoid
@@ -361,7 +361,7 @@ def center(dev, center, step, numpoints, *args, **kwargs):
     if newcenter is None:
         session.log.warning('Fit failed, no centering done')
     elif not minvalue <= newcenter <= maxvalue:
-        # do not allow moving outside of the scanned region
+        # do not allow moving outside the scanned region
         session.log.warning('Fit resulted in center outside scanning '
                             'area, no centering done')
     else:
@@ -393,7 +393,7 @@ def checkoffset(dev, center, step, numpoints, *args, **kwargs):
     if newcenter is None:
         session.log.warning('Fit failed, offset unchanged')
     elif not minvalue <= newcenter <= maxvalue:
-        # do not allow moving outside of the scanned region
+        # do not allow moving outside the scanned region
         session.log.warning('Fit resulted in center outside scanning '
                             'area, offset unchanged')
     else:

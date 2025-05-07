@@ -228,7 +228,7 @@ class CellBase:
     def hkl2Qlab(self, h, k, l):
         """Transform a vector given in real lattice with (h,k,l) Miller indices
         in Qlab with coordinates in system:
-        x in beam direction, z direction upwards, y making a right handed system.
+        x in beam direction, z direction upwards, y making a right-handed system.
         """
         hklcart = self.hkl2Qcart(h, k, l)
         result = dot(hklcart, self._matrix_cardan)

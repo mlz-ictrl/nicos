@@ -31,9 +31,9 @@ from .elements import ConstDataset, NexusElementBase, NXAttribute
 
 
 class NicosProgramDataset(ConstDataset):
-    """Place holder for the NICOS program info.
+    """Placeholder for the NICOS program info.
 
-    This elememt can be used for the `program_name` entry in the NXentry group.
+    This element can be used for the `program_name` entry in the NXentry group.
     """
     def __init__(self):
         ConstDataset.__init__(self, 'NICOS', 'string',
@@ -43,7 +43,7 @@ class NicosProgramDataset(ConstDataset):
 
 
 class CellArray(NexusElementBase):
-    """Place holder for sample cell parameters, stored as an array.
+    """Placeholder for sample cell parameters, stored as an array.
 
     The sample should be `nicos.devices.tas.Cell` or
     `nicos.devices.sxtal.SXTalSample`.
@@ -70,7 +70,7 @@ class CellArray(NexusElementBase):
 
 
 class UBMatrix(NexusElementBase):
-    """Place holder for the UB matrix of the sample cell or SXTalSample.
+    """Placeholder for the UB matrix of the sample cell or SXTalSample.
 
     The sample should be `nicos.devices.tas.Cell` or
     `nicos.devices.sxtal.SXTalSample`.

@@ -202,7 +202,7 @@ class TestSinks:
 
         if hasattr(os, 'link'):
             linkfile = path.join(session.experiment.datapath, '00000168.raw')
-            assert path.isfile(linkfile)  # hardlink
+            assert path.isfile(linkfile)  # hard link
             assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
 
         # check files written by the single-raw sink
@@ -214,7 +214,7 @@ class TestSinks:
             # this entry in filenametemplate is absolute, which means relative to
             # the dataroot, not the current experiment's datapath
             linkfile = path.join(session.experiment.dataroot, '00000172.raw')
-            assert path.isfile(linkfile)  # hardlink
+            assert path.isfile(linkfile)  # hard link
             assert os.stat(linkfile).st_ino == os.stat(rawfile).st_ino
 
     def test_bersans_sink(self, session):
@@ -311,7 +311,7 @@ class TestListDatasinks:
              r'testsink1    scan',
              r'testsink2    point          det',
              r'rawsink      point',
-             # The order of the subsets isn't well defined so both options
+             # The order of the subsets isn't well-defined so both options
              # have to be checked
              r'consolesink  (scan, subscan|subscan, scan)',
              r'daemonsink   (scan, subscan|subscan, scan)',

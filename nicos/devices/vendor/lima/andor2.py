@@ -129,7 +129,7 @@ class Andor2LimaCCD(GenericLimaCCD):
 class Andor2TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
                                   LimaCooler, Moveable):
     """
-    This devices provides access to the cooling feature of Andor2 cameras.
+    This device provides access to the cooling feature of Andor2 cameras.
     """
 
     def doRead(self, maxage=0):

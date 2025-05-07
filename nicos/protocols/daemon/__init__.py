@@ -235,7 +235,7 @@ class ServerTransport:
         raise NotImplementedError
 
     def send_ok_reply(self, payload):
-        """Send a "ok" type reply back to the client.
+        """Send an "ok" type reply back to the client.
 
         *payload* is a piece of data to be serialized and sent along.
         """

@@ -93,7 +93,7 @@ class Motor(HasOffset, Driveable, AbstractMotor):
         # In case of using an EKF module the speed could be set
         # The speed will be calculated in respect to the number of coder values
         # per unit tmp[5] value and set into tmp[6] value. The new
-        # configuration line will be send to the CARESS device driver to reinit
+        # configuration line will be sent to the CARESS device driver to reinit
         # this module
         if len(tmp) > 1:
             if int(tmp[1]) == EKF_44520_ABS and len(tmp) > 6:

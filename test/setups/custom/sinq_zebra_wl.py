@@ -25,7 +25,7 @@ devices = dict(
         abslimits = (-160, 160),
     ),
     mcvu = device('nicos.devices.generic.VirtualMotor',
-        description = 'Dummy curvaturw',
+        description = 'Dummy curvature',
         unit = 'mm',
         abslimits = (0, 300),
     ),

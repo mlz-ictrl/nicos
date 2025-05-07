@@ -223,7 +223,7 @@ class McStasSimulation(Readable):
         # get the default rate
         default = self.neutronspersec.get('localhost',
                                           NEUTRONS_PER_SECOND_DEFAULT)
-        # try first 'hostname -f' and then 'hostname -s' an then take
+        # try first 'hostname -f' and then 'hostname -s' and then take
         # the default rate
         return self.neutronspersec.get(
             self._hostname, self.neutronspersec.get(

@@ -23,7 +23,7 @@
 
 from test.utils import alt_cache_addr
 
-name = 'setup for cache stresstest with memory db'
+name = 'setup for cache stress test with memory db'
 
 devices = dict(
     Server = device('nicos.services.cache.server.CacheServer',

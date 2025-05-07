@@ -734,7 +734,7 @@ class Session:
             self.log.debug('applying alias config...')
             self.applyAliasConfig(self.alias_config, prev_alias_config)
 
-        # remove now nonexisting envlist devices
+        # remove now non-existing envlist devices
         self.log.debug('scrubbing environment lists...')
         if self._experiment and self.mode == MASTER:
             self._experiment._scrubDetEnvLists()
@@ -790,7 +790,7 @@ class Session:
         # outer loop: as long as there are devices...
         while devs:
             deadlock = True
-            # inner loop: ... we try to shutdown each one of them...
+            # inner loop: ... we try to shut down each one of them...
             for dev in devs[:]:
                 # ... but only if they don't have remaining dependencies
                 if dev._sdevs <= already_shutdown:
@@ -802,9 +802,9 @@ class Session:
                         dev.log.warning('exception while shutting down', exc=1)
                     devs.remove(dev)
                     # This round (of outer loop) we had no deadlock, as we
-                    # shutdown at least one device: remember this fact
+                    # shut down at least one device: remember this fact
                     deadlock = False
-            # inner loop complete: if we couldn't shutdown a single device,
+            # inner loop complete: if we couldn't shut down a single device,
             # complain
             if deadlock:
                 for dev in devs:
@@ -1420,7 +1420,7 @@ class Session:
                 self.cache.put_raw(f'logbook/{eventtype}{FLAG_NO_STORE}', data)
 
     def scriptEvent(self, eventtype, data):
-        """Call this when an command/script event happens.
+        """Call this when a command/script event happens.
 
         eventtype can be "start", "finish" or "exception".  "exception" does
         not need to mean that the script has been aborted.
@@ -1596,7 +1596,7 @@ class Session:
         raise ProgrammingError('this session does not implement user input')
 
     def delay(self, secs):
-        """Sleep for a small time, allow immediate stop before and after."""
+        """Sleep for a short time, allow immediate stop before and after."""
         self.breakpoint(5)
         sleep(secs)
         self.breakpoint(5)

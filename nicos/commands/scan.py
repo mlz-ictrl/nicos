@@ -573,10 +573,10 @@ def manualscan(*args, **kwargs):
                 maw(device, i+1)
                 count(t=600)
 
-    This example mimicks a regular `scan()`, with the exception that before
+    This example mimics a regular `scan()`, with the exception that before
     every point the value of another device is checked for validity.
 
-    The arguments to `manualscan()` can be are:
+    The arguments to `manualscan()` can be:
 
     * detector devices, to use these for counting
     * other devices, to read them at every scan point
@@ -718,7 +718,7 @@ def appendscan(numpoints=5, stepsize=None):
         else:
             # we can't produce new values for this device
             raise NicosError('cannot append to this scan; some devices '
-                             'have nonnumeric values')
+                             'have non-numeric values')
 
     numpoints = abs(numpoints)
     s = Scan(scan.devices, positions, [], None, None, scan.detectors,

@@ -2,7 +2,7 @@
   edited setups.
 
 - When adding a custom parameter, allow selection of the type (e.g. display
-  some common used python classes msuch as str, int, float or list).
+  some common used python classes such as str, int, float or list).
 
 - Make sysconfig widget more user friendly. E.g. allow editing of existing
   values, allow replacing already entered values, etc.

@@ -22,7 +22,7 @@
 # *****************************************************************************
 
 """
-Utilility class to access and store credentials
+Utility class to access and store credentials
 
 The current implementation uses the :py:class:`EncryptedNicosKeyStore`, a file
 based multi-keyring keystore as backend.

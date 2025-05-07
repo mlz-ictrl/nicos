@@ -96,7 +96,7 @@ class unitcell:
         self.b_vec = self.crys2cart(0, 1, 0).transpose()
         self.c_vec = self.crys2cart(0, 0, 1).transpose()
 
-        # this is needed if you only want to roatate from the cartesion to the
+        # this is needed if you only want to rotate from the Cartesian to the
         # crystal system without changing the length
         self.crys2cartUnit = concatenate((self.a_vec / norm(self.a_vec),
                                           self.b_vec / norm(self.b_vec),
@@ -630,7 +630,7 @@ class resmat:
         RM_[1, 3] = M[1, 2]
         R0 = R0 / (2 * pi)**2 * sqrt(det(RM_))
         #---------------------------------------------------------------------------------------------
-        # Include kf/ki part of cross section
+        # Include kf/ki part of cross-section
         R0 = R0 * kf / ki
         # include monitor efficiency
         # Normalisation to flux monitor

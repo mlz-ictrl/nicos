@@ -84,7 +84,7 @@ class EpicsDevice(DeviceMixinBase):
                 if not pvname:
                     raise ConfigurationError(self, 'PV for parameter '
                                                    f'{pvparam} was not found!')
-                # Check pv exists - throws if cannot connect
+                # Check pv exists - throws when it cannot connect
                 self._epics_wrapper.connect_pv(pvname)
                 self._param_to_pv[pvparam] = pvname
         else:
@@ -113,7 +113,7 @@ class EpicsDevice(DeviceMixinBase):
 
     def _subscribe(self, change_callback, pvname, pvparam):
         """
-        Override this for custom behaviour in sub-classes.
+        Override this for custom behaviour in subclasses.
         """
         return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
                                              self.connection_change_callback)
@@ -121,7 +121,7 @@ class EpicsDevice(DeviceMixinBase):
     def value_change_callback(self, name, param, value, units, severity,
                               message, **kwargs):
         """
-        Override this for custom behaviour in sub-classes.
+        Override this for custom behaviour in subclasses.
         """
         cache_key = self._get_cache_relation(param)
         if cache_key:
@@ -132,7 +132,7 @@ class EpicsDevice(DeviceMixinBase):
     def status_change_callback(self, name, param, value, units, severity,
                                message, **kwargs):
         """
-        Override this for custom behaviour in sub-classes.
+        Override this for custom behaviour in subclasses.
         """
         current_status = self.doStatus()
         self._cache.put(self._name, 'status', current_status, time.time())

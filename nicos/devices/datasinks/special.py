@@ -62,7 +62,7 @@ class DaemonSinkHandler(DataSinkHandler):
 class DaemonSink(DataSink):
     """A DataSink that sends scan datasets to connected GUI clients.
 
-    The data will be send for live plotting.  The sink is only active for
+    The data will be sent for live plotting.  The sink is only active for
     daemon sessions.
     """
 
@@ -84,7 +84,7 @@ class DaemonSink(DataSink):
 class LiveViewSinkHandler(DataSinkHandler):
 
     def processArrays(self, result):
-        """Derived classes may override this in order to pre process data
+        """Derived classes may override this in order to preprocess data
         arrays in respect to the read result with the form
         ``(readvalue, arrays)``.
         """

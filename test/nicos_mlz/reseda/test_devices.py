@@ -70,7 +70,7 @@ class TestSelectorSpread:
         assert lambda_._get_tilt(0) == 0.0
         delta = session.getDevice('selector_delta_lambda')
 
-        # delta lambda should be wavelength independend
+        # delta lambda should be wavelength independent
         for l in [12, 6]:
             lambda_.maw(l)
             assert delta.read(0) == approx(11.7, abs=0.1)

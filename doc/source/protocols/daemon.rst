@@ -30,7 +30,7 @@ payload (i.e. frame length excluding first byte and length) as a network-order
 unsigned 32-bit integer.
 
 In both cases, the payload is a serialized Python object -- for "error" frames
-it should unserialize to a simple string explaining the error.
+it should deserialize to a simple string explaining the error.
 
 For "data" frames sent from the daemon to the client, the payload is a
 serialized Python object.
@@ -43,7 +43,7 @@ usual, and the payload being the event data.
 
 For most events, the data is a serialized Python object, except for those where
 a lot of raw data has to be transferred, such that serialization is both slow
-and unnecessary.  In the Events_ documentation, unserialized transfer of data is
+and unnecessary.  In the Events_ documentation, deserialized transfer of data is
 noted where applicable.
 
 Serialization
@@ -395,7 +395,7 @@ protocols.
    `livedata` buffer is a list of `plotcount` (in the associated `datadesc`)
    datasets.
 
-   The last datablobs will be processed as `livelabels`.  The maximum amount
+   The last data blobs will be processed as `livelabels`.  The maximum amount
    of ``livelabels`` is the length of the ``labels`` in the ``datadescs``
    entry.  These buffers will be used only in case that the `labels` have a
    `define` of 'array'. In this case the `index` entry of the `labels` entry

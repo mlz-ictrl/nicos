@@ -716,7 +716,7 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
     center = tas._calpos(target + (None, None), printout=False)[3]
     cscan(psi, center, step, numpoints, 'align check', *args, **kwargs)
     params, _ = gauss(ycol)
-    # do not allow moving outside of the scanned region
+    # do not allow moving outside the scanned region
     minvalue = center - step*numpoints
     maxvalue = center + step*numpoints
     if params is None:

@@ -37,7 +37,7 @@ class Authenticator(BaseAuthenticator):
     Passwords are stored in an external keystore
 
     An empty password means that any password is accepted.
-    Password less entriesare restricted to 'at most' USER level.
+    Passwordless entries are restricted to 'at most' USER level.
 
     You can set passwords via:
 
@@ -45,7 +45,7 @@ class Authenticator(BaseAuthenticator):
 
        `nicos-keystore add nicos_user \<username\>`
 
-    b) the `keyring` tool (this may required addtional dependencies to be
+    b) the `keyring` tool (this may require additional dependencies to be
        installed):
 
        `keyring -b keyrings.alt.file.EncryptedKeyring set nicos_user \<username\>`

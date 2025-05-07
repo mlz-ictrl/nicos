@@ -136,7 +136,7 @@ class CClient:
         self._socket = s
 
     def _comm(self, request):
-        # always put a end-of-list marker
+        # always put an end-of-list marker
         self._socket.sendall((request + '\n###?\n').encode())
         data = ''
         reloop = False
@@ -236,7 +236,7 @@ class CClient:
                 keys = argspec.args
                 types = argspec.defaults
                 if len(keys) != len(types):
-                    print('Can not apply fix %s, not all argumens have types '
+                    print('Can not apply fix %s, not all arguments have types '
                           'as default!' % fix.__name__)
                 # ask cache about the values of the keys
                 args = [self.querykey(dev, k) for k in keys]

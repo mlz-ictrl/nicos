@@ -45,7 +45,7 @@ def unit_value(unitless_value, units):
 
 def is_at_target(device, target):
     """
-    Checks if the device has reached it's target position
+    Checks if the device has reached its target position
     """
     if not isinstance(device, Readable):
         return False

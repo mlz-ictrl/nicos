@@ -77,7 +77,7 @@ class InfluxDBWrapper:
 
     def readLastValues(self):
         """Queries InfluxDB for a last value of every existing key/subkey
-        asyncronously, since thus the fastest response is obtained.
+        asynchronously, since thus the fastest response is obtained.
         For large DB this query can take minutes, therefore the last values
         are generally stored in a separate bucket. If the bucket with the latest
         values is empty for any reason this function shall be called.
@@ -273,7 +273,7 @@ class InfluxDBCacheDatabase(CacheDatabase):
     categories are stored as _measurements, nicos keys are organized in _fields.
     Values are stored as fields' _values. Expired mark is set up
     as _tag. It is better to keep expired as a tag, because then it is
-    immideately available in every record obtained from queries. If expired is
+    immediately available in every record obtained from queries. If expired is
     set up as field this field should be requested separately and this comes at
     higher computational cost.
     Values are stored as strings as they are in flatfile database for the sake

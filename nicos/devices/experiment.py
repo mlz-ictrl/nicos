@@ -33,7 +33,7 @@ from os import path
 from textwrap import dedent
 
 from nicos import config, session
-# import for side-effects
+# import for side effects
 from nicos._vendor import rtfunicode  # pylint: disable=unused-import
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     Device, Measurable, NicosError, Param, Readable, UsageError, anytype, \
@@ -332,7 +332,7 @@ class Experiment(Device):
         system for information.
 
         This is not a parameter since it may depend for example on the
-        currently logged in user.
+        currently logged-in user.
         """
         return False
 
@@ -871,7 +871,7 @@ class Experiment(Device):
     def checkTemplates(self, proposal, kwargs):
         """try to fill in all templates to see if some keywords are missing"""
         if self._mode == SIMULATION:
-            return  # dont touch fs if in simulation!
+            return  # don't touch fs if in simulation!
         allmissing = []
         alldefaulted = []
         for fn, content in self.iterTemplates(only_dot_template=True):
@@ -915,7 +915,7 @@ class Experiment(Device):
 
     def handleTemplates(self, proposal, kwargs):
         if self._mode == SIMULATION:
-            return  # dont touch fs if in simulation!
+            return  # don't touch fs if in simulation!
         for fn, content in self.iterTemplates(only_dot_template=False):
             istemplate = fn.endswith('.template')
             newfn = fn
@@ -973,7 +973,7 @@ class Experiment(Device):
         """Send a mail with the experiment data"""
 
         if self._mode == SIMULATION:
-            return  # dont touch fs if in simulation!
+            return  # don't touch fs if in simulation!
         # check parameters
         if not self.mailserver:
             raise NicosError('%s.mailserver parameter is not set' % self)

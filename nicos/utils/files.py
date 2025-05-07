@@ -24,7 +24,7 @@
 """
 Utility routines for nicos file finding
 
-This modules contains helper functions to find e.g. setupfiles etc.
+This module contains helper functions to find e.g. setup files etc.
 """
 
 import os

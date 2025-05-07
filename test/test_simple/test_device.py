@@ -259,7 +259,7 @@ def test_params(session):
     assert dev2.param2 == 6
     assert 'doWriteParam2' in methods_called
     assert 'doUpdateParam2' in methods_called
-    # nonexisting parameters
+    # non-existing parameters
     assert raises(NicosError, setattr, dev2, 'param3', 1)
     # test parameter value when in cache, but default value updated
     session.cache.put(dev2, 'param1', 50)
@@ -294,7 +294,7 @@ def test_forbidden_assignments(session):
     # creating a new method must be allowed
     dev._myfunction = float
     assert dev._myfunction(1) == 1
-    # changing a internal function to a value must be allowed
+    # changing an internal function to a value must be allowed
     dev._myfunction = 1
     assert dev._myfunction == 1
 

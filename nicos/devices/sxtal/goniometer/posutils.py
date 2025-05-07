@@ -40,7 +40,7 @@ def matvec(m, v):
 
 
 def vectorangle(v1, v2):
-    """Determing the angle between two 3D vectors (or arrays of vectors)."""
+    """Determine the angle between two 3D vectors (or arrays of vectors)."""
     c = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
     return np.arccos(np.clip(c, -1, 1))
 

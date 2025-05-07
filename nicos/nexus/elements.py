@@ -526,7 +526,7 @@ class NXTime(NexusElementBase):
 
 
 class StartTime(NXTime):
-    """Place holder for the start time of a measurement."""
+    """Placeholder for the start time of a measurement."""
 
     def __init__(self):
         NXTime.__init__(self)
@@ -542,7 +542,7 @@ class StartTime(NXTime):
 
 
 class EndTime(StartTime):
-    """Place holder for the end time of a measurement."""
+    """Placeholder for the end time of a measurement."""
 
     def create(self, name, h5parent, sinkhandler):
         self.time = sinkhandler.dataset.finished or time.time()
@@ -629,7 +629,7 @@ class NexusSampleEnv(NexusElementBase):
 
 
 class CalcData(NexusElementBase):
-    """ Place holder base class for all classes which calculate data for the
+    """ Placeholder base class for all classes which calculate data for the
     NeXus file. Derived classes have to implement two methods:
 
     - _shape(dataset) which returns the shape of the calculate data as a tuple

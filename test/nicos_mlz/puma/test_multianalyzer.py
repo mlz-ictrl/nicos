@@ -115,10 +115,10 @@ class TestMultiAnalyzer:
         """Check targets of the whole device."""
         man = session.getDevice('man')
         assert not man.isAllowed([300] + [0] * 10 + [1] + [0] * 10)[0]
-        # To less arguments
+        # Too few arguments
         with pytest.raises(InvalidValueError):
             man.move([0] * 21)
-        # To many arguments
+        # Too many arguments
         with pytest.raises(InvalidValueError):
             man.move([0] * 23)
         # one of the translations and one of the rotations out of range

@@ -39,7 +39,7 @@ if QWebView is None:
 
 
 class ELogPanel(Panel):
-    """Provides a HTML widget for the electronic logbook."""
+    """Provides an HTML widget for the electronic logbook."""
 
     panelName = 'Electronic logbook'
 

@@ -201,7 +201,7 @@ def multiWait(devices):
     It checks the device status until all devices are OK or errored.
 
     Errors raised are handled like in the following way:
-    The error is logged, and the first exception with the highest serverity
+    The error is logged, and the first exception with the highest severity
     (exception in `CONTINUE_EXECPTIONS` < `SKIP_EXCEPTIONS` < other exceptions)
     is re-raised at the end.
 
@@ -385,7 +385,7 @@ def _multiMethod(baseclass, method, devices):
     """Calls a method on a list of devices.
 
     Errors raised are handled like in the following way:
-    The error is logged, and the first exception with the highest serverity
+    The error is logged, and the first exception with the highest severity
     (exception in `CONTINUE_EXCEPTIONS` < `SKIP_EXCEPTIONS` < other exceptions)
     is re-raised at the end.
 
@@ -428,7 +428,7 @@ class DeviceValue(namedtuple('DeviceValue',
                              ('raw', 'formatted', 'unit', 'category'))):
     """Wrapper for metainfo values
 
-        Provides different ways to access the meta info:
+        Provides different ways to access the metainfo:
         - as a tuple with numeric indexing
         - as an object with named access
         - string representation compatible with legacy DeviceValueDict usage
@@ -497,7 +497,7 @@ class DeviceValueDict:
         res = ''
         raw = None
         unit = None
-        # we dont want to raise anything!
+        # we don't want to raise anything!
         try:
             # value given to constructor?
             if key in self._constvals:

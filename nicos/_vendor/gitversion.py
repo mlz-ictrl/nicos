@@ -22,7 +22,7 @@ config.apply()
 
 
 def get_releasefile_path():
-    # due the way we import it, the path will point to the nicos dir.
+    # due to the way we import it, the path will point to the nicos dir.
     thispath = path.normpath(path.dirname(path.dirname(__file__)))
     return path.join(thispath, 'RELEASE-VERSION')
 

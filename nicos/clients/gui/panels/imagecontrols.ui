@@ -384,7 +384,7 @@
    <item>
     <widget class="QCheckBox" name="autoScaling">
      <property name="text">
-      <string>auto scaling</string>
+      <string>autoscaling</string>
      </property>
      <property name="checked">
       <bool>true</bool>

@@ -246,7 +246,7 @@ class SpaceMap:
         # directions of axes
         dir1 = self.cell._orient1
         dir2 = cross(self.cell.cal_zone(), self.cell._orient1)
-        # normalize second direction to smallest length
+        # normalize second direction to the smallest length
         comp = [abs(c) for c in dir2 if c != 0]
         complen = len(comp)
         if complen == 0:

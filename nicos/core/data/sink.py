@@ -180,7 +180,7 @@ class DataSinkHandler:
         """
 
     def end(self):
-        """Finish up the dataset (close files etc).
+        """Finish up the dataset (close files etc.).
 
         This method is called on all sinks participating in a dataset, even if
         an error occurred during data collection or even initialization.
@@ -207,7 +207,7 @@ class NicosMetaWriterMixin:
                                         self.update_headerinfo)
         if update_headerinfo:
             # put count result in its own category: 'result'
-            # note: status may need to be update manually as it is not
+            # note: status may need to be updated manually as it is not
             #       collected in the values :(
             # note2: as we may be called during counting, some devices
             #        may be busy: this may irritate users :(

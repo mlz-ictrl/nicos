@@ -520,7 +520,7 @@ class Detector(Measurable):
     def doPreinit(self, mode):
         presetkeys = {}
         for name, dev, typ in self._presetiter():
-            # later mentioned presetnames dont overwrite earlier ones
+            # later mentioned presetnames don't overwrite earlier ones
             presetkeys.setdefault(name, (dev, typ))
         self._channels = uniq(self._attached_timers + self._attached_monitors +
                               self._attached_counters + self._attached_images +

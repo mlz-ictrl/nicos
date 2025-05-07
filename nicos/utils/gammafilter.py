@@ -56,7 +56,7 @@ def LaplacianOfGaussian(n, sigma):
 
 def scharr_filter(img):
     """
-    Analysis function for sharpness of an given numpy array.
+    Analysis function for sharpness of a given numpy array.
 
     First generates a scharr-filter for the x and y direction. Afterward
     it performs a convolution of the scharr with the array and calculates

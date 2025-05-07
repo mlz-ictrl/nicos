@@ -577,7 +577,7 @@ def hasGnuplot():
 
 
 def selfDestructAfter(seconds=None):
-    """If possible, setup a SIGALRM after *seconds* to clean up otherwise
+    """If possible, set up a SIGALRM after *seconds* to clean up otherwise
     hanging test processes.
 
     default timeout is 1200sec (=20 min), can be controlled via the

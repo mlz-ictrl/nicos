@@ -94,7 +94,7 @@ class Server(BaseServer):
                 if sock is reply_collect:
                     self.sock.send_multipart(reply_collect.recv_multipart())
                     continue
-                # otherwise, must be message from a client
+                # otherwise, must be a message from a client
                 msg = self.sock.recv_multipart()
                 client_id = msg[0]
                 if client_id in self.handlers:

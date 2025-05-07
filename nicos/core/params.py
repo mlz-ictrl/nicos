@@ -233,7 +233,7 @@ class Override:
 
 
 class Attach:
-    """Specifies required properties of the attached dev(s) of an device class.
+    """Specifies required properties of the attached dev(s) of a device class.
 
     The `.Device.attached_devices` attribute contains a mapping of internal
     names of attached devices to instances of this class.
@@ -241,7 +241,7 @@ class Attach:
     internal device name to the attached device itself as `.Device._adevs`.
     Attached devices also contain a set `.Devices._sdevs` which contains
     the names of devices using this particular device as an attached device
-    (two way linkage).
+    (two-way linkage).
 
     Attributes (equivalent to constructor arguments):
 
@@ -465,7 +465,7 @@ class ArrayDesc:
     * name, a name for the array
     * shape, a tuple of lengths in 1 to N dimensions arranged as for C order
       arrays, i.e. (..., t, y, x), which is also the numpy shape
-    * dtype, the data type of a single value, in numpy format
+    * dtype, the datatype of a single value, in numpy format
     * dimnames, a list of names for each dimension
 
     The class can try to determine if a given image-type can be converted

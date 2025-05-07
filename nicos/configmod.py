@@ -134,7 +134,7 @@ def readToml(filename):
 
 
 def readConfig():
-    """Read the basic NICOS configuration.  This is a multi-step process:
+    """Read the basic NICOS configuration.  This is a multistep process:
 
     * First, we read the "local" nicos.conf (the one in the root dir)
       and try to find out our instrument from it or the environment.

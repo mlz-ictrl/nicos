@@ -719,7 +719,7 @@ class Motor(HasTimeout, NicosMotor):
 
     @usermethod
     def _printconfig(self):
-        """Print the current configuration in human readable format."""
+        """Print the current configuration in human-readable format."""
         byte = self.confbyte
         c = ''
 
@@ -913,7 +913,7 @@ class Output(Input, Moveable):
 
 
 class SlitMotor(HasTimeout, NicosMotor):
-    """Class for one axis of a IPC 4-wing slit.
+    """Class for one axis of an IPC 4-wing slit.
 
     Use this together with `nicos.devices.generic.Axis` to create a single slit
     axis, and combine four of them using `nicos.devices.generic.Slit` to create

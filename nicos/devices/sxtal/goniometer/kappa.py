@@ -96,7 +96,7 @@ class Kappa(PositionBase):
         """ Conversion. Part of Position subclass protocol.
         """
         if self.kappa is None:
-            print('DBG> Convert incomplete kappa to eulerian!')
+            print('DBG> Convert incomplete kappa to Eulerian!')
             return PositionFactory(ptype='e',
                                    theta=self.theta)
         halfkappa = 0.5 * self.kappa
@@ -158,7 +158,7 @@ class Kappa(PositionBase):
 
     def towards(self, other, fraction):
         if not other.ptype == self.ptype:
-            raise NicosError('cannot interpolate between different ptyped positions')
+            raise NicosError('cannot interpolate between positions with different ptype')
         f0 = 1.0 - fraction
         f1 = fraction
         kw = {}

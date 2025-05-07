@@ -25,7 +25,7 @@ import os
 
 from test.utils import alt_cache_addr
 
-name = 'setup for cache stresstest with kafka db'
+name = 'setup for cache stress test with kafka db'
 
 devices = dict(
     Server = device('nicos.services.cache.server.CacheServer',

@@ -415,7 +415,7 @@ def CreateAllDevices(lowlevel=False):
 def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
     """Start a new experiment with the given proposal number and title.
 
-    You should also give a argument for the local contact and the primary user.
+    You should also give an argument for the local contact and the primary user.
     More users can be added later with `AddUser`.  Example:
 
     >>> NewExperiment(541, 'Spin waves', 'L. Contact', 'F. User <user@abc.de>')
@@ -1001,7 +1001,7 @@ def _LogAttach(description, paths, names):
 def _LogAttachImage(description, paths, extensions, names):
     """Attach an image to the electronic logbook.
 
-    The same image, may be send in different formats, e.g. png and svg.
+    The same image, may be sent in different formats, e.g. png and svg.
     The elog handler can use one or multiple files, e.g. skip unsupported file
     formats.
 

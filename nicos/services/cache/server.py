@@ -383,7 +383,7 @@ class CacheServer(Device):
         self.log.debug('trying to bind to %s', self.server)
         self._serversocket, self._boundto = self._bind_to(self.server)
 
-        # one of the must have worked, otherwise continuing makes no sense
+        # one of them must have worked, otherwise continuing makes no sense
         if not self._serversocket and not self._serversocket_udp:
             self._stoprequest = True
             self.log.error("couldn't bind any sockets, giving up!")
