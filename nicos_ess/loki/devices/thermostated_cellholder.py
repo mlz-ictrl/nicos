@@ -21,7 +21,7 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-"""LoKI thermostated cell-holder device."""
+"""LoKI thermostated cell holder device."""
 from nicos import session
 from nicos.core import POLLER, Attach, LimitError, Moveable, Override, Param, \
     anytype, dictof, listof, tupleof
@@ -30,7 +30,7 @@ from nicos.devices.generic import MultiSwitcher
 
 
 class ThermoStatedCellHolder(MultiSwitcher):
-    """The thermostated cell-holder device."""
+    """The thermostated cell holder device."""
     parameters = {
         'cartridges':
             Param('Cartridge configurations '

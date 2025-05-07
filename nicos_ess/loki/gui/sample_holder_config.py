@@ -401,14 +401,14 @@ class LokiSampleHolderPanel(PanelBase):
                 if not table.item(r, 0) or not table.item(r, 0).text() \
                         or not table.item(r, 1) or not table.item(r, 1).text():
                     raise ConfigurationError(
-                        'All cell-holder positions must be specified. '
+                        'All cell holder positions must be specified. '
                         f'{self.positions[i]} is not specified.')
                 x = float(table.item(r, 0).text())
                 y = float(table.item(r, 1).text())
                 self._check_x_valid(x, x_delegate)
                 self._check_y_range(y, y_delegate)
                 if (x, y) in all_positions:
-                    raise ConfigurationError('Duplicate cell-holder positions '
+                    raise ConfigurationError('Duplicate cell holder positions '
                                              'are not allowed. Position '
                                              f'{(x, y)} found multiple times.')
                 all_positions.add((x, y))

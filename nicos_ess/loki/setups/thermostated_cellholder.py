@@ -5,7 +5,7 @@ group = 'optional'
 devices = dict(
     cellholder_y_motor=device(
         'nicos.devices.generic.virtual.VirtualMotor',
-        description='Motor for moving cellholder vertically',
+        description='Motor for moving cell holder vertically',
         fmtstr="%7.2f",
         userlimits=(0, 50),
         abslimits=(0, 50),
@@ -16,7 +16,7 @@ devices = dict(
     ),
     cellholder_x_motor=device(
         'nicos.devices.generic.virtual.VirtualMotor',
-        description='Motor for moving cellholder horizontally',
+        description='Motor for moving cell holder horizontally',
         fmtstr="%7.2f",
         userlimits=(0, 500),
         abslimits=(0, 500),
@@ -27,7 +27,7 @@ devices = dict(
     ),
     thermostated_cellholder=device(
         'nicos_ess.loki.devices.thermostated_cellholder.ThermoStatedCellHolder',
-        description='The thermostated cell-holder for LoKI',
+        description='The thermostated cell holder for LoKI',
         xmotor='cellholder_x_motor',
         ymotor='cellholder_y_motor',
         precision=[0.05, 0.05],

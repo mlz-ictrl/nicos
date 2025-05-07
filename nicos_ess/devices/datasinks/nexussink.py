@@ -50,8 +50,8 @@ class NexusFileWriterStatus(KafkaStatusHandler):
 
     ISSUED: The job has been issued to the file writer (notified from sink)
     START: File writer has started writing the file (notified from FileWriter)
-    (may be) FAIL: File writer failed to write (notified from FileWriter)
-    (may be) ERROR: File writer had error but is still writing the file
+    (maybe) FAIL: File writer failed to write (notified from FileWriter)
+    (maybe) ERROR: File writer had error but is still writing the file
     STOP: The measurement stopped (using preset/user) (notified from sink)
     CLOSE: File writer closed the file (notified from sink)
     """
@@ -287,7 +287,7 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
     * Groups should be represented as: <group_name>:<NX_class> in the keys
     * NX_class should be one of the standard NeXus groups
     * Datasets should be represented as: <dataset_name> in the keys
-    * Dataset value should be a instance of class NXDataset.
+    * Dataset value should be an instance of class NXDataset.
     * Attribute value can either be numerical or instance of class NXattribute
     * Detector event streams are marked using the class EventStream
 
