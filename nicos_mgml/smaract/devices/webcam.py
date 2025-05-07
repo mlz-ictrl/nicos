@@ -93,7 +93,7 @@ class JPGImageSinkHandler(SingleFileSinkHandler):
 class JPGImageSink(ImageSink):
     """JPEG image sink, without metadata.
 
-    This data sinks writes jpeg format files without any meta data.
+    This data sink writes jpeg format files without any metadata.
     """
 
     parameter_overrides = {
