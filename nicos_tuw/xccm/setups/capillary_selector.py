@@ -15,7 +15,7 @@ devices = dict(
             2: [10, 10],
             3: [5, 0],
             },
-        # higher precision values to allow finetuning of position to user
+        # higher precision values to allow fine-tuning of position to user
         precision = [0.1, 0.1],
         ),
 )
