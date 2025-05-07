@@ -200,7 +200,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         w('$\n')
 
         if 128 < image.shape[1] < 256:
-            # fill X axis up to 256
+            # fill X-axis up to 256
             n = (256 - image.shape[1]) // 2
             image = np.pad(image, ((0, 0), (n, n)), mode='constant')
 
@@ -231,7 +231,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         for i in range(nslots):
             slot = image[i]
             if 128 < slot.shape[1] < 256:
-                # fill X axis up to 256
+                # fill X-axis up to 256
                 n = (256 - slot.shape[1]) // 2
                 slot = np.pad(slot, ((0, 0), (n, n)), mode='constant')
 

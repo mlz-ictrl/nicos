@@ -58,7 +58,7 @@ def timedistancediagram(speed, angles, disk2_pos, D,
     plot.set_facecolor('#F0F0F0')
     plot.figure.patch.set_color('#F0F0F0')
 
-    # Max value for y axis
+    # Max value for y-axis
     if Actual_D is not None:
         y_max = 1.1 * max(D, Actual_D)
     else:

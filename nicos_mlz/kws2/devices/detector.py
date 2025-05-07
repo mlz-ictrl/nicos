@@ -48,11 +48,11 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
     hardware_access = False
 
     attached_devices = {
-        'det_z':      Attach('Large detector Z axis', Moveable),
-        'bs_x':       Attach('Large detector beamstop X axis', Moveable),
-        'bs_y':       Attach('Large detector beamstop Y axis', Moveable),
-        'psd_x':      Attach('Small detector X axis', Moveable),
-        'psd_y':      Attach('Small detector Y axis', Moveable),
+        'det_z':      Attach('Large detector Z-axis', Moveable),
+        'bs_x':       Attach('Large detector beamstop X-axis', Moveable),
+        'bs_y':       Attach('Large detector beamstop Y-axis', Moveable),
+        'psd_x':      Attach('Small detector X-axis', Moveable),
+        'psd_y':      Attach('Small detector Y-axis', Moveable),
         'attenuator': Attach('Beam attenuator', Moveable),
     }
 
@@ -138,7 +138,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
             seq.append(SeqDev(self._attached_bs_y, target[1], stoppable=True))
             seq.append(SeqDev(self._attached_bs_x, target[0], stoppable=True))
             seq.append(SeqDev(self._attached_det_z, target[2], stoppable=True))
-            # maybe reposition beamstop Y axis to counter jitter.
+            # maybe reposition beamstop Y-axis to counter jitter.
             seq.append(SeqCall(self._check_bsy, target[1]))
 
         self._startSequence(seq)

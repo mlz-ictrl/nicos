@@ -4405,7 +4405,7 @@ nicos (3.0.0) UNRELEASED; urgency=medium
 
   [ Georg Brandl ]
   * minor style fix
-  * gui: remove traces of secondary y axis
+  * gui: remove traces of secondary y-axis
   * POLI: add HTML status monitor setup (thanks Petr)
   * gui: do not offer fitting fit curves again
   * kelvinox1: update fmtstr

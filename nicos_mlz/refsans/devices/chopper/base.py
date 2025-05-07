@@ -272,7 +272,7 @@ class ChopperDisc2(DeviceMixinBase):
 
 
 class ChopperDiscTranslation(CanReference, IsController, DeviceMixinBase):
-    """Position of chopper disc along the x axis.
+    """Position of chopper disc along the x-axis.
 
     Since the chopper disc can be translated, the chopper speed must be low
     enough (around 0, defined by its precision).

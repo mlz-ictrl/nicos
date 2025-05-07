@@ -244,7 +244,7 @@ class LiveViewSinkHandler(Straight, BaseLiveViewSinkHandler):
         }
 
     def _calcStartEndStep(self, startp, steps, rg, nx):
-        """Calculate start, end, and step value for the x axis.
+        """Calculate start, end, and step value for the x-axis.
 
         The start and end values are calculated from the detector start value,
         number of resosteps and the detector range.

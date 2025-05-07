@@ -108,13 +108,13 @@ class ScansPanel(PlotPanel):
         self.x_menu = QMenu(self)
         self.x_menu.aboutToShow.connect(self.on_x_menu_aboutToShow)
         self.actionXAxis = self.x_menu.menuAction()
-        self.actionXAxis.setText('&X axis')
+        self.actionXAxis.setText('&X-axis')
         self.actionXAxis.triggered.connect(self.on_actionXAxis_triggered)
 
         self.y_menu = QMenu(self)
         self.y_menu.aboutToShow.connect(self.on_y_menu_aboutToShow)
         self.actionYAxis = self.y_menu.menuAction()
-        self.actionYAxis.setText('&Y axis')
+        self.actionYAxis.setText('&Y-axis')
         self.actionYAxis.triggered.connect(self.on_actionYAxis_triggered)
 
         self.actionAutoDisplay.setChecked(True)
@@ -455,7 +455,7 @@ class ScansPanel(PlotPanel):
             self.enableAutoScaleActions(self.currentPlot.HAS_AUTOSCALE)
             self.datasetList.setCurrentItem(self.setitems[plot.dataset.uid])
 
-            self.actionXAxis.setText('X axis: %s' % plot.current_xname)
+            self.actionXAxis.setText('X-axis: %s' % plot.current_xname)
             self.actionNormalized.setChecked(bool(plot.normalized))
 
             self.actionLogScale.setChecked(plot.isLogScaling())
@@ -634,7 +634,7 @@ class ScansPanel(PlotPanel):
     def on_x_action_triggered(self, text=None):
         if text is None:
             text = self.sender().data()
-        self.actionXAxis.setText('X axis: %s' % text)
+        self.actionXAxis.setText('X-axis: %s' % text)
         self.currentPlot.current_xname = text
         self.currentPlot.updateDisplay()
         self.on_actionUnzoom_triggered()

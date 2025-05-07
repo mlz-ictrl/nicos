@@ -473,7 +473,7 @@ def plot_resscan(cfg, par, hkles, fignum='Scan resolution', resmat=None):
     l = delete(l, errors)
     e = delete(e, errors)
 
-    if len(e) > 1 and e[0] == e[1]:  # q-scans plot energies as y axis
+    if len(e) > 1 and e[0] == e[1]:  # q-scans plot energies as y-axis
         q = 0.0
         if h[0] != h[1]:
             q = h

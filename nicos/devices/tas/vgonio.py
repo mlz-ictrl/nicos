@@ -56,8 +56,8 @@ class VirtualGonio(Moveable):
     """
 
     attached_devices = {
-        'gx': Attach('Real x axis gonio', Moveable),
-        'gy': Attach('Real y axis gonio', Moveable),
+        'gx': Attach('Real x-axis gonio', Moveable),
+        'gy': Attach('Real y-axis gonio', Moveable),
         'cell': Attach('TAS sample cell object', Cell),
     }
 

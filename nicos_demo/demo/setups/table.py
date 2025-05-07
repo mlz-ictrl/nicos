@@ -8,7 +8,7 @@ excludes = ['tas']
 
 devices = dict(
     z = device('nicos.devices.generic.VirtualMotor',
-        description = 'z axis',
+        description = 'z-axis',
         fmtstr = '%.2f',
         abslimits = (-50, 50),
         jitter = 0.01,
@@ -16,7 +16,7 @@ devices = dict(
         unit = 'mm',
     ),
     y = device('nicos.devices.generic.VirtualMotor',
-        description = 'y axis',
+        description = 'y-axis',
         fmtstr = '%.2f',
         abslimits = (-100, 100),
         jitter = 0.01,
@@ -24,7 +24,7 @@ devices = dict(
         unit = 'mm',
     ),
     x = device('nicos.devices.generic.VirtualMotor',
-        description = 'x axis',
+        description = 'x-axis',
         fmtstr = '%.2f',
         abslimits = (-750, 150),
         jitter = 0.01,

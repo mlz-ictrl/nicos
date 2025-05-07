@@ -711,7 +711,7 @@ class ManualScan(Scan):
                  envlist=None, preset=None, scaninfo=None, subscan=False,
                  xindex=None):
         # put mentioned envlist devices first in envlist (usually the desired
-        # X axis is among them)
+        # X-axis is among them)
         envlist = envlist or []
         envlist.extend(dev for dev in session.experiment.sampleenv
                        if dev not in envlist)

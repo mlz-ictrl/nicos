@@ -135,17 +135,17 @@ class GMatrix(PositionBase):
         return self.asE().asL(wavelength)
 
     def Xrot(self, angle):
-        """ Rotate 'angle' (clockwise) around the X axis.
+        """ Rotate 'angle' (clockwise) around the X-axis.
         """
         return self.With(matrix=np.dot(Xrot(angle), self.matrix))
 
     def Yrot(self, angle):
-        """ Rotate 'angle' (clockwise) around the Y axis.
+        """ Rotate 'angle' (clockwise) around the Y-axis.
         """
         return self.With(matrix=np.dot(Yrot(angle), self.matrix))
 
     def Zrot(self, angle):
-        """ Rotate 'angle' (clockwise) around the Z axis.
+        """ Rotate 'angle' (clockwise) around the Z-axis.
         """
         return self.With(matrix=np.dot(Zrot(angle), self.matrix))
 

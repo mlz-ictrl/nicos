@@ -22,7 +22,7 @@ devices = dict(
         lock = 'sp3_allowed',
     ),
     sp3_ty_axis = device('nicos_sinq.icon.devices.enabledmotor.EnabledMotor',
-        description = 'Sample Position 3, Translation Y axis',
+        description = 'Sample Position 3, Translation Y-axis',
         motorpv = 'SQ:ICON:board4:SP3TY',
         errormsgpv = 'SQ:ICON:board4:SP3TY-MsgTxt',
         precision = 0.01,

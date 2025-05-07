@@ -17,7 +17,7 @@ devices = dict(
         precision = 0.01,
     ),
     sp2_ty_axis = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
-        description = 'Sample Position 2, Translation Y axis',
+        description = 'Sample Position 2, Translation Y-axis',
         motorpv = 'SQ:ICON:board5:SP2TY',
         errormsgpv = 'SQ:ICON:board5:SP2TY-MsgTxt',
         precision = 0.01,

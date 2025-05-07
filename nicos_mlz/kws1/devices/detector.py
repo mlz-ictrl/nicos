@@ -53,9 +53,9 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
     hardware_access = False
 
     attached_devices = {
-        'det_z':      Attach('Large detector Z axis', Moveable),
-        'bs_x':       Attach('Large detector beamstop X axis', Moveable),
-        'bs_y':       Attach('Large detector beamstop Y axis', Moveable),
+        'det_z':      Attach('Large detector Z-axis', Moveable),
+        'bs_x':       Attach('Large detector beamstop X-axis', Moveable),
+        'bs_y':       Attach('Large detector beamstop Y-axis', Moveable),
     }
 
     parameters = {
@@ -69,7 +69,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
                             mandatory=True),
         'mapkey':     Param('Last selector position for mapping',
                             type=str, settable=True, internal=True),
-        'beamstopsettlepos': Param('Settling position for beamstop y axis',
+        'beamstopsettlepos': Param('Settling position for beamstop y-axis',
                                    type=none_or(float), settable=True,
                                    default=400),
     }
@@ -161,7 +161,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
 
 
 class DetectorZAxis(HasLimits, BaseSequencer):
-    """Special device for the detector Z axis.
+    """Special device for the detector Z-axis.
 
     Switches HV off before moving.
     """

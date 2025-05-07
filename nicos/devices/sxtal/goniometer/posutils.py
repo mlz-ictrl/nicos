@@ -55,21 +55,21 @@ def directionangle(v1, v2):
 
 
 def Xrot(a, typecode='d'):
-    """Construct a rotation matrix rotating 'a' around the X axis"""
+    """Construct a rotation matrix rotating 'a' around the X-axis"""
     sa = np.sin(a)
     ca = np.cos(a)
     return np.array([[1.0, 0, 0], [0, ca, sa], [0, -sa, ca]], typecode)
 
 
 def Yrot(a, typecode='d'):
-    """Construct a rotation matrix rotating 'a' around the Y axis"""
+    """Construct a rotation matrix rotating 'a' around the Y-axis"""
     sa = np.sin(a)
     ca = np.cos(a)
     return np.array([[ca, 0, -sa], [0, 1.0, 0], [sa, 0, ca]], typecode)
 
 
 def Zrot(a, typecode='d'):
-    """Construct a rotation matrix rotating 'a' around the Z axis"""
+    """Construct a rotation matrix rotating 'a' around the Z-axis"""
     sa = np.sin(a)
     ca = np.cos(a)
     return np.array([[ca, sa, 0], [-sa, ca, 0], [0, 0, 1.0]], typecode)

@@ -99,9 +99,9 @@ class LiveDataPanel(PlotPanel):
     * ``liveonlyindex`` (default None) - Enable live only view. This disables
       interaction with the liveDataPanel and only displays the dataset of the
       set index.
-    * ``xscale`` - (default 'binary') - Scaling algorithm for the x axis
+    * ``xscale`` - (default 'binary') - Scaling algorithm for the x-axis
       ('binary' or 'decimal')
-    * ``yscale`` - (default 'binary') - Scaling algorithm for the y axis
+    * ``yscale`` - (default 'binary') - Scaling algorithm for the y-axis
       ('binary' or 'decimal')
     * ``defaults`` (default []) - List of strings representing options to be
       set for every configured plot.
@@ -132,7 +132,7 @@ class LiveDataPanel(PlotPanel):
           'star5', 'star6', 'star7', 'star8', 'vline', 'hline', 'omark'
 
       * ``markersize`` (default 1) - Size of the markers (if displayed).
-      * ``offset`` (default 0) - Offset for the X axis labels of
+      * ``offset`` (default 0) - Offset for the X-axis labels of
         each curve in 1D plots.
       * ``colors`` (default ['blue']) - Color of the marks and lines
         (if displayed).

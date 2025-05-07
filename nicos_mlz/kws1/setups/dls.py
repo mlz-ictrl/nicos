@@ -48,7 +48,7 @@ devices = dict(
         wavelengthmap = {'': 650},
     ),
     dls_trans_x = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'X axis via EPICS',
+        description = 'X-axis via EPICS',
         unit = 'mm',
         fmtstr = '%.2f',
         precision = 0.1,
@@ -58,7 +58,7 @@ devices = dict(
         reseterrorpv = pvprefix + 'm1-ErrRst'
     ),
     dls_trans_y = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'Y axis via EPICS',
+        description = 'Y-axis via EPICS',
         unit = 'mm',
         fmtstr = '%.2f',
         precision = 0.1,

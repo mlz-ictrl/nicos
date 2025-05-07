@@ -165,7 +165,7 @@ Release 3.10.0
   - Large scan metadata will not be transferred to the GUI anymore, speeding
     up transfer of datasets.
 
-  - The point number can now be used as an X axis in scan plots.
+  - The point number can now be used as an X-axis in scan plots.
 
   - The scan plot should now use the same color series for each new graph,
     making them easier to compare.
@@ -498,7 +498,7 @@ Release 3.5.0
 
   - Created a nicer 'About' dialog and removed the 'About Qt' dialog.
 
-  - The scan plot now tries harder to select a proper X axis by determining
+  - The scan plot now tries harder to select a proper X-axis by determining
     the first changing device.
 
   - Show value labels for for multi-value devices in device dialogs.
@@ -1275,7 +1275,7 @@ Release 2.7.0
   - Errors and warnings that result from an action in a GUI window (for example
     the device control window) should now be shown in a dialog box.
 
-  - The X axis to use for the plot can now be selected in the scans window.
+  - The X-axis to use for the plot can now be selected in the scans window.
 
   - Data can now be normalized to any time or monitor column in the scans
     window.

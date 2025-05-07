@@ -46,7 +46,7 @@ def normv(v):
 
 # The matrices below are different from the rotations in singlexlib
 def xRot(a, typecode='d'):
-    """Construct a rotation matrix rotating 'a' around the X axis"""
+    """Construct a rotation matrix rotating 'a' around the X-axis"""
     a *= np.pi/180
     sa = np.sin(a)
     ca = np.cos(a)
@@ -54,7 +54,7 @@ def xRot(a, typecode='d'):
 
 
 def yRot(a, typecode='d'):
-    """Construct a rotation matrix rotating 'a' around the Y axis"""
+    """Construct a rotation matrix rotating 'a' around the Y-axis"""
     a *= np.pi/180
     sa = np.sin(a)
     ca = np.cos(a)
@@ -62,7 +62,7 @@ def yRot(a, typecode='d'):
 
 
 def zRot(a, typecode='d'):
-    """Construct a rotation matrix rotating 'a' around the Z axis"""
+    """Construct a rotation matrix rotating 'a' around the Z-axis"""
     a *= np.pi/180
     sa = np.sin(a)
     ca = np.cos(a)

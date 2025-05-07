@@ -6,7 +6,7 @@ excludes = ['samplechanger']
 
 devices = dict(
     x_m = device('nicos.devices.generic.VirtualMotor',
-        description = 'X axis sample table motor',
+        description = 'X-axis sample table motor',
         abslimits = (0, 200),
         speed = 5,
         visibility = (),
@@ -18,7 +18,7 @@ devices = dict(
         precision = 0.01,
     ),
     y_m = device('nicos.devices.generic.VirtualMotor',
-        description = 'Y axis sample table motor',
+        description = 'Y-axis sample table motor',
         abslimits = (0, 200),
         speed = 5,
         visibility = (),
@@ -30,7 +30,7 @@ devices = dict(
         precision = 0.01,
     ),
     z_m = device('nicos.devices.generic.VirtualMotor',
-        description = 'Z axis sample table motor',
+        description = 'Z-axis sample table motor',
         abslimits = (0, 200),
         speed = 5,
         visibility = (),

@@ -11,7 +11,7 @@ devices = dict(
         unit = 'deg',
     ),
     gonio_top_z = device('nicos.devices.generic.Axis',
-        description = 'Top Z axis with offset',
+        description = 'Top Z-axis with offset',
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (-0.05, 16),
             speed = 0.05,

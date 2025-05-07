@@ -42,7 +42,7 @@ def _tomo(title, angles, moveables, imgsperangle, *detlist, **preset):
 
     if moveables is None:
         # TODO: currently, sry is the common name on nectar and antares for the
-        # sample rotation (phi - around y axis).  Is this convenience function
+        # sample rotation (phi - around y-axis).  Is this convenience function
         # ok, or should it be omitted and added to the instrument custom?
         moveables = (session.getDevice('sry'),)
     elif isinstance(moveables, Moveable):
@@ -179,7 +179,7 @@ def grtomo(nangles, moveables=None, imgsperangle=1, img180=True, startpoint=0,
 
     if moveables is None:
         # TODO: currently, sry is the common name on nectar and antares for the
-        # sample rotation (phi - around y axis).  Is this convenience function
+        # sample rotation (phi - around y-axis).  Is this convenience function
         # ok, or should it be omitted and added to the instrument custom?
         moveables = (session.getDevice('sry'),)
     elif isinstance(moveables, Moveable):

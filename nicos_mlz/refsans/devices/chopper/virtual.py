@@ -79,7 +79,7 @@ class ChopperDisc2(ChopperDisc2Base, ChopperDisc):
 
 
 class ChopperDiscTranslation(ChopperDiscTranslationBase, VirtualMotor):
-    """Position of chopper disc along the x axis.
+    """Position of chopper disc along the x-axis.
 
     Since the chopper disc 2 can be translated, the chopper speed must be low
     enough (around 0, defined by its precision).

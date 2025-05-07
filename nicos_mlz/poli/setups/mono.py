@@ -21,7 +21,7 @@ devices = dict(
         precision = 0.1,
     ),
     x_m = device('nicos.devices.entangle.Motor',
-        description = 'monochromator translation (x axis)',
+        description = 'monochromator translation (x-axis)',
         tangodevice = s7_motor + 'x_m',
         fmtstr = '%.2f',
         abslimits = (0, 100),

@@ -550,19 +550,19 @@ class NicosPlot(DlgUtils):
         raise NotImplementedError
 
     def isLogScaling(self, idx=0):
-        """Return true if main Y axis is logscaled."""
+        """Return true if main Y-axis is logscaled."""
         raise NotImplementedError
 
     def isLogXScaling(self, idx=0):
-        """Return true if X axis is logscaled."""
+        """Return true if X-axis is logscaled."""
         raise NotImplementedError
 
     def setLogScale(self, on):
-        """Set logscale on main Y axis."""
+        """Set logscale on main Y-axis."""
         raise NotImplementedError
 
     def setLogXScale(self, on):
-        """Set logscale on X axis"""
+        """Set logscale on X-axis"""
         raise NotImplementedError
 
     def setSymbols(self, on):

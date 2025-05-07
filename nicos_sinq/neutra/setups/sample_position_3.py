@@ -14,7 +14,7 @@ devices = dict(
         precision = 0.01,
     ),
     sp3_ty_axis = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
-        description = 'Sample Position 3, Translation Y Axis',
+        description = 'Sample Position 3, Translation Y-Axis',
         motorpv = 'SQ:NEUTRA:board1:SP3TY',
         errormsgpv = 'SQ:NEUTRA:board1:SP3TY-MsgTxt',
         precision = 0.01,

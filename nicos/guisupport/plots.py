@@ -209,7 +209,7 @@ class NicosPlotAxes(PlotAxes):
 
 
 class NicosTimePlotAxes(NicosPlotAxes):
-    """Plot axes with automatic sensible formatting of time X axis."""
+    """Plot axes with automatic sensible formatting of time X-axis."""
 
     def __init__(self, viewport, xtick=None, ytick=None, majorx=None,
                  majory=None, drawX=True, drawY=True, slidingwindow=None):

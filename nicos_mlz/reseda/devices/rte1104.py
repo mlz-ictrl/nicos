@@ -39,7 +39,7 @@ class RTE1104(Readable):
         'timescale': Param('Time scale setting',
                            type=float, settable=True, userparam=True,
                            volatile=True, category='general'),
-        'yscale': Param('Y axis scaling',
+        'yscale': Param('Y-axis scaling',
                         type=float, settable=True, userparam=True,
                         volatile=True, category='general'),
     }

@@ -415,12 +415,12 @@ class NewViewDialog(DlgUtils, QDialog):
             try:
                 float(self.customYFrom.text())
             except ValueError:
-                self.showError('You have to input valid y axis limits.')
+                self.showError('You have to input valid y-axis limits.')
                 return
             try:
                 float(self.customYTo.text())
             except ValueError:
-                self.showError('You have to input valid y axis limits.')
+                self.showError('You have to input valid y-axis limits.')
                 return
         return QDialog.accept(self)
 
