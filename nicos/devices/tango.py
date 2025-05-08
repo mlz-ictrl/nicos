@@ -151,11 +151,11 @@ def check_tango_host_connection(address, timeout=3.0):
         raise CommunicationError(str(e)) from None
 
 
-class PyTangoDevice(HasCommunication):
+class PyTangoMixin(HasCommunication):
     """
-    Basic PyTango device.
+    Basic PyTango communication mixin.
 
-    The PyTangoDevice uses an internal tango.DeviceProxy but wraps command
+    The PyTangoMixin uses an internal tango.DeviceProxy but wraps command
     execution and attribute operations with logging and exception mapping.
     """
 
@@ -167,9 +167,6 @@ class PyTangoDevice(HasCommunication):
         'tangotimeout': Param('TANGO network timeout for this process',
                               unit='s', type=floatrange(0.0, 1200), default=3,
                               settable=True, preinit=True),
-    }
-    parameter_overrides = {
-        'unit': Override(mandatory=False),
     }
 
     tango_status_mapping = {
@@ -236,14 +233,6 @@ class PyTangoDevice(HasCommunication):
         propnames = props[::2]
         return props[2 * propnames.index(name) + 1] \
             if name in propnames else None
-
-    def doReadUnit(self):
-        """For devices with a unit attribute."""
-        attrInfo = self._dev.attribute_query('value')
-        # prefer configured unit if nothing is set on the Tango device
-        if attrInfo.unit == 'No unit':
-            return self._config.get('unit', '')
-        return attrInfo.unit
 
     def _createPyTangoDevice(self, address):  # pylint: disable=method-hidden
         """
@@ -363,3 +352,22 @@ class PyTangoDevice(HasCommunication):
         fulldesc = self._tango_exc_desc(err)
         self.log.debug('[Tango] error: %s', fulldesc)
         raise exclass(self, fulldesc)
+
+
+class PyTangoDevice(PyTangoMixin):
+    """
+    Basic PyTango device mixin.
+
+    The PyTangoDevice extends the PyTangoMixin by default unit handling.
+    """
+    parameter_overrides = {
+        'unit': Override(mandatory=False),
+    }
+
+    def doReadUnit(self):
+        """For devices with a unit attribute."""
+        attrInfo = self._dev.attribute_query('value')
+        # prefer configured unit if nothing is set on the Tango device
+        if attrInfo.unit == 'No unit':
+            return self._config.get('unit', '')
+        return attrInfo.unit

@@ -28,10 +28,10 @@ from nicos.core import SIMULATION, Attach, CommunicationError, Device, \
     HardwareError, MoveError, Param, Readable, floatrange, intrange, oneof, \
     oneofdict, status, usermethod
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
-from nicos.devices.tango import PyTangoDevice
+from nicos.devices.tango import PyTangoMixin
 
 
-class TangoSerial(PyTangoDevice, Device):
+class TangoSerial(PyTangoMixin, Device):
 
     def communicate(self, what):
         return self._dev.Communicate(what)

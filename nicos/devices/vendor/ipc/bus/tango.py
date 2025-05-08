@@ -25,12 +25,12 @@
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
 from nicos.core import SIMULATION
-from nicos.devices.tango import PyTangoDevice
+from nicos.devices.tango import PyTangoMixin
 
 from .base import IPCModBusRS232
 
 
-class IPCModBusTango(PyTangoDevice, IPCModBusRS232):
+class IPCModBusTango(PyTangoMixin, IPCModBusRS232):
 
     def doInit(self, mode):
         IPCModBusRS232.doInit(self, mode)

@@ -44,7 +44,7 @@ from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, ImageChannelMixin, PassiveChannel, \
     TimerChannelMixin
-from nicos.devices.tango import PyTangoDevice
+from nicos.devices.tango import PyTangoDevice, PyTangoMixin
 from nicos.utils import squeeze
 
 # Only export Nicos devices for 'from nicos.device.entangle import *'
@@ -525,7 +525,7 @@ class PartialDigitalOutput(NamedDigitalOutput):
         return True, ''
 
 
-class StringIO(PyTangoDevice, Device):
+class StringIO(PyTangoMixin, Device):
     """
     StringIO abstracts communication over a hardware bus that sends and
     receives strings.

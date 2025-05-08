@@ -8,6 +8,8 @@ Tango classes
 Basic Tango binding (PyTango)
 -----------------------------
 
+.. autoclass:: PyTangoMixin()
+
 .. autoclass:: PyTangoDevice()
 
 MLZ interface bindings (Entangle)
