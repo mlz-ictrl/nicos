@@ -496,3 +496,20 @@ def test_vgap_open(session):
     assert g._attached_bottom() == -0.5
     assert g._attached_top() == 0.5
     assert raises(LimitError, g.height.start, 0)
+
+
+def test_two_axis_slit(session):
+    slit = session.getDevice('taslit')
+    assert slit() == [0, 0]
+    assert slit.horizontal() == 0
+    assert slit.vertical() == 0
+
+    slit.maw((1, 1))
+
+    slit.reset()
+
+    assert raises(InvalidValueError, slit.isAllowed, (1, 2, 3, 4))
+    assert not slit.isAllowed([-1, 1])[0]
+    assert raises(LimitError, slit.move, [-1, 1])
+
+    slit.reference()
