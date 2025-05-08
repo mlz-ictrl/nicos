@@ -717,7 +717,7 @@ class Plot(grPlot):
     def drawGR(self):
         axes = self.getAxes(0)
         if axes.yLabelLength > 3:
-            vp = list(self._initviewport)
+            vp = list(self.viewport)
             vp[0] = self._initviewport[0] + (axes.yLabelLength - 3) * 0.015
             self.viewport = vp
             self.offsetYLabel = - (axes.yLabelLength - 3) * 0.015
