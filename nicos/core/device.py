@@ -155,7 +155,7 @@ class DeviceMeta(DeviceMixinMeta):
                                        'be used' % (name, ))
 
             # process overrides
-            override = newtype.parameter_overrides.get(param)
+            override = newtype.parameter_overrides.pop(param, None)
             if override:
                 info = newtype.parameters[param] = override.apply(info)
 
@@ -248,6 +248,13 @@ class DeviceMeta(DeviceMixinMeta):
             # create a property and attach to the new device class
             setattr(newtype, param,
                     property(getter, setter, doc=info.formatDoc()))
+
+        if newtype.parameter_overrides:
+            raise ProgrammingError('class %r contains overrides for '
+                                   'non-existing nicos parameters: %r' %
+                                   (f"{attrs['__module__']}.{attrs['__qualname__']}",
+                                    ', '.join(newtype.parameter_overrides)))
+
         del newtype.parameter_overrides
         if 'parameter_overrides' in attrs:
             del attrs['parameter_overrides']
