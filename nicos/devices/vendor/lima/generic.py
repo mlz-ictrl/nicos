@@ -27,8 +27,8 @@ import time
 import numpy
 
 from nicos.core import INTERRUPTED, SIMULATION, ArrayDesc, AutoDevice, \
-    Device, HardwareError, NicosError, Param, none_or, oneof, status, \
-    tangodev, tupleof
+    Device, HardwareError, NicosError, Override, Param, none_or, oneof, \
+    status, tangodev, tupleof
 from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin, \
     PassiveChannel, TimerChannelMixin
 from nicos.devices.tango import PyTangoDevice
@@ -52,6 +52,10 @@ class LimaCCDTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
         '_stoptime':  Param('Cached counting start time',
                             type=float, default=0, settable=False,
                             internal=True),
+    }
+
+    parameter_overrides = {
+        'preselection': Override(type=float),
     }
 
     def doWritePreselection(self, value):

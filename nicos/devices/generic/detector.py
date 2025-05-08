@@ -152,7 +152,7 @@ class ActiveChannel(PassiveChannel):
     """
 
     parameters = {
-        'preselection': Param('Preset value for this channel', type=float,
+        'preselection': Param('Preset value for this channel', type=int,
                               settable=True),
     }
 
@@ -343,7 +343,6 @@ class CounterChannelMixin(DeviceMixinBase):
     parameter_overrides = {
         'unit':         Override(default='cts'),
         'fmtstr':       Override(default='%d'),
-        'preselection': Override(type=int),
     }
 
     def valueInfo(self):
@@ -369,7 +368,6 @@ class ImageChannelMixin(DeviceMixinBase):
     parameter_overrides = {
         'unit':         Override(default='cts'),
         'fmtstr':       Override(default='%d'),
-        'preselection': Override(type=int),
     }
 
     # set this to an ArrayDesc instance, either as a class attribute

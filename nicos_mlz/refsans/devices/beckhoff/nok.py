@@ -971,7 +971,6 @@ class DoubleMotorBeckhoffNOK(HasAutoDevices, DoubleMotorBeckhoff):
     }
 
     parameter_overrides = {
-        'precision': Override(type=floatrange(0, 100)),
         'masks': Override(type=dictwith(**{name: float for name in MODES}),
                           unit='', mandatory=True),
         'address': Override(mandatory=False),

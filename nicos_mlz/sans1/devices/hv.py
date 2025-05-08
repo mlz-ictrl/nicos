@@ -26,8 +26,8 @@
 
 from time import localtime, strftime, time as currenttime
 
-from nicos.core import Attach, HasPrecision, InvalidValueError, Moveable, \
-    Override, Param, PositionError, Readable, listof, status, tupleof
+from nicos.core import Attach, HasLimits, HasPrecision, InvalidValueError, \
+    Moveable, Override, Param, PositionError, Readable, listof, status, tupleof
 from nicos.devices.generic.sequence import BaseSequencer, \
     LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, SeqSleep
 from nicos.devices.generic.switcher import Switcher
@@ -69,7 +69,7 @@ class VoltageSwitcher(Switcher):
         return move_status
 
 
-class HV(BaseSequencer):
+class HV(HasLimits, BaseSequencer):
     valuetype = float
     attached_devices = {
         'supply':     Attach('NICOS Device for the highvoltage supply',

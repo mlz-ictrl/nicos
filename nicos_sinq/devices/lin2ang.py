@@ -24,7 +24,7 @@
 import math
 
 from nicos.core.device import Moveable
-from nicos.core.params import Attach, Override, Param
+from nicos.core.params import Attach, Param
 from nicos.devices.abstract import TransformedMoveable
 
 
@@ -45,10 +45,6 @@ class Lin2Ang(TransformedMoveable):
 
     attached_devices = {
         'translation': Attach('Translation motor', Moveable),
-    }
-
-    parameter_overrides = {
-        'mapping': Override(mandatory=False),
     }
 
     valuetype = float

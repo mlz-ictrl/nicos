@@ -22,7 +22,7 @@
 # *****************************************************************************
 from numpy import interp
 
-from nicos.core import Attach, Moveable, Override, Param, listof
+from nicos.core import Attach, Moveable, Param, listof
 from nicos.core.errors import ConfigurationError
 from nicos.devices.abstract import TransformedMoveable
 
@@ -46,10 +46,6 @@ class InterpolatedMotor(TransformedMoveable):
     attached_devices = {
         'raw_motor': Attach('Motor to drive when moving this logical motor',
                             Moveable),
-    }
-
-    parameter_overrides = {
-        'mapping': Override(mandatory=False),
     }
 
     valuetype = float

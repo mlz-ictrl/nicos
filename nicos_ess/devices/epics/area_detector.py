@@ -537,7 +537,6 @@ class AreaDetectorCollector(Detector):
             userparam=True
         ),
         'pollinterval': Override(default=1, userparam=True, settable=False),
-        'statustopic': Override(default='', mandatory=False),
     }
 
     _presetkeys = set()

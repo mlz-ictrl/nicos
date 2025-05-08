@@ -24,7 +24,7 @@
 
 from nicos import session
 from nicos.core import SIMULATION
-from nicos.core.params import Override, Param, floatrange, intrange, none_or
+from nicos.core.params import Override, Param, intrange, none_or
 from nicos.devices.abstract import CanReference
 from nicos.devices.vendor.ipc import Motor as IPCMotor
 
@@ -41,7 +41,6 @@ class NOKMotorIPC(CanReference, IPCMotor):
     parameter_overrides = {
         'zerosteps': Override(default=500000, mandatory=False),
         'unit': Override(default='mm', mandatory=False),
-        'backlash': Override(type=floatrange(0.0, 0.0)),  # only 0 is allowed!
         'speed': Override(default=10),
         'accel': Override(default=10),
         'slope': Override(default=2000),

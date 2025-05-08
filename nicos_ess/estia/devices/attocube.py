@@ -184,8 +184,6 @@ class IDS3010Control(EpicsMoveable):
                      userparam=False),
         'target':
             Override(userparam=False),
-        'statuspv':
-            Override(mandatory=False),
     }
 
     valuetype = int

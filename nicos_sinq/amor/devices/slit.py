@@ -331,10 +331,6 @@ class DivergenceAperture(HasAutoDevices, Device):
         'distance': Attach('Sample x position', Moveable),
     }
 
-    parameter_overrides = {
-        'unit': Override(mandatory=False, default='degree'),
-    }
-
     def doInit(self, mode):
 
         for name, cls in [

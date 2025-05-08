@@ -35,7 +35,6 @@ class McStasSimulation(BaseSimulation):
 
     parameter_overrides = {
         'mcstasprog': Override(default='biodiff_fast'),
-        'writedelay': Override(default=0.3),
     }
 
     attached_devices = {

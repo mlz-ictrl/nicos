@@ -40,11 +40,8 @@ class KnauerValve(EpicsDevice, CanReference, Moveable):
 
     parameter_overrides = {
         # readpv and writepv are determined automatically from the base PV
-        'readpv': Override(mandatory=False, userparam=False, settable=False),
-        'writepv': Override(mandatory=False, userparam=False, settable=False),
         'unit': Override(mandatory=False, settable=False, default=''),
         'fmtstr': Override(default='%d'),
-        'mapping': Override(mandatory=False, settable=False, userparam=False),
     }
 
     _record_fields = {

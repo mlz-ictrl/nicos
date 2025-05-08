@@ -285,6 +285,7 @@ class VirtualTimer(VirtualChannel):
 
     parameter_overrides = {
         'unit': Override(default='s'),
+        'preselection': Override(type=float),
     }
 
     is_timer = True

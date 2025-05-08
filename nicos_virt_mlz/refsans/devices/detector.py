@@ -43,7 +43,6 @@ class McStasSimulation(BaseSimulation):
     """
 
     parameter_overrides = {
-        'size': Override(default=(229, 234)),
         'mcstasprog': Override(default='REFSANS_NICOS'),
     }
 

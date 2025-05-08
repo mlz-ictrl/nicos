@@ -637,6 +637,11 @@ class TimerChannel(TimerChannelMixin, DetectorChannel):
     """
     Detector channel to measure time.
     """
+
+    parameter_overrides = {
+        'preselection': Override(type=float),
+    }
+
     def doRead(self, maxage=0):
         return self._dev.value
 

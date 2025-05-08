@@ -104,7 +104,6 @@ class SINQProtonMonitor(CounterChannelMixin, EpicsActiveChannel):
     parameter_overrides = {
         'readpv': Override(mandatory=False),
         'presetpv': Override(mandatory=False),
-        'startpv': Override(mandatory=False),
     }
 
     _presetmap = {'p', 'counter'}
