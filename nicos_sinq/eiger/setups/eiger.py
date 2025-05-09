@@ -48,7 +48,7 @@ devices = dict(
         devclass = 'nicos.core.device.Moveable'
     ),
     sslit = device('nicos.devices.generic.slit.Slit',
-        description = 'Sample slilit with left, right, bottom and '
+        description = 'Sample slit with left, right, bottom and '
         'top motors',
         opmode = '4blades',
         left = 'msl',
