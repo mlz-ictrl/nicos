@@ -433,8 +433,9 @@ class SecNodeDevice(Readable):
             self.log.error('can not remove devices %s', list(self._devices))
 
     def _get_prefix(self):
-        if not self._secnode:
-            return None
+        if self._secnode is None:
+            # at least when prefix does not contain '$', this works in dry run
+            return self.prefix
         equipment_name = clean_identifier(self._secnode.nodename).lower()
         return self.prefix.replace('$', equipment_name)
 
@@ -453,12 +454,13 @@ class SecNodeDevice(Readable):
 
         and intended devices names using the given prefix
         """
-        prefix = self._get_prefix()
-        if prefix is None:
+        if self._sim_intercept:
+            return
+        if self._secnode is None:
             self.log.error('secnode is not connected')
             return
         items = [
-            (prefix + m, m,
+            (self._get_prefix() + m, m,
              mod_desc.get(
                  'properties', {}).get('description', '').split('\n')[0])
             for m, mod_desc in self._secnode.modules.items()]
@@ -774,7 +776,11 @@ class SecopDevice(Device):
         # get config from SECNode
         setup_info = secnodedev.get_setup_info()
 
-        seccfg = setup_info[config['secop_module']][1]
+        # The key in setup_info is the mapped/prefixed name a device gets when
+        # dynamically created. With static creation, this might differ from
+        # the 'name' argument.
+        dynamic_devname = secnodedev._get_device_name(config['secop_module'])
+        seccfg = setup_info[dynamic_devname][1]
         devcfg = merge_dicts(config, seccfg)
         add_mixins = devcfg.pop('mixins', [])
 
@@ -1036,6 +1042,8 @@ class SecopDevice(Device):
                        indicated by maxage
         :return: the validated value, after doRead<param> machinery
         """
+        if self._sim_intercept:
+            return self._cache.get(self, param, None)
         try:
             return self._read(param, maxage, True)
         finally:
