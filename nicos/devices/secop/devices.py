@@ -1371,7 +1371,7 @@ class SecopHasLimits(HasLimits):
     }
 
     def doReadAbslimits(self):
-        dt = self._config.get('target_datainfo')
+        dt = self._config.get('target_datainfo', {})
         return dt.get('min', float('-inf')), dt.get('max', float('inf'))
 
     def doReadUserlimits(self):
