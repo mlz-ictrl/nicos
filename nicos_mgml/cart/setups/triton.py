@@ -3,6 +3,8 @@ group = 'basic'
 
 includes = ['alias_T']
 
+excludes = ['ls372']
+
 tango_base = 'tango://localhost:10000/triton/'
 
 devices = dict(
