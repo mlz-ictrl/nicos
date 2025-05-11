@@ -27,7 +27,7 @@ import html
 from slack import WebClient as slackwebclient
 from slack.errors import SlackApiError
 
-from nicos.core import Override, Param, secret
+from nicos.core import SIMULATION, Override, Param, secret
 from nicos.devices.notifiers import Notifier
 
 
@@ -53,6 +53,8 @@ class Slacker(Notifier):
     }
 
     def doInit(self, mode):
+        if mode == SIMULATION:
+            return
         secret_token = self.authtoken.lookup('Slack API token not in keystore')
         self._slack = slackwebclient(secret_token)
 
