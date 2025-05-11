@@ -129,6 +129,7 @@ Instrument-specific code was contributed by:
 * Jochen Stahn <jochen.stahn@psi.ch>
 * Alexander Steffens <a.steffens@fz-juelich.de>
 * Iwan Sumirat <sumirat@batan.go.id>
+* Ran Tang <ran.tang@frm2.tum.de>
 * Henrik Thoma <henrik.thoma@frm2.tum.de>
 * Lukas Vogl <lukas.vogl@frm2.tum.de>
 * Michael Wagener <m.wagener@fz-juelich.de>
