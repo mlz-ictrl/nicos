@@ -2,7 +2,7 @@ description = 'Reading Keithley multimeter as a counter'
 
 group = 'optional'
 
-includes = ['busk6221 ']
+includes = ['busk6221']
 
 excludes = ['delta']
 
