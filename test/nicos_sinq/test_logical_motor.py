@@ -55,11 +55,11 @@ class TestLogicalMotors:
         self.a2rot.maw(40)
         self.d2l.maw(-58.5)
         self.d2r.maw(-40.5)
-        assert(abs(self.a2.read(0) - 40) < .01)
-        assert(abs(self.a2w.read(0) - 6) < .01)
+        assert abs(self.a2.read(0) - 40) < .01
+        assert abs(self.a2w.read(0) - 6) < .01
 
         for log, pos in zip(logical_targets, motor_positions):
             maw(self.a2, log[0], self.a2w, log[1])
-            assert(abs(self.a2rot.read(0) - pos[0]) < .01)
-            assert(abs(self.d2l.read(0) - pos[1]) < .01)
-            assert(abs(self.d2r.read(0) - pos[2]) < .01)
+            assert abs(self.a2rot.read(0) - pos[0]) < .01
+            assert abs(self.d2l.read(0) - pos[1]) < .01
+            assert abs(self.d2r.read(0) - pos[2]) < .01

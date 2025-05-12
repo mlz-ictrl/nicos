@@ -53,7 +53,7 @@ def test_cone(session, coneang, om, stt, chi, phi):
     phik = session.getDevice('phi')
 
     cone.maw(coneang)
-    assert (abs(omk.read(0) - om) < .01)
-    assert (abs(sttk.read(0) - stt) < .01)
-    assert (abs(chik.read(0) - chi) < .01)
-    assert (abs(phik.read(0) - phi) < .01)
+    assert abs(omk.read(0) - om) < .01
+    assert abs(sttk.read(0) - stt) < .01
+    assert abs(chik.read(0) - chi) < .01
+    assert abs(phik.read(0) - phi) < .01

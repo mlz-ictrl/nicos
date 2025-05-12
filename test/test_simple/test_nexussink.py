@@ -93,11 +93,11 @@ class TestNexusSink:
         with h5py.File(path.join(session.experiment.datapath,
                                  f'test{year}n000045.hdf'), 'r') as fin:
             att = fin.attrs['instrument']
-            assert (att == b'test')
+            assert att == b'test'
 
             g = fin['entry']
             att = g.attrs['NX_class']
-            assert (att == b'NXentry')
+            assert att == b'NXentry'
 
     def test_Datasets(self, session):
         template = {
@@ -120,17 +120,17 @@ class TestNexusSink:
         with h5py.File(path.join(session.experiment.datapath,
                                  f'test{year}n000047.hdf'), 'r') as fin:
             ds = fin['entry/name']
-            assert (ds[()] == b'GurkenTitle')
+            assert ds[()] == b'GurkenTitle'
 
             ds = fin['entry/title']
-            assert (ds[()] == b'Default title')
+            assert ds[()] == b'Default title'
 
             ds = fin['entry/definition']
-            assert (ds[()] == b'NXmonopd')
+            assert ds[()] == b'NXmonopd'
 
             ds = fin['entry/sry']
-            assert (ds[0] == 23.7)
-            assert (ds.attrs['units'] == b'deg')
+            assert ds[0] == 23.7
+            assert ds.attrs['units'] == b'deg'
 
     def test_Attributes(self, session):
         template = {
@@ -152,9 +152,9 @@ class TestNexusSink:
         with h5py.File(path.join(session.experiment.datapath,
                                  f'test{year}n000048.hdf'), 'r') as fin:
             g = fin['entry']
-            assert (g.attrs['title'] == b'GurkenTitle')
-            assert (g.attrs['title2'] == b'Default title')
-            assert (g.attrs['units'] == b'mm')
+            assert g.attrs['title'] == b'GurkenTitle'
+            assert g.attrs['title2'] == b'Default title'
+            assert g.attrs['units'] == b'mm'
 
     def test_Scan(self, session):
         template = {
@@ -178,23 +178,23 @@ class TestNexusSink:
                                  f'test{year}n000049.hdf'), 'r') as fin:
 
             ds = fin['entry/sry']
-            assert (len(ds) == 5)
+            assert len(ds) == 5
 
             ds = fin['entry/time']
-            assert (len(ds) == 5)
+            assert len(ds) == 5
             ds = fin['entry/mon']
-            assert (len(ds) == 5)
+            assert len(ds) == 5
 
             ds = fin['entry/counts']
-            assert (len(ds) == 5)
+            assert len(ds) == 5
 
             ds = fin['data/sry']
-            assert (len(ds) == 5)
-            assert (ds[0] == 0)
-            assert (ds[1] == 1)
-            assert (ds[2] == 2)
-            assert (ds[3] == 3)
-            assert (ds.attrs['target'] == b'/entry/sry')
+            assert len(ds) == 5
+            assert ds[0] == 0
+            assert ds[1] == 1
+            assert ds[2] == 2
+            assert ds[3] == 3
+            assert ds.attrs['target'] == b'/entry/sry'
 
     def test_Detector(self, session):
         template = {
@@ -216,7 +216,7 @@ class TestNexusSink:
             ds = fin['data/time']
             ds = fin['data/mon']
             ds = fin['data/counts']
-            assert (ds.attrs['signal'] == 1)
+            assert ds.attrs['signal'] == 1
 
     def test_Link(self, session):
         template = {
@@ -234,12 +234,12 @@ class TestNexusSink:
         with h5py.File(path.join(session.experiment.datapath,
                                  f'test{year}n000051.hdf'), 'r') as fin:
             ds = fin['entry/sry']
-            assert (ds[0] == 77.7)
+            assert ds[0] == 77.7
 
             ds = fin['data/srlink']
-            assert (ds[0] == 77.7)
+            assert ds[0] == 77.7
 
-            assert (ds.attrs['target'] == b'/entry/sry')
+            assert ds.attrs['target'] == b'/entry/sry'
 
     def test_times(self, session):
         p = re.compile(r'^\d{4}(-\d{2}){2} \d{2}(:\d{2}){2}.\d{3}$')

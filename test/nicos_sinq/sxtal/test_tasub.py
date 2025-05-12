@@ -58,9 +58,9 @@ def test_Cell_init():
     cell = Cell()  # Default cell object
 
     for length in ['a', 'b', 'c']:
-        assert(getattr(cell, length) == 1.0)
+        assert getattr(cell, length) == 1.0
     for length in ['alpha', 'beta', 'gamma']:
-        assert(getattr(cell, length) == 90.0)
+        assert getattr(cell, length) == 90.0
 
     nonStandard = {'a': 10, 'b': 11, 'c': 0.2,
                    'alpha': 60, 'beta': 90.1,
@@ -69,12 +69,12 @@ def test_Cell_init():
     nonStandardCell = Cell(**nonStandard)
 
     for key, value in nonStandard.items():
-        assert(getattr(nonStandardCell, key) == value)
+        assert getattr(nonStandardCell, key) == value
 
     cellString = str(cell)
     wantedString = 'cell.Cell(a=1.0, b=1.0, c=1.0, ' \
                    'alpha=90.0, beta=90.0, gamma=90.0)'
-    assert(cellString == wantedString)
+    assert cellString == wantedString
 
 
 def test_Cell_reciprocal():
@@ -84,9 +84,9 @@ def test_Cell_reciprocal():
     defaultCell = Cell()
     reciprocal = directToReciprocalLattice(defaultCell)
     for length in ['a', 'b', 'c']:
-        assert(np.all(np.isclose(getattr(reciprocal, length), 2*np.pi)))
+        assert np.all(np.isclose(getattr(reciprocal, length), 2*np.pi))
     for length in ['alpha', 'beta', 'gamma']:
-        assert(np.all(np.isclose(getattr(reciprocal, length), 90.0)))
+        assert np.all(np.isclose(getattr(reciprocal, length), 90.0))
 
     # Back and forth is the same
     defaultCell2 = reciprocal.reciprocalToDirectLattice()
@@ -105,7 +105,7 @@ def test_Cell_BMatrix():
     B = lattice.calculateBMatrix()
     print(B)
     print(BFromSix)
-    assert(np.all(np.isclose(B, BFromSix, atol=1e-9)))
+    assert np.all(np.isclose(B, BFromSix, atol=1e-9))
 
 
 def test_Cell_CellFromUBMatrix():
@@ -129,12 +129,12 @@ def test_Cell_CellFromUBMatrix():
     lattice2 = Cell(UB=B)
     print(lattice)
     print(lattice2)
-    assert(lattice == lattice2)
+    assert lattice == lattice2
 
 
 def test_Sign():
     values = 1-2*np.random.rand(20)
-    assert(np.all(np.sign(values) == Sign(values)))
+    assert np.all(np.sign(values) == Sign(values))
 
 
 def test_Sind():
@@ -143,7 +143,7 @@ def test_Sind():
     radian = np.sin(values)
     degree = Sind(values*180.0/np.pi)
 
-    assert(np.all(np.isclose(radian, degree)))
+    assert np.all(np.isclose(radian, degree))
 
 
 def test_Cosd():
@@ -152,7 +152,7 @@ def test_Cosd():
     radian = np.cos(values)
     degree = Cosd(values*180.0/np.pi)
 
-    assert(np.all(np.isclose(radian, degree)))
+    assert np.all(np.isclose(radian, degree))
 
 
 def test_Tand():
@@ -160,7 +160,7 @@ def test_Tand():
     radian = np.tan(values)
     degree = Tand(values*180.0/np.pi)
 
-    assert(np.all(np.isclose(radian, degree)))
+    assert np.all(np.isclose(radian, degree))
 
 
 def test_Cotd():
@@ -169,7 +169,7 @@ def test_Cotd():
     radian = np.reciprocal(np.tan(values))
     degree = Cotd(values*180.0/np.pi)
 
-    assert(np.all(np.isclose(radian, degree)))
+    assert np.all(np.isclose(radian, degree))
 
 
 def test_Atand():
@@ -179,7 +179,7 @@ def test_Atand():
     radian = np.arctan(values)*180.0/np.pi
     degree = Atand(values)
 
-    assert(np.all(np.isclose(radian, degree)))
+    assert np.all(np.isclose(radian, degree))
 
 
 def test_Atand2():
@@ -190,7 +190,7 @@ def test_Atand2():
     radian = np.arctan2(x, y)*180.0/np.pi
     degree = Atand2(x, y)
 
-    assert(np.all(np.isclose(radian, degree)))
+    assert np.all(np.isclose(radian, degree))
 
 
 def test_Asind():
@@ -200,7 +200,7 @@ def test_Asind():
     radian = np.arcsin(values)*180.0/np.pi
     degree = Asind(values)
 
-    assert(np.all(np.isclose(radian, degree)))
+    assert np.all(np.isclose(radian, degree))
 
 
 def test_Acosd():
@@ -210,36 +210,36 @@ def test_Acosd():
     radian = np.arccos(values)*180.0/np.pi
     degree = Acosd(values)
 
-    assert(np.all(np.isclose(radian, degree)))
+    assert np.all(np.isclose(radian, degree))
 
 
 def test_rtan():
-    assert(np.isclose(rtan(1.0, 2.0), 0.463647609))
-    assert(np.isclose(rtan(1.0, -2.0), 2.677945045))
-    assert(np.isclose(rtan(-1.0, 2.0), -0.463647609))
-    assert(np.isclose(rtan(-1.0, -2.0), -2.677945045))
-    assert(np.isclose(rtan(2.0, 1.0), 1.107148718))
-    assert(np.isclose(rtan(2.0, -1.0), 2.034443936))
-    assert(np.isclose(rtan(-2.0, 1.0), -1.107148718))
-    assert(np.isclose(rtan(-2.0, -1.0), -2.034443936))
-    assert(np.isclose(rtan(0.0, 0.0), 0.0))
-    assert(np.isclose(rtan(1.0, 0.0), np.pi/2.0))
-    assert(np.isclose(rtan(-1.0, 0.0), -np.pi/2.0))
+    assert np.isclose(rtan(1.0, 2.0), 0.463647609)
+    assert np.isclose(rtan(1.0, -2.0), 2.677945045)
+    assert np.isclose(rtan(-1.0, 2.0), -0.463647609)
+    assert np.isclose(rtan(-1.0, -2.0), -2.677945045)
+    assert np.isclose(rtan(2.0, 1.0), 1.107148718)
+    assert np.isclose(rtan(2.0, -1.0), 2.034443936)
+    assert np.isclose(rtan(-2.0, 1.0), -1.107148718)
+    assert np.isclose(rtan(-2.0, -1.0), -2.034443936)
+    assert np.isclose(rtan(0.0, 0.0), 0.0)
+    assert np.isclose(rtan(1.0, 0.0), np.pi/2.0)
+    assert np.isclose(rtan(-1.0, 0.0), -np.pi/2.0)
 
     x, y = 10*(1-2*np.random.rand(2))
     radians = rtan(y, x)
     degrees = Rtand(y, x)
-    assert(np.isclose(np.deg2rad(degrees), radians))
+    assert np.isclose(np.deg2rad(degrees), radians)
 
 
 def test_energyToK():
     energy = 5.00
     K = energyToK(energy)
     print(K)
-    assert (np.isclose(K, 1.553424415003))  # 1.5533785355359282))
+    assert np.isclose(K, 1.553424415003)  # 1.5533785355359282
 
     energy2 = KToEnergy(K)
-    assert (np.isclose(energy2, energy))
+    assert np.isclose(energy2, energy)
 
 
 def test_tasReflectionToHC():
@@ -254,7 +254,7 @@ def test_tasReflectionToHC():
 
     result = np.array([+0.434561180, -0.005347733, -0.102040816]) * 2 * np.pi
 
-    assert (np.all(np.isclose(hc, result)))
+    assert np.all(np.isclose(hc, result))
 
 
 def test_tasReflection_initialization():
@@ -269,7 +269,7 @@ def test_tasReflection_initialization():
                      'sample_two_theta': 60.6,
                      'sgl': 0.1, 'sgu': -0.1,
                      'analyzer_two_theta': 50.0}.items():
-        assert (np.isclose(getattr(tR, key), val))
+        assert np.isclose(getattr(tR, key), val)
 
     qe = tasQEPosition(1.25, 2.0, -3, 2, -0, 1.2)
     angles = tR.angles
@@ -280,12 +280,12 @@ def test_tasReflection_initialization():
     qe2 = tR2.qe
     for key in ['monochromator_two_theta', 'a3', 'sample_two_theta',
                 'sgl', 'sgu', 'analyzer_two_theta']:
-        assert (np.isclose(getattr(angles2, key), getattr(angles, key)))
+        assert np.isclose(getattr(angles2, key), getattr(angles, key))
 
     for key, val in {'ki': 1.25, 'kf': 2.0,
                      'qh': -3, 'qk': 2, 'ql': -0, 'qm': 1.2}.items():
-        assert (np.isclose(getattr(qe, key), val))
-        assert (np.isclose(getattr(qe, key), getattr(qe2, key)))
+        assert np.isclose(getattr(qe, key), val)
+        assert np.isclose(getattr(qe, key), getattr(qe2, key))
 
     with pytest.raises(AttributeError):
         # pylint: disable=pointless-statement
@@ -299,13 +299,13 @@ def test_calcTheta():
     kf = ki
     tTheta = 90.0
     theta = calcTheta(ki, kf, tTheta)
-    assert (np.isclose(theta, 0.5 * tTheta))
+    assert np.isclose(theta, 0.5 * tTheta)
 
     ThetaSix = 61.969840817
     ki = 2.0
     kf = 1.0
     tTheta = 42.0
-    assert (np.isclose(calcTheta(ki=ki, kf=kf, two_theta=tTheta), ThetaSix))
+    assert np.isclose(calcTheta(ki=ki, kf=kf, two_theta=tTheta), ThetaSix)
 
 
 def test_tasAngleBetween():
@@ -314,13 +314,13 @@ def test_tasAngleBetween():
     v3 = np.array([1, 0, 1])
 
     # pylint: disable=arguments-out-of-order
-    assert (np.isclose(tasAngleBetween(v1, v1), 0.0))
-    assert (np.isclose(tasAngleBetween(v1, v2), 90.0))
-    assert (np.isclose(tasAngleBetween(v2, v1), 90.0))
-    assert (np.isclose(tasAngleBetween(v1, v3), 45.0))
-    assert (np.isclose(tasAngleBetween(v3, v1), 45.0))
-    assert (np.isclose(tasAngleBetween(v2, v3), 60.0))
-    assert (np.isclose(tasAngleBetween(v3, v2), 60.0))
+    assert np.isclose(tasAngleBetween(v1, v1), 0.0)
+    assert np.isclose(tasAngleBetween(v1, v2), 90.0)
+    assert np.isclose(tasAngleBetween(v2, v1), 90.0)
+    assert np.isclose(tasAngleBetween(v1, v3), 45.0)
+    assert np.isclose(tasAngleBetween(v3, v1), 45.0)
+    assert np.isclose(tasAngleBetween(v2, v3), 60.0)
+    assert np.isclose(tasAngleBetween(v3, v2), 60.0)
 
 
 def test_tasAngleBetweenReflections():
@@ -331,7 +331,7 @@ def test_tasAngleBetweenReflections():
     r2 = tasReflection(qh=-1.5, qk=1.1, ql=1.0)
 
     angle = tasAngleBetweenReflections(B, r1, r2)
-    assert (np.isclose(angle, 131.993879212))
+    assert np.isclose(angle, 131.993879212)
 
 
 def test_uFromAngles():
@@ -349,7 +349,7 @@ def test_uFromAngles():
 
     for par, res in zip(params, results):
         print(par, res)
-        assert (np.all(np.isclose(uFromAngles(*par), res)))
+        assert np.all(np.isclose(uFromAngles(*par), res))
 
 
 def test_calcTasUVectorFromAngles():
@@ -358,9 +358,9 @@ def test_calcTasUVectorFromAngles():
                        sample_two_theta=-60.6,
                        sgu=0.1, sgl=-0.1, analyzer_two_theta=50.0)
 
-    assert (np.all(np.isclose(calcTasUVectorFromAngles(tR),
-                              np.array([+0.955598330, -0.294664334,
-                                        +0.002182125]))))
+    assert np.all(np.isclose(calcTasUVectorFromAngles(tR),
+                             np.array([+0.955598330, -0.294664334,
+                                       +0.002182125])))
 
 
 def test_tasReflectionToQC():
@@ -369,10 +369,8 @@ def test_tasReflectionToQC():
     B = lattice.calculateBMatrix()
 
     Q = tasReflectionToQC(r, B)
-    assert (np.all(
-        np.isclose(Q,
-                   np.array([+0.377970716, +0.327332242, +0.264317181])
-                   * 2 * np.pi)))
+    assert np.all(np.isclose(
+        Q, np.array([+0.377970716, +0.327332242, +0.264317181]) * 2 * np.pi))
 
 
 def test_calcTwoTheta():
@@ -415,21 +413,19 @@ def test_matFromTwoVectors():
     v1 = np.array([1, 0, 0])
     v2 = np.array([0, 1, 0])
 
-    assert (np.all(np.isclose(matFromTwoVectors(v1, v2),
-                              np.diag([1, -1, 1]))))
+    assert np.all(np.isclose(matFromTwoVectors(v1, v2), np.diag([1, -1, 1])))
 
     v1 = np.array([0, 1, 0])
     v2 = np.array([0, 0, 1])
     result = np.array([[0, 0, 1], [1, 0, 0], [0, -1, 0]])
 
-    assert (np.all(np.isclose(matFromTwoVectors(v1, v2),
-                              result)))
+    assert np.all(np.isclose(matFromTwoVectors(v1, v2), result))
 
     v1 = np.array([0, 1, 2])
     v2 = np.array([0, 2, 1])
     result = np.array([[0, 0, -1], [0.4472136, -0.89442719, 0],
                        [0.89442719, 0.4472136, 0]])
-    assert (np.all(np.isclose(matFromTwoVectors(v1, v2), result)))
+    assert np.all(np.isclose(matFromTwoVectors(v1, v2), result))
 
 
 def test_calcTasUBFromTwoReflections():
@@ -523,7 +519,7 @@ def test_calcTasUBFromTwoReflections():
 
     for lat, r1, r2, UBSix in zip(lattices, r1s, r2s, UBs):
         UB = calcTasUBFromTwoReflections(lat, r1, r2)
-        assert (np.all(np.isclose(UB, UBSix * 2 * np.pi, atol=1e-6)))
+        assert np.all(np.isclose(UB, UBSix * 2 * np.pi, atol=1e-6))
 
 
 def test_calcPlaneNormal():
@@ -586,8 +582,8 @@ def test_makeAuxReflection():
 
     r2 = makeAuxReflection(B, r1, -1.0, [3, 1, -1])
 
-    assert (np.isclose(r2.a3, 35.875022341))
-    assert (np.isclose(r2.sample_two_theta, -64.129182823))
+    assert np.isclose(r2.a3, 35.875022341)
+    assert np.isclose(r2.sample_two_theta, -64.129182823)
 
     with pytest.raises(RuntimeError):
         makeAuxReflection(B, r1, -1.0, [30, 1, -1])
@@ -622,8 +618,8 @@ def test_calcTasQAngles():
         qe = tasQEPosition(ki, kf, R.qh, R.qk, R.ql, qm=qm)
         angles = calcTasQAngles(UB, planeNormal, ss, a3Off, qe)
 
-        assert (np.isclose(a3, angles.a3))
-        assert (np.isclose(a4, angles.sample_two_theta))
+        assert np.isclose(a3, angles.a3)
+        assert np.isclose(a4, angles.sample_two_theta)
 
 
 def test_calcScatteringPlaneNormal():
@@ -631,6 +627,6 @@ def test_calcScatteringPlaneNormal():
     qe2 = tasQEPosition(1.0, 1.0, qh=2.0, qk=-2.0, ql=3.0, qm=2)
     planeNormal = calcScatteringPlaneNormal(qe1, qe2)
     print(planeNormal)
-    assert (np.isclose(np.linalg.norm(planeNormal), 1.0))
-    assert (np.all(np.isclose([0.87287156, 0.21821789, -0.43643578],
-                              planeNormal)))
+    assert np.isclose(np.linalg.norm(planeNormal), 1.0)
+    assert np.all(np.isclose([0.87287156, 0.21821789, -0.43643578],
+                             planeNormal))

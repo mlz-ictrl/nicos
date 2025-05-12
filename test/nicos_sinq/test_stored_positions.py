@@ -47,19 +47,19 @@ def test_stored_positions(session):
     stopo.define_position('p3', v1=1.7, v3=8.4)
 
     stopo.maw('p1')
-    assert(abs(v1.read(0)-2.2) < v1.precision)
-    assert(abs(v3.read(0)-5.5) < v3.precision)
-    assert(stopo.read(0) == 'p1')
+    assert abs(v1.read(0)-2.2) < v1.precision
+    assert abs(v3.read(0)-5.5) < v3.precision
+    assert stopo.read(0) == 'p1'
 
     stopo.maw('p2')
-    assert(abs(v1.read(0)-3.3) < v1.precision)
-    assert(abs(v3.read(0)-7.7) < v3.precision)
-    assert(stopo.read(0) == 'p2')
+    assert abs(v1.read(0)-3.3) < v1.precision
+    assert abs(v3.read(0)-7.7) < v3.precision
+    assert stopo.read(0) == 'p2'
 
     stopo.maw('p3')
-    assert(abs(v1.read(0)-1.7) < v1.precision)
-    assert(abs(v3.read(0)-8.4) < v3.precision)
-    assert(stopo.read(0) == 'p3')
+    assert abs(v1.read(0)-1.7) < v1.precision
+    assert abs(v3.read(0)-8.4) < v3.precision
+    assert stopo.read(0) == 'p3'
 
     with pytest.raises(NicosError):
         stopo.maw('gurke')

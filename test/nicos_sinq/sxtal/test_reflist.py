@@ -31,12 +31,12 @@ def test_getting_reflist(session):
     sample = session.getDevice('Sample')
     # Test for getting the default reflection list
     tst = sample.getRefList()
-    assert(tst is not None)
+    assert tst is not None
     # Test for getting a valid reflection list name
     tst = sample.getRefList('mess')
-    assert(tst is not None)
+    assert tst is not None
     # Test for not getting a reflection list
-    assert(not sample.getRefList('hugo'))
+    assert not sample.getRefList('hugo')
 
 
 def test_adding_reflections(session):
@@ -45,7 +45,7 @@ def test_adding_reflections(session):
     ubl.clear()
     ubl.append(None, (27.8, 55.9, 127., 234), None)
     ubl.append((2, 0, 0), None, None)
-    assert(len(ubl) == 2)
+    assert len(ubl) == 2
 
 
 def test_retrieving_reflections(session):
@@ -62,11 +62,11 @@ def test_retrieving_reflections(session):
 
     r = ubl.get_reflection(0)
     for target, val in zip(angles, r[1]):
-        assert(abs(target - val) < .01)
+        assert abs(target - val) < .01
 
     r = ubl.get_reflection(1)
     for target, val in zip(hkl, r[0]):
-        assert(abs(target - val) < .01)
+        assert abs(target - val) < .01
 
 
 def test_mogrify_reflection(session):
@@ -79,6 +79,6 @@ def test_mogrify_reflection(session):
     ubl.modify_reflection(0, hkl, None, None)
     r = ubl.get_reflection(0)
     for target, val in zip(angles, r[1]):
-        assert (abs(target - val) < .01)
+        assert abs(target - val) < .01
     for target, val in zip(hkl, r[0]):
-        assert(abs(target - val) < .01)
+        assert abs(target - val) < .01

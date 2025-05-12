@@ -43,9 +43,9 @@ def test_bisecting_angles():
     hkl = np.array([-2., -2., 4])
     z1 = ub.dot(hkl)
     theta, chi, phi = z1ToBisecting(1.179, z1)
-    assert(abs(np.rad2deg(theta) - 15.29352) < .01)
-    assert(abs(np.rad2deg(chi) - 129.053604) < .01)
-    assert (abs(np.rad2deg(phi) - 134.191132) < .01)
+    assert abs(np.rad2deg(theta) - 15.29352) < .01
+    assert abs(np.rad2deg(chi) - 129.053604) < .01
+    assert abs(np.rad2deg(phi) - 134.191132) < .01
 
 
 def test_bisecting_z1():
@@ -62,13 +62,13 @@ def test_bisecting_z1():
                           np.deg2rad(134.191132))
 
     for isval, shouldval in zip(z1test, z1):
-        assert(abs(isval - shouldval) < .0001)
+        assert abs(isval - shouldval) < .0001
 
     ubinv = np.linalg.inv(ub)
     hkl = ubinv.dot(z1)
-    assert(abs(hkl[0] - -2.) < .0001)
-    assert (abs(hkl[1] - -2.) < .0001)
-    assert (abs(hkl[2] - 4.) < .0001)
+    assert abs(hkl[0] - -2.) < .0001
+    assert abs(hkl[1] - -2.) < .0001
+    assert abs(hkl[2] - 4.) < .0001
 
 
 def test_psi_rotation():
@@ -76,9 +76,9 @@ def test_psi_rotation():
                                       np.deg2rad(129.0536),
                                       np.deg2rad(134.191132),
                                       np.deg2rad(30.))
-    assert(abs(np.rad2deg(psiom) - 37.374298) < .001)
-    assert (abs(np.rad2deg(psichi) - 123.068192) < .001)
-    assert (abs(np.rad2deg(psiphi) - 170.8209099) < .001)
+    assert abs(np.rad2deg(psiom) - 37.374298) < .001
+    assert abs(np.rad2deg(psichi) - 123.068192) < .001
+    assert abs(np.rad2deg(psiphi) - 170.8209099) < .001
 
 
 def test_z1_to_nb():
@@ -90,9 +90,9 @@ def test_z1_to_nb():
     z1 = ub.dot(hkl)
 
     gamma, om, nu = z1ToNormalBeam(1.179, z1)
-    assert(abs(np.rad2deg(gamma) - 19.3234) < .01)
-    assert (abs(np.rad2deg(om) - -21.0583) < .01)
-    assert (abs(np.rad2deg(nu) - 24.1858) < .01)
+    assert abs(np.rad2deg(gamma) - 19.3234) < .01
+    assert abs(np.rad2deg(om) - -21.0583) < .01
+    assert abs(np.rad2deg(nu) - 24.1858) < .01
 
 
 def test_bi_to_nb():
@@ -100,9 +100,9 @@ def test_bi_to_nb():
                                    np.deg2rad(15.28),
                                    np.deg2rad(129.047),
                                    np.deg2rad(134.188))
-    assert (abs(np.rad2deg(gamma) - 19.3018) < .01)
-    assert (abs(np.rad2deg(om) - 109.458) < .01)
-    assert (abs(np.rad2deg(nu) - 24.1633) < .01)
+    assert abs(np.rad2deg(gamma) - 19.3018) < .01
+    assert abs(np.rad2deg(om) - 109.458) < .01
+    assert abs(np.rad2deg(nu) - 24.1633) < .01
 
 
 def test_nb_to_z1():
@@ -118,7 +118,7 @@ def test_nb_to_z1():
                               np.deg2rad(-21.0583),
                               np.deg2rad(24.1858))
     for isval, shouldval in zip(z1test, z1):
-        assert(abs(isval - shouldval) < .0001)
+        assert abs(isval - shouldval) < .0001
 
 
 def test_ub_calc():
@@ -135,7 +135,7 @@ def test_ub_calc():
     ub = calcUBFromCellAndReflections(cell, r1, r2)
 
     for calc, exp in zip(np.nditer(ub), np.nditer(ub_expected)):
-        assert(abs(calc - exp) < .001)
+        assert abs(calc - exp) < .001
 
 
 def test_ub_nb_calc():
@@ -152,7 +152,7 @@ def test_ub_nb_calc():
     ub = calcNBUBFromCellAndReflections(cell, r1, r2)
 
     for calc, exp in zip(np.nditer(ub), np.nditer(ub_expected)):
-        assert(abs(calc - exp) < .001)
+        assert abs(calc - exp) < .001
 
 
 def test_angle_between_reflections():
@@ -161,7 +161,7 @@ def test_angle_between_reflections():
     r2 = {'h': 0., 'k': 1., 'l': 0.}
     B = calculateBMatrix(cell)
     angle = angleBetweenReflections(B, r1, r2)
-    assert(abs(np.rad2deg(angle) - 97.40) < .01)
+    assert abs(np.rad2deg(angle) - 97.40) < .01
 
 
 @pytest.mark.parametrize('om, chi, phi', [(15.29, 129.05, 134.19), ])

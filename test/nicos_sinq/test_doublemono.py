@@ -36,14 +36,14 @@ def test_doublemono(session):
 
     wl.maw(2.55)
 
-    assert(abs(mth1.read(0)-22.4768) < mth1.precision)
-    assert(abs(mth2.read(0)-22.4768) < mth2.precision)
-    assert(abs(mtx.read(0)-100.1623) < mtx.precision)
+    assert abs(mth1.read(0)-22.4768) < mth1.precision
+    assert abs(mth2.read(0)-22.4768) < mth2.precision
+    assert abs(mtx.read(0)-100.1623) < mtx.precision
 
     wl.maw(4.33)
-    assert(abs(mth1.read(0)-40.4795) < mth1.precision)
-    assert(abs(mth2.read(0)-40.4795) < mth2.precision)
-    assert(abs(mtx.read(0)-15.9119) < mtx.precision)
+    assert abs(mth1.read(0)-40.4795) < mth1.precision
+    assert abs(mth2.read(0)-40.4795) < mth2.precision
+    assert abs(mtx.read(0)-15.9119) < mtx.precision
 
     wl._checkArrival()
 

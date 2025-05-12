@@ -39,19 +39,19 @@ def test_integrate():
     profile = make_peak(40, 20)
     ok, _, intensity, stddev = window_integrate(profile)
     assert ok
-    assert(abs(intensity-482.75) < .2)
-    assert(abs(stddev - 22.17) < .1)
+    assert abs(intensity-482.75) < .2
+    assert abs(stddev - 22.17) < .1
 
 
 def test_no_right():
     profile = make_peak(40, 33)
     ok, reason, _, _ = window_integrate(profile)
-    assert(not ok)
-    assert(reason == 'No right side')
+    assert not ok
+    assert reason == 'No right side'
 
 
 def test_no_left():
     profile = make_peak(40, 8)
     ok, reason, _, _ = window_integrate(profile)
-    assert(not ok)
-    assert(reason == 'No left side')
+    assert not ok
+    assert reason == 'No left side'

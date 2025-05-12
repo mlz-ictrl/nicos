@@ -31,4 +31,4 @@ def test_zebrawl(session, target):
     # The simple test below is enough as wl.read() checks
     # that all Moveables are where they ought to be
     wl.maw(target)
-    assert(abs(wl.read(0) - target) < .01)
+    assert abs(wl.read(0) - target) < .01
