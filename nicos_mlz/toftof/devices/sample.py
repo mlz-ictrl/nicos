@@ -24,6 +24,7 @@
 """TOFTOF specific sample device."""
 
 from nicos.core import Param, oneof
+
 from nicos_mlz.devices.sample import Sample as NicosSample
 
 

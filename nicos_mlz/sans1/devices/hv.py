@@ -27,7 +27,8 @@
 from time import localtime, strftime, time as currenttime
 
 from nicos.core import Attach, HasLimits, HasPrecision, InvalidValueError, \
-    Moveable, Override, Param, PositionError, Readable, listof, status, tupleof
+    Moveable, Override, Param, PositionError, Readable, listof, status, \
+    tupleof
 from nicos.devices.generic.sequence import BaseSequencer, \
     LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, SeqSleep
 from nicos.devices.generic.switcher import Switcher

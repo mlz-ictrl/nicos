@@ -4,7 +4,6 @@ import os
 
 from nicos import config
 
-
 # We're building the installer always with Qt 6.
 os.environ['NICOS_QT'] = '6'
 

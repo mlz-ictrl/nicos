@@ -33,10 +33,10 @@ import pytest
 
 from nicos import config, session as nicos_session
 from nicos.core import MASTER
-from nicos.utils import updateFileCounter, tcpSocket
+from nicos.utils import tcpSocket, updateFileCounter
 
 from test.utils import TestSession, cache_addr, cleanup, daemon_addr, \
-    killSubprocess, startCache, startSubprocess, startElog
+    killSubprocess, startCache, startElog, startSubprocess
 
 
 def pytest_configure(config):

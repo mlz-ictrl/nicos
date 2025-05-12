@@ -65,6 +65,7 @@ from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
 from nicos.utils import createThread, importString, merge_dicts, printTable
+
 try:
     # TODO: remove try/except when frappy is updated on all sites
     from frappy.datatypes import visibility_validator
