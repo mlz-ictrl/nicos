@@ -66,6 +66,9 @@ try:
 except Exception:
     LOCALE_ENCODING = 'utf-8'
 
+# script pseudo file handling
+SCRIPT_PSEUDOFILE= '<script>'
+STRING_PSEUDOFILE= '<string>'
 
 # all builtin number types (useful for isinstance checks)
 number_types = (int, float)
@@ -1146,7 +1149,7 @@ def listExtendedTraceback(exc, seen=None):
         if line:
             item = item + '    %s\n' % line.strip()
         ret.append(item)
-        if filename not in ('<script>', '<string>'):
+        if filename not in (SCRIPT_PSEUDOFILE, STRING_PSEUDOFILE):
             if tb.tb_frame.f_globals.get('__name__', '').startswith('nicos'):
                 ret += formatExtendedFrame(tb.tb_frame)
         tb = tb.tb_next
@@ -1181,7 +1184,7 @@ def formatExtendedStack(frame=None, level=1):
         if line:
             item = item + '    %s\n' % line.strip()
         ret.insert(1, item)
-        if filename != '<script>':
+        if filename != SCRIPT_PSEUDOFILE:
             ret[2:2] = formatExtendedFrame(frame)
         frame = frame.f_back
     return ''.join(ret).rstrip('\n')
@@ -1209,7 +1212,7 @@ def formatScriptError(exc_info, script_name, script_text):
     tb = exc_info[2]
     lineno = None
     while tb is not None:
-        if tb.tb_frame.f_code.co_filename in ('<script>', '<string>'):
+        if tb.tb_frame.f_code.co_filename in (SCRIPT_PSEUDOFILE, STRING_PSEUDOFILE):
             lineno = tb.tb_lineno
         tb = tb.tb_next
     # try to format the line

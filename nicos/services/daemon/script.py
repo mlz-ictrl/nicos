@@ -46,7 +46,7 @@ from nicos.services.daemon.errors import RequestError, ScriptError
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.utils import ScriptQueue, formatScript, \
     parseScript, splitBlocks, updateLinecache
-from nicos.utils import createThread, fixupScript
+from nicos.utils import createThread, fixupScript, SCRIPT_PSEUDOFILE
 from nicos.utils.loggers import INPUT
 
 
@@ -135,7 +135,7 @@ class ScriptRequest(Request):
         session.countloop_request = None  # reset any pause flag from before
         # this is to allow the traceback module to report the script's
         # source code correctly
-        updateLinecache('<script>', self.text)
+        updateLinecache(SCRIPT_PSEUDOFILE, self.text)
         # note: checking session._experiment since using session.experiment
         # would try to create the device, which means you can't execute any
         # command when the experiment fails
@@ -216,7 +216,7 @@ class ScriptRequest(Request):
                 scr = list(session.experiment.scripts)  # convert readonly list
                 scr[self._exp_script_index] = self.text
                 session.experiment.scripts = scr
-            updateLinecache('<script>', text)
+            updateLinecache(SCRIPT_PSEUDOFILE, text)
             self.code, self.blocks = newcode, newblocks
             self.resetSimstate()
             # let the client know of the update
@@ -305,7 +305,7 @@ class ExecutionController(Controller):
         self.last_handler = None    # handler of current exec/eval
         # only one user or admin can issue non-read-only commands
         self.controlling_user = None
-        Controller.__init__(self, break_only_in_filename='<script>')
+        Controller.__init__(self, break_only_in_filename=SCRIPT_PSEUDOFILE)
         self.set_observer(self._observer)
 
     def _setup(self):

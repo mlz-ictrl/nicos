@@ -34,7 +34,7 @@ from threading import Event, Lock
 
 from nicos import session
 from nicos.services.daemon.errors import ScriptError
-from nicos.utils import fixupScript
+from nicos.utils import fixupScript, SCRIPT_PSEUDOFILE
 from nicos.utils.loggers import ACTION, recordToMessage
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
@@ -91,7 +91,7 @@ def parseScript(script, name=None, compilecode=True):
 
     if compilecode:
         def compiler(src):
-            return compile(src + '\n', '<script>', 'single')
+            return compile(src + '\n', SCRIPT_PSEUDOFILE, 'single')
     else:
         def compiler(src):
             return src
@@ -127,7 +127,7 @@ def parseScript(script, name=None, compilecode=True):
 def splitBlocks(text):
     """Parse a script into multiple blocks."""
     codelist = []
-    mod = ast.parse(text + '\n', '<script>')
+    mod = ast.parse(text + '\n', SCRIPT_PSEUDOFILE)
     assert isinstance(mod, ast.Module)
     # construct an individual compilable unit for each block
     for toplevel in mod.body:
@@ -139,7 +139,7 @@ def splitBlocks(text):
         new_mod.body = [toplevel]
         # do not change the name (2nd parameter); the controller
         # depends on that
-        codelist.append(compile(new_mod, '<script>', 'exec'))
+        codelist.append(compile(new_mod, SCRIPT_PSEUDOFILE, 'exec'))
     return codelist, mod.body
 
 
