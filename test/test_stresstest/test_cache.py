@@ -33,7 +33,7 @@ from nicos.devices.cacheclient import CacheError
 from nicos.protocols.cache import FLAG_NO_STORE
 
 from test.utils import TestCacheClient as CacheClient, alt_cache_addr, \
-    killSubprocess, raises, startCache
+    killSubprocess, startCache
 
 session_setup = 'cachestress'
 
@@ -90,7 +90,7 @@ def test_restart(session, setup):
 
     cc.put('testcache', key, testval)
     cachedval_local = cc.get('testcache', key, None)
-    assert raises(CacheError, cc.get_explicit, 'testcache', key, None)
+    pytest.raises(CacheError, cc.get_explicit, 'testcache', key, None)
     sleep(1)
     cache = startCache(alt_cache_addr, setup)
     try:

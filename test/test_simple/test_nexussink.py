@@ -45,8 +45,6 @@ from nicos.utils import updateFileCounter
 
 from test.nexus.TestTemplateProvider import setTemplate
 
-# from test.utils import raises
-
 
 year = time.strftime('%Y')
 
@@ -305,7 +303,7 @@ class TestNexusSink:
         #
         # with log.assert_warns(regex='.*Failed to create external link.*',
         #                      count=1):
-        #    assert raises(Exception, count, 't=1')
+        #    pytest.raises(Exception, count, 't=1')
         count(t=.1)
         for warn in log._warnings:
             if warn.find('Failed to create external link') > 0:

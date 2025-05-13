@@ -27,13 +27,12 @@ import json
 from io import StringIO
 from unittest import mock
 
+import pytest
 from pytest import approx
 
 from nicos.commands.sample import activation, powderfit
 from nicos.commands.scan import cscan
 from nicos.core import UsageError
-
-from test.utils import raises
 
 session_setup = 'tas'
 
@@ -55,9 +54,9 @@ def mock_open_Au(url):
 
 def test_activation_wronginput(log):
     with mock.patch('urllib.request.urlopen', new=mock_open_H2):
-        assert raises(UsageError, activation)  # session has no formula up to now
-        assert raises(UsageError, activation, formula='H2O')
-        assert raises(UsageError, activation, formula='H2O', flux=1e7)
+        pytest.raises(UsageError, activation)  # session has no formula up to now
+        pytest.raises(UsageError, activation, formula='H2O')
+        pytest.raises(UsageError, activation, formula='H2O', flux=1e7)
         with log.assert_warns():
             activation(formula='H2', instrument='IN', mass=1)
 

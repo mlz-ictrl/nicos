@@ -26,11 +26,10 @@
 
 from time import sleep
 
+import pytest
 from pytest import approx
 
 from nicos.core import LimitError, status
-
-from test.utils import raises
 
 session_setup = 'axis'
 
@@ -101,11 +100,11 @@ def test_movement(session):
     assert axis.read() == approx(2)
     assert axis.status()[0] == status.OK
     # moving out of limits?
-    assert raises(LimitError, axis.move, 150)
+    pytest.raises(LimitError, axis.move, 150)
     # simulate a busy motor
     axis._attached_motor.curstatus = (status.BUSY, 'busy')
     # moving while busy?
-    # assert raises(NicosError, axis.move, 10)
+    # pytest.raises(NicosError, axis.move, 10)
     # forwarding of motor status by doStatus()
     assert axis.status(0)[0] == status.BUSY
     axis._attached_motor.curstatus = (status.OK, '')

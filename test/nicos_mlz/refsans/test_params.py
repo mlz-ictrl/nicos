@@ -23,9 +23,9 @@
 
 """Module to test custom specific modules."""
 
-from nicos_mlz.refsans.params import motoraddress
+import pytest
 
-from test.utils import raises
+from nicos_mlz.refsans.params import motoraddress
 
 
 def test_refsans():
@@ -33,9 +33,9 @@ def test_refsans():
     assert motoraddress(0x302a) == 0x302a
     assert motoraddress(0x4020) == 0x4020
     assert motoraddress(0x47f0) == 0x47f0
-    assert raises(ValueError, motoraddress, 0x2000)
-    assert raises(ValueError, motoraddress, 0x3000)
-    assert raises(ValueError, motoraddress, 0x4000)
-    assert raises(ValueError, motoraddress, 0x4021)
-    assert raises(ValueError, motoraddress, 0x4800)
-    assert raises(ValueError, motoraddress, 0x47fa)
+    pytest.raises(ValueError, motoraddress, 0x2000)
+    pytest.raises(ValueError, motoraddress, 0x3000)
+    pytest.raises(ValueError, motoraddress, 0x4000)
+    pytest.raises(ValueError, motoraddress, 0x4021)
+    pytest.raises(ValueError, motoraddress, 0x4800)
+    pytest.raises(ValueError, motoraddress, 0x47fa)

@@ -36,7 +36,7 @@ from pytest import approx
 from nicos.core import status
 from nicos.core.errors import LimitError
 
-from test.utils import ErrorLogged, raises
+from test.utils import ErrorLogged
 
 from .utils import is_at_target, unit_value
 
@@ -111,8 +111,8 @@ class TestEpicsMotor:
         Test the limit violations after moving a motor beyond limits
         """
         (usrmin, usrmax) = self.device.userlimits
-        assert raises(LimitError, self.device.maw, usrmin - 0.1)
-        assert raises(LimitError, self.device.maw, usrmax + 0.1)
+        pytest.raises(LimitError, self.device.maw, usrmin - 0.1)
+        pytest.raises(LimitError, self.device.maw, usrmax + 0.1)
 
     def test_running_status(self):
         """
@@ -152,7 +152,7 @@ class TestEpicsMotor:
         # Assert that the initial position of the device does not
         # change even after the move
         target = unit_value(1.0, self.device.unit)
-        assert raises(ErrorLogged, self.device.maw, target)
+        pytest.raises(ErrorLogged, self.device.maw, target)
         assert self.device.read(0) != target
         assert self.device.status()[0] == status.NOTREACHED
 

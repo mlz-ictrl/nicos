@@ -28,8 +28,6 @@ from pytest import approx
 
 from nicos.core.errors import NicosError
 
-from test.utils import raises
-
 session_setup = 'euler'
 
 
@@ -63,7 +61,7 @@ class TestEulerian:
 
     def test_move_fail(self, not_init_eulerian):
         ec = not_init_eulerian
-        assert raises(NicosError, ec.maw, ([[1, 0, 0], [2, 1, 0]]))
+        pytest.raises(NicosError, ec.maw, ([[1, 0, 0], [2, 1, 0]]))
 
     def test_plane_calculation(self, eulerian, log):
         """Test calc_plane function."""
@@ -76,11 +74,11 @@ class TestEulerian:
                                      r'omega:[ ]*-135.000 deg']):
             eulerian.calc_plane([[1, 0, 0], [2, 1, 0]])
 
-        assert raises(NicosError, eulerian.calc_plane, ([0, 0, 0], [0, 0, 0]))
+        pytest.raises(NicosError, eulerian.calc_plane, ([0, 0, 0], [0, 0, 0]))
 
     def test_plane_calculation_fail(self, not_init_eulerian):
         ec = not_init_eulerian
-        assert raises(NicosError, ec.calc_plane, ([0, 0, 0], [0, 0, 0]))
+        pytest.raises(NicosError, ec.calc_plane, ([0, 0, 0], [0, 0, 0]))
 
     def test_or_calculation(self, eulerian):
         """Test calc_or function."""

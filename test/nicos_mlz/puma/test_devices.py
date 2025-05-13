@@ -29,8 +29,6 @@ from pytest import approx
 from nicos.core import status
 from nicos.core.errors import LimitError, NicosError, PositionError
 
-from test.utils import raises
-
 session_setup = 'puma'
 
 
@@ -69,7 +67,7 @@ class TestCombAxis:
         assert combaxis._attached_fix_ax.read(0) == -10
 
         with log.allow_errors():
-            assert raises(LimitError, combaxis.move, 20)
+            pytest.raises(LimitError, combaxis.move, 20)
 
 
 class TestFocusAxis:
@@ -122,7 +120,7 @@ class TestMttAxis:
         #
         # This test will check the fail due to this missing device
         # with log.allow_errors():
-        #     assert raises(MoveError, ax.maw, (ax.polypos - 1))
+        #     pytest.raises(MoveError, ax.maw, (ax.polypos - 1))
 
 
 class TestCad:
@@ -159,13 +157,13 @@ class TestCad:
         th = session.getDevice('ath')
         th.maw(10)
 
-        assert raises(PositionError, cad.reset)
+        pytest.raises(PositionError, cad.reset)
 
-        assert raises(LimitError, cad.maw, -2)
+        pytest.raises(LimitError, cad.maw, -2)
 
         th.maw(0)
         th.userlimits = 0, 50
-        assert raises(LimitError, cad.maw, -60)
+        pytest.raises(LimitError, cad.maw, -60)
         th.userlimits = th.abslimits
 
 
@@ -202,9 +200,9 @@ class TestMagLock:
         session.getDevice('mag').maw(340)
         assert session.getDevice('mlock_op').read(0) == 0
         assert session.getDevice('mlock_cl').read(0) == 0b1111
-        assert raises(NicosError, maglock._magpos)
-        assert raises(NicosError, maglock._read)
-        assert raises(NicosError, maglock.read, 0)
+        pytest.raises(NicosError, maglock._magpos)
+        pytest.raises(NicosError, maglock._read)
+        pytest.raises(NicosError, maglock.read, 0)
         session.getDevice('mag').maw(315.4)
         assert maglock.read(0) == 'closed'
 

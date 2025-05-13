@@ -72,11 +72,6 @@ config.pid_path = path.join(runtime_root, 'pid')
 config.logging_path = path.join(runtime_root, 'log')
 
 
-def raises(exc, *args, **kwds):
-    pytest.raises(exc, *args, **kwds)
-    return True
-
-
 class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
 

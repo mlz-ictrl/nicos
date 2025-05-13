@@ -27,8 +27,6 @@ import pytest
 
 from nicos.core import ConfigurationError, status
 
-from test.utils import raises
-
 session_setup = 'oscillator'
 
 
@@ -50,9 +48,9 @@ def test_params(session, osci):
     osci.range = (0, 10)
     assert osci.range == (0, 10)
 
-    assert raises(ConfigurationError, setattr, osci, 'range', (10, 0))
-    assert raises(ConfigurationError, setattr, osci, 'range', (-110, 0))
-    assert raises(ConfigurationError, setattr, osci, 'range', (0, 110))
+    pytest.raises(ConfigurationError, setattr, osci, 'range', (10, 0))
+    pytest.raises(ConfigurationError, setattr, osci, 'range', (-110, 0))
+    pytest.raises(ConfigurationError, setattr, osci, 'range', (0, 110))
 
     osci2 = session.getDevice('osci2')
     osci2.range = (0, 50)
@@ -62,11 +60,11 @@ def test_params(session, osci):
     # called with osci.range
     osci3 = session.getDevice('osci3')
     # forces an error since the configured lower range limit is below userlimt
-    assert raises(ConfigurationError, osci3.doReadRange)
+    pytest.raises(ConfigurationError, osci3.doReadRange)
 
     osci4 = session.getDevice('osci4')
     # forces an error since the configured upper range limit is above userlimt
-    assert raises(ConfigurationError, osci4.doReadRange)
+    pytest.raises(ConfigurationError, osci4.doReadRange)
 
 
 def test_movement(session, osci, log):
@@ -100,8 +98,8 @@ def test_range_setting(osci):
 
     # set range to (0, 0) and moving is not allowed
     osci.range = (0, 0)
-    assert raises(ConfigurationError, osci.start, 'on')
+    pytest.raises(ConfigurationError, osci.start, 'on')
 
     # empty range is not allowed
     osci.range = (1, 1)
-    assert raises(ConfigurationError, osci.start, 'on')
+    pytest.raises(ConfigurationError, osci.start, 'on')

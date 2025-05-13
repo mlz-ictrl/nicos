@@ -33,7 +33,7 @@ from nicos.core.errors import CacheLockError, CommunicationError, LimitError
 from nicos.devices.cacheclient import CacheClient
 from nicos.utils import readonlydict, readonlylist
 
-from test.utils import cache_addr, raises
+from test.utils import cache_addr
 
 session_setup = 'cachetests'
 
@@ -141,7 +141,7 @@ class TestCache:
         # need to access base class method since lock() is disabled in the
         # TestCacheClient to avoid implicit master locking
         CacheClient.lock(cc, key, 5, sessionid=ses_a)
-        assert raises(CacheLockError, CacheClient.lock, cc, key, 5,
+        pytest.raises(CacheLockError, CacheClient.lock, cc, key, 5,
                       sessionid=ses_b)
         CacheClient.lock(cc, key, unlock=True, sessionid=ses_a)
         CacheClient.lock(cc, key, 0.01, sessionid=ses_a)
@@ -199,7 +199,7 @@ class TestCache:
             sleep(0.1)
             cc.clear('reader1')
             cc.flush()
-            assert raises(CommunicationError, rd1.read)
+            pytest.raises(CommunicationError, rd1.read)
             cc2.put(rd1, key, None)
             cc2.flush()
             assert rd1.read() is None
@@ -258,6 +258,6 @@ class TestCache:
             cc.flush()
             cce = cc.get_explicit('writer1', 'setpoint')
             assert cce[2] == 10.0
-            assert raises(LimitError, wrt1.move, 500)
+            pytest.raises(LimitError, wrt1.move, 500)
         finally:
             cc2.shutdown()

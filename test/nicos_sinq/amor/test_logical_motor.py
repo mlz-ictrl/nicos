@@ -28,14 +28,13 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 import pytest
-
-pytest.importorskip('epics')
-
 from pytest import approx
 
 from nicos.core import LimitError, status
 
-from test.utils import ErrorLogged, raises
+from test.utils import ErrorLogged
+
+pytest.importorskip('epics')
 
 session_setup = 'sinq_amor_logical_motors'
 
@@ -184,16 +183,16 @@ class TestLogicalMotor:
         llm, hlm = motor.abslimits
 
         # Test the limits
-        assert raises(LimitError, motor, llm - 0.1)
+        pytest.raises(LimitError, motor, llm - 0.1)
         assert motor.target == approx(motor.read())
-        assert raises(LimitError, motor, hlm + 0.1)
+        pytest.raises(LimitError, motor, hlm + 0.1)
         assert motor.target == approx(motor.read())
 
         # Test that even below limits, if slave motors can't move
         # error is produced
-        assert raises(ErrorLogged, motor, llm + 0.1)
+        pytest.raises(ErrorLogged, motor, llm + 0.1)
         assert motor.target == approx(motor.read())
-        assert raises(ErrorLogged, motor, hlm - 0.1)
+        pytest.raises(ErrorLogged, motor, hlm - 0.1)
         assert motor.target == approx(motor.read())
 
     @pytest.mark.parametrize('targets', test_targets.keys())

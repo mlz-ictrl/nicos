@@ -25,8 +25,6 @@
 
 import pytest
 
-session_setup = 'secop'
-
 pytest.importorskip('frappy')
 
 from frappy.datatypes import get_datatype
@@ -36,7 +34,8 @@ from nicos.core.params import anytype, dictwith, floatrange, intrange, \
 from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
 
-from test.utils import raises
+session_setup = 'secop'
+
 
 simple_types = [
     (None, anytype),
@@ -144,7 +143,7 @@ def test_special_types(datainfo, validator, dtype, valid, invalid):
     for value in valid:
         v(value)
     for value in invalid:
-        assert raises(ValueError, v, value)
+        pytest.raises(ValueError, v, value)
     assert v.__doc__ == validator.__doc__
 
 
@@ -157,7 +156,7 @@ def test_complex_types(datainfo, validator, default, valid, invalid):
     for value in valid:
         v(value)
     for value in invalid:
-        assert raises(ValueError, v, value)
+        pytest.raises(ValueError, v, value)
 
 
 def test_no_pickle_for_values():

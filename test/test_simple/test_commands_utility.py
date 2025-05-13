@@ -24,13 +24,12 @@
 """NICOS commands tests."""
 
 import numpy
+import pytest
 from pytest import approx
 
 from nicos.commands.utility import FloatRange, RangeListByCount, \
     RangeListByStep, RangeListGeneral, RangeListLog
 from nicos.core import UsageError
-
-from test.utils import raises
 
 
 def test_rangelistbystep():
@@ -72,8 +71,8 @@ def test_rangelistbystep():
     assert l2[0] == 0.
     assert l2[-1] == 3.
 
-    assert raises(UsageError, RangeListByStep, 1, 2, -0.5)
-    assert raises(UsageError, RangeListByStep, 1, 2, 0)
+    pytest.raises(UsageError, RangeListByStep, 1, 2, -0.5)
+    pytest.raises(UsageError, RangeListByStep, 1, 2, 0)
 
 
 def test_rangelistbycounts():
@@ -113,10 +112,10 @@ def test_floatrange():
     assert type(l4[0]) == float
     assert type(l4[-1]) == float
 
-    assert raises(UsageError, FloatRange, 1, 2, step=-0.5)
-    assert raises(UsageError, FloatRange, 1, 2, step=0.5, num=2)
-    assert raises(UsageError, FloatRange, 1, 2)
-    assert raises(UsageError, FloatRange, 1, 2, num=1)
+    pytest.raises(UsageError, FloatRange, 1, 2, step=-0.5)
+    pytest.raises(UsageError, FloatRange, 1, 2, step=0.5, num=2)
+    pytest.raises(UsageError, FloatRange, 1, 2)
+    pytest.raises(UsageError, FloatRange, 1, 2, num=1)
 
 
 def test_rangelistlog():
@@ -138,7 +137,7 @@ def test_rangelistlog():
     assert l3b[0] == approx(200., abs=1e-5)
     assert l3b[-1] == approx(2., abs=1e-5)
 
-    assert raises(UsageError, RangeListLog, -1, 2, 10)
+    pytest.raises(UsageError, RangeListLog, -1, 2, 10)
 
 
 def test_rangelistgeneral():
@@ -149,4 +148,4 @@ def test_rangelistgeneral():
     assert numpy.allclose(l2, [1.0, 1.05882352941, 1.125, 1.2,
                                1.28571428571, 1.38461538462, 1.5,
                                1.63636363636, 1.8, 2.0])
-    assert raises(RuntimeError, RangeListGeneral, 0, 2, 10, lambda x: 1/x)
+    pytest.raises(RuntimeError, RangeListGeneral, 0, 2, 10, lambda x: 1/x)

@@ -30,8 +30,6 @@ import pytest
 from nicos.core.errors import ComputationError, MoveError, NicosTimeoutError
 from nicos.core.utils import multiWait
 
-from test.utils import raises
-
 session_setup = 'multiwait'
 
 
@@ -68,14 +66,15 @@ class TestMultiWait:
         dev1._status_exception = NicosTimeoutError('Test message')
 
         with log.allow_errors():
-            assert raises(MoveError, multiWait, [dev1, dev2, dev3, dev4])
+            pytest.raises(MoveError, multiWait, [dev1, dev2, dev3, dev4])
 
     def test_multiwait_raising_single_isCompleted(self, log, devices):
         dev1, dev2, dev3, dev4 = devices
         dev2._iscompleted_exception = NicosTimeoutError('Test 2')
 
         with log.allow_errors():
-            assert raises(NicosTimeoutError, multiWait, [dev1, dev2, dev3, dev4])
+            pytest.raises(NicosTimeoutError, multiWait,
+                          [dev1, dev2, dev3, dev4])
 
     def test_multiwait_raising_multi(self, log, devices):
         dev1, dev2, dev3, dev4 = devices
@@ -83,4 +82,4 @@ class TestMultiWait:
         dev3._iscompleted_exception = ComputationError('multi_dev3')
 
         with log.assert_errors(regex='.*multi_dev1.*', count=1):
-            assert raises(ComputationError, multiWait, [dev1, dev2, dev3, dev4])
+            pytest.raises(ComputationError, multiWait, [dev1, dev2, dev3, dev4])

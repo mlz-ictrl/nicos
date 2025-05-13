@@ -29,8 +29,6 @@ from nicos.commands.device import adjust
 from nicos.core.errors import ConfigurationError, InvalidValueError, \
     LimitError, UsageError
 
-from test.utils import raises
-
 session_setup = 'refsans'
 
 
@@ -56,8 +54,8 @@ class TestDoubleNOK:
         nok.sample.maw(0)
         nok.reactor.maw(-1)
 
-        assert raises(LimitError, nok.maw, (0, 20))
-        assert raises(LimitError, nok.maw, (-30, -20))
+        pytest.raises(LimitError, nok.maw, (0, 20))
+        pytest.raises(LimitError, nok.maw, (-30, -20))
 
 
 def test_single_nok(session):
@@ -77,7 +75,7 @@ def test_nok_pos(session):
 
 
 def test_nok_inclination_failed(session):
-    assert raises(ConfigurationError, session.getDevice, 'nok_inc_failed')
+    pytest.raises(ConfigurationError, session.getDevice, 'nok_inc_failed')
 
 
 class TestSingleSlit:
@@ -133,7 +131,7 @@ class TestSingleSlit:
         # change mode, maw away and adjust again
         d.mode = 'gisans'
         d.wait()
-        # assert raises(KeyError, d._offsets['gisans'])
+        # pytest.raises(KeyError, d._offsets['gisans'])
         d.maw(-1)
         adjust(d, 0)
         # check for offset and mode specific offset
@@ -184,8 +182,8 @@ class TestDoubleSlit:
 
     def test_failures(self, session):
         d = session.getDevice('zb3')
-        assert raises(InvalidValueError, d.maw, (6, -120))
-        assert raises(LimitError, d.maw, (-200, 12))
+        pytest.raises(InvalidValueError, d.maw, (6, -120))
+        pytest.raises(LimitError, d.maw, (-200, 12))
 
     def test_stop(self, session):
         d = session.getDevice('zb3')
@@ -218,9 +216,9 @@ class TestGap:
         assert gap.left.read(0) == -5
         assert gap.right.read(0) == 5
 
-        assert raises(InvalidValueError, gap.maw, [-1, 5])
-        assert raises(LimitError, gap.maw, [-1])
-        assert raises(UsageError, gap.center.maw, 1)
+        pytest.raises(InvalidValueError, gap.maw, [-1, 5])
+        pytest.raises(LimitError, gap.maw, [-1])
+        pytest.raises(UsageError, gap.center.maw, 1)
 
     def test_offcentered_mode(self, session):
         gap = session.getDevice('h2')
@@ -235,8 +233,8 @@ class TestGap:
         assert gap.width.read(0) == 10
         assert gap.center.read(0) == 1
 
-        assert raises(InvalidValueError, gap.maw, [2])
-        assert raises(LimitError, gap.maw, [1, -1])
+        pytest.raises(InvalidValueError, gap.maw, [2])
+        pytest.raises(LimitError, gap.maw, [1, -1])
 
     def test_2blades_mode(self, session):
         gap = session.getDevice('h2')
@@ -248,8 +246,8 @@ class TestGap:
         assert gap.center.read(0) == 0
         assert gap.width.read(0) == 10
 
-        assert raises(InvalidValueError, gap.maw, [2])
-        assert raises(LimitError, gap.maw, [5, -5])
+        pytest.raises(InvalidValueError, gap.maw, [2])
+        pytest.raises(LimitError, gap.maw, [5, -5])
 
     def test_2blades_oppsite_mode(self, session):
         gap = session.getDevice('h2')
@@ -261,7 +259,7 @@ class TestGap:
         assert gap.width.read(0) == 10
         assert gap.center.read(0) == 0
 
-        assert raises(InvalidValueError, gap.maw, [2])
+        pytest.raises(InvalidValueError, gap.maw, [2])
 
     def test_reset(self, session):
         gap = session.getDevice('h2')

@@ -32,7 +32,7 @@ from nicos.core import *  # pylint: disable=unused-wildcard-import,wildcard-impo
 from nicos.core.sessions.simple import ScriptSession
 from nicos.utils import loggers
 
-from test.utils import module_root, raises, runtime_root
+from test.utils import module_root, runtime_root
 
 
 class ScriptSessionTest(ScriptSession):
@@ -106,7 +106,7 @@ def test_simple(session):
 def test_raise_simple(session):
     code = 'raise Exception("testing")'
     setup = 'startup'
-    assert raises(Exception, run_script_session, session, setup, code)
+    pytest.raises(Exception, run_script_session, session, setup, code)
 
 
 testscriptspath = path.join(module_root, 'test', 'scripts')
@@ -121,8 +121,8 @@ def test_one_script(session, script):
     m = re.match(r'.*Raises(.*)\..*', script)
     if m:
         expected = eval(m.group(1))
-        assert raises(expected, run_script_session, session,
-                      'script_tests', code)
+        pytest.raises(expected, run_script_session, session, 'script_tests',
+                      code)
     else:
         # expected success
         run_script_session(session, 'script_tests', code)

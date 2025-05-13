@@ -25,12 +25,13 @@
 
 from pathlib import Path
 
+import pytest
 from pytest import approx
 
 from nicos_mlz.reseda.commands import img, miezetau, pol, tof
 from nicos_mlz.reseda.tuning_commands import ExportTuning, ImportTuning
 
-from test.utils import ErrorLogged, raises
+from test.utils import ErrorLogged
 
 session_setup = 'reseda'
 
@@ -55,11 +56,13 @@ class TestCommands:
         assert pol(1, 2) == approx(-0.3333, abs=0.0001)
         assert pol(2, 1) == approx(0.3333, abs=0.0001)
 
-        assert raises(ZeroDivisionError, pol, 0, 0)
+        pytest.raises(ZeroDivisionError, pol, 0, 0)
 
     def test_tuning(self, session):
-        assert raises(ErrorLogged, ImportTuning, 'mieze', 6, '1020_02_07_mcstas')
-        assert raises(ErrorLogged, ImportTuning, 'mieze', 6, '2019_02_07_fail')
+        pytest.raises(ErrorLogged, ImportTuning, 'mieze', 6,
+                      '1020_02_07_mcstas')
+        pytest.raises(ErrorLogged, ImportTuning, 'mieze',
+                      6, '2019_02_07_fail')
         ImportTuning('mieze', 6, filename='2019_02_07_mcstas')
         table = session.getDevice('echotime').getTable('mieze', 6)
         assert list(table.keys()) == [
@@ -72,8 +75,11 @@ class TestCommands:
             0.908, 0.939, 1.06, 1.17, 1.28, 1.37, 1.49, 1.6, 1.67, 2.71, 3.95,
             5.95, 11.7, 13.4, 2.48]
         ExportTuning('mieze', 6, filename='2019_02_07_2_mcstas')
-        assert raises(ErrorLogged, ExportTuning, 'miez', 6, '2019_02_07_2_mcstas')
-        assert raises(ErrorLogged, ExportTuning, 'mieze', 16, '2019_02_07_2_mcstas')
-        assert raises(ErrorLogged, ExportTuning, 'mieze', 6, '2019_02_07_2_mcstas')
+        pytest.raises(ErrorLogged, ExportTuning, 'miez', 6,
+                      '2019_02_07_2_mcstas')
+        pytest.raises(ErrorLogged, ExportTuning, 'mieze', 16,
+                      '2019_02_07_2_mcstas')
+        pytest.raises(ErrorLogged, ExportTuning, 'mieze', 6,
+                      '2019_02_07_2_mcstas')
         Path('test/nicos_mlz/reseda/data/'
              '2019_02_07_2_mcstas_mieze_6A.csv').unlink()

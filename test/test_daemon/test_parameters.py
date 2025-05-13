@@ -21,9 +21,9 @@
 #
 # *****************************************************************************
 
-from nicos.services.daemon.auth.ldap import ldapuri
+import pytest
 
-from test.utils import raises
+from nicos.services.daemon.auth.ldap import ldapuri
 
 
 def test_ldapuri():
@@ -39,10 +39,10 @@ def test_ldapuri():
     assert ldapuri('ldap://localhost:3389/') == 'ldap://localhost:3389/'
     assert ldapuri('ldaps://localhost:6636/') == 'ldaps://localhost:6636/'
 
-    assert raises(ValueError, ldapuri, 'lda://localhost')
-    assert raises(ValueError, ldapuri, 'ldap//localhost')
-    assert raises(ValueError, ldapuri, 'ldap:/localhost')
-    assert raises(ValueError, ldapuri, 'ldap:localhost')
-    assert raises(ValueError, ldapuri, 'ldap://loca lhost')
-    assert raises(ValueError, ldapuri, 'ldap://localhost ')
-    assert raises(ValueError, ldapuri, ' ldap://localhost ')
+    pytest.raises(ValueError, ldapuri, 'lda://localhost')
+    pytest.raises(ValueError, ldapuri, 'ldap//localhost')
+    pytest.raises(ValueError, ldapuri, 'ldap:/localhost')
+    pytest.raises(ValueError, ldapuri, 'ldap:localhost')
+    pytest.raises(ValueError, ldapuri, 'ldap://loca lhost')
+    pytest.raises(ValueError, ldapuri, 'ldap://localhost ')
+    pytest.raises(ValueError, ldapuri, ' ldap://localhost ')

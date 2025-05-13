@@ -29,8 +29,6 @@ import pytest
 # from nicos.core.errors import ConfigurationError, InvalidValueError, \
 #     LimitError, UsageError
 
-# from test.utils import raises
-
 session_setup = 'refsans_optic'
 
 

@@ -35,8 +35,6 @@ from nicos_mlz.pgaa.gui.panels.widgets import AttCell, BeamCell, CellItem, \
     NameCommentCell, PicButton, PosCell, StartCell, StatusCell, \
     TimeEditWidget, ValueCell, ValueData
 
-from test.utils import raises
-
 
 class TestWidgets:
 
@@ -79,7 +77,7 @@ class TestWidgets:
             pass
 
         assert widget.value() is None
-        assert raises(NotImplementedError, widget.setValue, None)
+        pytest.raises(NotImplementedError, widget.setValue, None)
 
     def test_condcell(self, qtbot):
         widget = CondCell(None, state='TrueTime')

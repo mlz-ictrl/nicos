@@ -26,11 +26,11 @@
 import os
 from time import monotonic, sleep
 
+import pytest
+
 from nicos.core import InvalidValueError
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqMethod, \
     SeqNOP, SeqParam, SeqSleep
-
-from test.utils import raises
 
 session_setup = 'sequencer'
 methods_called = set()
@@ -49,11 +49,11 @@ def test_lockeddevice(session):
 
 def test_sequence_items():
     # parameter checking
-    assert raises(TypeError, SeqDev)
-    assert raises(TypeError, SeqParam)
-    assert raises(TypeError, SeqMethod)
-    assert raises(TypeError, SeqCall)
-    assert raises(TypeError, SeqSleep)
+    pytest.raises(TypeError, SeqDev)
+    pytest.raises(TypeError, SeqParam)
+    pytest.raises(TypeError, SeqMethod)
+    pytest.raises(TypeError, SeqCall)
+    pytest.raises(TypeError, SeqSleep)
     SeqNOP()
 
 
@@ -145,4 +145,4 @@ def test_seqnop():
 def test_locked_multiswitcher(session):
     # Guard against regression of #1315
     lms = session.getDevice('ld2')
-    assert raises(InvalidValueError, lms.move, 0)
+    pytest.raises(InvalidValueError, lms.move, 0)

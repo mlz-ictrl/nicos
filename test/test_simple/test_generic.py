@@ -32,8 +32,6 @@ from nicos.commands.measure import count
 from nicos.core import ConfigurationError, InvalidValueError, LimitError, \
     NicosError, PositionError, status
 
-from test.utils import raises
-
 session_setup = 'generic'
 
 
@@ -53,7 +51,7 @@ class TestManualVirtual:
         assert v.read(0) == 'up'
         v.maw('down')
         assert v.read() == 'down'
-        assert raises(NicosError, v.move, 'sideways')
+        pytest.raises(NicosError, v.move, 'sideways')
         assert v.read() == 'down'
         assert v.isAllowed('sideways')[0] is False
         assert v.isAllowed('up')[0] is True
@@ -70,19 +68,19 @@ class TestManualVirtual:
         assert m.read() == 'up'
         m.maw('down')
         assert m.read() == 'down'
-        assert raises(NicosError, m.move, 'sideways')
+        pytest.raises(NicosError, m.move, 'sideways')
         assert m.read() == 'down'
         assert m.status()[0] == status.OK
 
     def test_manual_switch_2(self, session):
-        assert raises(ConfigurationError, session.getDevice, 'm2')
+        pytest.raises(ConfigurationError, session.getDevice, 'm2')
 
     def test_manual_switch_illegal_position(self, session):
         m3 = session.getDevice('m3')
-        assert raises(InvalidValueError, m3.maw, 'inbetween')
+        pytest.raises(InvalidValueError, m3.maw, 'inbetween')
         # Enforce an illegal Position
         m3._setROParam('target', 'inbetween')
-        assert raises(PositionError, m3.read, 0)
+        pytest.raises(PositionError, m3.read, 0)
 
 
 class TestSwitcher:
@@ -101,20 +99,20 @@ class TestSwitcher:
 
         assert sw.status()[0] == v3.status()[0]
 
-        assert raises(NicosError, sw.start, '#####')
-        assert raises(LimitError, sw.start, 'outside')
-        assert raises(NicosError, sw.doStart, '#####')
+        pytest.raises(NicosError, sw.start, '#####')
+        pytest.raises(LimitError, sw.start, 'outside')
+        pytest.raises(NicosError, sw.doStart, '#####')
         sw.stop()
 
         v3.maw(1.01)
         assert sw.read(0) == 'left'
         v3.maw(1.2)
-        assert raises(PositionError, sw.read, 0)
+        pytest.raises(PositionError, sw.read, 0)
         assert sw.status(0)[0] == status.NOTREACHED
 
         rsw = session.getDevice('rsw')
         rsw2 = session.getDevice('rsw2')
-        assert raises(PositionError, rsw.read, 0)
+        pytest.raises(PositionError, rsw.read, 0)
 
         v3.maw(1)
         assert rsw.read(0) == 'left'
@@ -187,7 +185,7 @@ class TestSwitcher:
         assert sw.status(0)[0] == status.NOTREACHED
 
         sw.__dict__['relax_mapping'] = False
-        assert raises(PositionError, sw.read, 0)
+        pytest.raises(PositionError, sw.read, 0)
         assert sw.status(0)[0] == status.NOTREACHED
 
 
@@ -215,11 +213,11 @@ def test_freespace(session):
     freespace.minfree = 10000000
     assert freespace.status(0)[0] != status.OK
     freespace2 = session.getDevice('freespace2')
-    assert raises(NicosError, freespace2.read, 0)
+    pytest.raises(NicosError, freespace2.read, 0)
     freespace.unit = 'KiB'
     fs2 = freespace.read(0)
     assert fs != fs2
-    assert raises(ConfigurationError, freespace.doUpdateUnit, 'GB')
+    pytest.raises(ConfigurationError, freespace.doUpdateUnit, 'GB')
 
 
 def test_scanning_detector(session):

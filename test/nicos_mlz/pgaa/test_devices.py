@@ -27,8 +27,6 @@ import pytest
 
 from nicos.core.errors import InvalidValueError, LimitError
 
-from test.utils import raises
-
 session_setup = 'pgaa'
 
 
@@ -59,14 +57,14 @@ def test_ellcol(session):
     ellcol.maw('Ell')
     assert ellcol.read(0) == 'Ell'
 
-    assert raises(InvalidValueError, ellcol.move, 'abc')
+    pytest.raises(InvalidValueError, ellcol.move, 'abc')
 
     # Force an error when call another move when moving
     # TODO: This test needs a better setup to create a more realistic time
     #       handling to slow down the change!
     # ellcol.move('Col')
     # session.delay(0.1)
-    # assert raises(LimitError, ellcol.maw, 'Ell')
+    # pytest.raises(LimitError, ellcol.maw, 'Ell')
     # ellcol.wait()
 
 
@@ -92,7 +90,7 @@ class TestSampleChanger:
         assert sc._attached_push.read() == 'down'
         sc.maw(2)
         assert sc.read(0) == 2
-        assert raises(InvalidValueError, sc.maw, 0)
+        pytest.raises(InvalidValueError, sc.maw, 0)
 
     def test_block_pusher(self, session):
         sc = session.getDevice('sc')
@@ -101,14 +99,14 @@ class TestSampleChanger:
         push.maw('up')
         assert push.read(0) == 'up'
         sc._attached_motor.maw(1.5)
-        assert raises(LimitError, push.move, 'down')
+        pytest.raises(LimitError, push.move, 'down')
 
     def test_block_motor(self, session):
         motor = session.getDevice('samplemotor')
         push = session.getDevice('push')
         assert motor.read(0) == 1
         assert push.read(0) == 'down'
-        assert raises(LimitError, motor.move, 2)
+        pytest.raises(LimitError, motor.move, 2)
 
     def test_pusher(self, session):
         push = session.getDevice('push')

@@ -28,8 +28,6 @@ from pytest import approx
 
 from nicos.core.errors import LimitError
 
-from test.utils import raises
-
 session_setup = 'reseda'
 
 
@@ -92,11 +90,11 @@ class TestArmController:
         assert arm2.read(0) == 0
 
         # too close
-        assert raises(LimitError, arm2.maw, -10)
-        assert raises(LimitError, arm1.maw, -10)
+        pytest.raises(LimitError, arm2.maw, -10)
+        pytest.raises(LimitError, arm1.maw, -10)
 
         # would cross
-        assert raises(LimitError, arm1, 5)
+        pytest.raises(LimitError, arm1, 5)
 
         # move arm 1 as close as possible
         arm1.maw(-50)

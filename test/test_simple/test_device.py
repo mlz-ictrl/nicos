@@ -36,8 +36,6 @@ from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.core.sessions.utils import MAINTENANCE
 from nicos.utils.credentials import keystore
 
-from test.utils import raises
-
 session_setup = 'device'
 methods_called = set()
 
@@ -192,16 +190,16 @@ def test_initialization(session, log):
     # make sure dev2_1 is created and then try to instantiate another device
     # with this name...
     session.getDevice('dev2_1')
-    assert raises(ProgrammingError, Dev2, 'dev2_1')
+    pytest.raises(ProgrammingError, Dev2, 'dev2_1')
     # Dev2 instance without 'attached' adev set
-    assert raises(ConfigurationError, session.getDevice, 'dev2_2')
+    pytest.raises(ConfigurationError, session.getDevice, 'dev2_2')
     # try to instantiate a device that fails init()
-    assert raises(ZeroDivisionError, session.getDevice, 'dev2_4')
+    pytest.raises(ZeroDivisionError, session.getDevice, 'dev2_4')
     # assert correct cleanup
     assert 'dev2_4' not in session.devices
 
     with log.assert_warns('could not shutdown after creation failed'):
-        assert raises(ZeroDivisionError, session.getDevice, 'dev2_5')
+        pytest.raises(ZeroDivisionError, session.getDevice, 'dev2_5')
     # assert device is cleaned up anyway
     assert 'dev2_5' not in session.devices
 
@@ -252,7 +250,7 @@ def test_params(session):
     assert dev2.unit == 'deg'
     # a readonly parameter
     assert dev2.param1 == 42
-    assert raises(ConfigurationError, setattr, dev2, 'param1', 21)
+    pytest.raises(ConfigurationError, setattr, dev2, 'param1', 21)
     # a parameter with custom getter and setter
     assert dev2.param2 == 21
     dev2.param2 = 5
@@ -260,7 +258,7 @@ def test_params(session):
     assert 'doWriteParam2' in methods_called
     assert 'doUpdateParam2' in methods_called
     # non-existing parameters
-    assert raises(NicosError, setattr, dev2, 'param3', 1)
+    pytest.raises(NicosError, setattr, dev2, 'param3', 1)
     # test parameter value when in cache, but default value updated
     session.cache.put(dev2, 'param1', 50)
     session.createDevice('dev2_1', recreate=True)
@@ -274,14 +272,14 @@ def test_params(session):
     assert dev4.parameters['intexplicit'].userparam is True
     assert dev4.parameters['explicit'].userparam is False
     # ambiguous parameter settings of internal and mandatory should raise
-    assert raises(ProgrammingError, Param, 'ambiguous', internal=True,
+    pytest.raises(ProgrammingError, Param, 'ambiguous', internal=True,
                   mandatory=True)
 
 
 def test_forbidden_assignments(session):
     dev = session.getDevice('dev2_1')
     # test assignment of a value to a device method must fail
-    assert raises(UsageError, setattr, dev, 'read', 0)
+    pytest.raises(UsageError, setattr, dev, 'read', 0)
     # changing valuetype function must be allowed
     dev.valuetype = float
     assert dev.valuetype == float
@@ -324,9 +322,9 @@ def test_methods(session):
     assert 'doStart' in methods_called
     assert 'doIsAllowed' in methods_called
     # moving beyond limits
-    assert raises(LimitError, dev2.move, 50)
+    pytest.raises(LimitError, dev2.move, 50)
     # or forbidden by doIsAllowed()
-    assert raises(LimitError, dev2.move, 5)
+    pytest.raises(LimitError, dev2.move, 5)
     # read() and status()
     assert dev2.read() == 10
     assert dev2.status()[0] == status.OK
@@ -356,14 +354,14 @@ def test_methods(session):
     assert ('testversion', 1.0) in dev2.version()
 
     # test access control (test session always returns False for access check)
-    assert raises(AccessError, dev2.calibrate)
+    pytest.raises(AccessError, dev2.calibrate)
 
 
 def test_loglevel(session, log):
     dev2 = session.getDevice('dev2_3')
 
     # reject invalid loglevels
-    assert raises(ConfigurationError, setattr, dev2, 'loglevel', 'xxx')
+    pytest.raises(ConfigurationError, setattr, dev2, 'loglevel', 'xxx')
 
     # ensure that changing loglevels is effective
     dev2.loglevel = 'info'
@@ -462,19 +460,21 @@ def test_limits(session, log):
     # individual getters/setters
     dev2.usermin, dev2.usermax = dev2.absmin + 1, dev2.absmax - 1
     assert (dev2.usermin, dev2.usermax) == (1, 9)
-    assert raises(ConfigurationError, setattr, dev2, 'usermin', dev2.absmin - 1)
-    assert raises(ConfigurationError, setattr, dev2, 'usermax', dev2.usermin - 0.5)
+    pytest.raises(ConfigurationError, setattr, dev2, 'usermin',
+                         dev2.absmin - 1)
+    pytest.raises(ConfigurationError, setattr, dev2, 'usermax',
+                         dev2.usermin - 0.5)
     # checking limit setting
-    assert raises(ConfigurationError, setattr, dev2, 'userlimits', (5, 4))
-    assert raises(ConfigurationError, setattr, dev2, 'userlimits', (-1, 1))
-    assert raises(ConfigurationError, setattr, dev2, 'userlimits', (9, 11))
-    assert raises(ConfigurationError, setattr, dev2, 'userlimits', (11, 12))
+    pytest.raises(ConfigurationError, setattr, dev2, 'userlimits', (5, 4))
+    pytest.raises(ConfigurationError, setattr, dev2, 'userlimits', (-1, 1))
+    pytest.raises(ConfigurationError, setattr, dev2, 'userlimits', (9, 11))
+    pytest.raises(ConfigurationError, setattr, dev2, 'userlimits', (11, 12))
     # offset behavior
     dev2.userlimits = dev2.abslimits
     assert dev2.offset == 0
     dev2.offset = 1
-    # now physical 1 is logical 0 -> userlimits must be shifted downwards, while
-    # absolute limits stay in physical units
+    # now physical 1 is logical 0 -> userlimits must be shifted downwards,
+    # while absolute limits stay in physical units
     assert dev2.userlimits[0] == dev2.abslimits[0] - 1
     dev2.offset = 0
     # warn when setting limits that don't include current position
@@ -508,7 +508,7 @@ def test_hascomm(session):
     bus = session.getDevice('bus')
 
     bus._replyontry = 5
-    assert raises(CommunicationError, bus.communicate, 'test')
+    pytest.raises(CommunicationError, bus.communicate, 'test')
 
     bus._replyontry = 2
     assert bus.communicate('test') == 'test'
@@ -517,8 +517,7 @@ def test_hascomm(session):
 def test_special_params():
     # check that special parameter names cannot be used in "parameters"
     for param in ('value', 'status'):
-        assert raises(ProgrammingError,
-                      type, 'Dev', (Device,),
+        pytest.raises(ProgrammingError, type, 'Dev', (Device,),
                       dict(__module__='dummy',
                            parameters={param: Param('...')}))
 

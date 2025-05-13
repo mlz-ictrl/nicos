@@ -23,11 +23,11 @@
 
 """NICOS tests for session-less TAS code."""
 
+import pytest
+
 from nicos.commands.tas import Q
 from nicos.core import NicosError, UsageError
 from nicos.devices.tas import spacegroups
-
-from test.utils import raises
 
 
 def test_Q():
@@ -74,10 +74,10 @@ def test_Q():
     assert all(Q((i for i in (1, 0, 0, 0))) == [1, 0, 0, 0])
 
     # length errors, more than 4 elements
-    assert raises(UsageError, Q, 1, 2, 3, 4, 5)
-    assert raises(UsageError, Q, (1, 2, 3, 4, 5))
-    assert raises(UsageError, Q, '1 2 3 4 5')
-    assert raises(UsageError, Q, (i for i in (1, 0, 0, 0, 0)))
+    pytest.raises(UsageError, Q, 1, 2, 3, 4, 5)
+    pytest.raises(UsageError, Q, (1, 2, 3, 4, 5))
+    pytest.raises(UsageError, Q, '1 2 3 4 5')
+    pytest.raises(UsageError, Q, (i for i in (1, 0, 0, 0, 0)))
 
 
 def test_getspacegroup():
@@ -87,8 +87,8 @@ def test_getspacegroup():
     assert spacegroups.get_spacegroup('Pbca') == \
         [3, 2, 2, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
     # Error cases
-    assert raises(NicosError, spacegroups.get_spacegroup, 'Pbbb')
-    assert raises(NicosError, spacegroups.get_spacegroup, 300)
+    pytest.raises(NicosError, spacegroups.get_spacegroup, 'Pbbb')
+    pytest.raises(NicosError, spacegroups.get_spacegroup, 300)
 
 
 def test_canreflect():

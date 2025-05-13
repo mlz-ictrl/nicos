@@ -23,6 +23,7 @@
 
 """NICOS parameter utilities tests."""
 
+import pytest
 from numpy import array
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
@@ -32,8 +33,6 @@ from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     nonemptystring, nonzero, oneof, oneofdict, oneofdict_or, pvname, \
     relative_path, secret, setof, string, subdir, tangodev, tupleof, vec3
 from nicos.utils import Secret
-
-from test.utils import raises
 
 # pylint: disable=compare-to-empty-string
 
@@ -50,12 +49,12 @@ def test_attach_class():
     class MyClass:
         pass
     # test __init__()
-    assert raises(ProgrammingError, Attach, 'desc.', MyClass, optional=3)
-    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=None)
-    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[])
-    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[None])
-    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[3.14])
-    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=-1)
+    pytest.raises(ProgrammingError, Attach, 'desc.', MyClass, optional=3)
+    pytest.raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=None)
+    pytest.raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[])
+    pytest.raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[None])
+    pytest.raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[3.14])
+    pytest.raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=-1)
     # test repr
     a = Attach('description', MyClass, optional=True, multiple=[3, 4])
     assert repr(a) == "Attach('description', " \
@@ -64,19 +63,21 @@ def test_attach_class():
 
     # test check()
     a = Attach('description', MyClass)
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', None)
     assert a.check('devname', 'aname', 1) == [1]
     assert a.check('devname', 'aname', [1]) == [1]
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname',
+                         [1, 2])
 
     a = Attach('description', MyClass, optional=True)
     assert a.check('devname', 'aname', None) == [None]
     assert a.check('devname', 'aname', 1) == [1]
     assert a.check('devname', 'aname', [1]) == [1]
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname',
+                         [1, 2])
 
     a = Attach('description', MyClass, multiple=True)
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', None)
     assert a.check('devname', 'aname', 1) == [1]
     assert a.check('devname', 'aname', [1]) == [1]
     assert a.check('devname', 'aname', [1, 2]) == [1, 2]
@@ -89,11 +90,11 @@ def test_attach_class():
     assert a.check('devname', 'aname', [1, 2, 3]) == [1, 2, 3]
 
     a = Attach('description', MyClass, multiple=2)
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', 1)
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', None)
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', 1)
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', [1])
     assert a.check('devname', 'aname', [1, 2]) == [1, 2]
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3])
 
     # with optional and multiple a fixed number, we have either both, or None
     a = Attach('description', MyClass, multiple=2, optional=True)
@@ -101,19 +102,19 @@ def test_attach_class():
     assert a.check('devname', 'aname', 1) == [1, None]
     assert a.check('devname', 'aname', [1]) == [1, None]
     assert a.check('devname', 'aname', [1, 2]) == [1, 2]
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3])
 
     # check that multiple=2 and multiple=[2] are the same
     assert repr(Attach('devname', MyClass, multiple=2)) == \
         repr(Attach('devname', MyClass, multiple=[2]))
 
     a = Attach('description', MyClass, multiple=[2, 3])
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', 1)
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', None)
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', 1)
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', [1])
     assert a.check('devname', 'aname', [1, 2]) == [1, 2]
     assert a.check('devname', 'aname', [1, 2, 3]) == [1, 2, 3]
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
 
     a = Attach('description', MyClass, multiple=[2, 3], optional=True)
     assert a.check('devname', 'aname', None) == [None, None, None]
@@ -121,15 +122,15 @@ def test_attach_class():
     assert a.check('devname', 'aname', [1]) == [1, None, None]
     assert a.check('devname', 'aname', [1, 2]) == [1, 2, None]
     assert a.check('devname', 'aname', [1, 2, 3]) == [1, 2, 3]
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
 
     a = Attach('description', MyClass, multiple=[0, 2, 3])
     assert a.check('devname', 'aname', None) == []
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', 1)
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', 1)
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', [1])
     assert a.check('devname', 'aname', [1, 2]) == [1, 2]
     assert a.check('devname', 'aname', [1, 2, 3]) == [1, 2, 3]
-    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
+    pytest.raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
 
 
 def test_listof():
@@ -137,9 +138,9 @@ def test_listof():
     assert listof(int)() == []  # pylint: disable=use-implicit-booleaness-not-comparison
     # should also accept tuples
     assert listof(int)((1, 2, 3)) == [1, 2, 3]
-    assert raises(ValueError, listof(int), 10)
+    pytest.raises(ValueError, listof(int), 10)
     # assert that the list is read-only
-    assert raises(TypeError, listof(int)([0, 1, 2]).__setitem__, 0, 1)
+    pytest.raises(TypeError, listof(int)([0, 1, 2]).__setitem__, 0, 1)
 
 
 def test_nonemptylistof():
@@ -147,10 +148,10 @@ def test_nonemptylistof():
     assert nonemptylistof(int)() == [0]
     # should also accept tuples
     assert nonemptylistof(int)((1, 2)) == [1, 2]
-    assert raises(ValueError, nonemptylistof(int), [])
-    assert raises(ValueError, nonemptylistof(int), 10)
+    pytest.raises(ValueError, nonemptylistof(int), [])
+    pytest.raises(ValueError, nonemptylistof(int), 10)
     # assert that the list is read-only
-    assert raises(TypeError, nonemptylistof(int)([0, 1, 2]).__setitem__, 0, 1)
+    pytest.raises(TypeError, nonemptylistof(int)([0, 1, 2]).__setitem__, 0, 1)
 
 
 def test_tupleof():
@@ -158,12 +159,12 @@ def test_tupleof():
     assert tupleof(int, str, float)() == (0, '', 0.0)
     assert tupleof(float, float)() == (0.0, 0.0)
     assert tupleof(int, int, int, int)(array((1, 2, 3, 4))) == (1, 2, 3, 4)
-    assert raises(ValueError, tupleof(int, str), ('a', 'b'))
-    assert raises(ValueError, tupleof(int, str), ('a',))
-    assert raises(ValueError, tupleof(int, str), 'x')
-    assert raises(ValueError, tupleof(float, float), (1,))
-    assert raises(ValueError, tupleof(float, float), (1, 2, 3))
-    assert raises(ProgrammingError, tupleof,)
+    pytest.raises(ValueError, tupleof(int, str), ('a', 'b'))
+    pytest.raises(ValueError, tupleof(int, str), ('a',))
+    pytest.raises(ValueError, tupleof(int, str), 'x')
+    pytest.raises(ValueError, tupleof(float, float), (1,))
+    pytest.raises(ValueError, tupleof(float, float), (1, 2, 3))
+    pytest.raises(ProgrammingError, tupleof,)
 
 
 def test_string():
@@ -178,30 +179,31 @@ def test_boolean():
     assert boolean() is False
     assert boolean(10) is True
     assert boolean(0) is False
-    assert raises(ValueError, boolean, 'True')
-    assert raises(ValueError, boolean, 'False')
+    pytest.raises(ValueError, boolean, 'True')
+    pytest.raises(ValueError, boolean, 'False')
 
 
 def test_dictof():
     assert dictof(int, str)({1: 0, 2: 1}) == {1: '0', 2: '1'}
     assert dictof(int, str)() == {}  # pylint: disable=use-implicit-booleaness-not-comparison
-    assert raises(ValueError, dictof(int, str), ('a', 'b'))
-    assert raises(ValueError, dictof(int, str), {'x': 'y'})
+    pytest.raises(ValueError, dictof(int, str), ('a', 'b'))
+    pytest.raises(ValueError, dictof(int, str), {'x': 'y'})
     # test that the dict is read-only
-    assert raises(TypeError, dictof(int, str)({1: 'x'}).pop, 1)
+    pytest.raises(TypeError, dictof(int, str)({1: 'x'}).pop, 1)
 
 
 def test_dictwith():
     assert dictwith()() == {}
     assert dictwith()({}) == {}
     assert dictwith(key=int)({'key': '10'}) == {'key': 10}
-    assert raises(ValueError, dictwith(key=int), {})
-    assert raises(ValueError, dictwith(key=int), {'key': 'a'})
-    assert raises(ValueError, dictwith(key=int), {'x': '10'})
-    assert raises(ValueError, dictwith(key=int), {'key': '10', 'x': 'a'})
-    assert raises(ValueError, dictwith(key=int), [])
+    pytest.raises(ValueError, dictwith(key=int), {})
+    pytest.raises(ValueError, dictwith(key=int), {'key': 'a'})
+    pytest.raises(ValueError, dictwith(key=int), {'x': '10'})
+    pytest.raises(ValueError, dictwith(key=int),
+                         {'key': '10', 'x': 'a'})
+    pytest.raises(ValueError, dictwith(key=int), [])
     # test that the dict is read-only
-    assert raises(TypeError, dictwith(key=int)({'key': '1'}).pop, 1)
+    pytest.raises(TypeError, dictwith(key=int)({'key': '1'}).pop, 1)
 
 
 def test_tangodev():
@@ -226,8 +228,8 @@ def test_tangodev():
     for validname in valid_names:
         assert tangodev(validname) == validname
 
-    for key, invalidname in invalid_names.items():
-        assert raises(ValueError, tangodev, invalidname), key
+    for _key, invalidname in invalid_names.items():
+        pytest.raises(ValueError, tangodev, invalidname)  # , reason=key)
 
 
 def test_pvname():
@@ -247,8 +249,8 @@ def test_pvname():
     for valid in valid_names:
         assert pvname(valid) == valid
 
-    for invalid, reason in invalid_names.items():
-        assert raises(ValueError, pvname, invalid), reason
+    for invalid, _reason in invalid_names.items():
+        pytest.raises(ValueError, pvname, invalid)  # , reason=reason)
 
 
 def test_anytype():
@@ -258,32 +260,32 @@ def test_anytype():
 def test_vec3():
     assert vec3([1, 0, 0]) == [1., 0., 0.]
     assert vec3() == [0., 0., 0.]
-    assert raises(ValueError, vec3, [1, 0])
-    assert raises(ValueError, vec3, ['x', 'y', 'z'])
+    pytest.raises(ValueError, vec3, [1, 0])
+    pytest.raises(ValueError, vec3, ['x', 'y', 'z'])
     # assert that the list is read-only
-    assert raises(TypeError, vec3([0, 1, 2]).__setitem__, 0, 1)
+    pytest.raises(TypeError, vec3([0, 1, 2]).__setitem__, 0, 1)
 
 
 def test_intrange():
     assert intrange(0, 10)(10) == 10
     assert intrange(1, 3)() == 1
-    assert raises(ValueError, intrange(0, 10), 15)
-    assert raises(ValueError, intrange(0, 10), 'x')
-    assert raises(ValueError, intrange, 2, 1)
-    assert raises(ValueError, intrange, True, False)
-    assert raises(ValueError, intrange(0, 1), True)
-    assert raises(ValueError, intrange(0, 1), False)
+    pytest.raises(ValueError, intrange(0, 10), 15)
+    pytest.raises(ValueError, intrange(0, 10), 'x')
+    pytest.raises(ValueError, intrange, 2, 1)
+    pytest.raises(ValueError, intrange, True, False)
+    pytest.raises(ValueError, intrange(0, 1), True)
+    pytest.raises(ValueError, intrange(0, 1), False)
 
 
 def test_floatrange():
     assert floatrange(0, 10)(5) == 5.0
     assert floatrange(1, 3)() == 1.0
-    assert raises(ValueError, floatrange(0, 10), 15.)
-    assert raises(ValueError, floatrange(0, 10), 'x')
-    assert raises(ValueError, floatrange, 2, 1)
+    pytest.raises(ValueError, floatrange(0, 10), 15.)
+    pytest.raises(ValueError, floatrange(0, 10), 'x')
+    pytest.raises(ValueError, floatrange, 2, 1)
 
     assert floatrange(0)(5) == 5.0
-    assert raises(ValueError, floatrange(0), -5)
+    pytest.raises(ValueError, floatrange(0), -5)
 
 
 def test_oneof():
@@ -293,27 +295,27 @@ def test_oneof():
     assert oneof(None)(None) is None
     assert oneof()() is None
     assert oneof()(None) is None
-    assert raises(ValueError, oneof(0, 1), '0')
-    assert raises(ValueError, oneof(0, 1), 2)
-    assert raises(ValueError, oneof(0, 1), 'x')
+    pytest.raises(ValueError, oneof(0, 1), '0')
+    pytest.raises(ValueError, oneof(0, 1), 2)
+    pytest.raises(ValueError, oneof(0, 1), 'x')
 
 
 def test_setof():
     SETTYPES = (1, 2, 3, 4)
     assert setof(*SETTYPES)() == frozenset()
     assert setof(*SETTYPES)([1]) == frozenset([1])
-    assert raises(ValueError, setof(*SETTYPES), [5])
+    pytest.raises(ValueError, setof(*SETTYPES), [5])
 
 
 def test_oneofdict():
     assert oneofdict({'A': 1, 'B': 2})('A') == 1
     assert oneofdict({'A': 1, 'B': 2})(1) == 1
     assert oneofdict({})() is None
-    assert raises(ValueError, oneofdict({'A': 1}), 2)
+    pytest.raises(ValueError, oneofdict({'A': 1}), 2)
 
     assert none_or(int)(None) is None
     assert none_or(int)(5.0) == 5
-    assert raises(ValueError, none_or(int), 'x')
+    pytest.raises(ValueError, none_or(int), 'x')
 
 
 def test_limits():
@@ -321,12 +323,12 @@ def test_limits():
     assert limits((0, 0)) == (0, 0)
     assert limits() == (0, 0)
     assert limits([-10, 10]) == (-10, 10)
-    assert raises(ValueError, limits, (1,))
-    assert raises(ValueError, limits, 1)
-    assert raises(ValueError, limits, (10, 10, 10))
-    assert raises(TypeError, limits, 1, 1)
-    assert raises(ValueError, limits, (10, -10))
-    assert raises(ValueError, limits, ('a', 'b'))
+    pytest.raises(ValueError, limits, (1,))
+    pytest.raises(ValueError, limits, 1)
+    pytest.raises(ValueError, limits, (10, 10, 10))
+    pytest.raises(TypeError, limits, 1, 1)
+    pytest.raises(ValueError, limits, (10, -10))
+    pytest.raises(ValueError, limits, ('a', 'b'))
 
 
 def test_mailaddress():
@@ -342,33 +344,33 @@ def test_mailaddress():
     assert mailaddress('M. Address <my.address@domain.my>') == 'M. Address <my.address@domain.my>'
     assert mailaddress('M. Address <my.address@domain.my> ') == 'M. Address <my.address@domain.my> '
     assert mailaddress('W. Lohstroh, G. Simeoni '
-                       '<wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>') ==  \
-                       'W. Lohstroh, G. Simeoni <wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>'
-    assert raises(ValueError, mailaddress, 'M. Address my.address@domain.my>')
-    assert raises(ValueError, mailaddress, 'M. Address <my.address@domain.my')
-    assert raises(ValueError, mailaddress, 'my.name.domain.my')
-    assert raises(ValueError, mailaddress, '@my.domain')
-    assert raises(ValueError, mailaddress, 'my@domain')
-    assert raises(ValueError, mailaddress, 'my@domain.123')
-    assert raises(ValueError, mailaddress, 'my@domain@dummy.my')
-    assert raises(ValueError, mailaddress, 'my@nonsens@dömain.my')
-    assert raises(ValueError, mailaddress, 'M. Address <my.address@domain.my>,')
+                       '<wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>') == \
+        'W. Lohstroh, G. Simeoni <wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>'
+    pytest.raises(ValueError, mailaddress, 'M. Address my.address@domain.my>')
+    pytest.raises(ValueError, mailaddress, 'M. Address <my.address@domain.my')
+    pytest.raises(ValueError, mailaddress, 'my.name.domain.my')
+    pytest.raises(ValueError, mailaddress, '@my.domain')
+    pytest.raises(ValueError, mailaddress, 'my@domain')
+    pytest.raises(ValueError, mailaddress, 'my@domain.123')
+    pytest.raises(ValueError, mailaddress, 'my@domain@dummy.my')
+    pytest.raises(ValueError, mailaddress, 'my@nonsens@dömain.my')
+    pytest.raises(ValueError, mailaddress, 'M. Address <my.address@domain.my>,')
 
 
 def test_value_class():
-    assert raises(ProgrammingError, Value, 'my value', type='mytype')
-    assert raises(ProgrammingError, Value, 'my value', errors='double')
+    pytest.raises(ProgrammingError, Value, 'my value', type='mytype')
+    pytest.raises(ProgrammingError, Value, 'my value', errors='double')
 
 
 def test_path():
     assert absolute_path('/tmp') == '/tmp'
     assert relative_path('tmp') == 'tmp'
     assert subdir('tmp') == 'tmp'
-    assert raises(ValueError, absolute_path, 'tmp')
-    assert raises(ValueError, absolute_path, '../')
-    assert raises(ValueError, relative_path, '/tmp')
-    assert raises(ValueError, relative_path, '../')
-    assert raises(ValueError, subdir, 'tmp/')
+    pytest.raises(ValueError, absolute_path, 'tmp')
+    pytest.raises(ValueError, absolute_path, '../')
+    pytest.raises(ValueError, relative_path, '/tmp')
+    pytest.raises(ValueError, relative_path, '../')
+    pytest.raises(ValueError, subdir, 'tmp/')
 
 
 def test_oneofdict_or():
@@ -377,21 +379,21 @@ def test_oneofdict_or():
     assert v('a') == 1.0
     assert v('b') == 2.0
     assert v(5) == 5.0
-    assert raises(ValueError, v, 'c')
-    assert raises(ValueError, v, 11)
+    pytest.raises(ValueError, v, 'c')
+    pytest.raises(ValueError, v, 11)
 
 
 def test_nicosdev():
     assert nicosdev('nicosdev') == 'nicosdev'
     assert nicosdev('nicos.dev') == 'nicos.dev'
-    assert raises(ValueError, nicosdev, 'a.nicos.dev')
+    pytest.raises(ValueError, nicosdev, 'a.nicos.dev')
     assert nicosdev() == ''
 
 
 def test_nonemptystring():
     p = Param('nonemptystring', type=nonemptystring)
     assert p.default is None
-    assert raises(ValueError, nonemptystring, '')
+    pytest.raises(ValueError, nonemptystring, '')
     assert nonemptystring('text') == 'text'
 
 
@@ -399,13 +401,13 @@ def test_host():
     assert host()('localhost') == 'localhost'
     assert host()('localhost:14869') == 'localhost:14869'
     assert host()('') == ''
-    assert raises(ValueError, host(), None)
-    assert raises(ValueError, host(), 123)
-    assert raises(ValueError, host(), 'localhost:')
-    assert raises(ValueError, host(), 'localhost:14869:')
-    assert raises(ValueError, host(), 'localhost:0')
-    assert raises(ValueError, host(), 'localhost:65536')
-    assert raises(ValueError, host(), 'localhost:port')
+    pytest.raises(ValueError, host(), None)
+    pytest.raises(ValueError, host(), 123)
+    pytest.raises(ValueError, host(), 'localhost:')
+    pytest.raises(ValueError, host(), 'localhost:14869:')
+    pytest.raises(ValueError, host(), 'localhost:0')
+    pytest.raises(ValueError, host(), 'localhost:65536')
+    pytest.raises(ValueError, host(), 'localhost:port')
     assert host(defaulthost='localhost')('') == ''
     assert host(defaulthost='localhost')(None) == 'localhost'
     assert host(defaulthost='localhost')('otherhost') == 'otherhost'
@@ -423,10 +425,10 @@ def test_host():
     assert host(defaulthost='localhost',
                 defaultport='456')('otherhost:789') == 'otherhost:789'
 
-    assert raises(ValueError, host().__call__, ':123')
+    pytest.raises(ValueError, host().__call__, ':123')
 
-    assert raises(ValueError, host, **{'defaultport': 'abc'})
-    assert raises(ValueError, host, **{'defaultport': '9999999'})
+    pytest.raises(ValueError, host, **{'defaultport': 'abc'})
+    pytest.raises(ValueError, host, **{'defaultport': '9999999'})
 
 
 def test_ipv4():
@@ -437,15 +439,15 @@ def test_ipv4():
     assert ipv4() == '0.0.0.0'
     assert ipv4('') == ''
     assert ipv4(None) == ''
-    assert raises(ValueError, ipv4, '1')
-    assert raises(ValueError, ipv4, '1.2')
-    assert raises(ValueError, ipv4, '1.2.3')
-    assert raises(ValueError, ipv4, '1.2.3.4.')
-    assert raises(ValueError, ipv4, '1.2.3.256')
-    assert raises(ValueError, ipv4, '1.2.256.4')
-    assert raises(ValueError, ipv4, '1.256.3.4')
-    assert raises(ValueError, ipv4, '256.2.3.4')
-    assert raises(ValueError, ipv4, ' 255.255.255.255')
+    pytest.raises(ValueError, ipv4, '1')
+    pytest.raises(ValueError, ipv4, '1.2')
+    pytest.raises(ValueError, ipv4, '1.2.3')
+    pytest.raises(ValueError, ipv4, '1.2.3.4.')
+    pytest.raises(ValueError, ipv4, '1.2.3.256')
+    pytest.raises(ValueError, ipv4, '1.2.256.4')
+    pytest.raises(ValueError, ipv4, '1.256.3.4')
+    pytest.raises(ValueError, ipv4, '256.2.3.4')
+    pytest.raises(ValueError, ipv4, ' 255.255.255.255')
 
 
 def test_ArrayDesc():
@@ -453,7 +455,7 @@ def test_ArrayDesc():
     ad2 = ad.copy()
     assert ad != ad2
     assert ad2.name == ad.name and ad2.shape == ad.shape \
-       and ad2.dtype == ad.dtype and ad2.dimnames == ad.dimnames
+        and ad2.dtype == ad.dtype and ad2.dimnames == ad.dimnames
 
 
 def test_nonzero():
@@ -469,25 +471,25 @@ def test_nonzero():
     assert nonzero(floatrange(0, 1))(0.5) == 0.5
     assert nonzero(floatrange(-1, 1))(1) == 1
     assert nonzero(floatrange(-1, 1))() == -1
-    assert raises(TypeError, nonzero, 'x')
-    assert raises(ValueError, nonzero, floatrange(0, 0.1))
-    assert raises(ValueError, nonzero, floatrange(0, 0.1), 1)
-    assert raises(ValueError, nonzero(int), 0)
-    assert raises(ValueError, nonzero(float), 0)
-    assert raises(ValueError, nonzero(intrange(-1, 1)), 0)
-    assert raises(ValueError, nonzero(floatrange(-1, 1)), 0)
-    assert raises(ValueError, nonzero(floatrange(-1, 1)), 10)
+    pytest.raises(TypeError, nonzero, 'x')
+    pytest.raises(ValueError, nonzero, floatrange(0, 0.1))
+    pytest.raises(ValueError, nonzero, floatrange(0, 0.1), 1)
+    pytest.raises(ValueError, nonzero(int), 0)
+    pytest.raises(ValueError, nonzero(float), 0)
+    pytest.raises(ValueError, nonzero(intrange(-1, 1)), 0)
+    pytest.raises(ValueError, nonzero(floatrange(-1, 1)), 0)
+    pytest.raises(ValueError, nonzero(floatrange(-1, 1)), 10)
 
 
 def test_secret():
     s = secret()
     assert f'{s!r}' == "<secret ''>"
-    assert raises(ConfigurationError, s.lookup)
+    pytest.raises(ConfigurationError, s.lookup)
 
     s = secret('secret')
-    assert raises(ConfigurationError, s.lookup, 'error')
+    pytest.raises(ConfigurationError, s.lookup, 'error')
     assert s.lookup() is None
 
     s = secret(Secret(('secret', {})))
-    assert raises(ConfigurationError, s.lookup, 'error')
+    pytest.raises(ConfigurationError, s.lookup, 'error')
     assert s.lookup() is None

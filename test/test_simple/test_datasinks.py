@@ -38,8 +38,6 @@ from nicos.core import ScanDataset
 from nicos.devices.datasinks.scan import AsciiScanfileReader
 from nicos.utils import readFile, updateFileCounter
 
-from test.utils import raises
-
 try:
     import astropy.io.fits as pyfits
 except ImportError:
@@ -236,7 +234,7 @@ class TestSinks:
             pytest.fail('could not read serialized sink')
         assert len(datasets) == 1
         assert datasets[43]
-        assert raises(KeyError, lambda: datasets[41])
+        pytest.raises(KeyError, lambda: datasets[41])
         data = datasets[43]
         assert data.samplecounter == 1
         assert data.counter == 43

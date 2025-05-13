@@ -44,8 +44,6 @@ from nicos.utils import KEYEXPR_NS, TB_CAUSE_MSG, Repeater, allDays, \
     squeeze, tcpSocket, timedRetryOnExcept, tupelize, updateFileCounter
 from nicos.utils.timer import Timer
 
-from test.utils import raises
-
 
 def test_lazy_property():
     asked = []
@@ -63,7 +61,7 @@ def test_lazy_property():
 
 def test_readonly_objects():
     d = readonlydict({'a': 1, 'b': 2})
-    assert raises(TypeError, d.update, {})
+    pytest.raises(TypeError, d.update, {})
 
     # pickle Protocoll 0
     unpickled = pickle.loads(pickle.dumps(d))
@@ -75,7 +73,7 @@ def test_readonly_objects():
     assert len(unpickled) == 2
 
     lst = readonlylist([1, 2, 3])
-    assert raises(TypeError, lst.append, 4)
+    pytest.raises(TypeError, lst.append, 4)
 
     # pickle Protocoll 0
     unpickled = pickle.loads(pickle.dumps(lst))
@@ -189,7 +187,7 @@ def test_retryOnExcept():
 
     # Make sure we get the inner error in case of too many retries
     x = 0
-    assert raises(NicosError, wr, x)
+    pytest.raises(NicosError, wr, x)
 
     # Make sure we get success if inner succeeds
     x = 2
@@ -198,7 +196,7 @@ def test_retryOnExcept():
 
     # assert we get
     x = 0
-    assert raises(Exception, wr3, x)
+    pytest.raises(Exception, wr3, x)
     assert x == 0
 
 
@@ -444,7 +442,7 @@ def test_parse_duration(inp, expected):
     '+-5d',
 ])
 def test_parse_duration_parse_errors(inp):
-    assert raises(ValueError, parseDuration, inp)
+    pytest.raises(ValueError, parseDuration, inp)
 
 
 @pytest.mark.parametrize('inp', [
@@ -452,7 +450,7 @@ def test_parse_duration_parse_errors(inp):
     {'days': 5},
 ])
 def test_parse_duration_type_errors(inp):
-    assert raises(TypeError, parseDuration, inp)
+    pytest.raises(TypeError, parseDuration, inp)
 
 
 def test_all_days():

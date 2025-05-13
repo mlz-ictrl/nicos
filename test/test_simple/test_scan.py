@@ -41,8 +41,6 @@ from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.core.status import BUSY, OK
 from nicos.core.utils import waitForState
 
-from test.utils import raises
-
 # this can happen during fitting, just don't print it out
 warnings.filterwarnings('ignore', 'Covariance of the parameters could not '
                         'be estimated')
@@ -59,7 +57,7 @@ def test_scan(session, log):
 
     # check that scans are impossible in slave mode
     session.setMode(SLAVE)
-    assert raises(ModeError, scan, m, [0, 1, 2, 10])
+    pytest.raises(ModeError, scan, m, [0, 1, 2, 10])
     session.setMode(MASTER)
 
     session.experiment.setDetectors([session.getDevice('det')])
@@ -93,7 +91,8 @@ def test_scan(session, log):
         # scan with multiple devices
         scan([m, m2], [0, 0], [1, 2], 3, t=0.)
         dataset = dataman.getLastScans()[-1]
-        assert dataset.devvaluelists == [[float(i), float(i*2)] for i in [0, 1, 2]]
+        assert dataset.devvaluelists == [[float(i), float(i*2)]
+                                         for i in [0, 1, 2]]
 
         # same with tuple arguments
         scan((m, m2), (0, 0), (1, 2), 2, t=0.)
@@ -131,13 +130,16 @@ def test_gridscan(session):
         assert dataset.devvaluelists == [[0, 0], [1, 0],
                                          [0, 2], [1, 2],
                                          [0, 4], [1, 4]]
-        assert raises(UsageError, gridscan, (m, m2), (0, 0), (1, 2), 1, t=0.)
-        assert raises(UsageError, gridscan, (m, m2), (0, 0), 1, (2, 3), t=0.)
-        assert raises(UsageError, gridscan, (m, m2), 0, (1, 2), (2, 3), t=0.)
-        assert raises(UsageError, gridscan, (m, m2), (0, 0, 0), (1, 2), (2, 3), t=0.)
-        assert raises(UsageError, gridscan, (m, m2), (0, 0), (1, 2, 3), (2, 3), t=0.)
-        assert raises(UsageError, gridscan, (m, m2), (0, 0), (1, 2), (2, 3, 4), t=0.)
-        assert raises(UsageError, gridscan, (m, m2), (0, 0), (1, 2), t=0.)
+        pytest.raises(UsageError, gridscan, (m, m2), (0, 0), (1, 2), 1, t=0.)
+        pytest.raises(UsageError, gridscan, (m, m2), (0, 0), 1, (2, 3), t=0.)
+        pytest.raises(UsageError, gridscan, (m, m2), 0, (1, 2), (2, 3), t=0.)
+        pytest.raises(UsageError, gridscan, (m, m2), (0, 0, 0), (1, 2), (2, 3),
+                      t=0.)
+        pytest.raises(UsageError, gridscan, (m, m2), (0, 0), (1, 2, 3), (2, 3),
+                      t=0.)
+        pytest.raises(UsageError, gridscan, (m, m2), (0, 0), (1, 2), (2, 3, 4),
+                      t=0.)
+        pytest.raises(UsageError, gridscan, (m, m2), (0, 0), (1, 2), t=0.)
     finally:
         session.experiment.detlist = []
 
@@ -202,21 +204,21 @@ def test_scan_usageerrors(session):
     m2 = session.getDevice('motor2')
 
     # not enough arguments
-    assert raises(UsageError, scan, m)
-    assert raises(UsageError, scan, m, 0, 1)
-    assert raises(UsageError, scan, [m, m2], [0, 1])
-    assert raises(UsageError, scan, [m, m2], [0, 1], [0.1, 0.2])
+    pytest.raises(UsageError, scan, m)
+    pytest.raises(UsageError, scan, m, 0, 1)
+    pytest.raises(UsageError, scan, [m, m2], [0, 1])
+    pytest.raises(UsageError, scan, [m, m2], [0, 1], [0.1, 0.2])
     # start/step must be lists for multidevice
-    assert raises(UsageError, scan, [m, m2], 0)
-    assert raises(UsageError, scan, [m, m2], [0, 1], 0.1, 1)
+    pytest.raises(UsageError, scan, [m, m2], 0)
+    pytest.raises(UsageError, scan, [m, m2], [0, 1], 0.1, 1)
     # start/step must be of equal length
-    assert raises(UsageError, scan, [m, m2], [0, 1], [0.1, 0.2, 0.3], 1)
+    pytest.raises(UsageError, scan, [m, m2], [0, 1], [0.1, 0.2, 0.3], 1)
     # as must individual value lists
-    assert raises(UsageError, scan, [m, m2], [[0, 1], [0.1, 0.2, 0.3]])
+    pytest.raises(UsageError, scan, [m, m2], [[0, 1], [0.1, 0.2, 0.3]])
     # as must multistep lists
-    assert raises(UsageError, scan, m, 0, 1, 1, motor=[1, 2], motor2=[3, 4, 5])
+    pytest.raises(UsageError, scan, m, 0, 1, 1, motor=[1, 2], motor2=[3, 4, 5])
     # unsupported scan argument
-    assert raises(UsageError, scan, m, 0, 1, 1, {})
+    pytest.raises(UsageError, scan, m, 0, 1, 1, {})
 
 
 def test_scan_invalidpreset(session, log):
@@ -273,7 +275,7 @@ def test_scan_errorhandling(session, log):
 
         # other errors: reraised
         t._start_exception = RuntimeError()
-        assert raises(RuntimeError, scan, t, [0, 1, 2, 3])
+        pytest.raises(RuntimeError, scan, t, [0, 1, 2, 3])
 
 
 def test_cscan(session):
@@ -302,7 +304,7 @@ def test_sweeps(session):
     sweep(m, 1, 5, delay=1)
     sweep(m, 1, 5, minstep=1, delay=1)
 
-    assert raises(UsageError, sweep, m, 1, 5, minstep=[1, 1])
+    pytest.raises(UsageError, sweep, m, 1, 5, minstep=[1, 1])
 
 
 def test_contscan(session):
@@ -321,10 +323,10 @@ def test_contscan(session):
     assert dataset.devvaluelists
     assert all(0 <= res[0] <= 2 for res in dataset.devvaluelists)
     # no speed parameter
-    assert raises(UsageError, contscan, mm, 0, 2)
+    pytest.raises(UsageError, contscan, mm, 0, 2)
     # preset and multistep not allowed
-    assert raises(UsageError, contscan, m, 0, 2, 2, t=1)
-    assert raises(UsageError, contscan, m, 0, 2, 2, manual=[0, 1])
+    pytest.raises(UsageError, contscan, m, 0, 2, 2, t=1)
+    pytest.raises(UsageError, contscan, m, 0, 2, 2, manual=[0, 1])
 
 
 def test_manualscan(session):
@@ -342,8 +344,8 @@ def test_manualscan(session):
         for i in range(3):
             mot.maw(i)
             count_result = count()
-        assert raises(NicosError, manualscan)
-        assert raises(NicosError, scan, mot, 0, 1, 1, t=0.)
+        pytest.raises(NicosError, manualscan)
+        pytest.raises(NicosError, scan, mot, 0, 1, 1, t=0.)
 
     assert isinstance(count_result, CountResult) and len(count_result) == 5
 

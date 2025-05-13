@@ -26,11 +26,10 @@ Tests for the single (4-circle and related) positions
 """
 
 import numpy as np
+import pytest
 
 from nicos.devices.sxtal.goniometer.base import PositionFactory, typelist
 from nicos.devices.sxtal.goniometer.posutils import equal
-
-from test.utils import raises
 
 session_setup = 'sxtalpositions'
 
@@ -79,8 +78,9 @@ def test_positions(session):
 
                 assert equal(p1, p2)
 
+
 def test_position_factory():
-    assert raises(TypeError, PositionFactory, 'z')
+    pytest.raises(TypeError, PositionFactory, 'z')
     p = PositionFactory('n')
-    assert raises(TypeError, p.asType, 'z')
+    pytest.raises(TypeError, p.asType, 'z')
     assert equal(p, PositionFactory('', p=p))

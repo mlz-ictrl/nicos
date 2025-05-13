@@ -36,7 +36,7 @@ from nicos.core import ComputationError, ConfigurationError, \
     status
 from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
 
-from test.utils import ErrorLogged, raises
+from test.utils import ErrorLogged
 
 session_setup = 'tas'
 
@@ -90,8 +90,8 @@ def test_mono_device(session):
     old = mono.read(0)
 
     mono.reset()
-    assert raises(LimitError, mono.doStart, 0.11)
-    assert raises(LimitError, mono.maw, 0.11)
+    pytest.raises(LimitError, mono.doStart, 0.11)
+    pytest.raises(LimitError, mono.maw, 0.11)
 
     mono.maw(1.5)
 
@@ -138,20 +138,20 @@ def test_tas_device(session, tas):
     assertPos(tas(), [1, 0, 0, 1])
 
     # cannot go to position out of scattering triangle
-    assert raises(LimitError, tas, [5, 0, 0, 0])
+    pytest.raises(LimitError, tas, [5, 0, 0, 0])
     # cannot go to position out of scattering plane
-    assert raises(LimitError, tas, [1, 2, 1, 0])
+    pytest.raises(LimitError, tas, [1, 2, 1, 0])
     # cannot go beyond motor limits
     old_limits = psi.userlimits
     psi.userlimits = (0, 50)
-    assert raises(LimitError, tas, [1, 0, 0, 1])
+    pytest.raises(LimitError, tas, [1, 0, 0, 1])
     psi.userlimits = old_limits
 
     # test scattering sense
     tas.scatteringsense = [-1, 1, -1]
     tas.maw([1, 0, 0, 1])
     assert phi() == approx(46.6, abs=0.1)  # now with "+" sign
-    assert raises(ConfigurationError, setattr, tas, 'scatteringsense',
+    pytest.raises(ConfigurationError, setattr, tas, 'scatteringsense',
                   [2, 0, 2])
 
     # test energytransferunit
@@ -161,7 +161,8 @@ def test_tas_device(session, tas):
     assert tas()[3] == approx(-6.216, abs=1e-3)
     tas.energytransferunit = 'THz'
     assert tas()[3] == approx(-1.503, abs=1e-3)
-    assert raises(InvalidValueError, setattr, tas, 'energytransferunit', 'A-1')
+    pytest.raises(InvalidValueError, setattr, tas, 'energytransferunit',
+                  'A-1')
 
     # test scanmode
     tas.scanmode = 'CKI'
@@ -179,8 +180,8 @@ def test_tas_device(session, tas):
     assert mono() == approx(2.5, abs=1e-3)
     assertPos(tas(), [1, 0, 0, 0])
     # XXX shouldn't this result in an error?
-    # assert raises(tas, [1, 0, 0, 1])
-    assert raises(ConfigurationError, setattr, tas, 'scanmode', 'BLAH')
+    # pytest.raises(tas, [1, 0, 0, 1])
+    pytest.raises(ConfigurationError, setattr, tas, 'scanmode', 'BLAH')
 
     # test sub-devices and wavevector devices
     kf(2.662)
@@ -234,10 +235,10 @@ def test_qscan(session, tas):
     qscan((2, 0, 0, '2'), (0.1, 0, 0, 0), 10, 'x1!', 'x23', t=1, h=3, dE=0.2)
     qscan((2, 0, 0, '2'), (0.1, 0, 0, 0), 10, 'x1!', 'x23', t=1, h=3, dE='0.2')
 
-    assert raises(UsageError, qscan, 'abc', (0, 0, 0), 1)
-    assert raises(UsageError, qscan, (1, 0, 0, 0, 0), (0, 0, 0), 10)
-    assert raises(UsageError, qscan, (1, 0, 0), (0, 0, 0), 10)
-    assert raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
+    pytest.raises(UsageError, qscan, 'abc', (0, 0, 0), 1)
+    pytest.raises(UsageError, qscan, (1, 0, 0, 0, 0), (0, 0, 0), 10)
+    pytest.raises(UsageError, qscan, (1, 0, 0), (0, 0, 0), 10)
+    pytest.raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
 
 
 def test_tas_commands(session, log, tas):
@@ -267,16 +268,16 @@ def test_tas_commands(session, log, tas):
     with log.assert_warns('position not allowed'):
         calpos(0.7, 0.7, 0.7, 0)
     calpos(0.5, 0.5, 0.5, 0)
-    assert raises(ErrorLogged, calpos, 1, 0, 0, 1)
+    pytest.raises(ErrorLogged, calpos, 1, 0, 0, 1)
     pos()  # still goes to last successful calpos()
     assertPos(tas(), [0.5, 0.5, 0.5, 0])
     rp()  # just check that it works
 
-    assert raises(ComputationError, pos, (1, 2, 3))
-    assert raises(LimitError, pos, (0.7, 0.7, 0.7))
+    pytest.raises(ComputationError, pos, (1, 2, 3))
+    pytest.raises(LimitError, pos, (0.7, 0.7, 0.7))
 
-    assert raises(UsageError, calpos, 1, 0, 0, 0, 0, 0)
-    assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
+    pytest.raises(UsageError, calpos, 1, 0, 0, 0, 0, 0)
+    pytest.raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
 
 
 def test_qmodulus(session, log):
@@ -382,7 +383,7 @@ def test_virtualgonios(session, tas):
 
     # limits of sgx, sgy are +/- 5 deg
     v1.maw(7)
-    assert raises(LimitError, v2.maw, 3)
+    pytest.raises(LimitError, v2.maw, 3)
 
     # make sure the calculations match intent
     tas._attached_cell.psi0 = 64

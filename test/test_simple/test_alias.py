@@ -25,11 +25,13 @@
 
 from time import sleep
 
+import pytest
+
 from nicos.commands.basic import ListCommands
 from nicos.commands.device import adjust, read
 from nicos.core import ConfigurationError, NoDevice, UsageError
 
-from test.utils import ErrorLogged, raises
+from test.utils import ErrorLogged
 
 session_setup = 'alias'
 
@@ -40,9 +42,9 @@ def test_alias_nodev(session, log):
     assert isinstance(alias._obj, NoDevice)
     assert alias.alias == ''  # pylint: disable=compare-to-empty-string
     # accesses raise ConfigurationError
-    assert raises(AttributeError, getattr, alias, 'read')
-    assert raises(ConfigurationError, setattr, alias, 'speed', 0)
-    assert raises(ErrorLogged, read, alias)
+    pytest.raises(AttributeError, getattr, alias, 'read')
+    pytest.raises(ConfigurationError, setattr, alias, 'speed', 0)
+    pytest.raises(ErrorLogged, read, alias)
     # but stringification is still the name of the alias object
     assert str(alias) == 'aliasNoDev'
     assert 'aliasNoDev' in repr(alias)
@@ -74,7 +76,7 @@ def test_alias_dev(session, log):
     assert session.cache.get_explicit(alias, 'speed')[2] == 5.1
     # check type restriction by devclass parameter
     slit = session.getDevice('slit')
-    assert raises(UsageError, setattr, alias, 'alias', slit)
+    pytest.raises(UsageError, setattr, alias, 'alias', slit)
 
 
 def test_alias_valueinfo2(session):

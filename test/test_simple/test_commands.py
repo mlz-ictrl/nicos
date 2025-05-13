@@ -55,7 +55,7 @@ from nicos.core import ConfigurationError, LimitError, MoveError, NicosError, \
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.utils import ensureDirectory
 
-from test.utils import ErrorLogged, raises
+from test.utils import ErrorLogged
 
 session_setup = 'commands'
 
@@ -69,8 +69,8 @@ class TestBasic:
             printinfo('printinfo testing...')
         with log.assert_warns():
             printwarning('warn!')
-        assert raises(ErrorLogged, printerror, 'error!')
-        assert raises(ErrorLogged, printexception, 'exception!')
+        pytest.raises(ErrorLogged, printerror, 'error!')
+        pytest.raises(ErrorLogged, printexception, 'exception!')
 
     def test_basic_commands(self, session, log):
         with log.assert_msg_matches([r'Usage: help\(\[object\]\)',
@@ -102,8 +102,8 @@ class TestBasic:
         assert 'slit' not in session.configured_devices
         with log.assert_warns('is not a loaded setup, ignoring'):
             RemoveSetup('blah')
-        assert raises(ConfigurationError, NewSetup, 'foobar01')
-        assert raises(ConfigurationError, AddSetup, 'foobar01')
+        pytest.raises(ConfigurationError, NewSetup, 'foobar01')
+        pytest.raises(ConfigurationError, AddSetup, 'foobar01')
 
     def test_devicecreation_commands(self, session, log):
         if 'motor' in session.devices:
@@ -114,7 +114,7 @@ class TestBasic:
         assert 'motor' in session.devices
 
         RemoveDevice('motor')
-        assert raises(UsageError, RemoveDevice)
+        pytest.raises(UsageError, RemoveDevice)
         assert 'motor' not in session.devices
         CreateAllDevices()
         assert 'motor' in session.devices
@@ -125,7 +125,7 @@ class TestBasic:
     def test_mode_commands(self, session):
         SetMode(SLAVE)
         SetMode(MASTER)
-        assert raises(UsageError, SetMode, 'blah')
+        pytest.raises(UsageError, SetMode, 'blah')
 
     def test_clearcache(self, session, log):
         with UserInfo('userinfo'):
@@ -151,7 +151,7 @@ class TestBasic:
             pytest.fail('no error raised and no error logged')
 
         SetErrorAbort(True)
-        assert raises(LimitError, wrapped_maw, dev, -150)
+        pytest.raises(LimitError, wrapped_maw, dev, -150)
 
     def test_commands_elog(self, session):
         LogEntry('== some subheading\n\nThis is a logbook entry.')
@@ -257,10 +257,10 @@ class TestDevice:
             motor.wait()
             assert motor.curvalue == pos
 
-        assert raises(LimitError, move, motor, max(motor.userlimits) + 1)
+        pytest.raises(LimitError, move, motor, max(motor.userlimits) + 1)
 
-        assert raises(UsageError, move)
-        assert raises(UsageError, move, motor, 1, motor)
+        pytest.raises(UsageError, move)
+        pytest.raises(UsageError, move, motor, 1, motor)
 
     def test_rmove(self, session, log):
         """Check rmove() command."""
@@ -284,11 +284,11 @@ class TestDevice:
 
         # ensure that switchers or similar devices can't use relative moves
         sw = session.getDevice('sw')
-        assert raises(UsageError, rmove, sw, 3)
+        pytest.raises(UsageError, rmove, sw, 3)
 
         # ensure that "strange" deltas result in UsageError
-        assert raises(UsageError, rmove, axis, '7')
-        assert raises(UsageError, rmove, axis, None)
+        pytest.raises(UsageError, rmove, axis, '7')
+        pytest.raises(UsageError, rmove, axis, None)
 
     def test_maw(self, session, log):
         """Check maw() command."""
@@ -303,7 +303,7 @@ class TestDevice:
         maw(motor, 0, la, 0)
         log.clear()
         with log.assert_no_msg_matches('moving to'):
-            assert raises(LimitError, maw, motor, 2, la, 100000)
+            pytest.raises(LimitError, maw, motor, 2, la, 100000)
         with log.assert_msg_matches(['motor.*moving to', 'limit_axis.*moving to']):
             maw(motor, 2, la, 0.5)
             assert motor.curvalue == 2
@@ -355,7 +355,7 @@ class TestDevice:
         read(motor, coder)
         with log.assert_errors(r'expected failed read'):
             read(tdev)
-        assert raises(UsageError, read, exp)
+        pytest.raises(UsageError, read, exp)
         # ensure that target != position to generate a read message containing
         # a 'target' entry
         s = motor.speed
@@ -433,17 +433,17 @@ class TestDevice:
         stop(motor)
         release(motor)
         assert motor.curvalue == 0
-        assert raises(UsageError, release)
-        assert raises(UsageError, release, ())
-        assert raises(UsageError, unfix, ())
-        assert raises(UsageError, fix, (motor, motor))
+        pytest.raises(UsageError, release)
+        pytest.raises(UsageError, release, ())
+        pytest.raises(UsageError, unfix, ())
+        pytest.raises(UsageError, fix, (motor, motor))
 
     def test_disable_and_enable(self, session, log):
         """Check disable() and enable() commands."""
         motor = session.getDevice('motor')
         maw(motor, 0)
         disable(motor)
-        assert raises(MoveError, move, motor, 10)
+        pytest.raises(MoveError, move, motor, 10)
         enable(motor)
         maw(motor, 1)
 
@@ -547,7 +547,7 @@ class TestDevice:
     def test_count(self, session, log):
         """Check count() command."""
         motor = session.getDevice('motor')
-        assert raises(UsageError, count, motor)
+        pytest.raises(UsageError, count, motor)
         count()
 
     def test_preset(self, session, log):
@@ -586,11 +586,11 @@ class TestDevice:
         motor.speed = 10
         move(motor, 2)
         waitfor(motor, '> 1.2')
-        assert raises(NicosTimeoutError, waitfor, motor, '< 1', 0.1)
+        pytest.raises(NicosTimeoutError, waitfor, motor, '< 1', 0.1)
         waitfor(motor, '> 1', 0.1)
 
         # check waitfor wrong condition syntax
-        assert raises(UsageError, waitfor, motor, '>')
+        pytest.raises(UsageError, waitfor, motor, '>')
 
 
 def test_notifiers(session, log):
@@ -612,7 +612,7 @@ def test_notifiers(session, log):
     notify('subject', 'body')
     assert notifier._messages == [('subject', 'body', None, None, False)]
 
-    assert raises(UsageError, notify, 'lots', 'of', 'args')
+    pytest.raises(UsageError, notify, 'lots', 'of', 'args')
 
     # store current state
     msrv, msend = exp.mailserver, exp.mailsender

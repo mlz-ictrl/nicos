@@ -23,9 +23,9 @@
 
 """ANDES specific monochromator exchange tests."""
 
-from nicos.core import UsageError, status
+import pytest
 
-from test.utils import raises
+from nicos.core import UsageError, status
 
 session_setup = 'lahn_monoexchange'
 
@@ -69,10 +69,10 @@ def test_exchange_focus(session):
 def test_exchange_errors(session):
     exchange = session.getDevice('crystal')
     # no arguments
-    assert raises(UsageError, exchange.setFocus, )
+    pytest.raises(UsageError, exchange.setFocus, )
     # wrong device name
-    assert raises(UsageError, exchange.setFocus, blah=10)
-    assert raises(UsageError, exchange.setFocus, tran=10, blah=10)
+    pytest.raises(UsageError, exchange.setFocus, blah=10)
+    pytest.raises(UsageError, exchange.setFocus, tran=10, blah=10)
 
 
 def test_exchange_fallback_blockingmoves_1(session):

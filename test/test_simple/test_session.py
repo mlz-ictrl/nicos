@@ -25,20 +25,22 @@
 
 from os import path
 
+import pytest
+
 from nicos.core import ConfigurationError
 from nicos.core.sessions.setups import readSetups
 
-from test.utils import ErrorLogged, module_root, raises
+from test.utils import ErrorLogged, module_root
 
 session_setup = 'empty'
 
 
 def test_raisers(session):
-    assert raises(ConfigurationError,
-                  getattr, session.experiment, 'envlist')
-    assert raises(ConfigurationError,
-                  setattr, session.experiment, 'envlist', [])
-    assert raises(ConfigurationError, getattr, session.instrument, 'instrument')
+    pytest.raises(ConfigurationError, getattr, session.experiment, 'envlist')
+    pytest.raises(ConfigurationError, setattr, session.experiment, 'envlist',
+                  [])
+    pytest.raises(ConfigurationError, getattr, session.instrument,
+                  'instrument')
 
     assert bool(session.experiment) is False
 
@@ -60,6 +62,6 @@ def test_sysconfig(session):
 
 
 def test_device_names(session):
-    assert raises(ErrorLogged, readSetups,
+    pytest.raises(ErrorLogged, readSetups,
                   [path.join(module_root, 'test', 'faulty_setups')],
                   session.log)

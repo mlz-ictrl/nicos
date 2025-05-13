@@ -27,8 +27,6 @@ import pytest
 
 from nicos.core.errors import ConfigurationError, LimitError, UsageError
 
-from test.utils import raises
-
 session_setup = 'sans1'
 
 
@@ -47,8 +45,8 @@ class TestBeamStop:
         assert bs.xlimits == (480, 868)
         assert bs._attached_yaxis.read() > min(bs.ylimits)
 
-        assert raises(LimitError, bs.maw, (100, 300))
-        assert raises(LimitError, bs.maw, (500, 600))
+        pytest.raises(LimitError, bs.maw, (100, 300))
+        pytest.raises(LimitError, bs.maw, (500, 600))
 
     def test_beamstop_shape(self, session):
         bs = session.getDevice('bs')
@@ -56,16 +54,16 @@ class TestBeamStop:
 
         bs.shape = 'd35'
         # The 2 following errors are expected due to busy state
-        assert raises(UsageError, setattr, bs, 'shape', '70x70')
-        assert raises(LimitError, bs.maw, (480, 100))
+        pytest.raises(UsageError, setattr, bs, 'shape', '70x70')
+        pytest.raises(LimitError, bs.maw, (480, 100))
         bs.wait()
         assert bs.shape == 'd35'
         bs.maw((481, 100))
 
-        assert raises(ConfigurationError, setattr, bs, 'shape', 'unknown')
+        pytest.raises(ConfigurationError, setattr, bs, 'shape', 'unknown')
 
     def test_beamstop_axis(self, session):
         dev = session.getDevice('bs_xax')
         assert dev.offset == 0.
-        assert raises(ConfigurationError, setattr, dev, 'offset', 10)
+        pytest.raises(ConfigurationError, setattr, dev, 'offset', 10)
         dev.offset = 0

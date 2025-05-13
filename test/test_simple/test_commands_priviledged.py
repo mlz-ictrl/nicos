@@ -29,8 +29,6 @@ from nicos.commands.device import set  # pylint: disable=redefined-builtin
 from nicos.commands.device import disable, move, stop, wait
 from nicos.core import GUEST, AccessError, status as devstatus
 
-from test.utils import raises
-
 session_setup = 'device'
 
 
@@ -58,7 +56,7 @@ class TestDevicePriviledged:
         with session.withUserLevel(GUEST):
             assert pdev.status(0)[0] == devstatus.BUSY
             assert motor.status(0)[0] == devstatus.BUSY
-            assert raises(AccessError, pdev.stop)
+            pytest.raises(AccessError, pdev.stop)
             stop(pdev, motor)
             wait(motor)
             assert motor.status(0)[0] == devstatus.OK
@@ -72,16 +70,16 @@ class TestDevicePriviledged:
         """Check "requires" restrictions for setting parameters."""
         pdev = session.getDevice('privdev')
         with session.withUserLevel(GUEST):
-            assert raises(AccessError, set, pdev, 'unit', 'foo')
+            pytest.raises(AccessError, set, pdev, 'unit', 'foo')
 
     def test_privileged_disable(self, session, log):
         """Check "requires" restrictions to disable device."""
         pdev = session.getDevice('privdev')
         with session.withUserLevel(GUEST):
-            assert raises(AccessError, disable, pdev)
+            pytest.raises(AccessError, disable, pdev)
 
     def test_privileged_start(self, session, log):
         """Check "requires" restrictions to move device."""
         pdev = session.getDevice('privdev')
         with session.withUserLevel(GUEST):
-            assert raises(AccessError, move, pdev, 1)
+            pytest.raises(AccessError, move, pdev, 1)

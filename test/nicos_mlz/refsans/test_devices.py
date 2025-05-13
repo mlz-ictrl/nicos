@@ -29,8 +29,6 @@ from pytest import approx
 from nicos.core import status
 from nicos.core.errors import ConfigurationError, LimitError
 
-from test.utils import raises
-
 session_setup = 'refsans'
 
 
@@ -161,7 +159,7 @@ class TestDevices:
 
         dev.maw(50)
 
-        assert raises(ConfigurationError, session.getDevice, 'h2_motor_r')
+        pytest.raises(ConfigurationError, session.getDevice, 'h2_motor_r')
 
 
 class TestChopper:
@@ -197,7 +195,7 @@ class TestChopper:
         chopper2 = session.getDevice('chopper2')
 
         # not allowed due to chopper speed isn't zero
-        assert raises(LimitError, setattr, chopper2, 'pos', 4)
+        pytest.raises(LimitError, setattr, chopper2, 'pos', 4)
 
         # all choppers should follow chopper1 in speed
         chopper1.maw(1000)

@@ -29,8 +29,6 @@ from pytest import approx
 from nicos.core import status
 from nicos.core.errors import InvalidValueError
 
-from test.utils import raises
-
 session_setup = 'spodi'
 
 pytest.importorskip('dataparser')
@@ -46,8 +44,8 @@ def test_basic(session):
     assert wav.read(0) == approx(1.548, abs=0.001)
     assert wav.status(0)[0] == status.OK
     assert wav.crystal == 'Ge'
-    assert raises(ValueError, setattr, wav, 'plane', '311')
-    assert raises(InvalidValueError, wav.maw, 1)
+    pytest.raises(ValueError, setattr, wav, 'plane', '311')
+    pytest.raises(InvalidValueError, wav.maw, 1)
 
     # external rotation of the monochromator will be set to valid pos
     tthm = session.getDevice('tthm')

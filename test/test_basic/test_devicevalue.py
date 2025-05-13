@@ -25,9 +25,9 @@
 Tests for DeviceInfo
 """
 
-from nicos.core.utils import DeviceValue, DeviceValueDict
+import pytest
 
-from test.utils import raises
+from nicos.core.utils import DeviceValue, DeviceValueDict
 
 
 def test_deviceinfo():
@@ -40,8 +40,8 @@ def test_deviceinfo():
     assert int(a) == int(val)
 
     b = DeviceValue('str', 'str', '', 'meta')
-    assert raises(ValueError, float, b)
-    assert raises(ValueError, int, b)
+    pytest.raises(ValueError, float, b)
+    pytest.raises(ValueError, int, b)
 
     c = DeviceValue(0, str(0), '', 'meta')
     assert int(c) == 0

@@ -23,10 +23,10 @@
 
 """NICOS pulse device test suite."""
 
+import pytest
+
 from nicos.core import ConfigurationError, waitForCompletion
 from nicos.devices.generic.manual import ManualSwitch
-
-from test.utils import raises
 
 session_setup = 'pulse'
 
@@ -48,8 +48,8 @@ def test_params(session):
     assert pulse1.ontime == 0.01
 
     # check the test for 'up' and 'down' values
-    assert raises(ConfigurationError, session.getDevice, 'pulse2')
-    assert raises(ConfigurationError, session.getDevice, 'pulse3')
+    pytest.raises(ConfigurationError, session.getDevice, 'pulse2')
+    pytest.raises(ConfigurationError, session.getDevice, 'pulse3')
 
 
 def test_movement(session):

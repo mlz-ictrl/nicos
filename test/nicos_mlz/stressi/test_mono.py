@@ -31,8 +31,6 @@ from nicos.core import status
 from nicos.core.errors import ConfigurationError, InvalidValueError, \
     PositionError
 
-from test.utils import raises
-
 session_setup = 'stressi'
 
 
@@ -53,7 +51,7 @@ def test_wavelength(session):
     wav = session.getDevice('wav')
 
     # values of the transm and wav devices not correctly initialised
-    assert raises(PositionError, transm.read, 0)
+    pytest.raises(PositionError, transm.read, 0)
     assert wav.read(0) is None
     assert wav.status(0)[0] == status.WARN
 
@@ -70,15 +68,15 @@ def test_wavelength(session):
     assert wav.crystal is None
 
     # raises due to not defined crystal
-    assert raises(ConfigurationError, wav.start, 1.7)
-    assert raises(ConfigurationError, setattr, wav, 'plane', '100')
+    pytest.raises(ConfigurationError, wav.start, 1.7)
+    pytest.raises(ConfigurationError, setattr, wav, 'plane', '100')
     transm.maw('Ge')
 
     assert wav.crystal == 'Ge'
     assert wav.plane == ''  # pylint: disable=compare-to-empty-string
     assert wav.status(0)[0] == status.ERROR
     # raises due to not defined plane
-    assert raises(ConfigurationError, wav.start, 1.7)
+    pytest.raises(ConfigurationError, wav.start, 1.7)
 
     # Simulate the following state:
     # crystal changing device is properly initialised and has valid 'crystal'
@@ -97,7 +95,7 @@ def test_wavelength(session):
     wav.plane = '311'
     assert wav.plane == '311'
     assert wav.status(0)[0] == status.OK
-    assert raises(ValueError, setattr, wav, 'plane', '100')
+    pytest.raises(ValueError, setattr, wav, 'plane', '100')
 
     wav.maw(1.7)
     assert wav.read(0) == 1.7
@@ -119,4 +117,4 @@ def test_param_setting(session):
     wav.crystal = 'Ge'
     assert wav.crystal == 'Ge'
 
-    assert raises(InvalidValueError, setattr, wav, 'crystal', 'H')
+    pytest.raises(InvalidValueError, setattr, wav, 'crystal', 'H')

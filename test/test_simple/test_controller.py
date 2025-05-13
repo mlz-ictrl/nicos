@@ -25,9 +25,9 @@
 Test the IsController mixin.
 """
 
-from nicos.core import LimitError
+import pytest
 
-from test.utils import raises
+from nicos.core import LimitError
 
 session_setup = 'controller'
 
@@ -41,10 +41,10 @@ def test_controller(session):
 
     dev2.move(100.)
     assert dev2.read() == 100.
-    assert raises(LimitError, dev1.move, 200.)
+    pytest.raises(LimitError, dev1.move, 200.)
 
     controller.move((10., 20.))
     assert dev1.read() == 10.0
     assert dev2.read() == 20.0
 
-    assert raises(LimitError, controller.move, (300., 0))
+    pytest.raises(LimitError, controller.move, (300., 0))

@@ -36,8 +36,6 @@ from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
 from nicos.services.daemon.auth.params import UserLevelAuthEntry, \
     UserPassLevelAuthEntry
 
-from test.utils import raises
-
 try:
     from nicos.services.daemon.auth.keyring import \
         Authenticator as KeyringAuthenticator
@@ -78,7 +76,7 @@ class TestUserPassLevelAuthEntry:
         (['user', 'passwd', USER, 'garbage']),
     ], ids=str)
     def test_wrong_auth_entry(self, inp):
-        assert raises(ValueError, UserPassLevelAuthEntry, inp)
+        pytest.raises(ValueError, UserPassLevelAuthEntry, inp)
 
 
 class TestUserLevelAuthEntry:
@@ -100,7 +98,7 @@ class TestUserLevelAuthEntry:
         (['user'])
     ], ids=str)
     def test_wrong_auth_entry(self, inp):
-        assert raises(ValueError, UserLevelAuthEntry, inp)
+        pytest.raises(ValueError, UserLevelAuthEntry, inp)
 
 
 @pytest.mark.skipif(OAuthAuthenticator is None,
@@ -115,7 +113,7 @@ class TestOAuthAuthenticator:
         yield Auth
 
     def test_oauth_errors(self, session, OAuthAuth):
-        assert raises(AuthenticationError, OAuthAuth.authenticate, 'user', '')
+        pytest.raises(AuthenticationError, OAuthAuth.authenticate, 'user', '')
 
 
 @pytest.fixture(scope='function')
@@ -137,8 +135,8 @@ def test_passwd_user(session, ListAuth):
     assert ListAuth.authenticate('user', 'user') == User('user', USER)
     assert ListAuth.authenticate('guest', '') == User('guest', GUEST)
     assert ListAuth.authenticate('guest', 'somepw') == User('guest', GUEST)
-    assert raises(AuthenticationError, ListAuth.authenticate, 'user', 'nouser')
-    assert raises(AuthenticationError, ListAuth.authenticate, 'joedoe', '')
+    pytest.raises(AuthenticationError, ListAuth.authenticate, 'user', 'nouser')
+    pytest.raises(AuthenticationError, ListAuth.authenticate, 'joedoe', '')
     assert User('user', USER).data == {}
     assert User('guest', GUEST).data == {}
 
@@ -153,7 +151,7 @@ def test_any_user(session, ListAuth):
     assert ListAuth.authenticate('guest', '') == User('guest', GUEST)
     assert ListAuth.authenticate('joedoe', '') == User('joedoe', GUEST)
     assert ListAuth.authenticate('joedoe', '') != User('joedoe', USER)
-    assert raises(AuthenticationError, ListAuth.authenticate, 'user', 'user_')
+    pytest.raises(AuthenticationError, ListAuth.authenticate, 'user', 'user_')
     assert User('user', USER).data == {}
     assert User('guest', GUEST).data == {}
 
@@ -200,8 +198,8 @@ def test_keystore_auth(session, KeystoreAuth):
 
     assert KeystoreAuth.authenticate('admin', 'admin') == User('admin', ADMIN)
     assert KeystoreAuth.authenticate('joedoe', 'userpass') == User('joedoe', USER)
-    assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
-    assert raises(AuthenticationError, KeystoreAuth.authenticate, 'admin', 'user_')
+    pytest.raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
+    pytest.raises(AuthenticationError, KeystoreAuth.authenticate, 'admin', 'user_')
     assert User('admin', ADMIN).data == {}
     assert User('joedoe', USER).data == {}
 
@@ -213,8 +211,8 @@ test_keystore_auth.creds = [('admin', 'admin'),
 @pytest.mark.skipif(nicoskeystore is None,
                     reason='keyring packages not installed')
 def test_keystore_auth_nokeys(session, KeystoreAuth):
-    assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
-    assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', '')
+    pytest.raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
+    pytest.raises(AuthenticationError, KeystoreAuth.authenticate, 'user', '')
 
 
 test_keystore_auth_nokeys.creds = []

@@ -23,9 +23,9 @@
 
 """NICOS calculated devices test suite."""
 
-from nicos.core import ConfigurationError
+import pytest
 
-from test.utils import raises
+from nicos.core import ConfigurationError
 
 session_setup = 'calculated'
 
@@ -33,7 +33,7 @@ session_setup = 'calculated'
 class TestCalculatedReadable:
 
     def test_config_fail(self, session):
-        assert raises(ConfigurationError, session.getDevice, 'sumdevfail')
+        pytest.raises(ConfigurationError, session.getDevice, 'sumdevfail')
 
     def test_unit(self, session):
         assert session.getDevice('sumdev').unit == 'mm'

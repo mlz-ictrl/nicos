@@ -23,12 +23,11 @@
 
 """STRESS-SPEC specific wavelength device tests."""
 
+import pytest
 from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import ConfigurationError
-
-from test.utils import raises
 
 session_setup = 'stressi'
 
@@ -43,8 +42,8 @@ def test_basic(session):
     assert wav.read(0) is None
     assert wav.status(0)[0] == status.WARN
     assert wav.crystal is None
-    assert raises(ConfigurationError, setattr, wav, 'plane', '311')
-    assert raises(ConfigurationError, wav.maw, 1)
+    pytest.raises(ConfigurationError, setattr, wav, 'plane', '311')
+    pytest.raises(ConfigurationError, wav.maw, 1)
 
     # external monochromator changer will be set to a valid pos
     transm = session.getDevice('transm')
@@ -52,18 +51,18 @@ def test_basic(session):
     assert transm.read(0) == 'Ge'
     assert wav.crystal == 'Ge'
     assert wav.status(0)[0] == status.WARN
-    assert raises(ConfigurationError, wav.maw, 1)
+    pytest.raises(ConfigurationError, wav.maw, 1)
 
     # external rotation of the monochromator will be set to valid pos
     omgm = session.getDevice('tthm')
     omgm.maw(68)
     assert wav.status(0)[0] == status.ERROR
     assert wav._crystal() is not None
-    assert raises(ConfigurationError, wav.maw, 1)
+    pytest.raises(ConfigurationError, wav.maw, 1)
 
     # plane setting
     assert wav.plane == ''  # pylint: disable=compare-to-empty-string
-    assert raises(ValueError, setattr, wav, 'plane', '111')
+    pytest.raises(ValueError, setattr, wav, 'plane', '111')
     wav.plane = '311'
     assert wav.read(0) == approx(1.908, abs=0.001)
 

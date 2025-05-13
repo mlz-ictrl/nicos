@@ -29,8 +29,6 @@ from pytest import approx
 from nicos.core import status
 from nicos.core.errors import InvalidValueError, PositionError
 
-from test.utils import raises
-
 session_setup = 'antares'
 
 
@@ -47,7 +45,7 @@ class TestMonochromator:
     def test_mono(self, mono):
         # check if mono is in, but all motors at park positions
         assert mono._attached_inout.read(0) == 'in'
-        assert raises(PositionError, mono.read, 0)
+        pytest.raises(PositionError, mono.read, 0)
         assert mono.status(0)[0] == status.NOTREACHED
 
     def test_allowed_positions(self, mono):
@@ -59,7 +57,7 @@ class TestMonochromator:
     def test_forbidden_positions(self, mono):
         # check move to positions outside the allowed range
         for pos in [1.3, 6.1]:
-            assert raises(InvalidValueError, mono.move, pos)
+            pytest.raises(InvalidValueError, mono.move, pos)
 
     def test_in_out_position(self, mono):
         # mono is out, must be first moved in

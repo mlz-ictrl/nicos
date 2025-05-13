@@ -23,13 +23,12 @@
 
 """NICOS tests for energy conversion functions."""
 
+import pytest
 from pytest import approx
 
 from nicos.core import ComputationError, ProgrammingError
 from nicos.devices.tas import energy
 from nicos.devices.tas.mono import from_k, to_k
-
-from test.utils import raises
 
 # input for to/from k tests (input, unit, output)
 # note: specify enough precision here for backwards calculation
@@ -62,13 +61,13 @@ def test_meV():
 
 
 def test_from_k_raises():
-    assert raises(ProgrammingError, from_k, 1, 'MeV')
-    assert raises(ComputationError, from_k, 0, 'A')
+    pytest.raises(ProgrammingError, from_k, 1, 'MeV')
+    pytest.raises(ComputationError, from_k, 0, 'A')
 
 
 def test_to_k_raises():
-    assert raises(ProgrammingError, to_k, 1, 'MeV')
-    assert raises(ComputationError, to_k, 0, 'A')
+    pytest.raises(ProgrammingError, to_k, 1, 'MeV')
+    pytest.raises(ComputationError, to_k, 0, 'A')
 
 
 def test_from_k():
