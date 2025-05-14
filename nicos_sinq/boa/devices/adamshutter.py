@@ -37,6 +37,8 @@ class AdamShutter(SequencerMixin, Moveable):
     module. This module speaks modbus over TCP/IP.
     """
 
+    hardware_access = True
+
     parameters = {
         'host':      Param('Hostname (or IP) of network2serial converter',
                            type=str, settable=True, mandatory=True),
