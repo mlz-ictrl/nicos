@@ -6,7 +6,7 @@ includes = ['filesavers']
 tango_base = 'tango://localhost:10000/lima/'
 
 devices = dict(
-    eiger = device('nicos.devices.vendor.lima.GenericLimaCCD',
+    eiger = device('nicos.devices.vendor.lima.EigerLimaCCD',
         description = 'Dectris Eiger2 500k',
         tangodevice = tango_base + 'limaccd/1',
         hwdevice = tango_base + 'limaccd/eiger',
@@ -25,4 +25,8 @@ devices = dict(
 
 startupcode = '''
 SetDetectors(det_eiger)
+
+## override hw setting to known good values.
+eiger.rotation = 180
+eiger.photon_energy = 17450
 '''
