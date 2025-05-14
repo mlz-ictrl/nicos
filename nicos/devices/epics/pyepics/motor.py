@@ -287,15 +287,13 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         return False
 
     def doStatus(self, maxage=0):
-        if self._test_starting():
-            return status.BUSY, 'starting'
-
         stat, message = self._get_status_message()
         self._motor_status = stat, message
-        if stat == status.ERROR:
+        if stat in (status.ERROR, status.WARN):
             return stat, message or 'Unknown problem in record'
-        elif stat == status.WARN:
-            return stat, message
+
+        if self._test_starting():
+            return status.BUSY, 'starting'
 
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
