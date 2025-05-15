@@ -35,7 +35,7 @@ from scipy.optimize import fsolve
 from nicos import session
 from nicos.core import Attach, HasLimits, LimitError, NicosError, Readable, \
     status, usermethod
-from nicos.core.params import Param, oneof, tupleof
+from nicos.core.params import Param, oneof, dictof, tupleof
 from nicos.core.sessions.utils import MASTER
 from nicos.core.utils import multiStop
 from nicos.devices.abstract import Magnet
@@ -293,6 +293,11 @@ class MagnetWithCalibrationCurves(Magnet):
             'Magnetic field fitting curves',
             type=dict, settable=True, default={'stepwise': {}, 'continuous': {}}
         ),
+        'calfac': Param(
+            'Correction factor between sensor and sample positions',
+            type=dictof(oneof('stepwise', 'continuous'), float), settable=True,
+            default={'stepwise': 1.0, 'continuous': 1.0}
+        ),
         'prevtarget': Param(
             'Previous target value',
             type=float, settable=True, default=0.0,
@@ -342,19 +347,20 @@ class MagnetWithCalibrationCurves(Magnet):
         """
         self._check_calibration(self.mode, self.ramp)
         curves = self.calibration[self.mode][str(float(self.ramp))]
-        nexttarget = curves.mean().yvx(current).y
-        return curves.increasing()[0].yvx(current).y \
-            if nexttarget > self.prevtarget \
-            else curves.decreasing()[0].yvx(current).y
+        target = curves.mean().yvx(current).y * self.calfac[self.mode]
+        if target > self.prevtarget:
+            return curves.increasing()[0].yvx(current).y * self.calfac[self.mode]
+        return curves.decreasing()[0].yvx(current).y * self.calfac[self.mode]
 
     def _field2current(self, field):
         """Returns required current in A for requested field in T.
         """
         self._check_calibration(self.mode, self.ramp)
         curves = self.calibration[self.mode][str(float(self.ramp))]
-        return curves.increasing()[0].xvy(field).x \
-            if field > self.prevtarget \
-            else curves.decreasing()[0].xvy(field).x
+        if field > self.prevtarget:
+            return curves.increasing()[0].xvy(field / self.calfac[self.mode]).x
+        else:
+            return curves.decreasing()[0].xvy(field / self.calfac[self.mode]).x
 
     def doInit(self, mode):
         if mode == MASTER:
@@ -365,12 +371,16 @@ class MagnetWithCalibrationCurves(Magnet):
             self._stop_requested = False
 
     def doRead(self, maxage=0):
+        return self._attached_magsensor.read(maxage) * self.calfac[self.mode]
+
+    def _readRaw(self, maxage=0):
         return self._attached_magsensor.read(maxage)
 
     def doStart(self, target):
-        current = self._field2current(target).n
-        self._attached_currentsource.start(current)
-        self.prevtarget = target
+        if target != self.prevtarget:
+            current = self._field2current(target).n
+            self._attached_currentsource.start(current)
+            self.prevtarget = target
 
     def doStop(self):
         self._attached_currentsource.stop()
@@ -453,6 +463,10 @@ class MagnetWithCalibrationCurves(Magnet):
         absmax = self._attached_currentsource.absmax
         self.mode = mode
         self.ramp = float(ramp)
+        _calfac = self.calfac.copy()
+        _calfac[mode] = 1.0
+        self.calfac = _calfac
+        session.log.info('Calibration factor is reset to 1.0')
         self._attached_currentsource.start(self._attached_currentsource.absmin)
         self._hw_wait()
 
