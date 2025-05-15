@@ -43,8 +43,9 @@ class Detector(ImageChannel):
     parameters = {
         'pixel_size': Param('Size of a single pixel (in mm)',
                             type=tupleof(floatrange(0), floatrange(0)),
-                            volatile=False, settable=False, default=(0.05, 10),
-                            unit='mm', category='instrument'),
+                            volatile=False, settable=False,
+                            default=(64 / 1280, 8), unit='mm',
+                            category='instrument'),
         'pixel_count': Param('Number of detector pixels',
                              type=intrange(1, 100000), volatile=True,
                              settable=False, category='instrument'),
