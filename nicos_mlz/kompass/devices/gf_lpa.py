@@ -69,16 +69,6 @@ class GuideField(MappedMoveable):
                                 'up': (0., 0., 1.),
                                 'down': (0., 0., -1.),
                                 '0': (0., 0., 0.),
-                                # Old version:
-                                # 'perp':  (1., 0., 0.),
-                                # '-perp': (-1., 0., 0.),
-                                # 'par':   (0., 1., 0.),
-                                # '-par':  (0., -1., 0.),
-                                # 'z':     (0., 0., 1.),
-                                # '-z':    (0., 0., -1.),
-                                # 'up':    (0., 0., 1.),
-                                # 'down':  (0., 0., -1.),
-                                # '0':     (0., 0., 0.),
                                 }),
     }
     parameters = {
@@ -217,6 +207,20 @@ class GuideField(MappedMoveable):
 
 class GF_Panda(GuideField):
     """Guide field for the PANDA set with 3 coils."""
+
+    parameter_overrides = {
+        'mapping': Override(default={
+                                'perp':  (1., 0., 0.),
+                                '-perp': (-1., 0., 0.),
+                                'par':   (0., 1., 0.),
+                                '-par':  (0., -1., 0.),
+                                'z':     (0., 0., 1.),
+                                '-z':    (0., 0., -1.),
+                                'up':    (0., 0., 1.),
+                                'down':  (0., 0., -1.),
+                                '0':     (0., 0., 0.),
+                                },),
+    }
 
 
 class GF_Kompass(GuideField):
