@@ -145,7 +145,7 @@ class MokeBase(Panel):
             return
 
         IntvB = self.m['IntvB']
-        int_mean = IntvB.series_to_curves().amean().yvx(0) # [mV]
+        int_mean = IntvB.series_to_curves().mean().yvx(0) # [mV]
         if self.chk_subtract_baseline.isChecked():
             if 'baseline' in self.m and self.m['baseline']:
                 IntvB -= self.m['baseline'] # ([mT, mV])
@@ -278,7 +278,7 @@ class MokePanel(NicosWidget, MokeBase):
             # IntvB can be fetched from MagB._IntvB
             if self.m:
                 IntvB = self.client.eval('session.getDevice("MagB")._IntvB')
-                int_mean = IntvB.series_to_curves().amean().yvx(0)
+                int_mean = IntvB.series_to_curves().mean().yvx(0)
                 if self.chk_subtract_baseline.isChecked() and IntvB:
                     if 'baseline' in self.m and self.m['baseline']:
                         IntvB -= self.m['baseline']
@@ -314,7 +314,7 @@ class MokePanel(NicosWidget, MokeBase):
                 self.plot_IntvB.reset()
                 if self.m['IntvB']:
                     IntvB = self.m['IntvB']
-                    int_mean = IntvB.series_to_curves().amean().yvx(0)
+                    int_mean = IntvB.series_to_curves().mean().yvx(0)
                     if self.chk_subtract_baseline.isChecked():
                         if 'baseline' in self.m and self.m['baseline']:
                             IntvB -= self.m['baseline']
@@ -506,7 +506,7 @@ class MokeHistory(MokeBase):
             self.m = self.measurements[item.text()]
             self.display_rawdata(generate_output(self.m))
         IntvB = self.m['IntvB']
-        int_mean = IntvB.series_to_curves().amean().yvx(0)
+        int_mean = IntvB.series_to_curves().mean().yvx(0)
         if self.chk_subtract_baseline.isChecked():
             if 'baseline' in self.m and self.m['baseline']:
                 IntvB -= self.m['baseline']

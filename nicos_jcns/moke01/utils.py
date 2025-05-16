@@ -34,13 +34,15 @@ def fit_curve(curve, fittype):
     fittypes = ['min', 'max']
     if fittype not in fittypes:
         return
-    curve_max = Curve2D([p for p in curve if p.x > 0])
-    curve_min = Curve2D([p for p in curve if p.x < 0])
+    m = Curves.from_series(curve).mean().yvx(0)
+    curve_max = Curve2D([p for p in curve if p.y > m.y])
+    curve_min = Curve2D([p for p in curve if p.y < m.y])
     if curve_max.ymax < curve_min.ymax:
         curve_min, curve_max = curve_max, curve_min
     c = curve_min if fittype == 'min' else curve_max
     e = mean(c.y)
-    c = Curve2D([p for p in c if e.n - e.s < p.y.n < e.n + e.s])
+    c = Curve2D([p for p in c \
+                 if max(e.n - e.s, p.y.n - p.y.s) < min(e.n + e.s, p.y.n + p.y.s)])
     return c.lsm()
 
 
@@ -66,17 +68,16 @@ def scale_intensity(i, imin, imax, kerr):
 def calculate(IntvB, int_mean, angle, ext):
     """MOKE-specific measurement analysis."""
 
-    # separate increasing and decreasing curves, mean them, and fit the means
+    fit_min = fit_curve(IntvB, 'min') # [mV]
+    fit_max = fit_curve(IntvB, 'max') # [mV]
+    # calculate kerr angle/ellipticity in [µrad]
+    kerr = calc_ellipticity(fit_min[1], fit_max[1], int_mean, ext, angle)
+
+    # separate increasing and decreasing curves and mean them
     curves = Curves.from_series(IntvB) # ([mT, mV])
     IntvB = Curve2D()
     IntvB.append(curves.increasing().mean())
     IntvB.append(curves.decreasing().mean())
-    fit_min = fit_curve(IntvB, 'min') # [mV]
-    fit_max = fit_curve(IntvB, 'max') # [mV]
-
-    # calculate kerr angle/ellipticity in [µrad]
-    kerr = calc_ellipticity(fit_min[1], fit_max[1], int_mean, ext, angle)
-
     # rescale intensity into ellipticity curves
     EvB = Curve2D() # ([mT, µrad])
     for B, Int in IntvB:
@@ -99,7 +100,7 @@ def generate_output(measurement, angle=None, ext=None):
         return ''
     BvI = measurement['BvI']
     IntvB = measurement['IntvB']
-    int_mean = IntvB.series_to_curves().amean().yvx(0)
+    int_mean = IntvB.series_to_curves().mean().yvx(0)
     baseline = measurement['baseline']
 
     # Measurement settings

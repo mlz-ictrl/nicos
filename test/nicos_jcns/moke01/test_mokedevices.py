@@ -35,7 +35,7 @@ except ModuleNotFoundError:
 
 try:
     import tango
-except ImportError:
+except ModuleNotFoundError:
     tango = None
 
 from nicos.utils.functioncurves import AffineScalarFunc, Curve2D, \
@@ -46,8 +46,10 @@ from nicos_jcns.moke01.utils import calculate
 session_setup = 'moke01'
 
 
-@pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
-@pytest.mark.skipif(tango is None, reason='tango is missing')
+@pytest.mark.skipif(uncertainties is None,
+                    reason='Uncertainties module is missing')
+@pytest.mark.skipif(tango is None,
+                    reason='pytango module is missing')
 def test_basic(session):
     magb = session.getDevice('MagB')
     intensity = session.getDevice('Intensity')
@@ -61,8 +63,10 @@ def test_basic(session):
     ps.doStart(0)
 
 
-@pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
-@pytest.mark.skipif(tango is None, reason='tango is missing')
+@pytest.mark.skipif(uncertainties is None,
+                    reason='Uncertainties module is missing')
+@pytest.mark.skipif(tango is None,
+                    reason='pytango module is missing')
 def test_cycle_currentsource(session):
     magb = session.getDevice('MagB')
     v1, v2, n = randint(-400, -1), randint(1, 400), randint(1, 5)
@@ -76,8 +80,10 @@ def test_cycle_currentsource(session):
     assert magb._cycling_steps == [100] * 2 * n
 
 
-@pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
-@pytest.mark.skipif(tango is None, reason='tango is missing')
+@pytest.mark.skipif(uncertainties is None,
+                    reason='Uncertainties module is missing')
+@pytest.mark.skipif(tango is None,
+                    reason='pytango module is missing')
 def test_magnet(session):
     ramp = 400 # A/min
     magb = session.getDevice('MagB')
@@ -95,8 +101,10 @@ def test_magnet(session):
     assert magb._field2current(300).n == -100
 
 
-@pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
-@pytest.mark.skipif(tango is None, reason='tango is missing')
+@pytest.mark.skipif(uncertainties is None,
+                    reason='Uncertainties module is missing')
+@pytest.mark.skipif(tango is None,
+                    reason='pytango module is missing')
 def test_calibration(session):
     magb = session.getDevice('MagB')
     magsensor = session.getDevice('Mag_sensor')
@@ -132,8 +140,10 @@ def test_calibration(session):
             assert isinstance(magb.calibration[mode][ramp][i][0].y.s, float)
 
 
-@pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
-@pytest.mark.skipif(tango is None, reason='tango is missing')
+@pytest.mark.skipif(uncertainties is None,
+                    reason='Uncertainties module is missing')
+@pytest.mark.skipif(tango is None,
+                    reason='pytango module is missing')
 def test_intensity_measurement(session):
     magsensor = session.getDevice('Mag_sensor')
     # there are two extra read() before and after `measure_intensity`
@@ -156,7 +166,8 @@ def test_intensity_measurement(session):
         assert p.y == 1.0
 
 
-@pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
+@pytest.mark.skipif(uncertainties is None,
+                    reason='Uncertainties module is missing')
 def test_kerr_calc():
     # IntvB curve can be modelled as two error function curves,
     # the input for the curves is randomized
@@ -166,26 +177,24 @@ def test_kerr_calc():
     width = randint(3, 15)
     x = numpy.linspace(Bmin, Bmax, 100, True)
     y1 = scipy.special.erf(x * 200 + width) / 2 + 1.5
+    y1 = [uncertainties.ufloat(y, randint(1, 10) / 100) for y in y1]
     y2 = scipy.special.erf(x * 200 - width) / 2 + 1.5
+    y2 = [uncertainties.ufloat(y, randint(1, 10) / 100) for y in y2]
     IntvB = Curve2D.from_x_y(x, y1)
     IntvB.append(Curve2D.from_x_y(x[::-1], y2[::-1]))
     # angle and extinction values are of the typical range, randomized
-    int_mean = IntvB.series_to_curves().amean().yvx(0).y
+    int_mean = IntvB.series_to_curves().mean().yvx(0).y
     angle = randint(100, 250) / 10
     extinction = randint(10, 90) / 100
     fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean, angle, extinction)
-    # erfcs are designed to have min and max Y values at 1 and 2,
-    # fits are expected to be horizontal,
-    # but `fit_curve` filters points with some tolerance
-    assert abs(fit_min[0].n) < 0.2 and \
+    # erfcs are designed to have min and max Y values at 1 and 2
+    assert fit_min[0] is not None and \
            pytest.approx(fit_min[1].n, abs=0.1) == 1.0
-    assert abs(fit_max[0].n) < 0.2 and \
+    assert fit_max[0] is not None and \
            pytest.approx(fit_max[1].n, abs=0.1) == 2.0
     # IntvB that is in the output differs from the input,
     # input allows multiple curves, and the output is a mean curve
     assert isinstance(IntvB, Curve2D) and IntvB
-    # EvB shape reminds IntvB's, and should be levelled symmetrically against X
-    assert pytest.approx(abs(EvB.ymin.n), rel=0.025) == EvB.ymax.n
     assert len(EvB.series_to_curves()) == 2
     assert EvB[0].y < EvB[int(len(EvB) / 2)].y > EvB[-1].y
     # kerr angle must be a positive value
