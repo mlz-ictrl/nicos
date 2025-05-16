@@ -245,6 +245,14 @@ class GF_Kompass(GuideField):
         # the currents are set to zero
         if np.linalg.norm(b_field) < 1e-6:
             return np.zeros(4)
+
+        # Calculate the z coil first because it is the only one generating
+        # z fields
+        # calculates the current of the z coil
+        i_ring = b_field[-1] / self._currentmatrix[-1, -1]
+        # calculate the remaining 3D field
+        b_field_hori = b_field - i_ring * self._currentmatrix[:, -1]
+
         # If the fields from the 3 horizontal coils have no z-component
         # (ideal case), the Heimholtz-coil pair is considered first for Bz,
         # after which the coil whose field is the closest to the target field
@@ -252,12 +260,6 @@ class GF_Kompass(GuideField):
         # The remaining field gives the other 2 coils
         # if the 3 horizontal coils do not generate z fields
         if np.linalg.matrix_rank(self._currentmatrix[:, :-1]) < 3:
-            # Calculate the z coil first because it is the only one generating
-            # z fields
-            # calculates the current of the z coil
-            i_ring = b_field[-1] / self._currentmatrix[-1, -1]
-            # calculate the remaining 3D field
-            b_field_hori = b_field - i_ring * self._currentmatrix[:, -1]
             # Check if the remaining field is in the horizontal plane
             if abs(b_field_hori[-1]) < 1e-6:
                 b_field_hori = b_field_hori[:-1]
@@ -298,7 +300,5 @@ class GF_Kompass(GuideField):
         # 3x3 matrix
         else:
             self.log.debug('Case 3: The 3 horizontal coils have z components')
-            i_ring = b_field[-1] / self._currentmatrix[-1, -1]
-            b_field_hori -= i_ring * self._currentmatrix[:, -1]
             i_hori = np.dot(np.linalg.inv(self._currentmatrix[:, :-1]), b_field_hori)
         return np.append(i_hori, i_ring)
