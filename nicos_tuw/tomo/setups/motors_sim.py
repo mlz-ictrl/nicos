@@ -2,6 +2,8 @@ description = 'motors that are avalible by default'
 
 group = 'optional'
 
+excludes = ['motors']
+
 tangobase = 'tango://localhost:10000/test/'
 
 devices = dict(
