@@ -97,7 +97,7 @@ class KwsDetectorImage(McStasImage):
     def _configure(self, tofsettings):
         if self.mode == 'standard':
             self.slices = []
-            self.arraydesc = ArrayDesc(self.name, self.size, np.uint32)
+            self.arraydesc = ArrayDesc(self.name, self.size[::-1], np.uint32)
         else:
             # set timing of TOF slices
             channels, interval, q, custom = tofsettings
@@ -110,8 +110,8 @@ class KwsDetectorImage(McStasImage):
                 for i in range(channels):
                     times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.arraydesc = ArrayDesc(self.name, (channels,) + self.size,
-                                       np.uint32)
+            self.arraydesc = ArrayDesc(
+                self.name, (channels, self.size[1], self.size[0]), np.uint32)
 
     def doReadArray(self, quality):
         # TODO: non-standard modes

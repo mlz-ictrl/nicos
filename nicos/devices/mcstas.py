@@ -312,7 +312,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
     }
 
     def doInit(self, mode):
-        self.arraydesc = ArrayDesc(self.name, self.size, '<u4')
+        self.arraydesc = ArrayDesc(self.name, self.size[::-1], '<u4')
 
     def doReadArray(self, quality):
         self.log.debug('quality: %s', quality)
