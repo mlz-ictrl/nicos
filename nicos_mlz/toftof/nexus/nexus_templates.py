@@ -60,18 +60,18 @@ class TofTofTemplate(MLZTemplateProvider):
                 'slit_type': DeviceDataset('chST', dtype='int32'),
                 'tof_ch5_90deg_offset': DeviceDataset(
                     'ch', 'ch5_90deg_offset', dtype='int32'),
-                'chopper_vacuum:NXcollection': {
-                    'chopper_vac0': DeviceDataset('vac0', dtype='float32'),
-                    'chopper_vac1': DeviceDataset('vac1', dtype='float32'),
-                    'chopper_vac2': DeviceDataset('vac2', dtype='float32'),
-                    'chopper_vac3': DeviceDataset('vac3', dtype='float32'),
-                },
                 # 'num_of_detectors': DeviceDataset(
                 #     'det', 'numinputs', dtype='int32'),
                 # 'tof_num_inputs': DeviceDataset(
                 #     'det', 'numinputs', dtype='int32'),
                 # 'tof_time_preselection': DeviceDataset(
                 #     'det', 'preset', dtype='float32', units=seconds),
+            },
+            'chopper_vacuum:NXcollection': {
+                'chopper_vac0': DeviceDataset('vac0', dtype='float32'),
+                'chopper_vac1': DeviceDataset('vac1', dtype='float32'),
+                'chopper_vac2': DeviceDataset('vac2', dtype='float32'),
+                'chopper_vac3': DeviceDataset('vac3', dtype='float32'),
             },
             'timer:NXmonitor': TimerMonitor('timer'),
             'monitor:NXmonitor': CounterMonitor('monitor'),
@@ -120,7 +120,7 @@ class TofTofTemplate(MLZTemplateProvider):
             'lv_power_supplies:NXcollection': {
                 f'lv{i}': DeviceDataset(f'lv{i}', dtype='string')
                 for i in range(7)
-                },
+            },
         })
 
     def updateData(self):
