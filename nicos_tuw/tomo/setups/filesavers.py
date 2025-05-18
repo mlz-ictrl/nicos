@@ -2,13 +2,10 @@ description = 'Detector file savers'
 group = 'lowlevel'
 
 sysconfig = dict(
-    datasinks = ['LiveViewSink', 'SingleRawImageSink']
+    datasinks = ['FITSImageSink']
 )
-#'SingleRawImageSink'
 
 devices = dict(
-    SingleRawImageSink = device('nicos.devices.datasinks.SingleRawImageSink',
-    ),
-    LiveViewSink = device('nicos.devices.datasinks.LiveViewSink',
+    FITSImageSink = device('nicos.devices.datasinks.FITSImageSink',
     ),
 )

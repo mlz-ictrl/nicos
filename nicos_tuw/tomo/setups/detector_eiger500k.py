@@ -2,7 +2,6 @@ description = 'Dectris Eiger2 500k'
 group = 'optional'
 
 includes = ['filesavers']
-#module = ['nicos.commands.measure']
 
 tango_base = 'tango://localhost:10000/lima/'
 
