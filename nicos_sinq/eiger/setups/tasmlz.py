@@ -45,8 +45,3 @@ devices = dict(
         devclass = 'nicos.devices.tas.spectro.TASIndex'
     ),
 )
-# Why the code below is required for en but none of the others, I do not
-# understand
-startupcode = """
-en.alias=EIGER.E
-"""

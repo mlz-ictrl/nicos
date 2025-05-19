@@ -38,26 +38,25 @@ devices = dict(
         description = 'Sample slit top',
         motorpv = mcu4prefix + 'mst',
     ),
-    a3_st = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    a3_raw = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample rotation',
         motorpv = mcu3prefix + 'a3',
     ),
     a3 = device('nicos.core.device.DeviceAlias',
         description = 'Alias for a3',
-        alias = 'a3_st',
+        alias = 'a3_raw',
         devclass = 'nicos.core.device.Moveable'
     ),
     sslit = device('nicos.devices.generic.slit.Slit',
         description = 'Sample slit with left, right, bottom and '
         'top motors',
-        opmode = '4blades',
+        opmode = 'centered',
         left = 'msl',
         right = 'msr',
         top = 'mst',
         bottom = 'msb',
         coordinates = 'opposite',
         parallel_ref = True,
-        visibility = (),
     ),
     sslit_height = device('nicos.core.device.DeviceAlias',
         description = 'Sample slit height controller',
@@ -88,6 +87,7 @@ devices = dict(
     a6_raw = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Analyser rotation',
         motorpv = mcu4prefix + 'a6',
+        visibility = {'metadata'},
     ),
     a6 = device('nicos_sinq.eiger.devices.a6motor.A6Motor',
         description = 'Analyser two theta',
@@ -189,7 +189,9 @@ devices = dict(
         alias = 'ana',
     ),
 )
-alias_config = {'a3': {'a3_st': 10}}  # , 'se_om': 20}}
+
+alias_config = {'a3': {'a3_raw': 10}}
+
 startupcode = """
 SetDetectors(counter)
 """

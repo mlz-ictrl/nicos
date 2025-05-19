@@ -54,3 +54,7 @@ class A6Motor(HasPrecision, BaseSequencer):
             SeqDev(self._attached_raw_motor, target),
             SeqSleep(self.wait_period)
         ]
+
+    def doReset(self):
+        BaseSequencer.doReset(self)
+        self._attached_raw_motor.reset()
