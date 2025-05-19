@@ -68,7 +68,7 @@ def test_detector(adet):
     assert adet.liveinterval == 0.5
 
     assert adet.resosteps == 40
-    assert adet._step_size == adet.range/adet.resosteps
+    assert adet._step_size == adet.range / adet.resosteps
     adet.resosteps = 2
     assert adet.resosteps == 2
     assert adet.range == 2
