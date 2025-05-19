@@ -129,12 +129,14 @@ complex_types.append(
       ]))
 
 
-@pytest.mark.parametrize('datainfo, validator', simple_types + ambiguous_types)
+@pytest.mark.parametrize(('datainfo', 'validator'),
+                         simple_types + ambiguous_types)
 def test_simple_types(datainfo, validator):
     assert get_validator(datainfo, True) == validator
 
 
-@pytest.mark.parametrize('datainfo, validator, dtype, valid, invalid', special_types)
+@pytest.mark.parametrize(('datainfo', 'validator', 'dtype', 'valid', 'invalid'),
+                         special_types)
 def test_special_types(datainfo, validator, dtype, valid, invalid):
     v = get_validator(datainfo, True)
     assert isinstance(v, type(validator))
@@ -146,7 +148,8 @@ def test_special_types(datainfo, validator, dtype, valid, invalid):
     assert v.__doc__ == validator.__doc__
 
 
-@pytest.mark.parametrize('datainfo, validator, default, valid, invalid', complex_types)
+@pytest.mark.parametrize(('datainfo', 'validator', 'default', 'valid', 'invalid'),
+                         complex_types)
 def test_complex_types(datainfo, validator, default, valid, invalid):
     v = get_validator(datainfo, True)
     assert isinstance(v, type(validator))

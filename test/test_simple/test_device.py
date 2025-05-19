@@ -483,7 +483,7 @@ def test_limits(session, log):
         dev2.userlimits = (0, 4)
 
 
-@pytest.mark.parametrize('new_abslimits,new_userlimits',
+@pytest.mark.parametrize(('new_abslimits', 'new_userlimits'),
                          [((-20, -10), (-20, -10)),  # completely outside
                           ((-5, 5), (0, 5)),         # half inside
                           ((-2, 12), (0, 10)),       # completely inside

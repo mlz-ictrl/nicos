@@ -411,7 +411,7 @@ def test_moveOutOfWay(tmpdir, maxbackup):
     assert len(files) == maxbackup if maxbackup is not None else 3
 
 
-@pytest.mark.parametrize('inp,expected', [
+@pytest.mark.parametrize(('inp', 'expected'), [
     ['1d:2h:3m:14s', 93794],
     ['1d2h 3m  14s', 93794],
     ['1d :2h: 3m : 14s ', 93794],
@@ -572,7 +572,7 @@ def test_simclock():
 
 
 @pytest.mark.parametrize(
-    'expr, expected, defaulted_keys, missing_keys', [
+    ('expr', 'expected', 'defaulted_keys', 'missing_keys'), [
     ('literal', 'literal', [], []),
     ('a{{b}}c', 'axc', [], []),
     ('a{{key}}b', 'ab', [], ['key']),
@@ -599,7 +599,7 @@ def test_expandTemplate(expr, expected, defaulted_keys, missing_keys):
 
 
 @pytest.mark.parametrize(
-    'expr, expected, defaulted_keys, missing_keys', [
+    ('expr', 'expected', 'defaulted_keys', 'missing_keys'), [
     ('{{key1}}', '{{key1}}', [], []),
     ('{{{{key1!key1}}}}', '{{key1}}', [], []),
     ],

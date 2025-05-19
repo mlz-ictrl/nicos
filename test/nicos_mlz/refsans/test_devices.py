@@ -259,7 +259,7 @@ class TestTtr:
     def prepare(self, session):
         pass
 
-    @pytest.mark.parametrize('unit,expected', [
+    @pytest.mark.parametrize(('unit', 'expected'), [
         ('mbar', 0.0001),
         ('ubar', 0.09982),
         ('torr', 7.51e-05),
@@ -281,7 +281,7 @@ class TestAccuracy:
     def prepare(self, session):
         pass
 
-    @pytest.mark.parametrize('absolute,expected', [
+    @pytest.mark.parametrize(('absolute', 'expected'), [
         (True, 10),
         (False, -10),
     ])

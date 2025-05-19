@@ -59,7 +59,7 @@ class TestOpticToolSwitch:
         dev = session.getDevice('optic_tool_switch')
         yield dev
 
-    @pytest.mark.parametrize('target', (1, 2, 3, 1))
+    @pytest.mark.parametrize('target', [1, 2, 3, 1])
     def test_move(self, ot, target):
         ot.maw(target)
         assert ot.read(0) == target

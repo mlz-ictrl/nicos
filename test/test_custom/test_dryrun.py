@@ -115,7 +115,7 @@ def find_scripts():
                         id=f'{facility}-{instr}-{testscript.stem}')
 
 
-@pytest.mark.parametrize('facility, instr, script', find_scripts())
+@pytest.mark.parametrize(('facility', 'instr', 'script'), find_scripts())
 def test_dryrun(session, facility, instr, script):
 
     setups = ['system']

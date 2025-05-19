@@ -164,7 +164,7 @@ def test_angle_between_reflections():
     assert abs(np.rad2deg(angle) - 97.40) < .01
 
 
-@pytest.mark.parametrize('om, chi, phi', [(15.29, 129.05, 134.19), ])
+@pytest.mark.parametrize(('om', 'chi', 'phi'), [(15.29, 129.05, 134.19),])
 def test_kappa(om, chi, phi):
     """"
     This tests only if the forward and backward calculation match up.

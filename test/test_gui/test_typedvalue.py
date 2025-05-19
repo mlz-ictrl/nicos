@@ -44,7 +44,8 @@ pytest.importorskip('pytestqt')
 
 class TestTypedvalue:
 
-    @pytest.mark.parametrize('typ,initvalue,inputs,minmax,result', [
+    @pytest.mark.parametrize(
+        ('typ', 'initvalue', 'inputs', 'minmax', 'result'), [
         (str, 'value', ['text'], None, 'text'),
         (int, 0, [42, 'text'], [0, 100], 42),
         (float, 0, [4.2, 'txt'], None, 4.2),
@@ -307,7 +308,7 @@ class TestTypedvalue:
             pass
 
     @pytest.mark.parametrize(
-        'typ,curvalue,allow_buttons,res',
+        ('typ', 'curvalue', 'allow_buttons', 'res'),
         [
             (oneof('in', 'out'), 'in', False, 'in'),
             (oneof('in', 'out'), 'in', True, Ellipsis),
@@ -377,7 +378,7 @@ class TestTypedvalue:
                                   [0.0, 0.2, 0.0],
                                   [0.0, 0.0, 0.2]])).all()
 
-    @pytest.mark.parametrize('typ,curvalue',
+    @pytest.mark.parametrize(('typ', 'curvalue'),
                              [
                                  (np.array, []),
                                  (int, {}),

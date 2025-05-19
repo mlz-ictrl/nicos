@@ -58,7 +58,7 @@ session_setup = 'empty'
 
 class TestUserPassLevelAuthEntry:
 
-    @pytest.mark.parametrize('inp, outp', [
+    @pytest.mark.parametrize(('inp', 'outp'), [
         [['user', 'passwd', 'user'], ('user', 'passwd', USER)],
         [['user', 'passwd', USER], ('user', 'passwd', USER)],
         [[' user ', 'passwd', USER], ('user', 'passwd', USER)],
@@ -83,7 +83,7 @@ class TestUserPassLevelAuthEntry:
 
 class TestUserLevelAuthEntry:
 
-    @pytest.mark.parametrize('inp, outp', [
+    @pytest.mark.parametrize(('inp', 'outp'), [
         [['user', 'user'], ('user', USER)],
         [['user', USER], ('user', USER)],
         [[' user ', USER], ('user', USER)],
