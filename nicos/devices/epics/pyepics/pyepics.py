@@ -31,9 +31,9 @@ import epics
 
 from nicos import session
 from nicos.commands import helparglist, hiddenusercommand
-from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \
-    DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
-    floatrange, none_or, pvname, status
+from nicos.core import POLLER, SIMULATION, CommunicationError, \
+    ConfigurationError, DeviceMixinBase, HasLimits, Moveable, Override, \
+    Param, Readable, anytype, floatrange, none_or, pvname, status
 from nicos.core.mixins import HasWindowTimeout
 from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.utils import HardwareStub
@@ -153,7 +153,9 @@ class EpicsDevice(DeviceMixinBase):
                                              % pvname)
 
                 self._pvctrls[pvparam] = pv.get_ctrlvars() or {}
-            self._register_pv_callbacks()
+
+            if session.sessiontype == POLLER:
+                self._register_pv_callbacks()
         else:
             for pvparam in self._get_pv_parameters():
                 self._pvs[pvparam] = HardwareStub(self)
