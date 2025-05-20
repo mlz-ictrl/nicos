@@ -1,5 +1,7 @@
 description = 'Devices for the normal SANS sample holder'
 
+group = 'lowlevel'
+
 pvprefix = 'SQ:SANS:turboPmac1:'
 
 excludes = ['emagnet_sample']

@@ -1,6 +1,8 @@
 description = 'Devices for the Detector'
 
-includes = ['hm_config_strobo']
+group = 'basic'
+
+includes = ['hm_config_strobo', 'attenuator', 'velocity_selector', 'beamstop', 'collimator_s7', 'sample', 'shutter', 'asyncontroller']
 exludes = ['detector']
 
 pvprefix = 'SQ:SANS:motb:'

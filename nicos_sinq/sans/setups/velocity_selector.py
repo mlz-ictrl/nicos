@@ -1,5 +1,7 @@
 description = 'Devices for the velocity selector'
 
+group = 'lowlevel'
+
 selprefix = 'SQ:SANS:velsel:'
 
 forbidden = [(1, 1600), (3300, 5200), (6600, 10000), (28300, 30000)]
