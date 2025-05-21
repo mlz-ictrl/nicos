@@ -106,7 +106,7 @@ Generic Debian/Ubuntu
 
 Please add the local repository via:
 
-     echo "deb [trusted=yes] https://forge.frm2.tum.de/repos distro/"| sudo tee /etc/apt/sources.list.d/mlz.list
+     echo deb [trusted=yes] https://forge.frm2.tum.de/repos distro/| sudo tee /etc/apt/sources.list.d/mlz.list
      apt update
 
 where 'distro' stands for:
