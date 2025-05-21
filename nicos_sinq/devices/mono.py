@@ -58,16 +58,17 @@ class TasAnalyser(SinqMonochromator):
     def doWriteScatteringsense(self, value):
         off = self._attached_theta.offset
         if self.scatteringsense == -1 and value == 1:
-            off -= 180
-        elif self.scatteringsense == 1 and value == -1:
             off += 180
+        elif self.scatteringsense == 1 and value == -1:
+            off -= 180
         if off > 180:
             off -= 360
         elif off < -180:
             off += 360
         self._attached_theta.offset = off
         session.delay(5)
-        self._attached_theta.userlimits = self._attached_theta.abslimits
+        absmin, absmax = self._attached_theta.abslimits
+        self._attached_theta.userlimits = absmin - off, absmax - off
 
     def _calc_angles(self, k):
         try:
