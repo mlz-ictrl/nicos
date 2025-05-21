@@ -2,7 +2,7 @@ description = 'Dectris Eiger2 500k'
 group = 'optional'
 
 includes = ['filesavers']
-exclude = ['detector_eiger500k']
+excludes = ['detector_eiger500k']
 
 tango_base = 'tango://localhost:10000/lima/'
 
