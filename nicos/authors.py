@@ -104,6 +104,7 @@ Instrument-specific code was contributed by:
 * Adrian Losko <adrian.losko@frm2.tum.de>
 * Avishek Maity <Avishek.Maity@frm2.tum.de>
 * Gaetano Mangiapia <gaetano.mangiapia@hereon.de>
+* Daniel Matulka <daniel.matulka@tuwien.ac.at>
 * Daniel Mazzone <daniel.mazzone@psi.ch>
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
