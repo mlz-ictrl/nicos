@@ -43,7 +43,7 @@ session_setup = 'tas'
 
 @pytest.fixture(scope='function')
 def tas(session):
-    """ Create a common set up at the start of the TAS test."""
+    """Create a common set up at the start of the TAS test."""
 
     tasdev = session.getDevice('Tas')
     tasdev.scanmode = 'CKF'

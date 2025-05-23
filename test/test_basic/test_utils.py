@@ -202,7 +202,7 @@ def test_retryOnExcept():
 
 @pytest.fixture()
 def serversocket():
-    """create a server socket"""
+    """Create a server socket."""
 
     serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -273,8 +273,8 @@ def test_timer():
     tmr.stop()
     # check elapsed time for stopped timer
     assert 0.1 < tmr.elapsed_time() < 0.2
-    assert not(tmr.is_running())
-    assert not(tmr.wait())
+    assert not tmr.is_running()
+    assert not tmr.wait()
 
     # c) stopping before timeout and then restart
     tmr.restart()
@@ -571,23 +571,22 @@ def test_simclock():
 
 @pytest.mark.parametrize(
     ('expr', 'expected', 'defaulted_keys', 'missing_keys'), [
-    ('literal', 'literal', [], []),
-    ('a{{b}}c', 'axc', [], []),
-    ('a{{key}}b', 'ab', [], ['key']),
-    ('a{{key!replace}}b', 'ab', [], ['key']),
-    ('a{{key:default}}b', 'adefaultb', ['key'], []),
-    ('a{{key!replace:default}}b', 'adefaultb', ['key'], []),
-    ('a{{quo}}b', 'aqb', [], []),
-    ('a{{quo!replace}}b', 'areplaceb', [], []),
-    ('a{{quo:default}}b', 'aqb', [], []),
-    ('a{{quo!replace:default}}b', 'areplaceb', [], []),
-    ('a{{c!r}}c', 'arc', [], []),
-    ('a{{{{c:b}}r}}c', 'arc', [], []),
-    ('{{a{{{{c:b}}r}}c}}', 'True', [], []),
-    ('{{q!}}', '', [], ['q']),
-    ('{{b!}}', '', [], []),
-    ],
-)
+        ('literal', 'literal', [], []),
+        ('a{{b}}c', 'axc', [], []),
+        ('a{{key}}b', 'ab', [], ['key']),
+        ('a{{key!replace}}b', 'ab', [], ['key']),
+        ('a{{key:default}}b', 'adefaultb', ['key'], []),
+        ('a{{key!replace:default}}b', 'adefaultb', ['key'], []),
+        ('a{{quo}}b', 'aqb', [], []),
+        ('a{{quo!replace}}b', 'areplaceb', [], []),
+        ('a{{quo:default}}b', 'aqb', [], []),
+        ('a{{quo!replace:default}}b', 'areplaceb', [], []),
+        ('a{{c!r}}c', 'arc', [], []),
+        ('a{{{{c:b}}r}}c', 'arc', [], []),
+        ('{{a{{{{c:b}}r}}c}}', 'True', [], []),
+        ('{{q!}}', '', [], ['q']),
+        ('{{b!}}', '', [], []),
+        ])
 def test_expandTemplate(expr, expected, defaulted_keys, missing_keys):
     kwds = dict(b='x', c='c!', arc=True, quo='q')
     res, defaulted, missing = expandTemplate(expr, kwds)
@@ -598,10 +597,9 @@ def test_expandTemplate(expr, expected, defaulted_keys, missing_keys):
 
 @pytest.mark.parametrize(
     ('expr', 'expected', 'defaulted_keys', 'missing_keys'), [
-    ('{{key1}}', '{{key1}}', [], []),
-    ('{{{{key1!key1}}}}', '{{key1}}', [], []),
-    ],
-)
+        ('{{key1}}', '{{key1}}', [], []),
+        ('{{{{key1!key1}}}}', '{{key1}}', [], []),
+    ])
 def test_expandTemplateRecursion(expr, expected, defaulted_keys, missing_keys):
     kwds = dict(key1='{{key1}}')
     res, defaulted, missing = expandTemplate(expr, kwds)

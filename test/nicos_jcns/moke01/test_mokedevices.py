@@ -79,7 +79,7 @@ def test_cycle_currentsource(session):
 @pytest.mark.skipif(uncertainties is None, reason='uncertainties missing')
 @pytest.mark.skipif(tango is None, reason='tango is missing')
 def test_magnet(session):
-    ramp = 400 # A/min
+    ramp = 400  # A/min
     magb = session.getDevice('MagB')
     temp = magb.calibration.copy()
     temp['stepwise'][str(float(ramp))] = Curves([[(-400, -800), (400, 0)],

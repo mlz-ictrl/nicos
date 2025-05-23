@@ -50,7 +50,7 @@ def adet(session):
 
     # Move the detector to a distinct position and check it
     tths = adet._attached_motor
-    tths.speed=0
+    tths.speed = 0
     tths.maw(0)
 
     yield adet

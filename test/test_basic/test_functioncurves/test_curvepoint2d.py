@@ -53,7 +53,7 @@ def test_pickle():
     assert p1.eq_y(p2)
 
 
-#pylint: disable=unnecessary-negation
+# pylint: disable=unneeded-not
 def test_logical_operators():
     p1 = CurvePoint2D(ufloat(1, 0.1), ufloat(1, 0.1))
     p2 = CurvePoint2D(ufloat(1, 0.1), ufloat(2, 0.1))

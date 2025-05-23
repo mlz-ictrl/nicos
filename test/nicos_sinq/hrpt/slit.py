@@ -37,7 +37,7 @@ class TestEpicsMotor:
         self.session = session
         self.session.getDevice('d1l').curvalue = 0
         self.session.getDevice('d1r').curvalue = 0
-        self.opening_to_motor_position =  self.session.getDevice(
+        self.opening_to_motor_position = self.session.getDevice(
             'slit1').conversion_factor /2
         self.motor_position_to_opening = 2 / self.session.getDevice(
             'slit1').conversion_factor

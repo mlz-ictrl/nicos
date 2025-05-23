@@ -34,7 +34,7 @@ class TestReadableDevice(unittest.TestCase):
     @pytest.fixture(autouse=True)
     def initialize_devices(self, session):
         self.session = session
-        self.mock = create_patch(self,'epics.pv.PV')
+        self.mock = create_patch(self, 'epics.pv.PV')
         self.device = session.getDevice('DeviceReadable')
 
     def test_has_read_pv(self):
@@ -49,7 +49,7 @@ class TestMoveableDevice(unittest.TestCase):
     @pytest.fixture(autouse=True)
     def initialize_devices(self, session):
         self.session = session
-        self.mock = create_patch(self,'epics.pv.PV')
+        self.mock = create_patch(self, 'epics.pv.PV')
         self.device = session.getDevice('DeviceMoveable')
 
     def test_has_read_pv(self):

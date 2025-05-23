@@ -91,7 +91,7 @@ class FTPTestHandler(FTPHandler):
 class MyTestFS(AbstractedFS):
 
     def open(self, filename, mode):
-        "Overwritten to use in memory files"
+        """Overwritten to use in memory files"""
         self.cmd_channel.ds.ofilename = filename
         self.cmd_channel.ds.omode = mode
         if 'b' in mode:
@@ -101,13 +101,13 @@ class MyTestFS(AbstractedFS):
         return self.cmd_channel.ds.iofile
 
     def chdir(self, path):
-        "Path changes are virtual"
+        """Path changes are virtual"""
         if path in (self.cmd_channel.ds.mkdirpath, '/'):
             self.cmd_channel.ds.chdirpath = path
         return '/'
 
     def mkdir(self, path):
-        "Do not create dirs"
+        """Do not create dirs."""
         self.cmd_channel.ds.mkdirpath = path
 
 

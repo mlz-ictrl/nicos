@@ -52,7 +52,7 @@ def test_counterrot1(session):
     rbu.maw(5.)
     rbu.stop()
     rb.curvalue = 7.
-    rc.curvalue =  -3.
+    rc.curvalue = -3.
 
     assert rbu.read() == 3.5
 
