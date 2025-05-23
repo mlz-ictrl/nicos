@@ -6,10 +6,15 @@ group = 'optional'
 
 instrument_values = configdata('instrument.values')
 tango_url = instrument_values['tango_url'] % setupname
-code_base = instrument_values['code_base'] + 'tristate.TriState'
+code_base = instrument_values['code_base']
 
 devices = dict(
-    height = device(code_base,
+    height_avg = device(code_base + 'avg.BaseAvg',
+        description = 'avg for height',
+        dev = 'height',
+        unit = 'mm',
+    ),
+    height = device(code_base + 'tristate.TriState',
         description = 'Sample surface position.',
         unit = 'mm',
         port = 'height_port',
