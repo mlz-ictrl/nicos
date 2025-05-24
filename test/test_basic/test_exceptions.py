@@ -23,11 +23,12 @@
 
 """NICOS exception tests."""
 
+import pytest
+
 from nicos.core.errors import CacheLockError
 
 
 def test_exceptions():
-    try:
+    with pytest.raises(CacheLockError) as excinfo:
         raise CacheLockError('user')
-    except CacheLockError as e:
-        assert e.args == ('locked by user',)
+    assert excinfo.value.args == ('locked by user',)
