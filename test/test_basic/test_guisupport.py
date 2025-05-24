@@ -46,7 +46,7 @@ inf = float('inf')
 
 
 @pytest.mark.parametrize(
-    'val, ll, ul, expected',
+    ('val', 'll', 'ul', 'expected'),
     [
         ('0', -inf, inf, (QValidator.State.Acceptable, None)),
         ('0.0', -inf, inf, (QValidator.State.Acceptable, None)),

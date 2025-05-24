@@ -41,7 +41,7 @@ def load_setup(client, setup):
 class TestDeviceEdit:
 
     @pytest.mark.parametrize(
-        'value,result,kwargs',
+        ('value', 'result', 'kwargs'),
         [
             (1, 1, dict(dev='gax', updateValue=True)),
             (1, 0, dict(dev='gax', initDefault=True)),
@@ -71,7 +71,7 @@ class TestDeviceEdit:
         assert dve.getValue() == result
 
     @pytest.mark.parametrize(
-        'value,result,kwargs',
+        ('value', 'result', 'kwargs'),
         [
             ('1', '', dict(dev='', param='precision', updateValue=True)),
             ('1', 1, dict(dev='gax', param='precision', updateValue=True)),
