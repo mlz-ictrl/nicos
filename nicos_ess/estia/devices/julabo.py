@@ -191,7 +191,7 @@ class TemperatureController(HasDisablePv, HasPrecision, EpicsAnalogMoveable):
 
         return EpicsAnalogMoveable.doStatus(self, maxage)
 
-    def doReadTarget(self, maxage=0):
+    def doReadTarget(self):
         return self._get_pv('setpoint1')
 
     def doReadPower(self):
