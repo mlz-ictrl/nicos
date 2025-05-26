@@ -24,7 +24,6 @@
 """ANTARES specific devices tests."""
 
 import pytest
-from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import InvalidValueError, PositionError
@@ -52,7 +51,7 @@ class TestMonochromator:
         # check move to positions in the allowed range
         for pos in [x * 0.1 for x in (14, 30, 60)]:
             mono.maw(pos)
-            assert mono.read(0) == approx(pos)
+            assert mono.read(0) == pytest.approx(pos)
 
     def test_forbidden_positions(self, mono):
         # check move to positions outside the allowed range
@@ -63,7 +62,7 @@ class TestMonochromator:
         # mono is out, must be first moved in
         mono._attached_inout.maw('out')
         mono.maw(4.5)
-        assert mono.read(0) == approx(4.5)
+        assert mono.read(0) == pytest.approx(4.5)
         assert mono._attached_inout.read(0) == 'in'
 
     def test_read_at_parking_position(self, mono):
@@ -117,7 +116,7 @@ class TestBlur:
         blur._attached_l.maw(old_l)
 
     def test_blur(self, blur):
-        assert blur.read(0) == approx(4e-6)
+        assert blur.read(0) == pytest.approx(4e-6)
         assert blur.unit == 'um'
 
     @pytest.mark.parametrize('target', [0])

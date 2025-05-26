@@ -24,7 +24,6 @@
 """Module to test custom specific modules."""
 
 import pytest
-from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import LimitError, NicosError, PositionError
@@ -84,18 +83,18 @@ class TestFocusAxis:
     def test_move(self, af):
         for t in [-1, 1, 4.5]:
             af.maw(t)
-            assert af.read(0) == approx(t, abs=af.precision)
+            assert af.read(0) == pytest.approx(t, abs=af.precision)
 
     def test_flatpos(self, af):
         # Check for the flat position target move
         af.maw(0)
-        assert af.read(0) == approx(af.flatpos, abs=af.precision)
+        assert af.read(0) == pytest.approx(af.flatpos, abs=af.precision)
 
     def test_target_outside_limit_move(self, af):
         # Check the target changing if target outside [lowlimit, uplimit]
         for t, c in zip(af.abslimits, [af.lowlimit, af.uplimit]):
             af.maw(t)
-            assert af.read(0) == approx(c, abs=af.precision)
+            assert af.read(0) == pytest.approx(c, abs=af.precision)
 
 
 class TestMttAxis:

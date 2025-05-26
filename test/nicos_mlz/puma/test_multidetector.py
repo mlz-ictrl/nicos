@@ -27,7 +27,6 @@ import ast
 import os
 
 import pytest
-from pytest import approx
 
 session_setup = 'multidetector'
 
@@ -77,7 +76,7 @@ class TestMultiDetector:
         for r, e in zip(med._read_corr()[0], [-8.92, -9.39, -9.98, -10.70,
                                               -11.54, -12.5, -13.58, -14.81,
                                               -16.15, -17.61, -19.19]):
-            assert r == approx(e, abs=0.01)
+            assert r == pytest.approx(e, abs=0.01)
 
         dirname = os.path.dirname(__file__)
         # read good targets from file

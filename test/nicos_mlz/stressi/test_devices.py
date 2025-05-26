@@ -24,7 +24,6 @@
 """STRESS-SPEC specific device tests."""
 
 import pytest
-from pytest import approx
 
 session_setup = 'stressi'
 
@@ -41,12 +40,12 @@ class TestTransformedDevices:
     def test_move(self, device, session):
         # rest initial read
         assert device._attached_dev.read(0) == 50
-        assert device.read(0) == approx(77)
+        assert device.read(0) == pytest.approx(77)
 
         # test read after moving of attached device
         device._attached_dev.maw(51)
-        assert device.read(0) == approx(79)
+        assert device.read(0) == pytest.approx(79)
 
         # test position of attached device after move
         device.maw(80)
-        assert device._attached_dev.read(0) == approx(51.5)
+        assert device._attached_dev.read(0) == pytest.approx(51.5)

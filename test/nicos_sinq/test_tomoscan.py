@@ -22,7 +22,7 @@
 # *****************************************************************************
 
 
-from pytest import approx
+import pytest
 
 from nicos_sinq.icon.commands.iconcommands import tomo_run, tomo_setup
 
@@ -42,11 +42,11 @@ def test_tomoscan(session, log):
     dataset = dataman.getLastScans()[-1]
     assert dataset.devvaluelists[0] == [1.0, 0.0]
     assert dataset.devvaluelists[1] == [2.0, 36.0]
-    assert m.read() == approx(360, abs=0.02)
+    assert m.read() == pytest.approx(360, abs=0.02)
 
     # Run again
     tomo_run()
     dataset = dataman.getLastScans()[-1]
     assert dataset.devvaluelists[0] == [1.0, 0.0]
     assert dataset.devvaluelists[1] == [2.0, 36.0]
-    assert m.read() == approx(360, abs=0.02)
+    assert m.read() == pytest.approx(360, abs=0.02)

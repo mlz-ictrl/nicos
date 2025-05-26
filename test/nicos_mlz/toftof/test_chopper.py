@@ -23,7 +23,7 @@
 
 """SPODI specific chopper tests."""
 
-from pytest import approx
+import pytest
 
 from nicos.core import status
 
@@ -73,8 +73,8 @@ def test_toftof_chopper(session):
     for r, s in zip(range(1, 11), speeds):
         chRatio.maw(r)
         assert chRatio.read(0) == r
-        assert chDS.read(0)[4] == approx(s, 1)
-        assert ch.read(0) == approx(6000, 0.1)
+        assert chDS.read(0)[4] == pytest.approx(s, 1)
+        assert ch.read(0) == pytest.approx(6000, 0.1)
 
     chRatio.maw(1)
     assert chRatio.read(0) == 1

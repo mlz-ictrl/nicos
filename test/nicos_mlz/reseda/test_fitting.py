@@ -29,7 +29,6 @@ Generate data with and without noise and check the fit results
 
 import numpy as np
 import pytest
-from pytest import approx
 
 from nicos_mlz.reseda.utils import MiezeFit
 
@@ -64,4 +63,4 @@ class TestMiezeFit:
         res = fitter.run(xdata, ydata, None)
         assert not res._failed
         for k, v in fitconf[3].items():
-            assert getattr(res, k) == approx(v, rel=1e-6, abs=1e-6)
+            assert getattr(res, k) == pytest.approx(v, rel=1e-6, abs=1e-6)

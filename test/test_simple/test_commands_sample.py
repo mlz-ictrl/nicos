@@ -28,7 +28,6 @@ from io import StringIO
 from unittest import mock
 
 import pytest
-from pytest import approx
 
 from nicos.commands.sample import activation, powderfit
 from nicos.commands.scan import cscan
@@ -74,8 +73,8 @@ def test_activation_function():
 
 def test_powderfit_from_peaks():
     res = powderfit('YIG', ki=1.32, peaks=[55.22, 64.91, 91.04, 99.58])
-    assert res[0] == approx(0.02, abs=1e-2)
-    assert res[1] == approx(-1, abs=1e-2)
+    assert res[0] == pytest.approx(0.02, abs=1e-2)
+    assert res[1] == pytest.approx(-1, abs=1e-2)
 
 
 def test_powderfit_from_data(session):
@@ -95,5 +94,5 @@ def test_powderfit_from_data(session):
         cscan(phidev, phidev(), 0.2, 10, 1, tasdet)
     # since datasets are not numbered (no sink), number 0 will catch all
     res = powderfit('YIG', scans=[0])
-    assert res[0] == approx(0, abs=0.105)  # mtt0
-    assert res[1] == approx(0, abs=0.105)  # stt0
+    assert res[0] == pytest.approx(0, abs=0.105)  # mtt0
+    assert res[1] == pytest.approx(0, abs=0.105)  # stt0

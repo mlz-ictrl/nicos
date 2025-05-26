@@ -24,7 +24,6 @@
 """TOFTOF chopper calculation tests."""
 
 import pytest
-from pytest import approx
 
 from nicos_mlz.toftof.lib.calculations import Eres1, ResolutionAnalysis, \
     alpha, calculateChopperDelay, calculateCounterDelay, calculateFrameTime, \
@@ -35,7 +34,7 @@ class TestBasicCalculations:
 
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self):
-        assert alpha == approx(252.7784, abs=1e-4)
+        assert alpha == pytest.approx(252.7784, abs=1e-4)
 
     def test_speedRatio(self):
         for x, expected in [
@@ -59,7 +58,7 @@ class TestBasicCalculations:
             (7, 14000, 6, 1274.00),
             (5, 7000, 6, 511.38)
         ]:
-            assert phi1(x, speed, wl) == approx(expected, abs=1e-2)
+            assert phi1(x, speed, wl) == pytest.approx(expected, abs=1e-2)
 
     def test_phi_calculations(self):
         res2 = ['0.00', '-12.74', '-72.78', '66.79', '-57.23', '176.25',
@@ -97,7 +96,7 @@ class TestBasicCalculations:
             (6, 0.015053),
             (7, 0.015167)
         ]:
-            assert t1(1, x, ilambda=6) == approx(expected, abs=1e-6)
+            assert t1(1, x, ilambda=6) == pytest.approx(expected, abs=1e-6)
 
     def test_t2(self):
         for x, expected in [
@@ -108,12 +107,12 @@ class TestBasicCalculations:
             (6, 0.002237),
             (7, 0.002123),
         ]:
-            assert t2(x, ilambda=6) == approx(expected, abs=1e-6)
+            assert t2(x, ilambda=6) == pytest.approx(expected, abs=1e-6)
 
     def test_eres1(self):
         def check_results(res, expected, precision):
             for v, e in zip(res, expected):
-                assert v == approx(e, abs=precision)
+                assert v == pytest.approx(e, abs=precision)
 
         for wl, speed, st, crc, expected in [
             (6, 0, 0, 1, (0, 0)),
@@ -140,8 +139,8 @@ class TestBasicCalculations:
             (14000, 5, 0.0107143),
             (0, 1, 0.052),
         ]:
-            assert calculateFrameTime(speed, ratio) == approx(expected,
-                                                                 abs=1e-7)
+            assert calculateFrameTime(speed, ratio) == pytest.approx(expected,
+                                                                     abs=1e-7)
 
     def test_counterdelay_calculations(self):
         for wl, speed, ratio, delay, ch5_90deg_offset, expected in [
@@ -152,8 +151,8 @@ class TestBasicCalculations:
             (6, 14000, 6, 0, True, 153713*5e-8),
         ]:
             assert calculateCounterDelay(wl, speed, ratio, delay,
-                                         ch5_90deg_offset) == approx(expected,
-                                                                     abs=5e-8)
+                                         ch5_90deg_offset) == pytest.approx(
+                                             expected, abs=5e-8)
 
     def test_resolution_analysis(self):
         chSpeed = 14000
@@ -162,8 +161,8 @@ class TestBasicCalculations:
         chST = 1
         ra = ResolutionAnalysis(chSpeed, chWL, chRatio, chST)
 
-        assert approx(ra.E0, abs=5e-5) == 2.2723
-        assert approx(ra.q_low_0, abs=5e-5) == 0.1386
-        assert approx(ra.q_high_0, abs=5e-5) == 1.9629
-        assert approx(ra.dE_min, abs=5e-5) == -1.0723
-        assert approx(ra.dE_el, abs=5e-5) == 32.9835
+        assert pytest.approx(ra.E0, abs=5e-5) == 2.2723
+        assert pytest.approx(ra.q_low_0, abs=5e-5) == 0.1386
+        assert pytest.approx(ra.q_high_0, abs=5e-5) == 1.9629
+        assert pytest.approx(ra.dE_min, abs=5e-5) == -1.0723
+        assert pytest.approx(ra.dE_el, abs=5e-5) == 32.9835

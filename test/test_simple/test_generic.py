@@ -26,7 +26,6 @@
 from unittest import mock
 
 import pytest
-from pytest import approx
 
 from nicos.commands.measure import count
 from nicos.core import ConfigurationError, InvalidValueError, LimitError, \
@@ -248,8 +247,8 @@ def test_magnet(session):
 
     magnet.calibration = 1, 1, 1, 1, 1
     assert current.abslimits == (-100, 100)
-    assert magnet.abslimits[0] == approx(-102.56, abs=1e-2)
-    assert magnet.abslimits[1] == approx(102.56, abs=1e-2)
+    assert magnet.abslimits[0] == pytest.approx(-102.56, abs=1e-2)
+    assert magnet.abslimits[1] == pytest.approx(102.56, abs=1e-2)
     magnet.maw(1)
     assert magnet.read() == 1
-    assert current.read() == approx(0.33, abs=1e-2)
+    assert current.read() == pytest.approx(0.33, abs=1e-2)

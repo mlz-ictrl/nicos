@@ -22,7 +22,7 @@
 # *****************************************************************************
 """SANS-1 calculation specific tests."""
 
-from pytest import approx
+import pytest
 
 from nicos_mlz.sans1.lib.calculations import qrange
 
@@ -31,7 +31,7 @@ def test_qrange():
 
     def check_results(res, expected):
         for v, e in zip(res, expected):
-            assert v == approx(e, abs=1e-5)
+            assert v == pytest.approx(e, abs=1e-5)
 
     check_results(qrange(6, 10000, 50, 500), (0.005236, 0.052311))
     check_results(qrange(6, 1200, 50, 500), (0.043605, 0.410745))

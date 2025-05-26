@@ -24,7 +24,6 @@
 """NICOS tests for Eulerian cradle code."""
 
 import pytest
-from pytest import approx
 
 from nicos.core.errors import NicosError
 
@@ -56,8 +55,8 @@ class TestEulerian:
         ec = eulerian
         ec.maw([[1, 0, 0], [2, 1, 0]])
         assert ec.read(0) == ([1.0, 0.0, 0.0], [2.0, 1.0, 0.0])
-        assert ec._attached_omega.read(0) == approx(-135., abs=0.0001)
-        assert ec._attached_chi.read(0) == approx(135., abs=0.0001)
+        assert ec._attached_omega.read(0) == pytest.approx(-135., abs=0.0001)
+        assert ec._attached_chi.read(0) == pytest.approx(135., abs=0.0001)
 
     def test_move_fail(self, not_init_eulerian):
         ec = not_init_eulerian
@@ -82,12 +81,13 @@ class TestEulerian:
 
     def test_or_calculation(self, eulerian):
         """Test calc_or function."""
-        assert eulerian.calc_or().tolist() == [[approx(-0.862, abs=0.001),
-                                                approx(0.0795, abs=0.001),
-                                                approx(-0.5, abs=0.001)],
-                                               [approx(0.362, abs=0.001),
-                                                approx(0.787, abs=0.001),
-                                                approx(-0.5, abs=0.001)],
-                                               [approx(0.354, abs=0.001),
-                                                approx(-0.612, abs=0.001),
-                                                approx(-0.707, abs=0.001)]]
+        assert eulerian.calc_or().tolist() == [
+            [pytest.approx(-0.862, abs=0.001),
+             pytest.approx(0.0795, abs=0.001),
+             pytest.approx(-0.5, abs=0.001)],
+            [pytest.approx(0.362, abs=0.001),
+             pytest.approx(0.787, abs=0.001),
+             pytest.approx(-0.5, abs=0.001)],
+            [pytest.approx(0.354, abs=0.001),
+             pytest.approx(-0.612, abs=0.001),
+             pytest.approx(-0.707, abs=0.001)]]

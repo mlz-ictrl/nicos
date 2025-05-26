@@ -25,7 +25,7 @@
 """Tests for the cell.py HKL transformation routines."""
 
 from numpy import array
-from pytest import approx
+import pytest
 
 session_setup = 'tas'
 
@@ -46,8 +46,8 @@ def tscan(Qh, Qk, Ql, ny, dQh, dQk, dQl, dny, numsteps, SM, SC, sense, sample):
         print(('%7.3f  ' * 14) % (tuple(Qhkl) + (ny,) + tuple(angles) +
                                   tuple(hklr) + (nyr, dval)))
         for i in range(3):
-            assert Qhkl[i] == approx(hklr[i])
-        assert ny == approx(nyr)
+            assert Qhkl[i] == pytest.approx(hklr[i])
+        assert ny == pytest.approx(nyr)
 
 
 def test_cell(session):

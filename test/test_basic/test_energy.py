@@ -24,7 +24,6 @@
 """NICOS tests for energy conversion functions."""
 
 import pytest
-from pytest import approx
 
 from nicos.core import ComputationError, ProgrammingError
 from nicos.devices.tas import energy
@@ -57,7 +56,7 @@ in_tok = [(1, 'A', 6.28319),
 
 def test_meV():
     e_mev = energy.Energy(value=81.804165, unit='meV')
-    assert float(e_mev.as_lambda()) == approx(1.0)
+    assert float(e_mev.as_lambda()) == pytest.approx(1.0)
 
 
 def test_from_k_raises():
@@ -78,7 +77,7 @@ def test_from_k():
     in_out += [(r, u, v) for (v, u, r) in in_tok]
 
     for args in in_out:
-        assert from_k(args[0], args[1]) == approx(args[2], abs=1e-4)
+        assert from_k(args[0], args[1]) == pytest.approx(args[2], abs=1e-4)
 
 
 def test_to_k():
@@ -87,7 +86,7 @@ def test_to_k():
     in_out += [(r, u, v) for (v, u, r) in in_fromk]
 
     for args in in_out:
-        assert to_k(args[0], args[1]) == approx(args[2], abs=1e-4)
+        assert to_k(args[0], args[1]) == pytest.approx(args[2], abs=1e-4)
 
 
 def test_energy_fromk():
@@ -97,7 +96,7 @@ def test_energy_fromk():
 
     for args in in_out:
         e = energy.Energy(value=args[0], unit='A-1')
-        assert e.asUnit(args[1]) == approx(args[2], abs=1e-4)
+        assert e.asUnit(args[1]) == pytest.approx(args[2], abs=1e-4)
 
 
 def test_energy_ask():
@@ -107,4 +106,4 @@ def test_energy_ask():
 
     for args in in_out:
         e = energy.Energy(value=args[0], unit=args[1])
-        assert e.asUnit('A-1') == approx(args[2], abs=1e-4)
+        assert e.asUnit('A-1') == pytest.approx(args[2], abs=1e-4)

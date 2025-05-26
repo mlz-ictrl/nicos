@@ -22,7 +22,6 @@
 # *****************************************************************************
 
 import pytest
-from pytest import approx
 
 from nicos_sinq.sxtal.commands import Center, Max
 
@@ -46,7 +45,7 @@ def test_max(session, omstart):
 
     Max(om, .2, t=.05)
 
-    assert om.read(0) == approx(3, abs=0.06)
+    assert om.read(0) == pytest.approx(3, abs=0.06)
 
 
 def test_max_away(session, log):
@@ -82,4 +81,4 @@ def test_center(session):
     for mot, pos in zip(devs, positions):
         # Virtual counters in NICOS have an enormous jitter, this explains
         # the large tolerance.
-        assert mot.read(0) == approx(pos, abs=0.3)
+        assert mot.read(0) == pytest.approx(pos, abs=0.3)

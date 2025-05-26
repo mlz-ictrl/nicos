@@ -24,7 +24,6 @@
 """TOFTOF chopper calculation tests."""
 
 import pytest
-from pytest import approx
 
 from nicos_mlz.refsans.lib.calculations import angles_SC2, chopper_config, \
     chopper_resolution, period
@@ -129,7 +128,7 @@ class TestBasicCalculations:
             assert res[0] == expected[0]
             for v, e in zip(res[1], expected[1]):
                 if e is not None:
-                    assert v == approx(e, abs=0.01)
+                    assert v == pytest.approx(e, abs=0.01)
                 else:
                     assert v == e
 
@@ -150,7 +149,7 @@ class TestBasicCalculations:
         assert chopper_resolution(chopper2_pos, D) == expected
 
     def test_angles_SC2(self):
-        assert angles_SC2() == (approx(152.7922), 0.0)
+        assert angles_SC2() == (pytest.approx(152.7922), 0.0)
 
     def test_period(self):
-        assert period() == approx(0.094237562)
+        assert period() == pytest.approx(0.094237562)

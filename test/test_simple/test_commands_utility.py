@@ -25,7 +25,6 @@
 
 import numpy
 import pytest
-from pytest import approx
 
 from nicos.commands.utility import FloatRange, RangeListByCount, \
     RangeListByStep, RangeListGeneral, RangeListLog
@@ -128,14 +127,14 @@ def test_rangelistlog():
 
     l3a = RangeListLog(0.1, 200., 3)
     assert len(l3a) == 3
-    assert l3a[0] == approx(0.1, abs=1e-5)
-    assert l3a[-1] == approx(200., abs=1e-5)
+    assert l3a[0] == pytest.approx(0.1, abs=1e-5)
+    assert l3a[-1] == pytest.approx(200., abs=1e-5)
     assert numpy.allclose(l3a, [0.10000000000000001, 4.4721359549995787, 200.0])
 
     l3b = RangeListLog(200, 2., 5)
     assert len(l3b) == 5
-    assert l3b[0] == approx(200., abs=1e-5)
-    assert l3b[-1] == approx(2., abs=1e-5)
+    assert l3b[0] == pytest.approx(200., abs=1e-5)
+    assert l3b[-1] == pytest.approx(2., abs=1e-5)
 
     pytest.raises(UsageError, RangeListLog, -1, 2, 10)
 

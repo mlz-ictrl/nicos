@@ -25,7 +25,6 @@
 
 import numpy as np
 import pytest
-from pytest import approx
 from scipy import ndimage
 
 pytest.importorskip('cv2')
@@ -51,7 +50,7 @@ def test_sharpness(img):
     for sigma, expected in zip(sigmas, exp_sharpness):
         blurred_img = ndimage.gaussian_filter(img, sigma=abs(sigma))
         sharp = scharr_filter(gam_rem_adp_log(blurred_img, 25, 100, 400, 0.8))
-        assert sharp == approx(expected, abs=0.01)
+        assert sharp == pytest.approx(expected, abs=0.01)
         sharpvals.append(sharp)
 
 

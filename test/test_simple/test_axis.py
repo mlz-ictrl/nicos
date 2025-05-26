@@ -27,7 +27,6 @@
 from time import sleep
 
 import pytest
-from pytest import approx
 
 from nicos.core import LimitError, status
 
@@ -50,9 +49,9 @@ def test_params(session):
     assert axis2.abslimits == (-1, +1)
     # offset
     axis2.maw(1)
-    assert axis2.read() == approx(1)
+    assert axis2.read() == pytest.approx(1)
     axis2.offset = 1
-    assert axis2.read() == approx(0)
+    assert axis2.read() == pytest.approx(0)
 
 
 def test_motor_limits(session):
@@ -93,11 +92,11 @@ def test_movement(session):
     axis = session.getDevice('axis')
     # moving once
     axis.maw(1)
-    assert axis.read() == approx(1)
+    assert axis.read() == pytest.approx(1)
     assert axis.status()[0] == status.OK
     # moving again
     axis.maw(2)
-    assert axis.read() == approx(2)
+    assert axis.read() == pytest.approx(2)
     assert axis.status()[0] == status.OK
     # moving out of limits?
     pytest.raises(LimitError, axis.move, 150)
@@ -116,7 +115,7 @@ def test_movement(session):
     try:
         axis.move(0.5)
         axis.wait()
-        assert axis.read() == approx(0.5)
+        assert axis.read() == pytest.approx(0.5)
 
         axis.move(0)
         sleep(0.1)

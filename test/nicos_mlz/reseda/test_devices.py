@@ -24,7 +24,6 @@
 """Module to test RESEDA specific modules."""
 
 import pytest
-from pytest import approx
 
 from nicos.core.errors import LimitError
 
@@ -49,10 +48,10 @@ class TestSelector:
         assert lambda_.read() == -1
 
         sel.maw(10000)
-        assert lambda_.read(0) == approx(12.7305, abs=0.0001)
+        assert lambda_.read(0) == pytest.approx(12.7305, abs=0.0001)
 
         lambda_.maw(6)
-        assert sel.read(0) == approx(21218, abs=1)
+        assert sel.read(0) == pytest.approx(21218, abs=1)
 
 
 class TestSelectorSpread:
@@ -71,7 +70,7 @@ class TestSelectorSpread:
         # delta lambda should be wavelength independent
         for l in [12, 6]:
             lambda_.maw(l)
-            assert delta.read(0) == approx(11.7, abs=0.1)
+            assert delta.read(0) == pytest.approx(11.7, abs=0.1)
 
 
 class TestArmController:

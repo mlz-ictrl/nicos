@@ -31,7 +31,6 @@ hpos = sign*(val +zero)
 """
 
 import pytest
-from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import LimitError
@@ -88,18 +87,18 @@ class TestEpicsMotor:
         the new position read is the same as the one used with move
         """
         precision = self.device.precision
-        assert self.device.read(0) == approx(0, precision)
+        assert self.device.read(0) == pytest.approx(0, precision)
 
         # Set the offset
         offset = unit_value(offset, self.device.unit)
         self.device.offset = offset
-        assert self.device.offset == approx(offset, precision)
+        assert self.device.offset == pytest.approx(offset, precision)
 
         # Check the change in limits
         (usermin, usermax) = self.device.userlimits
         (absmin, absmax) = self.device.abslimits
-        assert usermin == approx(absmin + offset, precision)
-        assert usermax == approx(absmax + offset, precision)
+        assert usermin == pytest.approx(absmin + offset, precision)
+        assert usermax == pytest.approx(absmax + offset, precision)
 
         # Move to the new target
         target = unit_value(target, self.device.unit)

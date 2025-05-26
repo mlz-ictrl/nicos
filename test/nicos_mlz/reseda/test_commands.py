@@ -26,7 +26,6 @@
 from pathlib import Path
 
 import pytest
-from pytest import approx
 
 from nicos_mlz.reseda.commands import img, miezetau, pol, tof
 from nicos_mlz.reseda.tuning_commands import ExportTuning, ImportTuning
@@ -41,8 +40,8 @@ class TestCommands:
     def test_miezetau(self):
 
         for f, r in [(1, 1e-6), (10, 1e-5), (100, 1e-4), (1000, 1e-3)]:
-            assert approx(miezetau(4.5, f, 3)) == 3.4935644 * r
-            assert approx(miezetau(6.0, f, 3)) == 8.2810416 * r
+            assert pytest.approx(miezetau(4.5, f, 3)) == 3.4935644 * r
+            assert pytest.approx(miezetau(6.0, f, 3)) == 8.2810416 * r
 
     def test_tof(self, session):
         tof()
@@ -53,8 +52,8 @@ class TestCommands:
         assert session.getDevice('psd_channel').mode == 'image'
 
     def test_pol(self, session):
-        assert pol(1, 2) == approx(-0.3333, abs=0.0001)
-        assert pol(2, 1) == approx(0.3333, abs=0.0001)
+        assert pol(1, 2) == pytest.approx(-0.3333, abs=0.0001)
+        assert pol(2, 1) == pytest.approx(0.3333, abs=0.0001)
 
         pytest.raises(ZeroDivisionError, pol, 0, 0)
 

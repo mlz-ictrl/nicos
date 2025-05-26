@@ -24,7 +24,6 @@
 """STRESS-SPEC specific wavelength device tests."""
 
 import pytest
-from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import InvalidValueError
@@ -41,7 +40,7 @@ def test_basic(session):
 
     # Attached devices are not at right positions device
     assert wav.plane == '551'  # pylint: disable=compare-to-empty-string
-    assert wav.read(0) == approx(1.548, abs=0.001)
+    assert wav.read(0) == pytest.approx(1.548, abs=0.001)
     assert wav.status(0)[0] == status.OK
     assert wav.crystal == 'Ge'
     pytest.raises(ValueError, setattr, wav, 'plane', '311')
@@ -57,11 +56,11 @@ def test_basic(session):
     assert wav.plane == '551'
     assert wav.crystal == 'Ge'
     wav.plane = '771'
-    assert wav.read(0) == approx(1.111, abs=0.001)
+    assert wav.read(0) == pytest.approx(1.111, abs=0.001)
     wav.plane = '551'
-    assert wav.read(0) == approx(1.548, abs=0.001)
+    assert wav.read(0) == pytest.approx(1.548, abs=0.001)
     wav.plane = '331'
-    assert wav.read(0) == approx(2.537, abs=0.001)
+    assert wav.read(0) == pytest.approx(2.537, abs=0.001)
 
 
 def test_init(session):
@@ -78,4 +77,4 @@ def test_init(session):
     # check plane
     assert wav.crystal == 'Ge'
     assert wav.plane == '551'
-    assert wav.read(0) == approx(1.548, abs=0.001)
+    assert wav.read(0) == pytest.approx(1.548, abs=0.001)

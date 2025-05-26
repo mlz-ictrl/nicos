@@ -24,7 +24,6 @@
 """Module to test custom specific modules."""
 
 import pytest
-from pytest import approx
 
 from nicos.core import status
 from nicos.core.errors import ConfigurationError, LimitError
@@ -226,7 +225,7 @@ class TestChopper:
         # assert chopper.read(0) == {'D': 22.8, 'chopper2_pos': 6, 'gap': 0.0,
         #                            'wlmax': 21.0, 'wlmin': 0.0,
         #                            'manner': 'normal'}
-        assert approx(chopper2.phase) == 302.415
+        assert pytest.approx(chopper2.phase) == 302.415
         # TODO: Reactivate
         # assert chopper.mode == 'virtual_disc2_pos_6'
 
@@ -269,7 +268,7 @@ class TestTtr:
     def test_read(self, session, unit, expected):
         dev = session.getDevice('ttr')
         dev.unit = unit
-        assert dev.read(0) == approx(expected, rel=0.01)
+        assert dev.read(0) == pytest.approx(expected, rel=0.01)
 
 
 class TestAccuracy:

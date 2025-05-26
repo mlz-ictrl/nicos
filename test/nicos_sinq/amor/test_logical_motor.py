@@ -28,7 +28,6 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 import pytest
-from pytest import approx
 
 from nicos.core import LimitError, status
 
@@ -167,14 +166,14 @@ class TestLogicalMotor:
 
         # Test motor stop behavior
         motor.stop()
-        assert motor.target == approx(motor.read())
+        assert motor.target == pytest.approx(motor.read())
 
         # Let the targets update
         time.sleep(2)
 
         # Continue the movement of motor and check if it reaches target
         motor.maw(0.5)
-        assert motor.read() == approx(0.5, abs=1e-3)
+        assert motor.read() == pytest.approx(0.5, abs=1e-3)
 
     @pytest.mark.parametrize('motortype', logical_motors)
     def test_out_of_bounds_errors_out(self, motortype):
@@ -184,16 +183,16 @@ class TestLogicalMotor:
 
         # Test the limits
         pytest.raises(LimitError, motor, llm - 0.1)
-        assert motor.target == approx(motor.read())
+        assert motor.target == pytest.approx(motor.read())
         pytest.raises(LimitError, motor, hlm + 0.1)
-        assert motor.target == approx(motor.read())
+        assert motor.target == pytest.approx(motor.read())
 
         # Test that even below limits, if slave motors can't move
         # error is produced
         pytest.raises(ErrorLogged, motor, llm + 0.1)
-        assert motor.target == approx(motor.read())
+        assert motor.target == pytest.approx(motor.read())
         pytest.raises(ErrorLogged, motor, hlm - 0.1)
-        assert motor.target == approx(motor.read())
+        assert motor.target == pytest.approx(motor.read())
 
     @pytest.mark.parametrize('targets', test_targets.keys())
     def test_motor_has_correct_targets(self, targets, session):
@@ -209,7 +208,7 @@ class TestLogicalMotor:
             found = False
             for d, t in test_targets[targets]:
                 if d == dev:
-                    assert t == approx(targ, abs=1e-2), '%s target mismatch' % d
+                    assert t == pytest.approx(targ, abs=1e-2), '%s target mismatch' % d
                     found = True
             assert found, 'unexpectedly moved %s' % dev
 
@@ -223,7 +222,7 @@ class TestLogicalMotor:
         self.ath.maw(0.1)
         for slavename, target in test_targets[(0.100, 0.100, 0.000)]:
             slave = session.getDevice(slavename)
-            assert slave.read() == approx(target, abs=1e-2)
+            assert slave.read() == pytest.approx(target, abs=1e-2)
 
 
 def create_method_patch(reason, obj, name, replacement):
@@ -258,4 +257,4 @@ class TestDetectorAngleMotor(TestCase):
         com_target = nu._attached_com.start.call_args[0]
 
         assert com_target[0] == -target
-        assert coz_target[0] == approx(expected_coz, abs=0.01)
+        assert coz_target[0] == pytest.approx(expected_coz, abs=0.01)

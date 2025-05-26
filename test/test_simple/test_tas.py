@@ -25,7 +25,6 @@ from math import radians
 
 import pytest
 from numpy import allclose, array, dot, sqrt
-from pytest import approx
 
 from nicos.commands.measure import count
 from nicos.commands.tas import Q, _resmat_args, acc_bragg, alu, calpos, \
@@ -63,7 +62,7 @@ def tas(session):
 
 def assertPos(pos1, pos2):
     for v1, v2 in zip(pos1, pos2):
-        assert v1 == approx(v2, abs=1e-3)
+        assert v1 == pytest.approx(v2, abs=1e-3)
 
 
 def test_mono_device(session):
@@ -72,11 +71,11 @@ def test_mono_device(session):
     # unit switching
     mono.unit = 'A-1'
     mono.maw(1.4)
-    assert mono.read(0) == approx(1.4, abs=1e-3)
+    assert mono.read(0) == pytest.approx(1.4, abs=1e-3)
     assert mono.target == 1.4
     mono.unit = 'meV'
-    assert mono.read(0) == approx(4.061, abs=1e-3)
-    assert mono.target == approx(4.061, abs=1e-3)
+    assert mono.read(0) == pytest.approx(4.061, abs=1e-3)
+    assert mono.target == pytest.approx(4.061, abs=1e-3)
     assert mono.status()[0] == status.OK
 
     for unit in ['THz', 'A', 'A-1']:
@@ -108,7 +107,7 @@ def test_mono_device(session):
     mtt.move(mtt.read(0) + 2)
     mono.finish()
 
-    assert mono._calcurvature(1., 1., 1) == approx(1.068, abs=1e-3)
+    assert mono._calcurvature(1., 1., 1) == pytest.approx(1.068, abs=1e-3)
 
 
 def test_tas_mono_foci(session, tas):
@@ -131,10 +130,10 @@ def test_tas_device(session, tas):
 
     # test the correct driving of motors
     tas.maw([1, 0, 0, 1])
-    assert ana() == approx(2.662, abs=1e-3)
-    assert mono() == approx(3.014, abs=1e-3)
-    assert phi() == approx(-46.6, abs=0.1)
-    assert psi() == approx(105.1, abs=0.1)
+    assert ana() == pytest.approx(2.662, abs=1e-3)
+    assert mono() == pytest.approx(3.014, abs=1e-3)
+    assert phi() == pytest.approx(-46.6, abs=0.1)
+    assert psi() == pytest.approx(105.1, abs=0.1)
     assertPos(tas(), [1, 0, 0, 1])
 
     # cannot go to position out of scattering triangle
@@ -150,7 +149,7 @@ def test_tas_device(session, tas):
     # test scattering sense
     tas.scatteringsense = [-1, 1, -1]
     tas.maw([1, 0, 0, 1])
-    assert phi() == approx(46.6, abs=0.1)  # now with "+" sign
+    assert phi() == pytest.approx(46.6, abs=0.1)  # now with "+" sign
     pytest.raises(ConfigurationError, setattr, tas, 'scatteringsense',
                   [2, 0, 2])
 
@@ -158,9 +157,9 @@ def test_tas_device(session, tas):
     mono(1)
     ana(2)
     tas.energytransferunit = 'meV'
-    assert tas()[3] == approx(-6.216, abs=1e-3)
+    assert tas()[3] == pytest.approx(-6.216, abs=1e-3)
     tas.energytransferunit = 'THz'
-    assert tas()[3] == approx(-1.503, abs=1e-3)
+    assert tas()[3] == pytest.approx(-1.503, abs=1e-3)
     pytest.raises(InvalidValueError, setattr, tas, 'energytransferunit',
                   'A-1')
 
@@ -168,16 +167,16 @@ def test_tas_device(session, tas):
     tas.scanmode = 'CKI'
     tas.scanconstant = 2.662
     tas.maw([1, 0, 0, 1])
-    assert mono() == approx(2.662, abs=1e-3)
+    assert mono() == pytest.approx(2.662, abs=1e-3)
     tas.scanmode = 'CKF'
     tas.maw([1, 0, 0, 1])
-    assert ana() == approx(2.662, abs=1e-3)
+    assert ana() == pytest.approx(2.662, abs=1e-3)
     tas.scanmode = 'DIFF'
     tas.scanconstant = 2.5
     ana(2.5)
     tas.maw([1, 0, 0, 0])
-    assert ana() == approx(2.5, abs=1e-3)
-    assert mono() == approx(2.5, abs=1e-3)
+    assert ana() == pytest.approx(2.5, abs=1e-3)
+    assert mono() == pytest.approx(2.5, abs=1e-3)
     assertPos(tas(), [1, 0, 0, 0])
     # XXX shouldn't this result in an error?
     # pytest.raises(tas, [1, 0, 0, 1])
@@ -186,14 +185,14 @@ def test_tas_device(session, tas):
     # test sub-devices and wavevector devices
     kf(2.662)
     tas.maw([1, 0, 0, 1])
-    assert ki.read(0) == approx(3.014, abs=1e-3)
-    assert kf.read(0) == approx(2.662, abs=1e-3)
-    assert tas.h() == approx(1, abs=1e-3)
-    assert tas.k() == approx(0, abs=1e-3)
-    assert tas.l() == approx(0, abs=1e-3)
-    assert tas.E() == approx(1, abs=1e-3)
+    assert ki.read(0) == pytest.approx(3.014, abs=1e-3)
+    assert kf.read(0) == pytest.approx(2.662, abs=1e-3)
+    assert tas.h() == pytest.approx(1, abs=1e-3)
+    assert tas.k() == pytest.approx(0, abs=1e-3)
+    assert tas.l() == pytest.approx(0, abs=1e-3)
+    assert tas.E() == pytest.approx(1, abs=1e-3)
     tas.h.maw(1.5)
-    assert tas.h() == approx(1.5, abs=1e-3)
+    assert tas.h() == pytest.approx(1.5, abs=1e-3)
 
 
 def test_error_handling(session, log, tas):
@@ -212,7 +211,7 @@ def test_error_handling(session, log, tas):
         else:
             pytest.fail('PositionError not raised')
         # but we still arrived with phi
-        assert phi() == approx(-46.6, abs=0.1)
+        assert phi() == pytest.approx(-46.6, abs=0.1)
 
 
 def test_qscan(session, tas):
@@ -284,7 +283,7 @@ def test_qmodulus(session, log):
     qmod = session.getDevice('Qmod')
     assert qmod.unit == 'A-1'
     assert qmod.status(0) == (status.OK, '')
-    assert qmod.read(0) == approx(10.7849, abs=1e-4)
+    assert qmod.read(0) == pytest.approx(10.7849, abs=1e-4)
 
 
 def test_setalign(session, tas):
@@ -339,7 +338,7 @@ def test_virtualdet(session, tas):
     assert countres[0] == 1.0
     cps = float(countres[2])
     countres2 = count(tdet, 100)
-    assert countres2[2] / cps == approx(100, abs=30)
+    assert countres2[2] / cps == pytest.approx(100, abs=30)
 
     tas.maw([0.5, 0, 0, 0])
     countres = count(tdet, 1)
@@ -360,16 +359,16 @@ def test_virtualgonios(session, tas):
     assert v1.read(0) == 0
     assert v2.read(0) == 0
     gx.maw(2)
-    assert v1.read(0) == approx(2)
-    assert v2.read(0) == approx(0)
+    assert v1.read(0) == pytest.approx(2)
+    assert v2.read(0) == pytest.approx(0)
     gy.maw(1)
-    assert v1.read(0) == approx(2)
-    assert v2.read(0) == approx(1)
+    assert v1.read(0) == pytest.approx(2)
+    assert v2.read(0) == pytest.approx(1)
 
     v1.maw(0)
     v2.maw(1.3)
-    assert gx.read(0) == approx(0)
-    assert gy.read(0) == approx(1.3)
+    assert gx.read(0) == pytest.approx(0)
+    assert gy.read(0) == pytest.approx(1.3)
 
     # psi0 = 45deg
     tas._attached_cell.psi0 = 45
@@ -378,8 +377,8 @@ def test_virtualgonios(session, tas):
     assert v1.read(0) == 0
     assert v2.read(0) == 0
     v1.maw(4)
-    assert gx.read(0) == approx(2 * sqrt(2), abs=5e-2)
-    assert gy.read(0) == approx(2 * sqrt(2), abs=5e-2)
+    assert gx.read(0) == pytest.approx(2 * sqrt(2), abs=5e-2)
+    assert gy.read(0) == pytest.approx(2 * sqrt(2), abs=5e-2)
 
     # limits of sgx, sgy are +/- 5 deg
     v1.maw(7)

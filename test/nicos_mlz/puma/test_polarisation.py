@@ -23,7 +23,7 @@
 
 """Module to test polarisation routines."""
 
-from pytest import approx
+import pytest
 
 from nicos_mlz.puma.lib.pa.deflector import ddefl, rdefl
 from nicos_mlz.puma.lib.pa.gauss import gaussian
@@ -31,8 +31,8 @@ from nicos_mlz.puma.lib.pa.gauss import gaussian
 
 def test_gauss():
     assert gaussian(1., 0., 0.787816968304882, 0) == 1.
-    assert gaussian(1., 0., 0.787816968304882, 1.32) == approx(4.16480296E-04,
-                                                               abs=2E-8)
+    assert gaussian(1., 0., 0.787816968304882, 1.32) == pytest.approx(
+            4.16480296E-04, abs=2E-8)
 
 
 def test_ddfel():
@@ -40,9 +40,10 @@ def test_ddfel():
     assert ddefl(0.75, 0.5, 4., 0.055, 2) == 0.
 
     assert ddefl(-0.82, 0.5, 4., 0.055, 1) == 0.
-    assert ddefl(-0.82, 0.5, 4., 0.055, 2) == approx(1.01196454E-10, abs=2E-13)
+    assert ddefl(-0.82, 0.5, 4., 0.055, 2) == pytest.approx(1.01196454E-10,
+                                                            abs=2E-13)
 
 
 def test_rdefl():
     assert rdefl(1.32, 1) == 0.
-    assert rdefl(1.32, 2) == approx(1.22423962E-05, abs=1E-8)
+    assert rdefl(1.32, 2) == pytest.approx(1.22423962E-05, abs=1E-8)
