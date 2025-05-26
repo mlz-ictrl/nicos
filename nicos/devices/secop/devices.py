@@ -58,7 +58,8 @@ from frappy.errors import CommunicationFailedError, ReadFailedError
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
     HasOffset, NicosError, Override, Param, status, usermethod
-from nicos.core.device import Device, DeviceMeta, Moveable, Readable
+from nicos.core.device import Device, DeviceMeta, DeviceMetaInfo, \
+    DeviceParInfo, Moveable, Readable
 from nicos.core.errors import CommunicationError, ConfigurationError
 from nicos.core.params import anytype, dictof, floatrange, intrange, listof
 from nicos.core.utils import formatStatus
@@ -1292,10 +1293,16 @@ class SecopReadable(SecopDevice, Readable):
         if st[0] == status.DISABLED:
             # do not display info in data file when disabled
             return []
-        if st[0] == status.ERROR:
-            # avoid calling read()
-            return [('value', None, 'Error: %s' % st[1], '', 'general'),
-                    ('status', st, formatStatus(st), '', 'status')]
+        exc = self._param_errors.get('value')
+        if exc is not None:
+            # avoid calling read(), as it would fail
+            return [
+                DeviceMetaInfo(
+                    'value',
+                    DeviceParInfo(None, f'Error: {exc}', '', 'general')),
+                DeviceMetaInfo(
+                    'status',
+                    DeviceParInfo(st, formatStatus(st), '', 'status'))]
         return Readable.info(self)
 
 
