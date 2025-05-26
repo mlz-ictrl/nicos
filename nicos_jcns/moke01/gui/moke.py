@@ -45,6 +45,43 @@ from nicos.utils.functioncurves import Curve2D, Curves
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 
+class MokePlotCurve(MaskedPlotCurve):
+
+    ShowAll = 0
+    HideErrorBars = 1
+    HideAll = 2
+
+    def __init__(self, *args, **kwargs):
+        MaskedPlotCurve.__init__(self, *args, **kwargs)
+        self._show_error_bars = True
+        self._status = MokePlotCurve.ShowAll
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
+        if self.status == MokePlotCurve.ShowAll:
+            self.visible = True
+            self._show_error_bars = True
+        elif self.status == MokePlotCurve.HideErrorBars:
+            self.visible = True
+            self._show_error_bars = False
+        else:
+            self.visible = False
+            self._show_error_bars = False
+
+    @property
+    def errorBar1(self):
+        return self._e1 if self._show_error_bars else None
+
+    @property
+    def errorBar2(self):
+        return self._e2 if self._show_error_bars else None
+
+
 class MokePlot(LiveWidget1D):
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
         LiveWidget1D.__init__(self, parent, **kwds)
@@ -77,10 +114,9 @@ class MokePlot(LiveWidget1D):
         y_err = ErrorBar(x, y, dy, direction=ErrorBar.VERTICAL,
                          markercolor=color, linecolor=color) if dy else None
         self._curves.append(
-            MaskedPlotCurve(x, y, errBar1=x_err, errBar2=y_err,
-                            linewidth=1, legend=legend,
-                            markertype=GRMARKS['solidsquare'],
-                            markercolor=color, linecolor=color),
+            MokePlotCurve(x, y, errBar1=x_err, errBar2=y_err, linewidth=1,
+                          legend=legend, markertype=GRMARKS['solidsquare'],
+                          markercolor=color, linecolor=color),
         )
         self._curves[-1].markersize = 0.5
         self.axes.addCurves(self._curves[-1])
@@ -117,7 +153,10 @@ class MokePlot(LiveWidget1D):
 
     def on_legendItemClicked(self, event):
         if event.getButtons() & MouseEvent.LEFT_BUTTON:
-            event.curve.visible = not event.curve.visible
+            event.curve.status = (event.curve.status + 1) % 3
+            self._update()
+        if event.getButtons() & MouseEvent.RIGHT_BUTTON:
+            event.curve.status = (event.curve.status - 1) % 3
             self._update()
 
 
