@@ -2,4 +2,4 @@ description = 'Basic ErwiN setup'
 
 group = 'basic'
 
-includes = ['sampletable', 'charmbox02', 'nguide']
+includes = ['sampletable', 'charmbox02', 'nguide', 'rc']
