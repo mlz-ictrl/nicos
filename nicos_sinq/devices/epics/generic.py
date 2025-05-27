@@ -69,6 +69,10 @@ class EpicsArrayReadable(EpicsReadable):
                        type=int, mandatory=True),
     }
 
+    def doInit(self, mode):
+        EpicsReadable.doInit(self, mode)
+        self._sim_setValue([0] * self.count)
+
     def doRead(self, maxage=0):
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
