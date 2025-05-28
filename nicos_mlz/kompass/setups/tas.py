@@ -1,8 +1,8 @@
-description = 'Kompass standard instrument'
+description = 'KOMPASS TAS mode setup'
 
 group = 'basic'
 
-includes = ['mono', 'guidefocus', 'selector', 'astrium', 'sample', 'alias_sth',
+includes = ['mono', 'guidefocus', 'selector', 'astrium', 'sample',
             'reactor',
             'detector',
             'analyzer',

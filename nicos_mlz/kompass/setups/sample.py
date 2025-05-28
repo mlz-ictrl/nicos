@@ -1,7 +1,7 @@
 description = 'Sample table devices'
 
 group = 'lowlevel'
-includes = ['sampleslit']
+includes = ['sampleslit', 'alias_sth']
 
 tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
