@@ -170,7 +170,8 @@ class SinqMotor(CoreEpicsMotor):
             CoreEpicsMotor.doReference(self)
 
     def doReset(self):
-        self._put_pv('reseterrorpv', 1)
+        # Block the session until the error has actually been resetted
+        self._put_pv_checked('reseterrorpv', 1)
 
     def doPoll(self, n, maxage):
         self.pollParams('can_disable', 'encoder_type')

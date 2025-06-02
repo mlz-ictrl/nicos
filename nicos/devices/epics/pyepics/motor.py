@@ -234,7 +234,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                 'Using high limit %s instead.', value, maxspeed, maxspeed)
             value = maxspeed
 
-        self._put_pv('speed', value)
+        # Before proceeding, we want to make sure that the PV has actually been
+        # changed.
+        self._put_pv_checked('speed', value)
         return value
 
     def doReadEpics_Offset(self):
@@ -251,8 +253,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             old_offset = self.offset
             diff = value - self.offset
 
-            # Set the offset in motor record
-            self._put_pv('offset', -value)
+            # Set the offset in motor record. This needs to be checked because
+            # self._adjustLimitsToOffset indirectly reads the offset from EPICS
+            self._put_pv_checked('offset', -value)
 
             # This also reads the new abslimits
             self._adjustLimitsToOffset(value, diff)
@@ -268,7 +271,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
 
     def doStart(self, target):
         self._start_time = currenttime()
-        self._put_pv('writepv', target)
+        # Needs to be checked because self.doReadTarget is called immediately
+        # afterwards when doing a move-and-wait.
+        self._put_pv_checked('writepv', target)
 
     def doReadTarget(self):
         return self._get_pv('writepv')
@@ -355,6 +360,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             self.log.error(msg_to_log, msg_txt, epics_status)
 
     def doStop(self):
+        # The stop field resets itself immediately after it has been written to
         self._put_pv('stop', 1, False)
 
     def doReadEpics_Abslimits(self):
@@ -382,6 +388,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         return absmin + offset, absmax + offset
 
     def doReference(self):
+        # The reference field resets itself immediately after it has been
+        # written to
         self._put_pv('home%s' % self.reference_direction, 1)
 
     def doReset(self):
@@ -414,7 +422,7 @@ class EpicsMonitorMotor(PVMonitor, EpicsMotor):
 
     def doStart(self, target):
         try:
-            self._put_pv_blocking('writepv', target, timeout=5)
+            self._put_pv_checked('writepv', target, timeout=5)
         except Exception as e:
             # Use a generic exception to handle any EPICS binding
             self.log.warning(e)
