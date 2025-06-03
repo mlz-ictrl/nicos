@@ -106,8 +106,26 @@ class Shutter(EpicsDevice, Moveable):
     def doRead(self, maxage=0):
         return self._inv_mapping[bool(self._get_pv('readpv'))]
 
+    def doIsAllowed(self, pos):
+        (status_code, msg) = self.doStatus(0)
+        if status_code != status.OK:
+            if msg:
+                return (False, msg)
+            elif status_code == status.BUSY:
+                return (False, 'Shutter is already moving')
+            else:
+                return (False, 'Changing the shutter state is not possible')
+        return (True, '')
+
     def doStart(self, target):
-        self._put_pv('writepv', int(self._mapping[target]))
+        # The shutter works in a "toggle" operation - regardless of the target
+        # which is sent to the driver, the driver always sends the same command
+        # to the shutter which then simply toggles the status. This means that
+        # e.g. trying to "open" the shutter while it is already open will
+        # actually close it! Hence we only forward the command if the shutter
+        # is idle and in the other state.
+        if target != self.doRead(0):
+            self._put_pv('writepv', int(self._mapping[target]))
 
     def doStatus(self, maxage=0):
         status_code = self._get_pv('statuspv')
@@ -118,7 +136,7 @@ class Shutter(EpicsDevice, Moveable):
         elif status_code == 1:
             status_code = status.BUSY
         elif status_code == 2:
-            status_code = status.WARNING
+            status_code = status.WARN
         elif status_code == 3:
             status_code = status.ERROR
         else:
