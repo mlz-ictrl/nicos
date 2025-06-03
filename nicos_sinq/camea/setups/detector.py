@@ -4,6 +4,10 @@ group = 'basic'
 
 display_order = 50
 
+sysconfig = dict(
+    datasinks = ['nxsink'],
+)
+
 includes = ['mono_slit', 'cameabasic', 'hm_config'] # The real thing
 #includes=['mono_slit', 'cameabasic', 'hm_config_sim'] # For simulation
 excludes = ['andorccd']
@@ -11,6 +15,12 @@ excludes = ['andorccd']
 pvprefix = 'SQ:CAMEA:counter'
 
 devices = dict(
+    nxsink = device('nicos.nexus.NexusSink',
+        description = 'Sink for NeXus file writer',
+        filenametemplate = ['camea%(year)sn%(scancounter)06d.hdf'],
+        templateclass = 'nicos_sinq.camea.nexus.nexus_templates'
+        '.CameaTemplateProvider',
+    ),
     timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',
         unit = 'sec',
