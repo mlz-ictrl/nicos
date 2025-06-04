@@ -58,7 +58,7 @@ class SeqRampParam(SeqParam):
             if self.isCompleted():
                 return
             session.delay(0.2)
-            self.log.info('waiting')
+            session.log.info('waiting')
         raise NicosError('Setting Parameter %s of dev %s to %r failed!' % (
             self.paramname, self.dev, self.value))
 
@@ -82,7 +82,7 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         'window': Attach('HV channel for the window',
                          Moveable, multiple=1),
         'trip': Attach('Devices signaling a trip on the hardware',
-                       Readable),
+                       Readable, optional=True),
     }
 
     parameters = {
@@ -121,12 +121,14 @@ class HVSwitch(SequencerMixin, MappedMoveable):
                 raise ConfigurationError(
                     self, '%r not allowed as key in mapping. %s' % (
                         value, err)) from err
+        for d in self._devices.values():
+            d.enable()
 
     def doIsAllowed(self, target):
         if target == 'off':
             ok = True
         else:
-            ok = not self._tripped and not self._attached_trip.read(0)
+            ok = not self._tripped and not self._hardware_tripped()
         return ok, '' if ok else 'hardware is tripped'
 
     def doStop(self):
@@ -148,7 +150,9 @@ class HVSwitch(SequencerMixin, MappedMoveable):
             self._setROParam('_tripped', True)
 
     def _hardware_tripped(self):
-        return self._attached_trip.read(0) == 'Trip'
+        if self._attached_trip:
+            return self._attached_trip.read(0) == 'Trip'
+        return False
 
     def _generateSequence(self, target):
         anodes = self._attached_anodes + self._attached_banodes
@@ -191,4 +195,4 @@ class HVSwitch(SequencerMixin, MappedMoveable):
             [SeqRampParam(dev, ramp)
              for dev in self._attached_anodes + self._attached_banodes +
              self._attached_cathodes] +
-            [SeqRampParam(dev, -ramp) for dev in self._attached_window] + seq)
+            [SeqRampParam(dev, ramp) for dev in self._attached_window] + seq)
