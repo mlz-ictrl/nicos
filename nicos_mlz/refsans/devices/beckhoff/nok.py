@@ -628,7 +628,7 @@ class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
     }
 
     @requires(level=ADMIN)
-    def doWriteVMax(self, value):
+    def doWriteVmax(self, value):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
 
