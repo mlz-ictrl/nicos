@@ -248,6 +248,25 @@ class EpicsDevice(DeviceMixinBase):
 
         self._pvs[pvparam].put(value, wait=wait, timeout=self.epicstimeout)
 
+    def _put_pv_checked(self, pvparam, value, wait=False, update_rate=0.1,
+                        timeout=60):
+        """
+        Write a PV and block the session until it has been verified that the PV
+        has actually changed on the EPICS side
+        """
+        if epics.ca.current_context() is None:
+            epics.ca.use_initial_context()
+
+        pv = self._pvs[pvparam]
+
+        pv.put(value, wait=wait, timeout=self.epicstimeout)
+
+        start = monotonic()
+        while pv.get() != value:
+            if monotonic() - start > timeout:
+                raise CommunicationError('Timeout in setting %s' % pv.pvname)
+            session.delay(update_rate)
+
     def _put_pv_blocking(self, pvparam, value, update_rate=0.1, timeout=60):
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()

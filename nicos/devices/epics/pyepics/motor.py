@@ -29,7 +29,7 @@ from time import time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import ADMIN, Override, Param, oneof, pvname, status
+from nicos.core import ADMIN, Override, Param, oneof, pvname, status, UsageError
 from nicos.core.device import requires
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.core.params import limits
@@ -147,6 +147,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         'speed': Override(volatile=True),
         'offset': Override(volatile=True, chatty=False),
         'abslimits': Override(volatile=True),
+        'precision': Override(settable=False, mandatory=False, volatile=True),
     }
 
     _motor_status = (status.OK, '')
@@ -173,6 +174,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         'softlimit': 'LVIO',
         'lowlimitswitch': 'LLS',
         'highlimitswitch': 'HLS',
+        'resolution': 'MRES',
         'enable': 'CNEN',
         'set': 'SET',
         'foff': 'FOFF',
@@ -220,6 +222,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     def doReadSpeed(self):
         return self._get_pv('speed')
 
+    def doReadPrecision(self):
+        return self._get_pv('resolution')
+
     def doWriteSpeed(self, value):
         basespeed, maxspeed = self.speedlimits
         if value < basespeed:
@@ -234,7 +239,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                 'Using high limit %s instead.', value, maxspeed, maxspeed)
             value = maxspeed
 
-        self._put_pv('speed', value)
+        # Before proceeding, we want to make sure that the PV has actually been
+        # changed.
+        self._put_pv_checked('speed', value)
         return value
 
     def doReadEpics_Offset(self):
@@ -251,8 +258,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             old_offset = self.offset
             diff = value - self.offset
 
-            # Set the offset in motor record
-            self._put_pv('offset', -value)
+            # Set the offset in motor record. This needs to be checked because
+            # self._adjustLimitsToOffset indirectly reads the offset from EPICS
+            self._put_pv_checked('offset', -value)
 
             # This also reads the new abslimits
             self._adjustLimitsToOffset(value, diff)
@@ -268,7 +276,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
 
     def doStart(self, target):
         self._start_time = currenttime()
-        self._put_pv('writepv', target)
+        # Needs to be checked because self.doReadTarget is called immediately
+        # afterwards when doing a move-and-wait.
+        self._put_pv_checked('writepv', target)
 
     def doReadTarget(self):
         return self._get_pv('writepv')
@@ -281,26 +291,26 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                 return True
         return False
 
-    def doStatus(self, maxage=0):
-        if self._test_starting():
-            return status.BUSY, 'starting'
+    def doIsAtTarget(self, pos, target):
+        return self._get_pv('miss') == 0
 
+    def doWritePrecision(self, value):
+        raise UsageError('Precision is read directly from the .MRES field of '
+                         'the motor record and therefore cannot be set')
+
+    def doStatus(self, maxage=0):
         stat, message = self._get_status_message()
         self._motor_status = stat, message
-        if stat == status.ERROR:
+        if stat in (status.ERROR, status.WARN):
             return stat, message or 'Unknown problem in record'
-        elif stat == status.WARN:
-            return stat, message
+
+        if self._test_starting():
+            return status.BUSY, 'starting'
 
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
         if done_moving == 0 or moving != 0:
             return status.BUSY, message or 'Motor is moving to target...'
-
-        miss = self._get_pv('miss')
-        if miss != 0:
-            return (status.NOTREACHED, message
-                    or 'Did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
@@ -355,6 +365,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             self.log.error(msg_to_log, msg_txt, epics_status)
 
     def doStop(self):
+        # The stop field resets itself immediately after it has been written to
         self._put_pv('stop', 1, False)
 
     def doReadEpics_Abslimits(self):
@@ -382,6 +393,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         return absmin + offset, absmax + offset
 
     def doReference(self):
+        # The reference field resets itself immediately after it has been
+        # written to
         self._put_pv('home%s' % self.reference_direction, 1)
 
     def doReset(self):
@@ -414,7 +427,7 @@ class EpicsMonitorMotor(PVMonitor, EpicsMotor):
 
     def doStart(self, target):
         try:
-            self._put_pv_blocking('writepv', target, timeout=5)
+            self._put_pv_checked('writepv', target, timeout=5)
         except Exception as e:
             # Use a generic exception to handle any EPICS binding
             self.log.warning(e)
