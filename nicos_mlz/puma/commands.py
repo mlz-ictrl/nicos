@@ -89,12 +89,12 @@ class ADScanDataset(ScanDataset):
 
 class MultiADScan(Scan):
 
-    def __init__(self, info_header, parnames, parlist, psipos, phipos, monopos,
+    def __init__(self, info_header, parnames, parlist, sthpos, sttpos, monopos,
                  cadpos, preset, detseq=1):
         detlist = [session.getDevice('det')]
         move = [[session.getDevice(devname), pos]
-                for devname, pos in zip(['psi', 'phi', 'mono', 'cad'],
-                                        [psipos, phipos, monopos, cadpos])]
+                for devname, pos in zip(['sth', 'stt', 'mono', 'cad'],
+                                        [sthpos, sttpos, monopos, cadpos])]
         Scan.__init__(self, [], [[]], preset={'t': preset}, detlist=detlist,
                       scaninfo=info_header, firstmoves=move)
         self._detseq = detseq
@@ -219,9 +219,9 @@ class MultiADScan(Scan):
 
 
 @usercommand
-@helparglist('infoheader, parnames, parlist, psi, phi, mono, cad, preset, '
+@helparglist('infoheader, parnames, parlist, sth, stt, mono, cad, preset, '
              '[detseq=1]')
-def multiadscan(info_header, parnames, parlist, psipos, phipos, monopos,
+def multiadscan(info_header, parnames, parlist, sthpos, sttpos, monopos,
                 cadpos, preset, detseq=1):
     """Multi analyzer 'scan'.
 
@@ -233,8 +233,8 @@ def multiadscan(info_header, parnames, parlist, psipos, phipos, monopos,
     * parlist - values to additional parnames (stored in data files), must have
                 a length of 11 (one for each detector) and each entry must have
                 the length of the parnames list
-    * psipos - target position of psi device
-    * phipos - target position of phi device
+    * sthpos - target position of sth device
+    * sttpos - target position of stt device
     * monopos - target position of mono device
     * cadpos - target position of cad device
     * preset - time to count per point
@@ -246,7 +246,7 @@ def multiadscan(info_header, parnames, parlist, psipos, phipos, monopos,
                     'ki= 5.40  Psi = 151.22  Phi0 = 65.50  CAD = -7.83  '
                     'tilt =-2.00 config-type 2',
                     ['h', 'k', 'l', 'ny/THz', 'x/cm', 'y/cm',  'theta/deg',
-                     'phi/deg'],
+                     'stt/deg'],
                     [
                      [-4.68, 2.97, 0.00, -6.64, 10.00, 2.00, -8.27, 71.89],
                      [-4.51, 2.73, 0.00, -4.54, 8.00, 1.60, -8.71, 70.59],
@@ -261,7 +261,7 @@ def multiadscan(info_header, parnames, parlist, psipos, phipos, monopos,
                      [-3.56, 1.38, 0.00, 5.07, -10.00, -2.00, -12.39, 59.38],
                     ], 276.25, 19.995, 3.235, -0.8016, 1)
     """
-    MultiADScan(info_header, parnames, parlist, psipos, phipos, monopos,
+    MultiADScan(info_header, parnames, parlist, sthpos, sttpos, monopos,
                 cadpos, preset, detseq).run()
 
 
@@ -298,12 +298,12 @@ class TimeADScan(SweepScan):
 
 
 @usercommand
-@helparglist('numpoints, header, parnames, parlist, psipos, phipos, monopos, '
+@helparglist('numpoints, header, parnames, parlist, sthpos, sttpos, monopos, '
              'cadpos, timepreset')
-def timeadscan(numpoints, header, parnames, parlist, psi, phi, mono, cad, t):
+def timeadscan(numpoints, header, parnames, parlist, sth, stt, mono, cad, t):
     """Time scan in multianalyzer setup.
 
-    Count a number of times without moving devices, except the 'psi', 'phi',
+    Count a number of times without moving devices, except the 'sth', 'stt',
     'mono', and 'cad' before counting the first time.
 
     * numpoints - number of repititions can be -1 to scan for unlimited points
@@ -313,8 +313,8 @@ def timeadscan(numpoints, header, parnames, parlist, psi, phi, mono, cad, t):
     * parlist - values to additional parnames (stored in data files), must have
                 a length of 11 (one for each detector) and each entry must have
                 the length of the parnames list
-    * psipos - target position of psi device
-    * phipos - target position of phi device
+    * sthpos - target position of sth device
+    * sttpos - target position of stt device
     * monopos - target position of mono device
     * cadpos - target position of cad device
     * timepreset - time to count per point
@@ -325,7 +325,7 @@ def timeadscan(numpoints, header, parnames, parlist, psi, phi, mono, cad, t):
                    'ki= 5.40  Psi = 151.22  Phi0 = 65.50  CAD = -7.83  '
                    'tilt =-2.00 config-type 2',
                    ['h', 'k', 'l', 'ny/THz', 'x/cm', 'y/cm',  'theta/deg',
-                    'phi/deg'],
+                    'stt/deg'],
                    [
                     [-4.68, 2.97, 0.00, -6.64, 10.00, 2.00, -8.27, 71.89],
                     [-4.51, 2.73, 0.00, -4.54, 8.00, 1.60, -8.71, 70.59],
@@ -342,11 +342,11 @@ def timeadscan(numpoints, header, parnames, parlist, psi, phi, mono, cad, t):
     """
     preset = {'t': t}
     scanstr = _infostr('timeadscan',
-                       (numpoints,) + (psi, phi, mono, cad),
+                       (numpoints,) + (sth, stt, mono, cad),
                        preset)
     move = [[session.getDevice(devname), pos]
-            for devname, pos in zip(['psi', 'phi', 'mono', 'cad'],
-                                    [psi, phi, mono, cad])]
+            for devname, pos in zip(['sth', 'stt', 'mono', 'cad'],
+                                    [sth, stt, mono, cad])]
 
     scan = TimeADScan(header, parnames, parlist, numpoints, move,
                       preset=preset, scaninfo='%s %s' % (scanstr, header))

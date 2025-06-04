@@ -5,7 +5,7 @@ includes = ['motorbus1', 'motorbus2', 'motorbus3', 'motorbus4']
 group = 'lowlevel'
 
 devices = dict(
-    st_phi = device('nicos.devices.vendor.ipc.Motor',
+    st_stt = device('nicos.devices.vendor.ipc.Motor',
         bus = 'motorbus4',
         addr = 53,
         slope = 400,
@@ -22,7 +22,7 @@ devices = dict(
         ramptype = 4,
         visibility = (),
     ),
-    co_phi = device('nicos.devices.vendor.ipc.Coder',
+    co_stt = device('nicos.devices.vendor.ipc.Coder',
         bus = 'motorbus1',
         addr = 128,
         slope = -(2**26)/360.,
@@ -32,10 +32,10 @@ devices = dict(
         circular = -360, # map values to -180..0..180 degree
         visibility = (),
     ),
-    phi = device('nicos.devices.generic.Axis',
+    stt = device('nicos.devices.generic.Axis',
         description = 'Sample scattering angle Two Theta',
-        motor = 'st_phi',
-        coder = 'co_phi',
+        motor = 'st_stt',
+        coder = 'co_stt',
         precision = 0.005,
         offset = 0.21, #May 2017 done by GE
         maxtries = 10,
@@ -43,19 +43,19 @@ devices = dict(
         jitter = 0.2,
         dragerror = 1,
     ),
-    # Magnet phi
-    # phi = device('nicos_mlz.puma.devices.CombAxis',
+    # Magnet stt
+    # stt = device('nicos_mlz.puma.devices.CombAxis',
     #     description = 'Sample scattering angle Two Theta',
-    #     motor = 'st_phi',
-    #     coder = 'co_phi',
+    #     motor = 'st_stt',
+    #     coder = 'co_stt',
     #     precision = 0.005,
     #     offset = 0.21,
     #     maxtries = 5,
     #     loopdelay = 1,
-    #     fix_ax = 'psi_puma',
+    #     fix_ax = 'sth_puma',
     #     iscomb = False,
     # ),
-    st_psi = device('nicos.devices.vendor.ipc.Motor',
+    st_sth = device('nicos.devices.vendor.ipc.Motor',
         bus = 'motorbus2',
         addr = 58,
         slope = -400,
@@ -72,7 +72,7 @@ devices = dict(
         stopdelay = 0,
         ramptype = 1,
     ),
-    co_psi = device('nicos.devices.vendor.ipc.Coder',
+    co_sth = device('nicos.devices.vendor.ipc.Coder',
         bus = 'motorbus1',
         addr = 129,
         slope = -(2**20)/360.,
@@ -82,19 +82,19 @@ devices = dict(
         circular = 360,
         confbyte = 148,
     ),
-    psi_puma = device('nicos.devices.generic.Axis',
+    sth_puma = device('nicos.devices.generic.Axis',
         description = 'Sample rocking angle Theta',
-        motor = 'st_psi',
-        coder = 'co_psi',
+        motor = 'st_sth',
+        coder = 'co_sth',
         precision = 0.005,
         offset = 0,
         userlimits = (5,355),
         maxtries = 5,
     ),
 
-    psi = device('nicos.devices.generic.DeviceAlias',
+    sth = device('nicos.devices.generic.DeviceAlias',
         description = 'Sample rocking angle Theta',
-        alias = 'psi_puma',
+        alias = 'sth_puma',
         # when magnet is on :
         # alias = 'sth_m7T5_ccr',
         devclass = 'nicos.devices.generic.Axis',
@@ -266,5 +266,5 @@ devices = dict(
 )
 
 alias_config = {
-    'psi': {'psi_puma': 0},
+    'sth': {'sth_puma': 0},
 }

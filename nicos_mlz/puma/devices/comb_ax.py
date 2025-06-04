@@ -21,16 +21,16 @@
 #
 # *****************************************************************************
 
-"""Class for PUMA phi axis."""
+"""Class for PUMA stt axis."""
 
 from nicos.core import Attach, Moveable, Param
 from nicos.devices.generic.axis import Axis
 
 
 class CombAxis(Axis):
-    """Class for PUMA phi axis.
+    """Class for PUMA stt axis.
 
-    When psi axis must stay at the same angle relative to the incoming beam.
+    When sth axis must stay at the same angle relative to the incoming beam.
     For example, when the magnet is used
     """
 

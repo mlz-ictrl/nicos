@@ -142,7 +142,7 @@ class SecCollLift(HasTimeout, BlockingSequencer):
 
     attached_devices = {
         'tt': Attach('two theta axis monochromator', Moveable),
-        'st': Attach('phi sample', Moveable),
+        'st': Attach('stt sample', Moveable),
         'block': Attach('block changing device', Moveable),
     }
 

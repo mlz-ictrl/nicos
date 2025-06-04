@@ -23,7 +23,7 @@ pos()
 timescan(13,mon1=100000)
 
 # do a rocking scan across this position
-cscan( psi, psi.target, 0.2, 12, 1)
+cscan(sth, sth.target, 0.2, 12, 1)
 
 # end of user commands
 

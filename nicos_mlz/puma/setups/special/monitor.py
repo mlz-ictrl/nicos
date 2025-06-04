@@ -33,8 +33,8 @@ _axisblock = Block('Axes angles', [
         Field(dev='mfvpg'),
     ),
     BlockRow(
-        Field(dev='psi'),
-        Field(dev='phi'),
+        Field(dev='sth'),
+        Field(dev='stt'),
     ),
     BlockRow(
         Field(dev='ath'),
@@ -111,7 +111,7 @@ _tasblock = Block('Triple-axis', [
     BlockRow(
         Field(widget='nicos.guisupport.tas.TasWidget',
               width=40, height=30, mthdev='mth', mttdev='mtt',
-              sthdev='psi', sttdev='phi', athdev='ath', attdev='att'),
+              sthdev='sth', sttdev='stt', athdev='ath', attdev='att'),
     ),
     ],
     # setups='puma',

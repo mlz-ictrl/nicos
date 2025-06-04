@@ -17,8 +17,8 @@ devices = dict(
         instrument = 'PUMA',
         responsible = 'J. T. Park <jitae.park@frm2.tum.de>',
         cell = 'Sample',
-        phi = 'phi',
-        psi = 'psi',
+        phi = 'stt',
+        psi = 'sth',
         mono = 'mono',
         ana = 'ana',
         alpha = None,
@@ -173,6 +173,6 @@ alias_config = {
 }
 
 startupcode = '''
-psi.alias = psi_puma
+sth.alias = sth_puma
 mono.alias = mono_pg002
 '''

@@ -677,7 +677,7 @@ def PandaLoad(filename):
                 '2nd orientation reflection':'orient2',
                 'zone axis for scattering plane':'zoneaxis',
                 'created at':'created',
-                'PSI0 (deg)':'psi_offset',
+                'PSI0 (deg)':'sth_offset',
                 'Scattering sense':'scattersense',
                 'mono focussing mode':'mono_focus',
                 'ana  focussing mode':'ana_focus',

@@ -33,8 +33,8 @@ _axisblock = Block('Axes angles', [
         Field(dev='mfvpg'),
     ),
     BlockRow(
-        Field(dev='psi'),
-        Field(dev='phi'),
+        Field(dev='sth'),
+        Field(dev='stt'),
     ),
     BlockRow(
         Field(dev='ath'),
