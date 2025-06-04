@@ -47,7 +47,8 @@ class FakeEpicsMotor(EpicsMotor):
         'writepv': position,
         'offset': 0,
         'enable': 1,
-        'direction': 0
+        'direction': 0,
+        'resolution': 0,
     }
 
     def doPreinit(self, mode):
@@ -75,6 +76,10 @@ class FakeEpicsMotor(EpicsMotor):
 
     def _get_pv(self, pvparam, as_string=False, use_monitor=True):
         return self.values[pvparam]
+
+    def _put_pv_checked(self, pvparam, value, wait=False, update_rate=0.1,
+                        timeout=60):
+        self._put_pv(pvparam, value, wait)
 
 
 class DerivedEpicsMotor(FakeEpicsMotor):

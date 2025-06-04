@@ -292,6 +292,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         return False
 
     def doIsAtTarget(self, pos, target):
+        if self._sim_intercept:
+            return True
         return self._get_pv('miss') == 0
 
     def doWritePrecision(self, value):
