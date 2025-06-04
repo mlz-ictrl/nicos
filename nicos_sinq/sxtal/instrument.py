@@ -304,7 +304,7 @@ class EulerSXTal(SXTalBase):
             hkl.append(self.psi_target)
         return hkl
 
-    def doWriteUse_psi(self, val):
+    def doWriteUse_Psi(self, val):
         if val:
             self.fmtstr = '[%6.4f, %6.4f, %6.4f, %6.4f]'
             self.valuetype = tupleof(float, float, float, float)
