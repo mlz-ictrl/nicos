@@ -23,8 +23,10 @@
 
 """VBIODIFF detector image based on McSTAS simulation."""
 
+import numpy as np
+
 from nicos.core import Attach, Override, Readable
-from nicos.devices.mcstas import DetectorMixin, \
+from nicos.devices.mcstas import DetectorMixin, McStasImage as BaseImage, \
     McStasSimulation as BaseSimulation
 from nicos.devices.sxtal.sample import SXTalSample
 
@@ -62,6 +64,11 @@ class McStasSimulation(BaseSimulation):
         params.append('dLam=%s' % 0.05)
         params.append('REP=%s' % 1000)
         return params
+
+
+class McStasImage(BaseImage):
+
+    image_data_type = np.uint16
 
 
 class Detector(DetectorMixin, BiodiffDetector):

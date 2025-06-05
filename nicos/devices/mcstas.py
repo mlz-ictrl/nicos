@@ -303,6 +303,8 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         'mcstas': Attach('McStasSimulation device', McStasSimulation),
     }
 
+    image_data_type = np.uint32
+
     parameters = {
         'size':       Param('Detector size in pixels (x, y)',
                             type=tupleof(intrange(1, 8192), intrange(1, 8192)),
@@ -349,7 +351,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
             if lines[0].startswith('# Data') and self.mcstasfile in lines[0]:
                 factor = self._attached_mcstas._getScaleFactor()
                 buf = np.loadtxt(lines[1:self.size[1] + 1], dtype=np.float32)
-                self._buf = (buf * factor).astype(np.uint32)
+                self._buf = (buf * factor).astype(self.image_data_type)
                 self.readresult = [self._buf.sum()]
             elif quality != LIVE:
                 raise OSError('Did not find start line: %s' % lines[0])
