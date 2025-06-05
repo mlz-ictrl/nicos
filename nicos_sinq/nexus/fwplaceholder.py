@@ -24,6 +24,7 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
+from nicos.core.device import DeviceParInfo
 from nicos.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
 
@@ -43,4 +44,4 @@ class DevArrayPlaceholder(PlaceholderBase):
         val = []
         for i in range(self.length):
             val.append(start + i * self.step)
-        return val, '', 'degree', 'general'
+        return DeviceParInfo(val, '', 'degree', 'general')
