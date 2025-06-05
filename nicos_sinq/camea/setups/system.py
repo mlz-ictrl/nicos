@@ -54,12 +54,6 @@ devices = dict(
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sink for forwarding live data to the GUI',
     ),
-    nxsink = device('nicos.nexus.NexusSink',
-        description = 'Sink for NeXus file writer',
-        filenametemplate = ['camea%(year)sn%(scancounter)06d.hdf'],
-        templateclass = 'nicos_sinq.camea.nexus.nexus_templates'
-        '.CameaTemplateProvider',
-    ),
     quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
         description = 'Sink for sending UDP datafile notifications',
     ),
