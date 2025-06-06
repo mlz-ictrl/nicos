@@ -78,7 +78,7 @@ class FakeEpicsMotor(EpicsMotor):
         return self.values[pvparam]
 
     def _put_pv_checked(self, pvparam, value, wait=False, update_rate=0.1,
-                        timeout=60):
+                        timeout=60, precision=0):
         self._put_pv(pvparam, value, wait)
 
 

@@ -26,6 +26,7 @@ This module contains some classes for NICOS - EPICS integration.
 """
 import threading
 from time import monotonic
+import numbers
 
 import epics
 
@@ -249,11 +250,25 @@ class EpicsDevice(DeviceMixinBase):
         self._pvs[pvparam].put(value, wait=wait, timeout=self.epicstimeout)
 
     def _put_pv_checked(self, pvparam, value, wait=False, update_rate=0.1,
-                        timeout=60):
+                        timeout=60, precision=0):
         """
         Write a PV and block the session until it has been verified that the PV
-        has actually changed on the EPICS side
+        has actually changed on the EPICS side. In case of a numeric PV, it is
+        also possible to specify the precision. This is for example needed for
+        the motor record, where the target value can only be set up to the
+        resolution defined in the MRES field.
         """
+        def isEqualNum(pv, value, precision):
+            return abs(pv.get()- value) <= precision
+
+        def isEqualOther(pv, value, precision):
+            return pv.get() == value
+
+        if isinstance(value, numbers.Number):
+            isEqual = isEqualNum
+        else:
+            isEqual = isEqualOther
+
         if epics.ca.current_context() is None:
             epics.ca.use_initial_context()
 
@@ -262,7 +277,7 @@ class EpicsDevice(DeviceMixinBase):
         pv.put(value, wait=wait, timeout=self.epicstimeout)
 
         start = monotonic()
-        while pv.get() != value:
+        while not isEqual(pv, value, precision):
             if monotonic() - start > timeout:
                 raise CommunicationError('Timeout in setting %s' % pv.pvname)
             session.delay(update_rate)
