@@ -37,6 +37,7 @@ class McStasSimulation(BaseSimulation):
 
     parameter_overrides = {
         'mcstasprog': Override(default='biodiff_fast'),
+        'neutronspersec': Override(default={'localhost': 2.3e4}),
     }
 
     attached_devices = {
