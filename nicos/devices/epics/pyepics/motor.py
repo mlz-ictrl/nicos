@@ -31,7 +31,7 @@ import numpy as np
 from nicos import session
 from nicos.core import ADMIN, Override, Param, oneof, pvname, status, UsageError
 from nicos.core.device import requires
-from nicos.core.mixins import CanDisable, HasOffset
+from nicos.core.mixins import CanDisable, HasOffset, HasPrecision
 from nicos.core.params import limits
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics.pyepics import EpicsAnalogMoveable, PVMonitor
@@ -294,7 +294,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     def doIsAtTarget(self, pos, target):
         if self._sim_intercept:
             return True
-        return self._get_pv('miss') == 0
+        return self._get_pv('miss') == 0 and HasPrecision.doIsAtTarget(self, pos, target)
 
     def doWritePrecision(self, value):
         raise UsageError('Precision is read directly from the .MRES field of '

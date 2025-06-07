@@ -23,6 +23,7 @@
 
 from nicos.core.errors import ConfigurationError
 from nicos.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
+from nicos.core.device import DeviceParInfo
 
 
 class DistancesPlaceholder(PlaceholderBase):
@@ -41,9 +42,9 @@ class DistancesPlaceholder(PlaceholderBase):
         if sample and isinstance(sample[0], float) and \
                 value and isinstance(value[0], float):
             dist = sample[0] - value[0]
-            return (dist, '%s' % dist, value[2], value[3])
+            return DeviceParInfo(dist, '%s' % dist, value[2], value[3])
         else:
-            return (self.defaultval, '%s' % self.defaultval, 'mm', 'general')
+            return DeviceParInfo(self.defaultval, '%s' % self.defaultval, 'mm', 'general')
 
 
 class SlitGeometryPlaceholder(PlaceholderBase):
@@ -77,7 +78,7 @@ class SlitGeometryPlaceholder(PlaceholderBase):
             return None
 
         val = [h, w]
-        return val, '%s' % val, 'mm', ''
+        return DeviceParInfo(val, '%s' % val, 'mm', '')
 
 
 class UserEmailPlaceholder(DeviceValuePlaceholder):
@@ -94,7 +95,7 @@ class UserEmailPlaceholder(DeviceValuePlaceholder):
             ret = usersplit[0].strip()
         elif len(usersplit) > 1:
             ret = usersplit[1][:-1]
-        return ret, ret, '', ''
+        return DeviceParInfo(ret, ret, '', '')
 
 
 class ComponentDistancePlaceholder(PlaceholderBase):
@@ -107,7 +108,7 @@ class ComponentDistancePlaceholder(PlaceholderBase):
         d1 = metainfo.get(('Distances', self.component1), 0.0)
         d2 = metainfo.get(('Distances', self.component2), 0.0)
         val = abs(d1[0]-d2[0])
-        return val, '%s' % val, 'mm', ''
+        return DeviceParInfo(val, '%s' % val, 'mm', '')
 
 
 class TimeBinningPlaceholder(PlaceholderBase):
@@ -133,4 +134,4 @@ class TimeBinningPlaceholder(PlaceholderBase):
 
         bins = [e-toffset for e in desc['dimbins'][self.ax_no]]
 
-        return (bins, '', 'ms', 'general')
+        return DeviceParInfo(bins, '', 'ms', 'general')
