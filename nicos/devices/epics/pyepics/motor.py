@@ -29,7 +29,9 @@ from time import time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import ADMIN, Override, Param, oneof, pvname, status, UsageError
+from nicos.core import ADMIN, Override, Param, UsageError, oneof, pvname, \
+    status
+from nicos.core.constants import MASTER
 from nicos.core.device import requires
 from nicos.core.mixins import CanDisable, HasOffset, HasPrecision
 from nicos.core.params import limits
@@ -226,6 +228,39 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             return '.'.join((motor_record_prefix, motor_field))
 
         return getattr(self, pvparam)
+
+    def doPreinit(self, mode):
+        EpicsAnalogMoveable.doPreinit(self, mode)
+
+        if mode == MASTER:
+            # As the absolute limits and offset are managed by Epics, may be
+            # the case, that these change while Nicos is not running, meaning
+            # that the user limits are no longer within the absolute limits. As
+            # a result, it is no longer possible for devices of this type to be
+            # created, due to exceptions thrown by the `_checkLimits` method in
+            # the `HasLimits` mixin. For this reason, we override the user
+            # limits during startup if they are outside the absolute limits.
+
+            absmin = self._get_pv('lowlimit', use_monitor=False)
+            absmax = self._get_pv('highlimit', use_monitor=False)
+            epicsoffset = self._get_pv('offset', use_monitor=False)
+
+            userlimits = self._cache.get(self._name, "userlimits",
+                                         default=(absmin - epicsoffset, absmax - epicsoffset))
+
+            # in HasLimits we have _checkLimits(self, limits)
+            # umin < amin - abs(amin * 1e-12)
+            # and
+            # umax > amax + abs(amax * 1e-12)
+            # So perhaps this is a little too large a change
+            usermin, usermax = userlimits
+            usermin = max(absmin - epicsoffset + abs(absmin * 1e-10), usermin)
+            usermax = min(absmax - epicsoffset - abs(absmax * 1e-10), usermax)
+
+            if userlimits != (usermin, usermax):
+                self.log.warning('User limits are outside Absolute Limits %s - was: %s, now: %s',
+                                 (absmin, absmax), userlimits, (usermin, usermax))
+                self._cache.put(self._name, "userlimits", (usermin, usermax))
 
     def doReadSpeed(self):
         return self._get_pv('speed')
