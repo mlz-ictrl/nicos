@@ -7,5 +7,6 @@ devices = dict(
         description = 'RA rotation',
         motorpv = pvprefix + 'RA',
         errormsgpv = pvprefix + 'RA-MsgTxt',
+        precision = 0.000125
     ),
 )
