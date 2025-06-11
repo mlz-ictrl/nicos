@@ -109,6 +109,13 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                   settable=False,
                   userparam=False,
                   mandatory=False),
+        'direction':
+            Param('Run direction',
+                  type=oneof('forward', 'reverse'),
+                  settable=True,
+                  mandatory=False,
+                  userparam=True,
+                  volatile=True),
         'epics_abslimits':
             Param('Epics HLM and LLM fields',
                   type=limits,
@@ -165,6 +172,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         'miss': 'MISS',
         'homeforward': 'HOMF',
         'homereverse': 'HOMR',
+        'direction': 'DIR',
         'speed': 'VELO',
         'basespeed': 'VBAS',
         'maxspeed': 'VMAX',
@@ -418,6 +426,15 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         self._put_pv('writepv', pos)
         self._put_pv('set', 0)
         self._put_pv('foff', 0)
+
+    def doWriteDirection(self, value):
+        # 0 = positive direction, 1 = negative direction (see motor record docs)
+        self._put_pv('direction', value == 'reverse')
+
+    def doReadDirection(self):
+        if self._get_pv('direction'):
+            return 'reverse'
+        return 'forward'
 
     def doPoll(self, n, maxage):
         self.pollParams('speed', 'speedlimits', 'offset', 'abslimits',

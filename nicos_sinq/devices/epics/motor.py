@@ -27,9 +27,9 @@ from nicos.core.constants import MASTER
 from nicos.core.errors import UsageError
 from nicos.core.params import Override, none_or, oneof, pvname
 from nicos.devices.epics.pyepics.motor import EpicsMotor as CoreEpicsMotor
+from nicos_sinq.devices.dynamic_userlimits import DynamicUserlimits
 
-
-class SinqMotor(CoreEpicsMotor):
+class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
 
     parameters = {
         'can_disable': Param('Whether the motor can be enabled/disabled using '
@@ -44,6 +44,10 @@ class SinqMotor(CoreEpicsMotor):
         'errormsgpv': Override(settable=True),
         'errorbitpv': Override(settable=True),
         'reseterrorpv': Override(settable=True),
+        'precision': Override(volatile=True),
+        # Necessary since DynamicUserlimits overrides the override in
+        # CoreEpicsMotor
+        'abslimits': Override(volatile=True, mandatory=False),
     }
 
     def doInit(self, mode):
@@ -57,6 +61,9 @@ class SinqMotor(CoreEpicsMotor):
                 self.errorbitpv = pvname(self.motorpv + ':StatusProblem')
             if not self.reseterrorpv:
                 self.reseterrorpv = pvname(self.motorpv + ':Reset')
+
+            DynamicUserlimits.doInit(self, mode)
+
         return CoreEpicsMotor.doInit(self, mode)
 
     def _get_pv_parameters(self):
@@ -176,9 +183,19 @@ class SinqMotor(CoreEpicsMotor):
             CoreEpicsMotor.doReference(self)
 
     def doReset(self):
-        # Block the session until the error has actually been resetted
         self._put_pv_checked('reseterrorpv', 1)
 
+    def doReadUserlimits(self):
+        return DynamicUserlimits.doReadUserlimits(self)
+
+    def doWriteUserlimits(self, value):
+        DynamicUserlimits.doWriteUserlimits(self, value)
+        return CoreEpicsMotor.doWriteUserlimits(self, value)
+
     def doPoll(self, n, maxage):
-        self.pollParams('can_disable', 'encoder_type')
         CoreEpicsMotor.doPoll(self, n, maxage)
+
+        # Poll the userlimits AFTER the absolute limits, which are polled in the
+        # poll method of CoreEpicsMotor. The doReadUserlimits uses the absolute
+        # limits, hence they needed to be polled first.
+        self.pollParams('can_disable', 'encoder_type', 'userlimits')
