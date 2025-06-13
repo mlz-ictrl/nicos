@@ -1275,7 +1275,7 @@ class SecopReadable(SecopDevice, Readable):
         # NICOS status unknown
         return STATUS_MAP.get(code // 100, status.UNKNOWN), text
 
-    def doReadMaxage(self, maxage=0):
+    def doReadMaxage(self):
         sn = self._attached_secnode
         # maxage should be a little above the value used in poll thread
         return (sn.maxage or 600) + len(sn._polled_devs) * 2
