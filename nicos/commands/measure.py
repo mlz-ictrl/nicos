@@ -262,6 +262,8 @@ def SetEnvironment(*devlist):
 
     >>> SetEnvironment(T, B)   # to read out T and B devices
     >>> SetEnvironment()       # to read out no additional devices
+
+    see also: `AddEnvironment`, `ListEnvironment`
     """
     session.experiment.setEnvironment(devlist)
     ListEnvironment()
@@ -275,6 +277,8 @@ def AddEnvironment(*devlist):
     Example:
 
     >>> AddEnvironment(T)   # also read out T device
+
+    see also: `ListEnvironment`, `SetEnvironment`
     """
     existing = session.experiment.envlist
     session.experiment.setEnvironment(existing + list(devlist))
@@ -284,7 +288,10 @@ def AddEnvironment(*devlist):
 @usercommand
 @parallel_safe
 def ListEnvironment():
-    """List the standard environment devices."""
+    """List the standard environment devices.
+
+    see also: `AddEnvironment`, `SetEnvironment`
+    """
     if session.experiment.envlist:
         session.log.info('standard environment is: %s',
                          ', '.join(session.experiment.envlist))
