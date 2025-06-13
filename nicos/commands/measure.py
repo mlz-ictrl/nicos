@@ -221,6 +221,8 @@ def SetDetectors(*detlist):
 
     >>> SetDetectors(det)       # to use the "det" detector
     >>> SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
+
+    see also: `AddDetectors`, `ListDetectors`
     """
     session.experiment.setDetectors(detlist)
     ListDetectors()
@@ -234,6 +236,8 @@ def AddDetector(*detlist):
     Example:
 
     >>> AddDetector(psd)    # count also with the "psd" detector
+
+    see also: `ListDetectors`, `SetDetectors`
     """
     existing = session.experiment.detlist
     session.experiment.setDetectors(existing + list(detlist))
@@ -243,7 +247,10 @@ def AddDetector(*detlist):
 @usercommand
 @parallel_safe
 def ListDetectors():
-    """List the standard detectors."""
+    """List the standard detectors.
+
+    see also: `AddDetector`, `ListDetectors`
+    """
     if session.experiment.detlist:
         session.log.info('standard detectors are: %s',
                          ', '.join(session.experiment.detlist))
