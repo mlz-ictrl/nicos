@@ -76,7 +76,7 @@ tools = [
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
          sender='kws1@frm2.tum.de'),
-    # unfortunately doesn't work in the QWebView
+    # unfortunately doesn't work in the QWebEngineView
     #tool('Webcam', 'nicos.clients.gui.tools.website.WebsiteTool',
     #     url='http://kws1:kws1@172.25.34.66/view/viewer_index.shtml?id=296'),
 ]

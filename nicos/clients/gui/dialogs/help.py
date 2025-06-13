@@ -24,13 +24,14 @@
 """NICOS GUI help window."""
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QMainWindow, QUrl, QWebPage, QWebView, pyqtSlot
+from nicos.guisupport.qt import QMainWindow, QUrl, QWebEnginePage, \
+    QWebEngineView, pyqtSlot
 
-if QWebView is None:
+if QWebEngineView is None:
     raise ImportError('Qt webview component is not available')
 
 
-class HelpPage(QWebPage):
+class HelpPage(QWebEnginePage):
     """Subclass to intercept navigation requests."""
 
     def __init__(self, client, history, parent):
@@ -38,23 +39,23 @@ class HelpPage(QWebPage):
         self.history = history
         self.orig_url = QUrl('about:blank')
         self._setting_html = False
-        # (pylint detects QWebPage as being None...)
+        # (pylint detects QWebEnginePage as being None...)
         # pylint: disable=non-parent-init-called
-        QWebPage.__init__(self, parent)
+        QWebEnginePage.__init__(self, parent)
 
     def setHtml(self, html, url):
         self._setting_html = True
-        if not hasattr(QWebPage, 'setHtml'):
+        if not hasattr(QWebEnginePage, 'setHtml'):
             self.parent().setHtml(html, url)  # WebKit
         else:
-            QWebPage.setHtml(self, html, url)
+            QWebEnginePage.setHtml(self, html, url)
         self._setting_html = False
         self.orig_url = url
 
     def mainFrame(self):
-        if not hasattr(QWebPage, 'mainFrame'):
+        if not hasattr(QWebEnginePage, 'mainFrame'):
             return self  # WebEngine
-        return QWebPage.mainFrame(self)
+        return QWebEnginePage.mainFrame(self)
 
     def acceptNavigationRequest(self, url, *args):
         if self._setting_html:
@@ -81,7 +82,7 @@ class HelpWindow(QMainWindow):
         QMainWindow.__init__(self, parent)
         loadUi(self, 'dialogs/helpwin.ui')
         self.history = []
-        self.webView = QWebView(self)
+        self.webView = QWebEngineView(self)
         self.webView.setPage(HelpPage(client, self.history, self.webView))
         self.frame.layout().addWidget(self.webView)
         self.client = client
@@ -124,9 +125,9 @@ class HelpWindow(QMainWindow):
         self._search()
 
     def _search(self):
-        if hasattr(QWebPage, 'FindWrapsAroundDocument'):  # WebKit
+        if hasattr(QWebEnginePage, 'FindWrapsAroundDocument'):  # WebKit
             self.webView.findText(self.searchBox.text(),
-                                  QWebPage.FindWrapsAroundDocument)
+                                  QWebEnginePage.FindWrapsAroundDocument)
         else:
             # WebEngine wraps automatically
             self.webView.findText(self.searchBox.text())
