@@ -71,6 +71,8 @@ class ConsoleScanSinkHandler(DataSinkHandler):
             session.log.info('Started at:         %s',
                              strftime(TIMEFMT, localtime(ds.started)))
             session.log.info('Scan number:        %d', ds.counter)
+            session.log.info('Samplename:         %s',
+                             session.experiment.sample.read())
             for filename in ds.filenames:
                 session.log.info('Filename:           %s', filename)
             session.log.info('-' * self._rulerlen)
@@ -78,6 +80,7 @@ class ConsoleScanSinkHandler(DataSinkHandler):
             session.log.info()
             for filename in ds.filenames:
                 session.log.info('%sFilename: %s', self._indent, filename)
+
         session.log.info('%s%s', self._indent, tabulated(self._colwidths, names))
         session.log.info('%s%s', self._indent, tabulated(self._colwidths, units))
         session.log.info('%s%s', self._indent, '-' * self._rulerlen)

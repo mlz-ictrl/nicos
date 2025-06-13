@@ -92,6 +92,8 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
             msg.append('file = %s' % filename)
         if msg:
             session.log.info('count: %s', ', '.join(msg))
+            session.log.info('count: Samplename = %s',
+                             session.experiment.sample.read())
 
     return result
 
