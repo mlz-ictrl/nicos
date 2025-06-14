@@ -7,11 +7,13 @@ devices = dict(
         description = 'Rotation table 2 bottom motor',
         motorpv = pvprefix + 'RD',
         errormsgpv = pvprefix + 'RD-MsgTxt',
+        precision = 0.001
     ),
     re = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Rotation table 2 top motor',
         motorpv = pvprefix + 'RE',
         errormsgpv = pvprefix + 'RE-MsgTxt',
+        precision = 0.001
     ),
     rcu = device('nicos_sinq.boa.devices.counterrotation.CounterRotatingMotor',
         description = 'Rotation Table 2 upper counter rotation',

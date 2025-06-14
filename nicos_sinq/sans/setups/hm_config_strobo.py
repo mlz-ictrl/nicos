@@ -1,4 +1,6 @@
 description = 'Devices for configuring Histogram Memory'
+
+group = 'lowlevel'
 excludes = ['hm_config']
 
 devices = dict(

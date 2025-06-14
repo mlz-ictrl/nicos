@@ -1,5 +1,8 @@
 description = 'Devices for configuring Histogram Memory'
+
+group = 'lowlevel'
 excludes = ['hm_config_strobo']
+
 devices = dict(
     hm_connector = device('nicos_sinq.devices.sinqhm.connector.HttpConnector',
         description = "Connector for Histogram Memory Server",

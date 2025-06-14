@@ -972,9 +972,8 @@ class Device(metaclass=DeviceMeta):
         value = getattr(self, 'doRead' + name.title())()
         if not self._cache:
             self._params[name] = value
-        elif with_ttl:
-            self._cache.put(self, name, value, currenttime(),
-                            getattr(self, 'maxage', 0) * with_ttl)
+        elif with_ttl and (maxage := getattr(self, 'maxage') is not None):
+            self._cache.put(self, name, value, currenttime(), maxage * with_ttl)
         else:
             self._cache.put(self, name, value)
 

@@ -29,6 +29,7 @@ from nicos.core.params import Override, none_or, oneof, pvname
 from nicos.devices.epics.pyepics.motor import EpicsMotor as CoreEpicsMotor
 from nicos_sinq.devices.dynamic_userlimits import DynamicUserlimits
 
+
 class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
 
     parameters = {
@@ -127,13 +128,13 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
 
         return (stat, msg)
 
-    def doReadEncoder_Type(self, maxage=0):
+    def doReadEncoder_Type(self):
         encoder_type = self._get_pv('encoder_type', as_string=True)
         if encoder_type.lower() in ('none', ''):
             return None
         return encoder_type
 
-    def doReadCan_Disable(self, maxage=0):
+    def doReadCan_Disable(self):
         # This parameter should be reread every time this function is accessed.
         # If monitor=True (default parameter), the value is read from the
         # cache, which is not what we want!

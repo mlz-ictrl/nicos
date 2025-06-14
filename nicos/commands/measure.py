@@ -221,6 +221,8 @@ def SetDetectors(*detlist):
 
     >>> SetDetectors(det)       # to use the "det" detector
     >>> SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
+
+    see also: `AddDetectors`, `ListDetectors`
     """
     session.experiment.setDetectors(detlist)
     ListDetectors()
@@ -234,6 +236,8 @@ def AddDetector(*detlist):
     Example:
 
     >>> AddDetector(psd)    # count also with the "psd" detector
+
+    see also: `ListDetectors`, `SetDetectors`
     """
     existing = session.experiment.detlist
     session.experiment.setDetectors(existing + list(detlist))
@@ -243,7 +247,10 @@ def AddDetector(*detlist):
 @usercommand
 @parallel_safe
 def ListDetectors():
-    """List the standard detectors."""
+    """List the standard detectors.
+
+    see also: `AddDetector`, `ListDetectors`
+    """
     if session.experiment.detlist:
         session.log.info('standard detectors are: %s',
                          ', '.join(session.experiment.detlist))
@@ -262,6 +269,8 @@ def SetEnvironment(*devlist):
 
     >>> SetEnvironment(T, B)   # to read out T and B devices
     >>> SetEnvironment()       # to read out no additional devices
+
+    see also: `AddEnvironment`, `ListEnvironment`
     """
     session.experiment.setEnvironment(devlist)
     ListEnvironment()
@@ -275,6 +284,8 @@ def AddEnvironment(*devlist):
     Example:
 
     >>> AddEnvironment(T)   # also read out T device
+
+    see also: `ListEnvironment`, `SetEnvironment`
     """
     existing = session.experiment.envlist
     session.experiment.setEnvironment(existing + list(devlist))
@@ -284,7 +295,10 @@ def AddEnvironment(*devlist):
 @usercommand
 @parallel_safe
 def ListEnvironment():
-    """List the standard environment devices."""
+    """List the standard environment devices.
+
+    see also: `AddEnvironment`, `SetEnvironment`
+    """
     if session.experiment.envlist:
         session.log.info('standard environment is: %s',
                          ', '.join(session.experiment.envlist))

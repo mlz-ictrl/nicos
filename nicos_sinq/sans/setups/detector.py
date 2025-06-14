@@ -1,24 +1,45 @@
 description = 'Devices for the Detector'
 
-includes = ['hm_config']
+group = 'basic'
+
+includes = ['hm_config', 'attenuator', 'velocity_selector', 'beamstop', 'collimator_s7', 'sample', 'shutter', 'asyncontroller']
 excludes = ['detector_strobo']
 
 pvprefix = 'SQ:SANS:motb:'
 pvdprefix = 'SQ:SANS:counter'
+
+sysconfig = dict(
+    datasinks = ['LivePNGSink', 'LivePNGSinkLog', ]
+)
+
 devices = dict(
-    detx = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    LivePNGSinkLog = device('nicos.devices.datasinks.PNGLiveFileSink',
+        description = 'Saves live image as .png every now and then',
+        filename = '/home/sans/data/html/live_log.png',
+        log10 = True,
+        interval = 15,
+        detectors = ['sansdet']
+    ),
+    LivePNGSink = device('nicos.devices.datasinks.PNGLiveFileSink',
+        description = 'Saves live image as .png every now and then',
+        filename = '/home/sans/data/html/live_lin.png',
+        log10 = False,
+        interval = 15,
+        detectors = ['sansdet'],
+    ),
+    detx = device('nicos_sinq.devices.epics.motor_deprecated.AbsoluteEpicsMotor',
         description = 'Detector X Translation',
         motorpv = pvprefix + 'detX',
         errormsgpv = pvprefix + 'detX-MsgTxt',
         precision = 0.5,
     ),
-    dety = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    dety = device('nicos_sinq.devices.epics.motor_deprecated.AbsoluteEpicsMotor',
         description = 'Detector Y Translation',
         motorpv = pvprefix + 'detY',
         errormsgpv = pvprefix + 'detY-MsgTxt',
         precision = 0.2,
     ),
-    detphi = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    detphi = device('nicos_sinq.devices.epics.motor_deprecated.AbsoluteEpicsMotor',
         description = 'Detector Rotation',
         motorpv = pvprefix + 'phi',
         errormsgpv = pvprefix + 'phi-MsgTxt',

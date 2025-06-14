@@ -8,6 +8,7 @@ devices = dict(
         motorpv = f'{pvprefix}CHPOS',
         errormsgpv = f'{pvprefix}CHPOS-MsgTxt',
         can_disable = True,
+        precision = 0.001
     ),
     chpos = device('nicos.devices.generic.switcher.Switcher',
         description = 'Sample changer choice',
@@ -26,5 +27,6 @@ devices = dict(
         motorpv = f'{pvprefix}STICK',
         errormsgpv = f'{pvprefix}STICK-MsgTxt',
         can_disable = True,
+        precision = 0.001
     ),
 )

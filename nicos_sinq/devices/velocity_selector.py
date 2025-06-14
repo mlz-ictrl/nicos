@@ -23,7 +23,7 @@
 from nicos.core import Attach, Moveable, Param, listof, tupleof
 
 from nicos_sinq.devices.epics.generic import WindowMoveable
-from nicos_sinq.devices.epics.motor_deprecated import EpicsMotor
+from nicos_sinq.devices.epics.motor import SinqMotor
 
 
 class VSForbiddenMoveable(WindowMoveable):
@@ -51,7 +51,7 @@ class VSForbiddenMoveable(WindowMoveable):
         return True, ''
 
 
-class VSTiltMotor(EpicsMotor):
+class VSTiltMotor(SinqMotor):
     """
     The tilt motor for a velocity selector can only be moved when
     the selector is standing. This class ensures just that.
@@ -73,7 +73,7 @@ class VSTiltMotor(EpicsMotor):
         return True, ''
 
     def doStart(self, target):
-        EpicsMotor.doStart(self, target)
+        SinqMotor.doStart(self, target)
 
 
 class VSLambda(Moveable):

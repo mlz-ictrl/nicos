@@ -1,8 +1,10 @@
 description = 'Setup for the new collimator (2020) controlled through a SPSS7 and EPICS'
 
+group = 'lowlevel'
+
 pvprefix = 'SQ:SANS'
 
-excludes = ['collimator', 'polariser']
+excludes = ['collimator']
 
 segments = {
     'cols1': ':colS1',

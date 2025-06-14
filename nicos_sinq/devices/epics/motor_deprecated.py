@@ -30,7 +30,7 @@
 
 from time import time as currenttime
 
-from nicos.core import MASTER, Device, Param, status
+from nicos.core import MASTER, Device, Param, status, Override
 from nicos.core.constants import SIMULATION
 from nicos.devices.epics.pyepics import PVMonitor, pvget
 from nicos.devices.epics.pyepics.motor import EpicsMotor as EssEpicsMotor
@@ -48,6 +48,13 @@ class EpicsMotor(EssEpicsMotor):
                                   type=bool, default=False,
                                   settable=False),
     }
+
+    parameter_overrides = {
+        'precision': Override(settable=False, mandatory=True, volatile=False),
+    }
+
+    def doReadPrecision(self):
+        pass
 
     def _get_pv_name(self, pvparam):
         if pvparam == 'enable' and self.can_disable:

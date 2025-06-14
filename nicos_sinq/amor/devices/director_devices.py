@@ -160,8 +160,8 @@ class AmorDirector(Waitable):
     def doReadMu(self):
         return self._attached_som.read(0) - self.mud
 
-    def doReadNu(self, maxage=0):
-        return self._attached_com.read(maxage) - self.nud
+    def doReadNu(self):
+        return self._attached_com.read(0) - self.nud
 
     def doReadDiv(self):
         d1t = self._attached_d1t.read(0)

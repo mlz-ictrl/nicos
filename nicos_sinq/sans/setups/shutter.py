@@ -1,5 +1,7 @@
 description = 'SANS shutter via SPS-5'
 
+group = 'lowlevel'
+
 devices = dict(
     shutter = device('nicos_sinq.amor.devices.sps_switch.SpsSwitch',
         description = 'Shutter SPS',

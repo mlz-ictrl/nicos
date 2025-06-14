@@ -7,5 +7,6 @@ devices = dict(
         description = 'TAZ translation',
         motorpv = pvprefix + 'TAZ',
         errormsgpv = pvprefix + 'TAZ-MsgTxt',
+        precision = 0.00055
     ),
 )

@@ -7,21 +7,25 @@ devices = dict(
         description = 'Slit 2 left motor',
         motorpv = pvprefix + 'SBL',
         errormsgpv = pvprefix + 'SBL-MsgTxt',
+        precision = 0.000625
     ),
     sbr = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Slit 2 right motor',
         motorpv = pvprefix + 'SBR',
         errormsgpv = pvprefix + 'SBR-MsgTxt',
+        precision = 0.000625
     ),
     sbb = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Slit 2 bottom motor',
         motorpv = pvprefix + 'SBB',
         errormsgpv = pvprefix + 'SBB-MsgTxt',
+        precision = 0.000625
     ),
     sbt = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Slit 2 top motor',
         motorpv = pvprefix + 'SBT',
         errormsgpv = pvprefix + 'SBT-MsgTxt',
+        precision = 0.000625
     ),
     slit2 = device('nicos.devices.generic.slit.Slit',
         description = 'Slit 1 with left, right, bottom and top motors',

@@ -284,7 +284,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
 
         # Before proceeding, we want to make sure that the PV has actually been
         # changed.
-        self._put_pv_checked('speed', value)
+        self._put_pv_checked('speed', value, precision=self.precision)
         return value
 
     def doReadEpics_Offset(self):
@@ -303,7 +303,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
 
             # Set the offset in motor record. This needs to be checked because
             # self._adjustLimitsToOffset indirectly reads the offset from EPICS
-            self._put_pv_checked('offset', -value)
+            self._put_pv_checked('offset', -value, precision=self.precision)
 
             # This also reads the new abslimits
             self._adjustLimitsToOffset(value, diff)
@@ -321,7 +321,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         self._start_time = currenttime()
         # Needs to be checked because self.doReadTarget is called immediately
         # afterwards when doing a move-and-wait.
-        self._put_pv_checked('writepv', target)
+        self._put_pv_checked('writepv', target, precision=self.precision)
 
     def doReadTarget(self):
         return self._get_pv('writepv')

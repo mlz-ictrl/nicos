@@ -32,7 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
-from nicos.commands.basic import AddSetup, RemoveSetup, sleep
+from nicos.commands.basic import NewSetup, sleep
 from nicos.commands.device import maw
 from nicos.commands.measure import live, preset
 from nicos.commands.output import printerror, printinfo, printwarning
@@ -361,8 +361,6 @@ def detcalib():
     """
     printinfo('start to send SANS-1 calibration data to detector'
               ' (detector.calib)')
-    RemoveSetup('detector_strobo')
-    AddSetup('detector')
     dev = session.getDevice('port14')
     with open('/home/nicos/nicos/nicos_sinq/sans/detector.calib',
               encoding='utf-8') as detcalib_file:
@@ -378,8 +376,7 @@ def detcalib():
 def tofel():
     """switch detector electronics to stroboscopic mode for data aquisition
     """
-    RemoveSetup('detector')
-    AddSetup('detector_strobo')
+    NewSetup('detector_strobo')
     dev = session.getDevice('port14')
     cmdstr = 'EL1D\r'
     printinfo(f'>{dev.execute(cmdstr)}< >cmdstr<')
@@ -396,8 +393,7 @@ def tofel():
 def antitofel():
     """switch detector electronics to static mode for data aquisition
     """
-    RemoveSetup('detector_strobo')
-    AddSetup('detector')
+    NewSetup('detector')
     dev = session.getDevice('port14')
     cmdstr = 'EL2D\r'
     printinfo(f'>{dev.execute(cmdstr)}< >EL2D<')
