@@ -235,7 +235,8 @@ def runTests(venv, pyver, withcov, checkpypiupdates=false, skipvenvupdate=false)
         refreshVenv('pytest', venv, checkpypiupdates)
     }
     writeFile file: 'pytest_ini.add', text: """
-addopts = --junit-xml=pytest-${pyver}.xml
+addopts = --tb=short
+  --junit-xml=pytest-${pyver}.xml
   --junit-prefix=$pyver""" + (withcov ? """
   --cov
   --cov-config=.coveragerc
