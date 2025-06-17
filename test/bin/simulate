@@ -72,6 +72,7 @@ class TestSimulationSession(SimulationSession):
 
     def simulationSync(self, db=None):
         self._simulationSync_applyValues(self._db)
+        self.simulation_db = self._db
 
 
 args = sys.argv[1:]

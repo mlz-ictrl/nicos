@@ -108,7 +108,7 @@ class Session:
         self.configured_devices = {}
         # dict[dynamic device name] of setup name (see getSetupInfo())
         self.dynamic_devices = {}
-        # cache for getSyncDb
+        # cache for _getSyncDb
         self.simulation_db = None
         # contains the name of all loaded modules with user commands
         self.user_modules = set()
@@ -268,7 +268,7 @@ class Session:
             self._currentscan = None
         self.log.info('switched to %s mode', mode)
 
-    def getSyncDb(self):
+    def _getSyncDb(self):
         """get cache values for simulation
 
         may be called while loading setups
@@ -292,7 +292,7 @@ class Session:
         if not self.current_sysconfig.get('cache'):
             raise NicosError('no cache is configured')
         if db is None:
-            db = self.getSyncDb()
+            db = self._getSyncDb()
         self._simulationSync_applyValues(db)
 
     def _simulationSync_applyValues(self, db):
@@ -300,7 +300,7 @@ class Session:
         if setups is not None and set(setups) != set(self.explicit_setups):
             self.unloadSetup()
             self.loadSetup(setups)
-        self.simulation_db = None  # clear cache for getSyncDb
+        self.simulation_db = None  # clear cache for _getSyncDb
         # set alias parameter first, needed to set parameters on alias devices
         for devname, dev in self.devices.items():
             aliaskey = '%s/alias' % devname.lower()
