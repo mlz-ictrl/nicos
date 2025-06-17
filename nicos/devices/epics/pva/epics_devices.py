@@ -293,12 +293,20 @@ class EpicsMoveable(EpicsDevice, Moveable):
                          type=pvname, mandatory=True, userparam=False),
         'targetpv': Param('Optional target readback PV.',
                           type=none_or(pvname), mandatory=False,
-                          userparam=False)
+                          userparam=False),
+        'readypv': Param('Optional PV which checks if the device is ready to move.',
+                         type=none_or(pvname), mandatory=False,
+                         userparam=False)
     }
 
     parameter_overrides = {
         'unit': Override(mandatory=False, settable=False, volatile=False),
         'target': Override(volatile=True),
+    }
+
+    _record_fields = {
+        'readpv': '',
+        'writepv': '',
     }
 
     _cache_relations = {
@@ -307,9 +315,12 @@ class EpicsMoveable(EpicsDevice, Moveable):
     }
 
     def _get_pv_parameters(self):
+        params = {'readpv', 'writepv'}
+        if self.readypv:
+            params.add('readypv')
         if self.targetpv:
-            return {'readpv', 'writepv', 'targetpv'}
-        return {'readpv', 'writepv'}
+            params.add('targetpv')
+        return params
 
     def doInit(self, mode):
         if mode == SIMULATION:
@@ -341,6 +352,17 @@ class EpicsMoveable(EpicsDevice, Moveable):
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
+
+    def doIsAllowed(self, target):
+        if self.doStatus(0)[0] != status.OK:
+            return False, 'device not ready to start a movement'
+        return Moveable.doIsAllowed(target)
+
+    def doStatus(self, maxage=0):
+        if self.readypv:
+            if self._get_pv('readypv') == 0:
+                return status.BUSY, ''
+        return status.OK, ''
 
     def doStart(self, value):
         self._put_pv('writepv', value)
@@ -384,23 +406,10 @@ class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
         'unit': Override(mandatory=False, settable=False, volatile=True),
     }
 
-    _record_fields = {
-        'readpv': '',
-        'writepv': '',
-    }
-
     _cache_relations = {
         'readpv': 'value',
         'writepv': 'target'
     }
-
-    def _get_pv_parameters(self):
-        fields = set(self._record_fields.keys())
-
-        if self.targetpv:
-            return fields | {'targetpv'}
-
-        return fields
 
     def doReadUnit(self):
         return self._epics_wrapper.get_units(self._param_to_pv['readpv'])
