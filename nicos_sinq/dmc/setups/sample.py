@@ -14,4 +14,3 @@ devices = dict(
         devclass = 'nicos.core.device.Moveable'
     ),
 )
-alias_config = {'a3': {'a3s': 10,}}

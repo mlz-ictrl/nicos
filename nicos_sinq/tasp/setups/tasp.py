@@ -226,7 +226,6 @@ devices = dict(
         alias = 'ana',
     ),
 )
-alias_config = {'a3': {'a3_st': 10}}  # , 'se_om': 20}}
 startupcode = """
 SetDetectors(counter)
 """
