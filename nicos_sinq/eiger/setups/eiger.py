@@ -190,8 +190,6 @@ devices = dict(
     ),
 )
 
-alias_config = {'a3': {'a3_raw': 10}}
-
 startupcode = """
 SetDetectors(counter)
 """
