@@ -40,4 +40,3 @@ devices = dict(
         motorpv = pvpref + 'SGU',
     ),
 """
-alias_config = {'om': {'om_raw': 10}}

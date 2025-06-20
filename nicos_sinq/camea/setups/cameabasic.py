@@ -253,6 +253,3 @@ devices = dict(
         visibility = {},
     ),
 )
-
-# when se_om (the sample stick rotation) is present, use this for a3
-alias_config = {'a3': {'som': 10,}}

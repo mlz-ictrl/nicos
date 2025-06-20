@@ -1,8 +1,11 @@
 description = 'Neutron counter box and HM at SINQ ZEBRA'
 
 includes = ['hm_config']
+
 excludes = [
     'detector_single',
+    'detector_single_v2',
+    'detector_2d_v2',
 ]
 
 sysconfig = dict(datasinks = ['nxsink'])
@@ -47,7 +50,7 @@ devices = dict(
         connector = 'hm_connector',
     ),
     zebradet = device('nicos_sinq.devices.detector.SinqDetector',
-        description = 'EL737 counter box that counts neutrons and '
+        description = 'Detector hardware that counts neutrons and '
         'starts streaming events',
         startpv = pvprefix + '.CNT',
         pausepv = pvprefix + ':Pause',

@@ -24,7 +24,8 @@
 
 import pytest
 
-from nicos.core import InvalidValueError, LimitError, MoveError, status
+from nicos.core import InvalidValueError, LimitError, MoveError, UsageError, \
+    status
 from nicos.devices.generic.slit import Slit
 
 session_setup = 'slit'
@@ -139,16 +140,24 @@ def test_hgap_opposite(session):
     assert sw2.width.doRead() == 13
     assert sw2.doRead() == [6, 7]
 
+    # overlap but min_opening == 0
+    pytest.raises(LimitError, sw2.maw, [1, -2])
+
     sw2.opmode = 'centered'
     sw2.maw([10])
     assert motor_left.doRead() == 5
     assert motor_right.doRead() == 5
+    # center moving is not allowed in this opmode
+    pytest.raises(UsageError, sw2.center.move, 1)
+    # overlap but min_opening == 0
+    pytest.raises(LimitError, sw2.width.move, -1)
 
     sw2.opmode = 'offcentered'
     sw2.maw([2, 1])
     assert motor_left.doRead() == -1.5
     assert motor_right.doRead() == 2.5
 
+    # overlap but min_opening == 0
     pytest.raises(LimitError, sw2.start, [1, -1])
 
 
@@ -204,6 +213,11 @@ def test_slit_opmodes(session, log):
     pytest.raises(LimitError, slit.start, [0, -2])
     slit.maw([2, 3])
     assert len(slit.valueInfo()) == 2
+
+    min_opening = slit.min_opening
+    slit._setROParam('min_opening', 0.2)
+    pytest.raises(LimitError, slit.move, [0.1, 0.1])
+    slit._setROParam('min_opening', min_opening)
 
     slit.opmode = 'offcentered'
     assert slit.read() == [0, 0, 2, 3]

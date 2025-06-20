@@ -123,7 +123,8 @@ opening.
         return self._doIsAllowedPositions(self._getPositions(target))
 
     def _isAllowedSlitOpening(self, positions):
-        if positions[1] - positions[0] < self.min_opening:
+        clb, crt = positions
+        if crt - clb < self.min_opening:
             if self.min_opening > 0:
                 return False, 'opening is too small'
             if self.min_opening == 0:
@@ -134,7 +135,7 @@ opening.
     def _doIsAllowedPositions(self, positions):
         f = self.coordinates == 'opposite' and -1 or +1
         for ax, axname, pos in zip(self._axes, self._axnames, positions):
-            if axname in ('left', 'bottom'):
+            if axname in {'left', 'bottom'}:
                 pos *= f
             ok, why = ax.isAllowed(pos)
             if not ok:
@@ -437,10 +438,12 @@ class Slit(HorizontalGap, VerticalGap):
         return positions
 
     def _isAllowedSlitOpening(self, positions):
-        if positions[1] < positions[0]:
-            return False, 'horizontal slit opening is negative'
-        elif positions[3] < positions[2]:
-            return False, 'vertical slit opening is negative'
+        ok, why = HorizontalGap._isAllowedSlitOpening(self, positions[:2])
+        if not ok:
+            return ok, why
+        ok, why = VerticalGap._isAllowedSlitOpening(self, positions[2:])
+        if not ok:
+            return ok, why
         return True, ''
 
     def _doStartPositions(self, positions):

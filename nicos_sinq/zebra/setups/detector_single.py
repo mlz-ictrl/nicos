@@ -2,6 +2,12 @@ description = 'Setup for the single detector at ZEBRA'
 
 pvdet = 'SQ:ZEBRA:counter'
 
+excludes = [
+    'detector_single_v2',
+    'detector_2d',
+    'detector_2d_v2',
+]
+
 sysconfig = dict(datasinks = ['asciisink', 'cclsink'])
 
 devices = dict(

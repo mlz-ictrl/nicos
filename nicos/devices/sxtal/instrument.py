@@ -28,6 +28,7 @@ import numpy as np
 from nicos import session
 from nicos.core import Attach, AutoDevice, HasAutoDevices, LimitError, \
     Moveable, Override, Param, Value, intrange, oneof, tupleof, vec3
+from nicos.devices.generic.mono import from_k, to_k
 from nicos.devices.instrument import Instrument
 from nicos.devices.sxtal.goniometer.base import PositionFactory
 
@@ -202,16 +203,9 @@ class SXTalBase(HasAutoDevices, Instrument, Moveable):
         hkl = session.experiment.sample.cell.hkl(pos.c)
         return list(hkl)
 
-    def doReadWavelength(self, maxage=0):
-        # ensure using correct unit
-        oldunit = None
-        if self._attached_mono.unit != 'A':
-            oldunit = self._attached_mono.unit
-            self._attached_mono.unit = 'A'
-        result = self._attached_mono.read(0)
-        if oldunit:
-            self._attached_mono.unit = oldunit
-        return result
+    def doReadWavelength(self):
+        mono = self._attached_mono
+        return from_k(to_k(mono.read(), mono.unit), 'A')
 
     def getScanWidthFor(self, hkl):
         """Get scan width for a certain HKL."""
