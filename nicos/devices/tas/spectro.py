@@ -24,7 +24,7 @@
 
 """NICOS triple-axis instrument devices."""
 
-from math import cos, pi, radians, sqrt
+from math import cos, radians, sqrt
 
 from nicos.core import SIMULATION, Attach, AutoDevice, ComputationError, \
     HasAutoDevices, InvalidValueError, LimitError, Moveable, Override, Param, \
@@ -561,7 +561,7 @@ class Wavelength(TASConstant):
 
     def doRead(self, maxage=0):
         mono = self._attached_base
-        return 2 * pi / to_k(mono.read(maxage), mono.unit)
+        return from_k(to_k(mono.read(maxage), mono.unit), 'A')
 
     def doStart(self, target):
         tas = self._attached_tas
