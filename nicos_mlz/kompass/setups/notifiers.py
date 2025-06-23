@@ -8,8 +8,8 @@ devices = dict(
         sender = 'kompass@frm2.tum.de',
         mailserver = 'mailhost.frm2.tum.de',
         copies = [
-            ('dmitry.gorkov@frm2.tum.de', 'all'),
-            ('manuel.mueller@frm2.tum.de', 'important'),
+            ('braden@ph2.uni-koeln.de','important'),
+            ('manuel.mueller@frm2.tum.de', 'all'),
         ],
         subject = 'NICOS',
     ),

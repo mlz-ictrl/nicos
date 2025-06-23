@@ -21,7 +21,7 @@ devices = dict(
     kompass = device('nicos.devices.tas.TAS',
         description = 'instrument object',
         instrument = 'KOMPASS',
-        responsible = 'Dmitry Gorkov <dmitry.gorkov@frm2.tum.de>',
+        responsible = 'M. Braden <braden@ph2.uni-koeln.de>',
         website = 'http://www.mlz-garching.de/kompass',
         operators = [
             'Technische Universität München (TUM)',
