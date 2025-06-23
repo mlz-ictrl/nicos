@@ -30,4 +30,9 @@ devices = dict(
         userlim_follow_abslim = False,
         abslimits = (0, 10),
     ),
+    dylimits_offset = device('test.nicos_sinq.devices.test_dynamic_userlimits.DynamicUserlimitsDev',
+        userlim_follow_abslim = False,
+        abslimits = (0, 10),
+        offset = 50
+    ),
 )
