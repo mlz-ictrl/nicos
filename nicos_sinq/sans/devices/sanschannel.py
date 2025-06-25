@@ -44,7 +44,5 @@ class StroboHistogramImageChannel(ReshapeHistogramImageChannel):
             self._attached_tof_axis.length,)
 
     def _dimDesc(self):
-        res = ReshapeHistogramImageChannel._dimDesc(self)
-        res.append(
-            HistogramDimDesc(self._attached_tof_axis.length, 'strobo', ''))
-        return res
+        return ReshapeHistogramImageChannel._dimDesc(self) + \
+                [ HistogramDimDesc(self._attached_tof_axis.length, 'strobo', '') ]
