@@ -71,7 +71,7 @@ class ConsoleScanSinkHandler(DataSinkHandler):
             session.log.info('Started at:         %s',
                              strftime(TIMEFMT, localtime(ds.started)))
             session.log.info('Scan number:        %d', ds.counter)
-            session.log.info('Samplename:         %s',
+            session.log.info('Sample name:        %s',
                              session.experiment.sample.read())
             for filename in ds.filenames:
                 session.log.info('Filename:           %s', filename)
