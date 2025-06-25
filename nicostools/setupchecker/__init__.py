@@ -336,7 +336,9 @@ class SetupChecker:
                                extra=self.find_deventry(devname, 'lowlevel'))
             vis = config.get('visibility', cls.parameters['visibility'].default)
             if 'devlist' in vis and not issubclass(cls, DeviceAlias):
-                if not config.get('description') and not is_special:
+                if not config.get(
+                    'description', cls.parameters['description'].default
+                ) and not is_special:
                     self.log.warning(
                         '%s: device has no description', devname,
                         extra=self.find_deventry(devname)
