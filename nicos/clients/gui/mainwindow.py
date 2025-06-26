@@ -51,7 +51,7 @@ from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QApplication, QColorDialog, QDialog, QDialogButtonBox, QFontDialog, \
     QIcon, QLabel, QMainWindow, QMenu, QMessageBox, QPixmap, QSize, \
-    QSystemTrayIcon, Qt, QTimer, QWebView, pyqtSignal, pyqtSlot
+    QSystemTrayIcon, Qt, QTimer, QWebEngineView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
@@ -769,7 +769,7 @@ class MainWindow(DlgUtils, QMainWindow):
 
     @pyqtSlot()
     def on_actionNicosDocu_triggered(self):
-        if not QWebView:
+        if not QWebEngineView:
             self.showError('Cannot open documentation window: Qt web extension'
                            ' is not available on your system.')
             return

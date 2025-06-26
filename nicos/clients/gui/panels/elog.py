@@ -32,9 +32,9 @@ from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.guisupport.qt import QActionGroup, QDesktopServices, QDialog, \
     QFontDatabase, QInputDialog, QLineEdit, QMainWindow, QMenu, QPrintDialog, \
     QPrinter, QPushButton, Qt, QTextDocument, QTextEdit, QTimer, QToolBar, \
-    QUrl, QWebPage, QWebView, pyqtSlot
+    QUrl, QWebEnginePage, QWebEngineView, pyqtSlot
 
-if QWebView is None:
+if QWebEngineView is None:
     raise ImportError('Qt webview component is not available')
 
 
@@ -46,7 +46,7 @@ class ELogPanel(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'panels/elog.ui')
-        self.preview = QWebView(self)
+        self.preview = QWebEngineView(self)
         self.frame.layout().addWidget(self.preview)
 
         self.timer = QTimer(self, singleShot=True,
@@ -113,9 +113,9 @@ class ELogPanel(Panel):
             bar.addWidget(btn)
 
             def callback():
-                if hasattr(QWebPage, 'FindWrapsAroundDocument'):  # WebKit
+                if hasattr(QWebEnginePage, 'FindWrapsAroundDocument'):  # WebKit
                     self.preview.findText(box.text(),
-                                          QWebPage.FindWrapsAroundDocument)
+                                          QWebEnginePage.FindWrapsAroundDocument)
                 else:
                     # WebEngine wraps automatically
                     self.preview.findText(box.text())
@@ -303,7 +303,7 @@ class ELogPanel(Panel):
 
         # Workaround for Qt versions < 4.8.0
         printWholeSite = True
-        if hasattr(QWebView, 'selectedHtml'):
+        if hasattr(QWebEngineView, 'selectedHtml'):
             if self.preview.hasSelection():
                 printWholeSite = False
 

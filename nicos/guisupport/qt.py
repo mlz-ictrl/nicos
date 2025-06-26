@@ -46,10 +46,10 @@ if NICOS_QT == '6':
 
     try:
         from PyQt6 import QtWebEngineCore, QtWebEngineWidgets
-        from PyQt6.QtWebEngineCore import QWebEnginePage as QWebPage
-        from PyQt6.QtWebEngineWidgets import QWebEngineView as QWebView
+        from PyQt6.QtWebEngineCore import QWebEnginePage
+        from PyQt6.QtWebEngineWidgets import QWebEngineView
     except (ImportError, RuntimeError):
-        QWebView = QWebPage = None
+        QWebEnginePage = QWebEngineView = None
 
     try:
         from PyQt6 import sip
@@ -84,11 +84,6 @@ else:
 
     import nicos.guisupport.gui_rc_qt5
 
-    # compat for Qt < 5.11
-    if not hasattr(QFontMetrics, 'horizontalAdvance'):
-        QFontMetrics.horizontalAdvance = \
-            lambda self, *args, **kwargs: self.width(*args, **kwargs)
-
     try:
         from PyQt5 import sip
     except ImportError:
@@ -96,17 +91,9 @@ else:
 
     try:
         from PyQt5 import QtWebEngineWidgets
+        from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
     except (ImportError, RuntimeError):
-        try:
-            from PyQt5 import QtWebKitWidgets
-        except (ImportError, RuntimeError):
-            QWebView = QWebPage = None
-        else:
-            QWebView = QtWebKitWidgets.QWebView
-            QWebPage = QtWebKitWidgets.QWebPage
-    else:
-        QWebView = QtWebEngineWidgets.QWebEngineView
-        QWebPage = QtWebEngineWidgets.QWebEnginePage
+        QWebEnginePage = QWebEngineView = None
 
     try:
         from PyQt5 import QtDBus
