@@ -50,7 +50,6 @@ class SXTalBase(NicosSXTalBase):
     the instrument geometry as your instrument device.
     """
 
-
     parameters = {
         'scan_width_multiplier': Param('Multiplier for the scan width '
                                        'calculated from scan_uvw',
@@ -176,6 +175,16 @@ class SXTalBase(NicosSXTalBase):
         """Calculate a UB matrix from the cell and two
         reflections"""
         raise NotImplementedError
+
+    def doStop(self):
+        # The "Measure" command in nicos_sinq/sxtal/commands/__init__.py does
+        # set the parameter ccl_file to True before starting a measurement and
+        # to False after the measurement is done. However, in case the device is
+        # stopped (e.g. by an emergency stop), this parameter needs to be reset
+        # manually.
+        if hasattr(NicosSXTalBase, 'doStop'):
+            NicosSXTalBase.doStop(self)
+        self.ccl_file = False
 
 
 class EulerSXTal(SXTalBase):
