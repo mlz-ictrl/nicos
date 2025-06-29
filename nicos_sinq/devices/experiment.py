@@ -157,6 +157,32 @@ class SinqExperiment(Experiment):
         # in nicos/devices/experiment
         pass
 
+    def doFinish(self):
+        """
+        This method mainly creates or touches a scicat sync file.
+        This file is used to signal that this proposal is to be archived
+        by a separate process.
+        """
+        # Check if data path exists
+        if not self.datapath:
+            return
+
+        # The interface relies solely on the file system.
+        # Construct sync file name path
+        syncpathname = path.join(self.datapath, '.scicatsync')
+
+        # Check if modification time is older than 5 minutes,
+        # throttle just as a security measure
+        if path.exists(syncpathname):
+            last_sync = (time.time() - os.path.getmtime(syncpathname))
+        else:
+            last_sync = float('inf')
+
+        if last_sync > 300:
+            # Touch file to modify timestamp
+            with open(syncpathname, 'w+', encoding='utf-8') as syncfile:
+                syncfile.write('')
+
 
 class TomoSinqExperiment(SinqExperiment):
     """
