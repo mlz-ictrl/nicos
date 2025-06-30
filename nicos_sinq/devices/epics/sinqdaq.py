@@ -39,7 +39,7 @@ from nicos.core import POLLER, SIMULATION, Attach, Moveable, Override, Param, \
     status
 from nicos.core.constants import MASTER
 from nicos.core.errors import UsageError
-from nicos.core.mixins import CanDisable
+from nicos.core.mixins import CanDisable, HasLimits
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.epics.pva import EpicsDevice
 from nicos.devices.generic.detector import ActiveChannel, \
@@ -767,7 +767,7 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
         return self.device_threshold_monitor > 0
 
 
-class DAQMinThreshold(DAQEpicsDevice, Moveable):
+class DAQMinThreshold(DAQEpicsDevice, HasLimits, Moveable):
     """
     The threshold value used to determine if enough Neutrons are flowing for a
     count to start/continue.
