@@ -351,7 +351,7 @@ class SetupChecker:
                     'description', cls.parameters['description'].default
                 ) and not is_special:
                     self.log.warning(
-                        '%s: device has no description', devname,
+                        '%s: device has no configured description', devname,
                         extra=self.find_deventry(devname)
                     )
             for pname, pinfo in cls.parameters.items():
