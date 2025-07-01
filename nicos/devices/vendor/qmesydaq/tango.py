@@ -36,11 +36,11 @@ class TimerChannel(BaseTimerChannel):
 
     def doFinish(self):
         self.doStatus(0)
-        return BaseTimerChannel.doFinish(self)
+        BaseTimerChannel.doFinish(self)
 
     def doStop(self):
         self.doStatus(0)
-        return BaseTimerChannel.doStop(self)
+        BaseTimerChannel.doStop(self)
 
 
 class CounterChannel(BaseCounterChannel):
@@ -48,11 +48,11 @@ class CounterChannel(BaseCounterChannel):
 
     def doFinish(self):
         self.doStatus(0)
-        return BaseCounterChannel.doFinish(self)
+        BaseCounterChannel.doFinish(self)
 
     def doStop(self):
         self.doStatus(0)
-        return BaseCounterChannel.doStop(self)
+        BaseCounterChannel.doStop(self)
 
 
 class ImageChannel(QMesyDAQImage, BaseImageChannel):
@@ -131,11 +131,11 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
 
     def doFinish(self):
         self.doStatus(0)
-        return BaseImageChannel.doFinish(self)
+        BaseImageChannel.doFinish(self)
 
     def doStop(self):
         self.doStatus(0)
-        return BaseImageChannel.doStop(self)
+        BaseImageChannel.doStop(self)
 
 
 class MultiCounter(BaseImageChannel):
@@ -171,11 +171,11 @@ class MultiCounter(BaseImageChannel):
 
     def doFinish(self):
         self.doStatus(0)
-        return BaseImageChannel.doFinish(self)
+        BaseImageChannel.doFinish(self)
 
     def doStop(self):
         self.doStatus(0)
-        return BaseImageChannel.doStop(self)
+        BaseImageChannel.doStop(self)
 
     def valueInfo(self):
         resultlist = [Value('ch.sum', unit='cts', errors='sqrt',

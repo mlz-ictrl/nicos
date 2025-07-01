@@ -165,11 +165,6 @@ def acquire(point, preset, iscompletefunc=None):
                                 exc=True)
         for det in detset:
             try:
-                # XXX: in theory, stop() can return True or False to indicate
-                # whether saving makes sense.
-                #
-                # However, it might be better to leave that to the data sink
-                # handling the INTERRUPTED quality.
                 det.stop()
                 res = det.readResults(INTERRUPTED)
             except Exception:

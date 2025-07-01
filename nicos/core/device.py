@@ -2191,7 +2191,7 @@ class Measurable(Waitable):
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_intercept:
             return
-        return self.doStop()
+        self.doStop()
 
     @usermethod(helparglist='[maxage]')
     def read(self, maxage=None):

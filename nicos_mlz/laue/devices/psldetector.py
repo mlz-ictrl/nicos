@@ -133,13 +133,12 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
 
     def doStop(self):
         self._communicate('AbortSnap')
-        return False
 
     def doStatus(self, maxage=0):
         if self._communicate('GetCamState') == 'ON':
-          #  if self._attached_timer:
-          #      remain = self._preset - self._attached_timer.read(0)[0]
-          #      return status.BUSY, '%.1f s remaining' % remain
+            # if self._attached_timer:
+            #     remain = self._preset - self._attached_timer.read(0)[0]
+            #     return status.BUSY, '%.1f s remaining' % remain
             return status.BUSY, 'Exposure ongoing'
         return status.OK, 'OK'
 
