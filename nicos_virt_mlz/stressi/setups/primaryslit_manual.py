@@ -22,8 +22,3 @@ devices = dict(
         # requires = {'level': 'admin'},
     ),
 )
-
-startupcode = '''
-# psh.userlimits = psh.abslimits
-# psw.userlimits = psw.abslimits
-'''

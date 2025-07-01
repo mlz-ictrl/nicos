@@ -87,6 +87,6 @@ devices = dict(
     ),
 )
 
-startupcode = '''
+startupcode = """
 SetDetectors(adet)
-'''
+"""

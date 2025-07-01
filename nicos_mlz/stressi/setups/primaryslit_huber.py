@@ -42,8 +42,3 @@ devices = dict(
         precision = 0.01,
     ),
 )
-
-startupcode = '''
-# psh.userlimits = psh.abslimits
-# psw.userlimits = psw.abslimits
-'''

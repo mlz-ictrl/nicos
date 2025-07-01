@@ -58,6 +58,6 @@ devices = dict(
     ),
 )
 
-startupcode = '''
+startupcode = """
 SelectSample(1)
-'''
+"""

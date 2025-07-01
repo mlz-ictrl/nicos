@@ -27,7 +27,7 @@ devices = dict(
     ),
 )
 
-startupcode = '''
+startupcode = """
 SetDetectors(adet)
 SelectSample(1)
-'''
+"""
