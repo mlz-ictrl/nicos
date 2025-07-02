@@ -34,8 +34,8 @@ from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
     usercommand
 from nicos.commands.basic import sleep
 from nicos.core import INFO_CATEGORIES, SIMULATION, AccessError, CanDisable, \
-    Device, DeviceMixinBase, HasLimits, HasOffset, Measurable, Moveable, \
-    NicosTimeoutError, Readable, UsageError, Waitable, formatStatus, \
+    Device, DeviceAlias, DeviceMixinBase, HasLimits, HasOffset, Measurable, \
+    Moveable, NicosTimeoutError, Readable, UsageError, Waitable, formatStatus, \
     multiWait
 from nicos.core.errors import NicosError
 from nicos.core.status import BUSY, OK
@@ -535,7 +535,7 @@ def status(*devlist):
 @helparglist('[dev, ...]')
 @parallel_safe
 def stop(*devlist):
-    """Stop one or more devices.
+    """Stop one or more or all moving devices.
 
     If no device is given, stop all stoppable devices in parallel.
 
@@ -544,21 +544,22 @@ def stop(*devlist):
     >>> stop(phi)       # stop the phi device
     >>> stop(phi, psi)  # stop the phi and psi devices
     >>> stop()          # stop all devices
+
+    .. note::
+
+       A device can be configured to ignore the `stop()` call (stop all
+       devices) by setting the
+       `~nicos.core.device.Moveable.ignore_general_stop` device parameter to
+       ``True``.
+
+       However, if the device is stopped explicitly via `stop(dev)`, it will
+       still stop.
     """
-    stop_all = False
-    if not devlist:
-        stop_all = True
-        devlist = [session.devices[devname]
-                   for devname in session.explicit_devices
-                   if isinstance(session.devices[devname],
-                                 (Moveable, Measurable))]
-    finished = []
-    printmsg = ()
 
     def stopdev(dev):
         try:
             dev.stop()
-            if not stop_all or dev in printmsg:
+            if not stop_all or dev in stoplist:
                 dev.log.info('stopped')
         except AccessError:
             # do not warn about devices we cannot access if they were not
@@ -569,17 +570,59 @@ def stop(*devlist):
         finally:
             finished.append(dev)
 
+    stop_all = not devlist
+
     if stop_all:
-        printmsg = {dev for dev in devlist
+        devlist = [session.devices[devname]
+                   for devname in session.explicit_devices
+                   if isinstance(session.devices[devname],
+                                 (Moveable, Measurable))]
+        stoplist = {dev for dev in devlist
                     if session.cache.get_explicit(dev, 'status',
                                                   (None,))[2][0] == BUSY}
+        skipset = {dev for dev in stoplist
+                   if isinstance(dev, Moveable) and dev.ignore_general_stop}
+        devlist = [dev for dev in stoplist if dev not in skipset]
+    else:
+        stoplist = ()
+        skipset = ()
+
+    finished = []
     for dev in devlist:
         dev = session.getDevice(dev)
         createThread('device stopper %s' % dev, stopdev, (dev,))
     while len(finished) != len(devlist):
         session.delay(Device._base_loop_delay)
     if stop_all:
-        session.log.info('all devices stopped')
+        if skipset:
+            # TODO: it would be nice to let here a popup window appear
+            # in the GUI, where the skipped devices are shown and with
+            # buttons to stop the skipped devices individually
+            aliases = {}
+            for dev in list(skipset):
+                if isinstance(dev, DeviceAlias):
+                    aliases.setdefault(dev.alias, []).append(dev.name)
+                    skipset.discard(dev)
+
+            session.log.warning('all devices stopped, except:')
+            session.log.warning(' ')
+            stopargs = []
+            for dev in skipset:
+                if dev.name in aliases:
+                    name = f"{dev.name} ({', '.join(aliases[dev.name])})"
+                    stopargs.append(aliases[dev.name][0])
+                else:
+                    name = dev.name
+                    stopargs.append(name)
+                session.log.warning('%s is still moving from %s to %s %s',
+                                 name, dev.format(dev.read(0)),
+                                 dev.format(dev.target), dev.unit)
+            session.log.warning(' ')
+            session.log.warning('these devices are configured to ignore "stop all"')
+            session.log.warning('if you really want to stop them, '
+                             'you may use stop(%s)', ', '.join(stopargs))
+        else:
+            session.log.info('all devices stopped')
 
 
 @usercommand

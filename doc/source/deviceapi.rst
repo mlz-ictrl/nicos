@@ -453,6 +453,17 @@ possible with the device:
       daemon-client shell, e.g. you can use ``requires = {'level': 'admin'}`` to
       restrict write actions to ADMIN users.
 
+   .. parameter:: ignore_general_stop : bool
+
+      This parameter controls the behavior of general stop initiated by `stop()`
+      without arguments, or the **immediate stop** button in the GUI.  Typically
+      this call will stop all device movements.  In some rare cases it's
+      required that a device (typically sample environment devices) should not
+      be stopped - this parameter can be set to ``True`` to achieve that.
+
+      The behavior of ``stop(dev)`` or ``dev.stop()`` is unchanged: it will stop
+      the device.
+
 
 ``Measurable``
 ==============
