@@ -557,11 +557,12 @@ class EditorPanel(Panel):
 
     def on_fileTree_doubleClicked(self, idx):
         fpath = self.treeModel.filePath(idx)
-        for i, editor in enumerate(self.editors):
-            if self.filenames[editor] == fpath:
-                self.tabber.setCurrentIndex(i)
-                return
-        self.openFile(fpath)
+        if path.isfile(fpath):
+            for i, editor in enumerate(self.editors):
+                if self.filenames[editor] == fpath:
+                    self.tabber.setCurrentIndex(i)
+                    return
+            self.openFile(fpath)
 
     @pyqtSlot()
     def on_actionPrint_triggered(self):
