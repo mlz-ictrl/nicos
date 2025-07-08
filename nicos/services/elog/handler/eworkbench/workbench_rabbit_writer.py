@@ -21,6 +21,7 @@
 #
 # *****************************************************************************
 import io
+import csv
 from datetime import datetime
 from html import escape
 from logging import getLevelName
@@ -394,6 +395,7 @@ class Handler(BaseHandler):
         npoints = len(dataset.xresults)
         dataset_names = []
         dateset_range_vals = []
+        csv_data = ''
 
         if dataset.xresults:
             for i in range(len(dataset.xnames)):
@@ -439,6 +441,9 @@ class Handler(BaseHandler):
             scan_end_results += '</tr>'
             scan_end_results += '</tbody></table>'
 
+            csv_data = eln_csv_data(x_names=dataset.xnames,
+                                    x_results=dataset.xresults)
+
         headers = rb_headers_note(proposal=self._out.proposal,
                                   subject=f'Scanresults {scannumber}   '
                                           f'{wb_timestring_1(time)}',
@@ -448,6 +453,19 @@ class Handler(BaseHandler):
 
         self._out.rabbit_producer.produce(headers=headers,
                                           message=scan_end_results)
+
+        if csv_data:
+            self._out.rabbit_producer.handle_file(
+                headers={'proposal': self._out.proposal,
+                         'subject': f'SCAN_{scannumber}.csv',
+                         'note': 0,
+                         'loglevel': None,
+                         'attachment': 0,
+                         'file': 1,
+                         'line_count': 0,
+                         'img_rows': 0,
+                         'eln_enabled': self._out.eln_enabled},
+                file_stream=csv_data.encode('utf-8'))
 
 
 def wb_val_format(wb_val):
@@ -466,6 +484,15 @@ def wb_timestring_1(time):
 
 def wb_timestring_2(time):
     return datetime.fromtimestamp(time).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def eln_csv_data(x_names, x_results):
+    si = io.StringIO()
+    cw = csv.writer(si)
+    cw.writerow(x_names)
+    for point in x_results:
+        cw.writerow(point)
+    return si.getvalue()
 
 
 def rb_headers_note(proposal, subject, line_count, eln_enabled, loglevel=None):
