@@ -10,7 +10,7 @@ code_base = instrument_values['code_base']
 lowlevel = ()
 
 visibility = ()
-Vadd = 2.5 # Volt
+Vadd = 2.5  # Volt
 
 devices = {
     f'{ana4gpio}_ch1': device('nicos.devices.entangle.Sensor',
@@ -60,9 +60,8 @@ devices = {
     'ddg_tank_temperature' : device(code_base + 'analogencoder.PTxxlinearC',
         description = 'Tank Temperature PT1000',
         device = 'ddg_tank_temperature_resistor',
-        #poly = [-551.45, 440.02],
         r0 = 1000,
-        r_cable = 0.5,  #2023-09-05 11:58:34
+        r_cable = 4.6,  # 2025-07-07 15:39:32 am Tank montiert
         alpha = 0.003851,
         unit = 'degC',
         visibility = {'metadata', 'devlist', 'namespace'},
@@ -79,7 +78,6 @@ devices = {
     'ddg_device_temp' : device(code_base + 'analogencoder.PTxxlinearC',
         description = 'Tank Temperature PT1000',
         device = 'ddg_device_temp_resistor',
-        #poly = [-551.45, 440.02],
         r0 = 1000,
         r_cable = 0.0,
         alpha = 0.003851,

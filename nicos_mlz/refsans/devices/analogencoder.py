@@ -143,4 +143,4 @@ class PTxxlinearC(TransformedReadable):
         return self._attached_device.read(maxage)
 
     def _mapReadValue(self, value):
-        return (value - self.r0) / (self.alpha * self.r0)
+        return (value - self.r_cable - self.r0) / (self.alpha * self.r0)
