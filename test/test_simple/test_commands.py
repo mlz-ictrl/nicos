@@ -42,7 +42,8 @@ from nicos.commands.device import set  # pylint: disable=redefined-builtin
 from nicos.commands.device import ListDevices, ListMethods, ListParams, \
     adjust, disable, drive, enable, finish, fix, get, getall, history, info, \
     limits, maw, move, read, reference, release, reset, resetlimits, rmaw, \
-    rmove, setall, status, stop, switch, unfix, version, wait, waitfor
+    rmove, setall, status, stop, switch, unfix, version, wait, waitfor, \
+    waitfor_stable
 from nicos.commands.measure import AddDetector, AddEnvironment, \
     ListDatasinks, SetDetectors, SetEnvironment, avg, count, minmax, preset, \
     stddev
@@ -591,6 +592,17 @@ class TestDevice:
 
         # check waitfor wrong condition syntax
         pytest.raises(UsageError, waitfor, motor, '>')
+
+    def test_waitfor_stable(self, session, log):
+        motor = session.getDevice('motor')
+        assert motor.read() == 0.
+        waitfor_stable(motor, 0, 0.1, 0.1)
+        # stable time > timeout !
+        assert pytest.raises(UsageError, waitfor_stable, motor,
+                             0, 0.1, 1, 0.1)
+        # target position not reached due to timeout
+        assert pytest.raises(NicosTimeoutError, waitfor_stable, motor,
+                             1, 0.1, 0.01, 0.02)
 
 
 def test_notifiers(session, log):
