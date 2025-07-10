@@ -283,10 +283,14 @@ class HelpGenerator:
                 ptype = info.type.__name__
             else:
                 ptype = info.type.__doc__ or '?'
+            ext_desc = ''
+            if info.ext_desc:
+                ext_desc = f'<br>{html.escape(info.ext_desc)}'
             ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td>'
                        '<td>%s</td><td>%s</td><td>%s</td></tr>' %
                        (name, html.escape(vstr), html.escape(unit), settable,
-                        html.escape(ptype), html.escape(info.description)))
+                        html.escape(ptype), html.escape(info.description) +
+                        ext_desc))
         ret.append('</table>')
         ret.append('<h4>Device methods</h4>')
         ret.append('<table width="100%"><tr><th>Method</th><th>From class</th>'

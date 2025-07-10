@@ -85,8 +85,9 @@ main_window = docked(
             'Elog',
             panel('nicos_sinq.gui.panels.elog.ElogPanel',
                   types=['Routine', 'General', 'Detail', 'Serious', 'Other'],
-                  categories=['Cryostat', 'Beamline', 'Vacuum', 'Settings', 'Detectors', 'Electronics', 'DAQ', 'Computer', 'Network', 'Software',
-'Other']),
+                  categories=['Cryostat', 'Beamline', 'Vacuum', 'Settings',
+                              'Detectors', 'Electronics', 'DAQ', 'Computer',
+                              'Network', 'Software', 'Other']),
         ),
 
 
