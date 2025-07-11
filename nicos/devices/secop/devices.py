@@ -80,12 +80,17 @@ except ImportError:
 
 
 class NicosSecopClient(SecopClient):
+    SPECIAL_NAMES = {'target', 'status', 'stop', 'pollinterval', 'reset'}
+
     def internalize_name(self, name):
         """name mangling
 
-        in order to avoid existing NICOS Moveable attributes
+        - names matching the names of NICOS Moveable attributes
+          are mangled, as they would conflict.
+        - however, names with a special treatment in SecopDevice.makeDevClass
+          are *not* mangled
         """
-        if name in ('target', 'status', 'stop', 'pollinterval'):
+        if name in self.SPECIAL_NAMES:
             return name
         name = super().internalize_name(name).lower()
         prefix, sep, postfix = name.partition('_')
