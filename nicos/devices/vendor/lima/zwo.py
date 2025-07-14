@@ -41,7 +41,7 @@ class ZwoTC(PyTangoDevice, HasLimits, HasPrecision, LimaCooler, Moveable):
 
         nicosState = status.UNKNOWN
 
-        if self.doReadCooleron():
+        if self.cooler == 'ON':
             if abs(temperature - sp) < self.precision:
                 nicosState = status.OK
             else:
