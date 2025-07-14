@@ -30,7 +30,7 @@ devices = dict(
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'experiment object',
-        dataroot = 'data',
+        dataroot = '/data',
         sample = 'Sample',
         reporttemplate = '',
         serviceexp = 'p0',
