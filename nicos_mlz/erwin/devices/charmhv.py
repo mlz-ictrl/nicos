@@ -232,8 +232,6 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         seq = [
             tuple(SeqDev(dev, self.mapping[target][dev.name])
                   for dev in self._attached_window),
-            tuple(SeqDev(dev, self.mapping[target][dev.name])
-                  for dev in self._attached_edges),
         ]
         if self._cold_start(target):
             for steptarget, waittime in self.rampsteps:
@@ -241,7 +239,7 @@ class HVSwitch(SequencerMixin, MappedMoveable):
                                  for dev in self._anodes))
                 seq.append(SeqSleep(waittime * 60))
         seq.append(tuple(SeqDev(dev, self.mapping[target][dev.name])
-                         for dev in self._anodes))
+                         for dev in self._anodes + self._attached_edges))
         if self._move_downwards('target'):
             seq.reverse()
         return [SeqRampParam(d, ramp) for d in self._devices.values()] + seq
