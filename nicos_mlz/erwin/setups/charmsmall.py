@@ -59,6 +59,13 @@ devices = dict(
                 'ramp': 100,
             },
         },
+        rampsteps = [
+            (500, 2),
+            (1000, 2),
+            (1500, 2),
+            (1750, 2),
+            (1950, 2),
+            ],
     ),
     s_hv_offtime = device('nicos_mlz.erwin.devices.charmhv.HVOffDuration',
         description = 'Duration of small detector below operating voltage',
