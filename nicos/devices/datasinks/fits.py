@@ -33,12 +33,9 @@ from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
 from nicos.utils import toAscii
 
 try:
-    import astropy.io.fits as pyfits
+    from astropy.io import fits
 except ImportError:
-    try:
-        import pyfits
-    except ImportError:
-        pyfits = None
+    fits = None
 
 
 class FITSImageSinkHandler(SingleFileSinkHandler):
@@ -52,7 +49,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
         npData = numpy.array(image)
 
         # create primary hdu from image data
-        hdu = pyfits.PrimaryHDU(npData)
+        hdu = fits.PrimaryHDU(npData)
 
         # create fits header from nicos header and add entries to hdu
         self._buildHeader(self.dataset.metainfo, hdu)
@@ -108,7 +105,7 @@ class FITSImageSink(ImageSink):
     NICOS headers are also written into the file using the standard FITS header
     facility, with HIERARCH type keys.
 
-    Requires the pyfits library to be installed.
+    Requires the astropy library to be installed.
     """
 
     parameter_overrides = {
@@ -119,10 +116,10 @@ class FITSImageSink(ImageSink):
 
     def doPreinit(self, _mode):
         # Stop creation of the FITSImageSink as it would make no sense
-        # without pyfits.
-        if pyfits is None:
-            raise NicosError(self, 'pyfits module is not available. Check'
-                             ' if it is installed and in your PYTHONPATH')
+        # without astropy.
+        if fits is None:
+            raise NicosError(self, 'The astropy.io.fits module is not '
+                             'available, check if it is installed')
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
@@ -133,5 +130,5 @@ class FITSFileReader(ImageFileReader):
 
     @classmethod
     def fromfile(cls, filename):
-        hdu_list = pyfits.open(filename)
+        hdu_list = fits.open(filename)
         return numpy.flipud(hdu_list[0].data)

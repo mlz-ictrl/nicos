@@ -51,11 +51,7 @@ try:
     import astropy.io.fits  # pylint: disable=unused-import
     sinklist.append('fitssink')
 except Exception:
-    try:
-        import pyfits  # pylint: disable=unused-import,import-error
-        sinklist.append('fitssink')
-    except Exception:
-        pass
+    pass
 
 try:
     import quickyaml  # pylint: disable=unused-import

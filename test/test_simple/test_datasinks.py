@@ -39,12 +39,9 @@ from nicos.devices.datasinks.scan import AsciiScanfileReader
 from nicos.utils import readFile, updateFileCounter
 
 try:
-    import astropy.io.fits as pyfits
+    from astropy.io import fits
 except ImportError:
-    try:
-        import pyfits
-    except ImportError:
-        pyfits = None
+    fits = None
 
 try:
     import PIL
@@ -255,12 +252,12 @@ class TestSinks:
         tifffile = path.join(session.experiment.datapath, '00000168.tiff')
         assert path.isfile(tifffile)
 
-    @pytest.mark.skipif(not pyfits, reason='pyfits library missing')
+    @pytest.mark.skipif(not fits, reason='astropy.io.fits library missing')
     def test_fits_sink(self, session):
         fitsfile = path.join(session.experiment.datapath, '00000168.fits')
         assert path.isfile(fitsfile)
         assert ('%o' % os.stat(fitsfile).st_mode)[2:] == '0444'
-        with pyfits.open(fitsfile) as ffile:
+        with fits.open(fitsfile) as ffile:
             hdu = ffile[0]
             assert hdu.data.shape == (128, 128)
             assert hdu.header['Exp/proposal'] == 'p1234'
