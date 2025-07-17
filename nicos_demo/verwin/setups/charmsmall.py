@@ -56,7 +56,6 @@ devices = dict(
         banodes = ['s_banode1'],
         edges = ['s_cathode1', 's_cathode2'],
         window = 's_window',
-        trip = 's_tripped',
         mapping = {
             'on': {
                 's_anode1': 2055,
