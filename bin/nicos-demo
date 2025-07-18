@@ -32,7 +32,7 @@ from os import path
 from time import sleep
 
 import psutil
-import toml
+import tomlkit
 
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
@@ -132,8 +132,8 @@ parser = argparse.ArgumentParser(
 
 nicos_root = path.normpath(path.dirname(path.dirname(__file__)))
 try:
-    with open(path.join(nicos_root, 'nicos.conf'), encoding='utf-8') as fp:
-        global_cfg = toml.load(fp)
+    with open(path.join(nicos_root, 'nicos.conf'), 'rb') as fp:
+        global_cfg = tomlkit.load(fp)
 except OSError:
     global_cfg = {}
 

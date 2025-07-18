@@ -128,11 +128,11 @@ class nicosinstall(stinstall):
                            path.join(self.install_icons, res))
 
     def createInitialGlobalNicosConf(self):
-        import toml
+        import tomlkit
         cfg = {}
         if path.isfile(self.install_conf):
             with open(self.install_conf, encoding='utf-8') as fp:
-                cfg = toml.load(fp)
+                cfg = tomlkit.load(fp)
         section = cfg.setdefault('nicos', {})
         section['pid_path'] = self.true_pid
         section['logging_path'] = self.true_log
@@ -150,7 +150,7 @@ class nicosinstall(stinstall):
                           ' correct setup_package! '
                           '(see Installation guide in docs)' % self.install_conf, 2)
         with open(self.install_conf, 'w', encoding='utf-8') as fp:
-            toml.dump(cfg, fp)
+            tomlkit.dump(cfg, fp)
 
     def run_install_etc(self):
         self.copy_tree('etc', self.install_etc)
@@ -178,7 +178,7 @@ setup(
     packages = packages,
     package_data = package_data,
     scripts = scripts,
-    setup_requires = ['toml'],
+    setup_requires = ['tomlkit'],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

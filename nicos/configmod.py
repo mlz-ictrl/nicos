@@ -31,7 +31,7 @@ import sys
 from os import path
 from re import compile as regexcompile, escape as regexescape
 
-import toml
+import tomlkit
 
 
 class config:
@@ -123,11 +123,11 @@ def readToml(filename):
     if it doesn't exist.
     """
     try:
-        with open(filename, encoding='utf-8') as fp:
-            return toml.load(fp)
+        with open(filename, 'rb') as fp:
+            return tomlkit.load(fp)
     except OSError:
         return {}
-    except toml.TomlDecodeError as err:
+    except tomlkit.exceptions.ParseError as err:
         raise RuntimeError(
             f'could not read NICOS config file at {filename!r},'
             f' please make sure it is valid TOML: {err}') from None

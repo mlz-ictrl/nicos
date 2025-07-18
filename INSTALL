@@ -16,7 +16,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - numpy
   - pyzmq version >= 2
   - rsa
-  - toml
+  - tomlkit >= 0.8.0
   - lttb version >= 0.2.2
 
 * For the provided SysV compatible init script and nicos-demo:
@@ -118,7 +118,7 @@ where 'distro' stands for:
 
 * Basic system::
 
-     apt-get install python3-{dev,zmq,numpy,scipy,psutil,rsa,systemd,toml} gnuplot
+     apt-get install python3-{dev,zmq,numpy,scipy,psutil,rsa,systemd,tomlkit} gnuplot
      apt-get install python3-{keyring,keyrings.alt,html2text}
      apt-get install python3-{lttb,nicos-pyctl,nicos-quickyaml}
 
