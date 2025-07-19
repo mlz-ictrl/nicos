@@ -152,7 +152,7 @@ dmc_event_mode = {
         'proposal_id': DeviceDataset('Exp', 'proposal'),
         'start_time': DeviceDataset('dataset', 'starttime'),
         'sample:NXsample': {
-            'name': DeviceDataset('sample', 'samplename'),
+            'name': DeviceDataset('Sample', 'samplename'),
             'rotation_angle:NXevent_data': {
                 'data':
                     EventStream(topic='DMC_metadata',
@@ -390,7 +390,7 @@ def makeDetector():
 def makeSample():
     sample = {
         'name':
-            DeviceDataset('sample', 'samplename'),
+            DeviceDataset('Sample', 'samplename'),
         'rotation_angle':
             DeviceDataset('a3',
                           dtype='float32',
