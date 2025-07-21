@@ -247,7 +247,7 @@ class SpaceMap:
         dir1 = self.cell._orient1
         dir2 = cross(self.cell.cal_zone(), self.cell._orient1)
         # normalize second direction to the smallest length
-        comp = [abs(c) for c in dir2 if c != 0]
+        comp = [int(abs(c)) for c in dir2 if c != 0]
         complen = len(comp)
         if complen == 0:
             # should be impossible: all entries == 0, no change

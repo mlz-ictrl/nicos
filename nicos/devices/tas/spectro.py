@@ -260,7 +260,7 @@ class TAS(HasAutoDevices, Instrument, Moveable):
             ny = self._attached_cell.cal_ny(monovalue, anavalue)
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
-        return [hkl[0], hkl[1], hkl[2], ny]
+        return [float(hkl[0]), float(hkl[1]), float(hkl[2]), ny]
 
     def _calpos(self, pos, printout=True, checkonly=True):
         qh, qk, ql, ny, sc, sm = pos
