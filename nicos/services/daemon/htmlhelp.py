@@ -37,7 +37,7 @@ from nicos.utils import formatArgs, formatDocstring
 try:
     from docutils.core import publish_parts
 except ImportError:
-    publish_parts = None
+    publish_parts = std_role = None
 else:
     # black magic to make `cmd` into links
     from docutils import nodes, utils
@@ -49,7 +49,6 @@ else:
         if reftext.endswith('()'):
             reftext = reftext[:-2]
         return [nodes.reference(text, text, refuri='cmd:%s' % reftext)], []
-    roles._roles[''] = std_role
 
 
 
@@ -105,11 +104,11 @@ class HelpGenerator:
     def gen_markup(self, markup):
         if publish_parts is None:
             return '<pre>' + html.escape(markup) + '</pre>'
-        else:
-            try:
-                return publish_parts(markup, writer_name='html')['html_body']
-            except Exception:
-                return '<pre>' + html.escape(markup) + '</pre>'
+        roles.register_local_role('', std_role)
+        try:
+            return publish_parts(markup, writer_name='html')['html_body']
+        except Exception:
+            return '<pre>' + html.escape(markup) + '</pre>'
 
     def gen_helpindex(self):
         ret = ['<p class="menu">'
