@@ -24,10 +24,20 @@ from nicos import session
 from nicos.core import Attach, Readable, status
 from nicos.core.params import Param, oneof
 from nicos.devices.abstract import Motor
-from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, SeqParam
+
+# ATTENTION: This device is on life-support, it's possible to improve it in
+# several ways, but from  broader perspective it makes sense to spend as little
+# time as possible with it.
+# Commissioning this device is non-trivial as it involves climbing in
+# and out from a big pipe. Adding to that the these motors and mechanics
+# are pushing 20-25 years, and managers doesn't like that time is spent on
+# things that needs to be replaced.
 
 
 class SeqLimDev(SeqDev):
+    # Todo: remove the need for this class
+    # instead use combination of SeqDev and SeqParam
     def __init__(self, dev, target, limit):
         SeqDev.__init__(self, dev, target, True)
         self._limit = limit
@@ -81,7 +91,7 @@ class Beamstop(BeamstopSequencer):
     requires a sequence of operations. Order of driving is important.
     """
     _out_x = 28.
-    _out_y = -543.
+    _out_y = -549.
     valuetype = oneof('in', 'out')
 
     def doRead(self, maxage=0):
@@ -110,9 +120,14 @@ class Beamstop(BeamstopSequencer):
         else:
             seq.append(SeqMethod(self, '_release'))
 
+            seq.append(SeqDev(self._attached_y, -450))
+
+            seq.append(SeqParam(self._attached_y, 'userlimits', (-450, 270)))
+
+            seq.append(SeqDev(self._attached_y, self._in_y))
+
             seq.append(SeqDev(self._attached_x, self._in_x))
 
-            seq.append(SeqLimDev(self._attached_y, self._in_y, -450))
 
         return seq
 
@@ -140,11 +155,12 @@ class BeamstopChanger(BeamstopSequencer):
         self._honor_stop = False
 
     def _emergencyFix(self, reason):
-        session.log.error('%s, Fixing motors, Get a manager to fix this',
+        session.log.error('%s, Fixing motors!',
                           reason)
         self._fix()
 
-    def doRead(self, maxage=0):
+
+    def _digest_input(self, maxage=0):
         dio = self._attached_io.read(maxage)
         test = dio[1]
         val = 1
@@ -153,12 +169,20 @@ class BeamstopChanger(BeamstopSequencer):
             if test & 1 << i:
                 val = i + 2
                 count += 1
-        if count > 1:
+        return val, count
+
+    def doRead(self, maxage=0):
+        val, missing_beamstops = self._digest_input()
+        if missing_beamstops > 1:
             self._emergencyFix('Beamstop lost!!!')
         return val
 
     def doIsAllowed(self, pos):
-        if self._attached_y.isAtTarget(-543):
+        _, missing_beamstops = self._digest_input()
+        if missing_beamstops > 1:
+            session.log.error("Missing beamstop, call responsible person!")
+            return False, "Missing beamstop don't move anything!"
+        if self._attached_y.isAtTarget(-549):
             return False, 'Cannot change beamstop in OUT position'
         return True, ''
 
@@ -200,6 +224,10 @@ class BeamstopChanger(BeamstopSequencer):
 
     def doStatus(self, maxage=0):
         stat = BaseSequencer.doStatus(self, maxage)
+        _, missing_beamstops = self._digest_input()
+        if missing_beamstops > 1:
+            session.log.error("Missing beamstop, call responsible person!")
+            return status.ERROR, "Missing more than one beamstop!"
         if stat[0] != status.BUSY and self._seq_is_running():
             return status.BUSY, stat[1]
         return stat

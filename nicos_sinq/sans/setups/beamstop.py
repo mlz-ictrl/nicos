@@ -12,7 +12,7 @@ devices = dict(
         precision = 0.2,
     ),
     bsx = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
-        description = 'Beamstop Y Translation',
+        description = 'Beamstop X Translation',
         motorpv = pvprefix + 'bsX',
         errormsgpv = pvprefix + 'bsX-MsgTxt',
         precision = 0.2,
