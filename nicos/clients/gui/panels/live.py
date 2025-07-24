@@ -495,7 +495,7 @@ class LiveDataPanel(PlotPanel):
         widget = self._getLiveWidget(roikey)
         region = self.widget._rois[key]
         if not widget:
-            widget = LiveWidget(None)
+            widget = type(self.widget)(None)
             widget.setWindowTitle(roikey)
             widget.setColormap(self.widget.getColormap())
             widget.setCenterMark(self.actionMarkCenter.isChecked())
