@@ -45,10 +45,7 @@ class HelpPage(QWebEnginePage):
 
     def setHtml(self, html, url):
         self._setting_html = True
-        if not hasattr(QWebEnginePage, 'setHtml'):
-            self.parent().setHtml(html, url)  # WebKit
-        else:
-            QWebEnginePage.setHtml(self, html, url)
+        QWebEnginePage.setHtml(self, html, url)
         self._setting_html = False
         self.orig_url = url
 
@@ -112,12 +109,7 @@ class HelpWindow(QMainWindow):
         self._search()
 
     def _search(self):
-        if hasattr(QWebEnginePage, 'FindWrapsAroundDocument'):  # WebKit
-            self.webView.findText(self.searchBox.text(),
-                                  QWebEnginePage.FindWrapsAroundDocument)
-        else:
-            # WebEngine wraps automatically
-            self.webView.findText(self.searchBox.text())
+        self.webView.findText(self.searchBox.text())
 
     @pyqtSlot()
     def on_closeBtn_clicked(self):
