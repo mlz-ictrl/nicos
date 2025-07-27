@@ -79,7 +79,7 @@ devices = dict(
         filenametemplate = ['m2%(scancounter)08d.yaml'],
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass='nicos_mlz.stressi.nexus.nexus_templates.StressiNexusTemplateProvider',
+        templateclass='nicos_mlz.nexus.nexus_templates.PowderTemplateProvider',
         settypes = {'point',},
         filenametemplate = ['m1%(pointcounter)08d.nxs'],
         # filenametemplate = ['%(scancounter)06d.nxs'],
