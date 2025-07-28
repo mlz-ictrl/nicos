@@ -52,23 +52,10 @@ class HelpPage(QWebEnginePage):
         self._setting_html = False
         self.orig_url = url
 
-    def mainFrame(self):
-        if not hasattr(QWebEnginePage, 'mainFrame'):
-            return self  # WebEngine
-        return QWebEnginePage.mainFrame(self)
-
     def acceptNavigationRequest(self, url, *args):
         if self._setting_html:
             return True
-        if not isinstance(url, QUrl):  # WebKit
-            url = args[0].url()
-        if url.toString().startswith('#'):
-            frame = self.mainFrame()
-            self.history.append((self.parent().url().toString(),
-                                 frame.scrollPosition()))
-            el = frame.findFirstElement(url.toString())
-            frame.setScrollPosition(el.geometry().topLeft())
-        elif url.toString().startswith('data:text/html'):
+        if url.toString().startswith('data:text/html'):
             return True
         else:
             target = url.toString()
@@ -92,7 +79,7 @@ class HelpWindow(QMainWindow):
         pseudourl, html = data
         if self._next_scrollpos is None:
             self.history.append((self.webView.page().orig_url.toString(),
-                                 self.webView.page().mainFrame().scrollPosition()))
+                                 self.webView.page().scrollPosition()))
             if len(self.history) > 100:
                 self.history = self.history[-100:]
         if self._next_scrollpos is not None:
