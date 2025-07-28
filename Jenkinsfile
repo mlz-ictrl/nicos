@@ -422,7 +422,7 @@ try {
                            """,
                            returnStdout: true
                         ).trim()
-                        buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
+                        buildimage_deb.inside("-v /home/git:/home/git -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
                             sh """
                             . \$NICOS3VENV/bin/activate
                             ./bin/nicos-keystore add influxdb --storagepw nicos --password ${token}
