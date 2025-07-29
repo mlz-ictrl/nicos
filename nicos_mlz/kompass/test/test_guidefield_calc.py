@@ -27,7 +27,7 @@ import pytest
 session_setup = 'lpa_kompass'
 
 
-@pytest.mark.parametrize(('alpha', 'field', 'currents'), [
+TESTS_KOMPASS = [
     (0, [0.000, 0.000, 0.000], [0.000, 0.000, 0.000, 0.000]),
     (0, [0.000, 0.000, 0.900], [0.000, 0.000, 0.000, 1.000]),
     (0, [0.000, 0.000, 1.800], [0.000, 0.000, 0.000, 2.000]),
@@ -390,34 +390,9 @@ session_setup = 'lpa_kompass'
     (50, [-0.137, 0.376, 0.000], [1.000, 1.001, -1.000, 0.000]),
     (50, [-0.137, 0.376, 0.900], [1.000, 1.001, -1.001, 1.000]),
     (50, [-0.137, 0.376, 1.800], [1.000, 1.001, -1.001, 2.000]),
-    ])
-def test_calcs_kompass(alpha, field, currents, session):
-    prec = 0.002
+]
 
-    gf = session.getDevice('gf4')
-    alphastorage = session.getDevice('alphastorage')
-
-    assert gf.read(0) is None
-
-    alphastorage.maw(-alpha)
-
-    session.log.debug('Initial field (mT): %s', field)
-    session.log.debug('Current matrix: %s', gf._currentmatrix)
-    ccurrents = gf._b2i(field)
-    session.log.debug(
-        'Currents (in A) calculated from field %s: expected: %s, '
-        'calculated: %s', field, currents, ccurrents)
-    assert all(c == pytest.approx(cc, abs=prec)
-               for c, cc in zip(currents, ccurrents))
-
-    cfield = gf._i2b(currents)
-    session.log.debug('Calculated field (mT) %s from currents (in A): %s',
-                      cfield, currents)
-    assert all(f == pytest.approx(cf, abs=prec)
-               for f, cf in zip(field, cfield))
-
-
-@pytest.mark.parametrize(('alpha', 'field', 'currents'), [
+TESTS_KOMPASS_2 = [
     (0, [0.000, 0.000, 0.000], [0.000, 0.000, 0.000, 0.000]),
     (0, [-0.100, -0.173, 0.000], [-0.000, 0.000, 0.999, 0.000]),
     (0, [0.000, 0.000, 0.900], [0.000, 0.000, 0.000, 1.000]),
@@ -905,32 +880,9 @@ def test_calcs_kompass(alpha, field, currents, session):
     (50, [-0.000, 0.000, 0.020], [0.000, 0.000, 0.000, 0.022]),
     (50, [-0.000, 0.000, 0.920], [0.000, 0.000, 0.000, 1.022]),
     (50, [-0.000, 0.000, 1.820], [0.000, 0.000, 0.000, 2.022]),
-    ])
-def test_calcs_kompass_2(alpha, field, currents, session):
-    prec = 0.002
+]
 
-    gf = session.getDevice('gf4_f')
-    alphastorage = session.getDevice('alphastorage')
-
-    assert gf.read(0) is None
-
-    alphastorage.maw(-alpha)
-
-    session.log.debug('Initial field (mT): %s', field)
-    session.log.debug('Current matrix: %s', gf._currentmatrix)
-    ccurrents = gf._b2i(field)
-    session.log.debug(
-        'Currents (in A) calculated from field %s: expected: %s, '
-        'calculated: %s', field, currents, ccurrents)
-    assert all(c == pytest.approx(cc, abs=prec)
-               for c, cc in zip(currents, ccurrents))
-
-    cfield = gf._i2b(currents)
-    session.log.debug('Calculated field (mT) %s from currents (in A): %s',
-                      cfield, currents)
-
-
-@pytest.mark.parametrize(('alpha', 'field', 'currents'), [
+TESTS_PANDA = [
     (0, [0.000, 0.000, 0.000], [0.000, 0.000, 0.000]),
     (0, [0.000, 0.000, 1.165], [0.000, 0.000, 1.000]),
     (0, [0.000, 0.000, 2.330], [0.000, 0.000, 2.000]),
@@ -1098,28 +1050,33 @@ def test_calcs_kompass_2(alpha, field, currents, session):
     (50, [0.136, 0.162, 0.000], [1.995, 1.996, 0.000]),
     (50, [0.136, 0.162, 1.165], [1.995, 1.996, 1.000]),
     (50, [0.136, 0.162, 2.330], [1.995, 1.996, 2.000]),
-    ])
-def test_calcs_panda(alpha, field, currents, session):
-    prec = 0.005
+]
 
-    gf = session.getDevice('gf3')
+
+def test_calcs(session):
+    prec = 0.002
     alphastorage = session.getDevice('alphastorage')
 
-    assert gf.read(0) is None
+    for (dev, prec, tests) in [('gf4', 0.002, TESTS_KOMPASS),
+                               ('gf4_f', 0.002, TESTS_KOMPASS_2),
+                               ('gf3', 0.005, TESTS_PANDA)]:
+        gf = session.getDevice(dev)
+        assert gf.read(0) is None
 
-    alphastorage.maw(-alpha)
+        for (alpha, field, currents) in tests:
+            alphastorage.maw(-alpha)
 
-    session.log.debug('Initial field (mT): %s', field)
-    session.log.debug('Current matrix: %s', gf._currentmatrix)
-    ccurrents = gf._b2i(field)
-    session.log.debug(
-        'Currents (in A) calculated from field %s: expected: %s, '
-        'calculated: %s', field, currents, ccurrents)
-    assert all(c == pytest.approx(cc, abs=prec)
-               for c, cc in zip(currents, ccurrents))
+            session.log.debug('Initial field (mT): %s', field)
+            session.log.debug('Current matrix: %s', gf._currentmatrix)
+            ccurrents = gf._b2i(field)
+            session.log.debug(
+                'Currents (in A) calculated from field %s: expected: %s, '
+                'calculated: %s', field, currents, ccurrents)
+            assert all(c == pytest.approx(cc, abs=prec)
+                       for c, cc in zip(currents, ccurrents))
 
-    cfield = gf._i2b(currents)
-    session.log.debug('Calculated field (mT) %s from currents (in A): %s',
-                      cfield, currents)
-    assert all(f == pytest.approx(cf, abs=prec)
-               for f, cf in zip(field, cfield))
+            cfield = gf._i2b(currents)
+            session.log.debug('Calculated field (mT) %s from currents (in A): %s',
+                              cfield, currents)
+            assert all(f == pytest.approx(cf, abs=prec)
+                       for f, cf in zip(field, cfield))
