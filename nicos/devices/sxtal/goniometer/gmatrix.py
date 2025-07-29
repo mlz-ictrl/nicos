@@ -79,7 +79,7 @@ class GMatrix(PositionBase):
         except ValueError:
             sinchi = 0.0
         chi = np.arctan2(sinchi, coschi)
-        if abs(sinchi) < 1.0e-10:
+        if abs(sinchi) < 1.0e-7:
             # Choose omega to be 180 degrees (easily accessible)
             sinomega = 0.0
             if zeromega:
@@ -90,7 +90,7 @@ class GMatrix(PositionBase):
             sinomega = self.matrix[0, 2] / sinchi
             cosomega = self.matrix[1, 2] / sinchi
         omega = np.arctan2(sinomega, cosomega)
-        if abs(sinchi) < 1.0e-10:
+        if abs(sinchi) < 1.0e-7:
             # Since f==0 and e==-1, the solution is simple....
             sinphi = self.matrix[1, 0]
             cosphi = -self.matrix[0, 0]
