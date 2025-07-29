@@ -78,10 +78,10 @@ setupcheck:
 T =
 
 test:
-	@$(PYTHON) -m pytest -v $(T) --ignore test/test_stresstest $(O)
+	@$(PYTHON) -m pytest -v $(T) --durations=20 --ignore test/test_stresstest $(O)
 
 testall:
-	@$(PYTHON) -m pytest -v $(T) $(O)
+	@$(PYTHON) -m pytest -v $(T) --durations=20 $(O)
 
 test-coverage:
 	@COVERAGE_PROCESS_START=.coveragerc \
