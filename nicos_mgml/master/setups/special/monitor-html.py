@@ -62,7 +62,7 @@ _colB = Column(_ppms14block)
 _colC = Column(_matfunblock)
 
 devices = dict(
-    Monitor = device('nicos.services.monitor.html2.Monitor',
+    Monitor = device('nicos_mgml.services.monitor.html2.Monitor',
         title = 'Master status monitor',
         filename = '/mnt/statmons/master.html',
         loglevel = 'info',
