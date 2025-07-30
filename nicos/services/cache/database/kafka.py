@@ -254,8 +254,8 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
 
         # The partitions should be in correct location before starting to
         # consume
-        for partition in offsets:
-            self._history_consumer.seek(partition, offsets[partition].offset)
+        for partition, val in offsets.items():
+            self._history_consumer.seek(partition, val.offset)
 
         end = self._consumer.end_offsets(list(assignment))
         found_some = False
