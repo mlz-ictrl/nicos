@@ -125,7 +125,8 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         message_count = 0
         end = self._consumer.end_offsets(list(self._consumer.assignment()))
         for partition in self._consumer.assignment():
-            while self._consumer.position(partition) < end[partition]:
+            while (pos := self._consumer.position(partition, timeout_ms=1000)) \
+                    is not None and pos < end[partition]:
                 msg = next(self._consumer)
                 message_count += 1
                 if msg.value is not None:
