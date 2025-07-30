@@ -397,16 +397,15 @@ try {
 	stage(name: 'Tests on Debian, with all dependencies') {
             ws {
                 checkoutSource()
-                def kafkaversion="2.12-2.7.0"
+                def kafkaversion="4.0.0"
                 docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/kafka:${kafkaversion}").withRun() { kafka ->
                     def kafkasuccess = false;
                     def tries = 0;
                     while (kafkasuccess == false){
-                        sleep(time: 5, unit: 'SECONDS')  // needed to allow kafka to start
                         try {
                         sh """
-                            docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1
-                            docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1
+                            docker exec ${kafka.id} kafka-topics.sh --create --topic test-flatbuffers --bootstrap-server localhost:9092
+                            docker exec ${kafka.id} kafka-topics.sh --create --topic test-flatbuffers-history --bootstrap-server localhost:9092
                         """
                         kafkasuccess=true;
                         } catch(e) {
@@ -422,7 +421,7 @@ try {
                            """,
                            returnStdout: true
                         ).trim()
-                        buildimage_deb.inside("-v /home/git:/home/git -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
+                        buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
                             sh """
                             . \$NICOS3VENV/bin/activate
                             ./bin/nicos-keystore add influxdb --storagepw nicos --password ${token}
