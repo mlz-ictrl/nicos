@@ -26,7 +26,6 @@ from time import sleep, time as currenttime
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 
 from nicos.core import Attach, Param, host, listof
-from nicos.core.errors import ConfigurationError
 from nicos.protocols.cache import OP_TELLOLD
 from nicos.services.cache.database.memory import MemoryCacheDatabase
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
@@ -94,12 +93,6 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
             bootstrap_servers=self.brokers,
             auto_offset_reset='earliest'  # start at earliest topic
         )
-
-        # Give up if the topic does not exist
-        if self.currenttopic not in self._consumer.topics():
-            raise ConfigurationError(
-                'Topic "%s" does not exist. Create this topic and restart.'
-                % self.currenttopic)
 
         # Assign the partitions
         partitions = self._consumer.partitions_for_topic(self.currenttopic)
@@ -215,19 +208,8 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
     def doInit(self, mode):
         KafkaCacheDatabase.doInit(self, mode)
 
-        if self.historytopic not in self._consumer.topics():
-            raise ConfigurationError(
-                'Topic "%s" does not exist. Create this topic and restart.'
-                % self.historytopic)
-
         # Create the history consumer
         self._history_consumer = KafkaConsumer(bootstrap_servers=self.brokers)
-
-        # Give up if the topic does not exist
-        if self.historytopic not in self._history_consumer.topics():
-            raise ConfigurationError(
-                'Topic "%s" does not exist. Create this topic and restart.'
-                % self.historytopic)
 
         # Assign the partitions
         partitions = self._history_consumer.partitions_for_topic(

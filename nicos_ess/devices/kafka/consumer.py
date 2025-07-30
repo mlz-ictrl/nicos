@@ -80,10 +80,6 @@ class KafkaConsumer:
             raise ConfigurationError('could not obtain metadata for topic '
                                      f'{topic_name}') from exc
 
-        if topic_name not in metadata.topics:
-            raise ConfigurationError(f'provided topic {topic_name} does '
-                                     'not exist')
-
         partitions = partitions if partitions \
             else metadata.topics[topic_name].partitions
         topic_partitions = [

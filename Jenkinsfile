@@ -399,20 +399,6 @@ try {
                 checkoutSource()
                 def kafkaversion="4.0.0"
                 docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/kafka:${kafkaversion}").withRun() { kafka ->
-                    def kafkasuccess = false;
-                    def tries = 0;
-                    while (kafkasuccess == false){
-                        try {
-                        sh """
-                            docker exec ${kafka.id} kafka-topics.sh --create --topic test-flatbuffers --bootstrap-server localhost:9092
-                            docker exec ${kafka.id} kafka-topics.sh --create --topic test-flatbuffers-history --bootstrap-server localhost:9092
-                        """
-                        kafkasuccess=true;
-                        } catch(e) {
-                            tries++;
-                            if (tries> 5) { error('could not start kafka') }
-                        }
-                    }
                     def influxdbversion = "0.0.2"
                     docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/influxdb:${influxdbversion}").withRun() { influxdb ->
                         token = sh (

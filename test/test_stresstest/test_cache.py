@@ -111,6 +111,8 @@ def test_history(session, setup):
     if setup in not_implemented:
         pytest.skip('not implemented')
     cache = startCache(alt_cache_addr, setup)
+    if setup == 'cache_kafka':
+        sleep(2)
     cc = session.cache
     time0 = time()
     n = 50
