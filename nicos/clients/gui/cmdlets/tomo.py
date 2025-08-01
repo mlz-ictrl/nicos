@@ -96,13 +96,15 @@ class Tomo(PresetHelper, Cmdlet):
         devrepr = self._getDeviceRepr(values['dev'])
         ret = f'{self.cmdname}({values["nangles"]}, '
         if values['dev']:
-            ret += f'moveables={devrepr}, '
+            ret += f'{devrepr}, '
         else:
             ret += 'None, '
-        ret += f'imgsperangle={values["imgsperangle"]}, ' \
-            f'ref_first={values["reffirst"]}, startpoint={values["start"]}, '
         if values['detlist']:
-            ret += f'{values["detlist"]}, '
+            ret += f'{values["imgsperangle"]}, {values["reffirst"]}, ' \
+                   f'{values["start"]}, {values["detlist"]}, '
+        else:
+            ret += f'imgsperangle={values["imgsperangle"]}, ' \
+                f'ref_first={values["reffirst"]}, startpoint={values["start"]}, '
         ret += f'{preset})'
         return ret
 
