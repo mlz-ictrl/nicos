@@ -16,7 +16,10 @@ sysconfig = dict(
     notifiers = [],  # ['email'],
 )
 
-modules = ['nicos.commands.standard']
+modules = [
+    'nicos.commands.standard',
+    'nicos_mlz.antares.commands',
+]
 
 includes = [
     'notifiers',
