@@ -407,10 +407,10 @@ try {
                            """,
                            returnStdout: true
                         ).trim()
-                        buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
+                        buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB2_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
                             sh """
                             . \$NICOS3VENV/bin/activate
-                            ./bin/nicos-keystore add influxdb --storagepw nicos --password ${token}
+                            ./bin/nicos-keystore add influxdb2 --storagepw nicos --password ${token}
                             """
                             runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
                         } // image.inside

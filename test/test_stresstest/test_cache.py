@@ -44,8 +44,8 @@ def all_setups():
     if os.environ.get('KAFKA_URI', None):
         yield 'cache_kafka'
 
-    if os.environ.get('INFLUXDB_URI', None):
-        yield 'cache_influxdb'
+    if os.environ.get('INFLUXDB2_URI', None):
+        yield 'cache_influxdb2'
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -140,7 +140,7 @@ def test_history(session, setup):
 
 @pytest.mark.parametrize('setup', all_setups())
 def test_history_interval(session, setup):
-    implemented = ['cache_influxdb']
+    implemented = ['cache_influxdb2']
     if setup not in implemented:
         pytest.skip('not implemented')
     cache = startCache(alt_cache_addr, setup)

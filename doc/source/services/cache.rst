@@ -112,7 +112,7 @@ Cache databases
 
 .. module:: nicos.services.cache.database.influxdb
 
-.. autoclass:: InfluxDBCacheDatabase()
+.. autoclass:: InfluxDB2CacheDatabase()
 
 For a documentation of the network protocol of the cache, please see
 :doc:`/protocols/cache`.

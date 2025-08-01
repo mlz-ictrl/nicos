@@ -2,8 +2,7 @@ description = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB = device('nicos.services.cache.database.influxdb.InfluxDBCacheDatabase',
-        # localhost if influxdb runs on the same machine
+    DB = device('nicos.services.cache.database.influxdb.InfluxDB2CacheDatabase',
         url = 'http://localhost:8086',
         org = 'organization_name',
         loglevel = 'info',

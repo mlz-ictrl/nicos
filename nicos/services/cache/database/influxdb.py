@@ -38,8 +38,8 @@ from nicos.services.cache.entry import CacheEntry
 csv.field_size_limit(0xA00000)  # 10 MB limit for influx queries with big fields
 
 
-class InfluxDBWrapper:
-    """Wrapper for InfluxDB API 2.0.
+class InfluxDB2Wrapper:
+    """Wrapper for InfluxDB API v2.
     """
 
     def __init__(self, url, token, org, bucket, bucket_latest, unbuffered=False):
@@ -76,7 +76,7 @@ class InfluxDBWrapper:
                 retention_rules=retention_rules, org=self._org)
 
     def readLastValues(self):
-        """Queries InfluxDB for a last value of every existing key/subkey
+        """Queries InfluxDB2 for a last value of every existing key/subkey
         asynchronously, since thus the fastest response is obtained.
         For large DB this query can take minutes, therefore the last values
         are generally stored in a separate bucket. If the bucket with the latest
@@ -191,7 +191,7 @@ class InfluxDBWrapper:
         yield self._client.query_api().query_stream(msg)
 
     def queryHistory(self, measurement, field, fromtime, totime, interval):
-        """Queries history from InfluxDB.
+        """Queries history from InfluxDB2.
         """
         self._update()
         t1 = datetime.utcfromtimestamp(fromtime).strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -261,15 +261,15 @@ class InfluxDBWrapper:
         return float(value) if isinstance(value, (int, float)) else None
 
 
-class InfluxDBCacheDatabase(CacheDatabase):
-    """Cachedatabase descendant that stores values in InfluxDB.
-    In InfluxDB 2.0 a database is called a bucket. Bucket name should be
+class InfluxDB2CacheDatabase(CacheDatabase):
+    """Cachedatabase descendant that stores values in InfluxDB2.
+    In InfluxDB2 a database is called a bucket. Bucket name should be
     passed as a parameter. If a bucket with this name doesn't exist it will be
-    created by the InfluxDB_client wrapper.
+    created by the InfluxDBClient wrapper.
     This class also requires url of the database, access token and organization
     name, which are set up during installation and initialization of the
-    InfluxDB.
-    InfluxDB definitions are different to the ones used in NICOS. Nicos
+    InfluxDB2.
+    InfluxDB2 definitions are different to the ones used in NICOS. Nicos
     categories are stored as _measurements, nicos keys are organized in _fields.
     Values are stored as fields' _values. Expired mark is set up
     as _tag. It is better to keep expired as a tag, because then it is
@@ -279,20 +279,20 @@ class InfluxDBCacheDatabase(CacheDatabase):
     Values are stored as strings as they are in flatfile database for the sake
     of compatibility. If a value could be converted to float, then it will be
     stored as a float-copy to a special field: {field}_float. This field could
-    be accessed through InfluxDB web interface or custom API queries.
+    be accessed through InfluxDB2 web interface or custom API queries.
     """
 
     parameters = {
         'url': Param(
-            'URL of InfluxDB instance', type=str, mandatory=True
+            'URL of InfluxDB2 instance', type=str, mandatory=True
         ),
         'apitoken': Param(
-            'Id used in the keystore for InfluxDB API token',
-            type=secret, default='influxdb'
+            'Id used in the keystore for InfluxDB2 API token',
+            type=secret, default='influxdb2'
         ),
         'org': Param(
             'Corresponding organization name created during initialization of '
-            'InfluxDB instance', type=str, mandatory=True
+            'InfluxDB2 instance', type=str, mandatory=True
         ),
         'bucket': Param(
             'Name of the bucket where data should be stored',
@@ -312,8 +312,8 @@ class InfluxDBCacheDatabase(CacheDatabase):
         self._recent = {}
         self._recent_lock = threading.Lock()
         CacheDatabase.doInit(self, mode)
-        token = self.apitoken.lookup('InfluxDB API token missing in keyring')
-        self._client = InfluxDBWrapper(self.url, token, self.org, self.bucket,
+        token = self.apitoken.lookup('InfluxDB2 API token missing in keyring')
+        self._client = InfluxDB2Wrapper(self.url, token, self.org, self.bucket,
                                        self.bucket_latest, self.unbuffered)
         self._time = datetime.now().timestamp()
 

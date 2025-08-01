@@ -25,7 +25,7 @@ import os
 
 from test.utils import alt_cache_addr
 
-name = 'setup for cache stress test with influxdb db'
+name = 'setup for cache stress test with influxdb2'
 
 devices = dict(
     Server = device('nicos.services.cache.server.CacheServer',
@@ -33,8 +33,8 @@ devices = dict(
         db = 'DB5',
         loglevel = 'debug',
     ),
-    DB5 = device('nicos.services.cache.database.influxdb.InfluxDBCacheDatabase',
-        url = os.environ.get('INFLUXDB_URI', 'http://localhost:8086'),
+    DB5 = device('nicos.services.cache.database.influxdb.InfluxDB2CacheDatabase',
+        url = os.environ.get('INFLUXDB2_URI', 'http://localhost:8086'),
         org = 'mlz',
         bucket = 'nicos-test',
         bucket_latest = 'nicos-test-latest',

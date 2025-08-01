@@ -24,7 +24,7 @@
 
 """
 A tool to copy NICOS cache to InfluxDB2 instance.
-Usage: influxdb-cache-transfer.py -h
+Usage: influxdb2-cache-transfer.py -h
 """
 
 import argparse
@@ -51,9 +51,9 @@ DB = None
 LOG = None
 
 
-class InfluxDB:
+class InfluxDB2:
     """
-    InfluxDB-client wrapper for cache copy procedure.
+    InfluxDBClient wrapper for cache copy procedure.
     """
 
     def __init__(self, url, keystoretoken, org):
@@ -67,7 +67,7 @@ class InfluxDB:
             raise OSError('Could not connect to the database.') from exc
         self._token = nicoskeystore.getCredential(keystoretoken)
         if not self._token:
-            raise OSError('InfluxDB API token missing in keyring')
+            raise OSError('InfluxDB2 API token missing in keyring')
         self._client = InfluxDBClient(url=url, token=self._token, org=org,
                                       timeout=30_000)
         self._write_api = self._client.write_api(write_options=write_option)
@@ -136,9 +136,9 @@ class InfluxDB:
         return tables
 
 
-class TransferLog(InfluxDB):
+class TransferLog(InfluxDB2):
     """
-    Class to save progress of copying cache to InfluxDB.
+    Class to save progress of copying cache to InfluxDB2.
     """
 
     def __init__(self, url, keystoretoken, org, bucket):
@@ -205,13 +205,13 @@ def read_cache(cachePath):
 def parseFile(measurement, cachefile):
     """
     Parses individual cache file and prepares a table with values, that will
-    be uploaded to InfluxDB.
+    be uploaded to InfluxDB2.
 
     Args:
         measurement: accepts filename of a cache file, e.g. nicos-_lastconfig_
         cachefile: absolute path to the cache file
 
-    Returns: list of InfluxDB Points
+    Returns: list of InfluxDB2 Points
     """
 
     points, errorlog = [], []
@@ -261,7 +261,7 @@ def copyfile(influxUrl, cachefile, progress):
     Copies single nicos cache file to InfulxDB and logs the process.
 
     Args:
-        influxUrl: Url to InfluxDB instance
+        influxUrl: Url to InfluxDB2 instance
         cachefile: absolute path to the nicos cache file
         progress: ratio of processed nicos cache files to their total amount
     """
@@ -269,11 +269,11 @@ def copyfile(influxUrl, cachefile, progress):
     print(f'\x1b[KProgress {format(progress, ".2f")}% {cachefile}\x1b[0F')
     global DB  # pylint: disable=global-statement
     if DB is None:
-        DB = InfluxDB(influxUrl, 'influxdb', 'mlz')
+        DB = InfluxDB2(influxUrl, 'influxdb2', 'mlz')
         DB.addNewBucket('nicos-cache')
     global LOG  # pylint: disable=global-statement
     if LOG is None:
-        LOG = TransferLog(influxUrl, 'influxdb', 'mlz', 'cache-transfer-log')
+        LOG = TransferLog(influxUrl, 'influxdb2', 'mlz', 'cache-transfer-log')
         LOG.read_processed('processed', 'filename')
 
     if not LOG.is_processed(cachefile):
@@ -289,10 +289,10 @@ def copyfile(influxUrl, cachefile, progress):
 
 def copy(influxUrl, cachePath):
     """
-    Tool to copy flat file cache to InfluxDB.
+    Tool to copy flat file cache to InfluxDB2.
 
     Args:
-        influxUrl: Url to InfluxDB instance
+        influxUrl: Url to InfluxDB2 instance
         cachePath: Absolute file path to nicos flat file cache
 
     Returns: numbers of copied files
@@ -315,13 +315,13 @@ def copy(influxUrl, cachePath):
 
 def read_copy_errors(influxUrl):
     """
-    Outputs from the InfluxDB all the errors related to copying process.
+    Outputs from the InfluxDB2 all the errors related to copying process.
 
     Args:
-        influxUrl: Url to InfluxDB instance
+        influxUrl: Url to InfluxDB2 instance
     """
 
-    db = TransferLog(influxUrl, 'influxdb', 'mlz', 'cache-transfer-log')
+    db = TransferLog(influxUrl, 'influxdb2', 'mlz', 'cache-transfer-log')
 
     not_processed_files = db.read_keys('cache-transfer-log', measurement='fault_files')
     entries = {}
@@ -412,9 +412,9 @@ def compare_cache_entries(key, cache1, cache2, fromTS=None, toTS=None,
         msg = f'{ts}-{ts + delta}@{key}?{None}\n###?\n'
         msg = msg.encode()
 
-        # Querying InfluxDB
+        # Querying InfluxDB2
         output1 = query_cache(cache1, 14869, msg)
-        # Creates dict of timestamps and values. InfluxDB and FlatfileDB
+        # Creates dict of timestamps and values. InfluxDB2 and FlatfileDB
         # return timestamps with different precision, for that TSs
         # are rounded before stored
         table1 = {}
@@ -445,7 +445,7 @@ def compare_cache_entries(key, cache1, cache2, fromTS=None, toTS=None,
             print(datetime.utcfromtimestamp(ts),
                   'Ok' if table1 == table2 else f'Not ok {ts} {ts + delta}')
             if table1 != table2 and delta <= 60:
-                print('InfluxDB values:\n', table1)
+                print('InfluxDB2 values:\n', table1)
                 print('FlatfileDB values:\n', table2)
                 print()
 
@@ -458,7 +458,7 @@ def compare_onekey(influxUrl, key, tsfrom, tsto, cache1, cache2):
     Tool to compare entries for a single key/subkey.
 
     Args:
-        influxUrl: Url to InfluxDB instance
+        influxUrl: Url to InfluxDB2 instance
         key: nicos key/subkey
         tsfrom: timestamp of the beginning of the interested time range
         tsto: timestamp of the end of the interested time range
@@ -466,7 +466,7 @@ def compare_onekey(influxUrl, key, tsfrom, tsto, cache1, cache2):
         cache2: address of 2nd nicos cache, the port is assumed at 14870
     """
 
-    log = TransferLog(influxUrl, 'influxdb', 'mlz', 'compare-log')
+    log = TransferLog(influxUrl, 'influxdb2', 'mlz', 'compare-log')
     processed = log.read_processed('processed', key) + \
                 log.read_processed('errored_days', key)
     gen = compare_cache_entries(key, cache1, cache2, tsfrom, tsto,
@@ -480,15 +480,15 @@ def compare_onekey(influxUrl, key, tsfrom, tsto, cache1, cache2):
 
 def compare_progress(influxUrl, total_entries):
     """
-    Runs in a separate process, checks with InfluxDB and outputs to the standard
-    output the status of comparing process.
+    Runs in a separate process, checks with InfluxDB2 and outputs to the
+    standard output the status of comparing process.
 
     Args:
-        influxUrl: Url to InfluxDB instance
+        influxUrl: Url to InfluxDB2 instance
         total_entries: total number of checks
     """
 
-    log = TransferLog(influxUrl, 'influxdb', 'mlz', 'compare-log')
+    log = TransferLog(influxUrl, 'influxdb2', 'mlz', 'compare-log')
     count, errors = 0, 0
     while count + errors < total_entries:
         count = log.count_entry('processed')
@@ -506,7 +506,7 @@ def compare_all(influxUrl, cache1, cache2, tsfrom, tsto):
     Automation tool to compare_cache_entries()
 
     Args:
-        influxUrl: Url to InfluxDB instance
+        influxUrl: Url to InfluxDB2 instance
         cache1: address of 1st nicos cache, the port is assumed at 14869
         cache2: address of 2nd nicos cache, the port is assumed at 14870
         tsfrom: timestamp of the beginning of the interested time range
@@ -517,7 +517,7 @@ def compare_all(influxUrl, cache1, cache2, tsfrom, tsto):
     tsto = float(tsto)
 
     # Creates dict with all keys/subkeys to have an idea how much work to do
-    db = InfluxDB(influxUrl, 'influxdb', 'mlz')
+    db = InfluxDB2(influxUrl, 'influxdb2', 'mlz')
     keys = db.read_keys('nicos-cache', tsfrom, tsto)
     table, key_count = {}, 0
     for key in keys:
@@ -541,13 +541,13 @@ def compare_all(influxUrl, cache1, cache2, tsfrom, tsto):
 
 def read_compare_errors(influxUrl):
     """
-    Outputs from the InfluxDB all the errors related to comparing process.
+    Outputs from the InfluxDB2 all the errors related to comparing process.
 
     Args:
-        influxUrl: Url to InfluxDB instance
+        influxUrl: Url to InfluxDB2 instance
     """
 
-    db = TransferLog(influxUrl, 'influxdb', 'mlz', 'compare-log')
+    db = TransferLog(influxUrl, 'influxdb2', 'mlz', 'compare-log')
     keys = db.read_keys('compare-log', measurement='errored_days')
     entries = {}
     for key in keys:
@@ -560,17 +560,17 @@ def read_compare_errors(influxUrl):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=
-        'Copy nicos cache to InfluxDB 2.0 tool.')
+        'Copy nicos cache to InfluxDB2 tool.')
     subparsers = parser.add_subparsers(dest='command')
     copy_parser = subparsers.add_parser('copy', help=
         'Copy cache, see copy -h')
-    copy_parser.add_argument('influxUrl', help='The URL to InfluxDB instance')
+    copy_parser.add_argument('influxUrl', help='The URL to InfluxDB2 instance')
     copy_parser.add_argument('cachePath', help='The local path to nicos cache')
 
     readErrors_parser = subparsers.add_parser('read-copy-errors', help=
         'Read copying log, see read-copy-errors -h')
     readErrors_parser.add_argument('influxUrl', help=
-        'The URL to InfluxDB instance.')
+        'The URL to InfluxDB2 instance.')
 
     compare_parser = subparsers.add_parser('compare-cache-entries', help=
         'Compare values from 2 nicos caches, see compare-cache-entries -h')
@@ -586,7 +586,7 @@ if __name__ == '__main__':
     compareAll = subparsers.add_parser('compare-all', help=
         'Automated tool to compare all available cache entries, '
         'see compare-all -h')
-    compareAll.add_argument('influxUrl', help='The URL to InfluxDB instance')
+    compareAll.add_argument('influxUrl', help='The URL to InfluxDB2 instance')
     compareAll.add_argument('cache1', help='Address of 1st nicos-cache, '
                                            'assumed the port is 14869')
     compareAll.add_argument('cache2', help='Address of 2nd nicos-cache '
@@ -597,7 +597,7 @@ if __name__ == '__main__':
     readCompare_parser = subparsers.add_parser('read-compare-errors', help=
         'Read compare log, see read-compare-errors -h')
     readCompare_parser.add_argument('influxUrl', help=
-        'The URL to InfluxDB instance.')
+        'The URL to InfluxDB2 instance.')
 
     args = parser.parse_args()
 
