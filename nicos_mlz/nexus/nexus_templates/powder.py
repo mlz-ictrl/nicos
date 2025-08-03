@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-from nicos.nexus.elements import DetectorDataset, DeviceDataset, NXLink
+from nicos.nexus.elements import DeviceDataset, ImageDataset, NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, \
     TimerMonitor, axis1, signal
@@ -49,7 +49,7 @@ class PowderTemplateProvider(MLZTemplateProvider):
     def updateDetector(self):
         self._det.update({
             'polar_angle': DeviceDataset(self.tths, axis=axis1),
-            'data': DetectorDataset(self.det, int, signal=signal),
+            'data': ImageDataset(0, 0, dtype=int, signal=signal),
         })
         self._entry.update({
             'mon:NXmonitor': CounterMonitor(self.mon),
