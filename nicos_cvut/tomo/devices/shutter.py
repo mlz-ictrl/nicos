@@ -71,6 +71,7 @@ class Shutter(BaseSequencer):
            self._attached_open_signal.read(maxage):
             return status.ERROR, f'Shutter neither {self.valuetype.vals[0]!r}' \
                 f' nor {self.valuetype.vals[1]!r}'
+        return status.OK, ''
 
     def doRead(self, maxage=0):
         if self._attached_closed_signal.read(maxage) == self.signal_value:
