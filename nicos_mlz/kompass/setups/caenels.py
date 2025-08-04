@@ -1,6 +1,6 @@
 description = 'CAEN ELS FAST powersupplies'
 
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 

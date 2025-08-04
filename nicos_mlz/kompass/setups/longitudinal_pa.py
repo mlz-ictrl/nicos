@@ -79,7 +79,7 @@ devices = dict(
     ),
 )
 
-for i in range(8):
+for i in range(9):
     devices[f'kepco{i}_current'] = device('nicos.devices.entangle.PowerSupply',
         description = f'kepco power supply {i}',
         tangodevice = tango_base + f'kepco/current{i}',
