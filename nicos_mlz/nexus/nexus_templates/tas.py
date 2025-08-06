@@ -64,7 +64,6 @@ class TasTemplateProvider(MLZTemplateProvider):
                 'd_spacing': DeviceDataset(self.mono, 'dvalue', units=aa),
                 'reflection': Reflection(self.mono),
                 'rotation_angle': ScanDeviceDataset(self.mth),
-                'polar_angle': ScanDeviceDataset(self.mtt),
                 'ei': ScanDeviceDataset(self.ei, axis=axis1),
                 'wavelength': DeviceDataset(self.mono, unit='A-1'),
                 'focus_mode': DeviceDataset(self.mono, 'focmode', dtype='string'),
@@ -75,7 +74,7 @@ class TasTemplateProvider(MLZTemplateProvider):
                 'd_spacing': DeviceDataset(self.ana, 'dvalue', units=aa),
                 'reflection': Reflection(self.ana),
                 'rotation_angle': ScanDeviceDataset(self.ath),
-                'polar_angle': ScanDeviceDataset(self.att),
+                'polar_angle': ScanDeviceDataset(self.stt),
                 'ef': ScanDeviceDataset(self.ef, axis=axis1),
                 'wavelength': DeviceDataset(self.ana, units='A-1'),
                 'focus_mode': DeviceDataset(self.ana, 'focmode', dtype='string'),
@@ -121,12 +120,14 @@ class TasTemplateProvider(MLZTemplateProvider):
             'unit_cell': CellArray(),
             'sgu': ScanDeviceDataset(self.sgu),
             'sgl': ScanDeviceDataset(self.sgl),
-            'polar_angle': ScanDeviceDataset(self.stt),
+            'polar_angle': ScanDeviceDataset(self.mtt),
             'rotation_angle': ScanDeviceDataset(self.sth),
             'qh': ScanDeviceDataset('h', units=nounit, axis=axis1),
             'qk': ScanDeviceDataset('k', units=nounit, axis=axis1),
             'ql': ScanDeviceDataset('l', units=nounit, axis=axis1),
             'en': ScanDeviceDataset('E', axis=axis1),
+            'sgx': NXLink('sgu'),
+            'sgy': NXLink('sgl'),
         })
 
     def updateData(self):
