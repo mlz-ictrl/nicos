@@ -42,6 +42,10 @@ class TasTemplateProvider(MLZTemplateProvider):
         self.sth = kwargs.get('psi', 'psi')
         self.ana = kwargs.get('ana', 'ana')
         self.mono = kwargs.get('mono', 'mono')
+        self.mth = kwargs.get('mth', 'mth')
+        self.mtt = kwargs.get('mtt', 'mtt')
+        self.ath = kwargs.get('ath', 'ath')
+        self.att = kwargs.get('att', 'att')
         self.ei = kwargs.get('ei', 'Ei')
         self.ef = kwargs.get('ef', 'Ef')
 
@@ -52,8 +56,8 @@ class TasTemplateProvider(MLZTemplateProvider):
                 'type': DeviceDataset(self.mono, 'material'),
                 'd_spacing': DeviceDataset(self.mono, 'dvalue', units=aa),
                 'reflection': Reflection(self.mono),
-                'rotation_angle': ScanDeviceDataset('mth'),
-                'polar_angle': ScanDeviceDataset('mtt'),
+                'rotation_angle': ScanDeviceDataset(self.mth),
+                'polar_angle': ScanDeviceDataset(self.mtt),
                 'ei': ScanDeviceDataset(self.ei, axis=axis1),
                 'wavelength': DeviceDataset(self.mono, unit='A-1'),
             },
@@ -62,8 +66,8 @@ class TasTemplateProvider(MLZTemplateProvider):
                 'type': DeviceDataset(self.ana, 'material'),
                 'd_spacing': DeviceDataset(self.ana, 'dvalue', units=aa),
                 'reflection': Reflection(self.ana),
-                'rotation_angle': ScanDeviceDataset('ath'),
-                'polar_angle': ScanDeviceDataset('att'),
+                'rotation_angle': ScanDeviceDataset(self.ath),
+                'polar_angle': ScanDeviceDataset(self.att),
                 'ef': ScanDeviceDataset(self.ef, axis=axis1),
                 'wavelength': DeviceDataset(self.ana, units='A-1'),
             },
@@ -71,7 +75,7 @@ class TasTemplateProvider(MLZTemplateProvider):
 
     def updateDetector(self):
         self._det.update({
-            'polar_angle': ScanDeviceDataset('att'),
+            'polar_angle': ScanDeviceDataset(self.att),
             'data': DetectorDataset(self.det, dtype='int', units=counts,
                                     signal=signal),
         })
