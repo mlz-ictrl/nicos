@@ -221,7 +221,7 @@ class DeviceDataset(NexusElementBase):
                 self.determineType()
             except Exception as e:
                 session.log.warning(
-                    'Warning: failed to locate data for %s %s in NICOS (%s)',
+                    'NeXus: failed to locate data for %s %s in NICOS (%s)',
                     self.device, self.parameter, e)
                 return
         if self.parameter == 'value':
@@ -289,7 +289,7 @@ class DeviceDataset(NexusElementBase):
                     parent[name] = dset
                     dset.attrs['target'] = np.string_(dset.name)
                 else:
-                    session.log.warning('Trying to create %s a second time',
+                    session.log.warning('NeXus: Trying to create %s a second time',
                                         name)
 
 
@@ -360,12 +360,16 @@ class DetectorDataset(NexusElementBase):
         else:
             try:
                 val = sinkhandler.dataset.values[self.nicosname]
+            except KeyError:
+                session.log.warning('NeXus: failed to find result for %s',
+                                    self.nicosname)
+            try:
                 if self.doAppend:
                     self.resize_dataset(dset)
                 dset[self.np] = val
-            except Exception:
-                session.log.warning('failed to find result for %s',
-                                    self.nicosname)
+            except Exception as err:
+                session.log.warning('NeXus: while processing data for %s: %r',
+                                    self.nicosname, err)
 
 
 class ImageDataset(NexusElementBase):
@@ -387,7 +391,7 @@ class ImageDataset(NexusElementBase):
     def create(self, name, h5parent, sinkhandler):
         self.testAppend(sinkhandler)
         if len(sinkhandler.dataset.detectors) <= self.detectorIDX:
-            session.log.warning('Cannot find detector with ID %d',
+            session.log.warning('NeXus: Cannot find detector with ID %d',
                                 self.detectorIDX)
             self.valid = False
             return
@@ -489,7 +493,7 @@ class NXLink(NexusElementBase):
                 other = h5parent[self.target]
             except KeyError:
                 session.log.warning(
-                    'Cannot link %s to %s, target does not exist',
+                    'NeXus: Cannot link %s to %s, target does not exist',
                     name, self.target)
                 return
             h5parent[name] = other
@@ -718,15 +722,15 @@ class NXExternalLink(NexusElementBase):
                 h5parent[name] = h5py.ExternalLink(self.filename, self.objpath)
                 self._link_created = True
             except Exception as e:
-                session.log.warning('Failed to create external link: %s', e)
+                session.log.warning('NeXus: Failed to create external link: %s', e)
                 # Ignore and retry: the external file may not yet exist
 
     def test_written(self, name, h5obj):
         if not self._link_created:
-            session.log.warning('Failed to create external link into %s, '
+            session.log.warning('NeXus: Failed to create external link into %s, '
                                 'path %s', self.filename, self.objpath)
         try:
             h5obj[name]
         except KeyError:
-            session.log.warning('Failed to create external link into %s, '
+            session.log.warning('NeXus: Failed to create external link into %s, '
                                 'path %s', self.filename, self.objpath)
