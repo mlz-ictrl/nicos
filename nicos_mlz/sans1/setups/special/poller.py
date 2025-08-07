@@ -15,5 +15,6 @@ devices = dict(
                       'ubahn', 'outerworld',
         ],
         blacklist = [],
+        neverpoll = ['det1'],
    ),
 )
