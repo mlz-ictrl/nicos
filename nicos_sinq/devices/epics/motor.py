@@ -26,10 +26,9 @@ from nicos.core import Param, status
 from nicos.core.errors import UsageError
 from nicos.core.params import Override, none_or, oneof, pvname
 from nicos.devices.epics.pyepics.motor import EpicsMotor as CoreEpicsMotor
-from nicos_sinq.devices.dynamic_userlimits import DynamicUserlimits
 
 
-class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
+class SinqMotor(CoreEpicsMotor):
 
     parameters = {
         'can_disable': Param('Whether the motor can be enabled/disabled using '
@@ -45,9 +44,6 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
 
     parameter_overrides = {
         'precision': Override(volatile=True),
-        # Necessary since DynamicUserlimits overrides the override in
-        # CoreEpicsMotor
-        'abslimits': Override(volatile=True, mandatory=False),
     }
 
     # Additional SINQ-specific record names which extend the basic motor record
@@ -189,17 +185,6 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
     def doReset(self):
         self._put_pv_checked('reseterrorpv', 1)
 
-    def doReadUserlimits(self):
-        return DynamicUserlimits.doReadUserlimits(self)
-
-    def doWriteUserlimits(self, value):
-        DynamicUserlimits.doWriteUserlimits(self, value)
-        return CoreEpicsMotor.doWriteUserlimits(self, value)
-
     def doPoll(self, n, maxage):
         CoreEpicsMotor.doPoll(self, n, maxage)
-
-        # Poll the userlimits AFTER the absolute limits, which are polled in the
-        # poll method of CoreEpicsMotor. The doReadUserlimits uses the absolute
-        # limits, hence they needed to be polled first.
-        self.pollParams('can_disable', 'encoder_type', 'userlimits')
+        self.pollParams('can_disable', 'encoder_type')

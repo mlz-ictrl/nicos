@@ -30,6 +30,7 @@ from time import time as current_time
 from nicos.clients.flowui import uipath
 from nicos.clients.flowui.panels import get_icon, root_path
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
+from nicos.clients.flowui.panels.status import ScriptStatusPanel
 from nicos.guisupport.qt import QIcon, QLabel, QMenu, QPixmap, QPoint, \
     QSizePolicy, Qt, QWidget, pyqtSlot
 from nicos.utils import findResource
@@ -77,7 +78,6 @@ class MainWindow(DefaultMainWindow):
         self.actionUser.setIconVisibleInMenu(True)
         self.dropdown = dropdown
         self.actionExpert.setEnabled(self.client.isconnected)
-        self.actionEmergencyStop.setEnabled(self.client.isconnected)
 
         self._init_instrument_name()
         self._init_experiment_name()
@@ -93,6 +93,13 @@ class MainWindow(DefaultMainWindow):
         self.status_text.setStyleSheet('font-size: 17pt')
 
         self.toolbar = self.toolBarRight
+
+        for panel in self.panels:
+            if isinstance(panel, ScriptStatusPanel):
+                self.toolbar.addAction(panel.actionFinishEarlyAndStop)
+                self.toolbar.addAction(panel.actionEmergencyStop)
+                break
+
         self.toolbar.addWidget(self.status_text)
         self.toolbar.addWidget(self.status_label)
 
@@ -126,9 +133,6 @@ class MainWindow(DefaultMainWindow):
 
     def set_icons(self):
         self.actionUser.setIcon(get_icon('settings_applications-24px.svg'))
-        self.actionEmergencyStop.setIcon(
-            get_icon('emergency_stop_cross_red-24px.svg')
-        )
         self.actionConnect.setIcon(get_icon('power-24px.svg'))
         self.actionExit.setIcon(get_icon('exit_to_app-24px.svg'))
         self.actionViewOnly.setIcon(get_icon('lock-24px.svg'))
@@ -242,7 +246,6 @@ class MainWindow(DefaultMainWindow):
         self.actionConnect.setIcon(get_icon('power_off-24px.svg'))
         self.actionExpert.setEnabled(True)
         self.actionViewOnly.setEnabled(True)
-        self.actionEmergencyStop.setEnabled(not self.client.viewonly)
         self.actionConnect.setText('Disconnect')
 
     def on_client_disconnected(self):
@@ -251,15 +254,7 @@ class MainWindow(DefaultMainWindow):
         self.actionConnect.setText('Connect to server...')
         self.actionExpert.setEnabled(False)
         self.actionViewOnly.setEnabled(False)
-        self.actionEmergencyStop.setEnabled(False)
         self.setTitlebar(False)
-
-    def on_actionViewOnly_toggled(self, on):
-        DefaultMainWindow.on_actionViewOnly_toggled(self, on)
-        if self.client.isconnected:
-            self.actionEmergencyStop.setEnabled(not self.client.viewonly)
-        else:
-            self.actionEmergencyStop.setEnabled(False)
 
     @pyqtSlot(bool)
     def on_actionConnect_triggered(self, _):
@@ -271,7 +266,3 @@ class MainWindow(DefaultMainWindow):
     def on_actionUser_triggered(self):
         w = self.toolBarRight.widgetForAction(self.actionUser)
         self.dropdown.popup(w.mapToGlobal(QPoint(0, w.height())))
-
-    @pyqtSlot()
-    def on_actionEmergencyStop_triggered(self):
-        self.client.tell_action('emergency')
