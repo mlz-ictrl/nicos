@@ -55,7 +55,7 @@ devices = dict(
     ),
     LiveImgSink = device('nicos.devices.datasinks.PNGLiveFileSink',
         description = 'Saves live image as .png every now and then',
-        filename = '/resedacontrol/webroot/live.png',
+        filename = '/control/webroot/live.png',
         interval = 1,
     ),
 )
