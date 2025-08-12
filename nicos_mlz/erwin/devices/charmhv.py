@@ -165,6 +165,10 @@ class HVSwitch(SequencerMixin, MappedMoveable):
     def doIsAllowed(self, target):
         if target == self.offstate:
             return True, ''
+        if target == self.safestate:
+            if self.read(0) == self.offstate:
+                return False, f'Only from {self.onstate!r} target '\
+                    f'{self.safestate!r} is allowed'
         ok = not self.tripped
         return ok, '' if ok else 'hardware is tripped'
 
