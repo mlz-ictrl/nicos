@@ -399,18 +399,12 @@ try {
                 checkoutSource()
                 def kafkaversion="4.0.0"
                 docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/kafka:${kafkaversion}").withRun() { kafka ->
-                    def influxdbversion = "0.0.2"
+                    def influxdbversion = "2.7.12"
                     docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/influxdb:${influxdbversion}").withRun() { influxdb ->
-                        token = sh (
-                           script: """
-                               docker exec ${influxdb.id} sh -c \"influx config ls --json | jq -r '.default.token'\"
-                           """,
-                           returnStdout: true
-                        ).trim()
                         buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB2_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
                             sh """
                             . \$NICOS3VENV/bin/activate
-                            ./bin/nicos-keystore add influxdb2 --storagepw nicos --password ${token}
+                            ./bin/nicos-keystore add influxdb2 --storagepw nicos --password token
                             """
                             runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
                         } // image.inside
