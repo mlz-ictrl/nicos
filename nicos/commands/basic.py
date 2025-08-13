@@ -352,6 +352,7 @@ def CreateDevice(*devnames):
         if not isinstance(devname, str):
             raise UsageError('CreateDevice() arguments must be strings')
         session.createDevice(devname, explicit=True)
+        session.kickDevicePoller(devname)
 
 
 @usercommand
@@ -402,8 +403,11 @@ def CreateAllDevices(lowlevel=False):
             if 'namespace' not in devconfig.get('visibility', ('namespace,')) \
                and not lowlevel:
                 continue
+            existed_already = devname in session.devices
             try:
                 session.createDevice(devname, explicit=True)
+                if not existed_already:
+                    session.kickDevicePoller(devname)
             except NicosError:
                 session.log.exception('error creating %s', devname)
     finally:

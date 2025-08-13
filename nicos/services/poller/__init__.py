@@ -189,6 +189,8 @@ class Poller(Device):
                             except Exception:
                                 dev.log.warning('error polling parameter %s',
                                                 event[10:], exc=True)
+                        elif event == 'retry':  # just wakes up the queue
+                            pass
 
                     except queue.Empty:
                         pass  # just poll if timed out
@@ -280,12 +282,19 @@ class Poller(Device):
         # end of while not self._stoprequest
     # end of _worker_thread
 
-    def enqueue_params_poll(self, key, value, time, tell):
-        dev, key = key[len('poller/'):].split('/', 2)
+    def command_callback(self, key, value, time, tell):
+        """Callback for "commands" sent to the poller via special keys using
+        the poller/ prefix.
+        """
+        dev, cmd = key[len('poller/'):].split('/', 2)
+        self.log.debug('got poller command %s for %s: %s', cmd, dev, value)
         if dev in self._workers:
             worker = self._workers[dev]
-            for param in value:
-                worker.work_queue.put('pollparam:%s' % param)
+            if cmd == 'pollparams':
+                for param in value:
+                    worker.work_queue.put('pollparam:%s' % param)
+            elif cmd == 'retry':
+                worker.work_queue.put('retry')  # value has no effect
 
     def start(self, setup=None):
         self._setup = setup
@@ -329,7 +338,7 @@ class Poller(Device):
                 # start staggered to not poll all devs at once....
                 # use just a small delay, exact value does not matter
                 sleep(0.0719)
-            session.cache.addPrefixCallback('poller', self.enqueue_params_poll)
+            session.cache.addPrefixCallback('poller', self.command_callback)
 
         except ConfigurationError as err:
             self.log.warning('Setup %r has failed to load!', setup)

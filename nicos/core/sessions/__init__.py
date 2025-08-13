@@ -1180,6 +1180,15 @@ class Session:
             self.export(devname, dev)
         return dev
 
+    def kickDevicePoller(self, devname):
+        """Send a message to the poller to try creating or polling the given
+        device immediately, instead of waiting for a backoff to cool down after
+        errors.
+        """
+        if self.cache:
+            self.cache.put_raw(f'poller/{devname}/retry',
+                               str(currenttime()), flag=FLAG_NO_STORE)
+
     def destroyDevice(self, devname):
         """Shutdown a device and remove it from the list of created devices."""
         self.device_failures.pop(devname, None)
