@@ -61,7 +61,7 @@ devices = dict(
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.dat']
     ),
     caresssink = device('nicos_mlz.stressi.datasinks.CaressScanfileSink',
-        filenametemplate = ['xresd%(scancounter)08d.dat'],
+        filenametemplate = ['rsxrd%(scancounter)08d.dat'],
         detectors = ['adet'],
     ),
 )
