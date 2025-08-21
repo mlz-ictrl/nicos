@@ -30,7 +30,6 @@ from nicos.guisupport.qt import QToolBar
 class ScriptStatusPanel(DefaultScriptStatusPanel):
     def __init__(self, parent, client, options):
         DefaultScriptStatusPanel.__init__(self, parent, client, options)
-        self.bar.addAction(self.actionFinishEarlyAndStop)
         self.set_icons()
         menuToolBar = QToolBar('Script control 2')
         menuToolBar.addActions(self.bar.actions())
@@ -38,7 +37,8 @@ class ScriptStatusPanel(DefaultScriptStatusPanel):
 
     def getToolbars(self):
         # we do not want to have these buttons in the middle of
-        # the toolbar, as they already appear to the right
+        # the toolbar, as the 'stop script' button is rarely used and
+        # the 'stop all' button already appears to the right
         return []
 
     def set_icons(self):
@@ -46,9 +46,9 @@ class ScriptStatusPanel(DefaultScriptStatusPanel):
         self.actionBreak2.setIcon(get_icon('pause-24px.svg'))
         self.actionBreakCount.setIcon(get_icon('pause_red-24px.svg'))
         self.actionContinue.setIcon(get_icon('play_arrow-24px.svg'))
-        self.actionEmergencyStop.setIcon(get_icon('emergency_stop-24px.svg'))
+        self.actionEmergencyStop.setIcon(get_icon('stop_now-24px.svg'))
         self.actionFinish.setIcon(get_icon('done-24px.svg'))
         self.actionFinishEarly.setIcon(get_icon('finish_early-24px.svg'))
-        self.actionFinishEarlyAndStop.setIcon(get_icon('stop_now-24px.svg'))
+        self.actionFinishEarlyAndStop.setIcon(get_icon('skip_next-24px.svg'))
         self.actionStop.setIcon(get_icon('stop-24px.svg'))
         self.actionStop2.setIcon(get_icon('stop-24px.svg'))

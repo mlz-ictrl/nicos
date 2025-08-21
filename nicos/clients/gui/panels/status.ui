@@ -287,10 +287,10 @@
      <normaloff>:/emergency</normaloff>:/emergency</iconset>
    </property>
    <property name="text">
-    <string>&amp;Emergency Stop</string>
+    <string>&amp;Immediate Stop</string>
    </property>
    <property name="toolTip">
-    <string>stops all devices including sample environment</string>
+    <string>stops script and most devices</string>
    </property>
   </action>
   <action name="actionFinish">
