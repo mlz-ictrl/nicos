@@ -30,6 +30,7 @@ import scipy
 # pylint: disable=import-error
 try:
     import uncertainties
+    from nicos_jcns.moke01.utils import calculate
 except ModuleNotFoundError:
     uncertainties = None
 
@@ -41,7 +42,6 @@ except ModuleNotFoundError:
 from nicos.utils.functioncurves import AffineScalarFunc, Curve2D, \
     CurvePoint2D, Curves
 
-from nicos_jcns.moke01.utils import calculate
 
 session_setup = 'moke01'
 

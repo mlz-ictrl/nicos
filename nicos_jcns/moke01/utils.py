@@ -22,8 +22,12 @@
 # *****************************************************************************
 
 import math
+from random import randint
 
-from nicos.utils.functioncurves import Curve2D, Curves
+import numpy
+import scipy
+
+from nicos.utils.functioncurves import Curve2D, Curves, ufloat
 from nicos.utils.functioncurves.calcs import mean
 
 
@@ -188,3 +192,36 @@ def asciitable(data):
                 res += f'{col:>{w}}   '
             res += '\n'
     return res
+
+
+def generate_intvb(Bmin, Bmax):
+    """Generates two ``Int(B)`` curves to account for hysteresis for a given
+    magnetic field range, similar to what can be obtained in a real MOKE
+    experiment.
+    The curves are generated using an error function having some randomized
+    input to affect its shape. The values have randomized jitter and instrument
+    error. Finally, the error functions are distorted by adding to them random
+    small linear component.
+    :param Bmin: minimum value of the magnetic field range
+    :param Bmax: minimum value of the magnetic field range
+    :return: two Curve2D ``Int(B)`` curves wrapped in Curves class
+    """
+    # width of hysteresis
+    width = randint(5, 15) / 10
+    # how sharp is the rise
+    sharp = randint(10, 20) / 1e3
+    # take 100 data points for the range
+    x = numpy.linspace(Bmin, Bmax, 100, True)
+    # increasing curve with random jitter
+    y1 = (scipy.special.erf(x * sharp + width) / 20 + 1.65) * 1e3
+    y1 = [ufloat(y * (randint(1, 10) / 1e4 + 1), randint(1, 10) / 1000) for y in y1]
+    # decreasing curve with random jitter
+    y2 = (scipy.special.erf(x * sharp - width) / 20 + 1.649) * 1e3
+    y2 = [ufloat(y * (randint(1, 10) / 1e4 + 1), randint(1, 10) / 1000) for y in y2]
+    IntvB = Curves([Curve2D.from_x_y(x, y1), Curve2D.from_x_y(x[::-1], y2[::-1])])
+    # random inclination
+    k = randint(0, 20) / 1e3
+    x = numpy.array([Bmin, Bmax])
+    y = k * x
+    line = Curve2D.from_x_y(x, y)
+    return Curves([IntvB[0] + line, IntvB[1] + line])
