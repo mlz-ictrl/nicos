@@ -28,9 +28,10 @@ Tests for the functioncurve Curves class
 import pickle
 from random import randint
 
-import numpy
+import pytest
 
 from nicos.utils.functioncurves import Curve2D, Curves
+from nicos.utils.functioncurves.calcs import mean
 
 
 def test_basic():
@@ -60,10 +61,20 @@ def test_increasing_decreasing():
 
 
 def test_mean():
-    y1, y2 = randint(0, 100), randint(0, 100)
-    m, s = numpy.mean([y1, y2]), numpy.std([y1, y2])
-    curve1 = Curve2D([(1, y1), (10, y1)])
-    curve2 = Curve2D([(1, y2), (10, y2)])
-    curves = Curves([curve1, curve2])
-    assert curves.mean().y[0].n == m and curves.mean().y[0].s == s
-    assert curves.mean().y[1].n == m and curves.mean().y[1].s == s
+    # test fucntioncurves.calcs.mean
+    x = [1, 2, 3]
+    dx1 = [0.1, 0.1, 0.1]
+    dx2 = [0.1, 0.2, 0.3]
+    assert mean(x).n == mean(x, dx1).n == pytest.approx(2.0)
+    assert mean(x).s / mean(x, dx1).s == pytest.approx(10.0)
+    assert mean(x, dx2).n == pytest.approx(1.35, rel=0.01)
+    assert mean(x, dx2).s == pytest.approx(0.09, rel=0.1)
+    # test Curve.mean() erturns values
+    x = list(range(1, 10))
+    v = randint(1, 100)
+    y1 = [v + (randint(1, 200) - 100) / 100 for _ in x]
+    y2 = [v + (randint(1, 200) - 100) / 100 for _ in x]
+    curves = Curves([list(zip(x, y1)), list(zip(x, y2))])
+    assert curves.mean() is not None
+    assert curves.mean().y[1].n is not None
+    assert curves.mean().y[1].s is not None

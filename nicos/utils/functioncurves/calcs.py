@@ -29,25 +29,29 @@ from .imports import AffineScalarFunc, ufloat
 
 
 def mean(x, dx=None):
-    """Uncertainties-friendly mean calculation algorithm.
-    x: python list of values with uncertainties or nominal values
-    dx: python list of standard deviations corresponding to nominal values in x
+    """Uncertainties-friendly weighted mean calculation algorithm.
+    x: python list of measurement points (nominal values or values with uncertainties)
+    dx: optional python list of error values related to nominal values of
+    measurement points in x
     """
     if isinstance(x[0], AffineScalarFunc):
         dx = [i.s for i in x]
         x = [i.n for i in x]
     x = numpy.array(x)
     dx = numpy.array(dx)
-    mn = std = 0
+    mn = er = 0
     n = len(x)
     if n:
         mn = x[0]
-        std = dx[0] if dx.any() else 0
+        er = dx[0] if dx.any() else 0
     if n > 1:
-        mn = numpy.mean(x)
-        std = numpy.std(x) if not dx.any() else \
-            (numpy.sum((x - mn) ** 2 + dx ** 2) / (n - 1)) ** 0.5
-    return ufloat(mn, std)
+        if dx.any() and 0 not in dx:
+            mn = numpy.sum(x / dx ** 2) / numpy.sum(1 / dx ** 2)
+            er = (1 / numpy.sum(1 / dx ** 2)) ** 0.5
+        else:
+            mn = numpy.mean(x)
+            er = numpy.std(x, ddof=1) / n ** 0.5
+    return ufloat(mn, er)
 
 
 def _lsm(x, y):

@@ -45,6 +45,43 @@ from nicos.utils.functioncurves import Curve2D, Curves
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 
+class MokePlotCurve(MaskedPlotCurve):
+
+    ShowAll = 0
+    HideErrorBars = 1
+    HideAll = 2
+
+    def __init__(self, *args, **kwargs):
+        MaskedPlotCurve.__init__(self, *args, **kwargs)
+        self._show_error_bars = True
+        self._status = MokePlotCurve.ShowAll
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
+        if self.status == MokePlotCurve.ShowAll:
+            self.visible = True
+            self._show_error_bars = True
+        elif self.status == MokePlotCurve.HideErrorBars:
+            self.visible = True
+            self._show_error_bars = False
+        else:
+            self.visible = False
+            self._show_error_bars = False
+
+    @property
+    def errorBar1(self):
+        return self._e1 if self._show_error_bars else None
+
+    @property
+    def errorBar2(self):
+        return self._e2 if self._show_error_bars else None
+
+
 class MokePlot(LiveWidget1D):
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
         LiveWidget1D.__init__(self, parent, **kwds)
@@ -77,10 +114,9 @@ class MokePlot(LiveWidget1D):
         y_err = ErrorBar(x, y, dy, direction=ErrorBar.VERTICAL,
                          markercolor=color, linecolor=color) if dy else None
         self._curves.append(
-            MaskedPlotCurve(x, y, errBar1=x_err, errBar2=y_err,
-                            linewidth=1, legend=legend,
-                            markertype=GRMARKS['solidsquare'],
-                            markercolor=color, linecolor=color),
+            MokePlotCurve(x, y, errBar1=x_err, errBar2=y_err, linewidth=1,
+                          legend=legend, markertype=GRMARKS['solidsquare'],
+                          markercolor=color, linecolor=color),
         )
         self._curves[-1].markersize = 0.5
         self.axes.addCurves(self._curves[-1])
@@ -117,7 +153,10 @@ class MokePlot(LiveWidget1D):
 
     def on_legendItemClicked(self, event):
         if event.getButtons() & MouseEvent.LEFT_BUTTON:
-            event.curve.visible = not event.curve.visible
+            event.curve.status = (event.curve.status + 1) % 3
+            self._update()
+        if event.getButtons() & MouseEvent.RIGHT_BUTTON:
+            event.curve.status = (event.curve.status - 1) % 3
             self._update()
 
 
@@ -145,7 +184,7 @@ class MokeBase(Panel):
             return
 
         IntvB = self.m['IntvB']
-        int_mean = IntvB.series_to_curves().amean().yvx(0) # [mV]
+        int_mean = IntvB.series_to_curves().mean().yvx(0) # [mV]
         if self.chk_subtract_baseline.isChecked():
             if 'baseline' in self.m and self.m['baseline']:
                 IntvB -= self.m['baseline'] # ([mT, mV])
@@ -278,7 +317,7 @@ class MokePanel(NicosWidget, MokeBase):
             # IntvB can be fetched from MagB._IntvB
             if self.m:
                 IntvB = self.client.eval('session.getDevice("MagB")._IntvB')
-                int_mean = IntvB.series_to_curves().amean().yvx(0)
+                int_mean = IntvB.series_to_curves().mean().yvx(0)
                 if self.chk_subtract_baseline.isChecked() and IntvB:
                     if 'baseline' in self.m and self.m['baseline']:
                         IntvB -= self.m['baseline']
@@ -314,7 +353,7 @@ class MokePanel(NicosWidget, MokeBase):
                 self.plot_IntvB.reset()
                 if self.m['IntvB']:
                     IntvB = self.m['IntvB']
-                    int_mean = IntvB.series_to_curves().amean().yvx(0)
+                    int_mean = IntvB.series_to_curves().mean().yvx(0)
                     if self.chk_subtract_baseline.isChecked():
                         if 'baseline' in self.m and self.m['baseline']:
                             IntvB -= self.m['baseline']
@@ -506,7 +545,7 @@ class MokeHistory(MokeBase):
             self.m = self.measurements[item.text()]
             self.display_rawdata(generate_output(self.m))
         IntvB = self.m['IntvB']
-        int_mean = IntvB.series_to_curves().amean().yvx(0)
+        int_mean = IntvB.series_to_curves().mean().yvx(0)
         if self.chk_subtract_baseline.isChecked():
             if 'baseline' in self.m and self.m['baseline']:
                 IntvB -= self.m['baseline']

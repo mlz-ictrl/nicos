@@ -83,7 +83,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
         self.progress = self.maxprogress = self.cycle = 0
         self.mode = mrmnt['mode']
         self.ramp = mrmnt['ramp']
-        mrmnt['time'] = datetime.now().strftime('%y%m%d%H%M%S')
+        mrmnt['time'] = datetime.now().strftime('%y%m%d%H%M')
         mrmnt['name'] = f'{mrmnt["time"]}-{mrmnt["id"]}-' \
                         f'{mrmnt["field_orientation"][:3]}-' \
                         f'{mrmnt["exp_type"][:3]}'
