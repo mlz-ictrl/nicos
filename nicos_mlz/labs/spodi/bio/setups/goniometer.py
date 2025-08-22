@@ -1,6 +1,6 @@
-description = 'Sample table devices'
+description = 'Goniometer devices'
 
-setup = 'lowlevel'
+setup = 'optional'
 
 tango_base = 'tango://motorbox10.spodi.frm2.tum.de:10000/box/'
 
