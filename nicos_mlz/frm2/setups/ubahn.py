@@ -10,3 +10,7 @@ devices = dict(
         limit =3 ,
     ),
 )
+
+extended = dict(
+    representative = 'UBahn',
+)

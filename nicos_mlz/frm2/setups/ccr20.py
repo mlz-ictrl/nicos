@@ -173,3 +173,7 @@ monitor_blocks = dict(
         ),
     ], setups=setupname)
 )
+
+extended = dict(
+    representative = f'T_{setupname}',
+)

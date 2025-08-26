@@ -5,3 +5,7 @@ group = 'lowlevel'
 devices = dict(
     sth = device('nicos.devices.generic.DeviceAlias'),
 )
+
+extended = dict(
+    representative = 'sth',
+)

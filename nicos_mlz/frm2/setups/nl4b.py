@@ -16,3 +16,7 @@ devices = dict(
         tangodevice = tango_base + 'shutter/nl4b',
     ),
 )
+
+extended = dict(
+    representative = 'NL4b',
+)

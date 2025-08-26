@@ -11,3 +11,7 @@ devices = dict(
     #     alias = 'OutsideTemp',
     # ),
 )
+
+extended = dict(
+    representative = 'OutsideTemp',
+)

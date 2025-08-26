@@ -89,3 +89,7 @@ alias_config = {
     'T':  {f'T_{setupname}_tube': 200, f'T_{setupname}_stick': 150},
     'Ts': {f'T_{setupname}_A': 100, f'T_{setupname}_B': 90, f'T_{setupname}_D': 20},
 }
+
+extended = dict(
+    representative = f'T_{setupname}',
+)

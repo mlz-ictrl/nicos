@@ -52,3 +52,7 @@ alias_config = {
     'T':  {f'T_{setupname}': 100},
     'Ts': {f'T_{setupname}': 100},
 }
+
+extended = dict(
+    representative = f'T_{setupname}',
+)

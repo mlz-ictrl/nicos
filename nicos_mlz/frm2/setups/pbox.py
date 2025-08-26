@@ -29,3 +29,7 @@ devices = {
         maxage = 5,
     ),
 }
+
+extended = dict(
+    representative = f'P1_{setupname}',
+)

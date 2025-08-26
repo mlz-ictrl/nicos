@@ -113,6 +113,10 @@ alias_config = {
     },
 }
 
+extended = dict(
+    representative = f'T_{setupname}',
+)
+
 startupcode = '''
 printinfo("===== %s =====")
 printinfo("Please set T_%s.regulationmode to either 'stick', 'tube', or 'both' "
