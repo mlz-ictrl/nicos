@@ -112,7 +112,7 @@ Please add the local repository via:
 where 'distro' stands for:
 
      - focal (Ubuntu 20.04)
-     - jammy (Ubunut 22.04)
+     - jammy (Ubuntu 22.04)
      - bullseye (Debian 11)
      - bookworm (Debian 12)
 
