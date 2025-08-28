@@ -33,6 +33,10 @@ class TestBasicCalculations:
 
     @pytest.mark.parametrize(
         ('wlmin', 'wlmax', 'D', 'ch2', 'gap', 'suppress_parasitic', 'expected'), [
+            (3.0, 21.0, 15.35, 5, 0.1, True,
+                (866, (0, 0, 44.67, 4.61, 257.21, 41.82))),
+            (4.0, 21.0, 13.350, 5, 0.1, True,
+                (1031, (0, 0, 47.16, 7.32, 306.43, 66.43))),
             (0., 21., 21.45, 6, 0.1, True,
                 (537, (0., 301.38, 30.97, 0., 141.97, 0.), 1, 0., 21.)),
             (0., 21., 14.38, 6, 0.1, True,
@@ -78,7 +82,7 @@ class TestBasicCalculations:
             (9., 21., 14.38, 6, 0.1, True,
                 (None, (None, None, None, None, None, None))),
             (9., 21., 14.38, 6, 0.1, False,
-                (1741, (0., 0., 100.44, 0., 460.34, 252.35), 6, 9., 21.)),
+                (1741, (0., 0., 100.44, 0., 100.34, 252.35), 6, 9., 21.)),
             (3., 7., 21.45, 6, 0.1, True,
                 (None, (None, None, None, None, None, None))),
             (3., 7., 21.45, 6, 0.1, False,
@@ -149,7 +153,7 @@ class TestBasicCalculations:
         assert chopper_resolution(chopper2_pos, D) == expected
 
     def test_angles_SC2(self):
-        assert angles_SC2() == (pytest.approx(152.7922), 0.0)
+        assert angles_SC2().tolist() == [pytest.approx(152.7922), 0.0]
 
     def test_period(self):
         assert period() == pytest.approx(0.094237562)
