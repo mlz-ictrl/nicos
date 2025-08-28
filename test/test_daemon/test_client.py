@@ -224,7 +224,7 @@ def test_parameter_queries(client):
         'unit', 'maxage', 'pollinterval', 'warnlimits', 'target', 'fixed',
         'fixedby', 'requires', 'precision', 'userlimits', 'abslimits', 'alias',
         'speed', 'offset', 'jitter', 'curvalue', 'curstatus', 'ramp',
-        'devclass'])
+        'devclass', 'ignore_general_stop'])
     params = client.getDeviceParams('dm1')
     # parameters 'status' and 'value' not in all test cases available
     # their occurances depends on the previous test history
@@ -232,7 +232,8 @@ def test_parameter_queries(client):
         'abslimits', 'classes', 'curstatus', 'curvalue', 'description', 'fixed',
         'fixedby', 'fmtstr', 'jitter', 'loglevel', 'maxage', 'name', 'offset',
         'pollinterval', 'precision', 'ramp', 'requires', 'speed', 'target',
-        'unit', 'userlimits', 'visibility', 'warnlimits', 'status', 'value'})
+        'unit', 'userlimits', 'visibility', 'warnlimits', 'status', 'value',
+        'ignore_general_stop'})
     assert client.getDeviceParam('dm1', 'name') == 'dm1'
     assert client.getDeviceParam('dm1', 'noparam') is None
 

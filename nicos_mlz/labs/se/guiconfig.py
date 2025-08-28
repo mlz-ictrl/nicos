@@ -8,7 +8,7 @@ main_window = docked(
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
-           dockpos='right',)
+           show_target=True, dockpos='right',)
     ),
     ('Experiment Information and Setup',
      panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',)

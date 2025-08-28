@@ -96,7 +96,6 @@ class MainWindow(DefaultMainWindow):
 
         for panel in self.panels:
             if isinstance(panel, ScriptStatusPanel):
-                self.toolbar.addAction(panel.actionFinishEarlyAndStop)
                 self.toolbar.addAction(panel.actionEmergencyStop)
                 break
 

@@ -227,6 +227,12 @@ class SecNodeDevice(Readable):
         'device_mapping': Param('Dict of mappings for Name and Mixins ',
                                 type=dictof(str, dictof(str, anytype)),
                                 prefercache=False, default={}, userparam=False),
+        'general_stop_whitelist': Param('module names to accept general stop',
+                                        type=listof(str), prefercache=False,
+                                        default=[], userparam=False),
+        'general_stop_blacklist': Param('module names to ignore general stop',
+                                        type=listof(str), prefercache=False,
+                                        default=[], userparam=False)
     }
     parameters['device_mapping'].ext_desc = """
     Dictionary name -> mapping where mapping is a dictionary which can contain
@@ -263,6 +269,17 @@ class SecNodeDevice(Readable):
 
     Barcodes will then be mapped to a NICOS-device called nodname_barcodes and
     examplemodule will become a device named ExampleName.
+    """
+
+    parameters['general_stop_whitelist'].ext_desc = """
+    If this value is not empty, it is a list of SECoP module names accepting
+    general stop, modules not listed will ignore general stop. The parameter
+    'general_stop_blacklist' must be empty in this case.
+    """
+
+    parameters['general_stop_blacklist'].ext_desc = """
+    This value contains a list of SECoP module names ignoring
+    general stop, Modules not listed will accept general stop.
     """
 
     parameter_overrides = {
@@ -528,6 +545,15 @@ class SecNodeDevice(Readable):
         # keep track of configured devices to warn when one is configured
         # without being found on the SECNode or filtered by allow_list
         configured = set(self.device_mapping.keys())
+        if self.general_stop_whitelist:
+            if self.general_stop_blacklist:
+                self.log.error('only one of general_stop_blacklist/'
+                               'general_stop_whitelist may be given')
+                self.log.error('-> general_stop_blacklist is ignored')
+            general_stop_blacklist = (set(self._secnode.modules) -
+                                      set(self.general_stop_whitelist))
+        else:
+            general_stop_blacklist = set(self.general_stop_blacklist)
         for module, mod_desc in self._secnode.modules.items():
             # If the module should not be created, skip it
             if self.allow_list and module not in self.allow_list:
@@ -599,6 +625,8 @@ class SecNodeDevice(Readable):
                 # example: for "ww-" above is True for visibility level 2 and 3
                 # TODO: handle readonly visibility properly
                 kwds['visibility'] = ()
+            if 'ignore_general_stop' in cls.parameters:
+                kwds['ignore_general_stop'] = module in general_stop_blacklist
             desc = dict(secnode=self.name,
                         description=mod_desc.get('properties', {}).get(
                             'description', ''),
@@ -788,7 +816,8 @@ class SecopDevice(Device):
         # the 'name' argument.
         dynamic_devname = secnodedev._get_device_name(config['secop_module'])
         seccfg = setup_info[dynamic_devname][1]
-        devcfg = merge_dicts(config, seccfg)
+        # configuration must override SECoP description
+        devcfg = merge_dicts(seccfg, config)
         add_mixins = devcfg.pop('mixins', [])
 
         # create parameters and methods
