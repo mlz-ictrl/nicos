@@ -103,7 +103,8 @@ class ResolutionPanel(NicosWidget, Panel):
         D = self.D.value()
         disk2 = self.disc2_pos.value()
         gap = self.gap.value() / 100.
-        speed, angles = chopper_config(wlmin, wlmax, D, disk2, gap=gap)
+        # speed, angles, disk2_Pos, D, wl_min, wl_max
+        speed, angles, _, _, _, _ = chopper_config(wlmin, wlmax, D, disk2, gap=gap)
 
         self.chSpeed.setText('%d rpm' % speed)
         self.phase2.setText('%.2f deg' % angles[1])
