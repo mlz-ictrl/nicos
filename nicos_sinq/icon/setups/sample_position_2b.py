@@ -10,12 +10,7 @@ devices = dict(
         motorpv = pvprefix + 'sp2b_tx',
         errormsgpv = pvprefix + 'sp2b_tx-MsgTxt',
         precision = 0.01,
-    ),
-    sp2b_ry2 = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'Sample position 2b,Second Rotation Y axis',
-        motorpv = pvprefix + 'sp2b_ry2',
-        errormsgpv = pvprefix + 'sp2b_ry2-MsgTxt',
-        precision = 0.01,
+        reference_direction = 'reverse'
     ),
     sp2b_ry = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
         description = 'Sample position 2b, Rotation Y axis',
