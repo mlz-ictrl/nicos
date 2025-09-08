@@ -479,7 +479,8 @@ class NicosCmdClient(NicosClient):
                 self.initial_update()
             elif name == 'disconnected':
                 self.put_client('Disconnected from server, use /reconnect to '
-                                'try reconnecting.')
+                                'try reconnecting, or /connect to enter new '
+                                'server name and/or credentials.')
                 self.current_mode = MASTER
                 self.debug_mode = False
                 self.pending_requests.clear()
