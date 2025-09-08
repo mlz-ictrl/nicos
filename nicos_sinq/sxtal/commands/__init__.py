@@ -397,6 +397,8 @@ def Max(dev, step, counter=None, maxpts=None, **preset):
             if positions[idx] <= center < positions[idx+1]:
                 peakmax = counts[idx]
                 break
+        else:
+            return False
         dev.maw(center)
         session.log.info('Found peak at %f, counts = %ld', center, peakmax)
         return True
