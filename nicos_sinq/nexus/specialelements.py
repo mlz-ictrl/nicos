@@ -429,7 +429,7 @@ class ScanSampleEnv(NexusElementBase):
             if dev.name not in h5parent:
                 dset = h5parent.create_dataset(dev.name, (1,),
                                                maxshape=(None,), dtype=float)
-                dset.attrs['units'] = np.string_(inf.unit)
+                dset.attrs['units'] = np.bytes_(inf.unit)
                 self._managed_devices.append(dev.name)
 
     def results(self, name, h5parent, sinkhandler, results):
@@ -492,7 +492,7 @@ class SaveSampleEnv(NexusElementBase):
         if self._postfix:
             logname += self._postfix
         loggroup = h5parent.create_group(logname)
-        loggroup.attrs['NX_class'] = np.string_('NXlog')
+        loggroup.attrs['NX_class'] = np.bytes_('NXlog')
         dset = loggroup.create_dataset('time', (1,), maxshape=(None,),
                                        dtype='float32')
         dset[0] = .0
@@ -548,7 +548,7 @@ class SaveSampleEnv(NexusElementBase):
             if arrayname not in h5parent:
                 dset = h5parent.create_dataset(arrayname, (1,),
                                                maxshape=(None,), dtype=float)
-                dset.attrs['units'] = np.string_(inf.unit)
+                dset.attrs['units'] = np.bytes_(inf.unit)
                 self._managed_devices.append(arrayname)
 
     def resultsArray(self, name, h5parent, sinkhandler, results):

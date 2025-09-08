@@ -29,7 +29,8 @@ import os
 import time
 from math import gcd
 
-from numpy import arctan2, array, cos, cross, delete, linspace, mat, sin, sqrt
+from numpy import arctan2, array, asmatrix, cos, cross, delete, linspace, \
+    sin, sqrt
 
 from nicos.core import ComputationError
 from nicos.devices.tas.cell import CellBase
@@ -190,7 +191,7 @@ class SpaceMap:
         # ellipse coordinate system is x || Q, y _|_ Q, so we need to find the
         # correct rotation matrix to project that onto the cartesian plane
         alpha = arctan2(y, x)
-        matrix = mat([[cos(alpha), -sin(alpha)], [sin(alpha), cos(alpha)]])
+        matrix = asmatrix([[cos(alpha), -sin(alpha)], [sin(alpha), cos(alpha)]])
         xs1, ys1 = array(matrix.dot(array([xs1, ys1])))
         xs2, ys2 = array(matrix.dot(array([xs2, ys2])))
         pylab.fill(xs1 + x, ys1 + y, color='blue', alpha=0.5)

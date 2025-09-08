@@ -23,7 +23,7 @@
 import importlib
 
 import h5py
-import numpy
+import numpy as np
 
 from nicos.core.constants import LIVE, POINT, SCAN
 from nicos.core.data import DataSinkHandler
@@ -65,9 +65,9 @@ class NexusSinkHandler(DataSinkHandler):
                 raise NicosError('The template should be of type dict')
 
             self.h5file = h5py.File(self._filename, 'w')
-            self.h5file.attrs['file_name'] = numpy.string_(self._filename)
+            self.h5file.attrs['file_name'] = np.bytes_(self._filename)
             tf = NXTime()
-            self.h5file.attrs['file_time'] = numpy.string_(tf.formatTime())
+            self.h5file.attrs['file_time'] = np.bytes_(tf.formatTime())
 
     def putMetainfo(self, metainfo):
         if not self._inited:
@@ -100,7 +100,7 @@ class NexusSinkHandler(DataSinkHandler):
                     continue
                 [nxname, nxclass] = key.rsplit(':', 1)
                 nxgroup = h5obj.create_group(nxname)
-                nxgroup.attrs['NX_class'] = numpy.string_(nxclass)
+                nxgroup.attrs['NX_class'] = np.bytes_(nxclass)
                 self.create(val, nxgroup)
             elif isinstance(val, NexusElementBase):
                 val.create(key, h5obj, self)

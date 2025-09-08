@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-import numpy
+import numpy as np
 from h5py import File as H5File
 from h5py.version import hdf5_version
 
@@ -42,10 +42,10 @@ class NexusFile(DataFileBase):
     def __init__(self, shortpath, filepath):
         DataFileBase.__init__(self, shortpath, filepath)
         with H5File(filepath, 'w') as h5file:
-            h5file.attrs['file_name'] = numpy.string_(filepath)
-            h5file.attrs['HDF5_Version'] = numpy.string_(hdf5_version)
+            h5file.attrs['file_name'] = np.bytes_(filepath)
+            h5file.attrs['HDF5_Version'] = np.bytes_(hdf5_version)
             tf = NXTime()
-            h5file.attrs['file_time'] = numpy.string_(tf.formatTime())
+            h5file.attrs['file_time'] = np.bytes_(tf.formatTime())
 
 
 class NexusTemplateProvider:
@@ -138,7 +138,7 @@ class NexusSinkHandler(DataSinkHandler):
                     continue
                 [nxname, nxclass] = key.rsplit(':', 1)
                 nxgroup = h5obj.create_group(nxname)
-                nxgroup.attrs['NX_class'] = numpy.string_(nxclass)
+                nxgroup.attrs['NX_class'] = np.bytes_(nxclass)
                 self.create(val, nxgroup)
             elif isinstance(val, NexusElementBase):
                 try:
