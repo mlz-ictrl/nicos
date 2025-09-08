@@ -325,6 +325,7 @@ node('dockerhost') {
     def buildimage_deb = null;
     def buildimage_bullseye = null;
     def buildimage_bookworm = null;
+    def buildimage_trixie = null;
     def buildimage_rocky = null;
 
     stage('docker setup') {
@@ -336,6 +337,9 @@ node('dockerhost') {
 
         buildimage_bookworm = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bookworm-debonly')
         buildimage_bookworm.pull()
+
+        buildimage_trixie = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:trixie-debonly')
+        buildimage_trixie.pull()
 
         buildimage_rocky = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:rockylinux9')
         buildimage_rocky.pull()
@@ -403,6 +407,15 @@ try {
                 checkoutSource()
                 buildimage_bookworm.inside('-v /home/git:/home/git') {
                     runTests('$NICOS3VENV', 'python3-bookworm', false, true, true)
+                } // image.inside
+            } // ws
+        } // stage
+    }, test_trixie: {
+        stage(name: 'Tests on Debian Trixie') {
+            ws {
+                checkoutSource()
+                buildimage_trixie.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3-trixie', false, true, true)
                 } // image.inside
             } // ws
         } // stage
