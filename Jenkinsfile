@@ -411,14 +411,17 @@ try {
             } // ws
         } // stage
     }, test_trixie: {
-        stage(name: 'Tests on Debian Trixie') {
-            ws {
-                checkoutSource()
-                buildimage_trixie.inside('-v /home/git:/home/git') {
-                    runTests('$NICOS3VENV', 'python3-trixie', false, true, true)
-                } // image.inside
-            } // ws
-        } // stage
+        if (GERRIT_BRANCH == 'master')
+	{
+            stage(name: 'Tests on Debian Trixie') {
+                ws {
+                    checkoutSource()
+                    buildimage_trixie.inside('-v /home/git:/home/git') {
+                        runTests('$NICOS3VENV', 'python3-trixie', false, true, true)
+                    } // image.inside
+                } // ws
+            } // stage
+        } // if
     }, test_all: {
 	stage(name: 'Tests on Debian, with all dependencies') {
             ws {
