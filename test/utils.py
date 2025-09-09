@@ -610,6 +610,7 @@ try:
             'enable': 1,
             'direction': 0,
             'resolution': 0,
+            'position_deadband': 0,
         }
 
         def doPreinit(self, mode):
