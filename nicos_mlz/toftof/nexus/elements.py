@@ -441,7 +441,7 @@ class DetInfo(NexusElementBase):
             list_of_none_detectors_angles = []
             for none_det in list_of_none_detectors:
                 list_of_none_detectors_angles.append(
-                    int(np.where(detNr == none_det)[0]))
+                    int(np.where(detNr == none_det)[0][0]))
             list_of_none_detectors_angles.sort()
 
             masked_detectors = np.zeros(len(list_of_none_detectors),
