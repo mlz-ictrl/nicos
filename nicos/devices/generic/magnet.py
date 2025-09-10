@@ -25,12 +25,12 @@
 Class for magnets powered by unipolar power supplies.
 """
 
-import math
 import time
 from contextlib import suppress
 
 import numpy
 from scipy.optimize import fsolve
+from scipy.special import erf
 
 from nicos import session
 from nicos.core import Attach, HasLimits, LimitError, NicosError, Readable, \
@@ -80,9 +80,9 @@ class CalibratedMagnet(Magnet):
         v = coefficients or self.calibration
         if len(v) != 5:
             self.log.warning('Wrong number of coefficients in calibration '
-                             'data!  Need exactly 5 coefficients!')
-        return v[0]*current + v[1]*math.erf(v[2]*current) + \
-            v[3]*math.atan(v[4]*current)
+                             'data! Need exactly 5 coefficients!')
+        return v[0]*current + v[1]*erf(v[2]*current) + \
+            v[3]*numpy.arctan(v[4]*current)
 
     def _mapTargetValue(self, target):
         maxcurr = self._attached_currentsource.abslimits[1]
