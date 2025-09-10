@@ -1,0 +1,47 @@
+description = 'sample table rotations'
+
+group = 'lowlevel'
+
+tango_base = 'tango://motorbox01.firepod.frm2.tum.de:10000/box/'
+
+devices = dict(
+    tths = device('nicos.devices.generic.Axis',
+        description = 'Detector position (2Theta)',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            fmtstr = '%.3f',
+            unit = 'deg',
+            abslimits = (-2, 200),
+            speed = 1,
+        ),
+        precision = 0.005,
+        maxtries = 10,
+    ),
+    omgs = device('nicos.devices.generic.Axis',
+        description = 'Sample rotation',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            fmtstr = '%.2f',
+            unit = 'deg',
+            abslimits = (-360, 360),
+            speed = 2,
+        ),
+        precision = 0.005,
+    ),
+    xs = device('nicos.devices.generic.Axis',
+        description = 'X translation',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            unit = 'mm',
+            abslimits = (-150, 150),
+            speed = 1,
+        ),
+        precision = 0.01,
+    ),
+    ys = device('nicos.devices.generic.Axis',
+        description = 'Y translation',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            unit = 'mm',
+            abslimits = (-150, 150),
+            speed = 1,
+        ),
+        precision = 0.01,
+    ),
+)
