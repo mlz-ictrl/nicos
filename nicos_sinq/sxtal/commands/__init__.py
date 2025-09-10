@@ -418,7 +418,7 @@ def Max(dev, step, counter=None, maxpts=None, **preset):
         session.log.error('%s not found, cannot maximize against is', counter)
         return False
     preset['temporary'] = True
-    counts = np.zeros((maxpts,), dtype='int32')
+    counts = np.zeros((maxpts,), dtype='int')
     positions = np.zeros((maxpts,), dtype='float32')
     positions[half_point] = dev.read()
     _count(*(), **preset)
