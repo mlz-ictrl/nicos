@@ -479,7 +479,8 @@ class NicosCmdClient(NicosClient):
                 self.initial_update()
             elif name == 'disconnected':
                 self.put_client('Disconnected from server, use /reconnect to '
-                                'try reconnecting.')
+                                'try reconnecting, or /connect to enter new '
+                                'server name and/or credentials.')
                 self.current_mode = MASTER
                 self.debug_mode = False
                 self.pending_requests.clear()
@@ -1198,16 +1199,25 @@ def main(argv):
 
     # take all connection parameters from the config file if not defined
     # on the command line
+    configured = []
     if not server and config.has_option(configsection, 'server'):
         server = config.get(configsection, 'server')
+        configured.append('server')
     if not user and config.has_option(configsection, 'user'):
         user = config.get(configsection, 'user')
+        configured.append('username')
     if not password and config.has_option(configsection, 'passwd'):
         password = config.get(configsection, 'passwd')
+        configured.append('password')
     if not via and config.has_option(configsection, 'via'):
         via = config.get(configsection, 'via')
+        configured.append('tunnel')
     if config.has_option(configsection, 'viacommand'):
         viacommand = config.get(configsection, 'viacommand')
+        configured.append('tunnel command')
+    if configured:
+        print(f'# Note: using {", ".join(configured)} from [{configsection}] '
+              'section in ~/.nicos-client')
 
     # split server in host:port components
     try:

@@ -397,6 +397,8 @@ def Max(dev, step, counter=None, maxpts=None, **preset):
             if positions[idx] <= center < positions[idx+1]:
                 peakmax = counts[idx]
                 break
+        else:
+            return False
         dev.maw(center)
         session.log.info('Found peak at %f, counts = %ld', center, peakmax)
         return True
@@ -416,7 +418,7 @@ def Max(dev, step, counter=None, maxpts=None, **preset):
         session.log.error('%s not found, cannot maximize against is', counter)
         return False
     preset['temporary'] = True
-    counts = np.zeros((maxpts,), dtype='int32')
+    counts = np.zeros((maxpts,), dtype='int')
     positions = np.zeros((maxpts,), dtype='float32')
     positions[half_point] = dev.read()
     _count(*(), **preset)

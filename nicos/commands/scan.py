@@ -252,9 +252,7 @@ def gridscan(dev, *args, **kwargs):
             scanvals = [[start + j * step for j in range(numpoint)]
                         for start, step, numpoint in
                         zip(starts, steps, numpoints)]
-            values = meshgrid(*scanvals)
-            for i, grid in enumerate(values):
-                values[i] = list(grid.reshape(grid.size))
+            values = [grid.ravel().tolist() for grid in meshgrid(*scanvals)]
             return [tuple(v[i] for v in values) for i in range(len(values[0]))]
         raise UsageError('numpoints must be a list')
 

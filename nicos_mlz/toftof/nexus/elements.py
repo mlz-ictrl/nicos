@@ -58,7 +58,7 @@ class EntryIdentifier(NexusElementBase):
         if self.dtype == 'string':
             dtype = 'S%d' % (len(counter) + 1)
             dset = h5parent.create_dataset(name, (1,), dtype)
-            dset[0] = np.string_(counter)
+            dset[0] = np.bytes_(counter)
         else:
             dset = h5parent.create_dataset(name, (1,), self.dtype)
             dset[0] = sinkhandler.dataset.counter
@@ -69,7 +69,7 @@ class Status(NexusElementBase):
     def create(self, name, h5parent, sinkhandler):
         dtype = 'S%d' % (20 + 1)
         dset = h5parent.create_dataset(name, (1,), dtype=dtype)
-        dset[0] = np.string_('0.0 %% completed')
+        dset[0] = np.bytes_('0.0 %% completed')
 
     def results(self, name, h5parent, sinkhandler, results):
         if sinkhandler.detector is None:
@@ -89,7 +89,7 @@ class Status(NexusElementBase):
             val = min(time.time() - sinkhandler.dataset.started,
                       float(info[0]))
         status = 100. * val / preset if val < preset else 100
-        h5parent[name][0] = np.string_('%.1f %% completed' % status)
+        h5parent[name][0] = np.bytes_('%.1f %% completed' % status)
 
 
 class ToGo(NexusElementBase):
@@ -100,10 +100,10 @@ class ToGo(NexusElementBase):
         if metainfo.get(('det', 'mode'),
                         ('time', 'time', '', ''))[1] != 'time':
             dset = h5parent.create_dataset(name, (1,), dtype='int32')
-            dset.attrs['units'] = np.string_('counts')
+            dset.attrs['units'] = np.bytes_('counts')
         else:
             dset = h5parent.create_dataset(name, (1,), dtype='float32',)
-            dset.attrs['units'] = np.string_('s')
+            dset.attrs['units'] = np.bytes_('s')
         dset[0] = preset
 
     def results(self, name, h5parent, sinkhandler, results):
@@ -138,7 +138,7 @@ class Mode(NexusElementBase):
             mode = 'Monitor_Counts'
         dtype = 'S%d' % (len(mode) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
-        dset[0] = np.string_(mode)
+        dset[0] = np.bytes_(mode)
 
 
 class MonitorMode(NexusElementBase):
@@ -151,7 +151,7 @@ class MonitorMode(NexusElementBase):
             mode = 'timer'
         dtype = 'S%d' % (len(mode) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
-        dset[0] = np.string_(mode)
+        dset[0] = np.bytes_(mode)
 
 
 class Duration(NexusElementBase):
@@ -174,7 +174,7 @@ class Duration(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         dset = h5parent.create_dataset(name, (1,), dtype=self.dtype)
-        dset.attrs['units'] = np.string_('s')
+        dset.attrs['units'] = np.bytes_('s')
         dset[0] = self._calc(sinkhandler.dataset)
 
     def update(self, name, h5parent, sinkhandler, values):
@@ -191,7 +191,7 @@ class GonioDataset(NexusElementBase):
             metainfo['gcy', 'value'][1:3])
         dtype = 'S%d' % (len(phicxcy) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
-        dset[0] = np.string_(phicxcy)
+        dset[0] = np.bytes_(phicxcy)
 
 
 class TableDataset(NexusElementBase):
@@ -203,7 +203,7 @@ class TableDataset(NexusElementBase):
             metainfo['gz', 'value'][1:3])
         dtype = 'S%d' % (len(xyz) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
-        dset[0] = np.string_(xyz)
+        dset[0] = np.bytes_(xyz)
 
 
 class HVDataset(NexusElementBase):
@@ -215,7 +215,7 @@ class HVDataset(NexusElementBase):
             for i in range(3))
         dtype = 'S%d' % (len(hv) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
-        dset[0] = np.string_(hv)
+        dset[0] = np.bytes_(hv)
 
 
 class LVDataset(NexusElementBase):
@@ -227,7 +227,7 @@ class LVDataset(NexusElementBase):
              for i in range(8)])
         dtype = 'S%d' % (len(lv) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
-        dset[0] = np.string_(lv)
+        dset[0] = np.bytes_(lv)
 
 
 class FileName(NexusElementBase):
@@ -246,7 +246,7 @@ class NeutronEnergy(NexusElementBase):
         energy = calc.Energy(metainfo['chWL', 'value'][0])
         dset = h5parent.create_dataset(name, (1,), dtype='float32')
         dset[0] = energy
-        dset.attrs['units'] = np.string_('meV')
+        dset.attrs['units'] = np.bytes_('meV')
 
 
 class ElasticPeakGuess(NexusElementBase):
@@ -274,7 +274,7 @@ class MonitorValue(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         dset = h5parent.create_dataset(name, (1,), dtype='int32')
-        dset.attrs['units'] = np.string_('counts')
+        dset.attrs['units'] = np.bytes_('counts')
         dset[0] = 0
 
     def results(self, name, h5parent, sinkhandler, results):
@@ -292,7 +292,7 @@ class MonitorRate(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         dset = h5parent.create_dataset(name, (1,), dtype='float32')
-        dset.attrs['units'] = np.string_('1/s')
+        dset.attrs['units'] = np.bytes_('1/s')
         dset[0] = 0
 
     def results(self, name, h5parent, sinkhandler, results):
@@ -310,7 +310,7 @@ class SampleCounts(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         dset = h5parent.create_dataset(name, (1,), dtype='int32')
-        dset.attrs['units'] = np.string_('counts')
+        dset.attrs['units'] = np.bytes_('counts')
         dset[0] = 0
 
     def results(self, name, h5parent, sinkhandler, results):
@@ -328,7 +328,7 @@ class SampleCountRate(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         dset = h5parent.create_dataset(name, (1,), dtype='float32')
-        dset.attrs['units'] = np.string_('1/s')
+        dset.attrs['units'] = np.bytes_('1/s')
         dset[0] = 0
 
     def results(self, name, h5parent, sinkhandler, results):
@@ -354,7 +354,7 @@ class SampleEnvironment(NexusElementBase):
         for s in self._names:
             dset = h5parent.create_dataset('%s%s' % (s, name), (1,),
                                            dtype='float32')
-            dset.attrs['units'] = np.string_(self.unit)
+            dset.attrs['units'] = np.bytes_(self.unit)
             dset[0] = 0
 
     def results(self, name, h5parent, sinkhandler, results):
@@ -369,7 +369,7 @@ class MonitorData(NexusElementBase):
         det = sinkhandler.dataset.detectors[0]
         dset = h5parent.create_dataset(name, (det.timechannels,),
                                        dtype='int64')
-        dset.attrs['units'] = np.string_('counts')
+        dset.attrs['units'] = np.bytes_('counts')
         dset.attrs['signal'] = 1
 
     def results(self, name, h5parent, sinkhandler, results):

@@ -272,7 +272,7 @@ class TestNexusSink:
         fname = path.join(exp.datapath, 'external_test.h5')
         with h5py.File(fname, 'w') as tst:
             entry = tst.create_group('entry')
-            entry.attrs['NXclass'] = np.string_('NXGroup')
+            entry.attrs['NXclass'] = np.bytes_('NXGroup')
             ex = entry.create_dataset('external', (1,), dtype='f4')
             ex[0] = 47
 

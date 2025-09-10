@@ -118,7 +118,7 @@ class NXAttribute(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         if self.dtype == 'string':
-            h5parent.attrs[name] = np.string_(self.value)
+            h5parent.attrs[name] = np.bytes_(self.value)
         else:
             h5parent.attrs.create(name, self.value, dtype=self.dtype)
 
@@ -245,7 +245,7 @@ class DeviceDataset(NexusElementBase):
                     except NicosError:
                         pass
                 elif len(self.value) > 2:
-                    dset.attrs['units'] = np.string_(self.value[2])
+                    dset.attrs['units'] = np.bytes_(self.value[2])
         self.createAttributes(dset, sinkhandler)
 
     def update(self, name, h5parent, sinkhandler, values):
@@ -287,7 +287,7 @@ class DeviceDataset(NexusElementBase):
                 parent = h5parent[linkroot]
                 if name not in parent:
                     parent[name] = dset
-                    dset.attrs['target'] = np.string_(dset.name)
+                    dset.attrs['target'] = np.bytes_(dset.name)
                 else:
                     session.log.warning('NeXus: Trying to create %s a second time',
                                         name)
@@ -329,7 +329,7 @@ class DetectorDataset(NexusElementBase):
                 mode = 'timer'
             else:
                 mode = 'monitor'
-            dset[0] = np.string_(mode)
+            dset[0] = np.bytes_(mode)
         elif self.nicosname == 'preset':
             mp = sinkhandler.startdataset.preset.values()
             self.resize_dataset(dset)
@@ -353,7 +353,7 @@ class DetectorDataset(NexusElementBase):
                 mode = 'timer'
             else:
                 mode = 'monitor'
-                dset[0] = np.string_(mode)
+                dset[0] = np.bytes_(mode)
         elif self.nicosname == 'preset':
             mp = sinkhandler.startdataset.preset.values()
             dset[0] = list(mp)[0]
@@ -497,7 +497,7 @@ class NXLink(NexusElementBase):
                     name, self.target)
                 return
             h5parent[name] = other
-            other.attrs['target'] = np.string_(self.target)
+            other.attrs['target'] = np.bytes_(self.target)
             self.linkCreated = True
 
 
@@ -521,12 +521,12 @@ class NXTime(NexusElementBase):
         time_str = self.formatTime()
         dtype = 'S%d' % (len(time_str) + 5)
         dset = h5parent.create_dataset(name, (1,), dtype=dtype)
-        dset[0] = np.string_(time_str)
+        dset[0] = np.bytes_(time_str)
 
     def update(self, name, h5parent, sinkhandler, values):
         if name.find('end') >= 0:
             dset = h5parent[name]
-            dset[0] = np.string_(self.formatTime())
+            dset[0] = np.bytes_(self.formatTime())
 
 
 class StartTime(NXTime):
@@ -555,7 +555,7 @@ class EndTime(StartTime):
     def update(self, name, h5parent, sinkhandler, values):
         self.time = sinkhandler.dataset.finished or time.time()
         dset = h5parent[name]
-        dset[0] = np.string_(self.formatTime())
+        dset[0] = np.bytes_(self.formatTime())
 
 
 class NexusSampleEnv(NexusElementBase):
@@ -577,7 +577,7 @@ class NexusSampleEnv(NexusElementBase):
         if self._postfix:
             logname += self._postfix
         loggroup = h5parent.create_group(logname)
-        loggroup.attrs['NX_class'] = np.string_('NXlog')
+        loggroup.attrs['NX_class'] = np.bytes_('NXlog')
         dset = loggroup.create_dataset('time', (1,), maxshape=(None,),
                                        dtype='float32')
         dset[0] = .0
