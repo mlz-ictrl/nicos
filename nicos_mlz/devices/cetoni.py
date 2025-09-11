@@ -245,7 +245,6 @@ class CetoniSyringe(Motor):
             if 0.999 < pressure / target_pressure < 1.001:
                 break
             if t > 10000:
-                self.stop_pid()
                 raise errors.InvalidValueError(self,
                                                "PID controller can't reach the"
                                                ' condition.')
