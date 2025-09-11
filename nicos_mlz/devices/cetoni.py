@@ -200,9 +200,9 @@ class CetoniSyringe(Motor):
             pressure = self._pressure.doRead()
             self._y.append(pressure)
             fill += step
-            if step > 0 and pressure <= target_pressure:
+            if step > 0 and pressure <= target_pressure and len(self._x) > 1:
                 break
-            if step < 0 and pressure >= target_pressure:
+            if step < 0 and pressure >= target_pressure and len(self._x) > 1:
                 break
         if not 0 < fill < self._max_volume:
             raise errors.NicosError(self, "Can't reach the pressure from "
