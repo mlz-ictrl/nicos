@@ -54,7 +54,7 @@ class CetoniSensor(HasOffset, Sensor):
     def read_weighted(self):
         values = []
         for _ in range(50):
-            values.append(self.doRead())
+            values.append(self.read(0))
             session.delay(0.1)
         return numpy.mean(values), numpy.std(values)
 
@@ -131,22 +131,22 @@ class CetoniSyringe(Motor):
         Motor.doReset(self)
 
     def set_fill_level(self, level, speed):
-        self.doStatus() # updates self.indicator
+        self.status(0) # updates self.indicator
         # bypasses doStart() to not break possible PID mode
         self.speed = speed
         self._dev.value = level
         self._hw_wait()
 
     def dispense_to_cell(self, volume, t=0):
-        if self._valve.doRead() != 'outlet':
+        if self._valve.read(0) != 'outlet':
             self.set_valve_state('outlet')
         speed = abs(volume / t) \
             if t and abs(volume / t) < self._max_speed \
             else self._max_speed
-        fill_level = self.doRead() - volume
+        fill_level = self.read(0) - volume
         if 0 <= speed <= self._max_speed and 0 <= fill_level <= self._max_volume:
             self.speed = speed
-            self.doStart(fill_level)
+            self.start(fill_level)
         else:
             raise errors.InvalidValueError(self, 'Target speed or fill level '
                                                  'are out of limits')
@@ -164,7 +164,7 @@ class CetoniSyringe(Motor):
 
         Sets and keeps 42 bars in the syringe.
         """
-        if self._valve.doRead() not in ('closed', 'outlet'):
+        if self._valve.read(0) not in ('closed', 'outlet'):
             raise errors.NicosError(self, 'Corresponding valve should be either'
                                     ' in "closed" or "outlet" state.')
         self.set_pressure(target_pressure, rewrite_xy)
@@ -191,13 +191,13 @@ class CetoniSyringe(Motor):
             self.stop_pid()
         if rewrite_xy:
             self._x, self._y = [], []
-        pressure = self._pressure.doRead()
-        fill = self.doRead()
+        pressure = self._pressure.read(0)
+        fill = self.read(0)
         step = -0.005 if pressure < target_pressure else 0.005
         while 0 < fill < self._max_volume:
             self.set_fill_level(fill, self._max_speed)
-            self._x.append(self.doRead())
-            pressure = self._pressure.doRead()
+            self._x.append(self.read(0))
+            pressure = self._pressure.read(0)
             self._y.append(pressure)
             fill += step
             if step > 0 and pressure <= target_pressure and len(self._x) > 1:
@@ -235,7 +235,7 @@ class CetoniSyringe(Motor):
 
         # trains PID algorithm on values measured before, saves a lot of time
         t = 0.0
-        delta = self._x[0] - self.doRead()
+        delta = self._x[0] - self.read(0)
         pid = PID(init_arg=delta, setpoint=target_pressure,
                   P=1e-4, I=1e-4, D=5e-5, current_time=t)
         while not self._stop_pid:
@@ -255,7 +255,7 @@ class CetoniSyringe(Motor):
         buf = []
         while not self._stop_pid:
             self.set_fill_level(self._x[0] - delta, 0.1)
-            pressure = self._pressure.doRead()
+            pressure = self._pressure.read(0)
             buf.append(pressure)
             if len(buf) > 10:
                 mean = numpy.mean(buf)
@@ -274,8 +274,8 @@ class CetoniSyringe(Motor):
         self.pid_mode = False
 
     def set_valve_state(self, state):
-        self._valve.doStart(state)
-        while self._valve.doRead() != state:
+        self._valve.start(state)
+        while self._valve.read(0) != state:
             session.delay(0.1)
 
     @usermethod
@@ -291,7 +291,7 @@ class CetoniSyringe(Motor):
 
         Should pump 5 ml of a solvent 3 times.
         """
-        state = self._valve.read()
+        state = self._valve.read(0)
         self.set_valve_state('inlet')
         speed = self.speed
         self.speed = self._max_speed
