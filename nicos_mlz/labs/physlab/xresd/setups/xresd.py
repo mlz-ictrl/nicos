@@ -9,4 +9,5 @@ includes = [
     'incident',
     'sample',
     'shutter',
+    'collimator',
 ]
