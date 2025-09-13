@@ -1,4 +1,4 @@
-description = 'Virtual SPODI detector'
+description = 'Virtual FIREPOD detector'
 
 group = 'lowlevel'
 
