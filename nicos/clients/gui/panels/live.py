@@ -379,10 +379,7 @@ class LiveDataPanel(PlotPanel):
 
         # enable/disable controls and set defaults for new livewidget instances
         self.setControlsEnabled(True)
-        if isinstance(self.widget, LiveWidget1D):
-            self.set2DControlsEnabled(False)
-        else:
-            self.set2DControlsEnabled(True)
+        self.set2DControlsEnabled(not isinstance(self.widget, LiveWidget1D))
 
         # apply current global settings
         self.widget.setCenterMark(self.actionMarkCenter.isChecked())
@@ -767,10 +764,9 @@ class LiveDataPanel(PlotPanel):
     def _initLiveWidget(self, array):
         """Initialize livewidget based on array's shape"""
         if len(array.shape) == 1:
-            widgetcls = LiveWidget1D
+            self.initLiveWidget(LiveWidget1D)
         else:
-            widgetcls = IntegralLiveWidget
-        self.initLiveWidget(widgetcls)
+            self.initLiveWidget(IntegralLiveWidget)
 
     def setData(self, arrays, labels=None, titles=None, uid=None, display=True):
         """Dispatch data array to corresponding live widgets.
