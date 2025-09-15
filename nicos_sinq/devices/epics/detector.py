@@ -141,13 +141,15 @@ class EpicsDetector(EpicsDevice, Detector):
         # First start all the channels (if applicable) and then
         # set the detector startpv
         Detector.doStart(self)
+        if self.pausepv and self._get_pv('pausepv'):
+            # Do not send the start command until the device has been unpaused.
+            self._put_pv_checked('pausepv', 0)
         self._put_pv('startpv', 1, wait=True)
 
     def doPause(self):
         Detector.doPause(self)
         if self.pausepv:
-            paused = self._get_pv('pausepv')
-            if paused != 1:
+            if self._get_pv('pausepv') != 1:
                 self._put_pv('pausepv', 1)
             else:
                 self.log.info('Device is already paused.')
@@ -158,8 +160,7 @@ class EpicsDetector(EpicsDevice, Detector):
     def doResume(self):
         Detector.doResume(self)
         if self.pausepv:
-            paused = self._get_pv('pausepv')
-            if paused != 0:
+            if self._get_pv('pausepv') != 0:
                 self._put_pv('pausepv', 0)
             else:
                 self.log.info('Device is not paused.')
@@ -171,12 +172,16 @@ class EpicsDetector(EpicsDevice, Detector):
         # After setting the startpv to 0
         # finish all the channels
         self._put_pv('startpv', 0, wait=False)
+        if self.pausepv and self._get_pv('pausepv'):
+            self._put_pv('pausepv', 0)
         Detector.doFinish(self)
 
     def doStop(self):
         # After setting the startpv to 0
         # stop all the channels
         self._put_pv('startpv', 0, wait=False)
+        if self.pausepv and self._get_pv('pausepv'):
+            self._put_pv('pausepv', 0)
         Detector.doStop(self)
 
     def doStatus(self, maxage=0):
