@@ -14,3 +14,21 @@
 #
 # please list all files after the following line with a short description.
 # contents:
+mailtext.txt 						# template used for sending eMails after the experiment
+Template_autoalign.py.template				#
+Template_checkpol.py.template				#
+Template_ClearMagnet.py.template			#
+Template_Complex_FinalMeasurement.py.template		#
+Template_GISANS.py.template				#
+Template_Hyst-4R.py.template				#
+Template_Move-from_GISANS-to-Ref.py.template		#
+Template_Move-from_Ref-to-GISANS.py.template		#
+Template_Reflectivity_2R-4Fields.py.template		#
+Template_Reflectivity_4R_4Fields.py.template		#
+Template_Resonator_reflectometry.py.template		#
+Template_Sample_changer_scan.py.template		#
+Template_Simple_Test_scan.py.template			#
+Template_SM_sample_changer_scan_01.py.template		#
+Template_SM_sample_changer_scan_in_D2O.py.template	#
+Template_SM_sample_changer_scan_in_H2O.py.template	#
+Template_SM_sample_changer_scan_in_SMW.py.template	#

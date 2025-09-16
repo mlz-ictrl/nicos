@@ -14,3 +14,4 @@
 #
 # please list all files after the following line with a short description.
 # contents:
+mailtext.txt 	# template used for sending eMails after the experiment
