@@ -1278,8 +1278,6 @@ def synthesizeSingleCurveData(curvedata, fmtno, window=0.1):
 
 class DataSetPlot(NicosGrPlot):
 
-    axescls = NicosPlotAxes
-
     def __init__(self, parent, window, dataset):
         self.dataset = dataset
         self.current_xname = dataset.default_xname
