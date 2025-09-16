@@ -47,7 +47,7 @@ def find_custom():
         for root, dirs, files in os.walk(facilityroot):
             # Prune unneeded subdirs.
             dirs[:] = [d for d in dirs
-                       if d not in ('setups', 'testscripts', 'template')]
+                       if d not in ('setups', 'test', 'testscripts', 'template')]
             for fn in files:
                 if fn.endswith('.pyc'):
                     continue
