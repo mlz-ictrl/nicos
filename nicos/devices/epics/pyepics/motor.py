@@ -245,8 +245,13 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             absmax = self._get_pv('highlimit', use_monitor=False)
             epicsoffset = self._get_pv('offset', use_monitor=False)
 
-            userlimits = self._cache.get(self._name, "userlimits",
-                                         default=(absmin - epicsoffset, absmax - epicsoffset))
+            default_userlimits = (absmin - epicsoffset, absmax - epicsoffset)
+
+            userlimits = self._cache.get(self.name, "userlimits",
+                                         default=default_userlimits)
+
+            if userlimits == (0., 0.):
+                userlimits = default_userlimits
 
             # in HasLimits we have _checkLimits(self, limits)
             # umin < amin - abs(amin * 1e-12)
@@ -258,9 +263,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
             usermax = min(absmax - epicsoffset - abs(absmax * 1e-10), usermax)
 
             if userlimits != (usermin, usermax):
-                self.log.warning('User limits are outside Absolute Limits %s - was: %s, now: %s',
+                self.log.debug('User limits are outside Absolute Limits %s - was: %s, now: %s',
                                  (absmin, absmax), userlimits, (usermin, usermax))
-                self._cache.put(self._name, "userlimits", (usermin, usermax))
+                self._cache.put(self.name, "userlimits", (usermin, usermax))
 
     def doReadSpeed(self):
         return self._get_pv('speed')
@@ -497,7 +502,7 @@ class EpicsMonitorMotor(PVMonitor, EpicsMotor):
         # If the fields indicating whether the device is moving change then
         # the cache needs to be updated immediately.
         if pvparam in ['donemoving', 'moving']:
-            self._cache.put(self._name, pvparam, value, currenttime())
+            self._cache.put(self.name, pvparam, value, currenttime())
 
 
 class HomingProtectedEpicsMotor(EpicsMotor):
