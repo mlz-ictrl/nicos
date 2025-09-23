@@ -1,5 +1,8 @@
+# TODO I think this file can be removed, so I am hiding it from the list to see
+# if anyone complains
+group = 'lowlevel'
+
 description = 'Lambda power supplies'
-group = 'optional'
 
 #tango_base = 'tango://10.167.30.89:10000/antares/'
 #tango_base = 'tango://antaresopc10.psi.ch:10000/antares/'

@@ -18,6 +18,7 @@
 #
 # Module authors:
 #   Mark Koennecke, <mark.koennecke@psi.ch>
+#   Edward Wall,    <edward.wall@psi.ch>
 #
 # *****************************************************************************
 
@@ -42,7 +43,7 @@ configuration and startup.
 import epics
 
 from nicos import session
-from nicos.commands import usercommand
+from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.basic import AddSetup, RemoveSetup
 
 # For some devices I can only test presence and not on which table they sit.
@@ -73,7 +74,7 @@ table_presence = [('SQ:BOA:xy1:TableIndex', 'translation1'),
 tables = ['Table2', 'Table3', 'Table4', 'Table5', 'Table6']
 
 __all__ = [
-    'boadiscover', 'find_unassigned', 'show_table_config',
+    'boadiscover', 'find_unassigned', 'show_table_config', 'UpdateTimeBinning'
 ]
 
 
@@ -129,10 +130,11 @@ def boadiscover():
 
 
 @usercommand
-def find_unassigned():
+@parallel_safe
+def find_unassigned(log=True):
     not_assignable = ['startup', 'table2', 'table3', 'table4', 'table5',
                       'table6', 'system', 'cache', 'daemon', 'poller',
-                      'config']
+                      'config', 'el737', 'hipa', 'embl_config', 'shutter']
 
     assigned = []
     for t in tables:
@@ -145,11 +147,15 @@ def find_unassigned():
     for setup in loaded_setups:
         if setup not in assigned and setup not in not_assignable:
             unassigned.append(setup)
-    if not unassigned:
-        session.log.info('No unassigned setups')
+
+    if log:
+        if not unassigned:
+            session.log.info('No unassigned setups')
+        else:
+            session.log.info('There are setups not assigned to tables:')
+            session.log.info('  %s', str(unassigned))
     else:
-        session.log.info('There are setups not assigned to tables:')
-        session.log.info('  %s', str(unassigned))
+        return unassigned
 
 
 @usercommand
@@ -157,3 +163,23 @@ def show_table_config():
     for t in tables:
         table = session.getDevice(t)
         session.log.info('%s  %s', t,  str(table.setups))
+
+
+@usercommand
+@helparglist('start,step,count')
+def UpdateTimeBinning(start, step, count):
+    """
+    Updates the time binning in the Histogrammer and sets the delay in the MDIF
+    according to the current Chopper speed.
+    """
+    mdif = session.getDevice('chopper_delay')
+    configurator = session.getDevice('hm_configurator')
+    tof = session.getDevice('hm_tof_array')
+
+    # Set the delay time in the MDIF
+    dt = start / 10
+    mdif.maw(dt)
+
+    # For configuring the histogrammer, we start at 0
+    tof.updateTimeBins(0, step, count)
+    configurator.updateConfig()

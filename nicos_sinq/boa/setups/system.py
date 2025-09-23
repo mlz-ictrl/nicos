@@ -10,8 +10,6 @@ sysconfig = dict(
         'conssink',
         'dmnsink',
         'nxsink',
-        'livesink',
-        'quiecksink',
     ],
 )
 
@@ -21,7 +19,18 @@ modules = [
     'nicos_sinq.boa.commands.boasetup'
 ]
 
-includes = ['table2', 'table3', 'table4', 'table5', 'table6', 'notifiers']
+includes = [
+    'drot1',
+    'drot2',
+    'hipa',
+    'rotation_ra',
+    'table2',
+    'table3',
+    'table4',
+    'table5',
+    'table6',
+]
+
 devices = dict(
     BOA = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
@@ -58,11 +67,5 @@ devices = dict(
         filenametemplate = ['boa%(year)sn%(scancounter)06d.hdf'],
         templateclass =
         'nicos_sinq.boa.nexus.nexus_templates.BOATemplateProvider',
-    ),
-    livesink = device('nicos.devices.datasinks.LiveViewSink',
-        description = "Sink for forwarding live data to the GUI",
-    ),
-    quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
-        description = 'Sink for sending UDP datafile notifications'
     ),
 )

@@ -1,14 +1,24 @@
 description = 'Camini Camera Synchronisation Detector'
 
+group = 'basic'
+
 pvprefix = 'SQ:ICON:CAMINI:'
 pvprefix_sumi = 'SQ:ICON:sumi:'
 motprefix = 'SQ:BOA:turboPmac1:DCCDATZ'
 
-excludes = ['andor', 'andorccd', 'embl', 'fastcomtec']
-
-includes = ['single_el737']
+includes = [
+    'el737',
+]
 
 devices = dict(
+    el737 = device('nicos_sinq.devices.epics.sinqdaq.SinqDetector',
+        description = 'Detector Nicos Device',
+        timers = ['elapsedtime'],
+        monitors = ['hardware_preset', 'monitorval', 'protoncurr'],
+        liveinterval = 20,
+        saveintervals = [60],
+        visibility = {'metadata', 'namespace'},
+    ),
     dccdatz = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Andor focus motor',
         motorpv = motprefix,

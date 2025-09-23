@@ -1,3 +1,8 @@
+# TODO I think this file can be removed, so I am hiding it from the list to see
+# if anyone complains
+group = 'lowlevel'
+
+
 description = 'Setup for the ANDOR CCD camera at BOA using the CCDWWW server'
 
 excludes = ['andor', 'embl', 'fastcomtec', 'camini', 'andorccd-l']

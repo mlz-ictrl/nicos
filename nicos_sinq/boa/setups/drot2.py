@@ -2,6 +2,8 @@ description = 'BOA rotation table 2'
 
 pvprefix = 'SQ:BOA:drot2:'
 
+group = 'lowlevel'
+
 devices = dict(
     rd = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Rotation table 2 bottom motor',

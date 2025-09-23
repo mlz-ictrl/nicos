@@ -30,7 +30,7 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     NexusSampleEnv, NXAttribute, NXLink, NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_sinq.nexus.specialelements import AbsoluteTime
+from nicos_sinq.nexus.specialelements import AbsoluteTime, TimeBinConfArray
 
 
 class CaminiFileList(NexusElementBase):
@@ -95,7 +95,7 @@ class BOATemplateProvider(NexusTemplateProvider):
                                                                  'string'))},
                                       }, }
     _tables = ['Table2', 'Table3', 'Table4', 'Table5', 'Table6']
-    _detectors = ['embl', 'andor', 'single_el737', 'ccdwww',
+    _detectors = ['embl_detector', 'andor', 'single_el737', 'ccdwww',
                   'andorccd', 'camini', 'andorccd-l', 'fastcomtec']
     _excluded_devices = ['slit1', 'slit2', 'dslit', 'ccdwww_connector',
                          'ccd_cooler']
@@ -154,9 +154,15 @@ class BOATemplateProvider(NexusTemplateProvider):
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
             content['time_stamp'] = AbsoluteTime()
-        elif name == 'embl':
+        elif name == 'embl_detector':
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
+            content['chopper_delay'] = DeviceDataset('chopper_delay', 'value', dtype='int32')
+            content['ccd'] = DeviceDataset('chopper_embl_distance', 'value', dtype='float64')
+            content['time_binning'] = TimeBinConfArray('hm_tof_array',
+                                                       units=NXAttribute('us', 'string'),
+                                                       axis=NXAttribute(2, 'int32'),
+                                                       scale=1)
         elif name == 'camini':
             content['data'] = CaminiFileList()
         elif name == 'fastcomtec':
@@ -180,6 +186,7 @@ class BOATemplateProvider(NexusTemplateProvider):
             name, content = self.makeDetector()
             entry[name + ':NXdetector'] = content
             entry['data:Nxdata'] = self.makeData(name)
+            entry['detector_name'] = ConstDataset(name, 'string')
         else:
-            session.log.info('No detector! May be: check setup???')
+            session.log.error('No detector! May be: check setup???')
         return boa_template

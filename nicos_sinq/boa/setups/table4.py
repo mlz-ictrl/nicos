@@ -2,6 +2,8 @@ description = 'BOA Table 4'
 
 pvprefix = 'SQ:BOA:turboPmac1:'
 
+group = 'lowlevel'
+
 devices = dict(
     t4tx = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Table 4 X Translation',
