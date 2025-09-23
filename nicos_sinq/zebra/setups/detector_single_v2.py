@@ -1,5 +1,7 @@
 description = 'Setup for the single detector at ZEBRA'
 
+group = 'lowlevel'
+
 pvprefix = 'SQ:ZEBRA:counter'
 
 excludes = [

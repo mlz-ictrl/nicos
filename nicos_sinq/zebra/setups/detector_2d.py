@@ -79,4 +79,5 @@ devices = dict(
 startupcode = '''
 SetDetectors(zebradet)
 Exp._setROParam('forcescandata', True)
+stt.offset = 0.15
 '''

@@ -531,11 +531,19 @@ def Center(idx, reflist=None, **preset):
         session.log.error('Reflection list %s not found', reflist)
         return
     r = rfl.get_reflection(idx)
-    ok, newang = inner_center(r, **preset)
-    if ok:
-        rfl.modify_reflection(idx, None, newang, None)
-    else:
-        session.log.error('Failed to center reflection %d', idx)
+    Exp = session.getDevice('Exp')
+    scansetting = Exp.forcescandata
+    Exp._setROParam('forcescandata', False)
+    try:
+        ok, newang = inner_center(r, **preset)
+        if ok:
+            rfl.modify_reflection(idx, None, newang, None)
+        else:
+            session.log.error('Failed to center reflection %d', idx)
+    except Exception:
+        Exp._setROParam('forcescandata', scansetting)
+        raise
+    Exp._setROParam('forcescandata', scansetting)
 
 
 def process_list(reflist, function, **preset):

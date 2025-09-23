@@ -1,5 +1,7 @@
 description = 'Neutron counter box and HM at SINQ ZEBRA'
 
+group = 'lowlevel'
+
 includes = ['hm_config']
 
 excludes = [

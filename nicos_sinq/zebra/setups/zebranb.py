@@ -1,8 +1,8 @@
 description = 'Installs normal beam geometry into ZEBRA'
 
-includes = ['monochromator', 'sample']
+group = 'basic'
 
-excludes = ['zebraeuler', 'zebratas', 'zebrakappa']
+includes = ['monochromator', 'sample']
 
 sysconfig = dict(instrument = 'ZEBRA',)
 
@@ -31,7 +31,7 @@ devices = dict(
         nu = 'nu',
         mono = 'wavelength',
         center_order = ['om', 'stt', 'nu'],
-        center_steps = [.1, .1, .1],
+        center_steps = [.1, .25, .8],
         scan_polynom = [0.425, -1.34E-2, 3.44E-6, -3.10E-6, 1.33E-8, .1, 1],
     ),
     h = device('nicos.core.device.DeviceAlias',

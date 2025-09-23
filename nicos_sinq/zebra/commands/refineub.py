@@ -509,16 +509,11 @@ def residuals(  # pylint: disable=too-many-positional-arguments
             if refine_type == 'NB':
                 a = float(ang[1]) + offsets[j]
                 a += displacements(refine_type, a, disps, j)
-                if a > 180:
-                    calc_temp.append(a-360)
-                elif a < -180:
-                    calc_temp.append(a+360)
-                else:
-                    calc_temp.append(a)
+                calc_temp.append((a + 180) % 360 - 180)
             if refine_type == 'Euler':
                 a = float(ang)
                 a += displacements(refine_type, a, disps, j)
-                calc_temp.append(a)
+                calc_temp.append((a + 180) % 360 - 180)
 
             diff_temp.append((obs[i, j]-a + 180) % 360 - 180)
 
@@ -597,7 +592,7 @@ def p0_bounds(limits, instr, sample):
 
     # Get amount of motors
     motors = instr.get_motors()
-    init_offsets = [mot.offset for mot in motors]
+    init_offsets = [0 if mot.name == 'phi' else -mot.offset for mot in motors]
 
     # Set initial sample displacement
     disp_array = [0, 0, 0]
@@ -959,10 +954,10 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
     p_init = p0.copy()
 
     # Print before
-    session.log.info('*** PyRefin *** version 1.0, N. Amin 16-Aug-2024')
-    session.log.info('-------------------- TITLE ---------------------')
+    session.log.info('*** PyRefine *** version 1.0, N. Amin 16-Aug-2024')
+    session.log.info('--------------------- TITLE ---------------------')
     session.log.info(sample.name)
-    session.log.info('------------------------------------------------')
+    session.log.info('-------------------------------------------------')
     session.log.info('')
     session.log.info('Verbosity: \t\t\t %d', verbose)
     session.log.info('Replace: \t\t\t %d', replace)
@@ -1015,7 +1010,7 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
         hkls.append(hkl_temp)
         obs_temp = []
         for i, a in enumerate(r[1]):
-            obs_temp.append(a)
+            obs_temp.append((a + 180) % 360 - 180)
         obs.append(obs_temp)
     hkls = np.array(hkls)
     obs = np.array(obs)
@@ -1162,7 +1157,12 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
         session.log.info('')
 
     # Replace parametes (or don't)
-    if not replace:
+    if replace:
+        for i in range(len(p0)):
+            for mot in motors:
+                if mot.name == names[i] and mot.name in args:
+                    mot.offset = mot.offset + p1[i]
+    else:
         session.log.info('Not Replacing old values')
         sample.ubmatrix = init_UB
         sample.a = p_init[0]

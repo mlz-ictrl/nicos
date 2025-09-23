@@ -42,7 +42,7 @@ devices = dict(
         '.EpicsCounterPassiveChannel',
         description = 'Proton counter channel',
         type = 'monitor',
-        readpv = pvdet + '.S5',
+        readpv = pvdet + '.S4',
     ),
     intensity = device('nicos_sinq.sxtal.commands.Intensity',
         description = 'Dummy to try to get stuff to work'
@@ -89,4 +89,5 @@ devices = dict(
 startupcode = """
 SetDetectors(zebradet)
 Exp._setROParam('forcescandata', False)
+stt.offset = 0
 """
