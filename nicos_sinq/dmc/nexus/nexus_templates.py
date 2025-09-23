@@ -357,6 +357,10 @@ def makeMonitor():
                 DetectorDataset('det_timer',
                                 'float32',
                                 units=NXAttribute('seconds', 'string')),
+            'proton_charge':
+                DetectorDataset('proton',
+                                dtype='float32',
+                                units=NXAttribute('uC', 'string')),
         }
 
     return {}
