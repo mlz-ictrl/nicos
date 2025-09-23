@@ -188,6 +188,10 @@ devices = dict(
         description = 'Alias for driving the analyser',
         alias = 'ana',
     ),
+    kf = device('nicos_sinq.eiger.devices.KSpaceMoveable.KSpaceMoveable',
+        description = 'K Space alias for driving the monochromator',
+        raw_motor = 'ana',
+    ),
 )
 
 startupcode = """

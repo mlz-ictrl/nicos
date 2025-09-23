@@ -81,4 +81,8 @@ devices = dict(
         description = 'Alias for driving the monochromator',
         alias = 'mono',
     ),
+    ki = device('nicos_sinq.eiger.devices.KSpaceMoveable.KSpaceMoveable',
+        description = 'K Space alias for driving the monochromator',
+        raw_motor = 'mono',
+    ),
 )
