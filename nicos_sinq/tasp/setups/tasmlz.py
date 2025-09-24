@@ -1,6 +1,6 @@
 description = 'This setup is for using the MLZ triple axis calculations'
 
-excludes = ['tasub']
+group = 'basic'
 
 includes = ['tasp']
 
@@ -45,7 +45,3 @@ devices = dict(
         devclass = 'nicos.devices.tas.spectro.TASIndex'
     ),
 )
-# Why below is required for en but none of the others, I do not understand
-startupcode = """
-en.alias=TASP.E
-"""
