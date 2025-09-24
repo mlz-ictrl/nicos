@@ -10,9 +10,9 @@ sysconfig = dict(
 
 includes = ['mono_slit', 'cameabasic', 'hm_config'] # The real thing
 #includes=['mono_slit', 'cameabasic', 'hm_config_sim'] # For simulation
-excludes = ['andorccd']
+excludes = ['andorccd', 'detector_old']
 
-pvprefix = 'SQ:CAMEA:counter'
+countprefix = 'SQ:CAMEA:counter'
 
 devices = dict(
     nxsink = device('nicos.nexus.NexusSink',
@@ -21,49 +21,45 @@ devices = dict(
         templateclass = 'nicos_sinq.camea.nexus.nexus_templates'
         '.CameaTemplateProvider',
     ),
-    timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
-        description = 'Used to set and view time preset',
-        unit = 'sec',
-        readpv = pvprefix + '.TP',
-        presetpv = pvprefix + '.TP',
+    elapsedtime = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQTime',
+        daqpvprefix = countprefix,
     ),
-    elapsedtime = device('nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
-        description = 'Used to view elapsed time while counting',
-        unit = 'sec',
-        readpv = pvprefix + '.T',
+    DAQPreset = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQPreset',
+        description = '2nd Generation Data Acquisition',
+        daqpvprefix = countprefix,
+        channels = ['protoncount'],
+        time_channel = ['elapsedtime'],
     ),
-    monitorpreset = device('nicos_sinq.devices.epics.detector.EpicsCounterActiveChannel',
-        description = 'Used to set and view monitor preset',
+    ThresholdChannel = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThresholdChannel',
+        daqpvprefix = countprefix,
+        channels = ['protoncount'],
+    ),
+    Threshold = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThreshold',
+        daqpvprefix = countprefix,
+        min_rate_channel = 'ThresholdChannel',
+    ),
+    Gate1 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQGate',
+        description = 'Gate 1 of the counter box',
+        daqpvprefix = countprefix,
+        channel = 1,
+    ),
+    Gate2 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQGate',
+        description = 'Gate 2 of the counter box',
+        daqpvprefix = countprefix,
+        channel = 2,
+    ),
+    protoncount = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor for proton current',
+        daqpvprefix = countprefix,
+        channel = 5,
         type = 'monitor',
-        readpv = pvprefix + '.PR2',
-        presetpv = pvprefix + '.PR2',
-    ),
-    monitor1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'First scalar counter channel',
-        type = 'monitor',
-        readpv = pvprefix + '.S2',
-    ),
-    monitor2 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Second scalar counter channel',
-        type = 'monitor',
-        readpv = pvprefix + '.S3',
-    ),
-    monitor3 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Third scalar counter channel',
-        type = 'monitor',
-        visibility = (),
-        readpv = pvprefix + '.S4',
-    ),
-    monitor4 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Fourth scalar counter channel',
-        type = 'monitor',
-        visibility = (),
-        readpv = pvprefix + '.S5',
-    ),
-    protoncount = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Fifth scalar counter channel',
-        type = 'monitor',
-        readpv = pvprefix + '.S6',
     ),
     histogrammer = device('nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description = "Histogram Memory Channel",
@@ -83,21 +79,11 @@ devices = dict(
         description = 'Counts as ROI on camea detector',
         roi = (1, 2, 50, 60)
     ),
-    cameadet = device('nicos_sinq.devices.detector.SinqDetector',
-        description = 'EL737 counter box that counts neutrons and '
-        'starts streaming events',
-        startpv = pvprefix + '.CNT',
-        pausepv = pvprefix + ':Pause',
-        statuspv = pvprefix + ':Status',
-        errormsgpv = pvprefix + ':MsgTxt',
-        thresholdpv = pvprefix + ':Threshold',
-        thresholdcounterpv = pvprefix + ':ThresholdCounter',
-        monitorpreset = 'monitorpreset',
-        timepreset = 'timepreset',
+    cameadet = device(
+        'nicos_sinq.devices.epics.sinqdaq.SinqDetector',
+        description = 'Detector Interface',
         timers = ['elapsedtime'],
-        monitors = [
-            'monitor1', 'monitor2', 'monitor3', 'protoncount', 'monitor4'
-        ],
+        monitors = ['DAQPreset', 'protoncount'],
         images = ['camea_detector'],
         counters = [
             'counts',
@@ -109,14 +95,23 @@ devices = dict(
         liveinterval = 20,
         saveintervals = [900]
     ),
-    cter1 = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
-        description = 'Direct connection to counter box',
-        commandpv = 'SQ:CAMEA:cter1' + '.AOUT',
-        replypv = 'SQ:CAMEA:cter1' + '.AINP',
-    ),
 )
+
+for i in range(4):
+    devices[f'monitor{i+1}'] = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = f'Monitor {i + 1}',
+        daqpvprefix = countprefix,
+        channel = i + 1,
+        type = 'monitor',
+    )
+    devices['DAQPreset'][1]['channels'].append(f'monitor{i+1}')
+    devices['ThresholdChannel'][1]['channels'].append(f'monitor{i+1}')
+    devices['cameadet'][1]['monitors'].append(f'monitor{i+1}')
+
 startupcode = """
 SetDetectors(cameadet)
-cter1.execute('DR 2')
-cter1.execute('DL 2 100')
+DAQPreset.monitor_channel = 'monitor2'
+move(ThresholdChannel, 'monitor2')
+move(Threshold, 200)
 """

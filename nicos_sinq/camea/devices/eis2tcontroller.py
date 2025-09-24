@@ -20,9 +20,12 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
+import numpy as np
 from scipy.interpolate import interp1d
 
+from nicos import session
 from nicos.core import Device, IsController
+from nicos.core.constants import SIMULATION
 from nicos.core.device import Moveable
 from nicos.core.params import Attach, Param, listof
 
@@ -32,28 +35,49 @@ class EIS2TController(IsController, Device):
     This controller keeps track of EI and S2T and tries to stop users from
     running CAMEA into the wall
     """
-
     attached_devices = {
         'ei': Attach('Incident energy device', Moveable),
         's2t': Attach('Detector two theta', Moveable),
     }
 
     parameters = {
-        'ei_values': Param('List of EI values', type=listof(float)),
+        'ei_values': Param('List of EI values', type=listof(float), settable=True),
         's2t_values': Param('S2T limit for each ei in ei_Values',
-                            type=listof(float)),
+                            type=listof(float), settable=True),
+        'file': Param('/home/nicos/nicos/nicos_sinq/camea/s2tlimits.txt',
+                      type=str,settable=True),
+        'padding': Param('Padding to allow s2t to go to limit value',default=0.1,
+                      type=float,settable=True)
     }
 
     def doInit(self, mode):
-        self._interpolate_s2t = interp1d(self.ei_values, self.s2t_values)
+        """
+        Initialise EIS2TController taking the energy and s2t arrays, and the padding into account
+        """
+
+        # Load energy dependent limits for the wall collision detection
+        if mode != SIMULATION:
+            try:
+                values = np.loadtxt(self.file,delimiter=',')
+                self.ei_values = values[0]
+                self.s2t_values = values[1]
+            except (FileNotFoundError, OSError):
+                session.log.error('Limits file "%s" not found! Reverting to previous values', self.file)
+
+        self._interpolate_s2t = interp1d(self.ei_values, np.asarray(self.s2t_values)-abs(self.padding))
+
 
     def isAdevTargetAllowed(self, adev, adevtarget):
         if adev == self._attached_ei:
             s2t_limit = self._interpolate_s2t(adevtarget)
             if self._attached_s2t.read(0) <= s2t_limit:
-                return False, 'You are running the detector into the wall'
+                return False, 'You are running the detector into the wall. The limit is {:.3f}'.format(s2t_limit+abs(self.padding))
         else:
             s2t_limit = self._interpolate_s2t(self._attached_ei.read(0))
             if adevtarget <= s2t_limit:
-                return False, 'You are running the detector into the wall'
+                return False, 'You are running the detector into the wall. The limit is {:.3f}'.format(s2t_limit+abs(self.padding))
         return True, ''
+
+    def twoThetaLimitInterp(self,ei):
+        "calculate and return interpolated value"
+        return self._interpolate_s2t(ei)
