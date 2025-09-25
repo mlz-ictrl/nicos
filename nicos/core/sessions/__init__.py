@@ -1061,6 +1061,8 @@ class Session:
 
         *replace_classes* can be used to replace configured device classes.
         If given, it is a tuple of ``(old_class, new_class, new_devconfig)``.
+
+        If *dev* does not exists in the setup, a ConfigurationError is raised.
         """
         if isinstance(dev, str):
             if dev in self.devices:
