@@ -33,7 +33,7 @@ session_setup = 'antares'
 
 class TestMonochromator:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def mono(self, session):
         mono = session.getDevice('mono')
         mono.maw(None)
@@ -73,13 +73,13 @@ class TestMonochromator:
 
 class TestCollimator:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def collimator(self, session):
         colli = session.getDevice('collimator')
         yield colli
         session.destroyDevice(colli)
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def pinhole(self, collimator):
         yield collimator._attached_d
         collimator._attached_d.maw(2)
@@ -98,18 +98,18 @@ class TestCollimator:
 
 class TestBlur:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def blur(self, session):
         blur = session.getDevice('blur')
         yield blur
         session.destroyDevice(blur)
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def pinhole(self, blur):
         yield blur._attached_d
         blur._attached_d.maw(2)
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def length(self, blur):
         old_l = blur._attached_l.read(0)
         yield blur._attached_l
@@ -133,7 +133,7 @@ class TestBlur:
 
 class TestSelectorTilt:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def tilt(self, session):
         selector = session.getDevice('selector')
         selector.maw(15000)
@@ -148,7 +148,7 @@ class TestSelectorTilt:
 
 class TestToellner:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def toellner(self, session):
         toellner = session.getDevice('toellner_dc')
 

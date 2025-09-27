@@ -34,7 +34,7 @@ from nicos.core.errors import ConfigurationError, InvalidValueError, \
 session_setup = 'stressi'
 
 
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def fcleanup(session):
     yield
 

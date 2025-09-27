@@ -45,7 +45,7 @@ def test_ieeedevice(session):
 class TestDetectorTranslation:
     """Test class for the SANS1 detector translation device."""
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         dev = session.getDevice('det1_z')
         dev._attached_device._setROParam('target', None)
@@ -55,7 +55,8 @@ class TestDetectorTranslation:
 
         dev = session.getDevice('det1_z')
 
-        assert dev.target is None and dev._attached_device.target is None
+        assert dev.target is None
+        assert dev._attached_device.target is None
 
         assert dev.isAtTarget() is False
         assert dev.doIsAtTarget() is False

@@ -32,7 +32,7 @@ session_setup = 'reseda'
 
 class TestSelector:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         yield
         session.getDevice('selector_speed').maw(0)
@@ -56,7 +56,7 @@ class TestSelector:
 
 class TestSelectorSpread:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         yield
         session.getDevice('selector_speed').maw(0)
@@ -75,7 +75,7 @@ class TestSelectorSpread:
 
 class TestArmController:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         yield
         session.getDevice('arm1_rot').maw(-55)

@@ -34,7 +34,7 @@ session_setup = 'refsans_optic'
 
 class TestOptic:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         pass
 

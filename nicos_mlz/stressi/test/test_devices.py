@@ -30,7 +30,7 @@ session_setup = 'stressi'
 
 class TestTransformedDevices:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def device(self, session):
         tthm = session.getDevice('tthm_r')
         tthm._attached_dev.maw(50)

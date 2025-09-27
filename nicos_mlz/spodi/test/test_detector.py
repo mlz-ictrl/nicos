@@ -30,7 +30,7 @@ from nicos.commands.measure import count
 session_setup = 'spodi'
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def adet(session):
     """Prepare for SPODI tests"""
 
@@ -53,7 +53,7 @@ def adet(session):
     tths.speed = 0
     tths.maw(0)
 
-    yield adet
+    return adet
 
     # session.experiment.setDetectors(detectors)
 

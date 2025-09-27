@@ -70,7 +70,7 @@ def test_ellcol(session):
 
 class TestSampleChanger:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         # this is needed to make the init of the controllers in motor and
         # push

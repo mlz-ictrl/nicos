@@ -71,8 +71,6 @@ def prepare(session, dataroot):
     scan(phis, 0, 0.1, 1, mon1=50, info='phi scan on monitor')
     contscan(phis, 0, 1, 1000, 0.001)
 
-    yield
-
 
 class TestSinks:
 

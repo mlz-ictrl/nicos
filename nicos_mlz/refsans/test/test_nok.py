@@ -34,7 +34,7 @@ session_setup = 'refsans'
 
 class TestDoubleNOK:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         pass
 
@@ -80,7 +80,7 @@ def test_nok_inclination_failed(session):
 
 class TestSingleSlit:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         d = session.getDevice('zb1')
         d.mode = 'slit'
@@ -143,7 +143,7 @@ class TestSingleSlit:
 
 class TestDoubleSlit:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         dev = session.getDevice('zb3')
         dev.mode = 'slit'
@@ -192,12 +192,11 @@ class TestDoubleSlit:
 
 class TestGap:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         gap = session.getDevice('h2')
         gap.left.maw(0)
         gap.right.maw(0)
-        yield
 
     def test_centered_mode(self, session):
         gap = session.getDevice('h2')

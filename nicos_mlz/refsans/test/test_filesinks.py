@@ -56,8 +56,6 @@ def prepare(session, dataroot):
     session.getDevice('last_aperture').alias = zb3.center
     count(t=0.01)
 
-    yield
-
 
 class TestSinks:
 

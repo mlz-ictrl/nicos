@@ -31,13 +31,13 @@ session_setup = 'kompass'
 class TestDevices:
     """Test class for the KOMPASS devices."""
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         pass
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def stt(self, session):
-        yield session.getDevice('stt')
+        return session.getDevice('stt')
 
     @pytest.mark.parametrize('targets',
                              [[1, 31, 0, -1, -31], [-31, 39, -31], [0, 39]])

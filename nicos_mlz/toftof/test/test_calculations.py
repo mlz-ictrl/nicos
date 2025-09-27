@@ -32,7 +32,7 @@ from nicos_mlz.toftof.lib.calculations import Eres1, ResolutionAnalysis, \
 
 class TestBasicCalculations:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self):
         assert alpha == pytest.approx(252.7784, abs=1e-4)
 

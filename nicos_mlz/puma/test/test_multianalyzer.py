@@ -37,7 +37,7 @@ session_setup = 'multianalyzer'
 class TestMultiAnalyzer:
     """Multi analyzer test class."""
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         """Prepare tests."""
         man = session.getDevice('man')

@@ -33,7 +33,7 @@ session_setup = 'puma'
 
 class TestCombAxis:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def combaxis(self, session):
         phi = session.getDevice('phi')
         assert phi.iscomb is False
@@ -71,7 +71,7 @@ class TestCombAxis:
 
 class TestFocusAxis:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def af(self, session):
         af = session.getDevice('af')
         af.maw(0)
@@ -99,14 +99,14 @@ class TestFocusAxis:
 
 class TestMttAxis:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def mtt(self, session):
         mtt = session.getDevice('mtt')
         assert mtt.read(0) == 0
         mtt.maw(0)
         assert mtt.read(0) == 0
 
-        yield mtt
+        return mtt
 
     def test_moves(self, mtt):
         for t in [-10, 0, mtt.polypos + 1]:
@@ -125,7 +125,7 @@ class TestMttAxis:
 class TestCad:
     """Test class for the PUMA coupled axis device."""
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def cad(self, session):
         cad = session.getDevice('cad')
         assert cad.read(0) == 0
@@ -169,12 +169,12 @@ class TestCad:
 class TestMagLock:
     """Test class for the MagLock device."""
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def maglock(self, session):
         maglock = session.getDevice('mlock')
         session.getDevice('mlock_set').maw(0)
 
-        yield maglock
+        return maglock
 
     def test_basics(self, maglock, session):
         assert maglock.read(0) == 'closed'
@@ -208,7 +208,7 @@ class TestMagLock:
 
 class TestVirtual:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def mlockset(self, session):
         mlock_set = session.getDevice('mlock_set')
 

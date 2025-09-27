@@ -32,7 +32,7 @@ session_setup = 'sans1'
 
 class TestBeamStop:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         bs = session.getDevice('bs')
         yield bs

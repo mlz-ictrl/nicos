@@ -71,8 +71,6 @@ class TestSinks:
         count(t=0.15)  # test to write the intermediate: file t > det.saveinterval
         count(mon1=150)
 
-        yield
-
     def check_file(self, fil):
         return fil.exists() and fil.is_file() and fil.stat().st_size > 0
 

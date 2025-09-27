@@ -133,7 +133,7 @@ def test_resolution(session):
 class TestDevices:
     """Test class for the 'simple' REFSANS devices."""
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         pass
 
@@ -164,7 +164,7 @@ class TestDevices:
 class TestChopper:
     """Test class for the REFSANS chopper device."""
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         chopper = session.getDevice('chopper')
         chopper1 = session.getDevice('chopper_speed')
@@ -233,7 +233,7 @@ class TestChopper:
 class TestDimetixLaser:
     """Class to test the DimetixLaser code."""
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         signal = session.getDevice('dix_signal')
         yield
@@ -252,7 +252,7 @@ class TestDimetixLaser:
 class TestTtr:
     """Class to test Ttr device."""
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         pass
 
@@ -274,7 +274,7 @@ class TestTtr:
 class TestAccuracy:
     """Class to test the Accuracy device."""
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         pass
 
@@ -293,12 +293,12 @@ class TestAccuracy:
 
 class TestDoubleSlitSequence:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def slit(self, session):
         slit = session.getDevice('b3')
         slit.maw([0, 12])
 
-        yield slit
+        return slit
 
     def test_read(self, slit):
         assert slit.read(0) == [0, 12]
@@ -318,7 +318,7 @@ class TestDoubleSlitSequence:
 
 class TestTubeAngle:
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def tubeangle(self, session):
         dev = session.getDevice('tube_angle')
 
