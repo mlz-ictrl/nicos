@@ -29,8 +29,6 @@ This replaces the following files:
     - nicos_sinq/devices/epics/scaler_record.py
 """
 
-from time import time as currenttime
-
 import numpy as np
 
 from nicos import session
@@ -105,13 +103,13 @@ class DAQEpicsDevice(EpicsDevice):
         cache_key = self._get_cache_relation(param)
         if cache_key:
             if isinstance(value, np.floating):
-                self._cache.put(self._name, cache_key, float(value), currenttime())
+                self._setROParam(cache_key, float(value))
             elif isinstance(value, np.integer):
-                self._cache.put(self._name, cache_key, int(value), currenttime())
+                self._setROParam(cache_key, int(value))
             else:
-                self._cache.put(self._name, cache_key, value, currenttime())
+                self._setROParam(cache_key, value)
             if param == 'readpv':
-                self._cache.put(self._name, 'unit', units, currenttime())
+                self._setROParam('unit', units)
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
@@ -199,8 +197,8 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
     def status_change_callback(self, name, param, value, units, severity,
                                message, **kwargs):
         if not value:
-            self._cache.put(self._name, 'preparing', False)
-        self._cache.put(self._name, 'status', self.doStatus(), currenttime())
+            self._setROParam('preparing', False)
+        self._setROParam('status', self.doStatus())
 
     def doStatus(self, maxage=0):
         try:
@@ -268,8 +266,8 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
     def status_change_callback(self, name, param, value, units, severity,
                                message, **kwargs):
         if not value:
-            self._cache.put(self._name, 'preparing', False)
-        self._cache.put(self._name, 'status', self.doStatus(), currenttime())
+            self._setROParam('preparing', False)
+        self._setROParam('status', self.doStatus())
 
     def doStatus(self, maxage=0):
         try:
@@ -445,7 +443,9 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def doInit(self, mode):
         DAQEpicsDevice.doInit(self, mode)
-        self.used_preset = True
+
+        if mode == MASTER:
+            self.used_preset = True
 
     def presetInfo(self):
         if self._presetmap is not None:
@@ -468,7 +468,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def value_change_callback(self, name, param, value, units, severity,
                               message, **kwargs):
-        self._cache.put(self._name, 'value', self.doRead(), currenttime())
+        self._setROParam('value', self.doRead())
 
     def doReadMonitor_Channel(self):
         channel = self._get_pv('monitorchannelrbvpv')
@@ -558,7 +558,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def status_change_callback(self, name, param, value, units, severity,
                                message, **kwargs):
-        self._cache.put(self._name, 'status', self.doStatus(), currenttime())
+        self._setROParam('status', self.doStatus())
 
     def doStatus(self, maxage=0):
         try:
@@ -566,7 +566,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
             started_count = self.started_count
             if st_code != 0 and started_count:
-                self._cache.put(self._name, 'started_count', False)
+                self._setROParam('started_count', False)
                 started_count = False
 
             time_channel = self._attached_time_channel
@@ -698,9 +698,9 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
             if channel.channel >= absmin and channel.channel <= absmax
         }
 
-        self._cache.put(self._name, 'mapping', mapping, currenttime())
+        self._setROParam('mapping', mapping)
 
-        # We need to do this here, as target requires the mapping to be initialised
+        # We need to do this here, as `target` requires the mapping to be initialised
         self._inverse_mapping = {}
         for k, v in mapping.items():
             self._inverse_mapping[v] = k
@@ -714,8 +714,8 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
     def doReset(self):
         # make sure the target is equal to the current value
         hardware_value = self._get_pv('readpv')
-        self._cache.put(self._name, 'threshold_monitor',
-                        hardware_value if hardware_value else 1, currenttime())
+        self._setROParam('threshold_monitor',
+                         hardware_value if hardware_value else 1)
 
     def doReadUnit(self):
         return ''
