@@ -73,7 +73,7 @@ class EpicsActiveChannel(EpicsReadableSinq, ActiveChannel):
         return self._get_pv('presetpv')
 
     def doWritePreselection(self, preselection):
-        self._put_pv_blocking('presetpv', preselection)
+        self._put_pv_checked('presetpv', preselection)
 
 
 class EpicsCounterPassiveChannel(CounterChannelMixin, EpicsPassiveChannel):
