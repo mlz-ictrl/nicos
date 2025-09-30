@@ -30,7 +30,7 @@ devices = dict(
     ),
 )
 """
-    Not available most of the time
+    # Not available most of the time
     sgl = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample lower goniometer',
         motorpv = pvpref + 'SGL',

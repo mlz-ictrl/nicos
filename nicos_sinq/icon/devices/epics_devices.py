@@ -17,14 +17,17 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Söderqvist <alexander.soederqvist@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
 
 from nicos.core import status
-from nicos.devices.epics.pyepics import EpicsDigitalMoveable
+from nicos.devices.epics.pyepics import \
+    EpicsDigitalMoveable as EpicsCoreDigitalMoveable, \
+    EpicsReadable as EpicsCoreReadable
 
-class EpicsDigitalMoveableNoStop(EpicsDigitalMoveable):
+
+class EpicsDigitalMoveable(EpicsCoreDigitalMoveable):
     """
     This adds a doStatus() Method to the core
     EpicsDigitalMoveable
@@ -32,5 +35,7 @@ class EpicsDigitalMoveableNoStop(EpicsDigitalMoveable):
     def doStatus(self, maxage=0):
         return status.OK, 'Idle'
 
-    def doStop(self):
-        pass
+
+class EpicsReadable(EpicsCoreReadable):
+    def doStatus(self, maxage=0):
+        return status.OK, 'Idle'

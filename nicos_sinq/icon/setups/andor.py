@@ -41,7 +41,7 @@ devices = dict(
         saveintervals = [60],
         basepv = pvprefix + detector_channel,
     ),
-    exp_ok = device('nicos_sinq.devices.epics.EpicsReadable',
+    exp_ok = device('nicos_sinq.icon.devices.epics_devices.EpicsReadable',
         description = 'Exposure sufficient',
         readpv = 'SQ:ICON:sumi:EXPOK',
     ),

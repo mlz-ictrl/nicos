@@ -40,7 +40,8 @@ class SinqEuler(EulerSXTal):
                              userparam=True),
         'scan_polynom': Param('The coefficients for the scan width '
                               'calculation polynom', type=listof(float),
-                              userparam=True, settable=True)}
+                              userparam=True, settable=True),
+    }
 
     def getScanWidthFor(self, hkl):
         if self.use_polynom:

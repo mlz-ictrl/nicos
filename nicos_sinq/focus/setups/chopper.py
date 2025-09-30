@@ -14,7 +14,7 @@ devices = dict(
         unit = 'rpm',
         abslimits = (0, 20000)
     ),
-    ch1vacuum = device('nicos_sinq.devices.epics.EpicsReadable',
+    ch1vacuum = device('nicos_sinq.focus.devices.epics_devices.EpicsReadable',
         description = 'Chopper 1 Vaccum',
         readpv = pref + '1:VAKUUM_RBV'
     ),
@@ -27,7 +27,7 @@ devices = dict(
         unit = 'rpm',
         abslimits = (0, 20000)
     ),
-    ch2vacuum = device('nicos_sinq.devices.epics.EpicsReadable',
+    ch2vacuum = device('nicos_sinq.focus.devices.epics_devices.EpicsReadable',
         description = 'Chopper 2 Vaccum',
         readpv = pref + '2:VAKUUM_RBV'
     ),

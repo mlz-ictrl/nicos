@@ -1,6 +1,6 @@
 description = 'Installs the Kappa goniometer into NICOS'
 
-excludes = ['zebratas', 'zebranb', 'zebraeuler']
+group = 'basic'
 
 includes = ['monochromator', 'sample']
 

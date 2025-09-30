@@ -1,6 +1,6 @@
 description = 'Installs the Eulerian cradle into NICOS'
 
-excludes = ['zebratas', 'zebranb', 'zebrakappa']
+group = 'basic'
 
 includes = ['monochromator', 'sample']
 
@@ -32,7 +32,7 @@ devices = dict(
         mono = 'wavelength',
         center_counter = 'counts',
         center_order = ['om', 'stt', 'chi', 'phi'],
-        center_steps = [.1, .1, .2, .2],
+        center_steps = [.1, .25, .8, .1],
         scan_polynom = [0.425, -1.3E-2, 3.44E-4, -3.10E-6, 1.33E-8],
     ),
     h = device('nicos.core.device.DeviceAlias',
