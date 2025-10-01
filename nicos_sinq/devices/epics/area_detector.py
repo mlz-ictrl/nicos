@@ -72,7 +72,6 @@ class ADPar(AutoDevice, EpicsMoveable):
             return status.OK, 'Done'
         return status.BUSY, 'Adjusting parameter'
 
-
 class ADEnumPar(AutoDevice, EpicsMoveable):
     valuetype = int
 

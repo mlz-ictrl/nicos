@@ -5,6 +5,7 @@ group = 'optional'
 sysconfig = dict(
     datasinks = ['LumaSink'],
 )
+includes = ['empir', 'filesavers']
 
 excludes = ['detector_neo', 'lumacam']
 
@@ -12,136 +13,188 @@ excludes = ['detector_neo', 'lumacam']
 base_pv = 'office:penguin:tpx3cam:cam1:'
 # base_pv = 'NECTAR:Penguin:LumaCam:'
 
+# PLAN:
+# detector:count()
+    # - timer -> trigger -> acquire
+    # - image?? would be nice
+    # - FileSink:
+        # - point count -> Filename
+            # - lumasink_prepare_status waits for actual change in filename (need to do that for folder name as well?)
+        # - folder name -> RawFilePath (does this work with sample names etc? 256 max chars?)
+    # - status -> DetectorState_RBV
+    # - lumasink_prepare_status as well
+#
+# Implement for tpx3:
+#   - Config parameters
+#   - prepare detector at init
+#   - prepare detector before acquisition
+#
+# Implement for data reduction:
+#   - all parameters
+#   - communicate raw data folder to data reduction
+
+    # # Acquisition parameters for tpx3/Serval
+    # # Setting files are on the PC with serval
+    # # Set Path to Bad Pixel Mask && load it
+    # 'BPCFilePath'
+    # 'BPCFileName'
+    # 'WriteBPCFile'
+    # # Set Path to DA Converter settings (sets voltage thresholds for pixels etc.) && load it
+    # 'DACSFilePath'
+    # 'DACSFileName'
+    # 'WriteDACS'
+
+    # plus settings in tpx3Spider_parameters.py (alex git repo)
+
+
 devices = dict(
-    fastshutter_io = device('nicos.devices.generic.manual.ManualSwitch',
-        description = 'fake fast shutter',
-        states = [1, 2,],
-    ),
-    fastshutter = device('nicos.devices.generic.Switcher',
-        description = 'Fast shutter',
-        moveable = 'fastshutter_io',
-        mapping = dict(open = 1, closed = 2),
-        fallback = '<undefined>',
-        precision = 0,
+
+    PointCounter = device('nicos.devices.generic.manual.ManualMove',
+        description = 'Share the current scan point count between devices.',
+        abslimits = (0,9999999999),
+        fmtstr = '%.0f',
         unit = '',
     ),
-    pointcount_luma = device('nicos.devices.epics.EpicsStringMoveable',
-        description = 'TODO:',
-        readpv = base_pv + 'RawFilePath_RBV',
-        writepv = base_pv + 'RawFilePath',
-        # readpv = base_pv + 'MeasurementPathStatus',
-        # writepv = base_pv + 'MeasurementPath'
+    # Workaround to get the folder and point count info to the detector
+    LumaSinkPrepareStatus = device('nicos_mlz.nectar.devices.lumacam.LumaCamFileSinkStatus',
+        visibility = ()
     ),
-    FolderNameOut = device('nicos.devices.epics.EpicsStringMoveable',
-        readpv = 'lumacam:foldername',
-        writepv = 'lumacam:foldername',
-        visibility = (),
-    ),
-    lumasink_prepare_status = device('nicos_mlz.nectar.devices.lumacam.LumaCamFileSinkStatus',
-        description = 'TODO: File writer status',
-    ),
+
     LumaSink = device('nicos_mlz.nectar.devices.lumacam.LumaCamSink',
         filenametemplate = ['%(pointcounter)08d'],
         filemode = 0o440,
-        pointcounterout = 'pointcount_luma',
-        status_prepare = 'lumasink_prepare_status',
-        foldernameout = 'FolderNameOut',
+        pointcounterout = 'PointCounter',
+        status_prepare = 'LumaSinkPrepareStatus',
+        foldernameout = 'FolderName',
+        # visibility = {'metadata', 'namespace', 'devlist'},
     ),
-    # trigger_hw = device('nicos.devices.entangle.DigitalOutput',
-    #     tangodevice = 'tango://pibox.antareslab:10000/box/piface/out_1',
-    #     visibility = (),
-    # ),
-    # trigger_start_hw = device('nicos.devices.epics.EpicsDigitalMoveable',
-    #     readpv = base_pv + 'AcquisitionStart',
-    #     writepv = base_pv + 'AcquisitionStart',
-    #     targetpv = base_pv + 'AcquisitionStart',
-    #     visibility = (),
-    # ),
-    # trigger_stop_hw = device('nicos.devices.epics.EpicsDigitalMoveable',
-    #     readpv = base_pv + 'AcquisitionStop',
-    #     writepv = base_pv + 'AcquisitionStop',
-    #     targetpv = base_pv + 'AcquisitionStop',
-    #     visibility = (),
-    # ),
-    # trigger_start_hw = device('nicos.devices.generic.manual.ManualSwitch',
-    #     states = [0,1],
-    # ),
-    # trigger_stop_hw = device('nicos.devices.generic.manual.ManualSwitch',
-    #     states = [0,1],
-    # ),
-    # trigger_start_hw = device('nicos.devices.epics.EpicsAnalogMoveable',
-    #     readpv = 'lumacam:start',
-    #     writepv = 'lumacam:start',
-    # ),
-    # trigger_stop_hw = device('nicos.devices.epics.EpicsAnalogMoveable',
-    #     readpv = 'lumacam:stop',
-    #     writepv = 'lumacam:stop',
+
+    FolderName = device('nicos_mlz.nectar.devices.lumacam.ManualStringMoveable',
+        description = 'Foldername for the evaluated data.',
+        unit = '',
+    ),
+
+    Trigger = device('nicos.devices.epics.pyepics.EpicsDigitalMoveable',
+        readpv = base_pv + 'Acquire_RBV',
+        writepv = base_pv + 'Acquire',
+        fmtstr = '%.0f',
+        visibility = (),
+    ),
+
+    Status = device('nicos_mlz.nectar.devices.lumacam.LumaCamStatus',
+        readpv = base_pv + 'DetectorState_RBV',
+        visibility = (),
+    ),
+
+    Timer = device('nicos_mlz.nectar.devices.lumacam.LumaCamTrigger',
+        description = 'Software timer',
+        runvalue = 1,
+        stopvalue = 0,
+        trigger_luma = 'Trigger',
+        status_luma = 'Status',
+        visibility = (),
+    ),
+
+    BiasVoltage = device('nicos.devices.epics.pyepics.EpicsReadable',
+        readpv = base_pv + 'BiasVoltage_RBV',
+        unit = 'V',
+        # visibility = {'metadata', 'namespace'},
+        visibility = (),
+    ),
+    AcquireBusy = device('nicos.devices.epics.pyepics.EpicsReadable',
+        readpv = base_pv + 'AcquireBusy',
+        # unit = 'V',
+        # visibility = {'metadata', 'namespace'},
+        visibility = (),
+    ),
+
+    HitRate = device('nicos.devices.epics.pyepics.EpicsReadable',
+        readpv = base_pv + 'PelEvtRate_RBV',
+        unit = 'Hit/s',
+        fmtstr = '%.0f',
+        visibility = (),
+    ),
+    ElapsedTime = device('nicos.devices.epics.pyepics.EpicsReadable',
+        readpv = base_pv + 'ElapsedTime_RBV',
+        unit = 's',
+        fmtstr = '%.3f',
+        visibility = (),
+    ),
+    StartTime = device('nicos.devices.epics.pyepics.EpicsReadable',
+        readpv = base_pv + 'StartTime_RBV',
+        unit = '',
+        fmtstr = '%.0f',
+        visibility = (),
+    ),
+    ImagesComplete = device('nicos.devices.epics.pyepics.EpicsReadable',
+        readpv = base_pv + 'NumImagesCounter_RBV',
+        unit = '',
+        fmtstr = '%.0f',
+        visibility = (),
+    ),
+
+    ChipTemperature = device('nicos.devices.epics.pyepics.EpicsReadable',
+        readpv = base_pv + 'ChipTemps_RBV',
+        unit = 'degC',
+        fmtstr = '%.2f',
+        visibility = (),
+    ),
+    FreeDiskSpace = device('nicos.devices.epics.pyepics.EpicsReadable',
+        readpv = base_pv + 'FreeSpace_RBV',
+        unit = 'B',
+        fmtstr = '%.0f',
+        visibility = (),
+    ),
+
+
+    # TODO OPTIMIZE ACQUISITION TIME! TAKES FOREVER TO START\a
+
+    DummyImage = device('nicos_mlz.nectar.devices.lumacam.DummyImageChannel',
+        description = 'just to get the metadata',
+    ),
+
+    # Settings = device('nicos_mlz.antares.devices.lumacam.LumaCamSettingSwitcher',
+    #     description = '',
+    #     empir = 'Empir',
+    #     lumacam = 'DetLumaCam',
     # ),
 
-    # trigger_start = device('nicos.devices.generic.Pulse',
-    #     onvalue = 1,
-    #     offvalue = 0,
-    #     ontime = 0.5,
-    #     moveable = 'trigger_start_hw',
-    #     visibility = (),
-    # ),
-    # trigger_stop = device('nicos.devices.generic.Pulse',
-    #     description = 'Camera trigger',
-    #     onvalue = 1,
-    #     offvalue = 0,
-    #     ontime = 0.5,
-    #     moveable = 'trigger_stop_hw',
-    #     visibility = (),
-    # ),
-    # timer_luma = device('nicos_mlz.antares.devices.TriggerTimerStartStop',
-    #     description = 'Software timer',
-    #     trigger_start = 'trigger_start',
-    #     trigger_stop = 'trigger_stop',
-    # ),
-    # status_luma = device('nicos.devices.epics.EpicsStringReadable',
-    #     readpv = 'lumacam:status',
-    # ),
-    # trigger_acquisition = device('nicos.devices.generic.manual.ManualSwitch',
-    #     states = ['true','false'],
-    # ),
-    trigger_luma = device('nicos.devices.epics.EpicsStringMoveable',
-        description = 'TODO: Trigger data acquisition',
-        readpv = base_pv + 'Acquisition',
-        writepv = base_pv + 'Acquisition',
-    ),
-    status_luma = device('nicos_mlz.nectar.devices.lumacam.LumaCamStatus',
-        description = 'TODO: Acquisition state',
-        readpv = base_pv + 'AcquisitionStatus',
-    ),
-    timer_luma = device('nicos_mlz.nectar.devices.lumacam.LumaCamTrigger',
-        description = 'Software timer',
-        runvalue = 'true',
-        stopvalue = 'false',
-        trigger_luma = 'trigger_luma',
-        status_luma = 'status_luma',
-    ),
-    det_lumacam = device('nicos_mlz.nectar.devices.lumacam.ADLumaCam',
+    DetLumaCam = device('nicos_mlz.nectar.devices.lumacam.ADLumaCam',
         description = 'Detector',
-        timers = ['timer_luma'],
-        status = 'status_luma',
-        prepare_status = 'lumasink_prepare_status',
-        pointcounter = 'pointcount_luma',
-        pvprefix = '',
-        base_raw_file_path = '',
-        empir_path_prefix = '',
+        # statepv = base_pv + 'DetectorState_RBV',
+        # basepv = base_pv,
+        # startpv = base_pv + 'Acquire',
+        pvprefix = base_pv[:-1],
+        timers = ['Timer'],
+        images = ['DummyImage'],
+        status = 'Status',
+        pointcounter = 'PointCounter',
+        prepare_status = 'LumaSinkPrepareStatus',
+        base_raw_file_path = 'file:/data/ILL_MOTO_2025-09-24',
+        empir_path_prefix = 'file:/data/',
+        # bad_pixel_config = '/home/localadmin/Programs/TPX3CAM/Settings/Settings_Timepix_2-3-001-0004_2024-12-12_Bias40/settings.bpc',
+        # dac_config = '/home/localadmin/Programs/TPX3CAM/Settings/Settings_Timepix_2-3-001-0004_2024-12-12_Bias40/settings.bpc.dacs',
         empir_path_to_add = 'PathToAdd',
+        # tpx3loglevel = 1,
+        # tpx3biasvoltage = 40,
+        # tpx3biasenabled = True,
+        # tpx3polarity = 'Positive',
+        # tpx3periphclk80 = True,
+        # tpx3triggerin = 0,
+        # tpx3triggerout = 0,
+        # tpx3triggerperiod = 2.0,
+        # tpx3exposuretime = 2.0,
+        # tpx3triggerdelay = 0.0,
+        # tpx3globaltimestampinterval = 0.1,
+        # tpx3tdc0 = 'P0',
+        # tpx3tdc1 = 'P0',
+        # tpx3triggermode = 'Continuous',
+        # tpx3rawsplitstg = 'frame',
+        # tpx3numimages = 999999999,
+        # tpx3rawfiletemplate = "%yyyy-MM-dd'T'HHmmss_",
+        # empir_path_prefix = 'file:/data/',
     ),
-    PathToAdd = device('nicos.devices.epics.EpicsStringMoveable',
-        description = 'Addition to path',
-        readpv = base_pv + 'path_toAdd',
-        writepv = base_pv + 'path_toAdd',
-    ),
-    # det_timepix = device('nicos.devices.generic.Detector',
-    #     description = 'The ILL detector',
-    #     timers = ['timer_timepix'],
-    #     # images = ['img_fake'],
-    # ),
 )
 startupcode = """
-SetDetectors(det_lumacam)
+SetDetectors(DetLumaCam)
 """
