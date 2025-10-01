@@ -6,9 +6,11 @@ sysconfig = dict(
     datasinks = ['LumaSink'],
 )
 
-base_pv = 'nectar:roadrunner:'
+excludes = ['detector_neo', 'lumacam']
 
-excludes = ['detector_neo']
+# base_pv = 'nectar:roadrunner:'
+base_pv = 'office:penguin:tpx3cam:cam1:'
+# base_pv = 'NECTAR:Penguin:LumaCam:'
 
 devices = dict(
     fastshutter_io = device('nicos.devices.generic.manual.ManualSwitch',
@@ -25,8 +27,10 @@ devices = dict(
     ),
     pointcount_luma = device('nicos.devices.epics.EpicsStringMoveable',
         description = 'TODO:',
-        readpv = 'NECTAR:Penguin:LumaCam:MeasurementPathStatus',
-        writepv = 'NECTAR:Penguin:LumaCam:MeasurementPath'
+        readpv = base_pv + 'RawFilePath_RBV',
+        writepv = base_pv + 'RawFilePath',
+        # readpv = base_pv + 'MeasurementPathStatus',
+        # writepv = base_pv + 'MeasurementPath'
     ),
     FolderNameOut = device('nicos.devices.epics.EpicsStringMoveable',
         readpv = 'lumacam:foldername',
@@ -48,15 +52,15 @@ devices = dict(
     #     visibility = (),
     # ),
     # trigger_start_hw = device('nicos.devices.epics.EpicsDigitalMoveable',
-    #     readpv = 'NECTAR:Penguin:LumaCam:AcquisitionStart',
-    #     writepv = 'NECTAR:Penguin:LumaCam:AcquisitionStart',
-    #     targetpv = 'NECTAR:Penguin:LumaCam:AcquisitionStart',
+    #     readpv = base_pv + 'AcquisitionStart',
+    #     writepv = base_pv + 'AcquisitionStart',
+    #     targetpv = base_pv + 'AcquisitionStart',
     #     visibility = (),
     # ),
     # trigger_stop_hw = device('nicos.devices.epics.EpicsDigitalMoveable',
-    #     readpv = 'NECTAR:Penguin:LumaCam:AcquisitionStop',
-    #     writepv = 'NECTAR:Penguin:LumaCam:AcquisitionStop',
-    #     targetpv = 'NECTAR:Penguin:LumaCam:AcquisitionStop',
+    #     readpv = base_pv + 'AcquisitionStop',
+    #     writepv = base_pv + 'AcquisitionStop',
+    #     targetpv = base_pv + 'AcquisitionStop',
     #     visibility = (),
     # ),
     # trigger_start_hw = device('nicos.devices.generic.manual.ManualSwitch',
@@ -102,12 +106,12 @@ devices = dict(
     # ),
     trigger_luma = device('nicos.devices.epics.EpicsStringMoveable',
         description = 'TODO: Trigger data acquisition',
-        readpv = 'NECTAR:Penguin:LumaCam:Acquisition',
-        writepv = 'NECTAR:Penguin:LumaCam:Acquisition',
+        readpv = base_pv + 'Acquisition',
+        writepv = base_pv + 'Acquisition',
     ),
     status_luma = device('nicos_mlz.nectar.devices.lumacam.LumaCamStatus',
         description = 'TODO: Acquisition state',
-        readpv = 'NECTAR:Penguin:LumaCam:AcquisitionStatus',
+        readpv = base_pv + 'AcquisitionStatus',
     ),
     timer_luma = device('nicos_mlz.nectar.devices.lumacam.LumaCamTrigger',
         description = 'Software timer',

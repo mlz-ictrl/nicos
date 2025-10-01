@@ -13,3 +13,7 @@ devices = dict(
         blacklist = ['tas'],
     ),
 )
+
+startupcode = '''
+import nicos.devices.epics.pyepics
+'''

@@ -6,7 +6,7 @@ sysconfig = dict(
     instrument = 'ANTARES',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],  # 'email'],
+    notifiers = ['telegram'],  # 'email'],
 )
 
 modules = [

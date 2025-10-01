@@ -23,4 +23,10 @@ devices = dict(
 #        ],
 #        subject = 'ANTARES',
 #    ),
+    telegram = device('nicos_mlz.antares.devices.TelegramNotifier',
+        description = 'test',
+        subject = 'HK6',
+        chatid = 'UNKNOWN',
+        bottoken = 'UNKNOWN',
+    ),
 )
