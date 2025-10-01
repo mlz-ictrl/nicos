@@ -4,7 +4,7 @@ group = 'optional'
 
 excludes = ['ngi', 'ngi_ill', 'neutrosense', 'ngi_icon']
 
-tango_host = 'phytron3.antareslab'
+tango_host = 'phytron2.antareslab'
 
 tango_base = f'tango://{tango_host}:10000/box/'
 
@@ -13,7 +13,7 @@ devices = dict(
         speed = 100,
         unit = 'um',
         description = 'Stepping of G1 perpendicular to the beam direction',
-        tangodevice = tango_base + 'phytron4/mot',
+       tangodevice = tango_base + 'phytron4/mot',
         abslimits = (-12500, 12500),
         userlimits = (-12500, 12500),
         maxage = 5,

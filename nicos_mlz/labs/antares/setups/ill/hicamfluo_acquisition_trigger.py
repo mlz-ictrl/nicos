@@ -1,7 +1,7 @@
 description = 'Keysight 33510A Function Generator'
 group = 'optional'
 
-includes = []
+excludes = ['ac_yoke']
 
 tango_base = 'tango://localhost:10000/antares/funcgen_burst/'
 

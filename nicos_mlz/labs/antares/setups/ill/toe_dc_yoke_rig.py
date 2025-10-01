@@ -1,4 +1,4 @@
-description = 'Toellner TOE7621 in constant voltage mode connected to Keysight 33510B function generator'
+description = 'Toellner TOE7621 in constant current mode connected to Keysight 33510B function generator'
 group = 'optional'
 
 includes = []
@@ -25,14 +25,14 @@ devices = dict(
             tangodevice = tango_base + 'ch1_amplitude',
             abslimits = (-10, 10),
             unit = 'V',
-            visibility = (),
+            visibility = set(['namespace']),
             # dcmode = True,
         ),
         ch1_frequency = device('nicos.devices.entangle.AnalogOutput',
             tangodevice = tango_base + 'ch1_frequency',
             abslimits = (0, 0),
             unit = 'Hz',
-            visibility = (),
+            visibility = set(['namespace']),
             # dcmode = True,
         ),
         piout_24v = device('nicos.devices.entangle.DigitalOutput',

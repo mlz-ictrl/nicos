@@ -2,7 +2,7 @@ description = 'External ILL camera'
 
 group = 'optional'
 
-excludes = ['detector_neo', 'hicamfluo_acquisition_trigger']
+excludes = ['detector_neo', 'hicamfluo_acquisition_trigger', 'ac_yoke']
 
 devices = dict(
     fastshutter_io = device('nicos.devices.generic.manual.ManualSwitch',
