@@ -27,6 +27,7 @@ import time
 
 from nicos import session
 from nicos.core import Device, NicosError, Override, Param, relative_path
+from nicos.core.device import DeviceParInfo
 
 from nicos_ess.nexus.converter import NexusTemplateConverter
 
@@ -261,9 +262,7 @@ class NexusStructureTemplate(NexusStructureProvider):
         if ('dataset', 'starttime') not in dataset.metainfo:
             start_time = time.strftime('%Y-%m-%d %H:%M:%S',
                                        time.localtime(dataset.started))
-            dataset.metainfo[('dataset',
-                              'starttime')] = (start_time, start_time, '',
-                                               'general')
+            dataset.metainfo[('dataset', 'starttime')] = DeviceParInfo(start_time, start_time, '', 'general')
 
     def get_structure(self, dataset):
         template = copy.deepcopy(self._template)
