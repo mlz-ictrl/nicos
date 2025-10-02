@@ -7,10 +7,10 @@ Although NICOS already contains a lot of device classes, it is usually necessary
 to create new device classes for specialized tasks.  This *tutorial* should help
 you to do it in a NICOS like way.
 
-But, first of all have a deep look into the :doc:`existing devices classes
-<../classes/index>` to see if they would fulfill your requirements.  Please bear
-in mind that most of the devices have a number of parameters which can be
-configured in a setup file.
+But first of all, please take a closer look at the :doc:`list of existing device
+classes <../classes/index>`. See if one of them would fulfill your requirements.
+Please bear in mind that most of the devices have a number of parameters which can
+be configured in a setup file.
 
 Sometimes there exists a device class which is very similiar to your requests,
 but not fully.  In this case you can derive your device class from the existing
