@@ -21,18 +21,30 @@
 #
 # *****************************************************************************
 
-name = 'dynamic userlimits setup'
+from nicos.core.constants import SIMULATION
 
-includes = ['stdsystem']
 
-devices = dict(
-    dylimits = device('nicos_sinq.test.devices.test_dynamic_userlimits.DynamicUserlimitsDev',
-        userlim_follow_abslim = False,
-        abslimits = (0, 10),
-    ),
-    dylimits_offset = device('nicos_sinq.test.devices.test_dynamic_userlimits.DynamicUserlimitsDev',
-        userlim_follow_abslim = False,
-        abslimits = (0, 10),
-        offset = 50
-    ),
-)
+session_setup = 'sinq_daq'
+
+def test_simulated_setup(session):
+    # The purpose of this test is to check if all devices of SINQ DAQ can
+    # created in simulation mode
+    session._mode = SIMULATION
+    _ = session.getDevice('ElapsedTime')
+    _ = session.getDevice('DAQPreset')
+    _ = session.getDevice('DAQ')
+    _ = session.getDevice('ThresholdChannel')
+    _ = session.getDevice('Threshold')
+    _ = session.getDevice('Gate1')
+    _ = session.getDevice('Gate2')
+    _ = session.getDevice('TestGen')
+    _ = session.getDevice('monitor1')
+    _ = session.getDevice('monitor2')
+    _ = session.getDevice('monitor3')
+    _ = session.getDevice('monitor4')
+    _ = session.getDevice('monitor5')
+    _ = session.getDevice('monitor6')
+    _ = session.getDevice('monitor7')
+    _ = session.getDevice('monitor8')
+    _ = session.getDevice('monitor9')
+    _ = session.getDevice('monitor10')

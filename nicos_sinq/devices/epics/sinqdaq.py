@@ -439,7 +439,12 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
             for _, channel in self._mapping.items()
         }
 
-        self.parameters['monitor_channel'].type = oneof(*self._mapping.keys())
+        self.parameters['monitor_channel'].type = oneof(*self._mapping)
+
+        # In simulation mode and when running tests, each parameter value is
+        # set to the default of the parameter. So we ensure there is a default
+        # set.
+        self.parameters['monitor_channel'].default = list(self._mapping)[0]
 
     def doInit(self, mode):
         DAQEpicsDevice.doInit(self, mode)
@@ -964,7 +969,7 @@ class DAQTestGen(CanDisable, DAQEpicsDevice, Readable):
         'enabled':
             Param('Whether the test generator is enabled',
                   type=oneof('OFF', 'ON'),
-                  default=True,
+                  default='ON',
                   userparam=True,
                   settable=True,
                   volatile=True,
