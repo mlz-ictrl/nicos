@@ -14,6 +14,7 @@ devices = dict(
         abslimits = (-145, 360),
         speed = 0.1,
         visibility = (),
+        refswitch = 'high',
     ),
     mli = device('nicos.devices.generic.Axis',
         description = 'Axis for the monochromator changer lift',

@@ -93,6 +93,7 @@ devices = dict(
             unit = 'mm',
             curvalue = 1,
             abslimits = (-100, 100),
+            refswitch = 'high',
         ),
         precision = 0,
     ),

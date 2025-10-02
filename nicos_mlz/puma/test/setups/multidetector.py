@@ -25,6 +25,7 @@ for i in range(11):
             unit = 'deg',
             refpos = 11. - i * 2.5,
             fmtstr = '%.3f',
+            refswitch = 'high',
         ),
         precision = 0.01,
     )
@@ -34,6 +35,7 @@ for i in range(11):
             unit = 'deg',
             refpos = 0,
             fmtstr = '%.3f',
+            refswitch = 'high',
         ),
         precision = 0.01,
     )

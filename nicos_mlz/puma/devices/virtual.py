@@ -24,24 +24,22 @@
 
 from nicos import session
 from nicos.core import Attach, Moveable, Override, Param, intrange, none_or, \
-    oneof, status
+    status
 from nicos.core.errors import UsageError
-from nicos.devices.abstract import CanReference
-from nicos.devices.generic import VirtualMotor
+from nicos.devices.generic import \
+    VirtualReferenceMotor as CoreVirtualReferenceMotor
 
 
-class VirtualReferenceMotor(CanReference, VirtualMotor):
+class VirtualReferenceMotor(CoreVirtualReferenceMotor):
     """Virtual motor device with reference capability."""
 
     parameters = {
-        'refpos': Param('Reference position if given',
-                        type=none_or(float), settable=False, default=None,
-                        unit='main'),
-        'addr': Param('Bus address of the motor', type=intrange(32, 255),
-                      default=71),
-        'refswitch': Param('Type of the reference switch',
-                           type=oneof('high', 'low', 'ref'),
-                           default='high', settable=False),
+        'addr': Param('Bus address of the motor',
+                      type=intrange(32, 255), default=71),
+    }
+
+    parameter_overrides = {
+        'refpos': Override(type=none_or(float)),
     }
 
     def doReference(self):
@@ -71,7 +69,7 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
         if refswitch == 'low':
             return is_at_refpos and (abs(self.abslimits[0] - pos) <
                                      abs(self.abslimits[1] - pos))
-        elif refswitch == 'high':
+        if refswitch == 'high':
             return is_at_refpos and (abs(self.abslimits[0] - pos) >
                                      abs(self.abslimits[1] - pos))
         return is_at_refpos

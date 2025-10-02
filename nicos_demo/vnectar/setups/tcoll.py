@@ -11,6 +11,7 @@ devices = dict(
         speed = 7.5,
         visibility = (),
         refpos = 0,
+        refswitch = 'high',
     ),
     drum = device('nicos_mlz.nectar.devices.ThermalCollimatorAxis',
         motor = 'drum_m',

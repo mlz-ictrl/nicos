@@ -163,10 +163,10 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
 
     parameters = {
         'refpos': Param('Reference position if given',
-                        type=float, settable=False, default=0.0, unit='main'),
+                        type=float, settable=False, unit='main'),
         'refswitch': Param('Type of the reference switch',
-                           type=oneof('high', 'low', 'ref', None),
-                           default=None, settable=False),
+                           type=none_or(oneof('high', 'low', 'ref')),
+                           settable=False),
     }
 
     def doReference(self):
@@ -181,7 +181,7 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
         elif refswitch == 'ref':
             pos = self.refpos
         else:
-            self.log.warning('Reference switch %r is not allowed.', refswitch)
+            self.log.warning('No reference switch defined, ignore referencing.')
             return
         _userlimits = self.userlimits  # save user  limits
         # The use of _setROParam suppresses output to inform about change of
