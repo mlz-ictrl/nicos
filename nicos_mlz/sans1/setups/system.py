@@ -59,8 +59,6 @@ devices = dict(
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        # only specify if differing from Exp.dataroot
-        #path = '/data/nicos',
         minfree = 0.5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',

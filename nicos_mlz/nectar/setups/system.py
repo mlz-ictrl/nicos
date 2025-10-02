@@ -55,7 +55,6 @@ devices = dict(
     ),
     DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free Space on the DataStorage',
-        path = '/data',
         minfree = 50,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',

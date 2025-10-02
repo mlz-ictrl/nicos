@@ -61,7 +61,6 @@ devices = dict(
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = None,
         minfree = 5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
