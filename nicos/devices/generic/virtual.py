@@ -51,6 +51,8 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
     using a thread.
     """
 
+    hardware_access = False
+
     parameters = {
         'speed':     Param('Virtual speed of the device', settable=True,
                            type=floatrange(0, 1e6), unit='main/s'),
@@ -225,6 +227,9 @@ class VirtualCoder(HasOffset, Coder):
 
 class VirtualChannel(ActiveChannel):
     """A virtual detector channel."""
+
+    hardware_access = False
+
     parameters = {
         'curvalue':  Param('Current value', settable=True, unit='main'),
         'curstatus': Param('Current status', type=tupleof(int, str),
@@ -376,6 +381,9 @@ class VirtualGauss(PassiveChannel):
     """A virtual channel which returns values from gauss curves centered
     at defined positions of movable devices.
     """
+
+    hardware_access = False
+
     attached_devices = {
         'motors': Attach('Moveables on which the count depends',
                          Moveable, multiple=True),
@@ -482,6 +490,8 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     """A virtual temperature regulation device with a realistic simulation
     of a sample in a cryostat, with a PID-controlled heater.
     """
+
+    hardware_access = False
 
     parameters = {
         'jitter':    Param('Jitter of the read-out value', default=0,
@@ -768,6 +778,8 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     four peaks of scattering intensity.
     """
 
+    hardware_access = False
+
     parameters = {
         'size': Param('Detector size in pixels (x, y)',
                       settable=False,
@@ -872,6 +884,8 @@ class VirtualScanningDetector(SubscanMeasurable):
     """A virtual detector whose data acquisition consists of scanning a
     moveable device, and taking data points with another detector.
     """
+
+    hardware_access = False
 
     attached_devices = {
         'scandev':  Attach('Current device to scan', Moveable),
