@@ -58,7 +58,7 @@ in the ``nicos_hynes`` directory which will be used to look for a setup name or
 a device library.  Please enter the name of your previously selected directory,
 e.g. ``woni`` in this tutorial.
 
-The ``nicos.conf`` should now look like:
+The :download:`nicos.conf <nicos_hynes/woni/nicos.conf>` should now look like:
 
 .. literalinclude:: nicos_hynes/woni/nicos.conf
 
@@ -81,7 +81,8 @@ Before you leave the system by pressing the ``Exit`` button (the window will
 be closed and you will get the prompt on your terminal back), please have
 a look into the right box where you will find an entry named ``Skeleton``.  This
 is the device object inherited from the skeleton.  This has to be adapted to
-the settings of your instrument by editing the file ``nicos_hynes/woni/setups/system.py``.
+the settings of your instrument by editing the file
+:download:`nicos_hynes/woni/setups/system.py <../../../nicos_demo/skeleton/setups/system.py>`.
 (The details of the setup file syntax are available :doc:`here <../setups>`)
 
 Searching for the line ``devices = dict(`` you will find the following code:
@@ -136,7 +137,7 @@ monochromator crystal, a sample table with translations of ``x``, ``y``, and
 ``z``.  On top of it a rotation axis ``sample_rot`` which can be mounted.
 
 Let's create a setup file for the monochromator device(s):
-``nicos_hynes/woni/setups/monochromator.py``:
+:download:`nicos_hynes/woni/setups/monochromator.py`:
 
 .. literalinclude:: nicos_hynes/woni/setups/monochromator.py
 
@@ -156,13 +157,13 @@ You have seen, that the setup file has an entry::
 This means that this file is normally not presented to the users, see
 :ref:`here <setup-group>`.
 
-The sample table devices we put into the ``nicos_hynes/woni/setups/sampletable.py``
+The sample table devices we put into the :download:`nicos_hynes/woni/setups/sampletable.py`
 file:
 
 .. literalinclude:: nicos_hynes/woni/setups/sampletable.py
 
 And for the detector we put its configuration into
-``nicos_hynes/woni/setups/detector.py``:
+:download:`nicos_hynes/woni/setups/detector.py`:
 
 .. literalinclude:: nicos_hynes/woni/setups/detector.py
 
@@ -180,7 +181,7 @@ After checking the syntax the setups may be loaded by::
 .. figure:: images/nicos-step4.png
 
 To avoid having to load the three setups again and again, NICOS allows
-including setups within other setups.  The ``nicos_hynes/woni/setups/woni.py``
+including setups within other setups.  The :download:`nicos_hynes/woni/setups/woni.py`
 shows how to make it::
 
     description = 'The basic WONI instrument'
@@ -204,7 +205,7 @@ more information see: :ref:`setups`:
 .. figure:: images/nicos-step5.png
 
 Do you remember, that we haven't created the sample rotation device?  This will
-follow now.  We create a separate setup ``nicos_hynes/woni/setups/samplerot.py``:
+follow now.  We create a separate setup :download:`nicos_hynes/woni/setups/samplerot.py`:
 
 .. literalinclude:: nicos_hynes/woni/setups/samplerot.py
 
@@ -221,7 +222,7 @@ rotation device is mounted on the sample table.
 GUI configuration
 -----------------
 
-A custom GUI config file is available under ``nicos_hynes/woni/guiconfig.py``,
+A custom GUI config file is available under :download:`nicos_hynes/woni/guiconfig.py`,
 see :ref:`gui-config`.
 
 Custom GUI modules (e.g. Panels) should go under ``nicos_hynes/woni/gui`` to be
