@@ -188,7 +188,7 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
 
     def doPrepare(self):
         self.preparing = True
-        self._put_pv('resetpv', 1, wait=True)
+        self._put_pv('resetpv', 1, timeout=self.epicstimeout)
         self.status(0)
 
     def _get_status_parameters(self):
@@ -257,7 +257,7 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
 
     def doPrepare(self):
         self.preparing = True
-        self._put_pv('resetpv', 1, wait=True)
+        self._put_pv('resetpv', 1, timeout=self.epicstimeout)
         self.status(0)
 
     def _get_status_parameters(self):
@@ -482,7 +482,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
         return self._inv_mapping[channel].name
 
     def doWriteMonitor_Channel(self, newValue):
-        return self._put_pv('monitorchannelpv', self._mapping[newValue].channel, wait=True)
+        return self._put_pv('monitorchannelpv', self._mapping[newValue].channel, timeout=self.epicstimeout)
 
     def valueInfo(self):
         if self.isTimePreset:
@@ -522,10 +522,10 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
         if self.hardware_time:
             self._update_value_callback(self._attached_time_channel)
-            self._put_pv('presettimepv', self.hardware_time, wait=True)
+            self._put_pv('presettimepv', self.hardware_time, timeout=self.epicstimeout)
         else:
             self._update_value_callback(self._mapping[self.monitor_channel])
-            self._put_pv('presetcountpv', self.hardware_count, wait=True)
+            self._put_pv('presetcountpv', self.hardware_count, timeout=self.epicstimeout)
 
     def setChannelPreset(self, name, value):
         PassiveChannel.setChannelPreset(self, name, value)
@@ -546,17 +546,17 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def doStop(self):
         self.started_count = False
-        self._put_pv('stoppv', 1, wait=False)
+        self._put_pv('stoppv', 1)
 
     def doFinish(self):
         self.started_count = False
-        self._put_pv('stoppv', 1, wait=False)
+        self._put_pv('stoppv', 1)
 
     def doPause(self):
-        self._put_pv('pausepv', 1, wait=False)
+        self._put_pv('pausepv', 1)
 
     def doResume(self):
-        self._put_pv('continuepv', 1, wait=False)
+        self._put_pv('continuepv', 1)
 
     def _get_status_parameters(self):
         return {'statuspv', 'monitorchannelrbvpv'}
@@ -624,7 +624,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
     def full_reset(self):
         # This doesn't just clear the channels, it resets the box completely
         # back to default settings.
-        self._put_pv('resetpv', 1, wait=True)
+        self._put_pv('resetpv', 1, timeout=self.epicstimeout)
 
 
 class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
@@ -908,7 +908,7 @@ class DAQGate(DAQChannelEpicsDevice, Moveable):
 
     def doReset(self):
         # make sure the target is equal to the current value
-        self._put_pv('writepv', self._get_pv('readpv', as_string=True), wait=True)
+        self._put_pv('writepv', self._get_pv('readpv', as_string=True), timeout=self.epicstimeout)
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv', as_string=True)

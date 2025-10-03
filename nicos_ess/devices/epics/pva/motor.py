@@ -248,7 +248,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             diff = value - self.offset
 
             # Set the offset in motor record
-            self._put_pv_blocking('offset', value)
+            self._put_pv('offset', value, timeout=60)
 
             # Read the absolute limits from the device as they have changed.
             self.abslimits  # pylint: disable=pointless-statement
@@ -352,7 +352,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         return self._get_limits('speed')
 
     def doStop(self):
-        self._put_pv('stop', 1, False)
+        self._put_pv('stop', 1, None)
 
     def _checkLimits(self, limits):
         # Called by doReadUserlimits and doWriteUserlimits
@@ -385,7 +385,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
     def doEnable(self, on):
         what = 1 if on else 0
-        self._put_pv('enable', what, False)
+        self._put_pv('enable', what, None)
 
     def doSetPosition(self, pos):
         self._put_pv('set', 1)

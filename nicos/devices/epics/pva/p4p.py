@@ -111,11 +111,15 @@ class P4pWrapper:
                 return str(value)
         return value
 
-    def put_pv_value(self, pvname, value, wait=False):
-        pvput(pvname, value, timeout=self._timeout, wait=wait)
-
-    def put_pv_value_blocking(self, pvname, value, block_timeout=60):
-        pvput(pvname, value, timeout=block_timeout, wait=True)
+    def put_pv_value(self, pvname, value, timeout=None):
+        # As is evident from the source code of pv.write (see
+        # https://github.com/slac-epics/p4p/blob/70de6bcf4f0d49cc339090b063a5468122501497/src/p4p/client/thread.py#L283),
+        # the `timeout` doesn't do anything if `wait == False`.
+        # So we can derive the value of `wait` directly from timeout:
+        # If `timeout == None` (no timeout being given at the callsite),
+        # `ẁait = False`, otherwise `ẁait = True`.
+        wait = timeout is not None
+        pvput(pvname, value, timeout=timeout, wait=wait)
 
     def get_pv_type(self, pvname):
         result = _CONTEXT.get(pvname, timeout=self._timeout)

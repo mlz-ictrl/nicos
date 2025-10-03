@@ -201,19 +201,19 @@ class CaprotoWrapper:
             return scalar
         return response.data
 
-    def put_pv_value(self, pvname, value, wait=False):
-        if pvname in self._choices:
-            value = self._choices[pvname].index(value)
-        try:
-            self._pvs[pvname].write(value, wait=wait, timeout=self._timeout)
-        except CaprotoTimeoutError:
-            raise TimeoutError(f'setting {pvname} timed out') from None
+    def put_pv_value(self, pvname, value, timeout=None):
+        # As is evident from the source code of pv.write (see
+        # https://caproto.github.io/caproto/v1.2.0/_modules/caproto/threading/client.html#PV.write),
+        # the `timeout` doesn't do anything if `wait == False`.
+        # So we can derive the value of `wait` directly from timeout:
+        # If `timeout == None` (no timeout being given at the callsite),
+        # `ẁait = False`, otherwise `ẁait = True`.
+        wait = timeout is not None
 
-    def put_pv_value_blocking(self, pvname, value, block_timeout=60):
         if pvname in self._choices:
             value = self._choices[pvname].index(value)
         try:
-            self._pvs[pvname].write(value, wait=True, timeout=block_timeout)
+            self._pvs[pvname].write(value, wait=wait, timeout=timeout)
         except CaprotoTimeoutError:
             raise TimeoutError(f'setting {pvname} timed out') from None
 

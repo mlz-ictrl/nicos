@@ -24,6 +24,7 @@
 """
 This module contains some classes for NICOS - EPICS integration using p4p.
 """
+import numbers
 import os
 import time
 
@@ -194,16 +195,86 @@ class EpicsDevice(DeviceMixinBase):
         return self._epics_wrapper.get_pv_value(self._param_to_pv[pvparam],
                                                 as_string=as_string)
 
-    def _put_pv(self, pvparam, value, wait=False):
+    def _put_pv(self, pvparam, value, timeout=None):
+        """
+        Write the given value to the specified PV. If a `timeout` is specified,
+        the session is blocked until it has been verified that the record has
+        processed the new input or until the timeout is exceeded. If the timeout
+        is set to `None` (its default value), this command does not block the
+        session and does not verify whether the record has been processed.
+
+        The process verification relies on the EPICS callback mechanism (see
+        https://epics.anl.gov/base/R3-14/12-docs/CAref.html#ca_put). Some
+        special records such as e.g. the motor record do not use this for all
+        fields, hence the operation will always time out. In such a case,
+        consider using `_put_pv_readback_checked` instead.
+        """
         # If wait = True then will block until finished or timeout.
         # It cannot be interrupted
         self._epics_wrapper.put_pv_value(self._param_to_pv[pvparam], value,
-                                         wait=wait)
+                                         timeout=timeout)
 
-    def _put_pv_blocking(self, pvparam, value, timeout=60):
-        # Will block until finished or timeout - cannot be interrupted
-        self._epics_wrapper.put_pv_value_blocking(self._param_to_pv[pvparam],
-                                                  value, timeout)
+    def _put_pv_readback_checked(self, pvparam, value, timeout, abstol=0):
+        """
+        Write the given value to the specified PV and block the session until it
+        has been verified that the PV has actually changed on the EPICS side by
+        repeatedly reading the PV and comparing for equality to the `value`
+        argument of this function.
+
+        The `_put_pv` function provides a related functionality: By specifying
+        a timeout there, the EPICS callback mechanism (see
+        https://epics.anl.gov/base/R3-14/12-docs/CAref.html#ca_put) is used to
+        verify whether an input has been processed within the given timeout.
+        In constrast, this function does not rely on the callback mechanism.
+
+        This is useful for example in the case of the motor record, where
+        many fields such as `.VELO` do not use the callback mechanism (using
+        `_put_pv` with a timeout argument here would result in a timeout error
+        even though the record processed the input). If the record (field) does
+        however support the callback mechanism, it is recommended to use
+        `_put_pv` instead of this function.
+
+        In case of a numeric value, it is also possible to specify an absolute
+        tolerance `abstol` for the equality check. A usecase for this is again
+        the motor record, where the maximum resolution of e.g. the target value
+        `.VAL` is defined by `.MRES` and therefore an input value with a higher
+        resolution is truncated. Using an exact equality check would fail in
+        this case even though the target has been successfully set.
+
+        Parameters
+        ----------
+        pvparam : str
+            Name of the record (field), e.g. `INSTRUMENT:MOTOR.VAL`.
+        value : any
+            New value which should be written to `pvparam`
+        timeout: float
+            The equality of the new value and the readback value from the record
+            is checked repeatedly until they are equal or until the specified
+            timeout in seconds is reached - then a TimeoutError is raised.
+        abstol: float
+            If the new value is numeric, the specified absolute tolerance
+            `abstol` is used to determine whether it and the readback value are
+            approximately equal:
+            `abs(readback - value) <= abstol`.
+            For other value types, `abstol` has no effect.
+        """
+        def isEqual(pvparam, value, abstol):
+            if isinstance(value, numbers.Number):
+                return abs(self._get_pv(pvparam) - value) <= abstol
+            else:
+                return self._get_pv(pvparam,
+                                    as_string=isinstance(value, str)) == value
+
+        # Providing a timeout value would result in the wrapper using the
+        # EPICS caput callback mechanism, which we don't want to do here
+        self._put_pv(pvparam, value, timeout=None)
+
+        start = time.monotonic()
+        while not isEqual(pvparam, value, abstol):
+            if time.monotonic() - start > timeout:
+                raise TimeoutError('changing value of %s to %s within %d '
+                                    'seconds failed' % (pvparam, value, timeout))
+            session.delay(self._base_loop_delay)
 
     def get_alarm_status(self, pvparam):
         return self._epics_wrapper.get_alarm_status(self._param_to_pv[pvparam])
