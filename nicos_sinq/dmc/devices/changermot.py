@@ -32,7 +32,7 @@ from nicos.devices.epics.pyepics.motor import EpicsMotor as CoreEpicsMotor
 from nicos.devices.epics.pyepics.pyepics import EpicsDevice
 from nicos.devices.generic.switcher import Switcher
 
-from nicos_sinq.devices.epics.motor import SinqMotor
+from nicos_sinq.devices.epics.sinqmotor_deprecated import SinqMotor
 
 
 class CHSwitcher(Switcher):

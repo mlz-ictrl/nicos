@@ -9,7 +9,7 @@ excludes = ['andor', 'andorccd', 'embl', 'fastcomtec']
 includes = ['single_el737']
 
 devices = dict(
-    dccdatz = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    dccdatz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Andor focus motor',
         motorpv = motprefix,
     ),

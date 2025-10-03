@@ -9,11 +9,11 @@ sysconfig = dict(instrument = 'ZEBRA',)
 pvpref = 'SQ:ZEBRA:turboPmac2:'
 
 devices = dict(
-    chi = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    chi = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'CHI rotation',
         motorpv = pvpref + 'SCH',
     ),
-    phi = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    phi = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'PHI rotation',
         motorpv = pvpref + 'SPH',
         userlimits = (-180, 180),

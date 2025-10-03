@@ -3,7 +3,7 @@ description = 'Devices for the sample table'
 pvpref = 'SQ:ZEBRA:turboPmac1:'
 
 devices = dict(
-    om_raw = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    om_raw = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample rotation',
         motorpv = pvpref + 'SOM',
     ),
@@ -12,30 +12,30 @@ devices = dict(
         alias = 'om_raw',
         devclass = 'nicos.core.device.Moveable'
     ),
-    sx = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    sx = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample X translation',
         motorpv = pvpref + 'SX',
     ),
-    sy = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    sy = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample Y translation',
         motorpv = pvpref + 'SY',
     ),
-    sz = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    sz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample lift',
         motorpv = pvpref + 'SZ',
     ),
-    stt = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    stt = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Two Theta detector',
         motorpv = pvpref + 'STT',
     ),
 )
 """
     # Not available most of the time
-    sgl = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    sgl = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample lower goniometer',
         motorpv = pvpref + 'SGL',
     ),
-    sgu = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    sgu = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample upper goniometer',
         motorpv = pvpref + 'SGU',
     ),

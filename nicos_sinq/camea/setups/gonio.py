@@ -10,19 +10,19 @@ pvmcu4 = 'SQ:CAMEA:turboPmac4:'
 includes = ['cameabasic']
 
 devices = dict(
-    gl = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    gl = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample table lower goniometer',
         motorpv = pvmcu1 + 'gl',
     ),
-    gu = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    gu = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample table upper goniometer',
         motorpv = pvmcu1 + 'gu',
     ),
-    tl = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    tl = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample table lower translation',
         motorpv = pvmcu1 + 'tl',
     ),
-    tu = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    tu = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample table upper translation',
         motorpv = pvmcu1 + 'tu',
     ),

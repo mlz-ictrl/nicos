@@ -374,7 +374,7 @@ class EpicsStringMoveable(EpicsMoveable):
         return self._get_pv('readpv', as_string=True)
 
 
-class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
+class EpicsAnalogMoveable(HasLimits, HasPrecision, EpicsMoveable):
     """
     Handles EPICS devices which can set and read a floating value.
     """

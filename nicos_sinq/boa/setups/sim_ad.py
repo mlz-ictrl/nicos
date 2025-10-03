@@ -9,7 +9,7 @@ counterprefix = 'SQ:BOA:counter'
 excludes = ['andorccd', 'embl', 'andorccd-l', 'andor', 'fastcomtec', 'camini']
 
 devices = dict(
-    dccdatz = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    dccdatz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Andor focus motor',
         motorpv = motprefix,
     ),

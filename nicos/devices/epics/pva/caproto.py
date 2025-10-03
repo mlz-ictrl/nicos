@@ -22,7 +22,6 @@
 # *****************************************************************************
 from functools import partial
 
-import numpy as np
 from caproto import CaprotoTimeoutError, ChannelType
 from caproto.sync.client import read, write
 from caproto.threading.client import Context
@@ -147,28 +146,60 @@ class CaprotoWrapper:
 
     def get_pv_value(self, pvname, as_string=False):
         try:
-            result = self._pvs[pvname].read(timeout=self._timeout,
-                                            data_type='control')
-            return self._convert_value(pvname, result, as_string)
+            # response is a ReadResponse objects with the fields:
+            # - data: a scalar or an array depending on the record type
+            # - metada: Control metdata such as limits, units, etc.
+            # - status: Record status
+            # - severity: Error severity
+            # - timestamp: Read timestamp
+            response = self._pvs[pvname].read(timeout=self._timeout,
+                                              data_type='control')
+            return self._convert_value(pvname, response, as_string)
         except CaprotoTimeoutError:
             raise TimeoutError(f'getting {pvname} timed out') from None
 
-    def _convert_value(self, pvname, raw_value, as_string=False):
-        if len(raw_value.data) == 1:
-            value = raw_value.data[0]
+    def _convert_value(self, pvname, response, as_string=False):
+        """
+        Convert the data returned from reading a PV into its "natural" type.
+
+        Caproto always returns the read values wrapped in an array
+        (a numpy.ndarray) if Numpy is installed, which always holds true in
+        NICOS. Furthermore, strings are returned as (an array of) raw bytes /
+        hex values.
+
+        Therefore, a variety of conversions are performed to make sure the
+        output type matches the expectations:
+        - If the return type is a scalar (array length is 1) and the PV is an
+        enum (pvname in self._choices), then the string representation from
+        self._choices is returned if as_string == True (if as_string == False,
+        the scalar itself is returned).
+        - If as_string == True, the array is treated as a C-string and converted
+        into a Python string using utf-8 decoding, stripping any NULL
+        terminators in the process.
+        - If the value is a scalar, it is is returned as such. Otherwise, the
+        array is returned.
+        """
+        scalar = None
+
+        if len(response.data) == 1:
+            # Unwrap the scalar
+            scalar = response.data[0]
+
+            # Treat the enum case: If the pvname is an enum, return the enum
+            # string alias if as_string == True, otherwise return the raw value.
             if pvname in self._choices:
-                return self._choices[pvname][value] if as_string else value
-            elif isinstance(value, bytes):
-                return value.decode()
-            return str(value) if as_string else value
+                return self._choices[pvname][scalar] if as_string else scalar
 
-        # waveforms and arrays are ndarrays
-        if isinstance(raw_value.data, np.ndarray):
-            val_type = FTYPE_TO_TYPE[self._pvs[pvname].channel.native_data_type]
-            if val_type == bytes or as_string:
-                return raw_value.data.tobytes().decode()
+        # Decode the array as a string, if requested
+        if as_string:
+            return response.data.tobytes().rstrip(b'\x00').decode(
+                encoding='utf-8', errors='ignore')
 
-        return str(raw_value.data) if as_string else raw_value.data
+        # If the value is a scalar, return it, otherwise return the array.
+        # Explicit None check is needed here because scalar could be a zero!
+        if scalar is not None:
+            return scalar
+        return response.data
 
     def put_pv_value(self, pvname, value, wait=False):
         if pvname in self._choices:

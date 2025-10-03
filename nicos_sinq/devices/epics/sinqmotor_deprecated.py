@@ -17,20 +17,18 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #   Stefan Mathis <stefan.mathis@psi.ch>
 #
 # *****************************************************************************
 
-from time import time
-
-from nicos import session
 from nicos.core import Param, status
 from nicos.core.errors import UsageError
 from nicos.core.params import Override, none_or, oneof, pvname
-from nicos.devices.epics.pva.motor import EpicsMotor as CoreEpicsMotor
-from nicos_sinq.devices.dynamic_userlimits import DynamicUserlimits
+from nicos.devices.epics.pyepics.motor import EpicsMotor as CoreEpicsMotor
 
-class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
+
+class SinqMotor(CoreEpicsMotor):
 
     parameters = {
         'can_disable': Param('Whether the motor can be enabled/disabled using '
@@ -39,14 +37,13 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         'encoder_type': Param('Encoder type', default=None, settable=False,
                               type=none_or(oneof('absolute', 'incremental')),
                               userparam=True, volatile=True),
+        'connected': Param('Whether the motor is connected or not.', type=bool,
+                           mandatory=False, settable=False, userparam=True,
+                           volatile=True),
     }
 
     parameter_overrides = {
         'precision': Override(volatile=True),
-        # Necessary since DynamicUserlimits overrides the override in
-        # CoreEpicsMotor
-        'abslimits': Override(volatile=True, mandatory=False),
-        'monitor': Override(default=True),
     }
 
     # Additional SINQ-specific record names which extend the basic motor record
@@ -57,13 +54,10 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         'can_disable': ':CanDisable',
         'connected_rbv': ':Connected',
         'encoder_type': ':EncoderType',
+        'errorbitpv': ':StatusProblem',
         'reseterrorpv': ':Reset',
         'errormsgpv': '-MsgTxt',
     }
-
-    # Maximum allowed delay for enabling / disabling a motor before an error
-    # message is reported.
-    _max_delay_enabling_disabling = 20
 
     def _get_pv_parameters(self):
         pvs = CoreEpicsMotor._get_pv_parameters(self)
@@ -76,16 +70,19 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
             return self.motorpv + pvext
         return CoreEpicsMotor._get_pv_name(self, pvparam)
 
-    def _get_status_parameters(self):
-        params = CoreEpicsMotor._get_status_parameters(self)
-        params.add('enable_rbv')
-        params.add('connected_rbv')
-        params.add('errormsgpv')
-        return params
+    def _register_pv_callbacks(self):
+        CoreEpicsMotor._register_pv_callbacks(self)
 
-    def doInit(self, mode):
-        DynamicUserlimits.doInit(self, mode)
-        CoreEpicsMotor.doInit(self, mode)
+        def update_position(**kw):
+            self.read(0)
+
+        def update_status(**kw):
+            self.status(0)
+
+        self._pvs['errormsgpv'].add_callback(update_status)
+        self._pvs['enable_rbv'].add_callback(update_status)
+        self._pvs['connected_rbv'].add_callback(update_status)
+        self._pvs['readpv'].add_callback(update_position)
 
     def doStatus(self, maxage=0):
         (stat, msg) = CoreEpicsMotor.doStatus(self, maxage)
@@ -103,59 +100,36 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
 
         return (stat, msg)
 
-    # Overloaded from CoreEpicsMotor to add a hint if the motor is disabled
-    # and to skip the log completely if the motor is disconnected
-    def _log_status_error(self, stat, msg_txt):
-        if not self.connected:
-            return
-        if not self.enabled:
-            if stat == status.WARN:
-                self.log.warning('Motor is disabled - %s', msg_txt)
-            elif stat == status.ERROR:
-                self.log.error('Motor is disabled - %s', msg_txt)
-        else:
-            if stat == status.WARN:
-                self.log.warning(msg_txt)
-            elif stat == status.ERROR:
-                self.log.error(msg_txt)
-
-    def doReadEncoder_Type(self, maxage=0):
+    def doReadEncoder_Type(self):
         encoder_type = self._get_pv('encoder_type', as_string=True)
         if encoder_type.lower() in ('none', ''):
             return None
         return encoder_type
 
-    def doReadCan_Disable(self, maxage=0):
-        return self._get_pv('can_disable')
+    def doReadCan_Disable(self):
+        # This parameter should be reread every time this function is accessed.
+        # If monitor=True (default parameter), the value is read from the
+        # cache, which is not what we want!
+        return self._get_pv('can_disable', use_monitor=False)
 
     # Provide SINQ-specific default PV names in case no explicit PV name has
     # been given in the setup file
     def doReadErrormsgpv(self):
-        if pv := self._config.get('errormsgpv', None):
+        if pv := self._config.get('errormsgpv'):
             return pv
         return pvname(self.motorpv + '-MsgTxt')
 
+    def doReadErrorbitpv(self):
+        if pv := self._config.get('errorbitpv'):
+            return pv
+        return pvname(self.motorpv + ':StatusProblem')
+
     def doReadReseterrorpv(self):
-        if pv := self._config.get('reseterrorpv', None):
+        if pv := self._config.get('reseterrorpv'):
             return pv
         return pvname(self.motorpv + ':Reset')
 
     def doEnable(self, on):
-
-        def enable_loop(self, on):
-            CoreEpicsMotor.doEnable(self, on)
-            enable_time = time()
-            while time() < enable_time + self._max_delay_enabling_disabling:
-                if self._get_pv('enable_rbv') == on:
-                    return
-                if self._cache is not None:
-                    self._cache.put(self, 'status', (status.BUSY,
-                                    f'{"En" if on else "Dis"}abling'))
-                session.delay(self._base_loop_delay)
-            msg = f'Motor could not be {"en" if on else "dis"}abled within ' \
-                  f'{self._max_delay_enabling_disabling} seconds'
-            raise TimeoutError(msg)
-
         if not self.connected:
             raise UsageError('Motor cannot be enabled / disabled because it is '
                              'disconnected from the controller!')
@@ -165,15 +139,22 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
             moving = self._get_pv('moving')
             if done_moving == 0 or moving != 0:
                 raise UsageError('Motor cannot be disabled during movement!')
-            enable_loop(self, on)
+            else:
+                CoreEpicsMotor.doEnable(self, on)
+                self.status()
+                self._cache.put(self, 'status', (status.BUSY,
+                                f'{"En" if on else "Dis"}abling'))
         else:
-            if on == 0:
+            if on:
+                # The motor cannot be disabled, but it still can be enabled!
+                CoreEpicsMotor.doEnable(self, on)
+                self.status()
+                self._cache.put(self, 'status', (status.BUSY,
+                                f'{"En" if on else "Dis"}abling'))
+            else:
                 raise UsageError('Motor cannot be disabled!')
-            # The motor cannot be disabled, but it still can be enabled!
-            enable_loop(self, on)
 
-    @property
-    def connected(self):
+    def doReadConnected(self, maxage=0):
         """Shows if the motor is connected or not"""
         if not self._sim_intercept:
             return self._get_pv('connected_rbv') != 0
@@ -201,15 +182,9 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         else:
             CoreEpicsMotor.doReference(self)
 
-    def doReadUserlimits(self):
-        return DynamicUserlimits.doReadUserlimits(self)
-
-    def doWriteUserlimits(self, value):
-        DynamicUserlimits.doWriteUserlimits(self, value)
-        return CoreEpicsMotor.doWriteUserlimits(self, value)
+    def doReset(self):
+        self._put_pv_checked('reseterrorpv', 1)
 
     def doPoll(self, n, maxage):
         CoreEpicsMotor.doPoll(self, n, maxage)
-        # No need to poll the userlimits - they are adjusted automatically
-        # in DynamicUserlimits via a daemon callback mechanism
         self.pollParams('can_disable', 'encoder_type')

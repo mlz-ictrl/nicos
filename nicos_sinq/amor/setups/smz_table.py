@@ -7,7 +7,7 @@ pvprefix = 'SQ:AMOR:mmac1:'
 excludes = ['stz_table']
 
 devices = dict(
-    smz = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    smz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample lift with magnet installed',
         motorpv = pvprefix + 'smz',
         visibility = ('devlist', 'metadata', 'namespace'),

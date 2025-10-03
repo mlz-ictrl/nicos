@@ -7,15 +7,15 @@ excludes = [
 ]
 
 devices = dict(
-    mth1 = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    mth1 = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Double Monochromator Blade 1 Rotation',
         motorpv = pvprefix + 'MTH1',
     ),
-    mth2 = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    mth2 = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Double Monochromator Blade 2 Rotation',
         motorpv = pvprefix + 'MTH2',
     ),
-    mtx = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    mtx = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Double Monochromator Translation',
         motorpv = pvprefix + 'MTX',
     ),

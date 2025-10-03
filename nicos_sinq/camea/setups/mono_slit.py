@@ -5,19 +5,19 @@ display_order = 30
 pvmcu = 'SQ:CAMEA:turboPmac2:'
 
 devices = dict(
-    mst = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    mst = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Monochromator slit top',
         motorpv = pvmcu + 'mst',
     ),
-    msb = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    msb = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Monochromator slit bottom',
         motorpv = pvmcu + 'msb',
     ),
-    msr = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    msr = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Monochromator slit right',
         motorpv = pvmcu + 'msr',
     ),
-    msl = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    msl = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Monochromator slit left',
         motorpv = pvmcu + 'msl',
     ),

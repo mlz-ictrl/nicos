@@ -9,15 +9,15 @@ sysconfig = dict(instrument = 'ZEBRA',)
 pvpref = 'SQ:ZEBRA:masterMacs1:'
 
 devices = dict(
-    omk = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    omk = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Kappa omega rotation',
         motorpv = pvpref + 'omk',
     ),
-    kappa = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    kappa = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Kappa  rotation',
         motorpv = pvpref + 'kappa',
     ),
-    phik = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    phik = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Kappa phi rotation',
         motorpv = pvpref + 'phik',
     ),

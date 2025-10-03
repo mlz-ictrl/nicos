@@ -5,13 +5,13 @@ display_order = 40
 pvprefix = 'SQ:AMOR:masterMacs1:'
 
 devices = dict(
-    ltz_r = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    ltz_r = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Lift (z translation) of deflector & flight tube',
         motorpv = pvprefix + 'ltz',
         unit = 'mm',
         visibility = ('devlist', 'metadata', 'namespace'),
     ),
-    lom_r = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    lom_r = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Tilt (pitch) of deflector & flight tube',
         motorpv = pvprefix + 'lom',
         unit = 'deg',

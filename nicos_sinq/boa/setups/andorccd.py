@@ -6,7 +6,7 @@ motprefix = 'SQ:BOA:turboPmac1:DCCDATZ'
 counterprefix = 'SQ:BOA:counter'
 
 devices = dict(
-    dccdatz = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    dccdatz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Andor focus motor',
         motorpv = motprefix,
     ),

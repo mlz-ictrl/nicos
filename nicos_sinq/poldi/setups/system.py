@@ -52,7 +52,7 @@ devices = dict(
         templateclass =
         'nicos_sinq.poldi.nexus.nexus_templates.POLDITemplateProvider',
     ),
-    phimun = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    phimun = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description='Unknown motor',
         motorpv='SQ:POLDI:turboPmac1:PHIMUN',
     ),

@@ -3,7 +3,7 @@ description = 'Sample changer devices for SINQ DMC.'
 pvprefix = 'SQ:DMC:turboPmac2'
 
 devices = dict(
-    chmot = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    chmot = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample changer motor motor',
         motorpv = f'{pvprefix}:CHPOS',
     ),

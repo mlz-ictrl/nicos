@@ -3,7 +3,7 @@ description = 'Devices for the attenuator'
 group = 'lowlevel'
 
 devices = dict(
-    attpos = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    attpos = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Attenuator motor',
         motorpv = 'SQ:SANS:turboPmac1:attpos',
     ),

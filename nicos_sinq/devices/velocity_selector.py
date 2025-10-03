@@ -23,7 +23,7 @@
 from nicos.core import Attach, Moveable, Param, listof, tupleof
 
 from nicos_sinq.devices.epics.generic import WindowMoveable
-from nicos_sinq.devices.epics.motor import SinqMotor
+from nicos_sinq.devices.epics.sinqmotor_deprecated import SinqMotor
 
 
 class VSForbiddenMoveable(WindowMoveable):
