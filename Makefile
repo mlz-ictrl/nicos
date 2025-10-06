@@ -25,13 +25,13 @@ pod-demo:
 
 clean:
 	rm -rf build
-	find . -name '__pycache__' -exec rm -rf {} \;
+	find . -name '__pycache__' -exec rm -rf {} +
 	rm -rf test/root/
 
 clean-demo: clean
 	-rm -rf data/cache/*
 	-rm -rf data/logbook data/20*
-	-rm -rf log/poller* log/cache log/daemon log/elog log/nicos log/watchdog
+	-rm -rf log/poller* log/cache log/daemon log/elog log/nicos log/watchdog log/simulation log/monitor*
 	-rm -f data/current
 
 install:
