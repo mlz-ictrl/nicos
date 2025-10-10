@@ -2454,6 +2454,12 @@ class DeviceAlias(Device):
             if newdev is self:
                 raise NicosError(self, 'cannot set alias pointing to itself')
             if newdev != self._obj:
+                if isinstance(newdev, DeviceAlias):
+                    suffix = ''
+                    if newdev.alias is not None:
+                        suffix = f', consider setting alias to {newdev.alias}'
+                    msg = f'cannot set alias to another alias {newdev}{suffix}'
+                    raise NicosError(self, msg)
                 self._obj = newdev
                 if self._cache:
                     self._cache.setRewrite(str(self), devname)
