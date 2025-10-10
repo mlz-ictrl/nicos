@@ -31,9 +31,9 @@ from PIL import Image
 from nicos.core import Param
 from nicos.core.params import secret
 from nicos.services.elog.handler import Handler as BaseHandler
-from nicos.services.elog.handler.eworkbench.rabbit_producer import \
-    RabbitProducer
 from nicos.services.elog.utils import formatMessage
+
+from .rabbit_producer import RabbitProducer
 
 
 class RabbitWriter:
