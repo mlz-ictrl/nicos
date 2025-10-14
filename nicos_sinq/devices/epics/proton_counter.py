@@ -126,18 +126,18 @@ class SINQProtonMonitor(CounterChannelMixin, EpicsActiveChannel):
         return status.OK, ''
 
     def doPrepare(self):
-        self._put_pv('presetpv', self.preselection)
-        self._put_pv('readpv', 0)
+        self._put_pv_checked('presetpv', self.preselection)
+        self._put_pv_checked('readpv', 0)
 
     def doStart(self):
         self.doPrepare()
-        self._put_pv('startpv', 1)
+        self._put_pv_checked('startpv', 1)
 
     def doStop(self):
-        self._put_pv('startpv', 0)
+        self._put_pv_checked('startpv', 0)
 
     def doFinish(self):
-        self._put_pv('startpv', 0)
+        self._put_pv_checked('startpv', 0)
 
     def doIsCompleted(self):
         return not self._get_pv('startpv')

@@ -29,7 +29,7 @@ import pytest
 
 from nicos.commands.basic import ListCommands
 from nicos.commands.device import adjust, read
-from nicos.core import ConfigurationError, NoDevice, UsageError
+from nicos.core import ConfigurationError, NicosError, NoDevice, UsageError
 
 from test.utils import ErrorLogged
 
@@ -113,3 +113,26 @@ def test_alias_valueinfo(session):
     vistr = str(alias.valueInfo())
     assert 'aliasDev4' in vistr
     assert alias.valueInfo()[0].name == 'aliasDev4'
+
+def test_alias_to_alias(session):
+    """
+    Setting an alias to another alias is prohibited.
+    """
+    alias1 = session.getDevice('aliasDev')
+    alias2 = session.getDevice('aliasDev2')
+
+    # Device alias1 does not have an alias, but alias2 has one.
+    assert alias1.alias == ''
+    assert alias2.alias == 'slit'
+
+    with pytest.raises(NicosError) as e_info:
+        alias2.alias = alias1
+
+    assert 'cannot set alias to another alias' in str(e_info)
+
+    # If alias2 already points to a device, the message is adapted
+    with pytest.raises(NicosError) as e_info:
+        alias1.alias = alias2
+
+    assert 'cannot set alias to another alias' in str(e_info)
+    assert f'consider setting alias to {alias2.alias}' in str(e_info)
