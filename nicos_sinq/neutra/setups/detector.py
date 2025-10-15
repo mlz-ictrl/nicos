@@ -2,13 +2,21 @@ description = 'Camini Camera Synchronisation Detector'
 
 pvprefix = 'SQ:NEUTRA:CAMINI:'
 pvprefix_sumi = 'SQ:NEUTRA:sumi:'
-pvprefix_ai = 'SQ:NEUTRA:B5ADC:'
-
-includes = ['shutters']
 
 display_order = 70
 
 devices = dict(
+    # Dummy device to make camini happy until we have shutter controls
+    exp_shutter = device('nicos.devices.generic.manual.ManualSwitch',
+        description =
+        'Switch which decides if the experiment shutter is managed automatically or manually',
+        states = ['open', 'closed'],
+    ),
+    exp_auto = device('nicos.devices.generic.manual.ManualSwitch',
+        description =
+        'Switch which decides if the experiment shutter is managed automatically or manually',
+        states = ['auto', 'manual'],
+    ),
     cam_shut = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Camera shutter open',
         readpv = pvprefix + 'SHUTTER',
@@ -71,7 +79,7 @@ devices = dict(
     ),
     beam_current = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Beam current',
-        readpv = pvprefix_ai + 'V4',
+        readpv = pvprefix_sumi + 'BEAMCOPY',
     ),
     exp_time = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Exposure time',
@@ -89,7 +97,7 @@ devices = dict(
         rate_monitor = 'oracle',
         rate_threshold = 'exp_threshold',
         exp_ok = 'exp_ok',
-    )
+    ),
 )
 startupcode = '''
 SetDetectors(camera)

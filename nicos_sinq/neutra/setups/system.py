@@ -63,4 +63,9 @@ devices = dict(
         abslimits = (0, 1e9),
         visibility = set(),
     ),
+    proton_current = device('nicos.devices.epics.pva.EpicsReadable',
+        description = 'Proton current from HIPA',
+        readpv = "MHC6:IST:2",
+        monitor = True,
+    ),
 )
