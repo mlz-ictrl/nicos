@@ -1,5 +1,7 @@
 description = 'Camini Camera Synchronisation Detector'
 
+## TODO link with shutter readback
+
 pvprefix = 'SQ:NEUTRA:CAMINI:'
 pvprefix_sumi = 'SQ:NEUTRA:sumi:'
 
