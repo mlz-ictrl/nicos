@@ -71,10 +71,7 @@ class Handler(BaseHandler):
     }
 
     def doInit(self, mode):
-        self._eln_enabled = True
-        self._proposal = ''
-        self._instr = ''
-        self._logdir = ''
+        BaseHandler.doInit(self, mode)
         password = self.password.lookup('RabbitMQ password is required')
         self._rabbit_producer = RabbitProducer(
             url=self.url,
@@ -86,6 +83,10 @@ class Handler(BaseHandler):
 
         self.log.info('workbench_writer: handle init')
 
+    @property
+    def _eln_enabled(self):
+        return not self._hidden
+
     def doShutdown(self):
         self._rabbit_producer.close()
         self.log.info('workbench_writer: handler close')
@@ -95,10 +96,10 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle hidden')
 
         # the switch logic is applied here
-        self._eln_enabled = not data
+        self._hidden = data
 
         # with restart handle_enable is called before handle directory
-        if self.proposal != '':
+        if self._proposal != '':
             headers = rb_headers_note(proposal=self._proposal,
                                       subject=f'EnableELN  '
                                               f'{wb_timestring_1(time)}',
@@ -132,10 +133,8 @@ class Handler(BaseHandler):
         self._rabbit_producer.produce(headers=headers, message=wb_text)
 
     def handle_newexperiment(self, time, data):
+        BaseHandler.handle_newexperiment(self, time, data)
         self.log.info('workbench_writer: handle newexperiment')
-
-        # get proposal here if proposal name in handle directory was missing
-        self._proposal, title = data
 
         headers = rb_headers_note(proposal=self._proposal,
                                   subject='NewExperiment  '
@@ -145,7 +144,7 @@ class Handler(BaseHandler):
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(
-                                          f'New Experiment is: {title}'))
+                                          f'New Experiment is: {self._title}'))
 
     def handle_setup(self, time, setupnames):
         self.log.info('workbench_writer: handle setup')

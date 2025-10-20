@@ -73,6 +73,7 @@ class Logbook(BaseCacheClient):
         # request persistent data for the handler to start up correctly
         msg = (f'@{self._prefix}hidden{OP_ASK}\n'
                f'@{self._prefix}directory{OP_ASK}\n'
+               f'@{self._prefix}newexperiment{OP_ASK}\n'
                f'{END_MARKER}{OP_ASK}\n')
         self._socket.sendall(msg.encode())
 

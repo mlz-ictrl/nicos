@@ -305,6 +305,7 @@ class Handler(BaseHandler):
     }
 
     def doInit(self, mode):
+        BaseHandler.doInit(self, mode)
         self._out = HtmlWriter()
 
     def doShutdown(self):
@@ -316,12 +317,12 @@ class Handler(BaseHandler):
         self.log.info('Opened new output files in %s', self._logdir)
 
     def handle_newexperiment(self, time, data):
-        proposal, title = data
+        BaseHandler.handle_newexperiment(self, time, data)
         targetid = self._out.new_id()
-        if title:
-            text = 'Experiment %s: %s' % (escape(proposal), escape(title))
+        if self._title:
+            text = 'Experiment %s: %s' % (escape(self._proposal), escape(self._title))
         else:
-            text = 'Experiment %s' % escape(proposal)
+            text = 'Experiment %s' % escape(self._proposal)
         self._out.timestamp(time)
         self._out.newstate('plain', '', '',
                            '<h1 id="%s">%s</h1>\n' % (targetid, text))

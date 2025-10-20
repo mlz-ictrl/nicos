@@ -29,9 +29,12 @@ from nicos.core.device import Device
 
 
 class Handler(Device):
+
     def doInit(self, mode):
         self._hidden = False
         self._dir = self._logdir = None
+        self._proposal = self._title = None
+        self._instr = None
 
     def handle(self, key, timestamp, data):
         fun = getattr(self, f'handle_{key}', None)
@@ -55,6 +58,7 @@ class Handler(Device):
 
             data = [proposal, title]
         """
+        self._proposal, self._title = data
 
     def handle_setup(self, time, setupnames):
         """Handle the 'setup' event."""
