@@ -29,7 +29,7 @@ from nicos.utils.loggers import NicosLogger
 
 class RabbitProducer:
     HEADER_KEYS = {'proposal', 'subject', 'note', 'loglevel', 'attachment',
-                   'file', 'line_count', 'img_rows', 'eln_enabled'}
+                   'file', 'line_count', 'img_rows', 'eln_enabled', 'exp_title'}
 
     def __init__(self, url, port, virtual_host,
                  username, password, static_queue):
