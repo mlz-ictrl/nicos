@@ -209,7 +209,7 @@ opening.
         if self.opmode.endswith('centered'):
             if self.opmode.startswith('off'):
                 vnames += [center[0] for center in self._autodevs[::2]]
-            vnames += list(size[0] for size in self._autodevs[1::2])
+            vnames += [size[0] for size in self._autodevs[1::2]]
         else:
             vnames = self._axnames
         return tuple(Value(f'{self}.{vn}', unit=self.unit, fmtstr='%.2f')
@@ -576,7 +576,37 @@ class HeightSlitAxis(SlitAxis):
                 centery - target / 2, centery + target / 2)
 
 
-class TwoAxisSlit(CanReference, Moveable):
+class SimpleWidthSlitAxis(SlitAxis):
+
+    def _convertRead(self, positions):
+        return positions[0]
+
+    def _convertStart(self, target, current):
+        return target, current[1]
+
+
+class SimpleHeightSlitAxis(SlitAxis):
+
+    def _convertRead(self, positions):
+        return positions[1]
+
+    def _convertStart(self, target, current):
+        return current[0], target
+
+
+class FixedCenterSlitAxis(SlitAxis):
+
+    def doStart(self, target):
+        raise UsageError('moving center in "centered" mode is not allowed')
+
+    def _convertRead(self, positions):
+        return 0.
+
+    def _convertStart(self, target, current):
+        return 0, 0
+
+
+class TwoAxisSlit(Gap):
     """A rectangular slit consisting of 2 orthogonal slits.
 
     All instances have attributes controlling single dimensions that can be used
@@ -594,63 +624,62 @@ class TwoAxisSlit(CanReference, Moveable):
         'vertical':   Attach('Vertical slit', HasPrecision),
     }
 
-    parameters = {
-        'parallel_ref': Param("Set to True if the blades' reference drive "
-                              'can be done in parallel.', type=bool,
-                              default=False),
-    }
-
     parameter_overrides = {
         'fmtstr': Override(default='%.2f %.2f'),
         'unit': Override(mandatory=False),
+        'opmode': Override(settable=False, volatile=True),
     }
 
     valuetype = tupleof(float, float)
 
     hardware_access = False
 
-    def doInit(self, _mode):
-        self._slits = [self._attached_horizontal, self._attached_vertical]
-        self._slitnames = ['horizontal', 'vertical']
+    def _init_adevs(self):
+        self._autodevs = [
+            ('centerx', FixedCenterSlitAxis),
+            ('width', SimpleWidthSlitAxis),
+            ('centery', FixedCenterSlitAxis),
+            ('height', SimpleHeightSlitAxis),
+        ]
+        self._axes = [self._attached_horizontal, self._attached_vertical]
+        self._axnames = ['horizontal', 'vertical']
 
-        for name in self._slitnames:
-            self.__dict__[name] = self._adevs[name]
-        self.__dict__['width'] = self.horizontal
-        self.__dict__['height'] = self.vertical
-
-    def doIsAllowed(self, target):
-        if len(target) != 2:
+    def _doIsAllowedPositions(self, positions):
+        if len(positions) != 2:
             raise InvalidValueError(self, 'arguments required for centered '
                                     'mode: [width, height]')
-        for slit, slitname, pos in zip(self._slits, self._slitnames, target):
-            ok, why = slit.isAllowed(pos)
+        for ax, axname, pos in zip(self._axes, self._axnames, positions):
+            ok, why = ax.isAllowed(pos)
             if not ok:
-                return ok, '[%s slit] %s' % (slitname, why)
+                return ok, '[%s slit] %s' % (axname, why)
         return True, ''
 
-    def doStart(self, target):
-        th, tv = target
+    def doRead(self, maxage=0):
+        return self._doReadPositions(maxage)
+
+    def _doStartPositions(self, positions):
+        th, tv = positions
         self._attached_horizontal.move(th)
         self._attached_vertical.move(tv)
 
-    def doReset(self):
-        for ax in self._slits:
-            ax.reset()
-        for ax in self._slits:
-            ax.wait()
+    def _getPositions(self, target):
+        return target
 
-    def doReference(self):
-        multiReference(self, self._slits, self.parallel_ref)
-
-    def doRead(self, maxage=0):
-        return [d.read(maxage) for d in self._slits]
+    def _doReadPositions(self, maxage):
+        return [d.read(maxage) for d in self._axes]
 
     def valueInfo(self):
         return Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'), \
             Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
 
     def doStatus(self, maxage=0):
-        return multiStatus(list(zip(self._slitnames, self._slits)))
+        return multiStatus(list(zip(self._axnames, self._axes)))
 
     def doReadUnit(self):
         return self._attached_horizontal.unit
+
+    def doReadOpmode(self):
+        return 'centered'
+
+    def doUpdateOpmode(self, value):
+        self.valuetype = tupleof(float, float)

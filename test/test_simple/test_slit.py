@@ -527,3 +527,22 @@ def test_two_axis_slit(session):
     pytest.raises(LimitError, slit.move, [-1, 1])
 
     slit.reference()
+
+    assert slit.width() == 0
+    assert slit.height() == 0
+
+    slit.width.maw(1)
+    assert slit.width() == 1
+    assert slit.horizontal() == 1
+
+    slit.height.maw(1)
+    assert slit.height() == 1
+    assert slit.vertical() == 1
+
+    assert slit() == [1, 1]
+
+    assert slit.centerx() == 0
+    assert slit.centery() == 0
+
+    pytest.raises(UsageError, slit.centerx.move, 1)
+    pytest.raises(UsageError, slit.centery.move, 1)
