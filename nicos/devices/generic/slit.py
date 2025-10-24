@@ -86,7 +86,7 @@ opening.
     def _init_adevs(self):
         raise NotImplementedError
 
-    def doInit(self, _mode):
+    def doInit(self, mode):
         self._init_adevs()
         for name in self._axnames:
             self.__dict__[name] = self._adevs[name]

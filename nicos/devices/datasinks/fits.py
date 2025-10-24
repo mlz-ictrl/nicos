@@ -114,7 +114,7 @@ class FITSImageSink(ImageSink):
 
     handlerclass = FITSImageSinkHandler
 
-    def doPreinit(self, _mode):
+    def doPreinit(self, mode):
         # Stop creation of the FITSImageSink as it would make no sense
         # without astropy.
         if fits is None:

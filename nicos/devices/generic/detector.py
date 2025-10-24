@@ -463,7 +463,7 @@ class Detector(Measurable):
     _last_save_index = 0
     _user_comment = ''
 
-    def doInit(self, _mode):
+    def doInit(self, mode):
         self._controlchannels = []
         self._followchannels = []
         self._channel_presets = {}

@@ -59,7 +59,7 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
     filetype = 'tiff'
     defer_file_creation = True
 
-    def doPreinit(self, _mode):
+    def doPreinit(self, mode):
         # Stop creation of the TIFFLaueFileFormat as it would make no sense
         # without correct PIL version.
         if Image is None:
