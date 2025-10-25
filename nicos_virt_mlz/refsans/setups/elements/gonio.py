@@ -43,6 +43,7 @@ devices = dict(
         description = 'Z-axis',
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (-500, 500),
+            curvalue = -4,
             speed = 0.5,
             unit = 'mm',
         ),

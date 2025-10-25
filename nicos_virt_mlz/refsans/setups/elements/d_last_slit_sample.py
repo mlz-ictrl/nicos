@@ -4,13 +4,13 @@ group = 'lowlevel'
 
 devices = dict(
     d_last_slit_sample = device('nicos.devices.generic.DeviceAlias',
-        alias = 'd_last_slit_sample',
+        alias = 'sample_x_manual',
     ),
 
     sample_x_manual = device('nicos.devices.generic.ManualMove',
-        description = 'distance last slit to samplecenter max105mm at pivot 9',
+        description = 'distance last slit to samplecenter max 105 mm at pivot 9',
         abslimits = (0, 1000),
-        default = 100,
+        default = 55,
         fmtstr = '%.1f',
         unit = 'mm',
     ),

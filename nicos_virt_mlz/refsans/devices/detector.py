@@ -196,9 +196,9 @@ class McStasSimulation(BaseSimulation):
 
             # The following values aren't available via a device !
             'n_per=%s' % 1,  # self._dev(),
-            'disc3_c=%s' % 0,  # self._dev(),  # 0
-            'disc4_c=%s' % 0,  # self._dev(),  # 0
-            'SC2_c=%s' % 0,  # self._dev(),  # 0
+            'disc3_c=%s' % 0,  # self._dev(disc3_),  # 0
+            'disc4_c=%s' % 0,  # self._dev(disc3_),  # 0
+            'SC2_c=%s' % 0,  # self._dev(sc2),  # 0
 
             'opt_nok5a=%d' % self.opt_map.get(self._attached_nok5a.mode, 0),
             'opt_nok5b=%d' % self.opt_map.get(self._attached_nok5b.mode, 0),
