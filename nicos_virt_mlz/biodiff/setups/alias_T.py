@@ -7,6 +7,6 @@ devices = dict(
     Ts = device('nicos.devices.generic.DeviceAlias'),
 )
 
-startupcode = '''
+startupcode = """
 AddEnvironment(Ts, T)
-'''
+"""

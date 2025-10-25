@@ -93,7 +93,7 @@ devices = dict(
         description = 'Slit 2',
         abslimits = (0, 20),
         speed = 2,
-        curvalue = 2,
+        curvalue = 3,
         unit = 'mm',
         precision = 0.05,
     ),

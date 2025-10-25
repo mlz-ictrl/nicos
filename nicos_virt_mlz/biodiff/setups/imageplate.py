@@ -35,7 +35,7 @@ devices = dict(
         size = (625, 450),
         visibility = (),
     ),
-    imgplate_timer = device('nicos.devices.mcstas.McStasTimer',
+    timer = device('nicos.devices.mcstas.McStasTimer',
         description='McStas virtual neutron counts timer channel',
         mcstas = 'mcstas',
         fmtstr = '%.2f',
@@ -45,13 +45,13 @@ devices = dict(
     imgdet = device('nicos_virt_mlz.biodiff.devices.detector.Detector',
         description = 'Image plate detector',
         mcstas = 'mcstas',
-        timers = ['imgplate_timer'],
+        timers = ['timer'],
         images = ['imgplate'],
         gammashutter = 'gammashutter',
         photoshutter = 'photoshutter',
     ),
 )
 
-startupcode = '''
+startupcode = """
 SetDetectors(imgdet)
-'''
+"""
