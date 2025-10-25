@@ -69,17 +69,25 @@ class VirtualGonio(Moveable):
         tmp = cos(x1)*sin(y1)*cos(psi) - sin(psi)*sin(x1)
         return x2, arcsin(tmp / cos(x2))
 
+    @property
+    def gx(self):
+        return self._attached_gx
+
+    @property
+    def gy(self):
+        return self._attached_gy
+
     def _calcVirtual(self, maxage=0):
-        gx = radians(self._attached_gx.target)
-        gy = radians(self._attached_gy.target)
+        gx = radians(self.gx() if self.gx.target is None else self.gx.target)
+        gy = radians(self.gy() if self.gy.target is None else self.gy.target)
         psi0 = radians(self._attached_cell.psi0)
         vx, vy = self._transform(gx, gy, psi0)
         return float(degrees(vx)), float(degrees(vy))
 
     def _calcReal(self, target):
         target = radians(target)
-        gx = radians(self._attached_gx.target)
-        gy = radians(self._attached_gy.target)
+        gx = radians(self.gx() if self.gx.target is None else self.gx.target)
+        gy = radians(self.gy() if self.gy.target is None else self.gy.target)
         psi0 = radians(self._attached_cell.psi0)
         # get current virtual angles
         vx, vy = self._transform(gx, gy, psi0)
