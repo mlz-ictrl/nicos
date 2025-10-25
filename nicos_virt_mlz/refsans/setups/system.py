@@ -24,10 +24,12 @@ devices = dict(
     ),
     Sample = device('nicos_virt_mlz.refsans.devices.sample.Sample',
         description = 'Container storing Sample properties',
-        sample_file = 'Si_Ti_Al_Mirror.dat',
         datapath = '/usr/local/share/mcstas/data/refsans',
         width = 50,
         length = 80,
+        samples = {
+            1: {'name': 'Standard', 'sample_file': 'Si_Ti_Al_Mirror.dat'},
+        }
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'Container storing Experiment properties',
