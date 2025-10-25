@@ -23,6 +23,9 @@
 
 """Puma detector image based on McSTAS simulation."""
 
+import re
+from math import log10
+
 from nicos.core.constants import SLAVE
 from nicos.core.device import Readable
 from nicos.core.params import Attach, Override
@@ -52,34 +55,46 @@ class McStasSimulation(BaseSimulation):
 
     Ki_Fix = 0,
 
+    # NMO parts
     # NMO_installed = 0,  # 1 is vertical, 2 is horizontal, 3 is both
 
-    # ResSampleName = "Resolution_Sample",
-
-    # NMO parts
-
-    # b0 = 0.2076,
-    # mf = 100,
-    # mb = 0,
-    # mirror_width= 0.003,
-    # collimator_mirror_distance = 0.1,  # distance from collimator to NMO array
-    # focal_length = 1,
-    # int mirrors = 80,
-    # mirror_sidelength = 0.06,
-    # lStart = -0.075,
-    # lEnd = 0.075,
-    # string rs_at_zero_str = "NULL",
     # string mirror_array_str = "NULL",  # PUMA_NMO_VerticalFocusing.txt",
-    # bl_hgap = 0.06,
-    # bl_vgap = 0.06
+    # 'ResSampleName=%s' % '"Resolution_Sample"',
 
-    def _dev(self, dev, scale=1):
-        return dev.fmtstr % (float(dev.read(0)) / scale)
+    # 'b0= %s' % 0.2076,
+    # 'mf=%s' % 100,
+    # 'mb=%s' % 0,
+    # 'mirror_width=%s' % 0.003,
+    # distance from collimator to NMO array
+    # 'collimator_mirror_distance=%s' % 0.1,
+    # 'focal_length=%s' % 1,
+    # 'mirrors=%s' %  80,
+    # 'mirror_sidelength=%s' %  0.06,
+    # 'lStart=%s' % -0.075,
+    # 'lEnd=%s' % 0.075,
+    # 'rs_at_zero_str=%s' % '"NULL"',
+    # 'mirror_array_str=%s' % '"NULL"',  # PUMA_NMO_VerticalFocusing.txt",
+    # 'bl_hgap=%s' % 0.06,
+    # 'bl_vgap=%s' % 0.06
+
+    def _dev(self, dev, scale=1, default='0'):
+        if not dev:
+            return default
+        fmtstr = dev.fmtstr
+        if scale > 1:
+            sf = int(log10(scale))
+            expr = re.compile(r'(?<=\.)\d+')
+            nums = re.findall(expr, fmtstr)
+            if nums:
+                num = int(nums[0]) + sf
+                m = re.search(expr, fmtstr)
+                fmtstr = '%s%d%s' % (fmtstr[:m.start()], num, fmtstr[m.end()])
+        return fmtstr % (dev.read(0) / scale)
 
     def _prepare_params(self):
         q = self._attached_tas.read(0)
         pc = self._attached_primary_collimation.read(0)
-        params = [
+        return [
             'Ki_Fix=%s' % {'CKI': 0, 'CKF': 1}.get(self._attached_tas.scanmode, 0),
             'EFixed=%s' % self._dev(
                 self._attached_ei if self._attached_tas.scanmode == 'CKI' else
@@ -93,30 +108,8 @@ class McStasSimulation(BaseSimulation):
             'lattice_a=%s' % self._attached_sample.lattice[0],
             'lattice_b=%s' % self._attached_sample.lattice[0],
             'lattice_c=%s' % self._attached_sample.lattice[0],
+            # 'ResSampleName=%s' % '"Resolution_Sample"',
         ]
-
-        # 'NMO_installed=%s' % 0, //1 is vertical, 2 is horizontal, 3 is both
-        # 'ResSampleName=%s' % '"Resolution_Sample"',
-
-        # NMO parts
-
-        # 'b0= %s' % 0.2076,
-        # 'mf=%s' % 100,
-        # 'mb=%s' % 0,
-        # 'mirror_width=%s' % 0.003,
-        # distance from collimator to NMO array
-        # 'collimator_mirror_distance=%s' % 0.1,
-        # 'focal_length=%s' % 1,
-        # 'mirrors=%s' %  80,
-        # 'mirror_sidelength=%s' %  0.06,
-        # 'lStart=%s' % -0.075,
-        # 'lEnd=%s' % 0.075,
-        # 'rs_at_zero_str=%s' % '"NULL"',
-        # 'mirror_array_str=%s' % '"NULL"',  # PUMA_NMO_VerticalFocusing.txt",
-        # 'bl_hgap=%s' % 0.06,
-        # 'bl_vgap=%s' % 0.06
-
-        return params
 
 
 class Counter(McStasCounter):

@@ -38,6 +38,7 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         mailsender = 'puma@frm2.tum.de',
         serviceexp = 'service',
+        forcescandata = True,
     ),
     Sample = device('nicos.devices.tas.TASSample',
         description = 'Currently used sample',
