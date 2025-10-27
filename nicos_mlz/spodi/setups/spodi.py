@@ -22,18 +22,14 @@ includes = [
 # TELOAD=0 TOPOS=0 TOMOM=0 SAMS=38573.1 SAMR=0 XS=0 YS=0 ZS=0
 
 devices = dict(
-    wav = device('nicos_mlz.spodi.devices.Wavelength',
+    wav = device('nicos.devices.generic.CrystalMonochromator',
         description = 'The incoming wavelength',
-        unit = 'AA',
-        omgm = 'omgm',
-        tthm = 'tthm',
-        crystal = 'crystal',
-        plane = '551',
+        unit = 'A',
+        theta = 'omgm',
+        twotheta = 'tthm',
+        material = 'Ge',
+        reflection = (5, 5, 1),
         fmtstr = '%.3f',
         abslimits = (1, 2.6),
-    ),
-    crystal = device('nicos.devices.generic.ManualSwitch',
-        description = 'Monochromator crystal',
-        states = ['Ge',]
     ),
 )
