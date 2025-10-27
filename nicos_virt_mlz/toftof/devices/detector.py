@@ -130,6 +130,10 @@ class Image(McStasImage):
                               ),
     }
 
+    def _readpsd(self, quality):
+        McStasImage._readpsd(self, quality)
+        self._buf = self._buf.T
+
 
 class Detector(DetectorMixin, BaseDetector):
     """Detector subclass for McStas simulations that don't require a custom
