@@ -83,7 +83,7 @@ class McStasSimulation(BaseSimulation):
     # slits_hor    [mm]     Horizontal slit width
     # slits_vert   [mm]     Vertical slit width
     # sample       [1]      0 = Vanadium, 1 = empty cell, 2 = water
-	# scat_order   [1]		Limit multiple scattering up to given order
+    # scat_order   [1]      Limit multiple scattering up to given order
     #                       0 = all, 1 = single, 2 = double, ...
     # repeat       [1]      repetition of the neutrons from the virtual source
     # split_var    [1]      repetition of the neutrons arriving in front of the
