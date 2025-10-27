@@ -41,10 +41,10 @@ from nicos.core import Param, listof
 from nicos.devices.cacheclient import CacheClient
 from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QCursor, QDateTime, \
-    QDialog, QFont, QFrame, QHBoxLayout, QListWidgetItem, QMainWindow, QMenu, \
-    QMessageBox, QObject, QSettings, QSizePolicy, QStatusBar, \
-    QStyledItemDelegate, Qt, QTimer, QToolBar, QWidgetAction, pyqtSignal, \
-    pyqtSlot
+    QDialog, QFont, QFrame, QHBoxLayout, QLineEdit, QListWidgetItem, \
+    QMainWindow, QMenu, QMessageBox, QObject, QSettings, QSizePolicy, \
+    QStatusBar, QStringListModel, QStyledItemDelegate, Qt, QTimer, QToolBar, \
+    QWidgetAction, pyqtSignal, pyqtSlot
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
@@ -56,6 +56,48 @@ from nicos.utils import number_types, parseDuration, parseKeyExpression, \
 class NoEditDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         return None
+
+
+class MultiDeviceLineEdit(QLineEdit):
+    def _fixup_selection(self):
+        """Fix selection of inline completion.
+
+        By default, qt selects [cursor-end] after putting inline completion into
+        the widget. Fix it up to select the text until the next comma
+        (includes whitespace).
+        """
+        start = self.cursorPosition()
+        end = self.text().find(',', start)
+        if end == -1:
+            end = len(self.text())
+        self.cursorForward(False, end - start)
+        self.cursorBackward(True, end - start)
+
+
+class CommaSeparatedCompleter(QCompleter):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.idx_at_split = -1
+
+    def pathFromIndex(self, index):
+        completion = super().pathFromIndex(index)
+        parts = self.widget().text().split(',')
+        p = parts[self.idx_at_split]
+        whitespace = p[:-len(p.lstrip())]
+        parts[self.idx_at_split] = whitespace + completion
+        QTimer.singleShot(0, lambda: self.widget()._fixup_selection())
+        return ','.join(parts)
+
+    def splitPath(self, path):
+        idx = (self.widget().text()[:self.widget().cursorPosition()]).count(',')
+        self.idx_at_split = idx
+        to_be_completed = path.split(',')[idx].strip()
+        if to_be_completed == '':
+            # whitespace keeps the last suggestion but overwrites the first
+            # character in the active completion. So invalidate the completion
+            # until there is one non-whitespace character.
+            to_be_completed = '-----'
+        return [to_be_completed]
 
 
 def float_with_default(s, d):
@@ -224,7 +266,8 @@ class NewViewDialog(DlgUtils, QDialog):
             self.devicesExpandBtn.hide()
         else:
             devices = client.getDeviceList()
-            devcompleter = QCompleter(devices, self)
+            devcompleter = CommaSeparatedCompleter(self)
+            devcompleter.setModel(QStringListModel(devices))
             devcompleter.setCompletionMode(
                 QCompleter.CompletionMode.InlineCompletion)
             self.devices.setCompleter(devcompleter)

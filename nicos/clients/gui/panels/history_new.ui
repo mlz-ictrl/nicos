@@ -20,7 +20,7 @@
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="1">
-      <widget class="QLineEdit" name="devices"/>
+      <widget class="MultiDeviceLineEdit" name="devices"/>
      </item>
      <item row="0" column="3">
       <widget class="QPushButton" name="helpButton">
@@ -319,6 +319,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MultiDeviceLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>nicos.clients.gui.panels.history</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>devices</tabstop>
   <tabstop>devicesExpandBtn</tabstop>
