@@ -57,7 +57,9 @@ def metainfo_to_json(metainfo):
 # [1] https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api_changes.md#alpha-beta-and-stable-versions
 # pylint: enable=line-too-long
 
+
 MESSAGE_VERSION = 'v1alpha1'
+
 
 def valuestats_to_json(valuestats):
     return {k: v._asdict() for k, v in valuestats.items()}
@@ -83,6 +85,9 @@ class Message:
         blockid: uuid.UUID,
         event: str,
         started: str,
+        dataroot: str,
+        proposalpath: str,
+        samplepath: str,
         fileinfos: list,
         mapping: dict,
         propinfo: dict,
@@ -97,6 +102,9 @@ class Message:
         self.scanid = str(scanid) or None
         self.event = event
         self.creation_timestamp = started
+        self.dataroot = dataroot
+        self.proposalpath = proposalpath
+        self.samplepath = samplepath
         self.fileinfos = fileinfos
         self.mapping = mapping
         self.propinfo = propinfo
@@ -130,6 +138,9 @@ class RabbitSinkHandler(DataSinkHandler):
             blockid=blockds.uid if blockds else None,
             event=event,
             started=started,
+            dataroot=path.realpath(session.experiment.dataroot),
+            proposalpath=path.realpath(session.experiment.proposalpath),
+            samplepath=path.realpath(session.experiment.samplepath),
             fileinfos=self._handleFileInfo(dataset),
             mapping={
                 'experiment': session.experiment.name,
@@ -175,7 +186,7 @@ class RabbitSinkHandler(DataSinkHandler):
             stat = {}
             try:
                 st = os.stat(fpath)
-                stat['size']= st.st_size
+                stat['size'] = st.st_size
                 stat['atime'] = datetime.fromtimestamp(st.st_atime,
                                                        tz=timezone.utc).isoformat()
                 stat['mtime'] = datetime.fromtimestamp(st.st_mtime,
@@ -194,9 +205,6 @@ class RabbitSinkHandler(DataSinkHandler):
                 'name': fname,
                 'path': fpath,
                 'stat': stat,
-                'dataroot': path.realpath(session.experiment.dataroot),
-                'proposalpath': path.realpath(session.experiment.proposalpath),
-                'samplepath': path.realpath(session.experiment.samplepath),
             })
         return finfos
 
