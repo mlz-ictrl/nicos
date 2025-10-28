@@ -23,9 +23,6 @@
 
 """Puma detector image based on McSTAS simulation."""
 
-import re
-from math import log10
-
 from nicos.core.constants import SLAVE
 from nicos.core.device import Readable
 from nicos.core.params import Attach, Override
@@ -77,26 +74,13 @@ class McStasSimulation(BaseSimulation):
     # 'bl_hgap=%s' % 0.06,
     # 'bl_vgap=%s' % 0.06
 
-    def _dev(self, dev, scale=1, default='0'):
-        if not dev:
-            return default
-        fmtstr = dev.fmtstr
-        if scale > 1:
-            sf = int(log10(scale))
-            expr = re.compile(r'(?<=\.)\d+')
-            nums = re.findall(expr, fmtstr)
-            if nums:
-                num = int(nums[0]) + sf
-                m = re.search(expr, fmtstr)
-                fmtstr = '%s%d%s' % (fmtstr[:m.start()], num, fmtstr[m.end()])
-        return fmtstr % (dev.read(0) / scale)
-
     def _prepare_params(self):
         q = self._attached_tas.read(0)
         pc = self._attached_primary_collimation.read(0)
         return [
-            'Ki_Fix=%s' % {'CKI': 0, 'CKF': 1}.get(self._attached_tas.scanmode, 0),
-            'EFixed=%s' % self._dev(
+            'Ki_Fix=%s' % {'CKI': 0, 'CKF': 1}.get(
+                self._attached_tas.scanmode, 0),
+            'EFixed=%s' % self._dev_value(
                 self._attached_ei if self._attached_tas.scanmode == 'CKI' else
                 self._attached_ef),
             # 1000 is default for open, can be 20, 40 or 60 otherwise

@@ -26,8 +26,10 @@
 """Devices for simulated instruments based on McStas simulation."""
 
 import os
+import re
 import shutil
 import socket
+from math import log10
 from os import path
 from signal import SIGTERM, SIGUSR2
 from subprocess import PIPE
@@ -86,7 +88,7 @@ class McStasSimulation(Readable):
                                 default={
                                     'localhost': NEUTRONS_PER_SECOND_DEFAULT,
                                 },
-                               ),
+                                ),
         'intensityfactor': Param('Constant multiplied with simulated McStas '
                                  'intensity to get simulated neutron counts '
                                  'per second', settable=True,
@@ -125,6 +127,27 @@ class McStasSimulation(Readable):
                 self.log.exception("Couldn't join readout thread.")
             else:
                 self._mythread = None
+
+    def _dev_value(self, dev, scale=1, default='0', fmtstr=None):
+        """Prepare a device value as parameter for the McStas executable.
+
+        - scale: If the device value has to be scaled (i.e. 1000 for mm -> m)
+        - default: If the device is not available return this value
+        - fmtstr: Used to format value instead of using device format string
+        """
+        if not dev:
+            return str(default)
+        if not fmtstr:
+            fmtstr = dev.fmtstr
+        if scale > 1:
+            sf = int(log10(scale))
+            expr = re.compile(r'(?<=\.)\d+')
+            nums = re.findall(expr, fmtstr)
+            if nums:
+                num = int(nums[0]) + sf
+                m = re.search(expr, fmtstr)
+                fmtstr = '%s%d%s' % (fmtstr[:m.start()], num, fmtstr[m.end()])
+        return fmtstr % (dev.read(0) / scale)
 
     def _prepare_params(self):
         """Return a list of key=value strings.

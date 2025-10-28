@@ -23,9 +23,6 @@
 
 """VTOFTOF detector image based on McSTAS simulation."""
 
-import re
-from math import log10
-
 from nicos.core import Attach, Override, Param, intrange
 from nicos.devices.generic.slit import Slit
 from nicos.devices.mcstas import DetectorMixin, McStasImage, \
@@ -56,21 +53,6 @@ class McStasSimulation(BaseSimulation):
         'slit': Attach('Sample slit', Slit),
     }
 
-    def _dev(self, dev, scale=1, default='0', fmtstr=None):
-        if not dev:
-            return default
-        if not fmtstr:
-            fmtstr = dev.fmtstr
-        if scale > 1:
-            sf = int(log10(scale))
-            expr = re.compile(r'(?<=\.)\d+')
-            nums = re.findall(expr, fmtstr)
-            if nums:
-                num = int(nums[0]) + sf
-                m = re.search(expr, fmtstr)
-                fmtstr = '%s%d%s' % (fmtstr[:m.start()], num, fmtstr[m.end()])
-        return fmtstr % (dev.read(0) / scale)
-
     # lambda:      [AA]     observation wavelength
     # speed:       [rpm]    chopper speed (60 * frequency)
     # ratio:       [1]      every [1] puls will pass the 5 frame overlap
@@ -92,15 +74,15 @@ class McStasSimulation(BaseSimulation):
 
     def _prepare_params(self):
         return [
-            'lambda=%s' % self._dev(self._attached_wavelength),  # 6
-            'speed=%s' % self._dev(self._attached_speed),  # 14000
+            'lambda=%s' % self._dev_value(self._attached_wavelength),  # 6
+            'speed=%s' % self._dev_value(self._attached_speed),  # 14000
             # chopper definitions
-            'ratio=%s' % self._dev(self._attached_ratio),  # 2
-            'chST=%s' % self._dev(self._attached_st),  # 0
+            'ratio=%s' % self._dev_value(self._attached_ratio),  # 2
+            'chST=%s' % self._dev_value(self._attached_st),  # 0
             'focused_beam=%d' % 0,  # focussed beam
             # slits in mm
-            'slits_hor=%s' % self._dev(self._attached_slit.width),
-            'slits_vert=%s' % self._dev(self._attached_slit.height),
+            'slits_hor=%s' % self._dev_value(self._attached_slit.width),
+            'slits_vert=%s' % self._dev_value(self._attached_slit.height),
             # 0 = Vanadium, 1 = empty cell, 2 = water
             'sample=%d' % self._attached_sample.sampletype,
             'scat_order=%d' % 0,

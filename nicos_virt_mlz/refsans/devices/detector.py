@@ -24,8 +24,6 @@
 """VRefsans detector image based on McSTAS simulation."""
 
 import os
-import re
-from math import log10
 
 from nicos.core import Attach, Param, Override, Readable
 from nicos.devices.mcstas import McStasSimulation as BaseSimulation
@@ -93,21 +91,6 @@ class McStasSimulation(BaseSimulation):
         'd_b3_sample': Attach('Distance B3 to sample', Readable),
         'det_table': Attach('Detector table position', Readable),
     }
-
-    def _dev(self, dev, scale=1, default='0', fmtstr=None):
-        if not dev:
-            return default
-        if not fmtstr:
-            fmtstr = dev.fmtstr
-        if scale > 1:
-            sf = int(log10(scale))
-            expr = re.compile(r'(?<=\.)\d+')
-            nums = re.findall(expr, fmtstr)
-            if nums:
-                num = int(nums[0]) + sf
-                m = re.search(expr, fmtstr)
-                fmtstr = '%s%d%s' % (fmtstr[:m.start()], num, fmtstr[m.end()])
-        return fmtstr % (dev.read(0) / scale)
 
     # sim_chopper []      A flag to use (1) or not (0) the chopping system,
     #                     useful to speedup the simulation
@@ -201,8 +184,8 @@ class McStasSimulation(BaseSimulation):
             # Diese Variable schaltet das Chopper-System ein (1) oder aus (0).
             # Lass sie bitte immer auf 1 eingestellt
             'sim_chopper=1',
-            'rpm=%s' % self._dev(self._attached_rpm),
-            'disc2_Pos=%s' % self._dev(self._attached_disc2_pos),
+            'rpm=%s' % self._dev_value(self._attached_rpm),
+            'disc2_Pos=%s' % self._dev_value(self._attached_disc2_pos),
             'angle2=%s' % self._attached_chopper2.phase,
             'angle3=%s' % self._attached_chopper3.phase,
             'angle4=%s' % self._attached_chopper4.phase,
@@ -219,10 +202,10 @@ class McStasSimulation(BaseSimulation):
             # 'n_per=%d' % (chopper_speed.read(0) * Meas_time / 60)
 
             'n_per=%d' % (self._attached_rpm.read(0) / 60 * self.preselection),
-            'disc3_c=%s' % '0',  # self._dev(self._attached_chopper3),
-            'disc4_c=%s' % '0',  # self._dev(self._attached_chopper3),
+            'disc3_c=%s' % '0',  # self._dev_value(self._attached_chopper3),
+            'disc4_c=%s' % '0',  # self._dev_value(self._attached_chopper3),
 
-            'SC2_c=%s' % 0,  # self._dev(self._attached_sc2),  # 0
+            'SC2_c=%s' % 0,  # self._dev_value(self._attached_sc2),  # 0
 
             'opt_nok3=%d' % ['ng', 'rc'].index(self._attached_nok3.mode),
             'opt_nok4=%d' % ['ng', 'rc'].index(self._attached_nok4.mode),
@@ -261,34 +244,34 @@ class McStasSimulation(BaseSimulation):
             'nok9_r=%s' % self._attached_nok9.read(0)[0],
             'nok9_s=%s' % self._attached_nok9.read(0)[1],
 
-            'b1_c=%s' % self._dev(self._attached_b1.center),
-            'b1_h=%s' % self._dev(self._attached_b1.opening),
+            'b1_c=%s' % self._dev_value(self._attached_b1.center),
+            'b1_h=%s' % self._dev_value(self._attached_b1.opening),
 
-            'zb0_c=%s' % self._dev(self._attached_zb0),
-            'zb1_c=%s' % self._dev(self._attached_zb1),
-            'zb2_c=%s' % self._dev(self._attached_zb2),
-            'zb3_c=%s' % self._dev(self._attached_zb3.center),
-            'zb3_h=%s' % self._dev(self._attached_zb3.opening),
+            'zb0_c=%s' % self._dev_value(self._attached_zb0),
+            'zb1_c=%s' % self._dev_value(self._attached_zb1),
+            'zb2_c=%s' % self._dev_value(self._attached_zb2),
+            'zb3_c=%s' % self._dev_value(self._attached_zb3.center),
+            'zb3_h=%s' % self._dev_value(self._attached_zb3.opening),
 
-            'bs1_c=%s' % self._dev(self._attached_bs1.center),
-            'bs1_h=%s' % self._dev(self._attached_bs1.opening),
+            'bs1_c=%s' % self._dev_value(self._attached_bs1.center),
+            'bs1_h=%s' % self._dev_value(self._attached_bs1.opening),
 
-            'h3_c=%s' % self._dev(self._attached_h3.center),
-            'h3_w=%s' % self._dev(self._attached_h3.opening),
+            'h3_c=%s' % self._dev_value(self._attached_h3.center),
+            'h3_w=%s' % self._dev_value(self._attached_h3.opening),
 
-            'b3_c=%s' % self._dev(self._attached_b3.center),
-            'b3_h=%s' % self._dev(self._attached_b3.opening),
+            'b3_c=%s' % self._dev_value(self._attached_b3.center),
+            'b3_h=%s' % self._dev_value(self._attached_b3.opening),
 
-            'b2_c=%s' % self._dev(self._attached_b2.center),
-            'b2_h=%s' % self._dev(self._attached_b2.opening),
-            'h2_c=%s' % self._dev(self._attached_h2.center),
-            'h2_w=%s' % self._dev(self._attached_h2.width),
+            'b2_c=%s' % self._dev_value(self._attached_b2.center),
+            'b2_h=%s' % self._dev_value(self._attached_b2.opening),
+            'h2_c=%s' % self._dev_value(self._attached_h2.center),
+            'h2_w=%s' % self._dev_value(self._attached_h2.width),
 
-            'gonio_theta=%s' % self._dev(self._attached_gonio_theta),
-            'gonio_y=%s' % self._dev(self._attached_gonio_y),
-            'gonio_z=%s' % self._dev(self._attached_gonio_z),
-            'top_gonio_z=%s' % self._dev(self._attached_gonio_top_z,
-                                         default='0'),
+            'gonio_theta=%s' % self._dev_value(self._attached_gonio_theta),
+            'gonio_y=%s' % self._dev_value(self._attached_gonio_y),
+            'gonio_z=%s' % self._dev_value(self._attached_gonio_z),
+            'top_gonio_z=%s' % self._dev_value(self._attached_gonio_top_z,
+                                               default='0'),
 
             'l_probe=%s' % self._attached_sample.length,
             'w_probe=%s' % self._attached_sample.width,
@@ -296,14 +279,14 @@ class McStasSimulation(BaseSimulation):
             'sample_file=%s' % os.path.join(self._attached_sample.datapath,
                                             self._attached_sample.sample_file),
 
-            'backguard=%s' % self._dev(self._attached_backguard),
+            'backguard=%s' % self._dev_vale(self._attached_backguard),
 
-            'pivot_Pos=%s' % self._dev(self._attached_pivot, fmtstr='%d'),
+            'pivot_Pos=%s' % self._dev_vale(self._attached_pivot, fmtstr='%d'),
 
-            'yoke=%s' % self._dev(self._attached_yoke),
+            'yoke=%s' % self._dev_vale(self._attached_yoke),
 
-            'det_table=%s' % self._dev(self._attached_dettable),
+            'det_table=%s' % self._dev_vale(self._attached_dettable),
 
-            'd_b3_probe=%s' % self._dev(self._attached_d_b3_sample),
+            'd_b3_probe=%s' % self._dev_vale(self._attached_d_b3_sample),
         ])
         return params

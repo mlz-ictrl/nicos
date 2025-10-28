@@ -23,9 +23,6 @@
 
 """VStressi detector image based on McSTAS simulation."""
 
-import re
-from math import log10
-
 from nicos.core import Attach, Override, Param, Readable, tupleof
 from nicos.devices.mcstas import McStasImage, \
     McStasSimulation as BaseSimulation
@@ -59,34 +56,20 @@ class McStasSimulation(BaseSimulation):
         'force': Attach('Force of the tensile rig', Readable, optional=True),
     }
 
-    def _dev(self, dev, scale=1, default='0'):
-        if not dev:
-            return default
-        fmtstr = dev.fmtstr
-        if scale > 1:
-            sf = int(log10(scale))
-            expr = re.compile(r'(?<=\.)\d+')
-            nums = re.findall(expr, fmtstr)
-            if nums:
-                num = int(nums[0]) + sf
-                m = re.search(expr, fmtstr)
-                fmtstr = '%s%d%s' % (fmtstr[:m.start()], num, fmtstr[m.end()])
-        return fmtstr % (dev.read(0) / scale)
-
     def _prepare_params(self):
         return [
-            'xprime=%s' % self._dev(self._attached_xprime, 2 * 1000),
-            'yprime=%s' % self._dev(self._attached_yprime, 2 * 1000),
+            'xprime=%s' % self._dev_value(self._attached_xprime, 2 * 1000),
+            'yprime=%s' % self._dev_value(self._attached_yprime, 2 * 1000),
             'primeswitch=1',
-            'lambda=%s' % self._dev(self._attached_l_ambda),
-            'xpos=%s' % self._dev(self._attached_xpos, 1000),
-            'ypos=%s' % self._dev(self._attached_ypos, 1000),
-            'zpos=%s' % self._dev(self._attached_zpos, 1000),
-            'phi=%s' % self._dev(self._attached_phi),
-            'chi=%s' % self._dev(self._attached_chi),
-            'omega=%s' % self._dev(self._attached_omega),
-            'theta2=%s' % self._dev(self._attached_theta2),
-            'force=%s' % self._dev(self._attached_force),
+            'lambda=%s' % self._dev_value(self._attached_l_ambda),
+            'xpos=%s' % self._dev_value(self._attached_xpos, 1000),
+            'ypos=%s' % self._dev_value(self._attached_ypos, 1000),
+            'zpos=%s' % self._dev_value(self._attached_zpos, 1000),
+            'phi=%s' % self._dev_value(self._attached_phi),
+            'chi=%s' % self._dev_value(self._attached_chi),
+            'omega=%s' % self._dev_value(self._attached_omega),
+            'theta2=%s' % self._dev_value(self._attached_theta2),
+            'force=%s' % self._dev_value(self._attached_force),
             'sampleswitch=%d' % self._attached_sample.sampletype,
         ]
 

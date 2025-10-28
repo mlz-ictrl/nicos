@@ -23,9 +23,6 @@
 
 """VBIODIFF detector image based on McSTAS simulation."""
 
-import re
-from math import log10
-
 import numpy as np
 
 from nicos.core import Attach, Override, Readable
@@ -55,30 +52,15 @@ class McStasSimulation(BaseSimulation):
         # 'beamstop': Attach('Beamstop position', Readable),
     }
 
-    def _dev(self, dev, scale=1, default='0', fmtstr=None):
-        if not dev:
-            return default
-        if not fmtstr:
-            fmtstr = dev.fmtstr
-        if scale > 1:
-            sf = int(log10(scale))
-            expr = re.compile(r'(?<=\.)\d+')
-            nums = re.findall(expr, fmtstr)
-            if nums:
-                num = int(nums[0]) + sf
-                m = re.search(expr, fmtstr)
-                fmtstr = '%s%d%s' % (fmtstr[:m.start()], num, fmtstr[m.end()])
-        return fmtstr % (dev.read(0) / scale)
-
     def _prepare_params(self):
         sample = self._attached_sample
         return [
             # SLIT_S1         (double) [default='5']
-            'SLIT_S1=%s' % self._dev(self._attached_s1),
+            'SLIT_S1=%s' % self._dev_value(self._attached_s1),
             # SLIT_S2         (double) [default='3']
-            'SLIT_S2=%s' % self._dev(self._attached_s2),
+            'SLIT_S2=%s' % self._dev_value(self._attached_s2),
             # omega           (double) [default='0.0']
-            'omega=%s' % self._dev(self._attached_omega),
+            'omega=%s' % self._dev_value(self._attached_omega),
             # cell_a          (double) [default='80.0']
             'cell_a=%s' % sample.a,
             # cell_b          (double) [default='80.0']
@@ -86,7 +68,7 @@ class McStasSimulation(BaseSimulation):
             # cell_c          (double) [default='80.0']
             'cell_c=%s' % sample.c,
             # Lam             (double) [default='2.68']
-            'Lam=%s' % self._dev(self._attached_wavelength),
+            'Lam=%s' % self._dev_value(self._attached_wavelength),
             # dLam            (double) [default='0.05']
             'dLam=%s' % 0.05,
             # REP             (double) [default='1000']
