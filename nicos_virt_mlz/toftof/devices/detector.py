@@ -23,8 +23,10 @@
 
 """VTOFTOF detector image based on McSTAS simulation."""
 
-from nicos.core import Attach, Override, Param, intrange
-from nicos.core.constants import MASTER
+import numpy as np
+
+from nicos.core import Attach, Override, Param, intrange, oneof
+from nicos.core.constants import FINAL, LIVE, MASTER
 from nicos.devices.generic.slit import Slit
 from nicos.devices.mcstas import MIN_RUNTIME, DetectorMixin, \
     McStasCounter as BaseCounter, McStasImage, \
@@ -121,11 +123,36 @@ class Image(McStasImage):
                        default=162093*5e-8, fmtstr='%g', unit='s',
                        category='general',
                        ),
+        'neutron_section': Param("Section to take 'neutrons' from PSD file",
+                                 type=oneof('Data', 'Events'), mandatory=False,
+                                 default='Events'),
     }
 
     def _readpsd(self, quality):
-        McStasImage._readpsd(self, quality)
-        self._buf = self._buf.T
+        if self._attached_mcstas._signal_sent or quality == FINAL:
+            try:
+                blocks = 1 if self.neutron_section == 'Events' else 3
+                with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
+                    lines = f.readlines()[-blocks * (self.size[1] + 1):]
+                if lines[0].startswith(f'# {self.neutron_section}') and \
+                   self.mcstasfile in lines[0]:
+                    factor = 1 if blocks == 1 else self._attached_mcstas._getScaleFactor()
+                    buf = factor * np.loadtxt(lines[1:self.size[1] + 1],
+                                              dtype=np.float32)
+                    self._buf = buf.astype(self.image_data_type)
+                    self._buf = np.transpose(buf.astype(self.image_data_type))
+                    self.readresult = [self._buf.sum()]
+                elif quality != LIVE:
+                    raise OSError('Did not find start line: %s' % lines[0])
+            except OSError:
+                if self._attached_mcstas._getTime() > MIN_RUNTIME:
+                    self.log.warning('could not read result file', exc=1)
+                elif quality != LIVE:
+                    self.log.exception('Could not read result file', exc=1)
+        else:
+            self.readresult = [0]
+            self._buf = np.transpose(
+                np.zeros(self.size).astype(self.image_data_type))
 
     def doReadFrametime(self):
         return self.timeinterval * self.timechannels
