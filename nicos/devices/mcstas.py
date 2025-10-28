@@ -183,11 +183,11 @@ class McStasSimulation(Readable):
             # wait for mcstas releasing interesting fds
             try:
                 while self._process and self._process.is_running():
+                    session.delay(.01)
                     fnames = set(path.basename(f.path)
                                  for f in self._process.open_files())
                     if not (fnames & self._interesting_files):
                         break
-                    session.delay(.01)
             except (AccessDenied, NoSuchProcess):
                 self.log.warning(
                     'McStas process already terminated in _send_signal(%r)',
