@@ -64,6 +64,7 @@ class McStasSimulation(Readable):
     _process = None
     _started = False
     _start_time = None
+    _signal_sent = 0
 
     # to be implemented in derived classes
     _mcstas_params = None
@@ -160,8 +161,9 @@ class McStasSimulation(Readable):
         connected to this simulation.
         """
         if not self._started:
-            self._started = True
             self._mythread = createThread('detector %s' % self, self._run)
+            self._started = True
+            self._signal_sent = 0
 
     def _finish(self):
         """Finish the simulation.
@@ -180,6 +182,7 @@ class McStasSimulation(Readable):
         """Send a signal to the McStas process, if it is running."""
         if self._process and self._process.is_running():
             self._process.send_signal(sig)
+            self._signal_sent = sig
             # wait for mcstas releasing interesting fds
             try:
                 while self._process and self._process.is_running():
@@ -345,19 +348,23 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         self.doFinish()
 
     def _readpsd(self, quality):
-        try:
-            with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
-                lines = f.readlines()[-3 * (self.size[1] + 1):]
-            if lines[0].startswith('# Data') and self.mcstasfile in lines[0]:
-                factor = self._attached_mcstas._getScaleFactor()
-                buf = np.loadtxt(lines[1:self.size[1] + 1], dtype=np.float32)
-                self._buf = (buf * factor).astype(self.image_data_type)
-                self.readresult = [self._buf.sum()]
-            elif quality != LIVE:
-                raise OSError('Did not find start line: %s' % lines[0])
-        except OSError:
-            if quality != LIVE:
-                self.log.exception('Could not read result file', exc=1)
+        if self._attached_mcstas._signal_sent:
+            try:
+                with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
+                    lines = f.readlines()[-3 * (self.size[1] + 1):]
+                if lines[0].startswith('# Data') and self.mcstasfile in lines[0]:
+                    factor = self._attached_mcstas._getScaleFactor()
+                    buf = factor * np.loadtxt(lines[1:self.size[1] + 1], dtype=np.float32)
+                    self._buf = buf.astype(self.image_data_type)
+                    self.readresult = [self._buf.sum()]
+                elif quality != LIVE:
+                    raise OSError('Did not find start line: %s' % lines[0])
+            except OSError:
+                if quality != LIVE:
+                    self.log.exception('Could not read result file', exc=1)
+        else:
+            self.readresult = [0]
+            self._buf = np.zeros(self.size).astype(self.image_data_type)
 
 
 class McStasTimer(ActiveChannel, Waitable):
