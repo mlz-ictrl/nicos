@@ -59,8 +59,8 @@ from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
     HasOffset, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, DeviceMetaInfo, \
-    DeviceParInfo, Moveable, Readable
-from nicos.core.errors import CommunicationError, ConfigurationError
+    DeviceParInfo, Moveable, Readable, Measurable
+from nicos.core.errors import CommunicationError, ConfigurationError, UsageError
 from nicos.core.params import anytype, dictof, floatrange, intrange, listof
 from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator
@@ -160,7 +160,7 @@ def class_from_interface(module_properties):
     for ifclass in (module_properties.get('interface_classes', []) or
                     module_properties.get('interface_class', [])):
         try:
-            return IF_CLASSES[ifclass.title()]
+            return IF_CLASSES.get(ifclass) or IF_CLASSES[ifclass.title()]
         except KeyError:
             continue
     return SecopDevice
@@ -299,6 +299,8 @@ class SecNodeDevice(Readable):
     _custom_callbacks = defaultdict(list)
     _polled_devs = ()
     __poll_thread = None
+    _acq_controllers = {}
+    _acq_channels = {}
 
     def doPreinit(self, mode):
         self._devices = {}
@@ -1397,6 +1399,129 @@ class SecopMoveable(SecopWritable):
                 self.updateStatus()
 
 
+class SecopAcqChannel(Measurable, SecopReadable):
+    """equivalent to AcquisitionChannel"""
+    doStatus = SecopReadable.doStatus
+    _controller = None
+    _presetname = None
+
+    def doInit(self, _mode):
+        secnode = self._attached_secnode
+        cinfo = secnode._acq_controllers.pop(self.secop_module, None)
+        if cinfo:
+            # the controller is already initialized -> add channel to it
+            name, controller = cinfo
+            self.setController(name, controller)
+            controller.addChannel(name, self)
+        else:
+            secnode._acq_channels[self.name] = self
+
+    def setController(self, name, controller):
+        """assign controller and remember preset name"""
+        self._presetname = name
+        self._controller = controller
+
+    def doSetPreset(self, **kwds):
+        self._controller.setAllPresets(**kwds)
+        self._lastpreset = kwds
+
+    def doPrepare(self):
+        try:
+            self._controller.performAction('prepare', 'prepare')
+        except KeyError:
+            pass  # prepare is not implemented on the secnode
+
+    def doStart(self):
+        self._controller.performAction('start', 'go')
+
+    def doStop(self):
+        try:
+            self._controller.performAction('stop', 'stop')
+        except KeyError:
+            pass  # stop is not implemented on the secnode
+
+    def doResume(self):
+        self._controller.performAction('resume', 'go')
+
+    def doFinish(self):
+        return self._controller.finishAction()
+
+    def presetInfo(self):
+        return [self._presetname]
+
+
+class SecopAcqController(SecopDevice):
+    _channels = None
+    __lock = None
+    __action = None
+
+    def initChannels(self, channels=None):
+        self.__lock = RLock()
+        self._channels = {}
+        if not channels:
+            return  # for SecopAcquisition
+        secnode = self._attached_secnode
+        for name, module in channels.items():
+            # collect already registered channels
+            dev = secnode._acq_channels.pop(module, None)
+            if dev is None:
+                secnode._acq_controllers[module] = (name, self)
+            else:
+                self.addChannel(name, dev)
+                dev.setController(name, self)
+
+    def doInit(self, _mode):
+        self.initChannels(self.secop_properties.get('acquisition_channels', {}))
+
+    def addChannel(self, name, channel):
+        self._channels[name] = channel
+
+    def setAllPresets(self, **kwds):
+        for name, dev in self._channels.items():
+            preset = kwds.get(name)
+            try:
+                if preset is None:
+                    dev.goal_enable = False
+                else:
+                    dev.goal = preset
+                    dev.goal_enable = True
+            except (UsageError, AttributeError):
+                pass
+
+    def performAction(self, action, cmd):
+        """execute <cmd> on secnode if <action> is not done already"""
+        with self.__lock:
+            # Channels and controllers forming an acquisition in SECoP
+            # need to be started, stopped etc. only once. We want to skip
+            # repeated actions on the controller triggered by the channels.
+            # As a useful sequence of 'prepare', 'start', 'pause', 'resume',
+            # 'stop', 'finish' for a single measurable does contain repeated
+            # actions, we can safely skip repeated actions here.
+            if action == self.__action:
+                return
+            self.__action = action
+        try:
+            self._attached_secnode._secnode.execCommand(self.secop_module, cmd)
+        except AttributeError:
+            raise self._defunct_error() from None
+
+    def finishAction(self):
+        # make sure that a start action can be repeated after finish
+        self.__action = 'finish'
+
+
+class SecopAcquisition(SecopAcqChannel, SecopAcqController):
+    """equivalent to SECoP Acquisition"""
+    _presetname = None
+
+    def doInit(self, _mode):
+        self._presetname = self.secop_properties.get('_acquisition_key', 'main')
+        self.log.debug('preset name %r', self._presetname)
+        self.initChannels()
+        self._controller = self
+        self._channels = {self._presetname: self}
+
+
 class SecopHasOffset(HasOffset):
     """Modified HasOffset mixin.
 
@@ -1478,6 +1603,9 @@ IF_CLASSES = {
     'Writable': SecopWritable,
     'Readable': SecopReadable,
     'Module': SecopDevice,
+    'AcquisitionController': SecopAcqController,
+    'AcquisitionChannel': SecopAcqChannel,
+    'Acquisition': SecopAcquisition,
 }
 
 ALL_IF_CLASSES = set(IF_CLASSES.values())
