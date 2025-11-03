@@ -34,10 +34,11 @@ class PowderTemplateProvider(MLZTemplateProvider):
     def init(self, **kwargs):
         self.wav = kwargs.get('wav', 'wav')
         self.tths = kwargs.get('tths', 'tths')
-        self.det = kwargs.get('det', 'adet')
+        self.detector = kwargs.get('detector', 'adet')
         self.mon = kwargs.get('mon', 'mon')
         self.timer = kwargs.get('timer', 'tim1')
         self.omgs = kwargs.get('omgs', 'omgs')
+        self.instrument = kwargs.get('instrument', 'instrument')
 
     def updateInstrument(self):
         self._inst.update({

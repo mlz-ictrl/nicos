@@ -88,6 +88,7 @@ devices = dict(
     ),
     nxsink = device('nicos.nexus.NexusSink',
         templateclass='nicos_mlz.stressi.nexus.StressiTemplateProvider',
+        device_mapping = {'instrument': 'Stressi'},
         settypes = {'point'},
         filenametemplate = ['m2%(scancounter)08d.nxs'],
     ),

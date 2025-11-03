@@ -28,9 +28,6 @@ from nicos_mlz.nexus.nexus_templates import PowderTemplateProvider
 
 class SpodiTemplateProvider(PowderTemplateProvider):
 
-    instrument = 'spodi'
-    detector = 'adet'
-
     def updateSample(self):
         PowderTemplateProvider.updateSample(self)
         self._sample.update({

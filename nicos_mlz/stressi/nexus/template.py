@@ -28,9 +28,6 @@ from nicos_mlz.nexus.nexus_templates import PowderTemplateProvider
 
 class StressiTemplateProvider(PowderTemplateProvider):
 
-    instrument = 'stress-spec'
-    detector = 'adet'
-
     def updateInstrument(self):
         PowderTemplateProvider.updateInstrument(self)
         self._inst.update({
@@ -65,9 +62,9 @@ class StressiTemplateProvider(PowderTemplateProvider):
             'type': ConstDataset('He3 PSD', 'string'),
             'layout': ConstDataset('area', 'string'),
             'acquisition_mode': ConstDataset('histogrammed', 'string'),
-            'description': DeviceDataset(self.det, 'description'),
-            'x_pixel_size': DeviceDataset(self.det, 'pixel_size[0]'),
-            'y_pixel_size': DeviceDataset(self.det, 'pixel_size[1]'),
+            'description': DeviceDataset(self.detector, 'description'),
+            'x_pixel_size': DeviceDataset(self.detector, 'pixel_size[0]'),
+            'y_pixel_size': DeviceDataset(self.detector, 'pixel_size[1]'),
             # 'distance': ,
             # 'efficiency': ,
             # 'wavelength': ,
