@@ -32,13 +32,13 @@ class PowderTemplateProvider(MLZTemplateProvider):
     definition = 'NXmonopd'
 
     def init(self, **kwargs):
+        self.instrument = kwargs.get('instrument', 'instrument')
         self.wav = kwargs.get('wav', 'wav')
         self.tths = kwargs.get('tths', 'tths')
-        self.detector = kwargs.get('detector', 'adet')
-        self.mon = kwargs.get('mon', 'mon')
-        self.timer = kwargs.get('timer', 'tim1')
         self.omgs = kwargs.get('omgs', 'omgs')
-        self.instrument = kwargs.get('instrument', 'instrument')
+        self.detector = kwargs.get('detector', 'adet')
+        self.monitor = kwargs.get('monitor', 'mon')
+        self.timer = kwargs.get('timer', 'tim1')
 
     def updateInstrument(self):
         self._inst.update({
@@ -53,8 +53,8 @@ class PowderTemplateProvider(MLZTemplateProvider):
             'data': ImageDataset(0, 0, dtype=int, signal=signal),
         })
         self._entry.update({
-            'mon:NXmonitor': CounterMonitor(self.mon),
-            'tim1:NXmonitor': TimerMonitor(self.timer),
+            f'{self.monitor}:NXmonitor': CounterMonitor(self.monitor),
+            f'{self.timer}:NXmonitor': TimerMonitor(self.timer),
         })
 
     def updateSample(self):
