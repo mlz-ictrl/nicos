@@ -63,9 +63,9 @@ class WaitPV(SequenceItem):
 
 class WaitThreshold(SequenceItem):
 
-    def __init__(self, camini, dev, threshold):
+    def __init__(self, camini, dev, thres_dev):
         self._dev = dev
-        self._threshold = threshold
+        self._thres_dev = thres_dev
         self._stopped = False
         self._camini = camini
         SequenceItem.__init__(self)
@@ -76,7 +76,7 @@ class WaitThreshold(SequenceItem):
     def isCompleted(self):
         if self._camini._timedout:
             return True
-        return bool(self._stopped or self._dev.read() >= self._threshold)
+        return bool(self._stopped or self._dev.read() >= self._thres_dev.read())
 
 
 class WaitNotPV(SequenceItem):
@@ -252,7 +252,7 @@ class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
         # wait for beam
         seq.append(Message(self, 'Waiting for beam...'))
         s = WaitThreshold(self, self._attached_beam_current,
-                          self._attached_rate_threshold.read())
+                          self._attached_rate_threshold)
         seq.append(s)
         seq.append(Message(self, 'Beam is on, exposing...'))
 
