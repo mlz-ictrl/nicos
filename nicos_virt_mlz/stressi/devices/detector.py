@@ -26,8 +26,9 @@
 import re
 from math import log10
 
-from nicos.core import Attach, Override, Readable
-from nicos.devices.mcstas import McStasSimulation as BaseSimulation
+from nicos.core import Attach, Override, Param, Readable, tupleof
+from nicos.devices.mcstas import McStasImage, \
+    McStasSimulation as BaseSimulation
 
 from nicos_virt_mlz.stressi.devices.sample import Sample
 
@@ -88,3 +89,13 @@ class McStasSimulation(BaseSimulation):
             'force=%s' % self._dev(self._attached_force),
             'sampleswitch=%d' % self._attached_sample.sampletype,
         ]
+
+
+class Image(McStasImage):
+
+    parameters = {
+        'pixel_size': Param('Size of a single pixel (in mm)',
+                            type=tupleof(float, float), volatile=False,
+                            settable=False, default=(0.85, 0.85), unit='mm',
+                            category='instrument'),
+    }
