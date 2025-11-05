@@ -46,6 +46,8 @@ class McStasSimulation(BaseSimulation):
         's2': Attach('Slit 2', Readable),
         'omega': Attach('Sample omega rotation', Readable),
         'wavelength': Attach('Incoming wavelength', Readable),
+        'dwavelength': Attach('Delta of incoming wavelength', Readable,
+                              optional=True),
         # 'sample_x': Attach('Sample position x', Readable),
         # 'sample_y': Attach('Sample position y', Readable),
         # 'sample_z': Attach('Sample position z', Readable),
@@ -70,7 +72,7 @@ class McStasSimulation(BaseSimulation):
             # Lam             (double) [default='2.68']
             'Lam=%s' % self._dev_value(self._attached_wavelength),
             # dLam            (double) [default='0.05']
-            'dLam=%s' % 0.05,
+            'dLam=%s' % self._dev(self._attached_dwavelength, 100, '0.05'),
             # REP             (double) [default='1000']
             'REP=%d' % 1000,
         ]
