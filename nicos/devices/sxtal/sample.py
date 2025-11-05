@@ -54,7 +54,6 @@ class SXTalSample(Sample):
                            settable=True, default='P', category='sample'),
         'laue':      Param('Laue group', type=oneof(*symmetry.symbols),
                            settable=True, default='1', category='sample'),
-
         'peaklists': Param('Lists of peaks for scanning', internal=True,
                            type=dictof(str, list), settable=True),
         'poslists':  Param('Lists of positions for indexing', internal=True,
@@ -68,44 +67,40 @@ class SXTalSample(Sample):
         self.peaklists = {}
         self.poslists = {}
 
-    def new(self, parameters):
+    def _applyParams(self, number, parameters):
         """Accepts several ways to spell new cell params."""
-        lattice = parameters.pop('lattice', None)
+        Sample._applyParams(self, number, parameters)
+        params = parameters.copy()
+        lattice = params.pop('lattice', None)
         if lattice is not None:
             try:
-                parameters['a'], parameters['b'], parameters['c'] = lattice
-            except Exception:
+                params['a'], params['b'], params['c'] = lattice
+            except (ValueError, TypeError):
                 self.log.warning('invalid lattice spec ignored, should be '
                                  '[a, b, c]')
-        angles = parameters.pop('angles', None)
+        angles = params.pop('angles', None)
         if angles is not None:
             try:
-                parameters['alpha'], parameters['beta'], \
-                    parameters['gamma'] = angles
-            except Exception:
+                params['alpha'], params['beta'], params['gamma'] = angles
+            except (ValueError, TypeError):
                 self.log.warning('invalid angles spec ignored, should be '
                                  '[alpha, beta, gamma]')
-        a = parameters.pop('a', None)
+        a = params.pop('a', None)
         if a is None:
-            if 'cell' not in parameters:
+            if 'cell' not in params:
                 self.log.warning('using dummy lattice constant of 5 A')
             a = 5.0
-        b = parameters.pop('b', a)
-        c = parameters.pop('c', a)
-        alpha = parameters.pop('alpha', 90.0)
-        beta = parameters.pop('beta', 90.0)
-        gamma = parameters.pop('gamma', 90.0)
+        b = params.pop('b', a)
+        c = params.pop('c', a)
+        alpha = params.pop('alpha', 90.0)
+        beta = params.pop('beta', 90.0)
+        gamma = params.pop('gamma', 90.0)
         # TODO: map spacegroup/bravais/laue with triple-axis
-        bravais = parameters.pop('bravais', 'P')
-        laue = parameters.pop('laue', '1')
-        if 'cell' not in parameters:
-            parameters['cell'] = [a, b, c, alpha, beta, gamma, bravais, laue]
-        Sample.new(self, parameters)
-
-    def _applyParams(self, number, parameters):
-        Sample._applyParams(self, number, parameters)
-        if 'cell' in parameters:
-            self.cell = parameters['cell']
+        bravais = params.pop('bravais', 'P')
+        laue = params.pop('laue', '1')
+        if 'cell' not in params:
+            params['cell'] = [a, b, c, alpha, beta, gamma, bravais, laue]
+        self.cell = params['cell']
 
     def doReadBravais(self):
         return self.cell.bravais.bravais
@@ -129,8 +124,8 @@ class SXTalSample(Sample):
         self._setROParam('gamma', params.gamma)
         self._setROParam('rmat', cell.rmat.tolist())
         self._setROParam('ubmatrix', cell.rmat.T.tolist())
-        self._setROParam('bravais', cell.bravais.bravais)
-        self._setROParam('laue', cell.laue.laue)
+        self.bravais = cell.bravais.bravais
+        self.laue = cell.laue.laue
 
         self.log.info('New sample cell set. Parameters:')
         self.log.info('a = %8.3f  b = %8.3f  c = %8.3f',
