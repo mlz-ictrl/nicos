@@ -348,7 +348,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         self.doFinish()
 
     def _readpsd(self, quality):
-        if self._attached_mcstas._signal_sent:
+        if self._attached_mcstas._signal_sent or quality == FINAL:
             try:
                 with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
                     lines = f.readlines()[-3 * (self.size[1] + 1):]
