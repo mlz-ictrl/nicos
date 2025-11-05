@@ -15,12 +15,9 @@ modules = ['nicos.commands.standard', 'nicos_mlz.biodiff.commands']
 devices = dict(
     Sample = device('nicos.devices.sxtal.sample.SXTalSample',
         description = 'Sample under investigation',
-        a = 80,
-        b = 80,
-        c = 80,
-        alpha = 90,
-        beta = 90,
-        gamma = 90,
+        samples = {
+            1: {'name': 'Myoglobin', 'a': 60, 'b': 40, 'c': 30, 'alpha': 90, 'beta': 90, 'gamma': 90,},
+        },
     ),
 
     # Configure dataroot here (usually /data).
