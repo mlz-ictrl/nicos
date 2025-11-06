@@ -1,14 +1,14 @@
 description = 'Beamstop'
 
-group = 'lowlevel'
+group = 'optional'
 
-tangobase = 'tango://bioxs:10000/motor/'
+tangobase = 'tango://bioxs:10000/bioxs/motor'
 
 devices = dict(
     # x-axis
     bsx_m = device('nicos.devices.entangle.Motor',
         description = 'Beam stop translation x-Axis motor',
-        tangodevice = tangobase + 'RS485/bsx_motor',
+        tangodevice = tangobase + 'bsx_motor',
         visibility = (),
     ),
     bsx = device('nicos.devices.generic.Axis',
@@ -19,7 +19,7 @@ devices = dict(
     # y-axis
     bsy_m = device('nicos.devices.entangle.Motor',
         description = 'Beam stop translation y-Axis motor',
-        tangodevice = tangobase + 'RS485/bsy_motor',
+        tangodevice = tangobase + 'bsy_motor',
         visibility = (),
     ),
     bsy = device('nicos.devices.generic.Axis',

@@ -1,13 +1,13 @@
 description = 'Capillary Optics'
-group = 'lowlevel'
+group = 'optional'
 
-tango_base_motor = 'tango://bioxs:10000/motor/'
+tango_base_motor = 'tango://bioxs:10000/bioxs/motor/'
 
 devices = dict(
     # x-axis
     tcx_m = device('nicos.devices.entangle.Motor',
         description = 'Capillary translation x-Axis motor',
-        tangodevice = tango_base_motor + 'NewFocus/tcx_motor',
+        tangodevice = tango_base_motor + 'tcx_motor',
         visibility = (),
     ),
     tcx = device('nicos.devices.generic.Axis',
@@ -18,7 +18,7 @@ devices = dict(
     # y-axis
     tcy_m = device('nicos.devices.entangle.Motor',
         description = 'Capillary translation y-Axis motor',
-        tangodevice = tango_base_motor + 'NewFocus/tcy_motor',
+        tangodevice = tango_base_motor + 'tcy_motor',
         visibility = (),
     ),
     tcy = device('nicos.devices.generic.Axis',
@@ -29,7 +29,7 @@ devices = dict(
     # z-axis
     tcz_m = device('nicos.devices.entangle.Motor',
         description = 'Capillary translation y-Axis motor',
-        tangodevice = tango_base_motor + 'NewFocus/tcz_motor',
+        tangodevice = tango_base_motor + 'tcz_motor',
         visibility = (),
     ),
     tcz = device('nicos.devices.generic.Axis',
@@ -40,7 +40,7 @@ devices = dict(
     # tip
     gcx_m = device('nicos.devices.entangle.Motor',
         description = 'Capillary Tip motor',
-        tangodevice = tango_base_motor + 'NewFocus/gcx_motor',
+        tangodevice = tango_base_motor + 'gcx_motor',
         visibility = (),
     ),
     gcx = device('nicos.devices.generic.Axis',
@@ -51,7 +51,7 @@ devices = dict(
     # tilt
     gcy_m = device('nicos.devices.entangle.Motor',
         description = 'Capillary Tilt motor',
-        tangodevice = tango_base_motor + 'NewFocus/gcy_motor',
+        tangodevice = tango_base_motor + 'gcy_motor',
         visibility = (),
     ),
     gcy = device('nicos.devices.generic.Axis',

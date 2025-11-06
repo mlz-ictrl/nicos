@@ -2,13 +2,13 @@ description = 'Goniometer Motors'
 
 group = 'lowlevel'
 
-tango_base_motor = 'tango://bioxs:10000/motor/'
+tango_base_motor = 'tango://bioxs:10000/bioxs/motor/'
 
 devices = dict(
     # Omega
     sth_m = device('nicos.devices.entangle.Motor',
         description = 'Omega Axis Motor',
-        tangodevice = tango_base_motor + 'phymotion/sth_motor',
+        tangodevice = tango_base_motor + 'sth_motor',
         visibility = (),
     ),
     sth = device('nicos.devices.generic.Axis',
@@ -19,7 +19,7 @@ devices = dict(
     # 2 theta
     stt_m = device('nicos.devices.entangle.Motor',
         description = '2 Theta Axis Motor',
-        tangodevice = tango_base_motor + 'phymotion/stt_motor',
+        tangodevice = tango_base_motor + 'stt_motor',
         visibility = (),
     ),
     stt = device('nicos.devices.generic.Axis',
