@@ -840,4 +840,4 @@ class TableWidget(QTableWidget):
         for i in range(self._rows):
             for j in range(self._cols):
                 value[i, j] = self.validator(self.item(i, j).text())
-        return value
+        return value.tolist()
