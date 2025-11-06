@@ -103,10 +103,10 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     parameters = {
         'hwdevice':         Param('Hardware specific tango device',
                                   type=none_or(tangodev), preinit=True),
-        'imagewidth':       Param('Image width',
-                                  type=int, volatile=True, category='general'),
-        'imageheight':      Param('Image height',
-                                  type=int, volatile=True, category='general'),
+        'size':             Param('Full detector size',
+                                  type=tupleof(int, int), settable=False,
+                                  mandatory=False, volatile=True,
+                                  category='general'),
         'roi':              Param('Region of interest',
                                   type=tupleof(int, int, int, int),
                                   default=(0, 0, 0, 0), volatile=True,
@@ -172,6 +172,8 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doPreinit(self, mode):
         PyTangoDevice.doPreinit(self, mode)
+        if mode == SIMULATION:
+            return
 
         # Create hw specific device if given
         if self.hwdevice:
@@ -180,25 +182,16 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
         # optional components
         self._shutter = None
-
-        if mode != SIMULATION:
-            self._initOptionalComponents()
-
-            if self._dev.camera_model.startswith('SIMCAM'):
-                self.log.warning("Using lima simulation camera! If that's not"
-                                 ' intended, please check the cables and '
-                                 'restart the camera and the lima server')
-
-            self._specialInit()
-            # cache full detector size
-            self._width_height = (self.imagewidth, self.imageheight)
-        else:
-            # some dummy shape for simulation
-            self._width_height = (2048, 1536)
+        self._initOptionalComponents()
+        if self._dev.camera_model.startswith('SIMCAM'):
+            self.log.warning("Using lima simulation camera! If that's not "
+                             'intended, please check the cables and restart '
+                             'the camera and the lima server')
+        self._specialInit()
 
     def doInit(self, mode):
         # Determine image type
-        self.arraydesc = ArrayDesc(self.name, self._width_height[::-1],
+        self.arraydesc = ArrayDesc(self.name, self.size[::-1],
                                    self._getImageType())
 
     def doShutdown(self):
@@ -206,9 +199,8 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
             self._hwDev.shutdown()
 
     def doInfo(self):
-        for p in ('imagewidth', 'imageheight', 'roi', 'bin', 'expotime',
-                  'cameramodel', 'shutteropentime', 'shutterclosetime',
-                  'shuttermode'):
+        for p in ('size', 'roi', 'bin', 'expotime', 'cameramodel',
+                  'shutteropentime', 'shutterclosetime', 'shuttermode'):
             self._pollParam(p)
         return []
 
@@ -267,11 +259,11 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                  f'lima {self._dev.lima_version}, '
                  f'tango {self._dev.get_tango_lib_version() / 100:.02f}')]
 
-    def doReadImagewidth(self):
-        return self._dev.image_width
-
-    def doReadImageheight(self):
-        return self._dev.image_height
+    def doReadSize(self):
+        if self._mode == SIMULATION:
+            # some dummy shape for simulation
+            return (2048, 1536)
+        return (self._dev.image_width, self._dev.image_height)
 
     def doReadRoi(self):
         return tuple(self._dev.image_roi.tolist())
@@ -351,7 +343,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         dt = dt.newbyteorder('<')
 
         img_data = numpy.frombuffer(img_data_str, dt, offset=headersize)
-        img_data = numpy.reshape(img_data, (self.imageheight, self.imagewidth))
+        img_data = numpy.reshape(img_data, self.size[::-1])
         return img_data
 
     def _initOptionalComponents(self):
