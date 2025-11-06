@@ -2,7 +2,7 @@ description = 'Image plate detector setup'
 group = 'basic'
 
 sysconfig = dict(
-    datasinks = ['TIFFFileSaver'],
+    datasinks = ['TIFFFileSaver', 'raw', ],
 )
 
 includes = [
@@ -18,6 +18,11 @@ devices = dict(
         description = 'Saves image data in TIFF format',
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.tiff'],
         mode = 'I;16',
+    ),
+    raw = device('nicos.devices.datasinks.RawImageSink',
+        description = 'raw sink',
+        filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw'],
+        subdir = '',
     ),
     imgdrum = device('nicos_mlz.biodiff.devices.detector.ImagePlateDrum',
         description = 'Image plate detector drum',

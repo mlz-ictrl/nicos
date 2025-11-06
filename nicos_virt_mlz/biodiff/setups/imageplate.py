@@ -2,7 +2,7 @@ description = 'Image plate detector setup'
 group = 'basic'
 
 sysconfig = dict(
-    datasinks = ['TIFFFileSaver', 'LiveViewSink',],
+    datasinks = ['TIFFFileSaver', 'LiveViewSink', 'raw', ],
 )
 
 includes = [
@@ -17,6 +17,11 @@ devices = dict(
         description = 'Saves image data in TIFF format',
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.tiff'],
         mode = 'I;16',
+    ),
+    raw = device('nicos.devices.datasinks.RawImageSink',
+        description = 'raw sink',
+        filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw'],
+        subdir = '',
     ),
     mcstas = device('nicos_virt_mlz.biodiff.devices.McStasSimulation',
         description = 'McStas simulation',
