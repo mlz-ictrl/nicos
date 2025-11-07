@@ -1182,6 +1182,7 @@ class Readable(Device):
         except NicosError as err:
             stvalue = (status.ERROR, str(err))
         except Exception as err:
+            self.log.debug('unhandled error during doStatus()', exc=1)
             stvalue = (status.ERROR, 'unhandled %s: %s' %
                        (err.__class__.__name__, err))
         if stvalue[0] not in status.statuses:
