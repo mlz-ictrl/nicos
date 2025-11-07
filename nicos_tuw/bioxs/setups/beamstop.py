@@ -2,7 +2,7 @@ description = 'Beamstop'
 
 group = 'optional'
 
-tangobase = 'tango://bioxs:10000/bioxs/motor'
+tangobase = 'tango://bioxs:10000/bioxs/motor/'
 
 devices = dict(
     # x-axis
