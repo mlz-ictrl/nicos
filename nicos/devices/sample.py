@@ -58,6 +58,7 @@ class Sample(Moveable):
 
     parameter_overrides = {
         'unit': Override(mandatory=False, default=''),
+        'fmtstr': Override(default='%s')
     }
 
     valuetype = str
