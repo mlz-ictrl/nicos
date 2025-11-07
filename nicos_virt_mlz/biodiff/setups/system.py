@@ -13,7 +13,7 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'nicos_mlz.biodiff.commands']
 
 devices = dict(
-    Sample = device('nicos.devices.sxtal.sample.SXTalSample',
+    Sample = device('nicos_virt_mlz.biodiff.devices.sample.Sample',
         description = 'Sample under investigation',
         samples = {
             1: {'name': 'Myoglobin', 'a': 60, 'b': 40, 'c': 30, 'alpha': 90, 'beta': 90, 'gamma': 90,},
