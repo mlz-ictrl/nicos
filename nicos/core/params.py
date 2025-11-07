@@ -487,8 +487,10 @@ class ArrayDesc:
         self.dimnames = dimnames
 
     def __repr__(self):
-        return 'ArrayDesc(%r, %r, %r, %r)' % (self.name, self.shape,
-                                              self.dtype, self.dimnames)
+        return '<ArrayDesc %r - type: %s, shape: %s>' % (
+            self.name, self.dtype,
+            ', '.join([f'{s} ({d})' for s, d in zip(self.shape,
+                                                    self.dimnames[::-1])]))
 
     def copy(self):
         return ArrayDesc(self.name, self.shape, self.dtype, self.dimnames)
