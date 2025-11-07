@@ -12,3 +12,6 @@
 
 .. autoclass:: MicrostepMotor()
 .. autoclass:: S7InterlockMotor()
+
+.. module:: nicos_mlz.biodiff.devices.wavelength
+.. autoclass:: WaveLength
