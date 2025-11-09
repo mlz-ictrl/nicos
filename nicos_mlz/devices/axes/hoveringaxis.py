@@ -56,4 +56,4 @@ class HoveringAxis(Axis):
 
     def _postMoveAction(self):
         session.delay(self.stopdelay)
-        self._attchached_switch.maw(self.switchvalues[0])
+        self._attached_switch.maw(self.switchvalues[0])
