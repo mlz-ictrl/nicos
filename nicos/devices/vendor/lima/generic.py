@@ -107,7 +107,9 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                                   type=tupleof(int, int), settable=False,
                                   mandatory=False, volatile=True,
                                   category='general'),
-        'roi':              Param('Region of interest',
+        'roi':              Param('Region of interest (x, y, width, height), '
+                                  'x y of the left bottom corner, '
+                                  'width to the right, height to the top',
                                   type=tupleof(int, int, int, int),
                                   default=(0, 0, 0, 0), volatile=True,
                                   settable=True, category='general'),
