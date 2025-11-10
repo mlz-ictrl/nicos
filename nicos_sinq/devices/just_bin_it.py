@@ -71,16 +71,22 @@ class Hist2dSANSLLB:
 
 
 class Hist2dTOFSINQ:
+    """
+    This is for contigous one dimensional detectors,
+    that may have detector IDs not starting with 0.
+
+    The det_range is pythonic, meaning it doesn't include the last value.
+    """
     name = 'hist2dsinq'
 
     @classmethod
     def get_array_description(cls, name, det_range, num_bins, **ignored):
-        ndet = det_range[0] * det_range[1]
+        ndet = det_range[1] - det_range[0]
         return ArrayDesc(name, shape=(ndet, num_bins), dtype=np.float64)
 
     @classmethod
     def get_zeroes(cls, det_range, num_bins, **ignored):
-        ndet = det_range[0] * det_range[1]
+        ndet =  det_range[1] - det_range[0]
         return cls.transform_data(
             np.zeros(shape=(ndet, num_bins), dtype=np.float64))
 
@@ -93,9 +99,9 @@ class Hist2dTOFSINQ:
 
     @classmethod
     def get_info(cls, name, det_range, num_bins, **ignored):
-        ndet = det_range[0] * det_range[1]
-        return [(f'{name} ndet', ndet, str(ndet), '', 'general'),
-                (f'{name} time_bins', num_bins, str(num_bins), '', 'general')]
+        ndet = det_range[1] - det_range[0]
+        return [DeviceMetaInfo(f'{name} ndet', DeviceParInfo(ndet, str(ndet), '', 'general')),
+                DeviceMetaInfo(f'{name} time_bins', DeviceParInfo(num_bins, str(num_bins), '', 'general'))]
 
 
 hist_type_by_name = {
@@ -152,11 +158,11 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
                            ),
         'tof_range': Param('The time-of-flight range to histogram',
                            type=tupleof(int, int), default=(0, 100000000),
-                           userparam=True, settable=True,
+                           userparam=True, settable=True, category='general',
                            ),
         'det_range': Param('The detector range to histogram over',
                            type=tupleof(int, int), default=(0, 100),
-                           userparam=True, settable=True,
+                           userparam=True, settable=True, category='general',
                            ),
         'det_width': Param('The width in pixels of the detector', type=int,
                            default=10, userparam=True, settable=True
