@@ -33,7 +33,7 @@ from nicos.core import ADMIN, Override, Param, UsageError, oneof, pvname, \
     status
 from nicos.core.constants import MASTER
 from nicos.core.device import requires
-from nicos.core.mixins import CanDisable, HasOffset, HasPrecision
+from nicos.core.mixins import CanDisable, HasOffset
 from nicos.core.params import limits
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics.pyepics import EpicsAnalogMoveable, PVMonitor
@@ -144,6 +144,15 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
                   mandatory=False,
                   userparam=True,
                   volatile=True),
+        'position_deadband':
+            Param('Only move if the distance between target and current ' \
+                  'position is larger than this value',
+                  type=float,
+                  category='precisions',
+                  settable=False,
+                  mandatory=False,
+                  userparam=True,
+                  volatile=True),
     }
 
     parameter_overrides = {
@@ -190,6 +199,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         'foff': 'FOFF',
         'alarm_status': 'STAT',
         'alarm_severity': 'SEVR',
+        'position_deadband': 'SPDB',
     }
 
     def _get_pv_parameters(self):
@@ -273,6 +283,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     def doReadPrecision(self):
         return self._get_pv('resolution')
 
+    def doReadPosition_Deadband(self):
+        return self._get_pv('position_deadband')
+
     def doWriteSpeed(self, value):
         basespeed, maxspeed = self.speedlimits
         if value < basespeed:
@@ -340,9 +353,13 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         return False
 
     def doIsAtTarget(self, pos, target):
-        if self._sim_intercept:
+        if self._sim_intercept or target is None:
             return True
-        return self._get_pv('miss') == 0 and HasPrecision.doIsAtTarget(self, pos, target)
+
+        # A motor can have a deadband which is larger than the precision. Hence,
+        # the doIsAtTarget method is used in a modified form here
+        return (self._get_pv('miss') == 0 and
+                abs(target - pos) <= max(self.precision, self.position_deadband))
 
     def doWritePrecision(self, value):
         raise UsageError('Precision is read directly from the .MRES field of '
