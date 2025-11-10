@@ -4,7 +4,9 @@ main_window = docked(
     tabbed(
         ('Script',
          vsplit(
-            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+                  modules=['nicos.clients.gui.cmdlets.qscan', ],
+            ),
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
                   eta=True,
                   ),
@@ -50,7 +52,9 @@ windows = [
             )),
         window('Editor', 'editor',
             vsplit(
-                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel',
+                      modules=['nicos.clients.gui.cmdlets.qscan'],
+                      ),
                 panel('nicos.clients.gui.panels.editor.EditorPanel'),
                   )),
         window('Scans', 'plotter',
