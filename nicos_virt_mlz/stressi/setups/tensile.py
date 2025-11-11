@@ -8,6 +8,7 @@ devices = dict(
         abslimits = (-50000, 50000),
         unit = 'N',
         fmtstr = '%.2f',
+        jitter = 5,
     ),
     # tepos = device('nicos.devices.generic.VirtualMotor',
     #     description = 'position value of the tensile machine',
@@ -25,4 +26,6 @@ devices = dict(
     # ),
 )
 
-display_order = 40
+startupcode = """
+AddEnvironment(teload)
+"""

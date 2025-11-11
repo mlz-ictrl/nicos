@@ -2,7 +2,7 @@ description = 'Detector CARESS HWB Devices'
 
 group = 'lowlevel'
 
-includes = ['tensile', 'primaryslit_manual', 'sampletable']
+includes = ['tensile', 'sampletable']
 
 devices = dict(
     mon = device('nicos.devices.generic.VirtualCounter',
@@ -28,7 +28,7 @@ devices = dict(
     mcstas = device('nicos_virt_mlz.stressi.devices.detector.McStasSimulation',
         description = 'McStas simulation',
         mcstasprog = 'stressi_fast',
-        intensityfactor = 1e14,
+        intensityfactor = 1e15,
         sample = 'Sample',
         xprime = 'psw',
         yprime = 'psh',
@@ -42,13 +42,13 @@ devices = dict(
         theta2 = 'tths',
         force = 'teload',
         neutronspersec = {
-            'localhost': 1.12e5,
-            'taco6.ictrl.frm2.tum.de': 8.9e+05,
+            'taco6.ictrl.frm2.tum.de': 8.9e5,
+            'taco16.ictrl.frm2.tum.de': 6e6,
             'stressictrl02.stressi.frm2.tum.de': 2.7e6,
-            configdata('config_data.host'): 1.12e5,
+            'localhost': 3.6e6,
         },
     ),
-    image = device('nicos.devices.mcstas.McStasImage',
+    image = device('nicos_virt_mlz.stressi.devices.detector.Image',
         description = 'Image data device',
         mcstas = 'mcstas',
         mcstasfile = 'PSD_STRESSI_total.psd',

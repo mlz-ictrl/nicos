@@ -21,13 +21,36 @@
 #
 # *****************************************************************************
 
-from nicos.nexus.elements import ConstDataset, DeviceDataset
+from nicos import session
+from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset
 
-from nicos_mlz.nexus import Slit
+from nicos_mlz.nexus import Slit, mm, signal
+from nicos_mlz.nexus.elements import SampleEnv
 from nicos_mlz.nexus.nexus_templates import PowderTemplateProvider
 
 
+def Gap(device):
+    """Return a slit structure."""
+    return {
+        'x_gap': DeviceDataset(f'{device}.width'),
+        # 'y_gap': DeviceDataset(f'{device}.height'),
+        'center:NXtransformations': {
+            'x': DeviceDataset(f'{device}.center'),
+            # 'y': DeviceDataset(f'{device}.centery'),
+        },
+    }
+
+
 class StressiTemplateProvider(PowderTemplateProvider):
+
+    def init(self, **kwargs):
+        PowderTemplateProvider.init(self, **kwargs)
+        self.xs = kwargs.get('xs', 'xt')
+        self.ys = kwargs.get('ys', 'yt')
+        self.zs = kwargs.get('zs', 'zt')
+        self.chis = kwargs.get('chis', 'chis')
+        self.phis = kwargs.get('phis', 'phis')
+        self.omgs = kwargs.get('omgs', 'omgs')
 
     def updateInstrument(self):
         PowderTemplateProvider.updateInstrument(self)
@@ -39,20 +62,54 @@ class StressiTemplateProvider(PowderTemplateProvider):
                 # 'primary_vertical_width': ,
                 # ...
             },
-            'sample_slit:NXslit': Slit('slits'),
-            'monochromator_slit:NXslit': Slit('slitm'),
         })
+        if 'slits' in session.devices:
+            ename = 'sample_slit:NXslit'
+            self._inst.update({
+                ename: Slit('slits'),
+            })
+            self._inst[ename].update({
+                'distance': ConstDataset(200, 'float', units=mm),
+            })
+        if 'slitm' in session.devices:
+            ename = 'monochromator_slit:NXslit'
+            self._inst.update({
+                ename: Slit('slitm'),
+            })
+            self._inst[ename].update({
+                'distance': ConstDataset(100, 'float', units=mm),
+            })
+        if 'pss' in session.devices:
+            ename = 'pss:NXslit'
+            self._inst.update({
+                ename: Slit('pss'),
+            })
+            self._inst[ename].update({
+                'distance': DeviceDataset('psx', units=mm),
+            })
+        if 'ssw' in session.devices:
+            ename = 'ssw:NXslit'
+            self._inst.update({
+                ename: Gap('ssw')
+            })
+            self._inst[ename].update({
+                'distance': DeviceDataset('yss', units=mm),
+            })
 
     def updateDetector(self):
         PowderTemplateProvider.updateDetector(self)
         self._det.update({
+            'polar_angle': DeviceDataset(self.tths),
+            'data': ImageDataset(0, 0, signal=signal, units='counts'),
             'type': ConstDataset('He3 PSD', 'string'),
             'layout': ConstDataset('area', 'string'),
             'acquisition_mode': ConstDataset('histogrammed', 'string'),
             'description': DeviceDataset(self.detector, 'description'),
-            'x_pixel_size': DeviceDataset(self.detector, 'pixel_size[0]'),
-            'y_pixel_size': DeviceDataset(self.detector, 'pixel_size[1]'),
-            # 'distance': ,
+            'x_pixel_size': DeviceDataset(
+                'image', 'pixel_size[0]', 'float', 0.85, units=mm),
+            'y_pixel_size': DeviceDataset(
+                'image', 'pixel_size[1]', 'float', 0.85, units=mm),
+            'distance': DeviceDataset('ysd'),  # units=mm),
             # 'efficiency': ,
             # 'wavelength': ,
             # 'dead_time': ,
@@ -61,46 +118,28 @@ class StressiTemplateProvider(PowderTemplateProvider):
             # 'depends_on': ,
         })
 
-    def updateData(self):
-        PowderTemplateProvider.updateData(self)
-        self._entry['data:NXdata'].update({
-            # 'rotation_angle': NXLink(
-            #   f'/{self.entry}/{self.sample}/rotation_angle'),
-            # 'image_key': NXLink(
-            #   f'/{self.entry}/{self.instrument}/{self.detector}/image_key'),
-        })
-
     def updateSample(self):
         PowderTemplateProvider.updateSample(self)
         self._sample.update({
             'type': ConstDataset('sample', 'string'),
-            # 'chemical_formula': ,
-
-            # 'temperature': ,
-            # 'temperature_log:NXlog': ,
-            # 'temperature_env:NXenvironment': ,
-
-            # 'electric_field': ,
-            # 'electric_fieldlog:NXlog': ,
-            # 'electric_field_env:NXenvironment': ,
-
-            # 'magnetic_field': ,
-            # 'magnetic_field_log:NXlog': ,
-            # 'magnetic_field_env:NXenvironment': ,
-
-            # 'stress_field': direction=NXAttribute('x', 'string'))
-            # 'stress_field': direction=NXAttribute('x'|'y'|'z', string)
-            # 'stress_field_log:NXlog': ,
-            # 'stress_field_env:NXenvironment': ,
-
-            # 'pressure': ,
-            # 'pressure_log:NXlog': ,
-            # 'pressure_env:NXenvironment': ,
-
-            # 'depends_on': ,
-
-            # 'depends_on': ,
-            # 'gauge_volume:NXcollection': {
+            'x:NXpositioner': {
+                'value': DeviceDataset(self.xs),
+            },
+            'y:NXpositioner': {
+                'value': DeviceDataset(self.ys),
+            },
+            'z:NXpositioner': {
+                'value': DeviceDataset(self.zs),
+            },
+            'chi:NXpositioner': {
+                'value': DeviceDataset(self.chis),
+            },
+            'phi:NXpositioner': {
+                'value': DeviceDataset(self.phis),
+            },
+            'omega:NXpositioner': {
+                'value': DeviceDataset(self.omgs),
+            },
             'gauge_volume:NXparameters': {
                 # 'a': ,
                 # 'b': ,
@@ -109,24 +148,19 @@ class StressiTemplateProvider(PowderTemplateProvider):
                 # 'y': ,
                 # 'z': ,
             },
-            # 'x_translation': DeviceDataset('stx_huber'),
-            # 'y_translation': DeviceDataset('sty_huber'),
+            # 'chemical_formula': ,
         })
-
-        # 'definition': ,
-        # 'diffraction_type': ,
-        # 'experiment_documentation': ,
-
-    def updateUsers(self):
-        PowderTemplateProvider.updateUsers(self)
-        self._entry.update({
-            # 'experiment_responsible:NXuser': User(),
-        })
-
-    def completeTemplate(self):
-        PowderTemplateProvider.completeTemplate(self)
-        self._entry.update({
-            # 'processing_type': ConstDataset('two-theta', 'string'),
-            # 'measurement_direction': ,
-            # 'experiment_documentation': ,
-        })
+        temp_env = ['T', 'Ts', ]
+        if any(e in session.devices for e in temp_env):
+            self._sample.update({
+                'temperature_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(temp_env),
+                },
+            })
+        stress_env = ['teload', 'tepos', 'teext', ]
+        if any(e in session.devices for e in stress_env):
+            self._sample.update({
+                'stress_field_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(stress_env, 1),
+                },
+            })

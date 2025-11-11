@@ -23,7 +23,7 @@
 
 """STRESS-SPEC specific data sink tests."""
 
-from os import path
+from pathlib import Path
 
 import pytest
 
@@ -51,7 +51,7 @@ def prepare(session, dataroot):
 
     # Create devices needed in data sinks
     for dev in ['xt', 'yt', 'zt', 'slits', 'slitm', 'slite', 'slitp', 'omgm',
-                'tths']:
+                'tths', 'pss', 'ssw']:
         session.getDevice(dev)
 
     # Adjust the monochromator to reasonable position and check it
@@ -74,20 +74,24 @@ def prepare(session, dataroot):
 
 class TestSinks:
 
-    def test_caress_sink(self, session):
-        caressfile = path.join(session.experiment.datapath, 'm200000043.dat')
-        assert path.isfile(caressfile)
+    @pytest.fixture
+    def datapath(self, session):
+        return Path(session.experiment.datapath) / 'm200000043'
+
+    def test_caress_sink(self, datapath):
+        assert Path.is_file(datapath.with_suffix('.dat'))
 
     @pytest.mark.skipif(not (quickyaml or yaml),
                         reason='QuickYAML/PyYAML libraries missing')
-    def test_yaml_file_exist(self, session):
-        yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
-        assert path.isfile(yamlfile)
+    def test_yaml_file_exist(self, datapath):
+        assert Path.is_file(datapath.with_suffix('.yaml'))
 
     @pytest.mark.skipif(not yaml, reason='PyYAML library missing')
-    def test_yaml_file_content(self, session):
-        yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
+    def test_yaml_file_content(self, datapath):
 
-        with open(yamlfile, encoding='utf-8') as df:
+        with open(datapath.with_suffix('.yaml'), encoding='utf-8') as df:
             contents = yaml.safe_load(df)
         assert contents['experiment']
+
+    def test_nexus_sink(self, datapath):
+        assert Path.is_file(datapath.with_suffix('.nxs'))

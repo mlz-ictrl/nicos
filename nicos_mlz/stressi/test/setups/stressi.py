@@ -37,6 +37,12 @@ except Exception:
     except Exception:
         pass
 
+try:
+    import h5py  # pylint: disable=unused-import
+    stressi_sinklist.append('nxsink')
+except Exception:
+    pass
+
 sysconfig = dict(
     datasinks = stressi_sinklist,
 )
@@ -166,6 +172,16 @@ devices = dict(
         filenametemplate = ['m2%(scancounter)08d.dat'],
         detectors = ['adet'],
     ),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass='nicos_mlz.stressi.nexus.StressiTemplateProvider',
+        device_mapping = {
+            'instrument': 'Stressi',
+            'detector': 'image',
+        },
+        settypes = {'point',},
+        filenametemplate = ['m2%(scancounter)08d.nxs'],
+        detectors = ['adet'],
+    ),
     tthm_r = device('nicos_mlz.stressi.devices.wavelength.TransformedMoveable',
         dev = 'tthm',
         informula = '1./0.5 * x - 11.5 / 0.5',
@@ -196,6 +212,7 @@ devices = dict(
             refpos = 0,
         ),
         parallel_ref = True,
+        autodevice_visibility = {'metadata', },
     ),
     ssw = device('nicos_mlz.stressi.devices.SingleAxisGap',
         moveable = device('nicos.devices.generic.VirtualReferenceMotor',
@@ -204,5 +221,16 @@ devices = dict(
             refswitch = 'ref',
             refpos = 0,
         ),
+        autodevice_visibility = {'metadata', },
+    ),
+    yss = device('nicos.devices.generic.ManualMove',
+        default = 1100.,
+        unit = 'mm',
+        abslimits = (800, 1300),
+    ),
+    ysd = device('nicos.devices.generic.ManualMove',
+        default = 1300.,
+        unit = 'mm',
+        abslimits = (800, 1500),
     ),
 )

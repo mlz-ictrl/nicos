@@ -30,6 +30,7 @@ devices = dict(
             ),
             precision = 0.01,
         ),
+        autodevice_visibility = {'metadata', },
     ),
     yss = device('nicos.devices.generic.ManualMove',
         description = 'Distance sample detector collimator',

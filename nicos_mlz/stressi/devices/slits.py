@@ -26,6 +26,7 @@
 from nicos.core.errors import InvalidValueError
 from nicos.core.mixins import HasPrecision
 from nicos.core.params import Attach, Override, tupleof
+from nicos.devices.generic.manual import ManualSwitch
 from nicos.devices.generic.slit import FixedCenterSlitAxis, Gap, SizeGapAxis, \
     SlitAxis, TwoAxisSlit
 
@@ -197,3 +198,10 @@ class SingleAxisGap(Gap):
 
     def doUpdateOpmode(self, value):
         self.valuetype = float
+
+
+class PreciseManualSwitch(HasPrecision, ManualSwitch):
+
+    parameter_overrides = {
+        'precision': Override(mandatory=False, default=0),
+    }

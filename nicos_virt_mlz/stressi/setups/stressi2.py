@@ -1,9 +1,9 @@
-description = 'Instrument with primary slit'
+description = 'Instrument with primary collimator'
 
 group = 'basic'
 
 includes = [
-    'standard', 'sampletable', 'eulerian', 'primaryslit_manual',
+    'standard', 'sampletable', 'eulerian', 'primradial',
 ]
 
 sysconfig = dict(
