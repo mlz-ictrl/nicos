@@ -2,6 +2,8 @@ description = 'TOF counter devices'
 
 group = 'lowlevel'
 
+includes = ['chopper', 'slit']
+
 devices = dict(
     monitor = device('nicos.devices.generic.VirtualCounter',
         description = 'TOFTOF monitor',
