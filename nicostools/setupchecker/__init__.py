@@ -691,7 +691,7 @@ class SetupValidator:
                 collection = SetupCollection()
             if path.isdir(p):
                 self.collectRecursive(collection, p)
-                self.validateRecursive(collection, p)
+                good &= self.validateRecursive(collection, p)
             elif path.isfile(p):
                 collection.add(p)
                 good &= SetupChecker(collection, p).check()
