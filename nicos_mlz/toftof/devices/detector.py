@@ -140,6 +140,7 @@ class Detector(GenericDetector):
             _chdelay = 0
             _ctrdelay = 0
         self.log.debug('setting chopper delay to: %g', _chdelay)
+        self.log.debug('setting counter delay to: %g', _ctrdelay)
         self._attached_chdelay.move(_chdelay)
         self.doWriteDelay(_ctrdelay)
 
