@@ -24,5 +24,8 @@
 """NECTAR specific devices."""
 
 from nicos_mlz.nectar.devices.focusring import FocusRing
+from nicos_mlz.nectar.devices.lumacam import ADLumaCam, DummyImageChannel, \
+    Empir, FakeImage, LumaCamFileSinkStatus, LumaCamSink, LumaCamSinkHandler, \
+    LumaCamStatus, LumaCamTrigger, ManualStringMoveable
 from nicos_mlz.nectar.devices.slit import BeamLimiter
 from nicos_mlz.nectar.devices.tcoll import ThermalCollimatorAxis
