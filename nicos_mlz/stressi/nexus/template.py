@@ -24,6 +24,7 @@
 from nicos.nexus.elements import ConstDataset, DeviceDataset
 
 from nicos_mlz.nexus.nexus_templates import PowderTemplateProvider
+from nicos_mlz.nexus.structures import Slit
 
 
 class StressiTemplateProvider(PowderTemplateProvider):
@@ -38,22 +39,8 @@ class StressiTemplateProvider(PowderTemplateProvider):
                 # 'primary_vertical_width': ,
                 # ...
             },
-            'sample_slit:NXslit': {
-                'x_gap': DeviceDataset('slits.width'),
-                'y_gap': DeviceDataset('slits.height'),
-                'transforms:NXtransformations': {
-                    'x': DeviceDataset('slits.centerx'),
-                    'y': DeviceDataset('slits.centery'),
-                },
-            },
-            'monochromator_slit:NXslit': {
-                'x_gap': DeviceDataset('slitm.width'),
-                'y_gap': DeviceDataset('slitm.height'),
-                'transforms:NXtransformations': {
-                    'x': DeviceDataset('slits.centerx'),
-                    'y': DeviceDataset('slits.centery'),
-                },
-            },
+            'sample_slit:NXslit': Slit('slits'),
+            'monochromator_slit:NXslit': Slit('slitm'),
         })
 
     def updateDetector(self):

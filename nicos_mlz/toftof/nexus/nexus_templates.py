@@ -34,6 +34,7 @@ from nicos_mlz.toftof.lib import calculations as calc
 from nicos_mlz.toftof.nexus.elements import AzimutalAngles, \
     DetectorDistances, DetInfo, Duration, EntryIdentifier, MonitorMode, \
     NeutronEnergy, TimeOfFlight
+from nicos_mlz.nexus.structures import Slit
 
 # from nicos_mlz.toftof.nexus.elements import ChannelList, ElasticPeakGuess, \
 #     ExperimentTitle, GonioDataset, MonitorData, MonitorRate, MonitorTof, \
@@ -75,14 +76,7 @@ class TofTofTemplate(MLZTemplateProvider):
             },
             'timer:NXmonitor': TimerMonitor('timer'),
             'monitor:NXmonitor': CounterMonitor('monitor'),
-            'slit:NXslit': {
-                'x_gap': DeviceDataset('slit.width'),
-                'y_gap': DeviceDataset('slit.height'),
-                'center:NXtransformations': {
-                    # 'slit_hg': DeviceDataset('slit.centerx'),
-                    # 'slit_ho': DeviceDataset('slit.centery'),
-                },
-            },
+            'slit:NXslit': Slit('slit'),
             # 'goniometer_phicxcy': GonioDataset(),
             # 'goniometer_xyz': TableDataset(),
             # 'status': Status(),

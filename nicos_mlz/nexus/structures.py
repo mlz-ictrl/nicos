@@ -87,6 +87,18 @@ def TimerMonitor(timer):
     }
 
 
+def Slit(device):
+    """Return a slit structure."""
+    return {
+        'x_gap': DeviceDataset(f'{device}.width'),
+        'y_gap': DeviceDataset(f'{device}.height'),
+        'center:NXtransformations': {
+            'x': DeviceDataset(f'{device}.centerx'),
+            'y': DeviceDataset(f'{device}.centery'),
+        },
+    }
+
+
 def Polarizer(typ='supermirror', **attrs):
     """Create a NXpolarizer structure.
 
