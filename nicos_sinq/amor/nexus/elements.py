@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-from nicos_ess.nexus.elements import KafkaStream
+from nicos_sinq.nexus.elements import KafkaStream
 
 
 class HistogramStream(KafkaStream):

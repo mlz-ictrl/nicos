@@ -34,10 +34,10 @@ from nicos.core import FINAL, LIVE
 from nicos.core.data import DataSink, DataSinkHandler
 from nicos.utils import byteBuffer, safeName
 
-from nicos_ess.devices.datasinks.nexus_structure import NexusStructureTemplate
-from nicos_ess.nexus.converter import NexusTemplateConverter
+from nicos_sinq.devices.datasinks.nexus_structure import NexusStructureTemplate
+from nicos_sinq.nexus.converter import NexusTemplateConverter
 from nicos_sinq.amor.commands import synchronize_daq
-from nicos_sinq.devices.datasinks import SinqNexusFileSink
+from nicos_sinq.devices.datasinks.sinq_datasinks import SinqNexusFileSink
 from nicos_sinq.devices.imagesink import ImageKafkaDataSink, \
     ImageKafkaDataSinkHandler
 

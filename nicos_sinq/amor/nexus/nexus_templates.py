@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos_ess.nexus import DeviceAttribute, DeviceDataset, EventStream, \
+from nicos_sinq.nexus import DeviceAttribute, DeviceDataset, EventStream, \
     NXDataset, NXLink
 from nicos_sinq.amor.nexus.placeholder import UserEmailPlaceholder
 

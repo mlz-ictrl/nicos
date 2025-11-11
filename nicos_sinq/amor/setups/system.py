@@ -11,8 +11,6 @@ sysconfig = dict(
     datasinks = ['conssink', 'dmnsink', 'FileWriterControl'],
 )
 
-# Commented out on 27.11.2024 (Stefan Mathis). To be checked in shutdown - is this ever needed?
-#  'nicos_ess.commands.filewriter',
 modules = [
     'nicos.commands.standard',
     'nicos_sinq.amor.commands',
@@ -47,13 +45,13 @@ devices = dict(
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
-    FileWriterStatus = device('nicos_ess.devices.datasinks.file_writer.FileWriterStatus',
+    FileWriterStatus = device('nicos_sinq.devices.datasinks.file_writer.FileWriterStatus',
         description = 'Status of the file-writer',
         brokers = configdata('config.KAFKA_BROKERS'),
         statustopic = 'AMOR_filewriter',
         unit = '',
     ),
-    FileWriterControl = device('nicos_sinq.devices.datasinks.SinqFileWriterControlSink',
+    FileWriterControl = device('nicos_sinq.devices.datasinks.sinq_datasinks.SinqFileWriterControlSink',
         description = 'Control for the file-writer',
         brokers = configdata('config.KAFKA_BROKERS'),
         pool_topic = 'AMOR_filewriterPool',

@@ -71,7 +71,7 @@ devices = dict(
             'countpreset', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8'
         ],
     ),
-    cter1 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+    cter1 = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
         description = 'Controller of the counter box',
         commandpv = 'SQ:AMOR:cter1.AOUT',
         replypv = 'SQ:AMOR:cter1.AINP',

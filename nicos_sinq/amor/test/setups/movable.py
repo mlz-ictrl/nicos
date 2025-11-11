@@ -31,7 +31,7 @@ def create_epics_magnet(device_id):
 
 def create_epics_asyn_controller(device_id):
     """Create an asyn controller with the given device id."""
-    return device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+    return device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
                   description='Asyn controller for motors in serial1',
                   commandpv=f'SQ:AMOR:{device_id}.AOUT',
                   replypv=f'SQ:AMOR:{device_id}.AINP',

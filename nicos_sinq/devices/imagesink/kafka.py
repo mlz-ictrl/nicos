@@ -27,7 +27,7 @@ from nicos.core import FINAL, INTERMEDIATE, DataSink, DataSinkHandler, \
     Override, Param, dictof, tupleof
 from nicos.core.constants import POINT, SIMULATION
 
-from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
+from nicos_sinq.devices.kafka.producer import ProducesKafkaMessages
 from nicos_sinq.devices.imagesink.serializer import \
     HistogramFlatbuffersSerializer
 

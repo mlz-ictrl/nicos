@@ -28,7 +28,7 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     NXLink, StartTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_ess.nexus import EventStream, NXDataset
+from nicos_sinq.nexus import EventStream, NXDataset
 from nicos_sinq.nexus.specialelements import AbsoluteTime, CellArray, \
     DevStat, SaveSampleEnv
 

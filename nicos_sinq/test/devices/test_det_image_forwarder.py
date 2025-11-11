@@ -30,7 +30,7 @@ import numpy as np
 from streaming_data_types import deserialise_hs01
 from streaming_data_types.utils import get_schema
 
-from nicos_sinq.devices.datasinks import ImageForwarderSink, \
+from nicos_sinq.devices.datasinks.sinq_datasinks import ImageForwarderSink, \
     ImageForwarderSinkHandler
 
 session_setup = 'devices'

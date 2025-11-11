@@ -24,8 +24,8 @@
 
 import pytest
 
-from nicos_ess.nexus.converter import NexusTemplateConverter
-from nicos_ess.nexus.elements import DeviceAttribute, DeviceDataset, \
+from nicos_sinq.nexus.converter import NexusTemplateConverter
+from nicos_sinq.nexus.elements import DeviceAttribute, DeviceDataset, \
     EventStream, NXAttribute, NXDataset, NXGroup
 
 session_setup = 'system'

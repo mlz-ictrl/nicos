@@ -23,10 +23,10 @@
 
 import numpy as np
 
-from nicos_ess.devices.datasources.just_bin_it import JustBinItImage
+from nicos_sinq.devices.just_bin_it import JustBinItImageKafka
 
 
-class DMCBinner(JustBinItImage):
+class DMCBinner(JustBinItImageKafka):
     """
     Just rotates the histogram received to match expectations
     """

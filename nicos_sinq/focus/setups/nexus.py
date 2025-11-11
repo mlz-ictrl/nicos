@@ -9,7 +9,7 @@ devices = dict(
         description = 'Switch for enabling/disabling NeXus file writing',
         states = ['on', 'off']
     ),
-    nxsink = device('nicos_sinq.devices.datasinks.SwitchableNexusSink',
+    nxsink = device('nicos_sinq.devices.datasinks.sinq_datasinks.SwitchableNexusSink',
         file_switch = 'nxfw',
         description = 'Sink for NeXus file writer',
         filenametemplate = ['focus%(year)sn%(scancounter)06d.hdf'],

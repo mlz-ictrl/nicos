@@ -39,11 +39,11 @@ from nicos.devices.generic.manual import ManualSwitch
 from nicos.nexus.nexussink import NexusSink
 from nicos.utils import createThread, readFileCounter, updateFileCounter
 
-from nicos_ess.devices.datasinks.file_writer import FileWriterControlSink, \
+from nicos_sinq.devices.datasinks.file_writer import FileWriterControlSink, \
     FileWriterSinkHandler
-from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink, \
+from nicos_sinq.devices.datasinks.nexussink import NexusFileWriterSink, \
     NexusFileWriterSinkHandler
-from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
+from nicos_sinq.devices.kafka.producer import ProducesKafkaMessages
 
 
 def delete_keys_from_dict(dict_del, keys):

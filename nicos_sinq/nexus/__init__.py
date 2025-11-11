@@ -20,3 +20,6 @@
 #   Mark Koennecke <Mark.Koennecke@psi.ch>
 #
 # *****************************************************************************
+
+from nicos_sinq.nexus.elements import DeviceAttribute, DeviceDataset, \
+    EventStream, NXAttribute, NXDataset, NXGroup, NXLink

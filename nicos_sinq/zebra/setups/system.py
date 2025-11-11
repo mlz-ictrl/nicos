@@ -60,7 +60,7 @@ devices = dict(
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = "Sink for forwarding live data to the GUI",
     ),
-    quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
+    quiecksink = device('nicos_sinq.devices.datasinks.sinq_datasinks.QuieckSink',
         description = 'Sink for sending UDP datafile notifications'
     ),
 )

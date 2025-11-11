@@ -22,7 +22,7 @@
 # *****************************************************************************
 from nicos.core.params import Override
 
-from nicos_sinq.devices.datasinks import SwitchableNexusSink
+from nicos_sinq.devices.datasinks.sinq_datasinks import SwitchableNexusSink
 
 
 class SANSNexusSink(SwitchableNexusSink):

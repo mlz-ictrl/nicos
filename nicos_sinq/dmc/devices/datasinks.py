@@ -25,7 +25,7 @@ from os import path
 
 from nicos import session
 
-from nicos_sinq.devices.datasinks import SinqNexusFileSink
+from nicos_sinq.devices.datasinks.sinq_datasinks import SinqNexusFileSink
 
 
 class DMCNexusFileSink(SinqNexusFileSink):

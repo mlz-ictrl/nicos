@@ -27,6 +27,7 @@ import uuid
 
 import numpy as np
 from confluent_kafka import Consumer, KafkaError, KafkaException, Producer
+from streaming_data_types import deserialise_hs00, deserialise_hs01
 from streaming_data_types.utils import get_schema
 
 from nicos import session
@@ -36,8 +37,118 @@ from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
-from nicos_ess.devices.datasources.just_bin_it import Hist1dTof, Hist2dDet, \
-    Hist2dRoi, Hist2dTof, deserialiser_by_schema
+from nicos_sinq.devices.kafka.consumer import KafkaSubscriber
+
+class Hist1dTof:
+    name = 'hist1d'
+
+    @classmethod
+    def get_array_description(cls, name, num_bins, **ignored):
+        return ArrayDesc(name, shape=(num_bins, ), dtype=np.float64)
+
+    @classmethod
+    def get_zeroes(cls, num_bins, **ignored):
+        return cls.transform_data(
+            np.zeros(shape=(num_bins, ), dtype=np.float64))
+
+    @classmethod
+    def transform_data(cls, data, rotation=None):
+        return data
+
+    @classmethod
+    def get_info(cls, name, num_bins, **ignored):
+        return [
+            DeviceMetaInfo(
+                f'{name} bins',
+                DeviceParInfo(num_bins, str(num_bins), '', 'general'))]
+
+
+class Hist2dTof:
+    name = 'hist2d'
+
+    @classmethod
+    def get_array_description(cls, name, num_bins, **ignored):
+        return ArrayDesc(name, shape=(num_bins, num_bins), dtype=np.float64)
+
+    @classmethod
+    def get_zeroes(cls, num_bins, **ignored):
+        return cls.transform_data(
+            np.zeros(shape=(num_bins, num_bins), dtype=np.float64))
+
+    @classmethod
+    def transform_data(cls, data, rotation=None):
+        # For the ESS detector orientation, pixel 0 is at top-left
+        if rotation:
+            return np.rot90(data, k=rotation // 90)
+        return data
+
+    @classmethod
+    def get_info(cls, name, num_bins, **ignored):
+        return [DeviceMetaInfo(
+            f'{name} bins', DeviceParInfo(
+                (num_bins, num_bins), str((num_bins, num_bins)), '',
+                'general'))]
+
+
+class Hist2dDet:
+    name = 'dethist'
+
+    @classmethod
+    def get_array_description(cls, name, det_width, det_height, **ignored):
+        return ArrayDesc(name, shape=(det_width, det_height), dtype=np.float64)
+
+    @classmethod
+    def get_zeroes(cls, det_width, det_height, **ignored):
+        return cls.transform_data(
+            np.zeros(shape=(det_width, det_height), dtype=np.float64))
+
+    @classmethod
+    def transform_data(cls, data, rotation=None):
+        # For the ESS detector orientation, pixel 0 is at top-left
+        if rotation:
+            return np.rot90(data, k=rotation // 90)
+        return data
+
+    @classmethod
+    def get_info(cls, name, det_width, det_height, **ignored):
+        return [
+            DeviceMetaInfo(
+                f'{name} width', DeviceParInfo(det_width, str(det_width),
+                                               '', 'general')),
+            DeviceMetaInfo(
+                f'{name} height', DeviceParInfo(det_height, str(det_height),
+                                                '', 'general'))]
+
+
+class Hist2dRoi:
+    name = 'roihist'
+
+    @classmethod
+    def get_array_description(cls, name, det_width, left_edges, **ignored):
+        return ArrayDesc(name, shape=(det_width, left_edges), dtype=np.float64)
+
+    @classmethod
+    def get_zeroes(cls, det_width, left_edges, **ignored):
+        return cls.transform_data(
+            np.zeros(shape=(det_width, left_edges), dtype=np.float64))
+
+    @classmethod
+    def transform_data(cls, data, rotation=None):
+        # For the ESS detector orientation, pixel 0 is at top-left
+        if rotation:
+            return np.rot90(data, k=rotation // 90)
+        return data
+
+    @classmethod
+    def get_info(cls, name, det_width, left_edges, **ignored):
+        height = len(left_edges)
+        return [
+            DeviceMetaInfo(
+                f'{name} width', DeviceParInfo(det_width, str(det_width), '',
+                                               'general')),
+            DeviceMetaInfo(
+                f'{name} height', DeviceParInfo(height, str(height), '',
+                                                'general'))]
 
 
 class Hist2dSANSLLB:
@@ -105,6 +216,12 @@ hist_type_by_name = {
     '2-D ROI': Hist2dRoi,
     '2-D SANSLLB': Hist2dSANSLLB,
     '2-D TOFSINQ': Hist2dTOFSINQ,
+}
+
+
+deserialiser_by_schema = {
+    'hs00': deserialise_hs00,
+    'hs01': deserialise_hs01,
 }
 
 
@@ -370,3 +487,103 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
         self._hist_id = 'all'
         self.doStop()
         self._status = status.OK, ''
+
+class JustBinItImageKafka(KafkaSubscriber, JustBinItImage):
+
+    def doPreinit(self, mode):
+
+        self._unique_id = None
+        self._current_status = (status.OK, '')
+        if mode == SIMULATION:
+            return
+        self._update_status(status.OK, '')
+        # Set up the data consumer
+        KafkaSubscriber.doPreinit(self, None)
+
+    def doInit(self, mode):
+        self._hist_sum = 0
+        self._zero_data()
+
+    def doPrepare(self):
+        self._update_status(status.BUSY, 'Preparing')
+        self._zero_data()
+        self._hist_edges = np.array([])
+        self._hist_sum = 0
+        try:
+            self.subscribe(self.hist_topic)
+        except Exception as error:
+            self._update_status(status.ERROR, str(error))
+            raise
+        self._update_status(status.OK, '')
+
+    def new_messages_callback(self, messages):
+        for _, message in messages:
+            deserialiser = deserialiser_by_schema.get(get_schema(message))
+            if not deserialiser:
+                continue
+            hist = deserialiser(message)
+            info = json.loads(hist['info'])
+            self.log.debug('received unique id = %s', info['id'])
+            if info['id'] != self._unique_id:
+                continue
+            if info['state'] in ['COUNTING', 'INITIALISED']:
+                self._update_status(status.BUSY, 'Counting')
+            elif info['state'] == 'ERROR':
+                error_msg = info[
+                    'error_message'] if 'error_message' in info else 'unknown error'
+                self._update_status(status.ERROR, error_msg)
+            elif info['state'] == 'FINISHED':
+                self._halt_consumer_thread()
+                self._consumer.unsubscribe()
+                self._update_status(status.OK, '')
+                break
+
+            self._hist_data = hist_type_by_name[self.hist_type].transform_data(
+                hist['data'], rotation=self.rotation)
+            self._hist_sum = self._hist_data.sum()
+            self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
+
+    def _update_status(self, new_status, message):
+        self._current_status = new_status, message
+        self._cache.put(self._name, 'status', self._current_status,
+                        time.time())
+
+    def doRead(self, maxage=0):
+        return [self._hist_sum]
+
+    def valueInfo(self):
+        return (Value(self.name, fmtstr='%d'), )
+
+    def doStart(self):
+        self._update_status(status.BUSY, 'Waiting to start...')
+
+    def doStop(self):
+        self._update_status(status.OK, '')
+
+    def doStatus(self, maxage=0):
+        return self._current_status
+
+    def _halt_consumer_thread(self, join=False):
+        if self._updater_thread is not None:
+            self._stoprequest = True
+            if join and self._updater_thread.is_alive():
+                self._updater_thread.join()
+
+    def get_configuration(self):
+        # Generate a unique-ish id
+        self._unique_id = 'nicos-{}-{}'.format(self.name, int(time.time()))
+
+        return {
+            'type': hist_type_by_name[self.hist_type].name,
+            'data_brokers': self.brokers,
+            'data_topics': [self.data_topic],
+            'tof_range': list(self.tof_range),
+            'det_range': list(self.det_range),
+            'num_bins': self.num_bins,
+            'width': self.det_width,
+            'height': self.det_height,
+            'left_edges': self.left_edges,
+            'topic': self.hist_topic,
+            'source': self.source,
+            'id': self._unique_id,
+        }

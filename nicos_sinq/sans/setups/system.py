@@ -63,7 +63,7 @@ devices = dict(
         templateclass =
         'nicos_sinq.sans.nexus.nexus_templates.SANSTemplateProvider',
     ),
-    quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
+    quiecksink = device('nicos_sinq.devices.datasinks.sinq_datasinks.QuieckSink',
         description = 'Sink for sending UDP datafile '
         'notifications'
     ),

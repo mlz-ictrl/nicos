@@ -49,37 +49,7 @@ devices = dict(
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = "Sink for forwarding live data to the GUI",
     ),
-    quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
+    quiecksink = device('nicos_sinq.devices.datasinks.sinq_datasinks.QuieckSink',
         description = 'Sink for sending UDP datafile notifications'
     ),
 )
-"""
-    KafkaForwarder=device('nicos_ess.devices.forwarder.EpicsKafkaForwarder',
-        description="Monitors and controls forward-epics-to-kafka",
-        statustopic="HRPT_forwarderStatus",
-        brokers=configdata('config.KAFKA_BROKERS'),
-    ),
-
-    HistogramDataSink=device('nicos_ess.devices.datasinks.imagesink.kafka.ImageKafkaDataSink',
-        brokers=configdata('config.KAFKA_BROKERS'),
-        channeltostream={
-            'area_detector': ('HRPT_bananaDetector', 'linear')
-        },
-    ),
-
-    NexusDataSink=device('nicos_sinq.devices.datasinks.SinqNexusFileSink',
-        description="Sink for NeXus file writer (kafka-to-nexus)",
-        brokers=configdata('config.KAFKA_BROKERS'),
-        filenametemplate=['hrpt%(year)sn%(pointcounter)06d.hdf'],
-        cmdtopic="HRPT_filewriterCommands",
-        status_provider='NexusFileWriter',
-        templatesmodule='nicos_sinq.hrpt.nexus.nexus_templates',
-        templatename='hrpt_default'
-    ),
-
-    NexusFileWriter=device('nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
-        description="Status for nexus file writing",
-        brokers=configdata('config.KAFKA_BROKERS'),
-        statustopic="HRPT_filewriterStatus",
-    ),
-"""
