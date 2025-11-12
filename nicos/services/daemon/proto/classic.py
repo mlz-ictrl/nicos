@@ -44,10 +44,10 @@ class Server(BaseServer, socketserver.TCPServer):
 
     def __init__(self, daemon, address, serializer):
         BaseServer.__init__(self, daemon, address, serializer)
-        self.handler_ident_lock = threading.Lock()
-        self.handlers = weakref.WeakValueDictionary()
-        self.handler_ident = 0
-        self.pending_clients = {}
+        self._handler_ident_lock = threading.Lock()
+        self._handlers = weakref.WeakValueDictionary()
+        self._handler_ident = 0
+        self._pending_clients = {}
         socketserver.TCPServer.__init__(self, address, ServerTransport)
 
     # BaseServer methods
@@ -63,7 +63,7 @@ class Server(BaseServer, socketserver.TCPServer):
 
     def emit(self, event, data, blobs, handler=None):
         data = self.serializer.serialize_event(event, data)
-        for hdlr in (handler,) if handler else self.handlers.values():
+        for hdlr in (handler,) if handler else self._handlers.values():
             try:
                 hdlr.event_queue.put((event, data, blobs), True, 0.1)
             except queue.Full:
@@ -116,27 +116,27 @@ class Server(BaseServer, socketserver.TCPServer):
         """
         host = client_address[0]
         clid = request.recv(16)
-        if (host, clid) not in self.pending_clients:
-            self.pending_clients[host, clid] = None
+        if (host, clid) not in self._pending_clients:
+            self._pending_clients[host, clid] = None
             return clid
         # this should be an event connection: start event sender thread on the
         # handler, but wait until the handler is registered
-        while self.pending_clients[host, clid] is None:
+        while self._pending_clients[host, clid] is None:
             time.sleep(0.2)
-        handler = self.pending_clients[host, clid]
+        handler = self._pending_clients[host, clid]
         self.daemon.log.debug('event connection from %s for handler #%d',
                               host, handler.ident)
         handler.event_sock = request
         # close connection after socket send queue is full for 60 seconds
         handler.event_sock.settimeout(60.0)
         createThread('event_sender %d' % handler.ident, handler.event_sender)
-        self.pending_clients.pop((host, clid), None)
+        self._pending_clients.pop((host, clid), None)
         # don't call the usual handler
         return None
 
     def server_close(self):
         """Close the server socket and all client sockets."""
-        for handler in list(self.handlers.values()):
+        for handler in list(self._handlers.values()):
             closeSocket(handler.sock)
             closeSocket(handler.event_sock)
         closeSocket(self.socket)
@@ -149,16 +149,23 @@ class Server(BaseServer, socketserver.TCPServer):
 
     def register_handler(self, handler, host, client_id):
         """Give each handler a unique ID."""
-        with self.handler_ident_lock:
-            self.pending_clients[host, client_id] = handler
-            self.handler_ident += 1
-            handler.setIdent(self.handler_ident)
-            self.handlers[threading.get_ident()] = handler
+        with self._handler_ident_lock:
+            self._pending_clients[host, client_id] = handler
+            self._handler_ident += 1
+            handler.setIdent(self._handler_ident)
+            # make a copy here instead of modifying `self._handlers` as it may
+            # currently be iterated over in emit()
+            new_handlers = self._handlers.copy()
+            new_handlers[threading.get_ident()] = handler
+            self._handlers = new_handlers
 
     def unregister_handler(self, ident):
         """Remove a handler from the handlers dictionary."""
-        with self.handler_ident_lock:
-            del self.handlers[threading.get_ident()]
+        with self._handler_ident_lock:
+            # see comment in register_handler()
+            new_handlers = self._handlers.copy()
+            del new_handlers[threading.get_ident()]
+            self._handlers = new_handlers
 
 
 class ServerTransport(ConnectionHandler, BaseServerTransport,
@@ -195,7 +202,7 @@ class ServerTransport(ConnectionHandler, BaseServerTransport,
         except BaseException as err:
             # in case the client hasn't opened the event connection, stop
             # waiting for it
-            server.pending_clients.pop((client_address[0], client_id), None)
+            server._pending_clients.pop((client_address[0], client_id), None)
             if isinstance(err, ProtocolError):
                 self.log.warning('protocol error: %s', err)
             elif not isinstance(err, CloseConnection):
