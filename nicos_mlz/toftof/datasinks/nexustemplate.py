@@ -73,8 +73,8 @@ class LegacyTemplate(NexusTemplateProvider):
                             'ch', 'ch5_90deg_offset', dtype='int32'),
                         'tof_num_inputs': DeviceDataset('det', 'numinputs',
                                                         dtype='int32'),
-                        'tof_time_preselection': DeviceDataset(
-                            'det', 'preset', dtype='int32', units=seconds),
+                        # 'tof_time_preselection': DeviceDataset(
+                        #     'det', 'preset', dtype='int32', units=seconds),
                     },
                     'detector:NXdetector': {
                         'box_chan': DetInfo(15),
@@ -102,10 +102,10 @@ class LegacyTemplate(NexusTemplateProvider):
                 'mode': Mode(),
                 'status': Status(),
                 'to_go': ToGo(),
-                # 'slit_hg': DeviceDataset('slit.centerx'),
-                # 'slit_ho': DeviceDataset('slit.centery'),
-                # 'slit_vg': DeviceDataset('slit.width'),
-                # 'slit_vo': DeviceDataset('slit.height'),
+                'slit_ho': DeviceDataset('slit.centerx'),
+                'slit_hg': DeviceDataset('slit.width'),
+                'slit_vo': DeviceDataset('slit.centery'),
+                'slit_vg': DeviceDataset('slit.height'),
                 'user1:NXuser': {
                     'name': DeviceDataset('Exp', 'localcontact'),
                     'role': ConstDataset('local_contact', 'string'),

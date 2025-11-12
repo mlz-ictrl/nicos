@@ -96,7 +96,7 @@ class ToGo(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         metainfo = sinkhandler.dataset.metainfo
-        preset = metainfo['det', 'preset'][0]
+        preset = metainfo.get(('det', 'preset'), (0, ))[0]
         if metainfo.get(('det', 'mode'),
                         ('time', 'time', '', ''))[1] != 'time':
             dset = h5parent.create_dataset(name, (1,), dtype='int32')
@@ -115,7 +115,7 @@ class ToGo(NexusElementBase):
         else:
             info = results[sinkhandler.detector.name][0]
         metainfo = sinkhandler.dataset.metainfo
-        preset = metainfo['det', 'preset'][0]
+        preset = metainfo.get(('det', 'preset'), (0, ))[0]
         if metainfo.get(('det', 'mode'),
                         ('time', 'time', '', ''))[1] != 'time':
             val = int(info[1])
@@ -486,7 +486,7 @@ class TimeOfFlight(NexusElementBase):
     def __init__(self, **attrs):
         NexusElementBase.__init__(self, **attrs)
         self.attrs = {}
-        for key, val in (attrs | dict(axis=axis1, units='s')).items():
+        for key, val in (attrs | {'axis': axis1, 'units': 's'}).items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
