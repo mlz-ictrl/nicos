@@ -43,6 +43,7 @@ devices = dict(
         right = 'SampleSlitMotHR',
         coordinates = 'opposite',
         opmode = 'offcentered',
+        autodevice_visibility = {'metadata', 'namespace'},
     ),
 )
 
