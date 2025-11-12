@@ -30,6 +30,7 @@ devices = dict(
         website = 'https://www.tuwien.at/forschung/facilities/xrc',
         operators = ['XRC'],
         facility = 'XRC',
+        doi = 'https://doi.org/10.1063/5.0276353'
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
