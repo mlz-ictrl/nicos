@@ -26,9 +26,10 @@ devices = dict(
     Sample = device('nicos_virt_mlz.toftof.devices.sample.Sample',
         description = 'The currently used sample',
         samples = {
-            1: {'name': 'Vanadium', 'sampletype': 0},
-            2: {'name': 'Empty can', 'sampletype': 1},
-            3: {'name': 'Water', 'sampletype': 2},
+            1: {'name': 'Vanadium', 'sampletype': 0, 'nature': 'powder'},
+            2: {'name': 'Empty can', 'sampletype': 1, 'type': 'can',},
+            3: {'name': 'Water', 'sampletype': 2, 'type': 'sample+can',
+                'nature': 'liquid'},
         },
     ),
     Exp = device('nicos_mlz.toftof.devices.Experiment',
