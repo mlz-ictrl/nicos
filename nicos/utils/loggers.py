@@ -395,7 +395,8 @@ def recordToMessage(record, reqid):
 
     msg = [getattr(record, e) for e in ('name', 'created', 'levelno',
                                         'message', 'exc_text')] + [reqid]
-    msg[3] += '\n'
+    # Cut overly long messages to avoid transfer problems
+    msg[3] = msg[3][:8192] + '\n'
     return msg
 
 
