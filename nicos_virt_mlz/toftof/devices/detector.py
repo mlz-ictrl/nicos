@@ -33,6 +33,7 @@ from nicos.devices.mcstas import DetectorMixin, McStasImage, \
 
 from nicos_mlz.toftof.devices import Detector as BaseDetector, Ratio, \
     SlitType, Speed, Wavelength
+from nicos_mlz.toftof.lib import calculations as calc
 from nicos_virt_mlz.toftof.devices.sample import Sample
 
 
@@ -111,11 +112,15 @@ class McStasSimulation(BaseSimulation):
 class Image(McStasImage):
 
     parameters = {
-        'timechannels': Param('Number of time channels per detector channel',
+        'timechannels': Param('Number of time channels',
                               type=intrange(1, 4096), settable=True,
                               default=1024, category='general'),
+        'timeinterval': Param('Time for each time channel',
+                              type=float, settable=True, unit='s',
+                              mandatory=False, default=252*5e-8,
+                              category='general'),
         'frametime': Param('Time interval between pulses',
-                           type=float, settable=True,
+                           type=float, settable=True, volatile=True,
                            default=0.0128571, unit='s',
                            category='general',
                            ),
@@ -124,15 +129,31 @@ class Image(McStasImage):
                        default=162093*5e-8, fmtstr='%g', unit='s',
                        category='general',
                        ),
-        'timeinterval': Param('Duration of a single time slot',
-                              default=252*5e-8, unit='s',
-                              category='general',
-                              ),
     }
 
     def _readpsd(self, quality):
         McStasImage._readpsd(self, quality)
         self._buf = self._buf.T
+
+    def doReadFrametime(self):
+        return self.timeinterval * self.timechannels
+
+    def doWriteFrametime(self, value):
+        # as the HW can only realize selected values for timeinterval, probe
+        # until success
+        wanted_timeinterval = int(
+            (value / self.timechannels) / calc.ttr) * calc.ttr
+        self.timeinterval = wanted_timeinterval
+        # note: if a doReadTimeinterval differs in value from a previous
+        #       doWriteTimeinterval,
+        #       HW does actually use the returned value, not the wanted.
+        #       (in this case: returned < set) so, increase the wanted value
+        #       until the used one is big enough
+        actual_timeinterval = self.timeinterval
+        while actual_timeinterval * self.timechannels < value:
+            wanted_timeinterval += calc.ttr
+            self.timeinterval = wanted_timeinterval
+            actual_timeinterval = self.timeinterval
 
 
 class Detector(DetectorMixin, BaseDetector):
