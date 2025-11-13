@@ -32,8 +32,8 @@ from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Slit, \
     TimerMonitor, axis2, signal
 from nicos_mlz.toftof.lib import calculations as calc
 from nicos_mlz.toftof.nexus.elements import AzimutalAngles, \
-    DetectorDistances, DetInfo, Duration, EntryIdentifier, MonitorMode, \
-    NeutronEnergy, TimeOfFlight
+    DetectorDistances, DetInfo, Duration, EntryIdentifier, NeutronEnergy, \
+    TimeOfFlight
 
 # from nicos_mlz.toftof.nexus.elements import ChannelList, ElasticPeakGuess, \
 #     ExperimentTitle, GonioDataset, MonitorData, MonitorRate, MonitorTof, \
@@ -66,6 +66,12 @@ class TofTofTemplate(MLZTemplateProvider):
 
     definition = 'NXdirecttof'
 
+    def init(self, **kwargs):
+        self.detector = kwargs.get('detector', 'det')
+        self.monitor = kwargs.get('monitor', 'monitor')
+        self.timer = kwargs.get('timer', 'timer')
+        self.slit = kwargs.get('slit', 'slit')
+
     def updateInstrument(self):
         self._inst.update({
             'disk_chopper:NXdisk_chopper': {
@@ -92,9 +98,7 @@ class TofTofTemplate(MLZTemplateProvider):
                 'chopper_vac2': DeviceDataset('vac2', dtype='float32'),
                 'chopper_vac3': DeviceDataset('vac3', dtype='float32'),
             },
-            'timer:NXmonitor': TimerMonitor('timer'),
-            'monitor:NXmonitor': CounterMonitor('monitor'),
-            'slit:NXslit': Slit('slit'),
+            f'{self.slit}:NXslit': Slit(self.slit),
             # 'goniometer_phicxcy': GonioDataset(),
             # 'goniometer_xyz': TableDataset(),
             # 'status': Status(),
@@ -102,8 +106,9 @@ class TofTofTemplate(MLZTemplateProvider):
 
     def updateDetector(self):
         self._det.update({
-            'data': ImageDataset(0, 0, signal=signal, units='counts'),
-            # axes='2theta:detector_number'),
+            'data': ImageDataset(0, 0, signal=signal, units='counts',
+                                 # axes='time of flight:detector number',
+                                 ),
             'distance': DetectorDistances(),
             'time_of_flight': TimeOfFlight(),
             'polar_angle': DetInfo(5, units='deg'),
@@ -169,30 +174,22 @@ class TofTofTemplate(MLZTemplateProvider):
             # 'entry_identifier': EntryIdentifier(),
         })
         preset = session.getDevice('det').preset()
-        monitor = 'monitor'
-        if preset.get('timer'):
-            monitor = 'timer'
-        monitorlink = f'/{self.entry}/{self.instrument}/{monitor}'
-        det_path = f'/{self.entry}/{self.instrument}/{self.detector}'
-        self._entry.update({
-            'control:NXmonitor': {
-                'mode': MonitorMode(),
-                # 'mode': NXLink(f'{monitorlink}/mode'),
-                'preset': NXLink(f'{monitorlink}/preset'),
-                'integral_counts': NXLink(
-                    f'/{self.entry}/{self.instrument}/monitor/integral'),
-                'data': NXLink(f'{monitorlink}/integral'),
-                'distance': ConstDataset('15', dtype='float32', units='mm'),
-                'time_of_flight': NXLink(f'{det_path}/time_of_flight'),
-                # 'tof_time_interval': DeviceDataset('ch', 'frametime'),
-                # 'data': MonitorData(),
-                # 'elastic_peak': ElasticPeakGuess(),
-                # 'integral': MonitorValue(),
-                # 'monitor_count_rate': MonitorRate(),
-                # 'time_of_flight': MonitorTof(),
-            },
-        })
-        if monitor != 'timer':
-            self._entry['control:NXmonitor'].update({
-                'type': NXLink(f'{monitorlink}/type'),
+        monitor = self.timer
+        if preset.get(self.monitor):
+            monitor = self.monitor
+            self._entry.update({
+                f'{monitor}:NXmonitor': CounterMonitor(monitor),
             })
+            self._monitor = self._entry[f'{self.monitor}:NXmonitor']
+        else:
+            self._entry.update({
+                f'{monitor}:NXmonitor': TimerMonitor(monitor),
+            })
+            self._monitor = self._entry[f'{self.timer}:NXmonitor']
+        self._monitor.update({
+            'time_of_flight': NXLink(f'/{self.entry}/{self.instrument}/'
+                                     f'{self.detector}/time_of_flight'),
+            'distance': ConstDataset('15', dtype='float32', units='mm'),
+            'integral_counts': NXLink(f'/{self.entry}/{monitor}/integral'),
+            # TODO: data as list for the time channels ???
+        })
