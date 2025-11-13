@@ -295,6 +295,9 @@ class NexusSinkHandler(DataSinkHandler):
         if self.startdataset.finished is not None:
             # if self.startdataset.settype == SCAN:
             with H5File(self._filename, 'r+') as h5file:
+                # Take the first entry found in the list to make it as
+                # default to plot
+                h5file.attrs['default'] = np.bytes_(list(h5file.keys())[0])
                 h5obj = h5file['/']
                 linkpath = self.find_scan_link(h5obj, self.template)
                 if linkpath is not None:
