@@ -25,8 +25,8 @@
 
 
 from nicos import session
-from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
-    NXAttribute, NXLink
+from nicos.nexus.elements import ConstDataset, DeviceDataset, \
+    ImageDataset as BaseImageDataset, NXAttribute, NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, \
     TimerMonitor, axis2, signal
@@ -42,6 +42,25 @@ from nicos_mlz.nexus.structures import Slit
 #     TOFTOFImageDataset
 
 useconds = NXAttribute('us', 'string')
+
+
+class ImageDataset(BaseImageDataset):
+
+    def results(self, name, h5parent, sinkhandler, results):
+        dset = h5parent[name]
+        det = sinkhandler.dataset.detectors[self.detectorIDX]
+        data = results.get(det.name)
+        if data is not None:
+            array = data[1][self.imageIDX]
+            if array is None:
+                return
+            if self.doAppend:
+                idx = self.np + 1
+                if len(dset) < idx:
+                    self.resize_dataset(dset, sinkhandler)
+                dset[self.np] = array.T
+            else:
+                h5parent[name][...] = array.T
 
 
 class TofTofTemplate(MLZTemplateProvider):
@@ -84,8 +103,7 @@ class TofTofTemplate(MLZTemplateProvider):
 
     def updateDetector(self):
         self._det.update({
-            'data': ImageDataset(
-                0, 0, signal=signal, units='counts'),
+            'data': ImageDataset(0, 0, signal=signal, units='counts'),
             # axes='2theta:detector_number'),
             'distance': DetectorDistances(),
             'time_of_flight': TimeOfFlight(),
