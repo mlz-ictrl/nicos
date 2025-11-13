@@ -93,7 +93,7 @@ devices = dict(
         filenametemplate = ['%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },
         filemode = 0o440,
-        device_mapping = dict(det='det1', sgx='scx', sgy='scy', phi='stt', psi='sth'),
+        device_mapping = dict(detector='det1', sgx='scx', sgy='scy', phi='stt', psi='sth'),
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

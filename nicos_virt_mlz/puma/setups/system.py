@@ -58,9 +58,6 @@ devices = dict(
         device_mapping = {
             'sample': 'sample',
             'omgs': 'psi',
-            'det': 'det',
-            'mon': 'mon1',
-            'timer': 'timer',
         },
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

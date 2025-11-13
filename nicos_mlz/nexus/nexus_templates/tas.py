@@ -35,7 +35,6 @@ class TasTemplateProvider(MLZTemplateProvider):
     definition = 'NXtas'
 
     def init(self, **kwargs):
-        self.det = kwargs.get('det', 'det')
         self.sgx = kwargs.get('sgx', 'sgx')
         self.sgy = kwargs.get('sgy', 'sgy')
         self.stt = kwargs.get('phi', 'phi')
@@ -48,6 +47,9 @@ class TasTemplateProvider(MLZTemplateProvider):
         self.att = kwargs.get('att', 'att')
         self.ei = kwargs.get('ei', 'Ei')
         self.ef = kwargs.get('ef', 'Ef')
+        self.detector = kwargs.get('detector', 'det')
+        self.monitor = kwargs.get('monitor', 'mon1')
+        self.timer = kwargs.get('timer', 'timer')
 
     def updateInstrument(self):
         self._inst.update({
@@ -76,18 +78,18 @@ class TasTemplateProvider(MLZTemplateProvider):
     def updateDetector(self):
         self._det.update({
             'polar_angle': ScanDeviceDataset(self.att),
-            'data': DetectorDataset(self.det, dtype='int', units=counts,
+            'data': DetectorDataset(self.detector, dtype='int', units=counts,
                                     signal=signal),
         })
         self._entry.update({
-            'mon1:NXmonitor': CounterMonitor('mon1'),
-            'timer:NXmonitor': TimerMonitor('timer'),
+            f'{self.monitor}:NXmonitor': CounterMonitor(self.monitor),
+            f'{self.timer}:NXmonitor': TimerMonitor(self.timer),
         })
-        preset = session.getDevice(self.det).preset()
-        if preset.get('mon1'):
-            monitor = 'monitor1'
+        preset = session.getDevice(self.detector).preset()
+        if preset.get(self.monitor):
+            monitor = self.monitor
         else:
-            monitor = 'timer'
+            monitor = self.timer
         monitor_link = f'/{self.entry}/{monitor}'
         self._entry.update({
             'control:NXmonitor': {
