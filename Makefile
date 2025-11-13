@@ -2,9 +2,6 @@
 	guirc check setupcheck test testall test-coverage lint \
 	changelint manualrelease release help
 
-PODMAN_OR_DOCKER = $(shell which podman || which docker || \
-                     echo podman_or_docker 2>/dev/null)
-
 SHELL=/bin/bash
 
 RCC5 = pyrcc5
@@ -18,10 +15,6 @@ nicos/guisupport/gui_rc_qt6.py: resources/nicos-gui.qrc
 	-$(RCC6) -g python $< | sed s,PySide6,PyQt6, > $@
 
 guirc: nicos/guisupport/gui_rc_qt5.py nicos/guisupport/gui_rc_qt6.py
-
-pod-demo:
-	$(PODMAN_OR_DOCKER) run -u `id -u` -v `pwd`:/nicos -p 1301:1301 \
-	--rm -it quay.io/cfelder/nicos:latest
 
 clean:
 	rm -rf build
