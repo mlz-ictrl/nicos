@@ -23,8 +23,8 @@
 
 from nicos.nexus.elements import ConstDataset, DeviceDataset
 
+from nicos_mlz.nexus import Slit
 from nicos_mlz.nexus.nexus_templates import PowderTemplateProvider
-from nicos_mlz.nexus.structures import Slit
 
 
 class StressiTemplateProvider(PowderTemplateProvider):

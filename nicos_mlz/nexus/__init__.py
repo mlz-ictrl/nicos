@@ -25,6 +25,6 @@
 
 from nicos_mlz.nexus.elements import Reflection, ScanDeviceDataset
 from nicos_mlz.nexus.structures import CounterMonitor, Flipper, LocalContact, \
-    Polarizer, ReactorSource, Selector, TimerMonitor, User, aa, axis1, axis2, \
-    counts, nounit, seconds, signal
+    Polarizer, ReactorSource, Selector, Slit, TimerMonitor, User, aa, axis1, \
+    axis2, counts, nounit, seconds, signal
 from nicos_mlz.nexus.template import MLZTemplateProvider
