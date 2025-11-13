@@ -23,7 +23,7 @@
 
 """TOFTOF special Live view sink for NICOS."""
 
-import numpy
+import numpy as np
 
 from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
@@ -35,7 +35,7 @@ class LiveViewSinkHandler(BaseLiveViewSinkHandler):
         data = result[1][0]
         if data is not None:
             if len(data.shape) == 2:
-                treated = numpy.transpose(data)[
+                treated = np.transpose(data)[
                     self.detector._anglemap, :].astype('<u4')
                 return [treated]
 

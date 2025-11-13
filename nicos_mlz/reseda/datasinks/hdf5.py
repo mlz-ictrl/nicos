@@ -24,7 +24,7 @@
 from time import localtime, strftime, time as currenttime
 
 import h5py
-import numpy
+import numpy as np
 
 from nicos.core import DataSinkHandler, Override, Param
 from nicos.core.constants import SCAN, SUBSCAN
@@ -109,7 +109,7 @@ class HDF5SinkHandler(DataSinkHandler):
         # data[1]: image (mieze), data[0]: count sums (nrse)
 
         if data[0]:
-            scalars = numpy.array(data[0], dtype=numpy.int32)
+            scalars = np.array(data[0], dtype=np.int32)
             # begin point counter at 0
             hdf5dataset = self.current_file.createScalarsDataset(
                 subset.number - 1, scalars)
@@ -120,7 +120,7 @@ class HDF5SinkHandler(DataSinkHandler):
                                       % (i, attr)] = getattr(info, attr)
             self._addMetadata(subset.metainfo, hdf5dataset)
         if data[1]:
-            image = numpy.array(data[1][0], dtype=numpy.int32)
+            image = np.array(data[1][0], dtype=np.int32)
             self.current_file.createImageDataset(subset.number - 1, image)
 
         self.current_file.flush()

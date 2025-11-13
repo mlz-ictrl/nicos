@@ -25,7 +25,7 @@
 File writer for tiff files compatible with ESMERALDA
 """
 
-import numpy
+import numpy as np
 
 from nicos.core import NicosError
 from nicos.core.params import Override
@@ -36,7 +36,6 @@ try:
     from PIL.TiffImagePlugin import STRIPOFFSETS, ImageFileDirectory_v2
 except ImportError:
     Image = None
-
 
 
 # tag values for esmeralda /Image_Modules_Src/Laue_tiff_read.f90
@@ -71,8 +70,8 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
 
     def writeData(self, fp, image):
         # ensure numpy type, with float values for PIL
-        npData = numpy.asarray(image, dtype='<u2')
-        buf = numpy.getbuffer(npData)
+        npData = np.asarray(image, dtype='<u2')
+        buf = np.getbuffer(npData)
         # TODO: check if this still works.
         ifile = Image.frombuffer('I;16', npData.shape[::-1], buf, 'raw',
                                  'I;16', 0, -1)

@@ -22,7 +22,7 @@
 # *****************************************************************************
 """STRESS-SPEC specific commands for the robot to change the sample."""
 
-import numpy
+import numpy as np
 
 from nicos import session
 from nicos.commands import helparglist, hiddenusercommand, usercommand
@@ -154,7 +154,7 @@ def pole_figure(numrows, speed, timedelta, sampleinfo):
     phis = session.getDevice('phis')
     dchi = round(90.0 / numrows, 2) / 2.0
     # creating a list beginnig from 180 + dchi downsteps to 90 + dchi
-    positions = numpy.arange(90 + dchi, 180, 2 * dchi)[::-1]
+    positions = np.arange(90 + dchi, 180, 2 * dchi)[::-1]
     maw(phis, 0)
     for i, chipos in enumerate(positions):
         move_dev(chis, round(chipos, 2), maxtries=2)

@@ -77,7 +77,7 @@ def freqmes(assumed_freq, number_of_counts):
 
     Used for tisane measurements.
     """
-    import numpy
+    import numpy as np
     valuedev = session.getDevice('tisane_fc')
     # set expected frequency
     valuedev._dev.expectedFreq = assumed_freq
@@ -102,8 +102,8 @@ def freqmes(assumed_freq, number_of_counts):
         else:
             wrong_list.append(value)
         session.delay(0.1)
-    mean_value = numpy.mean(value_list)
-    std_value = numpy.std(value_list)
+    mean_value = np.mean(value_list)
+    std_value = np.std(value_list)
     print('------------------------------------')
     print('Erwartungswert              = %f' % assumed_freq)
     print('Untere Grenze (90)          = %f' % untere_grenze)

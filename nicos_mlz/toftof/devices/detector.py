@@ -25,7 +25,7 @@
 
 from time import time as currenttime
 
-import numpy
+import numpy as np
 
 from nicos import session
 from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
@@ -257,8 +257,8 @@ class Detector(GenericDetector):
                     list(map(int, ls[-2:]))
                 )
 
-        inds = numpy.array(theta).argsort()
-        self._detectormap = numpy.array(dmap)[inds].tolist()
+        inds = np.array(theta).argsort()
+        self._detectormap = np.array(dmap)[inds].tolist()
         self._detinfolength = len(dinfo)
         self._detinfo_parsed = dinfo
         self.log.debug('%s', self._detinfo_parsed)

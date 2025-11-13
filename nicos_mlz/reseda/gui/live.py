@@ -23,7 +23,7 @@
 
 from os import path
 
-import numpy
+import numpy as np
 
 from nicos.clients.gui.panels.live import LiveDataPanel
 from nicos.clients.gui.utils import loadUi
@@ -60,12 +60,12 @@ class CascadeControls(QWidget):
         foil = self.foilBox.value()
         time_channel = self.timeChannelBox.value()
         if not (foil or time_channel):
-            return numpy.sum(data, axis=(0, 1))
+            return np.sum(data, axis=(0, 1))
         if time_channel:
             if foil:
                 return data[self._foilsorder.index(foil - 1)][time_channel - 1]
-            return numpy.sum(data, axis=0)[time_channel - 1]
-        return numpy.sum(data, axis=1)[self._foilsorder.index(foil - 1)]
+            return np.sum(data, axis=0)[time_channel - 1]
+        return np.sum(data, axis=1)[self._foilsorder.index(foil - 1)]
 
     def setFoilsOrder(self, foilsorder):
         self._foilsorder = foilsorder
