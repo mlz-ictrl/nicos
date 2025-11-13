@@ -36,8 +36,8 @@ class ScanTemplateProvider(MLZTemplateProvider):
     def init(self, **kwargs):
         self.sample = kwargs.get('sample', 'sample')
         self.omgs = kwargs.get('omgs')
-        self.det = kwargs.get('det', 'det')
-        self.mon = kwargs.get('mon', 'mon')
+        self.detector = kwargs.get('detector', 'det')
+        self.monitor = kwargs.get('monitor', 'mon')
         self.timer = kwargs.get('timer', 'timer')
 
     def updateInstrument(self):
@@ -50,10 +50,10 @@ class ScanTemplateProvider(MLZTemplateProvider):
 
     def updateDetector(self):
         self._det.update({
-            'data': DetectorDataset(self.det, int, signal=signal),
+            'data': DetectorDataset(self.detector, int, signal=signal),
         })
         self._entry.update({
-            'mon:NXmonitor': CounterMonitor(self.mon),
+            'mon:NXmonitor': CounterMonitor(self.monitor),
             'tim1:NXmonitor': TimerMonitor(self.timer),
         })
 
