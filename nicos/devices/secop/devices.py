@@ -776,6 +776,10 @@ class SecNodeDevice(Readable):
         self.log.debug('removed callback %r from %s:%s', f.__name__,
                        module, parameter)
 
+    def filter_parameters(self, module, parameters):
+        """filter given parameters by their existence in given module"""
+        return [p for p in parameters if (module, p) in self._secnode.identifier]
+
 
 class SecopDevice(Device):
     """Represent a SECoP module.
@@ -1223,10 +1227,25 @@ class SecopDevice(Device):
 
     def setConnected(self, connected):
         if connected:
-            self._param_errors.clear()  # clear errors from previous connection
+            self._param_errors.clear()
+            # rebuild values cleared from cache
+            for param in self._attached_secnode.filter_parameters(
+                    self.secop_module, self.parameters):
+                try:
+                    getattr(self, param)
+                except Exception as e:
+                    self._param_errors[param] = make_nicos_error(e)
+            try:
+                self.read(0)
+            except AttributeError:
+                pass
         else:
             if self._cache:
-                self._cache.clear(self, ['status'])  # clear all except status
+                for param in self._attached_secnode.filter_parameters(
+                        self.secop_module, self._params):
+                    self._cache.delete(self, param)
+                    self._params.pop(param)
+                self._param_errors.clear()
         self.updateStatus()
 
     def register_callback(self, parameter, f):
