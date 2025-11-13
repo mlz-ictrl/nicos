@@ -500,11 +500,12 @@ class TimeOfFlight(NexusElementBase):
         metainfo = sinkhandler.dataset.metainfo
         wl = metainfo['chWL', 'value'][0]
         # ch_width = metainfo[det, 'channelwidth'][0]
+        timeinterval = metainfo[det, 'timeinterval'][0]
         nChannels = metainfo[det, 'timechannels'][0]
         dset = h5parent.create_dataset(name, (nChannels,), dtype='float32')
         tof = calc.t2(0, wl, calc.Lsd)
         for i in range(nChannels):
-            dset[i] = tof
+            dset[i] = i * timeinterval + tof
         self.createAttributes(dset, sinkhandler)
 
 

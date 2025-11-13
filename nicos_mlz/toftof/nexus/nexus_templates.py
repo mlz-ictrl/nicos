@@ -28,13 +28,12 @@ from nicos import session
 from nicos.nexus.elements import ConstDataset, DeviceDataset, \
     ImageDataset as BaseImageDataset, NXAttribute, NXLink
 
-from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, \
+from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Slit, \
     TimerMonitor, axis2, signal
 from nicos_mlz.toftof.lib import calculations as calc
 from nicos_mlz.toftof.nexus.elements import AzimutalAngles, \
     DetectorDistances, DetInfo, Duration, EntryIdentifier, MonitorMode, \
     NeutronEnergy, TimeOfFlight
-from nicos_mlz.nexus.structures import Slit
 
 # from nicos_mlz.toftof.nexus.elements import ChannelList, ElasticPeakGuess, \
 #     ExperimentTitle, GonioDataset, MonitorData, MonitorRate, MonitorTof, \
