@@ -25,17 +25,15 @@
 
 
 from nicos.nexus.elements import ConstDataset, DeviceAttribute, \
-    DeviceDataset, EndTime, NXAttribute, StartTime
+    DeviceDataset, EndTime, StartTime
 from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos_mlz.nexus import axis1, axis3, signal
 
 from nicos_mlz.toftof.nexus.elements import ChannelList, DetInfo, Duration, \
     ElasticPeakGuess, EntryIdentifier, ExperimentTitle, FileName, \
     GonioDataset, HVDataset, LVDataset, Mode, MonitorData, MonitorRate, \
     MonitorTof, MonitorValue, SampleCountRate, SampleCounts, Status, \
     TableDataset, TOFTOFImageDataset, ToGo
-
-seconds = NXAttribute('s', 'string')
-signal = NXAttribute(1, 'int64')
 
 
 class LegacyTemplate(NexusTemplateProvider):
@@ -46,6 +44,7 @@ class LegacyTemplate(NexusTemplateProvider):
             'instrument': 'TOFTOF',
             'owner': DeviceAttribute('TOFTOF', 'responsible'),
             'Scan:NXentry': {
+                'signal': 'data',
                 'wavelength': DeviceDataset('chWL', dtype='float32'),
                 'title': DeviceDataset('det', 'usercomment'),
                 'proposal': DeviceDataset('Exp', 'title'),
@@ -130,11 +129,13 @@ class LegacyTemplate(NexusTemplateProvider):
                     'time_of_flight': MonitorTof(),
                 },
                 'data:NXdata': {
-                    'channel_number': ChannelList(),
+                    'signal': 'data',
+                    'polar_angle': DetInfo(5, axis=axis1),
+                    'channel_number': ChannelList(axis=axis3),
                     'data': TOFTOFImageDataset(
                         0, 0, signal=signal, units='counts',
-                        axes='2theta:channel_number'),
-                    'polar_angle': DetInfo(5),
+                        # axes='2theta:channel_number',
+                    ),
                 },
             },
         }

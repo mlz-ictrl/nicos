@@ -1587,9 +1587,18 @@ class TOFTOFImageDataset(ImageDataset):
 
 class ChannelList(NexusElementBase):
 
+    def __init__(self, axis=None):
+        NexusElementBase.__init__(self)
+        self.attrs = {}
+        if axis is not None:
+            if not isinstance(axis, NXAttribute):
+                axis = NXAttribute(axis, 'string')
+            self.attrs['axis'] = axis
+
     def create(self, name, h5parent, sinkhandler):
         det = sinkhandler.dataset.detectors[0]
         dset = h5parent.create_dataset(name, (det.timechannels,),
                                        dtype='float32')
         for i in range(det.timechannels):
             dset[i] = float(i + 1)
+        self.createAttributes(dset, sinkhandler)

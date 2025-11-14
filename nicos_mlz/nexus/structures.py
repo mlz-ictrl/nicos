@@ -35,6 +35,7 @@ aa = NXAttribute('AA', 'string')
 signal = NXAttribute(1, 'int')
 axis1 = NXAttribute(1, 'int')
 axis2 = NXAttribute(2, 'int')
+axis3 = NXAttribute(3, 'int')
 
 
 def LocalContact():
