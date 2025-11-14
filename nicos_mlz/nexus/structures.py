@@ -31,6 +31,8 @@ seconds = NXAttribute('s', 'string')
 counts = NXAttribute('counts', 'string')
 nounit = NXAttribute('', 'string')
 aa = NXAttribute('AA', 'string')
+mm = NXAttribute('mm', 'string')
+deg = NXAttribute('deg', 'string')
 
 signal = NXAttribute(1, 'int')
 axis1 = NXAttribute(1, 'int')
