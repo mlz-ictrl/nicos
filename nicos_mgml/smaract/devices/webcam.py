@@ -66,7 +66,7 @@ class Webcam(ImageChannelMixin, ActiveChannel):
             return status.OK, 'Idle'
         else:
             self.doStart()
-            return status.BUDY, 'Trying to get image'
+            return status.BUSY, 'Trying to get image'
 
     def doReadArray(self, quality):
         return self._image
