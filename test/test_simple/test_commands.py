@@ -52,7 +52,7 @@ from nicos.commands.output import printdebug, printerror, printexception, \
 from nicos.commands.sample import ClearSamples, ListSamples, NewSample, \
     SelectSample, SetSample
 from nicos.core import ConfigurationError, LimitError, MoveError, NicosError, \
-    NicosTimeoutError, UsageError
+    NicosTimeoutError, UsageError, InvalidValueError
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.utils import ensureDirectory
 
@@ -199,30 +199,57 @@ def test_run_command(session, log):
     run('test')
 
 
-def test_sample_commands(session, log):
-    exp = session.experiment
-    exp.new(0, user='user')
-    NewSample('abc')
-    assert exp.sample.samplename == 'abc'
-    assert exp.sample.samples == {0: {'name': 'abc'}}
+class TestSample:
 
-    SetSample(1, 'def', param=45)
-    assert exp.sample.samples[1] == {'name': 'def', 'param': 45}
+    @pytest.fixture(autouse=True)
+    def sample(self, session):
+        exp = session.experiment
+        exp.new(0, user='user')
 
-    SelectSample(1)
-    assert exp.sample.samplename == 'def'
-    SelectSample('abc')
-    assert exp.sample.samplename == 'abc'
+        NewSample('abc')
+        yield exp.sample
 
-    with log.assert_msg_matches([r'number  sample name  param',
-                                 r'0 +abc',
-                                 r'1 +def +45']):
-        ListSamples()
+        exp.sample.clear()
+        exp.finish()
 
-    with log.assert_no_msg_matches([r'0 +abc',
-                                    r'1 +def +45']):
-        ClearSamples()
-    assert exp.sample.samples == {}
+    def test_sample_commands(self, log, sample):
+        assert sample.samplename == 'abc'
+        assert sample.samples == {0: {'name': 'abc'}}
+
+        SetSample(1, 'def', param=45)
+        assert sample.samples[1] == {'name': 'def', 'param': 45}
+
+        SelectSample(1)
+        assert sample.samplename == 'def'
+        SelectSample('abc')
+        assert sample.samplename == 'abc'
+
+        with log.assert_msg_matches([r'number  sample name  param',
+                                     r'0 +abc',
+                                     r'1 +def +45']):
+            ListSamples()
+
+        with log.assert_no_msg_matches([r'0 +abc',
+                                        r'1 +def +45']):
+            ClearSamples()
+        assert sample.samples == {}
+
+    def test_moveable_interface(self, log, sample):
+        maw(sample, 'abc')
+        assert sample.filename == 'abc'
+        pytest.raises(InvalidValueError, maw, sample, 1)
+
+    def test_errors(self, log, sample):
+        # Override existing sample
+        SetSample(1, 'def', param=45)
+        SetSample(1, 'abc', param=5)
+
+        # None value as index
+        pytest.raises(InvalidValueError, SetSample, None, 'ghi', param=1)
+
+        # Double defined errors
+        pytest.raises(InvalidValueError, SelectSample, 'abc')
+        pytest.raises(InvalidValueError, SelectSample, 'unknown')
 
 
 class TestDevice:
