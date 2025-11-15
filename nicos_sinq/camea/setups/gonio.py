@@ -7,6 +7,8 @@ pvmcu2 = 'SQ:CAMEA:turboPmac2:'
 pvmcu3 = 'SQ:CAMEA:turboPmac3:'
 pvmcu4 = 'SQ:CAMEA:turboPmac4:'
 
+includes = ['cameabasic']
+
 devices = dict(
     gl = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample table lower goniometer',
@@ -25,3 +27,5 @@ devices = dict(
         motorpv = pvmcu1 + 'tu',
     ),
 )
+
+alias_config = {'sgl': {'gl': 100}, 'sgu': {'gu': 100}}

@@ -7,7 +7,7 @@ display_order = 10
 sysconfig = dict(
     cache = 'localhost',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'livesink', 'quiecksink', 'nxsink'],
+    datasinks = ['conssink', 'dmnsink', 'livesink', 'quiecksink'],
 )
 
 modules = [
@@ -37,7 +37,7 @@ devices = dict(
         ubmatrix = [1, 0, 0, 0, 1, 0, 0, 0, 1],
         reflist = 'ublist',
     ),
-    Exp = device('nicos_sinq.devices.experiment.SinqExperiment',
+    Exp = device('nicos_sinq.camea.devices.experiment.CameaExperiment',
         description = 'experiment object',
         dataroot = configdata('config.DATA_PATH'),
         serviceexp = 'Service',

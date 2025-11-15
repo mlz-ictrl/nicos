@@ -29,11 +29,11 @@ from string import Template
 from time import time
 
 import numpy as np
-from scipy.interpolate import interp1d
 
 from nicos import session
 from nicos.commands import parallel_safe, usercommand
 from nicos.commands.scan import scan
+from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError, InvalidValueError, \
     MoveError, PositionError
 from nicos.utils import findResource
@@ -42,24 +42,24 @@ from nicos_sinq.sxtal.commands import AddAuxRef, AddRef, CalcUB, getSampleInst
 
 # two theta limits
 # DO NOT CHANGE!
-incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.4, 6.6, 6.8, 6.9, 7.0, 8.0, 8.2, 8.45,
-             8.6, 8.7, 9.5,  9.8, 9.9, 10.5, 11.4, 11.7, 12.0, 12.2, 12.9,
-             13.5, 13.8, 14, 15, 16, 17]
-twoTheta = [-79.5, -79.5, -79.5, -79, -79,  -79, -79, -78, -78, -76.5, -73.0,
-            -71, -70, -66, -64, -64, -62, -60, -54, -54, -52, -51, -51, 48,
-            -47, -46.5, -46.5, -44, -41.5, -39.5]
-
-incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.45, 6.5, 6.6, 6.65, 6.8, 6.9,
-             7.0, 7.5, 7.7, 8.0, 8.5, 8.6, 8.8, 9, 9.2, 9.4, 9.6, 9.8, 10,
-             10.5, 11, 11.5, 12.0, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16,
-             16.5, 17]
-
-twoTheta = [-79.5, -79.5, -79.5, -79, -79, -79, -79, -78.0, -78.0, -78.0, -77,
-            -77, -77, -73.5, -72.5, -72, -70, -66, -64, -64, -64, -63, -62,
-            -60, -57, -56, -54, -52, -50, -47, -47, -46, -44, -43, -42, -41,
-            -40.5, -39.5]
-
-twoThetaLimitInterp = interp1d(incomingE, twoTheta)
+#incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.4, 6.6, 6.8, 6.9, 7.0, 8.0, 8.2, 8.45,
+#             8.6, 8.7, 9.5,  9.8, 9.9, 10.5, 11.4, 11.7, 12.0, 12.2, 12.9,
+#             13.5, 13.8, 14, 15, 16, 17]
+#twoTheta = [-79.5, -79.5, -79.5, -79, -79,  -79, -79, -78, -78, -76.5, -73.0,
+#            -71, -70, -66, -64, -64, -62, -60, -54, -54, -52, -51, -51, 48,
+#            -47, -46.5, -46.5, -44, -41.5, -39.5]
+#
+#incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.45, 6.5, 6.6, 6.65, 6.8, 6.9,
+#             7.0, 7.5, 7.7, 8.0, 8.5, 8.6, 8.8, 9, 9.2, 9.4, 9.6, 9.8, 10,
+#             10.5, 11, 11.5, 12.0, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16,
+#             16.5, 17]
+#
+#twoTheta = [-79.5, -79.5, -79.5, -79, -79, -79, -79, -78.0, -78.0, -78.0, -77,
+#            -77, -77, -73.5, -72.5, -72, -70, -66, -64, -64, -64, -63, -62,
+#            -60, -57, -56, -54, -52, -50, -47, -47, -46, -44, -43, -42, -41,
+#            -40.5, -39.5]
+#
+#twoThetaLimitInterp = interp1d(incomingE, twoTheta)
 
 
 logbookTitles = ['File No.', 'Ei', 's2t', 'a3 start', 'a3 stop',
@@ -70,7 +70,7 @@ valueFormats = ['{:10d}', '{:10.3f}', '{:10.3f}', '{:10.3f}',
                 '{:10.3f}']
 
 __all__ = ['loadcalibration', 'SelectDetectorAnalyser',
-           'SelectClosestDetectorAnalyser', 'moveDevice', 'changeEi',
+           'chooseDetectorAnalyser', 'moveDevice', 'changeEi',
            'printToDiscord', 'writeToLogbook', 'CAMEApause', 'CAMEAresume',
            'moves2t', 'checkLimits', 'moves2tPeak', 'moveCAMEA', 'CAMEAscan',
            'prepareCAMEA']
@@ -130,7 +130,7 @@ def SelectDetectorAnalyser(detNo, anaNo):
 
 
 @usercommand
-def SelectClosestDetectorAnalyser(HKLE=None, A4=None):
+def chooseDetectorAnalyser(HKLE=None, A4=None):
     """
     This command selects the closest detector given an A4 or a peak at 5 meV.
 
@@ -180,13 +180,9 @@ def SelectClosestDetectorAnalyser(HKLE=None, A4=None):
 
 @usercommand
 def moveDevice(device, value, retries=3):
-    # mch = getDevice('mch')
-    # mcv = getDevice('mcv')
     e = None
     if isinstance(device, str):
         dev = session.getDevice(device)
-        if dev is None:
-            return
     else:
         dev = device
 
@@ -200,10 +196,6 @@ def moveDevice(device, value, retries=3):
         except (PositionError, MoveError) as e:
             session.log.info('Got error "%s"', str(e))
             success = False
-            # while mch.isEnabled is False or mcv.isEnabled is False:
-            # wait(5)
-            #    enable(mch)
-            #    enable(mcv)
 
     if not success:
         session.log.error(
@@ -226,8 +218,6 @@ def changeEi(energy, retries=3, retryMC=3):
     mcv = session.getDevice('mcv')
     if isinstance(device, str):
         dev = session.getDevice(device)
-        if dev is None:
-            return
     else:
         dev = device
 
@@ -266,9 +256,10 @@ def printToDiscord(message):
     """
     Print the message to the discord server if it is running.
     """
-    with open('/home/camea/Documents/DiscordBot/status.txt', 'a',
-              encoding='utf-8') as f:
-        f.write(message)
+    if session.mode != SIMULATION:
+        with open('/home/camea/Documents/DiscordBot/status.txt', 'a',
+                encoding='utf-8') as f:
+            f.write(message)
 
 
 @usercommand
@@ -289,9 +280,6 @@ def CAMEApause():
     something=10000 large
     """
     cter1 = session.getDevice('cter1')
-    if cter1 is None:
-        return
-
     cter1.execute('DL   2 10000')
     printToDiscord('The scan has been paused')
     session.log.warning('The scan has been paused')
@@ -304,8 +292,6 @@ def CAMEAresume():
     Reset the counter threshold to 100 to resume CAMEA
     """
     cter1 = session.getDevice('cter1')
-    if cter1 is None:
-        return
     cter1.execute('DL   2 100')
     printToDiscord('The scan has been resumed')
     session.log.info('The scan has been resumed')
@@ -318,15 +304,11 @@ def moves2t(value, retries=3):
     wait in the next scan and write out error message
     """
     s2t = session.getDevice('s2t')
-    if s2t is None:
-        return
     ei = session.getDevice('ei')
-    if ei is None:
-        return
-
+    ctrl = session.getDevice('eis2tcontroller')
     # Check limits from table above
 
-    limit = twoThetaLimitInterp(ei())
+    limit = ctrl.twoThetaLimitInterp(ei())
     if value < limit:  # Houston, we have a problem
         session.log.error(
             'The desired s2t %.3f deg) is outside the area (limit is at '
@@ -372,11 +354,8 @@ def checkLimits(ei, s2t, verbose=True):
     stt = s2t
 
     s2t = session.getDevice('s2t')
-    if s2t is None:
-        return -1
     ei = session.getDevice('ei')
-    if ei is None:
-        return -1
+    ctrl = session.getDevice('eis2tcontroller')
 
     if Ei is None:
         Ei = ei()
@@ -394,13 +373,13 @@ def checkLimits(ei, s2t, verbose=True):
         if verbose:
             session.log.error(
                 'The desired stt (%s.3f deg) is in the direct beam!!!\n'
-                'Please cheack your input and try again.....', stt)
+                'Please check your input and try again.....', stt)
     if errors:
         return False
 
     # Check limits from table above
 
-    wantedEnergyS2tLimt = twoThetaLimitInterp(Ei)+s2t.offset
+    wantedEnergyS2tLimt = ctrl.twoThetaLimitInterp(Ei)
     if stt < wantedEnergyS2tLimt:  # Houston, we have a problem
         if verbose:
             session.log.error(
@@ -467,8 +446,8 @@ def moves2tPeak(HKLE=None, A4=None):
     newS2t = A4-a4values[localIdx]+s2t()
 
     SelectDetectorAnalyser(int(detIdx), int(an()))
-    session.log.info('Best tube found is %s, moving s2t to from %s.3f to '
-                     ' %s.3f', detIdx, s2t(), newS2t)
+    session.log.info('Best tube found is %s, moving s2t to from %.3f to '
+                     ' %.3f', detIdx, s2t(), newS2t)
 
     s2t.maw(newS2t)
 
@@ -486,18 +465,15 @@ def moveCAMEA(ei=None, s2t=None):
     stt = s2t
 
     s2t = session.getDevice('s2t')
-    if s2t is None:
-        return
     ei = session.getDevice('ei')
-    if ei is None:
-        return
+    ctrl = session.getDevice('eis2tcontroller')
 
     if Ei is None:
         Ei = ei()
     if stt is None:
         stt = s2t()
 
-    wantedEnergyS2tLimt = twoThetaLimitInterp(Ei)+s2t.offset
+    wantedEnergyS2tLimt = ctrl.twoThetaLimitInterp(Ei)+s2t.offset
 
     # if no energy is changed, simply move s2t
     if (np.isclose(Ei, ei(), atol=ei.precision)
@@ -531,28 +507,49 @@ def moveCAMEA(ei=None, s2t=None):
 
 @usercommand
 def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
-              monitor_value=None, time_value=None, logbook=None, skipScans=0,
-              retries=3, dryRun=False):
+              logbook=None, skipScans=0, retries=3, **preset):
     """
-    Perform standard CAMEA scan with two incoming energies (_en1 and _en2) at
-    the two s2t positions _s2t1 and _s2t1+4 positions starting at an a3 value
-    of _a31 performing _a3steps steps of size a3stepsize with a monitor value
-    of monitor_value. Temperature and magnetic field are ONLY used for titles
-    in files and logbook!
-    """
+    Perform standard CAMEA scan with defined incoming energies (_en1 and _en2)
+    at the two s2t positions automatically adding s2ts+4 positions starting
+    at an a3 value of a3Start performing a3Steps steps of size a3stepsize with
+    a monitor value of monitor_value or time value of time_value. Temperature
+    and magnetic field are ONLY used for titles in files and logbook if
+    provided! Scans can be skipped.
 
-    if monitor_value is None and time_value is None:
-        session.log.error(
-            'Either monitor or time has to be provided. monitor_value or '
-            'time_value')
+    Example:
+
+    CAMEAscan([5,5.13],  s2ts=[-40], a3Start=0, a3Stepsize=1, a3Steps=181,
+              m=100000, skipScans=0)
+    The above command will perform 4 a3 scans with a step size of 1 degree
+    starting at 0 and ending at 180, i.e. 181 steps. The monitor value is
+    100 000 and no scans are skipped. That is, the following is measured
+    
+    Ei, s2t
+    5.0, -40
+    5.0, -44
+    5.13, -44
+    5.13, -40
+    """
+    allowed_presets = ['m', 'monitor', 'monitor_value', 't', 'time', 'time_value']
+
+    # Do some checking to ensure that exactly one preset has been given
+    scanParams = None
+    logbookMonitor = None
+    for key in allowed_presets:
+        val = preset.get(key)
+        if val is not None:
+            if scanParams is None:
+                scanParams = {key: val}
+                logbookMonitor = val
+            else:
+                session.log.error('More than one preset has been given: '
+                                  '%s and %s', scanParams, {key: val})
+                return
+
+    if scanParams is None:
+        session.log.error('At least one of %s needs to be specified',
+                          ", ".join(allowed_presets))
         return
-
-    if monitor_value is None:
-        logbookMonitor = time_value
-        scanParams = {'t': time_value}
-    else:
-        logbookMonitor = monitor_value
-        scanParams = {'m': monitor_value}
 
     # Get devices
     try:
@@ -566,12 +563,20 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
         return
 
     # Get temperature in order to actually do a scan
-    temperature = session.getDevice('T')
+    try:
+        temperature = session.getDevice('T')
+    except ConfigurationError:
+        temperature = None
+
     if temperature is None:
         session.log.info("No temperature found, this can't be right, can it?")
 
-    # Get temperature in order to actually do a scan
-    B = session.getDevice('B')
+
+    try:
+        B = session.getDevice('B')
+    except ConfigurationError:
+        B = None
+
     if B is None:
         pass  # session.log.info('No magnet found')
 
@@ -596,14 +601,13 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
     for checkEi, checkS2t, *_ in setups:
         if checkEi is None:
             continue
-        newCheck = checkLimits(ei=checkEi, s2t=checkS2t, verbose=True)
+        newCheck = checkLimits(ei=checkEi, s2t=checkS2t, verbose=False)
         checks.append(newCheck)
 
     if not np.all(checks):  # if any of the checks fail, break script
         erroneous = np.asarray(setups)[np.logical_not(checks)]
-
-        errorSetups = ['{} meV and {} degrees'.format(
-            e, s) for e, s in erroneous]
+        errorSetups = ['Ei = {} meV, s2t = {} degrees, A3 from {} in steps of {} degrees with {} steps'.format(
+            e, s,*a3s) for e, s,*a3s in erroneous]
         msg = 'Errors found in wanted scans for:\n{}'.format(
             '\n'.join(errorSetups))
         session.log.error(
@@ -612,6 +616,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
 
     totalScans = len(setups)-skipScans
     scanFilesStart = Exp.lastscan+1
+    scanFilesLast = scanFilesStart+totalScans-1
 
     try:  # Catch any error and print to discord
 
@@ -640,6 +645,8 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
 
             scanNumMod = scanNumber-skipScans+1
             fileNumber = Exp.lastscan+1
+
+            moveCAMEA(ei=eiValue, s2t=s2tValue)
             discordString = discordTemplate.substitute(eiTarget=eiValue,
                                                        eiActual=ei(),
                                                        s2tTarget=s2tValue,
@@ -648,10 +655,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
                                                        totalScans=totalScans,
                                                        fileNumber=fileNumber)
 
-            if not dryRun:
-                moveCAMEA(ei=eiValue, s2t=s2tValue)
-
-                printToDiscord(discordString)
+            printToDiscord(discordString)
             session.log.info(discordString)
 
             experimentText = [text.format(device()) for text, device in zip(
@@ -665,8 +669,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
 
             for _ in range(retries):
                 try:
-                    if not dryRun:
-                        scan(a3, a3Start, a3Stepsize, a3Steps, **scanParams)
+                    scan(a3, a3Start, a3Stepsize, a3Steps, **scanParams)
                     success = True
                     break
                 except (OSError) as e:
@@ -685,31 +688,26 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
             text = ', '.join([s.format(v)
                              for s, v in zip(valueFormats, values)])+'\n'
 
-            if not dryRun:
-                printToDiscord(text)
-                if logbook is not None:
-                    try:
-                        writeToLogbook(logbook=logbook, values=values)
-                    except Exception as e:
-                        session.log.error(
-                            'Writing to logbook failed with following error: '
-                            '%s', e)
+            printToDiscord(text)
+            if logbook is not None:
+                try:
+                    writeToLogbook(logbook=logbook, values=values)
+                except Exception as e:
+                    session.log.error(
+                        'Writing to logbook failed with following error: '
+                        '%s', e)
 
-        scanFilesEnd = int(Exp.lastscan)
 
         endText = 'CAMEA scan set is done, files {:} - {:}'.format(
-            scanFilesStart, scanFilesEnd)
-        if not dryRun:
-            printToDiscord(endText)
+            scanFilesStart, scanFilesLast)
+        printToDiscord(endText)
         session.log.info(endText)
 
     except Exception as e:
-        printToDiscord('Script broken at ei = {:.3f}, s2t = {:.3f}, and a3 = '
-                       '{:.2f} with following error message: "{:}"'.format(
-                           ei(), s2t(), a3(), e))
-        session.log.error('Script broken at ei = %.3f, s2t = %.3f, and a3 = '
-                          '%.2f with following error message: %s"',
-                          ei(), s2t(), a3(), e)
+        text = 'Script broken at ei = {:.3f}, s2t = {:.3f}, and a3 = {:.2f} with following error message: "{:}"'.format(
+                           ei(), s2t(), a3(), e)
+        printToDiscord('MENTIONALL\n'+text)
+        session.log.error(text)
         raise (e)
 
 
@@ -718,16 +716,15 @@ def prepareCAMEA(alignmentPeak1=None, alignmentPeak2=None):
 
     moveCAMEA(ei=5.0, s2t=-45)
 
-    names = ['mch', 'mcv', 'tlm', 'tum', 'sgu', 'sgl', 'mst', 'msb', 'msr',
-             'msl', 'cter1', 'Sample', 'calib1', 'calib3', 'calib5', 'calib8']
-
-    (mch, mcv, tlm, tum, sgu, sgl, mst, msb, msr, msl, cter1, Sample, calib1,
-     calib3, calib5, calib8) = [session.getDevice(name) for name in names]
-    needed = [mch, mcv, tum, tlm, cter1, mst, msb, msr, msl, Sample]
-    if np.any([x is None for x in needed]):
-        session.log.error(
-            'Could not load standard motors for CAMEA, setup not possible')
-        return
+    mch = session.getDevice('mch')
+    sgu = session.getDevice('sgu')
+    sgl = session.getDevice('sgl')
+    mst = session.getDevice('mst')
+    msb = session.getDevice('msb')
+    msr = session.getDevice('msr')
+    msl = session.getDevice('msl')
+    Sample = session.getDevice('Sample')
+    CAMEA = session.getDevice('CAMEA')
 
     mch.maw(0)
     mch.fix()
@@ -735,6 +732,7 @@ def prepareCAMEA(alignmentPeak1=None, alignmentPeak2=None):
     if sgu is not None and sgl is not None:
         sgu.maw(0)
         sgl.maw(0)
+        CAMEA.out_of_plane = False
         session.log.info('gonios are zero')
 
     session.log.info('CAMEA is ready for alignment')
@@ -747,30 +745,16 @@ def prepareCAMEA(alignmentPeak1=None, alignmentPeak2=None):
     session.log.info('slits are wide open')
 
     # Setup UB
-    try:
-        calib1.load(
-            '/home/camea/Documents/Normalization2024_2/Normalization_1.calib')
-        calib3.load(
-            '/home/camea/Documents/Normalization2024_2/Normalization_3.calib')
-        calib5.load(
-            '/home/camea/Documents/Normalization2024_2/Normalization_5.calib')
-        calib8.load(
-            '/home/camea/Documents/Normalization2024_2/Normalization_8.calib')
-    except FileNotFoundError:
-        session.log.error('calibration file not found')
-    except Exception:
-        session.log.error('unknown calibration error')
-
-    cter1.execute('PC 2')
-    cter1.execute('DR 2')
-    cter1.execute('DL 2 100')
+    loadcalibration()
     SelectDetectorAnalyser(82, 7)
     Sample.ubmatrix = [1, 0, 0, 0, 1, 0, 0, 0, 1]
     if alignmentPeak1 is None:
         alignmentPeak1 = [1, 0, 0]
     if alignmentPeak2 is None:
         alignmentPeak2 = [0, 1, 0]
-    AddRef((*alignmentPeak2, 0))
-    AddAuxRef(alignmentPeak1, 0)
-    CalcUB(1, 0, replace=True)
+    AddRef((*alignmentPeak1, 0))
     AddAuxRef(alignmentPeak2, 0)
+    AddAuxRef(alignmentPeak1, 1)
+    CalcUB(2, 1, replace=True)
+    session.log.info('Dummy UB has been generated.')
+    session.log.info('CAMEA prepared for alignment or a Nature paper. Science is also acceptable...')
