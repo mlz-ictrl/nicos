@@ -1,0 +1,49 @@
+{
+    "dacs":
+    {
+        "Ibias_Preamp_ON" : 128,
+        "Ibias_Preamp_OFF" : 8,
+        "VPreamp_NCAS" : 128,
+        "Ibias_Ikrum" : 10,
+        "Vfbk" : 128,
+        "Vthreshold_fine" : 229,
+        "Vthreshold_coarse" : 6,
+        "Ibias_DiscS1_ON" : 128,
+        "Ibias_DiscS1_OFF" : 8,
+        "Ibias_DiscS2_ON" : 128,
+        "Ibias_DiscS2_OFF" : 8,
+        "Ibias_PixelDAC" : 123,
+        "Ibias_TPbufferIn" : 128,
+        "Ibias_TPbufferOut" : 128,
+        "VTP_coarse" : 128,
+        "VTP_fine" : 256,
+        "Ibias_CP_PLL" : 128,
+        "PLL_Vcntrl" : 128
+    },
+    "sysConfig":
+    {
+        "LogLevel" : 1,
+
+        "BiasVoltage" : 40,
+        "BiasEnabled" : true,
+        "Polarity" : "Positive",
+        "PeriphClk80" : true,
+        "TriggerIn" : 0,
+        "TriggerOut" : 0,
+        "TriggerPeriod" : 2.0,
+        "ExposureTime" : 2.0,
+
+        "TriggerDelay" : 0.0,
+        "GlobalTimestampInterval" : 1.0,
+
+        "Tdc0" : "P0",
+        "Tdc1" : "P0",
+        "TriggerMode" : "Continuous",
+        "RawSplitStg" : "frame"
+    },
+    "misc": {
+        "Fan1PWM" : 100,
+        "Fan2PWM" : 100,
+        "nTriggers" : 1000000
+    }
+}
