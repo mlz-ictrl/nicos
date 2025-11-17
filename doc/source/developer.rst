@@ -15,6 +15,7 @@ development environment and coding guidelines.
    deviceapi
    dataapi/index
    classes/abstract
+   classes/gapslit
    sequencer
    notifiers
    sessionapi

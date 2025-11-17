@@ -32,8 +32,17 @@ from nicos.devices.abstract import CanReference
 
 
 class Gap(HasAutoDevices, CanReference, Moveable):
-    """Base class for gap devices consisting of two blades."""
+    """Base class for gap devices consisting of two blades.
 
+    .. automethod:: doInit
+
+    .. automethod:: doStart
+
+    .. automethod:: doIsAllowed
+
+    .. automethod:: doRead
+
+    """
     parameters = {
         'opmode': Param(
             'Mode of operation',
@@ -84,9 +93,21 @@ opening.
     _delay = 0.25  # delay between starting to move opposite blades
 
     def _init_adevs(self):
+        """Initialize the list of `AutoDevice`\\s.
+
+        _autodevs - List of tuples ('device name', AutoDevice class type)
+
+        _axes - List of attached axes
+
+        _axnames - List of names of the attached axes
+        """
         raise NotImplementedError
 
     def doInit(self, mode):
+        """Initialize the device.
+
+        .. automethod:: _init_adevs
+        """
         self._init_adevs()
         for name in self._axnames:
             self.__dict__[name] = self._adevs[name]
@@ -95,6 +116,7 @@ opening.
                                 visibility=self.autodevice_visibility)
 
     def _getPositions(self, target):
+        """Calculate the positions of the individual axes for the target."""
         if self.opmode.endswith('blades'):
             if len(target) != 2:
                 raise InvalidValueError(self, 'arguments required for '
@@ -120,9 +142,18 @@ opening.
         return positions
 
     def doIsAllowed(self, target):
+        """Return if the target position is allowed as tuple of bool and text.
+
+        The method calls:
+
+        .. automethod:: _doIsAllowedPositions
+
+        .. automethod:: _getPositions
+        """
         return self._doIsAllowedPositions(self._getPositions(target))
 
     def _isAllowedSlitOpening(self, positions):
+        """Check if the opening, given by the axes positions, is valid."""
         clb, crt = positions
         if crt - clb < self.min_opening:
             if self.min_opening > 0:
@@ -133,6 +164,7 @@ opening.
         return True, ''
 
     def _doIsAllowedPositions(self, positions):
+        """Check if the positions for the individual axes are allowed."""
         f = self.coordinates == 'opposite' and -1 or +1
         for ax, axname, pos in zip(self._axes, self._axnames, positions):
             if axname in {'left', 'bottom'}:
@@ -143,12 +175,27 @@ opening.
         return self._isAllowedSlitOpening(positions)
 
     def doStart(self, target):
+        """Start the movement of attached devices.
+
+        The method calls:
+
+        .. automethod:: _doStartPositions
+
+        .. automethod:: _getPositions
+        """
         self._doStartPositions(self._getPositions(target))
 
     def _doStartPositions(self, positions):
+        """Start driving the individual axes to the given positions."""
         raise NotImplementedError
 
     def _doStartGap(self, target, alb, art):
+        """Start driving the individual axes.
+
+        The routine make some checks about the direction of the blade movements
+        and determines the order of movement to avoid collisions of the blades.
+
+        """
         f = self.coordinates == 'opposite' and -1 or +1
         tlb, trt = target
         # determine which axis to move first, so that the blades can
@@ -179,12 +226,19 @@ opening.
         multiReference(self, self._axes, self.parallel_ref)
 
     def _doReadPositions(self, maxage):
+        """Read the positions of the individual axes."""
         clb, crt = [d.read(maxage) for d in self._axes]
         if self.coordinates == 'opposite':
             clb *= -1
         return [clb, crt]
 
     def doRead(self, maxage=0):
+        """Read the current value of the gap.
+
+        The method calls:
+
+        .. automethod:: _doReadPositions
+        """
         positions = self._doReadPositions(maxage)
         lb, rt = positions
         if self.opmode == 'centered':
@@ -288,6 +342,12 @@ class HorizontalGap(Gap):
         self._axnames = ['left', 'right']
 
     def _doStartPositions(self, positions):
+        """The special implementation for a horizontal gap.
+
+        The method calls:
+
+        .. automethod:: _doStartGap
+        """
         self._doStartGap(positions, self._attached_left, self._attached_right)
 
     def doReadUnit(self):
@@ -342,6 +402,12 @@ class VerticalGap(Gap):
         self._axnames = ['bottom', 'top']
 
     def _doStartPositions(self, positions):
+        """The special implementation for a vertical gap.
+
+        The method calls:
+
+        .. automethod:: _doStartGap
+        """
         self._doStartGap(positions, self._attached_bottom, self._attached_top)
 
     def doReadUnit(self):
@@ -372,8 +438,8 @@ class Slit(HorizontalGap, VerticalGap):
     the blades meet at coordinate 0, and both move in positive direction when
     they open.
 
-    All instances have attributes controlling single dimensions that can be used
-    as devices, for example in scans.  These attributes are:
+    All instances have attributes controlling single dimensions that can be
+    used as devices, for example in scans.  These attributes are:
 
     * `left`, `right`, `bottom`, `top` -- controlling the blades individually,
       independent of the opmode
@@ -384,6 +450,8 @@ class Slit(HorizontalGap, VerticalGap):
 
         >>> move(slit.centerx, 5)      # move slit center
         >>> scan(slit.width, 0, 1, 6)  # scan over slit width from 0 to 5 mm
+
+    .. automethod:: doRead
     """
 
     parameter_overrides = {
@@ -458,6 +526,12 @@ class Slit(HorizontalGap, VerticalGap):
         return [cl, cr, cb, ct]
 
     def doRead(self, maxage=0):
+        """Read the current value according to the operation mode.
+
+        The method calls:
+
+        .. automethod:: _doReadPositions
+        """
         positions = self._doReadPositions(maxage)
         l, r, b, t = positions
         if self.opmode == 'centered':
@@ -484,6 +558,12 @@ class SlitAxis(AutoDevice, Moveable):
     """
     "Partial" devices for slit axes, useful for e.g. scanning
     over the device slit.centerx.
+
+    .. automethod:: doRead
+
+    .. automethod:: doStart
+
+    .. automethod:: doIsAllowed
     """
 
     attached_devices = {
@@ -495,21 +575,46 @@ class SlitAxis(AutoDevice, Moveable):
     hardware_access = False
 
     def doRead(self, maxage=0):
+        """Read the current virtual axis value.
+
+        The method calls:
+
+        .. automethod:: _convertRead
+        """
         positions = self._attached_slit._doReadPositions(maxage)
         return self._convertRead(positions)
 
     def doStart(self, target):
+        """Move the virtual axis.
+
+        The method calls:
+
+        .. automethod:: _convertRead
+        """
         currentpos = self._attached_slit._doReadPositions(0.1)
         positions = self._convertStart(target, currentpos)
         self._attached_slit._doStartPositions(positions)
 
     def doIsAllowed(self, target):
+        """Return if the target position is allowed as tuple of bool and text.
+
+        .. automethod:: _convertStart
+        """
         currentpos = self._attached_slit._doReadPositions(0.1)
         positions = self._convertStart(target, currentpos)
         return self._attached_slit._doIsAllowedPositions(positions)
 
+    def _convertRead(self, positions):
+        """Return the axis read value, calculated from blade positions."""
+        raise NotImplementedError
+
+    def _convertStart(self, target, current):
+        """Return blade positions, calculated from the axis target value."""
+        raise NotImplementedError
+
 
 class CenterGapAxis(SlitAxis):
+    """Move the center of a Gap/Slit in horizontal/vertical direction."""
 
     def doStart(self, target):
         if self._attached_slit.opmode == 'centered':
@@ -525,6 +630,7 @@ class CenterGapAxis(SlitAxis):
 
 
 class CenterXSlitAxis(CenterGapAxis):
+    """Move the center of a Gap/Slit in X (typically horizontal)."""
 
     def _convertRead(self, positions):
         return (positions[0] + positions[1]) / 2
@@ -535,6 +641,7 @@ class CenterXSlitAxis(CenterGapAxis):
 
 
 class CenterYSlitAxis(CenterGapAxis):
+    """Move the center of a Gap/Slit in Y (typically vertical)."""
 
     def _convertRead(self, positions):
         return (positions[2] + positions[3]) / 2
@@ -545,6 +652,7 @@ class CenterYSlitAxis(CenterGapAxis):
 
 
 class SizeGapAxis(SlitAxis):
+    """Move the opening of a Gap/Slit in horizontal/vertical direction."""
 
     def _convertRead(self, positions):
         return positions[1] - positions[0]
@@ -555,6 +663,7 @@ class SizeGapAxis(SlitAxis):
 
 
 class WidthSlitAxis(SlitAxis):
+    """Move the opening of a Gap/Slit in X (width, typically horizontal)."""
 
     def _convertRead(self, positions):
         return positions[1] - positions[0]
@@ -566,6 +675,7 @@ class WidthSlitAxis(SlitAxis):
 
 
 class HeightSlitAxis(SlitAxis):
+    """Move the opening of a Gap/Slit in Y (height, typically vertical)."""
 
     def _convertRead(self, positions):
         return positions[3] - positions[2]
@@ -609,14 +719,16 @@ class FixedCenterSlitAxis(SlitAxis):
 class TwoAxisSlit(Gap):
     """A rectangular slit consisting of 2 orthogonal slits.
 
-    All instances have attributes controlling single dimensions that can be used
-    as devices, for example in scans.  These attributes are:
+    All instances have attributes controlling single dimensions that can be
+    used as devices, for example in scans.  These attributes are:
 
     * `width`, `height` -- aliases for the horizontal and vertical slits
 
     Example usage::
 
         >>> scan(slit.width, 0, 1, 6)  # scan over slit width from 0 to 5 mm
+
+    .. automethod:: doRead
     """
 
     attached_devices = {
@@ -655,6 +767,12 @@ class TwoAxisSlit(Gap):
         return True, ''
 
     def doRead(self, maxage=0):
+        """Read the current value of the slit.
+
+        The method calls:
+
+        .. automethod:: _doReadPositions
+        """
         return self._doReadPositions(maxage)
 
     def _doStartPositions(self, positions):
