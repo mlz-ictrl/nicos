@@ -78,7 +78,7 @@ def scan(root):
 
 class NexusFileReader(ImageFileReader):
     filetypes = [
-        ('nxs', 'NeXus File (*.nxs, *.hdf)'),
+        ('nxs', 'NeXus File (*.nxs *.hdf)'),
     ]
 
     @classmethod
