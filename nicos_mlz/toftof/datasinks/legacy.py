@@ -30,6 +30,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core.constants import LIVE
+from nicos.devices.datasinks.image import ImageFileReader
 
 from nicos_mlz.toftof.datasinks.base import TofSink, TofSinkHandler
 from nicos_mlz.toftof.lib import calculations as calc
@@ -276,3 +277,26 @@ class TofImageSinkHandler(TofSinkHandler):
 class TofImageSink(TofSink):
 
     handlerclass = TofImageSinkHandler
+
+
+class TofImageFileReader(ImageFileReader):
+    filetypes = [
+        ('toftoflegacy', 'TOFTOF legacy files (*.raw)'),
+    ]
+
+    @classmethod
+    def fromfile(cls, filename):
+        def get_data_shape(line):
+            shape = eval(line.replace('aData', '').replace(': ', ''))
+            return shape
+
+        with open(filename, 'rb') as f:
+            content = f.read()
+            hs = content.find(b'\naData')
+            if hs:
+                data = content[hs + 1:].decode(
+                    'utf-8', errors='replace').split('\n')
+                shape = get_data_shape(data[0])
+                buf = np.loadtxt(data[1:shape[1] + 1], dtype='int')
+                return buf
+        return None

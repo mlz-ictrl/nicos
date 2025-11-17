@@ -86,3 +86,9 @@ tools = [
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False,),
 ]
+
+options = {
+    'reader_classes': [
+        'nicos_mlz.toftof.datasinks.TofImageFileReader',
+    ]
+}
