@@ -8,11 +8,6 @@
 .. module:: nicos_mlz.sans1.devices.collimator.switcher
 .. autoclass:: Switcher()
 
-.. module:: nicos_mlz.sans1.devices.collimator.motor
-.. autoclass:: Coder()
-.. autoclass:: Motor()
-.. autoclass:: MotorAllParams()
-
 .. module:: nicos_mlz.sans1.devices.hv
 .. autoclass:: VoltageSwitcher()
 .. autoclass:: HV()
