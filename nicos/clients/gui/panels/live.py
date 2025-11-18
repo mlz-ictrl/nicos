@@ -657,8 +657,8 @@ class LiveDataPanel(PlotPanel):
                     start = label.get('start', 0)
                     size = label.get('length', 1)
                     step = label.get('step', 1)
-                    end = start + step * size
-                    labels[axis] = numpy.arange(start, end, step)
+                    end = start + step * (size - 1)
+                    labels[axis] = numpy.linspace(start, end, size)
                 elif label['define'] == 'array':
                     index = label.get('index', 0)
                     labels[axis] = numpy.frombuffer(blobs[index],
@@ -750,7 +750,7 @@ class LiveDataPanel(PlotPanel):
             self._process_filenames(params)
 
     def getDefaultLabels(self, size):
-        return numpy.arange(size)
+        return numpy.arange(size, dtype='float64')
 
     def convertLabels(self, labelinput):
         """Convert the input into a processable format"""
@@ -906,7 +906,7 @@ class LiveDataPanel(PlotPanel):
                 labels = {}
                 titles = {}
                 for axis, entry in zip(AXES, reversed(rawdata.shape)):
-                    labels[axis] = numpy.arange(entry)
+                    labels[axis] = self.getDefaultLabels(entry)
                     titles[axis] = axis
                 data = {
                     'labels': labels,

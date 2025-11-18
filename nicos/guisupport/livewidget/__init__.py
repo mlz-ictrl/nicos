@@ -58,6 +58,7 @@ AXES = ['x', 'y']
 
 COLORMAP_MAGIC_ID = 103
 
+
 def sgn(x):
     if x >= 0:
         return 1
@@ -153,6 +154,7 @@ class GRWidget(InteractiveGRWidget):
 
 
 class Plot(OrigPlot):
+
     def __init__(self, widget, **kwargs):
         OrigPlot.__init__(self, **kwargs)
         self.widget = widget
@@ -163,6 +165,7 @@ class Plot(OrigPlot):
 
 
 class Axes(PlotAxes):
+
     def __init__(self, widget, xdual=False, ydual=False, **kwargs):
         PlotAxes.__init__(self, **kwargs)
         self.widget = widget
@@ -322,6 +325,10 @@ class LiveWidgetBase(QWidget):
         self.plot.pan(dp, w, h)
         self.rescale()
 
+    def _find_nearest_index(self, array, value):
+        array = numpy.asarray(array)
+        return numpy.abs(array - value).argmin()
+
     def getZValue(self, event):
         plots = self.gr._getPlotsForPoint(event.getNDC())
         if plots and len(plots) == 1:
@@ -330,10 +337,11 @@ class LiveWidgetBase(QWidget):
             if (self._arrays is not None and plot == self.plot and
                len(self._arrays[0].shape) == 2):
                 # TODO: adapt this for ``shape > 2`` once available.
-                x, y = int(pWC.x), int(pWC.y)
-                if self._labels['x'][0] <= x < self._labels['x'][-1] and \
-                        self._labels['y'][0] <= y < self._labels['y'][-1]:
-                    return x, y, self._arrays[0][y+1, x+1]
+                ix = self._find_nearest_index(self._labels['x'], pWC.x)
+                iy = self._find_nearest_index(self._labels['y'], pWC.y)
+                if self._labels['x'][0] <= pWC.x < self._labels['x'][-1] and \
+                        self._labels['y'][0] <= pWC.y < self._labels['y'][-1]:
+                    return pWC.x, pWC.y, self._arrays[0][iy, ix]
             return pWC.x, pWC.y
 
     def setWindow(self, xmin, xmax, ymin, ymax):
@@ -343,7 +351,11 @@ class LiveWidgetBase(QWidget):
         """
         self.axes.setWindow(xmin, xmax, ymin, ymax)
         self._fixedsize = True
-        self._axesratio = float(ymax - ymin) / (xmax - xmin)
+        ixmin = self._find_nearest_index(self._labels['x'], xmin)
+        ixmax = self._find_nearest_index(self._labels['x'], xmax)
+        iymin = self._find_nearest_index(self._labels['y'], ymin)
+        iymax = self._find_nearest_index(self._labels['y'], ymax)
+        self._axesratio = float(iymax - iymin) / (ixmax - ixmin)
         self.gr.keepRatio = False
         self.rescale()
 
@@ -365,32 +377,32 @@ class LiveWidgetBase(QWidget):
 
     def setData(self, arrays, labels=None):
         self._arrays = arrays
-        self._labels = labels
-        # ensure we have labels
-        if self._labels is None:
-            self._labels = {}
-        if not self._labels:
-            self._generateDefaultLabels()
+        self._labels = labels or {}
+        self._generateDefaultLabels()
 
         self._prepareSetData()
 
         newrange = False
 
         if not self._fixedsize:
-            xlen = self._labels['x'][-1] - self._labels['x'][0]
-            self.axes.xlines = [self._labels['x'][0] + xlen / 2]
+            if len(self._labels['x']):
+                xlen = self._labels['x'][-1] - self._labels['x'][0]
+                self.axes.xlines = [self._labels['x'][0] + xlen / 2]
+            xlen = len(self._labels['x'])
 
             if 'y' in self._labels:
-                ylen = self._labels['y'][-1] - self._labels['y'][0]
-                self.axes.ylines = [self._labels['y'][0] + ylen / 2]
+                if len(self._labels['y']):
+                    ylen = self._labels['y'][-1] - self._labels['y'][0]
+                    self.axes.ylines = [self._labels['y'][0] + ylen / 2]
+                ylen = len(self._labels['y'])
             else:
                 ylen = 1
                 self.axes.ylines = [0.5]
 
-            try:
-                self._axesratio = ylen / float(xlen)
-            except ZeroDivisionError:
+            if not xlen:
                 return
+
+            self._axesratio = ylen / xlen
 
             newx = self.setAxisRange(self._getNewXRange(), 'x')
             newy = self.setAxisRange(self._getNewYRange(), 'y')
@@ -409,7 +421,8 @@ class LiveWidgetBase(QWidget):
         reference = self._arrays[0].shape
 
         for axis, entry in zip(AXES, reversed(reference)):
-            self._labels[axis] = numpy.arange(entry)
+            if axis not in self._labels:
+                self._labels[axis] = numpy.arange(entry, dtype='float64')
 
     def _prepareSetData(self):
         """Hook at the start of setData"""
@@ -535,10 +548,12 @@ class IntegralLiveWidget(LiveWidget):
 
         self.plot.viewport = (0.1, 0.75, 0.1, 0.75)
         self.axes.viewport = self.plot.viewport
+        # Plot top of the 2D plot
         self.plotyint = Plot(self, viewport=(0.1, 0.75, 0.8, 0.95))
         self.axesyint = Axes(self, viewport=self.plotyint.viewport,
                              drawX=False, drawY=True,
                              xdual=kwargs.get('xscale', 'binary') == 'binary')
+        # Plot right of the 2D plot
         self.plotxint = Plot(self, viewport=(0.8, 0.95, 0.1, 0.75))
         self.axesxint = Axes(self, viewport=self.plotxint.viewport,
                              drawX=True, drawY=False,
@@ -594,11 +609,12 @@ class IntegralLiveWidget(LiveWidget):
                 self.curvex.x = self.curvex._x.filled(0)
             if numpy.ma.is_masked(self.curvey._y):
                 self.curvey.y = self.curvey._y.filled(0)
+
         # rescale axes
-        self.axesyint.setWindow(xmin - 0.5, xmax - 0.5,
+        self.axesyint.setWindow(xmin, xmax,
                                 y0, self.curvey.y.max())
         self.axesxint.setWindow(x0, self.curvex.x.max(),
-                                ymin - 0.5, ymax - 0.5)
+                                ymin, ymax)
 
     def getLabelIndices(self, axis, minimum, maximum):
         try:
@@ -648,10 +664,10 @@ class IntegralLiveWidget(LiveWidget):
         ny, nx = reference.shape
 
         # find the indices of the relevant values
-        x0 = self._labels['x'][min(max(0, ixmin), ixmax)]  # 0 <= x0 <= ixmax
-        x1 = self._labels['x'][max(0, min(nx, ixmax))]     # 0 <= x1 <= ixmax
-        y0 = self._labels['y'][min(max(0, iymin), iymax)]  # 0 <= y0 <= iymax
-        y1 = self._labels['y'][max(0, min(ny, iymax))]     # 0 <= y1 <= iymax
+        x0 = min(max(0, ixmin), ixmax)  # 0 <= x0 <= ixmax
+        x1 = max(0, min(nx, ixmax))     # 0 <= x1 <= ixmax
+        y0 = min(max(0, iymin), iymax)  # 0 <= y0 <= iymax
+        y1 = max(0, min(ny, iymax))     # 0 <= y1 <= iymax
 
         if x0 > x1 or y0 > y1:
             return
