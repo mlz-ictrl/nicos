@@ -53,8 +53,8 @@ class MokePlotCurve(MaskedPlotCurve):
 
     def __init__(self, *args, **kwargs):
         MaskedPlotCurve.__init__(self, *args, **kwargs)
-        self._show_error_bars = True
-        self._status = MokePlotCurve.ShowAll
+        self._show_error_bars = False
+        self._status = MokePlotCurve.HideErrorBars
 
     @property
     def status(self):
