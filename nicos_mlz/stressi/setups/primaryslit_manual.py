@@ -6,7 +6,7 @@ excludes = ['primaryslit_huber', 'primarycoll']
 
 devices = dict(
     psw = device('nicos.devices.generic.ManualMove',
-        description = 'Slit Width',
+        description = 'Primary Slit Width (Gauge volume width)',
         fmtstr = '%.2f',
         default = 1,
         unit = 'mm',
@@ -14,11 +14,16 @@ devices = dict(
         requires = {'level': 'admin'},
     ),
     psh = device('nicos.devices.generic.ManualMove',
-        description = 'Slit Height',
+        description = 'Primary Slit Height (Gauge volume height)',
         fmtstr = '%.2f',
         default = 1,
         unit = 'mm',
         abslimits = (0, 30),
         requires = {'level': 'admin'},
+    ),
+    pss = device('nicos.devices.generic.TwoAxisSlit',
+        description = 'Monochromator entry slit',
+        horizontal = 'psw',
+        vertical = 'psh',
     ),
 )

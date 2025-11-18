@@ -1,0 +1,45 @@
+description = 'Radial collimator devices incoming beam'
+
+group = 'optional'
+
+excludes = ['primaryslit_huber', 'primaryslit_manual']
+
+devices = dict(
+    rcm_m = device('nicos.devices.generic.VirtualMotor',
+        fmtstr = '%.3f',
+        abslimits = (-10, 10),
+        unit = 'deg',
+        visibility = (),
+    ),
+    rcm = device('nicos.devices.generic.Axis',
+        description = 'Primary radial collimator horizontal tilt (RadColli=ZE)',
+        fmtstr = '%.3f',
+        motor = 'rcmono_m',
+        precision = 0.01,
+    ),
+    psw = device('nicos.devices.generic.Axis',
+        description = 'Primary radial collimator width (Gauge volume width)',
+        motor = device('nicos.devices.generic.ManualSwitch',
+            fmtstr = '%.1f',
+            unit = 'mm',
+            states = (1, 2, 5),
+        ),
+        precision = 0.1,
+        # requires = {'level': 'admin'},
+    ),
+    psh = device('nicos.devices.generic.Axis',
+        description = 'Primary radial collimator height (Gauge volume height)',
+        motor = device('nicos.devices.generic.ManualSwitch',
+            fmtstr = '%.1f',
+            unit = 'mm',
+            states = (3, 5),
+        ),
+        precision = 0.1,
+        # requires = {'level': 'admin'},
+    ),
+    pss = device('nicos.devices.generic.TwoAxisSlit',
+        description = 'Monochromator entry slit',
+        horizontal = 'psw',
+        vertical = 'psh',
+    ),
+)

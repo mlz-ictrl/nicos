@@ -100,9 +100,9 @@ _measurement = Column(
         ],
         setups = 'secondaryslit or stressi',
     ),
-    Block('Radial collimator', [
+    Block('Secondary radial collimator', [
         BlockRow(
-            Field(dev='rad_fwhm'),
+            Field(dev='ssw'),
         ),
         ],
         setups = 'radial',

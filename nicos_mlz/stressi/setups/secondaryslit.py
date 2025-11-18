@@ -4,7 +4,7 @@ group = 'optional'
 
 devices = dict(
     sst = device('nicos.devices.generic.Axis',
-        description = 'SST',
+        description = 'Secondary slit translation (SST)',
         motor = device('nicos.devices.entangle.Motor',
             fmtstr = '%.2f',
             tangodevice = 'tango://motorbox03.stressi.frm2.tum.de:10000/box/channel6/motor',
@@ -12,7 +12,7 @@ devices = dict(
         precision = 0.01,
     ),
     ssw = device('nicos.devices.generic.Axis',
-        description = 'Secondary Slit Width',
+        description = 'Secondary Slit Width (Gauge volume depth)',
         motor = device('nicos.devices.entangle.Motor',
             tangodevice = 'tango://stressictrl.stressi.frm2.tum.de:10000/stressi/schunk/motor',
             fmtstr = '%.1f',
@@ -22,5 +22,12 @@ devices = dict(
             # requires =  {'level': 'admin'},
         ),
         precision = 0.01,
+    ),
+    yss = device('nicos.devices.generic.ManualMove',
+        description = 'Distance sample detector collimator',
+        default = 1100.,
+        fmtstr = '%.2f',
+        unit = 'mm',
+        abslimits = (800, 1300),
     ),
 )
