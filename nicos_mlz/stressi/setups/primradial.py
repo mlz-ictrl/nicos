@@ -48,5 +48,6 @@ devices = dict(
         description = 'Monochromator entry slit',
         horizontal = 'psw',
         vertical = 'psh',
+        autodevice_visibility = {'metadata', },
     ),
 )

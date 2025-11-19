@@ -33,6 +33,7 @@ devices = dict(
         vertical = 'slitm_h',
         pollinterval = 60,
         maxage = 90,
+        autodevice_visibility = {'metadata', },
     ),
     slitm_e_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel7/motor',
@@ -74,5 +75,6 @@ devices = dict(
         opmode = 'centered',
         coordinates = 'opposite',
         parallel_ref = True,
+        autodevice_visibility = {'metadata', },
     ),
 )
