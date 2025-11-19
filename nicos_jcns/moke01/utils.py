@@ -95,13 +95,15 @@ def generate_output(measurement, angle=None, ext=None):
     and output parameter kerr."""
 
     keys = ['name', 'time', 'IntvB', 'exp_type', 'mode', 'ramp', 'Bmin', 'Bmax',
-            'cycles', 'BvI', 'baseline', 'field_orientation', 'id', 'description']
+            'cycles', 'BvI', 'baseline', 'field_orientation', 'id',
+            'description', 'calfac']
     if not measurement or not all(key in measurement.keys() for key in keys):
         return ''
     BvI = measurement['BvI']
     IntvB = measurement['IntvB']
     int_mean = IntvB.series_to_curves().mean().yvx(0)
     baseline = measurement['baseline']
+    calfac = measurement['calfac']
 
     # Measurement settings
     output = f'Measurement name: {measurement["name"]}\n'
@@ -110,6 +112,7 @@ def generate_output(measurement, angle=None, ext=None):
     output += f'Measurement start time: {measurement["time"]}\n'
     output += f'Measurement type: {measurement["exp_type"]}\n'
     output += f'Measurement mode: {measurement["mode"]}\n'
+    output += f'Calibration factor: {calfac}\n'
     output += f'Field orientation: {measurement["field_orientation"]}\n'
     output += f'Power supply ramp: {measurement["ramp"]} [A/min]\n'
     output += f'Bmin: {measurement["Bmin"]} (mT)\n'

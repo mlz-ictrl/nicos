@@ -99,6 +99,12 @@ def test_magnet(session):
     magb.prevtarget = 800
     assert magb._current2field(-100).n == 300.0
     assert magb._field2current(300).n == -100
+    # test calibration factor
+    calfac = magb.calfac.copy()
+    calfac['stepwise'] = 0.1
+    magb.calfac = calfac
+    assert magb._current2field(-100).n == 30.0
+    assert magb._field2current(30).n == -100
 
 
 @pytest.mark.skipif(uncertainties is None,

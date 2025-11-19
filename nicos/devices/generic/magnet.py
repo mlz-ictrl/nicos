@@ -464,9 +464,9 @@ class MagnetWithCalibrationCurves(Magnet):
         self.mode = mode
         self.ramp = float(ramp)
         _calfac = self.calfac.copy()
+        session.log.info('Calibration factor is reset from %s to 1.0', _calfac[mode])
         _calfac[mode] = 1.0
         self.calfac = _calfac
-        session.log.info('Calibration factor is reset to 1.0')
         self._attached_currentsource.start(self._attached_currentsource.absmin)
         self._hw_wait()
 

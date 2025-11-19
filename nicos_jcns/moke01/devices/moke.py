@@ -93,6 +93,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             self.baseline[mrmnt['mode']][mrmnt['field_orientation']][str(mrmnt['ramp'])] \
             if str(mrmnt['ramp']) in self.baseline[mrmnt['mode']][mrmnt['field_orientation']].keys() \
                 else []
+        mrmnt['calfac'] = self.calfac[self.mode]
         self.measurement = mrmnt
 
         try:
