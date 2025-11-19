@@ -123,7 +123,7 @@ class LiveDataPanel(PlotPanel):
       * ``marks`` (default 'solidcircle') - Shape of the markers (if displayed).
         Possible values are:
 
-          'dot', 'plus', 'asterrisk', 'circle', 'diagonalcross', 'solidcircle',
+          'dot', 'plus', 'asterisk', 'circle', 'diagonalcross', 'solidcircle',
           'triangleup', 'solidtriangleup', 'triangledown', 'solidtriangledown',
           'square', 'solidsquare', 'bowtie', 'solidbowtie', 'hourglass',
           'solidhourglass', 'diamond', 'soliddiamond', 'star', 'solidstar',
