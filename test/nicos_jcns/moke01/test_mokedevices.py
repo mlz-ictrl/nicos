@@ -120,6 +120,7 @@ def test_calibration(session):
     ramp = 400
     n = 1
     magb.calibrate('stepwise', ramp, n)
+    magb.enable()
     magb.calibrate('continuous', ramp, n)
     assert 'stepwise' in magb.calibration.keys()
     assert 'continuous' in magb.calibration.keys()

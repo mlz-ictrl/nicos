@@ -33,8 +33,8 @@ import numpy
 from scipy.optimize import fsolve
 
 from nicos import session
-from nicos.core import Attach, HasLimits, LimitError, NicosError, Readable, \
-    status, usermethod
+from nicos.core import Attach, CanDisable, HasLimits, LimitError, NicosError, \
+    Readable, status, usermethod
 from nicos.core.params import Param, oneof, dictof, tupleof
 from nicos.core.sessions.utils import MASTER
 from nicos.core.utils import multiStop
@@ -276,7 +276,7 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
         currentsource.userlimits = (0, maxcurr)
 
 
-class MagnetWithCalibrationCurves(Magnet):
+class MagnetWithCalibrationCurves(CanDisable, Magnet):
     """Base class for a magnet, which relies on current-to-field curves
     obtained experimentally for different power supply ramps through a
     calibration procedure. Calibration curves are stored in a cached parameter.
@@ -369,6 +369,13 @@ class MagnetWithCalibrationCurves(Magnet):
             self._Ivt, self._Bvt, self._cycling_steps = Curve2D(), Curve2D(), []
             self._progress = self._maxprogress = self._cycle = 0
             self._stop_requested = False
+
+    def doEnable(self, on):
+        if on:
+            self._attached_currentsource.enable()
+        else:
+            self._attached_currentsource.disable()
+        self.prevtarget = 0
 
     def doRead(self, maxage=0):
         if (B := self._readRaw(maxage)) is not None:
@@ -519,3 +526,4 @@ class MagnetWithCalibrationCurves(Magnet):
             temp[mode][str(float(ramp))] = calibration
             self.calibration = temp
             self._stop_requested = False
+            self.disable()

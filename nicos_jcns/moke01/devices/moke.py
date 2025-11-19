@@ -31,7 +31,7 @@ import numpy
 from uncertainties import ufloat  # pylint: disable=import-error
 
 from nicos import session
-from nicos.core import Attach, CanDisable, Param, device, errors, status
+from nicos.core import Attach, Param, device, errors, status
 from nicos.core.sessions.utils import MASTER
 from nicos.devices.entangle import AnalogInput, PowerSupply, Sensor
 from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
@@ -41,7 +41,7 @@ from nicos.utils.functioncurves import Curve2D
 from nicos_jcns.moke01.utils import fix_filename, generate_output
 
 
-class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
+class MokeMagnet(MagnetWithCalibrationCurves):
 
     attached_devices = {
         'intensity': Attach('Voltmeter reads intensity of a laser beam',
@@ -69,13 +69,6 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
         if mode == MASTER:
             self._Bvt, self._Intvt, self._BvI, self._IntvB = Curve2D(), \
                 Curve2D(), Curve2D(), Curve2D()
-
-    def doEnable(self, on):
-        if on:
-            self._attached_currentsource.enable()
-        else:
-            self._attached_currentsource.disable()
-        self.prevtarget = 0
 
     def _readRaw(self, maxage=0):
         try:
