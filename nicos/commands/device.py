@@ -539,6 +539,17 @@ def stop(*devlist):
 
     If no device is given, stop all stoppable devices in parallel.
 
+    .. note::
+
+        Stopping device(s) via this function does **not** cancel any queued
+        commands.
+        The next queued command will be immediately executed and the stopped
+        device(s) will be started again if the next commands in the queue
+        require this.
+        To stop both, all devices and empty the queue, use the the `/stop`
+        command or Ctrl+C on the NICOS console client or select the `Stop right
+        now` button in the script control menu of the GUI.
+
     Examples:
 
     >>> stop(phi)       # stop the phi device
