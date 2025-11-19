@@ -109,8 +109,8 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         try:
             if mrmnt['mode'] == 'stepwise':
                 n = int(abs(mrmnt['Bmax'] - mrmnt['Bmin']) / mrmnt['step'])
-                ranges = [[mrmnt['Bmin'], mrmnt['Bmax'], n, False],
-                          [mrmnt['Bmax'], mrmnt['Bmin'], n, False]] * mrmnt['cycles']
+                ranges = [[mrmnt['Bmax'], mrmnt['Bmin'], n, False],
+                          [mrmnt['Bmin'], mrmnt['Bmax'], n, False]] * mrmnt['cycles']
                 ranges[-1][2] += 1
                 ranges[-1][3] = True
                 self._BvI, self._IntvB = Curve2D(), Curve2D()
@@ -144,7 +144,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                     self._cycling = True
                     self._cycling_thread = \
                         createThread('', self.cycle_currentsource,
-                                     (IBmin, IBmax, mrmnt['ramp'], mrmnt['cycles']))
+                                     (IBmax, IBmin, mrmnt['ramp'], mrmnt['cycles']))
                 else:
                     raise errors.NicosError(self, 'Power supply is busy.')
                 # measures magnetic field and intensity vallues

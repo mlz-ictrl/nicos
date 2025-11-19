@@ -114,8 +114,8 @@ def test_magnet(session):
 def test_calibration(session):
     magb = session.getDevice('MagB')
     magsensor = session.getDevice('Mag_sensor')
-    magsensor.testqueue = (list(range(-400, 400, 8)) +
-                           list(range(400, -400, -8))) * 2
+    magsensor.testqueue = (list(range(400, -400, -8)) +
+                           list(range(-400, 400, 8))) * 2
     magsensor.simulate = True
     ramp = 400
     n = 1
@@ -154,8 +154,8 @@ def test_calibration(session):
 def test_intensity_measurement(session):
     magsensor = session.getDevice('Mag_sensor')
     # there are two extra read() before and after `measure_intensity`
-    magsensor.testqueue = [1,] + list(range(-400, 400, 40)) + \
-                          list(range(400, -400, -40)) + [-400, 2, 3]
+    magsensor.testqueue = [1,] + list(range(400, -400, -40)) + \
+                          list(range(-400, 400, 40)) + [400, 2, 3]
     magsensor.simulate = True
     mrmnt = {'Bmin': -400.0, 'Bmax': 400.0, 'ramp': 400.0, 'cycles': 1,
              'step': 40.0, 'steptime': 1, 'mode': 'stepwise',

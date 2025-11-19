@@ -476,7 +476,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
         session.log.info('Calibration factor is reset from %s to 1.0', _calfac[mode])
         _calfac[mode] = 1.0
         self.calfac = _calfac
-        self._attached_currentsource.start(self._attached_currentsource.absmin)
+        self._attached_currentsource.start(self._attached_currentsource.absmax)
         self._hw_wait()
 
         with_std = hasattr(self._attached_magsensor, 'readStd')
@@ -486,7 +486,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
                     self._cycling = True
                     self._cycling_thread = createThread('',
                                                         self.cycle_currentsource,
-                                                        (absmin, absmax, float(ramp), n,))
+                                                        (absmax, absmin, float(ramp), n,))
                 else:
                     raise NicosError(self, 'Power supply is busy.')
                 self._Bvt = Curve2D()
@@ -501,7 +501,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
                 self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt)
             elif mode == 'stepwise':
                 num = 100
-                ranges = [(absmin, absmax, num, False), (absmax, absmin, num, False)]
+                ranges = [(absmax, absmin, num, False), (absmin, absmax, num, False)]
                 self._BvI, self._cycling_steps = Curve2D(), []
                 for r in ranges * n:
                     self._cycling_steps.append(len(numpy.linspace(*r)))
