@@ -25,7 +25,6 @@
 
 import os
 import time
-from contextlib import suppress
 from datetime import datetime
 
 import numpy
@@ -78,6 +77,24 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             self._attached_currentsource.disable()
         self.prevtarget = 0
 
+    def _readRaw(self, maxage=0):
+        try:
+            B = self._attached_magsensor.read(maxage)
+        except Exception as e:
+            session.log.info('Magsensor value was not read due to failure in'
+                             'entangle device:\n%s', e)
+            return None
+        return B
+
+    def _readIntensity(self, maxage=0):
+        try:
+            Int = self._intensity.read(maxage)
+        except Exception as e:
+            session.log.info('Intensity value was not read due to failure in'
+                             'entangle device:\n%s', e)
+            return None
+        return Int
+
     def measure_intensity(self, mrmnt):
         self._measuring = True
         self.progress = self.maxprogress = self.cycle = 0
@@ -114,14 +131,12 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                         self.start(_B)
                         self._hw_wait()
                         session.delay(mrmnt['steptime'])
-                        B = None
-                        while B is None:
-                            with suppress(Exception):
-                                B = self.read(0)
-                        Int = None
-                        while Int is None:
-                            with suppress(Exception):
-                                Int = self._intensity.read(0)
+                        while (B := self.read(0)) is None:
+                            session.breakpoint(3)
+                            session.delay(0.1)
+                        while (Int := self._readIntensity()) is None:
+                            session.breakpoint(3)
+                            session.delay(0.1)
                         self._BvI.append((self._field2current(_B).n, _B))
                         self._IntvB.append((ufloat(B, self._magsensor.readStd(B)),
                                             ufloat(Int, self._intensity.readStd(Int))))
@@ -147,18 +162,10 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                         session.breakpoint(2)
                     _cycle = self.cycle
                     session.breakpoint(3)
-                    try:
-                        B = self.read(0)
-                    except Exception:
-                        B = None
-                    if B:
+                    if (B := self.read(0)) is not None:
                         self._Bvt.append((time.time(),
                                           ufloat(B, self._magsensor.readStd(B))))
-                    try:
-                        Int = self._intensity.read(0)
-                    except Exception:
-                        Int = None
-                    if Int:
+                    if (Int := self._readIntensity()) is not None:
                         self._Intvt.append((time.time(),
                                             ufloat(Int, self._intensity.readStd(Int))))
                     if self._Ivt and self._Bvt:

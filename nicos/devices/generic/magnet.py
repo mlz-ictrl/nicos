@@ -371,7 +371,9 @@ class MagnetWithCalibrationCurves(Magnet):
             self._stop_requested = False
 
     def doRead(self, maxage=0):
-        return self._attached_magsensor.read(maxage) * self.calfac[self.mode]
+        if (B := self._readRaw(maxage)) is not None:
+            B *= self.calfac[self.mode]
+        return B
 
     def _readRaw(self, maxage=0):
         return self._attached_magsensor.read(maxage)
@@ -483,11 +485,7 @@ class MagnetWithCalibrationCurves(Magnet):
                 self._Bvt = Curve2D()
                 while self._cycling:
                     session.breakpoint(1)
-                    try:
-                        B = self._attached_magsensor.read(0)
-                    except Exception:
-                        B = None
-                    if B:
+                    if (B := self.read(0)) is not None:
                         self._Bvt.append((time.time(), B if not with_std else
                                           ufloat(B, self._attached_magsensor.readStd(B))))
                     session.delay(0.5)
@@ -504,10 +502,9 @@ class MagnetWithCalibrationCurves(Magnet):
                         self._attached_currentsource.start(i)
                         # hardcoded 10 secs to reach quasi steady state condition
                         session.delay(10)
-                        B = None
-                        while B is None:
-                            with suppress(Exception):
-                                B = self._attached_magsensor.read(0)
+                        while (B := self.read(0)) is None:
+                            session.breakpoint(1)
+                            session.delay(0.1)
                         self._BvI.append((i, B if not with_std else
                                           ufloat(B, self._attached_magsensor.readStd(B))))
         finally:
