@@ -41,10 +41,12 @@ devices = dict(
         coder = 'psh_c',
         precision = 0.01,
     ),
-    pss = device('nicos.devices.generic.TwoAxisSlit',
+    pss = device('nicos_mlz.stressi.devices.OffCenteredTwoAxisSlit',
         description = 'Monochromator entry slit',
         horizontal = 'psw',
         vertical = 'psh',
+        x = 'pst',
+        y = 'psz',
         autodevice_visibility = {'metadata', },
     ),
 )

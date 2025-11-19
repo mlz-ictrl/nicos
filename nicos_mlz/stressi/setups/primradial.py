@@ -2,6 +2,8 @@ description = 'Radialcollimator devices incoming beam'
 
 group = 'optional'
 
+includes = ['primaryslit']
+
 excludes = ['primaryslit_manual', 'primaryslit_huber']
 
 tango_base = 'tango://motorbox03.stressi.frm2.tum.de:10000/box/'
@@ -44,10 +46,12 @@ devices = dict(
         precision = 0.1,
         requires = {'level': 'admin'},
     ),
-    pss = device('nicos.devices.generic.TwoAxisSlit',
+    pss = device('nicos_mlz.stressi.devices.OffCenteredTwoAxisSlit',
         description = 'Monochromator entry slit',
         horizontal = 'psw',
         vertical = 'psh',
+        x = 'pst',
+        y = 'psz',
         autodevice_visibility = {'metadata', },
     ),
 )

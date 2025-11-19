@@ -2,6 +2,8 @@ description = 'Radial collimator devices incoming beam'
 
 group = 'optional'
 
+includes = ['primaryslit']
+
 excludes = ['primaryslit_huber', 'primaryslit_manual']
 
 devices = dict(
@@ -37,10 +39,12 @@ devices = dict(
         precision = 0.1,
         # requires = {'level': 'admin'},
     ),
-    pss = device('nicos.devices.generic.TwoAxisSlit',
+    pss = device('nicos_mlz.stressi.devices.OffCenteredTwoAxisSlit',
         description = 'Monochromator entry slit',
         horizontal = 'psw',
         vertical = 'psh',
+        x = 'pst',
+        y = 'pst',
         autodevice_visibility = {'metadata', },
     ),
 )

@@ -25,6 +25,8 @@
 
 import pytest
 
+from nicos.core.errors import InvalidValueError, LimitError
+
 session_setup = 'stressi'
 
 
@@ -49,3 +51,45 @@ class TestTransformedDevices:
         # test position of attached device after move
         device.maw(80)
         assert device._attached_dev.read(0) == pytest.approx(51.5)
+
+
+def test_two_axis_slit(session):
+    slit = session.getDevice('pss')
+    assert slit() == [0, 0, 0, 0]
+    assert slit.horizontal() == 0
+    assert slit.vertical() == 0
+    assert slit.x() == 0
+    assert slit.y() == 0
+
+    slit.maw((0, 0, 1, 1))
+
+    slit.reset()
+
+    pytest.raises(InvalidValueError, slit.isAllowed, (1, 2, 3, 4, 5))
+    assert not slit.isAllowed([0, 0, -1, 1])[0]
+    pytest.raises(LimitError, slit.move, [0, 0, -1, 1])
+
+    slit.reference()
+
+    assert slit.width() == 0
+    assert slit.height() == 0
+    assert slit.centerx() == 0
+    assert slit.centery() == 0
+
+    slit.width.maw(1)
+    assert slit.width() == 1
+    assert slit.horizontal() == 1
+
+    slit.height.maw(1)
+    assert slit.height() == 1
+    assert slit.vertical() == 1
+
+    assert slit() == [0, 0, 1, 1]
+
+    assert slit.centerx() == 0
+    assert slit.centery() == 0
+
+    slit.centerx.maw(1)
+    assert slit.centerx() == 1
+    slit.centery.maw(1)
+    assert slit.centery() == 1

@@ -21,10 +21,12 @@ devices = dict(
         abslimits = (0, 30),
         requires = {'level': 'admin'},
     ),
-    pss = device('nicos.devices.generic.TwoAxisSlit',
+    pss = device('nicos_mlz.stressi.devices.OffCenteredTwoAxisSlit',
         description = 'Monochromator entry slit',
         horizontal = 'psw',
         vertical = 'psh',
+        x = 'pst',
+        y = 'psz',
         autodevice_visibility = {'metadata', },
     ),
 )
