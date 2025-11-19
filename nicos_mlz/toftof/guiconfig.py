@@ -69,7 +69,7 @@ windows = [
            panel('nicos.clients.gui.panels.errors.ErrorPanel'),),
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                 instrument = 'toftof'),),
+                 xscale='decimal'),),
     window('Planning', 'strategy',
            panel('nicos_mlz.toftof.gui.resolutionpanel.ResolutionPanel'),
            ),
