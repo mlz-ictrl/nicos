@@ -34,3 +34,10 @@ Mixins
 .. autoclass:: TransformRead()
 .. autoclass:: TransformMove()
 .. autoclass:: Formula()
+
+Slits
+-----
+
+.. module:: nicos_mlz.stressi.devices.slits
+.. autoclass:: OffCenteredTwoSlitAxis
+.. autoclass:: SingleSlitAxis

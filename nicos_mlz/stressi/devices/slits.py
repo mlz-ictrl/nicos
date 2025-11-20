@@ -26,7 +26,8 @@
 from nicos.core.errors import InvalidValueError
 from nicos.core.mixins import HasPrecision
 from nicos.core.params import Attach, Override, tupleof
-from nicos.devices.generic.slit import TwoAxisSlit, SlitAxis
+from nicos.devices.generic.slit import FixedCenterSlitAxis, Gap, SizeGapAxis, \
+    SlitAxis, TwoAxisSlit
 
 
 class OffCenteredXSlitAxis(SlitAxis):
@@ -87,7 +88,6 @@ class OffCenteredTwoAxisSlit(TwoAxisSlit):
 
     parameter_overrides = {
         'fmtstr': Override(default='(%.2f, %.2f) %.2f x %.2f'),
-        'unit': Override(mandatory=False),
         'opmode': Override(settable=False, volatile=True),
     }
 
@@ -131,3 +131,69 @@ class OffCenteredTwoAxisSlit(TwoAxisSlit):
     def _doStartPositions(self, positions):
         for dev, t in zip(self._axes, positions):
             dev.move(t)
+
+
+class SingleAxisGap(Gap):
+    """A special gap driven by a single motor.
+
+    The motor drives both blades simulataneously away or towards the center (0)
+
+    All instances have attributes controlling single dimensions that can be
+    used as devices, for example in scans.  These attributes are:
+
+    * `width` -- aliases for the opening of the gap
+
+    Example usage::
+
+        >>> scan(slit.width, 0, 1, 6)  # scan over slit width from 0 to 5 mm
+    """
+
+    valuetype = float
+
+    attached_devices = {
+        'moveable': Attach('Device driving the blades', HasPrecision),
+    }
+
+    parameter_overrides = {
+        'opmode': Override(settable=False, volatile=True),
+        'fmtstr': Override(default='%.2f'),
+    }
+
+    def _init_adevs(self):
+        self._autodevs = [
+            ('center', FixedCenterSlitAxis),
+            ('width', SizeGapAxis),
+        ]
+        self._axes = [self._attached_moveable, ]
+        self._axnames = ['moveable']
+
+    def _doIsAllowedPositions(self, positions):
+        pos = positions[1] - positions[0]
+        ax = self._axes[0]
+        axname = self._axnames[0]
+        ok, why = ax.isAllowed(pos)
+        if not ok:
+            return ok, '[%s blade] %s' % (axname, why)
+        return self._isAllowedSlitOpening(positions)
+
+    def doReadOpmode(self):
+        return 'centered'
+
+    def doRead(self, maxage=0):
+        positions = self._doReadPositions(maxage)
+        return positions[1] - positions[0]
+
+    def _getPositions(self, target):
+        if isinstance(target, (list, tuple)):
+            return target
+        return [-target / 2, target / 2]
+
+    def _doReadPositions(self, maxage):
+        p = self._attached_moveable.read(maxage)
+        return [-p / 2, p / 2]
+
+    def _doStartPositions(self, positions):
+        self._attached_moveable.move(positions[1] - positions[0])
+
+    def doUpdateOpmode(self, value):
+        self.valuetype = float

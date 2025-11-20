@@ -197,4 +197,12 @@ devices = dict(
         ),
         parallel_ref = True,
     ),
+    ssw = device('nicos_mlz.stressi.devices.SingleAxisGap',
+        moveable = device('nicos.devices.generic.VirtualReferenceMotor',
+            unit = 'mm',
+            abslimits = (0, 20),
+            refswitch = 'ref',
+            refpos = 0,
+        ),
+    ),
 )

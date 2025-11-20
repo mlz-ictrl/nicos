@@ -93,3 +93,21 @@ def test_two_axis_slit(session):
     assert slit.centerx() == 1
     slit.centery.maw(1)
     assert slit.centery() == 1
+
+
+def test_single_axis_gap(session):
+    gap = session.getDevice('ssw')
+
+    assert gap.read(0) == 0
+    assert gap.width.read(0) == 0
+    assert gap.center.read(0) == 0
+
+    gap.maw(1)
+    assert gap.read(0) == 1
+    assert gap.center.read(0) == 0
+    assert gap.width.read(0) == 1
+
+    pytest.raises(LimitError, gap.maw, -1)
+    pytest.raises(LimitError, gap.maw, 21)
+
+    # pytest.raises(InvalidValueError, gap.isAllowed, (1, 2))
