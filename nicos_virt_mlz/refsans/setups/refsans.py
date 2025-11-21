@@ -15,7 +15,7 @@ includes = [
     'gonio',
     'gonio_top',
     # 'guidehall',
-    # 'h2',
+    'h2',
     # 'height',
     # 'memograph',
     'nl2b',

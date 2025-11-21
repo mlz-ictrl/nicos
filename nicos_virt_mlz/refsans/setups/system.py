@@ -28,7 +28,9 @@ devices = dict(
         width = 50,
         length = 80,
         samples = {
-            1: {'name': 'Standard', 'sample_file': 'Si_Ti_Al_Mirror.dat'},
+            1: {'name': 'Si_Ti_Al_Mirror', 'sample_file': 'Si_Ti_Al_Mirror.dat'},
+            2: {'name': 'Si_Ti500', 'sample_file': 'Si_Ti500.dat'},
+            3: {'name': 'SN_mirror', 'sample_file': 'SN_mirror.dat'},
         }
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',

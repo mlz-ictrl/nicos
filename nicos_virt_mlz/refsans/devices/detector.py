@@ -27,8 +27,9 @@ import os
 import re
 from math import log10
 
-from nicos.core import Attach, Override, Readable
+from nicos.core import Attach, Param, Override, Readable
 from nicos.devices.mcstas import McStasSimulation as BaseSimulation
+from nicos.devices.generic import HorizontalGap
 
 from nicos_mlz.refsans.devices.chopper.base import ChopperDisc
 from nicos_mlz.refsans.devices.nok_support import DoubleMotorNOK
@@ -46,16 +47,24 @@ class McStasSimulation(BaseSimulation):
         'mcstasprog': Override(default='REFSANS_NICOS'),
     }
 
+    parameters = {
+        'gravity': Param('Switch the gravity on/off',
+                         type=bool, settable=True, mandatory=False,
+                         default=True),
+    }
+
     attached_devices = {
         'sample': Attach('Sample', Sample),
-        'b1': Attach('Slit B1', DoubleSlit),
         'zb0': Attach('Slit ZB0', SingleSlit),
         'zb1': Attach('Slit ZB0', SingleSlit),
         'zb2': Attach('Slit ZB0', SingleSlit),
         'zb3': Attach('Slit ZB3', DoubleSlit),
         'bs1': Attach('Slit BS1', DoubleSlit),
-        'h3': Attach('Slit BS1', DoubleSlit),
-        'b3': Attach('Slit BS1', DoubleSlit),
+        'b1': Attach('Slit B1', DoubleSlit),
+        'b2': Attach('Slit B2', DoubleSlit),
+        'h2': Attach('Slit H2', HorizontalGap),
+        'b3': Attach('Slit B3', DoubleSlit),
+        'h3': Attach('Slit H3', DoubleSlit),
         'gonio_theta': Attach('Goniometer (theta)', Readable),
         'gonio_y': Attach('Goniometer (y)', Readable),
         'gonio_z': Attach('Goniometer (z)', Readable),
@@ -82,6 +91,7 @@ class McStasSimulation(BaseSimulation):
         'nok8': Attach('NOK 8', DoubleMotorNOK),
         'nok9': Attach('NOK 9', DoubleMotorNOK),
         'd_b3_sample': Attach('Distance B3 to sample', Readable),
+        'det_table': Attach('Detector table position', Readable),
     }
 
     def _dev(self, dev, scale=1, default='0', fmtstr=None):
@@ -184,7 +194,12 @@ class McStasSimulation(BaseSimulation):
     }
 
     def _prepare_params(self):
-        return [
+        params = []
+        if self.gravity:
+            params.append('-g')  # Switch gravitation on
+        params.extend([
+            # Diese Variable schaltet das Chopper-System ein (1) oder aus (0).
+            # Lass sie bitte immer auf 1 eingestellt
             'sim_chopper=1',
             'rpm=%s' % self._dev(self._attached_rpm),
             'disc2_Pos=%s' % self._dev(self._attached_disc2_pos),
@@ -194,11 +209,23 @@ class McStasSimulation(BaseSimulation):
             'angle5=%s' % self._attached_chopper5.phase,
             'angle6=%s' % self._attached_chopper6.phase,
 
-            # The following values aren't available via a device !
-            'n_per=%s' % 1,  # self._dev(),
-            'disc3_c=%s' % 0,  # self._dev(disc3_),  # 0
-            'disc4_c=%s' % 0,  # self._dev(disc3_),  # 0
-            'SC2_c=%s' % 0,  # self._dev(sc2),  # 0
+            # angle2 = chopper2.read(0)
+            # angle3 = chopper3.read(0)
+            # angle4 = chopper4.read(0)
+            # angle5 = chopper5.read(0)
+            # angle6 = chopper6.read(0)
+
+            # Meas_Time ist die Messzeit, in Sekunden
+            # 'n_per=%d' % (chopper_speed.read(0) * Meas_time / 60)
+
+            'n_per=%d' % (self._attached_rpm.read(0) / 60 * self.preselection),
+            'disc3_c=%s' % '0',  # self._dev(self._attached_chopper3),
+            'disc4_c=%s' % '0',  # self._dev(self._attached_chopper3),
+
+            'SC2_c=%s' % 0,  # self._dev(self._attached_sc2),  # 0
+
+            'opt_nok3=%d' % ['ng', 'rc'].index(self._attached_nok3.mode),
+            'opt_nok4=%d' % ['ng', 'rc'].index(self._attached_nok4.mode),
 
             'opt_nok5a=%d' % self.opt_map.get(self._attached_nok5a.mode, 0),
             'opt_nok5b=%d' % self.opt_map.get(self._attached_nok5b.mode, 0),
@@ -206,6 +233,15 @@ class McStasSimulation(BaseSimulation):
             'opt_nok7=%d' % self.opt_map.get(self._attached_nok7.mode, 0),
             'opt_nok8=%d' % self.opt_map.get(self._attached_nok8.mode, 0),
             'opt_nok9=%d' % self.opt_map.get(self._attached_nok9.mode, 0),
+
+            'opt_b1=%d' % ['slit', 'gisans'].index(self._attached_b1.mode),
+            'opt_b2=%d' % ['slit', 'gisans'].index(self._attached_b2.mode),
+            'opt_zb0=%d' % ['slit', 'gisans'].index(self._attached_zb0.mode),
+            'opt_zb1=%d' % ['slit', 'gisans'].index(self._attached_zb1.mode),
+            'opt_zb2=%d' % ['slit', 'gisans'].index(self._attached_zb2.mode),
+            'opt_zb3=%d' % ['slit', 'gisans'].index(self._attached_zb3.mode),
+            'opt_bs1=%d' % ['slit', 'gisans'].index(self._attached_bs1.mode),
+
             'nok2_r=%s' % self._attached_nok2.read(0)[0],
             'nok2_s=%s' % self._attached_nok2.read(0)[1],
             'nok3_r=%s' % self._attached_nok3.read(0)[0],
@@ -224,32 +260,50 @@ class McStasSimulation(BaseSimulation):
             'nok8_s=%s' % self._attached_nok8.read(0)[1],
             'nok9_r=%s' % self._attached_nok9.read(0)[0],
             'nok9_s=%s' % self._attached_nok9.read(0)[1],
+
             'b1_c=%s' % self._dev(self._attached_b1.center),
             'b1_h=%s' % self._dev(self._attached_b1.opening),
+
             'zb0_c=%s' % self._dev(self._attached_zb0),
             'zb1_c=%s' % self._dev(self._attached_zb1),
             'zb2_c=%s' % self._dev(self._attached_zb2),
             'zb3_c=%s' % self._dev(self._attached_zb3.center),
             'zb3_h=%s' % self._dev(self._attached_zb3.opening),
+
             'bs1_c=%s' % self._dev(self._attached_bs1.center),
             'bs1_h=%s' % self._dev(self._attached_bs1.opening),
+
             'h3_c=%s' % self._dev(self._attached_h3.center),
             'h3_w=%s' % self._dev(self._attached_h3.opening),
+
             'b3_c=%s' % self._dev(self._attached_b3.center),
             'b3_h=%s' % self._dev(self._attached_b3.opening),
+
+            'b2_c=%s' % self._dev(self._attached_b2.center),
+            'b2_h=%s' % self._dev(self._attached_b2.opening),
+            'h2_c=%s' % self._dev(self._attached_h2.center),
+            'h2_w=%s' % self._dev(self._attached_h2.width),
+
             'gonio_theta=%s' % self._dev(self._attached_gonio_theta),
             'gonio_y=%s' % self._dev(self._attached_gonio_y),
             'gonio_z=%s' % self._dev(self._attached_gonio_z),
             'top_gonio_z=%s' % self._dev(self._attached_gonio_top_z,
                                          default='0'),
+
             'l_probe=%s' % self._attached_sample.length,
             'w_probe=%s' % self._attached_sample.width,
+            'sample_name=%s' % self._attached_sample.samplename,
             'sample_file=%s' % os.path.join(self._attached_sample.datapath,
                                             self._attached_sample.sample_file),
+
             'backguard=%s' % self._dev(self._attached_backguard),
+
             'pivot_Pos=%s' % self._dev(self._attached_pivot, fmtstr='%d'),
+
             'yoke=%s' % self._dev(self._attached_yoke),
+
             'det_table=%s' % self._dev(self._attached_dettable),
 
             'd_b3_probe=%s' % self._dev(self._attached_d_b3_sample),
-        ]
+        ])
+        return params
