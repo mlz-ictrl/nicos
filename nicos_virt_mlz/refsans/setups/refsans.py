@@ -4,7 +4,7 @@ group = 'basic'
 
 includes = [
     'autocollimator',
-    # 'b3h3',
+    'b3h3',
     'backguard',
     'beamstop',
     # 'chamber',
@@ -23,7 +23,7 @@ includes = [
     # 'poti_ref',
     # 'prim_monitor',
     # 'pumpstand',
-    # 'qmesydaq',
+    'qmesydaq',
     'reactor',
     'resolution',
     # 'safedetectorsystem',
@@ -33,15 +33,11 @@ includes = [
     'shutter',
     'shutter_gamma',
     # 'vsd',
-    #  'vacuum',
-    #  'instrument_mode',
-    'qmesydaq',
+    # 'vacuum',
+    # 'instrument_mode',
     'alphai',
     'd_last_slit_sample',
 ]
-
-startupcode = """
-"""
 
 devices = dict(
     table = device('nicos.devices.generic.Axis',
@@ -59,6 +55,6 @@ devices = dict(
     ),
 )
 
-startupcode = '''
+startupcode = """
 alphai.userlimits = (0, 3.5)
-'''
+"""
