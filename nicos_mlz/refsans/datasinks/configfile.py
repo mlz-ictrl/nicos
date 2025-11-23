@@ -327,15 +327,19 @@ element_part += ['shutter_gamma_motor']
 for ll in optic:
     for label in optic_label:
         element_part.append(ll + label)
+
 for ll in NOKs:
     for label in NOKs_label + NOKs_PlanB_label:
         element_part.append(ll + label)
+
 for ll in PlanB:
     for label in PlanB_label:
         element_part.append(ll + label)
+
 for ll in ana4gpio:
     for label in ana4gpio_label:
         element_part.append(ll + label)
+
 for ll in monitor:
     for label in monitor_label:
         element_part.append(ll + label)
@@ -343,6 +347,7 @@ for ll in monitor:
 for ll in lateral:
     for label in lateral_label:
         element_part.append(ll + label)
+
 for ll in simple_lateral:
     for label in simple_lateral_label:
         element_part.append(ll + label)
@@ -351,10 +356,13 @@ for ll in Slits:
     for label in Slits_label + Slits_PlanB_label:
         element_part.append(ll + label)
 element_part.append('b3h3_frame')
+
 for i in range(cpt0[1]):
     element_part.append('%s%d' % (cpt0[0], i))
+
 for i in range(cpt[1]):
     element_part.append('%s%d' % (cpt[0], i))
+
 for i in range(cptoptic[1]):
     element_part.append('%s%d' % (cptoptic[0], i + 1))
 
@@ -390,12 +398,9 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         self._data = None
 
     def prepare(self):
-        self.log.debug('def prepare: %r', self.dataset.settype)
         if configobj:
-            self.log.debug('def prepare: configobj')
             if self._data is None:
                 self._data = configobj.ConfigObj(encoding='utf-8')
-            self.log.debug('def prepare: configobj %s', type(self._data))
             self._number = self.manager.assignCounter(self.dataset)
             fp = self.manager.createDataFile(self.dataset, self._template[0])
             self._data.filename = fp.filepath
@@ -426,11 +431,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._data['Attenuators'] = self._dict()
             self._data['environment'] = self._dict()
 
-    def begin(self):
-        self.log.debug('def begin')
-
     def _write_meas_comment(self, metainfo):
-        # TODO: Check which of the 'Measurement Comment' is the right one
         self._data['measurement'] = self._dict()
         self._data['measurement']['File Name'] = self._data.filename
         self._data['measurement']['Start Time'] = time.strftime(TIMEFMT)
@@ -440,16 +441,11 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         scaninfo = ds.info.split('-')[-1].strip()
         if self._data:
             self._data['measurement']['scaninfo'] = scaninfo
-        try:
-            self._data['measurement']['usercomment'] = metainfo[
-                'det', 'usercomment'][0]
-        except (KeyError, IndexError):
-            self._data['measurement']['usercomment'] = 'None'
+        self._data['measurement']['usercomment'] = metainfo.get(
+                ('det', 'usercomment'), ['None'])[0]
         for dev in REFSANS:
             self._data['measurement'][dev] = metainfo[
                 'REFSANS', dev][0]
-        # self._data['measurement']['Instrumentenverantwortlicher'] = metainfo[
-        #     'Instrumentenverantwortlicher', 'value'][2]
         self._data['measurement']['Sample Name'] = '%s' % metainfo[
             'Sample', 'samplename'][0]
         for dev in EXP:
@@ -495,25 +491,21 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
     def _write_misc(self, metainfo):
         for dev in Miscellaneous:
-            # self.log.debug('dev misc %s', dev)
             if (dev, 'value') in metainfo:
                 self._data['Miscellaneous'][dev] = metainfo[dev, 'value'][0]
 
     def _write_vsd(self, metainfo):
         for dev in VSD:
-            # self.log.debug('dev vsd %s', dev)
             if (dev, 'value') in metainfo:
                 self._data['vsd'][dev] = metainfo[dev, 'value'][0]
 
     def _write_safetysystem(self, metainfo):
         for dev in safetysystem:
-            # self.log.debug('dev shs %s', dev)
             if (dev, 'value') in metainfo:
                 self._data['safetysystem'][dev] = metainfo[dev, 'value'][0]
 
     def _write_environment(self, metainfo):
         for dev in environment:
-            # self.log.debug('dev env %s', dev)
             if (dev, 'value') in metainfo:
                 self._data['environment'][dev] = metainfo[dev, 'value'][0]
 
@@ -525,22 +517,16 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
     def _write_cpt(self, metainfo):
         for i in range(cpt0[1]):
             dev = '%s%d' % (cpt0[0], i)
-            try:  # SB hack for setup cpt not loaded
+            if (dev, 'value') in metainfo:
                 self._data['cpt'][dev] = metainfo[dev, 'value'][0]
-            except KeyError:
-                pass
         for i in range(cpt[1]):
             dev = '%s%d' % (cpt[0], i)
-            try:  # SB hack for setup cpt not loaded
+            if (dev, 'value') in metainfo:
                 self._data['cpt'][dev] = metainfo[dev, 'value'][0]
-            except KeyError:
-                pass
         for i in range(cptoptic[1]):
             dev = '%s%d' % (cptoptic[0], (i + 1))
-            try:  # SB hack for setup cpt not loaded
+            if (dev, 'value') in metainfo:
                 self._data['cpt'][dev] = metainfo[dev, 'value'][0]
-            except KeyError:
-                pass
 
     def _write_attenuators(self, metainfo):
         keys = list(metainfo.keys())
@@ -611,7 +597,6 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
     def _write_sample(self, metainfo):
         sample = self._dict()
         for devname in Gonio:
-            # self.log.debug('dev sample %s', devname)
             if (devname, 'value') in metainfo:
                 sample[devname] = metainfo[devname, 'value'][0]
             else:
@@ -630,75 +615,40 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             if (dev, 'value') in metainfo:
                 extra[dev] = metainfo[dev, 'value'][0]
         self._data['Extra'] = extra
-        # mstr = str(metainfo)
-        # for evel in ['\xb0']:  # 'degC'
-        #     mstr = mstr.replace(evel, '+')
-        # self._data['metainfo'] = mstr
 
     def putMetainfo(self, metainfo):
-        self.log.debug('def putMetainfo:')
-        # self.log.debug('metainfo: %s', str(metainfo).replace(
-        #    "), ('", "), \r\n('"))
         if self._data:
-            # self._data['measurement'] = self._dict()
             self._write_meas_comment(metainfo)
-            # self._data['Chopper'] = self._dict()
-            # self._data['chopper_config'] = self._dict()
             self._write_chopper(metainfo)
-            # self._data['Detector'] = self._dict()
             self._write_detector(metainfo)
-            # self._data['Monitor'] = self._dict()
             self._write_monitor(metainfo)
-            # self._data['optic'] = self._dict()
-            # self._data['optic_mode'] = self._dict()
             self._write_optic(metainfo)
-            # self._data['NOKs'] = self._dict()
-            # self._data['NOKs_mode'] = self._dict()
             self._write_noks(metainfo)
-            # self._data['Absolute_Positions'] = self._dict()
             self._write_PlanB(metainfo)
-            # self._data['aperture'] = self._dict()
             self._write_aperture(metainfo)
-            # self._data['Slits'] = self._dict()
-            # self._data['Slits_mode'] = self._dict()
             self._write_slits(metainfo)
-            # self._data['Lateral'] = self._dict()
             self._write_lateral(metainfo)
-            # self._data['Sample'] = self._dict()
             self._write_sample(metainfo)
-            # self._data['Miscellaneous'] = self._dict()
             self._write_misc(metainfo)
-            # self._data['vsd'] = self._dict()
             self._write_vsd(metainfo)
-            # self._data['safetysystem'] = self._dict()
             self._write_safetysystem(metainfo)
-            # self._data['cpt'] = self._dict()
             self._write_cpt(metainfo)
-            # self._data['analog_encoder'] = self._dict()
             self._write_analog_encoder(metainfo)
-            # self._data['Attenuators'] = self._dict()
             self._write_attenuators(metainfo)
-            # self._data['environment'] = self._dict()
             self._write_environment(metainfo)
         else:
             self.log.debug('no self._data')
         elements = []
         for dev, _key in metainfo:
-            # self.log.debug('dev extra %s %s', dev, _key)
             if dev not in elements + element_part:
                 elements.append(dev)
-        self.log.debug('def putMetainfo Loop done')
         if elements:
             self.log.debug('EXTRA %d %s', len(elements), elements)
 
         if self._data:
             # should be empty
-            self.log.debug('write_extra')
             self._write_extra(metainfo, elements)
-            self.log.debug('write_extra done')
-        self.log.debug('_dump %s', self._data)
         self._dump()
-        self.log.debug('_dump done')
 
     def putResults(self, quality, results):
         """Called when the point dataset main results are updated.
@@ -714,7 +664,6 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         Argument *results* contains the new results.  ``dataset.results``
         contains all results so far.
         """
-        self.log.debug('%s', quality)
         if quality == FINAL:
             dic = {}
             self._final_dic(self.dataset.detectors[0]._attached_images,
