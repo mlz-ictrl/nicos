@@ -483,11 +483,9 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         self._write_label_ext(metainfo, 'Slits', simple_slit, 'value', [''])
 
     def _write_label_ext(self, metainfo, key, liste, content, ext):
-        for ele in liste:
-            for label in ext:
-                s = ele + label
-                if (s, 'value') in metainfo:
-                    self._data[key][s] = (metainfo[s, content][0])
+        for ele, label in zip(liste, ext):
+            if (ele, 'value') in metainfo:
+                self._data[key][ele + label] = (metainfo[ele, content][0])
 
     def _write_lateral(self, metainfo):
         self._write_label_ext(metainfo, 'Lateral', lateral, 'value',
