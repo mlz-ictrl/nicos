@@ -41,11 +41,18 @@ devices = {
         fmtstr = '%.4f',
         visibility = lowlevel,
     ),
+    'ddg_detection_gas_current' : device(code_base + 'analogencoder.AnalogEncoder',
+        description = 'Pressure detection gas current',
+        device = f'{ana4gpio}_ch1',
+        poly = [0, 10],  # /100R0.1% *1000mA
+        unit = 'mA',
+        visibility = {'metadata', 'devlist', 'namespace'},
+    ),
     'ddg_detection_gas_pressure' : device(code_base + 'analogencoder.AnalogEncoder',
         description = 'Pressure detection gas',
-        device = f'{ana4gpio}_ch1',
-        poly = [0, 10], # /100R0.1% *1000mA
-        unit = 'mA',
+        device = 'ddg_detection_gas_current',
+        poly = [-1.5, 0.375],  # (I 'degC' 4)/16*6 == I * 0,375 'degC' 1,5
+        unit = 'bar',
         visibility = {'metadata', 'devlist', 'namespace'},
     ),
     'ddg_tank_temperature_resistor' : device(code_base + 'analogencoder.Ohmmeter',
