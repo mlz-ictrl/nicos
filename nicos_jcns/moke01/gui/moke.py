@@ -348,7 +348,7 @@ class MokePanel(NicosWidget, MokeBase):
                 self.ln_Bmax.setText(str(self.m['Bmax']))
                 self.ln_step.setText(str(self.m['step']))
                 self.ln_steptime.setText(str(self.m['steptime']))
-                self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(str(self.m['ramp'])))
+                self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(format(self.m['ramp'], '.1f')))
                 self.ln_cycles.setText(str(self.m['cycles']))
                 self.plot_IntvB.reset()
                 if self.m['IntvB']:
@@ -393,7 +393,7 @@ class MokePanel(NicosWidget, MokeBase):
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
-            ramp = str(self.m['ramp'])
+            ramp = format(self.m['ramp'], '.1f')
             self.plot_baseline.add_curve(
                 self.m['IntvB'].series_to_curves().mean() -
                 self.m['IntvB'].series_to_curves().mean().yvx(0).y,
@@ -407,7 +407,7 @@ class MokePanel(NicosWidget, MokeBase):
             field = self.m['field_orientation']
             ramp = self.m['ramp']
             self.client.run('temp = MagB.baseline.copy()')
-            self.client.run(f'temp["{mode}"]["{field}"]["{ramp}"] = '
+            self.client.run(f'temp["{mode}"]["{field}"]["{ramp:.1f}"] = '
                              'MagB.measurement["IntvB"].series_to_curves().mean()'
                              ' - MagB.measurement["IntvB"].series_to_curves().mean().yvx(0).y')
             self.client.run('MagB.baseline = temp')
@@ -490,7 +490,7 @@ class MokePanel(NicosWidget, MokeBase):
     def _field2current(self, field, increasing):
         mode = self.m['mode']
         ramp = self.m['ramp']
-        curves = self.calibration[mode][str(ramp)]
+        curves = self.calibration[mode][format(ramp, '.1f')]
         return curves.increasing()[0].xvy(field).x \
             if increasing else curves.decreasing()[0].xvy(field).x
 

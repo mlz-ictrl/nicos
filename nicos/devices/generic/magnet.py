@@ -334,10 +334,10 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
             raise NicosError(self, 'Magnet must be calibrated.')
         if mode not in self.calibration.keys():
             raise NicosError(self, 'Magnet not calibrated in %s mode.' % mode)
-        if str(float(ramp)) not in self.calibration[mode].keys():
+        if format(ramp, '.1f') not in self.calibration[mode].keys():
             raise NicosError(self, 'Magnet not calibrated for %s A/min '
                                    'currensource ramp.' % ramp)
-        if len(self.calibration[mode][str(float(ramp))]) != 2:
+        if len(self.calibration[mode][format(ramp, '.1f')]) != 2:
             raise NicosError(self, 'Error reading calibration in %s mode for %s'
                                    ' A/min ramp. Performing new calibration '
                                    'might help.' % (mode, ramp))
@@ -346,7 +346,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
         """Returns field in T for given current in A.
         """
         self._check_calibration(self.mode, self.ramp)
-        curves = self.calibration[self.mode][str(float(self.ramp))]
+        curves = self.calibration[self.mode][format(self.ramp, '.1f')]
         target = curves.mean().yvx(current).y * self.calfac[self.mode]
         if target > self.prevtarget:
             return curves.increasing()[0].yvx(current).y * self.calfac[self.mode]
@@ -356,7 +356,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
         """Returns required current in A for requested field in T.
         """
         self._check_calibration(self.mode, self.ramp)
-        curves = self.calibration[self.mode][str(float(self.ramp))]
+        curves = self.calibration[self.mode][format(self.ramp, '.1f')]
         if field > self.prevtarget:
             return curves.increasing()[0].xvy(field / self.calfac[self.mode]).x
         else:
@@ -471,7 +471,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
         absmin = self._attached_currentsource.absmin
         absmax = self._attached_currentsource.absmax
         self.mode = mode
-        self.ramp = float(ramp)
+        self.ramp = ramp
         _calfac = self.calfac.copy()
         session.log.info('Calibration factor is reset from %s to 1.0', _calfac[mode])
         _calfac[mode] = 1.0
@@ -486,7 +486,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
                     self._cycling = True
                     self._cycling_thread = createThread('',
                                                         self.cycle_currentsource,
-                                                        (absmax, absmin, float(ramp), n,))
+                                                        (absmax, absmin, ramp, n,))
                 else:
                     raise NicosError(self, 'Power supply is busy.')
                 self._Bvt = Curve2D()
@@ -523,7 +523,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
             curves = Curves.from_series(self._BvI, self._cycling_steps)
             calibration = Curves([curves.increasing().mean(), curves.decreasing().mean()])
             temp = self.calibration.copy()
-            temp[mode][str(float(ramp))] = calibration
+            temp[mode][format(ramp, '.1f')] = calibration
             self.calibration = temp
             self._stop_requested = False
             self.disable()
