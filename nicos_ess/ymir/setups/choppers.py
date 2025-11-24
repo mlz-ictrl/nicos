@@ -5,7 +5,7 @@ chic_root = 'YMIR-ChpSy1:Chop-CHIC-001:'
 
 devices = dict(
     mini_chopper_status=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='The chopper status.',
         readpv='{}Chop_Stat'.format(pv_root),
         visibility=(),
@@ -14,7 +14,7 @@ devices = dict(
         pva=True,
     ),
     mini_chopper_control=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Used to start and stop the chopper.',
         readpv='{}Cmd'.format(pv_root),
         writepv='{}Cmd'.format(pv_root),
@@ -25,7 +25,7 @@ devices = dict(
         pva=True,
     ),
     mini_chopper_speed=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current speed.',
         readpv='{}Spd_Stat'.format(pv_root),
         writepv='{}Spd_SP'.format(pv_root),
@@ -36,7 +36,7 @@ devices = dict(
         pva=True,
     ),
     mini_chopper_delay=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current delay.',
         readpv='{}ChopDly-S'.format(pv_root),
         writepv='{}ChopDly-S'.format(pv_root),
@@ -46,7 +46,7 @@ devices = dict(
         pva=True,
     ),
     mini_chopper_park_angle=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The chopper\'s park angle.',
         readpv='{}ParkPos_Stat'.format(pv_root),
         visibility=(),
@@ -55,7 +55,7 @@ devices = dict(
         pva=True,
     ),
     mini_chopper_chic=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.EpicsMappedReadable',
         description='The status of the CHIC connection.',
         readpv='{}ConnectedR'.format(chic_root),
         visibility=set(),

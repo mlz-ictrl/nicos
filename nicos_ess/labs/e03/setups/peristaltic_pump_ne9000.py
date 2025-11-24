@@ -4,7 +4,7 @@ pv_root = 'SE-SEE:SE-NE9000-001:'
 
 devices = dict(
     inside_diameter_9000=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='The Inside diameter of the syringe',
         readpv='{}DIAMETER'.format(pv_root),
         pollinterval=None,
@@ -12,7 +12,7 @@ devices = dict(
         pva=True,
     ),
     pump_volume_9000=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The volume to be pumped',
         readpv='{}VOLUME'.format(pv_root),
         writepv='{}SET_VOLUME'.format(pv_root),
@@ -22,7 +22,7 @@ devices = dict(
         pva=True,
     ),
     pump_volume_units_9000=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='The volume units',
         readpv='{}VOLUME_UNITS'.format(pv_root),
         writepv='{}SET_VOLUME_UNITS'.format(pv_root),
@@ -31,7 +31,7 @@ devices = dict(
         pva=True,
     ),
     pump_rate_9000=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The pump rate',
         readpv='{}RATE'.format(pv_root),
         writepv='{}SET_RATE'.format(pv_root),
@@ -41,7 +41,7 @@ devices = dict(
         pva=True,
     ),
     pump_rate_units_9000=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='The rate units',
         readpv='{}RATE_UNITS'.format(pv_root),
         writepv='{}SET_RATE_UNITS'.format(pv_root),
@@ -50,7 +50,7 @@ devices = dict(
         pva=True,
     ),
     pump_direction_9000=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='The pump direction',
         readpv='{}DIRECTION'.format(pv_root),
         writepv='{}SET_DIRECTION'.format(pv_root),
@@ -59,7 +59,7 @@ devices = dict(
         pva=True,
     ),
     volume_withdrawn_9000=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The volume withdrawn',
         readpv='{}VOLUME_WITHDRAWN'.format(pv_root),
         pollinterval=None,
@@ -67,7 +67,7 @@ devices = dict(
         pva=True,
     ),
     volume_infused_9000=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The volume infused',
         readpv='{}VOLUME_INFUSED'.format(pv_root),
         pollinterval=None,
@@ -75,7 +75,7 @@ devices = dict(
         pva=True,
     ),
     pump_status_9000=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The pump status',
         readpv='{}STATUS'.format(pv_root),
         visibility=(),
@@ -84,7 +84,7 @@ devices = dict(
         pva=True,
     ),
     pump_message_9000=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='The pump message',
         readpv='{}MESSAGE'.format(pv_root),
         visibility=(),
@@ -93,7 +93,7 @@ devices = dict(
         pva=True,
     ),
     start_pumping_9000=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Start pumping',
         readpv='{}RUN'.format(pv_root),
         writepv='{}RUN'.format(pv_root),
@@ -102,7 +102,7 @@ devices = dict(
         pva=True,
     ),
     pause_pumping_9000=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Pause pumping',
         readpv='{}PAUSE'.format(pv_root),
         writepv='{}PAUSE'.format(pv_root),
@@ -111,7 +111,7 @@ devices = dict(
         pva=True,
     ),
     stop_pumping_9000=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Stop pumping',
         readpv='{}STOP'.format(pv_root),
         writepv='{}STOP'.format(pv_root),
@@ -120,7 +120,7 @@ devices = dict(
         pva=True,
     ),
     seconds_to_pause_9000=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='How long to pause for',
         readpv='{}SET_PAUSE'.format(pv_root),
         writepv='{}SET_PAUSE'.format(pv_root),
@@ -130,7 +130,7 @@ devices = dict(
         pva=True,
     ),
     zero_volume_withdrawn_9000=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Zero volume withdrawn and infused',
         readpv='{}CLEAR_V_DISPENSED'.format(pv_root),
         pollinterval=None,

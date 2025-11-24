@@ -4,7 +4,7 @@ pv_root = 'LOKI-ChpSy1:Chop-BWC-102:'
 
 devices = dict(
     chopper_control_bwc2=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Used to start and stop the chopper.',
         readpv='{}C_Execute'.format(pv_root),
         writepv='{}C_Execute'.format(pv_root),
@@ -12,7 +12,7 @@ devices = dict(
         visibility=(),
     ),
     chopper_speed_bwc2=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current speed.',
         readpv='{}Spd_R'.format(pv_root),
         writepv='{}Spd_S'.format(pv_root),
@@ -21,25 +21,25 @@ devices = dict(
         precision=0.1,
     ),
     rotation_dir_bwc2=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Rotation direction.',
         readpv='{}RotDir_R'.format(pv_root),
         monitor=True,
     ),
     in_phase_bwc2=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='In phase.',
         readpv='{}InPhs_R'.format(pv_root),
         monitor=True,
     ),
     motor_temperature_bwc2=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Motor temperature.',
         readpv='{}MtrTemp_R'.format(pv_root),
         monitor=True,
     ),
     drive_temperature_bwc2=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Drive temperature.',
         readpv='{}DrvTemp_R'.format(pv_root),
         monitor=True,

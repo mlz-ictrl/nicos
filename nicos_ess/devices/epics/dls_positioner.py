@@ -22,7 +22,7 @@
 # *****************************************************************************
 
 from nicos.core import Attach, PositionError, Readable
-from nicos.devices.epics.pva import EpicsMoveable
+from nicos.devices.epics import EpicsMoveable
 from nicos.devices.generic import ManualSwitch
 
 

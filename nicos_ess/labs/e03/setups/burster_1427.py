@@ -4,42 +4,42 @@ pv_root = 'SE-SEE:SE-BU1427-001:'
 
 devices = dict(
     burster_value=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The resistance?',
         readpv='{}value_RBV'.format(pv_root),
         writepv='{}value'.format(pv_root),
         abslimits=(-1e308, 1e308),
     ),
     burster_function=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='The current burster function',
         readpv='{}function_RBV'.format(pv_root),
     ),
     burster_function_set=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Set the burster function',
         readpv='{}function'.format(pv_root),
         writepv='{}function'.format(pv_root),
     ),
     burster_idn=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='The IDN of the device',
         readpv='{}idn'.format(pv_root),
     ),
     burster_r0=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The resistance',
         readpv='{}r0_RBV'.format(pv_root),
         writepv='{}r0'.format(pv_root),
         abslimits=(-1e308, 1e308),
     ),
     burster_status=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='The status',
         readpv='{}status_RBV'.format(pv_root),
     ),
     burster_terminal_r=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The resistance',
         readpv='{}terminal_RBV'.format(pv_root),
         writepv='{}terminal'.format(pv_root),

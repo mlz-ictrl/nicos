@@ -56,7 +56,7 @@ class FakeEpicsControlledAnalogMoveable(EpicsControlledAnalogMoveable):
     def doReadAbslimits(self):
         return (self._minval, self._maxval)
 
-    def _put_pv(self, pvparam, value, wait=False):
+    def _put_pv(self, pvparam, value, timeout=None):
         if pvparam == 'writepv':
             self._writeval = value
             self._readval = value
@@ -94,7 +94,7 @@ class FakeEpicsControlledAnalogMoveable(EpicsControlledAnalogMoveable):
         self._maxval = 10
         self._starting = False
 
-    # This method in nicos.devices.epics.pva.epics_devices.EpicsDevice accesses
+    # This method in nicos.devices.epics.EpicsDevice accesses
     # the Python wrapper, which does not exist in the test. The test device
     # cannot have a hardware error.
     def get_alarm_status(self, pvparam):

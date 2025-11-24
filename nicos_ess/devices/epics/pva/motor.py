@@ -32,7 +32,7 @@ from nicos.core import Moveable, Override, Param, oneof, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasLimits, HasOffset
 from nicos.devices.abstract import CanReference, Motor
-from nicos.devices.epics.pva.epics_devices import EpicsMoveable
+from nicos.devices.epics import EpicsMoveable
 
 
 class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):

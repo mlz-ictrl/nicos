@@ -23,7 +23,7 @@
 from collections.abc import Iterable
 
 from nicos.core import Override, Param, Value, oneof, status
-from nicos.devices.epics.pva import EpicsReadable
+from nicos.devices.epics import EpicsReadable
 from nicos.devices.generic import CounterChannelMixin, PassiveChannel
 
 

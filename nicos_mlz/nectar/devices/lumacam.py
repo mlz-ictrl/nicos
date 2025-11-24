@@ -33,7 +33,7 @@ from nicos.core import MASTER, ArrayDesc, Attach, Device, Moveable, Override, \
 from nicos.core.constants import POINT
 from nicos.core.data import DataFile, DataSinkHandler
 from nicos.devices.datasinks import FileSink
-from nicos.devices.epics.pva import EpicsStringReadable
+from nicos.devices.epics import EpicsStringReadable
 from nicos.devices.epics.pyepics import EpicsDevice
 from nicos.devices.generic import Detector, VirtualTimer
 from nicos.devices.generic.detector import ActiveChannel, DummyDetector, \

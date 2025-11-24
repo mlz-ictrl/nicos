@@ -4,7 +4,7 @@ pv_root = 'YMIR-Det1:NDet-RMM-001:'
 
 devices = dict(
     rmm_temperature=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The temperature of the hottest FPGA temperature sensor',
         readpv='{}Temperature-R'.format(pv_root),
         pva=True,
@@ -13,7 +13,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_temperature_peak=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The peak temperature of the FPGA',
         readpv='{}TempPeak-R'.format(pv_root),
         pva=True,
@@ -22,7 +22,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_vccint=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The VCCINT sensor voltage',
         readpv='{}VCCINT-R'.format(pv_root),
         pva=True,
@@ -31,7 +31,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_vcc1v8=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The VCC1V8 sensor voltage',
         readpv='{}VCC1V8-R'.format(pv_root),
         pva=True,
@@ -40,7 +40,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_vadj1v8=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The VADJ1V8 sensor voltage',
         readpv='{}VADJ1V8-R'.format(pv_root),
         pva=True,
@@ -49,7 +49,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_vccintiobram=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The VCCINTIOBRAM sensor voltage',
         readpv='{}VCCINTIOBRAM-R'.format(pv_root),
         pva=True,
@@ -58,7 +58,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_vcc1v2=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The VCC1V2 sensor voltage',
         readpv='{}VCC1V2-R'.format(pv_root),
         pva=True,
@@ -67,7 +67,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_mgtavcc=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The MGTAVCC sensor voltage',
         readpv='{}MGTAVCC-R'.format(pv_root),
         pva=True,
@@ -76,7 +76,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_mgtavtt=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The MGTAVTT sensor voltage',
         readpv='{}MGTAVTT-R'.format(pv_root),
         pva=True,
@@ -85,7 +85,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_sync_pulse_freq=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The sync pulse frequency',
         readpv='{}SyncPulseFreq-R'.format(pv_root),
         pva=True,
@@ -94,7 +94,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_status=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.EpicsMappedReadable',
         description='The embedded EVR status',
         readpv='{}MRFStatus-R'.format(pv_root),
         pva=True,
@@ -103,7 +103,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_timing_mode=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='The RMM timing mode',
         readpv='{}TimingMode-R'.format(pv_root),
         pva=True,
@@ -112,7 +112,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_ttl_freq=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The ttl frequency',
         readpv='YMIR-ChpSy1:Chop-Drv-na02:Frq-S',
         writepv='YMIR-ChpSy1:Chop-Drv-na02:Frq-S',
@@ -122,7 +122,7 @@ devices = dict(
         maxage=None,
     ),
     rmm_ttl_delay=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The ttl frequency',
         readpv='YMIR-ChpSy1:Chop-Drv-na02:BeamPosDly-S',
         writepv='YMIR-ChpSy1:Chop-Drv-na02:BeamPosDly-S',

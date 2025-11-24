@@ -29,7 +29,7 @@ from nicos.core import Param, Value, multiStatus, status, tupleof
 from nicos.core.constants import LIVE
 from nicos.core.device import Measurable, Readable
 from nicos.core.params import Attach
-from nicos.devices.epics.pva import EpicsReadable
+from nicos.devices.epics import EpicsReadable
 from nicos.utils import createThread
 
 

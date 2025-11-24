@@ -7,7 +7,7 @@ pv_root_ls_3 = '{}Tctrl-LS336-003:'.format(pv_root)
 
 devices = dict(
     T_cuvette_1=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The cuvette temperature',
         readpv='{}KRDG0'.format(pv_root_ls_1),
         pva=True,
@@ -16,7 +16,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_1_setpoint=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The setpoint for the cuvette',
         readpv='{}SETP3'.format(pv_root_ls_1),
         writepv='{}SETP_S3'.format(pv_root_ls_1),
@@ -27,7 +27,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_2=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The cuvette temperature',
         readpv='{}KRDG1'.format(pv_root_ls_1),
         pva=True,
@@ -36,7 +36,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_2_setpoint=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The setpoint for the cuvette',
         readpv='{}SETP4'.format(pv_root_ls_1),
         writepv='{}SETP_S4'.format(pv_root_ls_1),
@@ -47,7 +47,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_3=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The cuvette temperature',
         readpv='{}KRDG0'.format(pv_root_ls_2),
         pva=True,
@@ -56,7 +56,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_3_setpoint=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The setpoint for the cuvette',
         readpv='{}SETP3'.format(pv_root_ls_2),
         writepv='{}SETP_S3'.format(pv_root_ls_2),
@@ -67,7 +67,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_4=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The cuvette temperature',
         readpv='{}KRDG1'.format(pv_root_ls_2),
         pva=True,
@@ -76,7 +76,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_4_setpoint=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The setpoint for the cuvette',
         readpv='{}SETP4'.format(pv_root_ls_2),
         writepv='{}SETP_S4'.format(pv_root_ls_2),
@@ -87,7 +87,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_5=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The cuvette temperature',
         readpv='{}KRDG0'.format(pv_root_ls_3),
         pva=True,
@@ -96,7 +96,7 @@ devices = dict(
         maxage=None,
     ),
     T_cuvette_5_setpoint=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The setpoint for the cuvette',
         readpv='{}SETP3'.format(pv_root_ls_3),
         writepv='{}SETP_S3'.format(pv_root_ls_3),

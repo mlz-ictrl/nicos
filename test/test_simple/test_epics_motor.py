@@ -28,7 +28,7 @@ import threading
 
 from nicos.commands.device import adjust
 from nicos.core import status, LimitError
-from nicos.devices.epics.pva.motor import EpicsMotor
+from nicos.devices.epics.motor import EpicsMotor
 
 session_setup = 'epics_motor'
 

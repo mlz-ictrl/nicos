@@ -74,10 +74,10 @@ class EpicsDevice(DeviceMixinBase):
         if mode != SIMULATION:
             # No epics wrapper in simulation mode!
             if self.pva:
-                from nicos.devices.epics.pva.p4p import P4pWrapper
+                from nicos.devices.epics.wrapper.p4p import P4pWrapper
                 self._epics_wrapper = P4pWrapper(self.epicstimeout)
             else:
-                from nicos.devices.epics.pva.caproto import CaprotoWrapper
+                from nicos.devices.epics.wrapper.caproto import CaprotoWrapper
                 self._epics_wrapper = CaprotoWrapper(self.epicstimeout)
 
             for pvparam in self._get_pv_parameters():

@@ -49,7 +49,7 @@ devices = dict(
         pva=True,
     ),
     clutch1=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='Clutch 1',
         readpv=f'{pvprefix}m6-OpenClutch',
         pollinterval=None,
@@ -57,7 +57,7 @@ devices = dict(
         pva=True,
     ),
     clutch2=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='Clutch 2',
         readpv=f'{pvprefix}m12-OpenClutch',
         pollinterval=None,

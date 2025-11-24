@@ -22,7 +22,7 @@
 # *****************************************************************************
 from nicos.core import SIMULATION, Override, Param, intrange, pvname, status
 from nicos.devices.abstract import CanReference, Moveable
-from nicos.devices.epics.pva.epics_devices import EpicsDevice
+from nicos.devices.epics import EpicsDevice
 from nicos.devices.epics.status import SEVERITY_TO_STATUS
 
 

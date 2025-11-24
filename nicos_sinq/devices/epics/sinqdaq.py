@@ -39,7 +39,7 @@ from nicos.core.constants import MASTER
 from nicos.core.errors import UsageError
 from nicos.core.mixins import CanDisable, HasLimits
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics.pva import EpicsDevice
+from nicos.devices.epics import EpicsDevice
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, Detector, PassiveChannel, TimerChannelMixin
 

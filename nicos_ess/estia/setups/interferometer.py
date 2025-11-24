@@ -48,7 +48,7 @@ devices = dict(
         description='Horizontal distance bottom',
     ),
     env_humidity=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Environmental humidity',
         readpv='ESTIA-ETALON-001:EnvDataHum-R',
         visibility=(),
@@ -57,7 +57,7 @@ devices = dict(
         pva=True,
     ),
     env_pressure=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Environmental pressure',
         readpv='ESTIA-ETALON-001:EnvDataPress-R',
         visibility=(),
@@ -66,7 +66,7 @@ devices = dict(
         pva=True,
     ),
     env_temperature=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Environmental temperature',
         readpv='ESTIA-ETALON-001:EnvDataTemp-R',
         visibility=(),
@@ -75,7 +75,7 @@ devices = dict(
         pva=True,
     ),
     temp_1=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='First temperature sensor',
         readpv='ESTIA-ETALON-001:TempSensorS1-R',
         pollinterval=None,
@@ -83,7 +83,7 @@ devices = dict(
         pva=True,
     ),
     temp_2=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Second temperature sensor',
         readpv='ESTIA-ETALON-001:TempSensorS2-R',
         pollinterval=None,
@@ -91,7 +91,7 @@ devices = dict(
         pva=True,
     ),
     temp_3=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Third temperature sensor',
         readpv='ESTIA-ETALON-001:TempSensorS3-R',
         pollinterval=None,
@@ -99,7 +99,7 @@ devices = dict(
         pva=True,
     ),
     temp_4=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Fourth temperature sensor',
         readpv='ESTIA-ETALON-001:TempSensorS4-R',
         pollinterval=None,

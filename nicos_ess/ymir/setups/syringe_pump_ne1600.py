@@ -4,7 +4,7 @@ pv_root = 'E04-SEE-FLUCO:NE1600-001:'
 
 devices = dict(
     pump_status_1600=device(
-        'nicos.devices.epics.pva.EpicsStringReadable',
+        'nicos.devices.epics.EpicsStringReadable',
         description='The current pump status',
         readpv='{}STATUS_TEXT'.format(pv_root),
         visibility=(),

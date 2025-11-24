@@ -24,7 +24,7 @@
 
 from nicos.core import Param, pvname, status
 from nicos.core.params import Override, none_or
-from nicos.devices.epics.pva.epics_devices import EpicsAnalogMoveable
+from nicos.devices.epics import EpicsAnalogMoveable
 
 
 class EpicsControlledAnalogMoveable(EpicsAnalogMoveable):

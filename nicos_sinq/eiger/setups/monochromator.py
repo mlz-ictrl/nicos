@@ -54,7 +54,7 @@ devices = dict(
         controller = 'a2controller',
         abslimits = (0, 20.)
     ),
-    a2seg = device('nicos.devices.epics.pva.epics_devices.EpicsReadable',
+    a2seg = device('nicos.devices.epics.EpicsReadable',
         description = 'A2 Segment Width',
         readpv = mcu1prefix + 'a2seg.RBV',
         monitor = True,

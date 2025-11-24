@@ -32,7 +32,7 @@ from nicos.core.constants import MASTER
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.core.params import anytype, limits
 from nicos.devices.abstract import CanReference, Motor
-from nicos.devices.epics.pva import EpicsAnalogMoveable
+from nicos.devices.epics import EpicsAnalogMoveable
 from nicos.devices.epics.status import SEVERITY_TO_STATUS
 
 class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor):

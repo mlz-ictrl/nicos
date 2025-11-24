@@ -6,7 +6,7 @@ devices = {}
 
 for sensor in range(6, 14):
     devices[f't_{sensor}'] = device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description=f'sensor {sensor}',
         readpv=f'{pvprefix}m{sensor}-Temp',
         pollinterval=None,

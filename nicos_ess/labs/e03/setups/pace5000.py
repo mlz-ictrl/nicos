@@ -4,7 +4,7 @@ pv_root = 'SE-PS01:SE-PACE5000-001:'
 
 devices = dict(
     pace_setpoint=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The pressure set-point',
         readpv='{}Setpoint_RBV'.format(pv_root),
         writepv='{}Setpoint'.format(pv_root),
@@ -14,7 +14,7 @@ devices = dict(
         maxage=None,
     ),
     pace_pressure=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The current pressure',
         readpv='{}Pressure_RBV'.format(pv_root),
         pva=True,
@@ -23,7 +23,7 @@ devices = dict(
         maxage=None,
     ),
     pace_effort=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The current effort',
         readpv='{}Effort_RBV'.format(pv_root),
         pva=True,
@@ -32,7 +32,7 @@ devices = dict(
         maxage=None,
     ),
     pace_vent=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='The vent status',
         readpv='{}Vent_RBV'.format(pv_root),
         writepv='{}Vent'.format(pv_root),
@@ -43,7 +43,7 @@ devices = dict(
         maxage=None,
     ),
     pace_slew=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current slew',
         readpv='{}Slew_RBV'.format(pv_root),
         writepv='{}Slew'.format(pv_root),
@@ -54,7 +54,7 @@ devices = dict(
         maxage=None,
     ),
     pace_slew_mode=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='The slew mode',
         readpv='{}SlewMode_RBV'.format(pv_root),
         writepv='{}SlewMode'.format(pv_root),
@@ -65,7 +65,7 @@ devices = dict(
         maxage=None,
     ),
     pace_control=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Controls whether the pump is on or off',
         readpv='{}Control_RBV'.format(pv_root),
         writepv='{}Control'.format(pv_root),

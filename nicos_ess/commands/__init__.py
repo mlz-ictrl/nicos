@@ -23,8 +23,17 @@
 
 # pylint: skip-file
 from nicos.commands.device import waitfor_stable
-from nicos.devices.epics.pva.caproto import caget, caput
-from nicos.devices.epics.pva.p4p import pvget, pvput
+
+# Avoid import errors when importing this module on a machine where caproto
+# or p4p is not installed (e.g. the Jenkins test runner in Gerrit)
+try:
+    from nicos.devices.epics.wrapper.caproto import caget, caput
+except ImportError:
+    pass
+try:
+    from nicos.devices.epics.wrapper.p4p import pvget, pvput
+except ImportError:
+    pass
 
 from nicos_ess.commands.filewriter import list_filewriting_jobs, \
     nexusfile_open, replay_job, start_filewriting, stop_filewriting

@@ -6,7 +6,7 @@ chic_root = 'BIFRO-ChpSy2:Chop-CHIC-001:'
 
 devices = dict(
     bwc1_chopper_status=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.EpicsMappedReadable',
         description='The chopper status.',
         readpv='{}ChopState_R'.format(pv_root_1),
         visibility=(),
@@ -16,7 +16,7 @@ devices = dict(
         maxage=None,
     ),
     bwc1_chopper_control=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Used to start and stop the chopper.',
         readpv='{}C_Execute'.format(pv_root_1),
         writepv='{}C_Execute'.format(pv_root_1),
@@ -28,7 +28,7 @@ devices = dict(
         maxage=None,
     ),
     bwc1_chopper_speed=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current speed.',
         readpv='{}Spd_R'.format(pv_root_1),
         writepv='{}Spd_S'.format(pv_root_1),
@@ -40,7 +40,7 @@ devices = dict(
         maxage=None,
     ),
     bwc1_chopper_delay=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current delay.',
         readpv='{}ChopDly-S'.format(pv_root_1),
         writepv='{}ChopDly-S'.format(pv_root_1),
@@ -51,7 +51,7 @@ devices = dict(
         maxage=None,
     ),
     bwc1_chopper_phased=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.EpicsMappedReadable',
         description='The chopper is in phase.',
         readpv='{}InPhs_R'.format(pv_root_1),
         pva=True,
@@ -60,7 +60,7 @@ devices = dict(
         maxage=None,
     ),
     bwc1_chopper_park_angle=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The chopper\'s park angle.',
         readpv='{}Pos_R'.format(pv_root_1),
         visibility=(),
@@ -70,7 +70,7 @@ devices = dict(
         maxage=None,
     ),
     bwc1_chopper_chic=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.EpicsMappedReadable',
         description='The status of the CHIC connection.',
         readpv='{}ConnectedR'.format(chic_root),
         visibility=set(),
@@ -88,7 +88,7 @@ devices = dict(
         chic_conn='bwc1_chopper_chic',
     ),
     bwc2_chopper_status=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.EpicsMappedReadable',
         description='The chopper status.',
         readpv='{}ChopState_R'.format(pv_root_2),
         visibility=(),
@@ -98,7 +98,7 @@ devices = dict(
         maxage=None,
     ),
     bwc2_chopper_control=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description='Used to start and stop the chopper.',
         readpv='{}C_Execute'.format(pv_root_2),
         writepv='{}C_Execute'.format(pv_root_2),
@@ -110,7 +110,7 @@ devices = dict(
         maxage=None,
     ),
     bwc2_chopper_speed=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current speed.',
         readpv='{}Spd_R'.format(pv_root_2),
         writepv='{}Spd_S'.format(pv_root_2),
@@ -122,7 +122,7 @@ devices = dict(
         maxage=None,
     ),
     bwc2_chopper_delay=device(
-        'nicos.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current delay.',
         readpv='{}ChopDly-S'.format(pv_root_2),
         writepv='{}ChopDly-S'.format(pv_root_2),
@@ -133,7 +133,7 @@ devices = dict(
         maxage=None,
     ),
     bwc2_chopper_phased=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.EpicsMappedReadable',
         description='The chopper is in phase.',
         readpv='{}InPhs_R'.format(pv_root_2),
         pva=True,
@@ -142,7 +142,7 @@ devices = dict(
         maxage=None,
     ),
     bwc2_chopper_park_angle=device(
-        'nicos.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='The chopper\'s park angle.',
         readpv='{}Pos_R'.format(pv_root_2),
         visibility=(),
@@ -152,7 +152,7 @@ devices = dict(
         maxage=None,
     ),
     bwc2_chopper_chic=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.EpicsMappedReadable',
         description='The status of the CHIC connection.',
         readpv='{}ConnectedR'.format(chic_root),
         visibility=set(),

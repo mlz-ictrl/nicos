@@ -33,7 +33,7 @@ from nicos import session
 from nicos.core import LIVE, SIMULATION, ArrayDesc, Attach, CacheError, \
     Measurable, Override, Param, Value, floatrange, host, listof, \
     multiStatus, oneof, pvname, status, usermethod
-from nicos.devices.epics.pva import EpicsDevice
+from nicos.devices.epics import EpicsDevice
 from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.generic import Detector, ImageChannelMixin, ManualSwitch
 from nicos.utils import byteBuffer
