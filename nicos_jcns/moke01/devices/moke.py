@@ -196,9 +196,16 @@ class MokeMagnet(MagnetWithCalibrationCurves):
 
 class MokePowerSupply(PowerSupply):
 
+    parameters = {
+        'maxramp': Param(
+            'Maximal ramp value',
+            unit='A/min', type=float, mandatory=True
+        ),
+    }
+
     def doEnable(self, on):
         if not on:
-            self.ramp = 400
+            self.ramp = self.maxramp
             PowerSupply.start(self, 0)
             self._hw_wait()
         PowerSupply.doEnable(self, on)
@@ -208,9 +215,6 @@ class MokePowerSupply(PowerSupply):
             self.enable()
             self._hw_wait()
         PowerSupply.doStart(self, target)
-
-    def doStop(self):
-        PowerSupply.doStop(self)
 
 
 class MokePSVoltage(AnalogInput):

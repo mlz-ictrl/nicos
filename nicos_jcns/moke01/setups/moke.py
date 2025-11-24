@@ -53,6 +53,7 @@ devices = {
     'PS_current': device('nicos_jcns.moke01.devices.moke.MokePowerSupply',
         description = 'Sigmaphi Powersupply supplies current in magnetic coils',
         tangodevice = tango_base + 'sigmaphi/powersupply',
+        maxramp = 400.0,
         fmtstr = '%.3f',
         precision = 0.1,
         pollinterval = 0.5,
