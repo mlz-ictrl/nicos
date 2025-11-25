@@ -101,7 +101,7 @@ class DAQEpicsDevice(EpicsDevice):
     def value_change_callback(self, name, param, value, units, severity,
                               message, **kwargs):
         cache_key = self._get_cache_relation(param)
-        if cache_key:
+        if cache_key and self._cache:
             if isinstance(value, np.floating):
                 self._setROParam(cache_key, float(value))
             elif isinstance(value, np.integer):
@@ -188,8 +188,9 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
 
     def doPrepare(self):
         self.preparing = True
-        self._put_pv('resetpv', 1, wait=True)
+        # Force the status change to occur before resetting
         self.status(0)
+        self._put_pv('resetpv', 1, wait=True)
 
     def _get_status_parameters(self):
         return {'ratepv', 'statuspv'}
@@ -207,7 +208,7 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
 
             rate = self._get_pv('ratepv')
             rate_units = self._epics_wrapper.get_units(self._param_to_pv['ratepv'])
-            return status.OK, f'Rate: {rate} {rate_units}'
+            return status.OK, f'Rate: {rate:.2f} {rate_units}'
 
         except TimeoutError:
             return status.ERROR, 'timeout reading rate'
@@ -257,8 +258,9 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
 
     def doPrepare(self):
         self.preparing = True
-        self._put_pv('resetpv', 1, wait=True)
+        # Force the status change to occur before resetting
         self.status(0)
+        self._put_pv('resetpv', 1, wait=True)
 
     def _get_status_parameters(self):
         return {'statuspv'}
