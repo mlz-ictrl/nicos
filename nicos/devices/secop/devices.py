@@ -1449,6 +1449,8 @@ class SecopAcqChannel(Measurable, SecopReadable):
     def presetInfo(self):
         return [self._presetname]
 
+    valueInfo = Readable.valueInfo
+
 
 class SecopAcqController(SecopDevice):
     _channels = None
