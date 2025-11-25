@@ -22,10 +22,11 @@
 # *****************************************************************************
 """Some devices to simulate the PGAA hardware devices."""
 
-from nicos.core import Attach, Override, Param, Readable
+from nicos.core import Attach, Override, Param, Readable, dictof
+from nicos.devices.abstract import MappedReadable
 
 
-class PushReader(Readable):
+class PushReader(MappedReadable):
     """Read back device for the sample pusher sensors.
 
     Since one of the sensors must give the inverse of the `moveable` value this
@@ -47,20 +48,17 @@ class PushReader(Readable):
     parameter_overrides = {
         'unit': Override(default='', mandatory=False),
         'fmtstr': Override(default='%d'),
+        'mapping': Override(type=dictof(int, str), mandatory=False,
+                            default={
+                                0: 'up',
+                                1: 'down',
+                            }),
+        'fallback': Override(default='unknown'),
     }
-
-    mapping = {
-        'up': 0,
-        'down': 1,
-    }
-
-    fallback = -1
-
-    def doRead(self, maxage=0):
-        if self.inverse:
-            return not self._readRaw(maxage)
-        return self._readRaw(maxage)
 
     def _readRaw(self, maxage=0):
-        val = self._attached_moveable.read(maxage)
+        val = self._inverse_mapping.get(
+            self._attached_moveable.read(maxage), self.fallback)
+        if self.inverse:
+            val = int(not val)
         return self.mapping.get(val, self.fallback)
