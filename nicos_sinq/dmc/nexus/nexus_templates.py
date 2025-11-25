@@ -81,6 +81,10 @@ dmc_base = {
                 DetectorDataset('proton_charge',
                                 dtype='float32',
                                 units=NXAttribute('uC', 'string')),
+            'raw_counts':
+                DetectorDataset('raw_counts',
+                                'float32',
+                                units=NXAttribute('counts', 'string')),
                 },
         'DMC:NXinstrument': {
             'SINQ:NXSource': {
