@@ -145,8 +145,11 @@ class DataHandler(QObject):
         # add some custom attributes of the dataset
         dataset.invisible = False
         dataset.name = str(dataset.counter)
-        dataset.default_xname = name_unit(dataset.xnames[dataset.xindex],
-                                          dataset.xunits[dataset.xindex])
+        if not dataset.xnames or not dataset.xunits:
+            dataset.default_xname = ''
+        else:
+            dataset.default_xname = name_unit(dataset.xnames[dataset.xindex],
+                                              dataset.xunits[dataset.xindex])
         dataset.curves = self._init_curves(dataset)
         for xvalues, yvalues in zip(dataset.xresults, dataset.yresults):
             try:
@@ -228,8 +231,11 @@ class DataHandler(QObject):
             # share data for X and normalization
             curve.datax = dataset.datax
             curve.datanorm = dataset.datanorm
-            curve.default_xname = name_unit(dataset.xnames[dataset.xindex],
-                                            dataset.xunits[dataset.xindex])
+            if not dataset.xnames or not dataset.xunits:
+                dataset.default_xname = ''
+            else:
+                dataset.default_xname = name_unit(dataset.xnames[dataset.xindex],
+                                              dataset.xunits[dataset.xindex])
             if info.unit not in ('', 'cts'):
                 curve.description = '%s (%s)' % (name, info.unit)
             else:
