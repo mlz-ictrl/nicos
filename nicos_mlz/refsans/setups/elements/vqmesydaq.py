@@ -69,6 +69,9 @@ devices = dict(
         d_b3_sample = 'd_last_slit_sample',
         det_table = 'det_table',
         visibility = (),
+        neutronspersec = {
+            'localhost': 1.3e5,
+        },
     ),
     image = device('nicos.devices.mcstas.McStasImage',
         description = 'Image data device',

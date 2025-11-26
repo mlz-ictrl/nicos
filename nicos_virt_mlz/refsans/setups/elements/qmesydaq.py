@@ -69,6 +69,7 @@ devices = dict(
         visibility = (),
         neutronspersec = {
             'localhost': 3e5,
+            'taco16': 1.3e5,
         },
     ),
     image = device('nicos.devices.mcstas.McStasImage',
