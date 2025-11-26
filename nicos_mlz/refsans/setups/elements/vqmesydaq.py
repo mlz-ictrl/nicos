@@ -73,7 +73,7 @@ devices = dict(
             'localhost': 1.3e5,
         },
     ),
-    image = device('nicos.devices.mcstas.McStasImage',
+    image = device('nicos_virt_mlz.refsans.devices.detector.McStasImage',
         description = 'Image data device',
         mcstas = 'mcstas',
         mcstasfile = 'Denex_PSD.dat',

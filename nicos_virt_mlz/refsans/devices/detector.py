@@ -25,9 +25,13 @@
 
 import os
 
-from nicos.core import Attach, Param, Override, Readable
-from nicos.devices.mcstas import McStasSimulation as BaseSimulation
+import numpy as np
+
+from nicos.core import Attach, Override, Param, Readable, oneof
+from nicos.core.constants import FINAL, LIVE
 from nicos.devices.generic import HorizontalGap
+from nicos.devices.mcstas import McStasImage as BaseImage, \
+    McStasSimulation as BaseSimulation
 
 from nicos_mlz.refsans.devices.chopper.base import ChopperDisc
 from nicos_mlz.refsans.devices.nok_support import DoubleMotorNOK
@@ -279,14 +283,46 @@ class McStasSimulation(BaseSimulation):
             'sample_file=%s' % os.path.join(self._attached_sample.datapath,
                                             self._attached_sample.sample_file),
 
-            'backguard=%s' % self._dev_vale(self._attached_backguard),
+            'backguard=%s' % self._dev_value(self._attached_backguard),
 
-            'pivot_Pos=%s' % self._dev_vale(self._attached_pivot, fmtstr='%d'),
+            'pivot_Pos=%s' % self._dev_value(self._attached_pivot, fmtstr='%d'),
 
-            'yoke=%s' % self._dev_vale(self._attached_yoke),
+            'yoke=%s' % self._dev_value(self._attached_yoke),
 
-            'det_table=%s' % self._dev_vale(self._attached_dettable),
+            'det_table=%s' % self._dev_value(self._attached_dettable),
 
-            'd_b3_probe=%s' % self._dev_vale(self._attached_d_b3_sample),
+            'd_b3_probe=%s' % self._dev_value(self._attached_d_b3_sample),
         ])
         return params
+
+
+class McStasImage(BaseImage):
+
+    parameters = {
+        'neutron_section': Param("Section to take 'neutrons' from PSD file",
+                                 type=oneof('Data', 'Events'), mandatory=False,
+                                 default='Events'),
+    }
+
+    def _readpsd(self, quality):
+        if self._attached_mcstas._signal_sent or quality == FINAL:
+            try:
+                blocks = 1 if self.neutron_section == 'Events' else 3
+                with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
+                    lines = f.readlines()[-blocks * (self.size[1] + 1):]
+                if lines[0].startswith(f'# {self.neutron_section}') and \
+                   self.mcstasfile in lines[0]:
+                    factor = 1 if blocks == 1 else self._attached_mcstas._getScaleFactor()
+                    buf = factor * np.loadtxt(lines[1:self.size[1] + 1],
+                                              dtype=np.float32)
+                    self._buf = buf.astype(self.image_data_type)
+                    self.readresult = [self._buf.sum()]
+                    self.log.debug('Read result: %s', self.readresult)
+                elif quality != LIVE:
+                    raise OSError('Did not find start line: %s' % lines[0])
+            except OSError:
+                if quality != LIVE:
+                    self.log.exception('Could not read result file', exc=1)
+        else:
+            self.readresult = [0]
+            self._buf = np.zeros(self.size).astype(self.image_data_type)
