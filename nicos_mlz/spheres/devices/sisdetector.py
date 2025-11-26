@@ -398,8 +398,9 @@ class SISDetector(Detector):
         self._saveIntermediateFlag = False
 
     def doPause(self):
-        Detector.doPause(self)
+        success = Detector.doPause(self)
         self._saveIntermediate()
+        return success
 
     def saveIntermediate(self):
         self._saveIntermediateFlag = True

@@ -147,15 +147,16 @@ class EpicsDetector(EpicsDevice, Detector):
         self._put_pv('startpv', 1, wait=True)
 
     def doPause(self):
-        Detector.doPause(self)
+        success = Detector.doPause(self)
         if self.pausepv:
             if self._get_pv('pausepv') != 1:
                 self._put_pv('pausepv', 1)
             else:
                 self.log.info('Device is already paused.')
-        else:
-            self.log.warning(
-                'Cant pause, provide pausepv parameter for this to work')
+            return success
+        self.log.warning(
+            'Cant pause, provide pausepv parameter for this to work')
+        return False
 
     def doResume(self):
         Detector.doResume(self)

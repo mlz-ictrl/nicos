@@ -293,9 +293,10 @@ class ControlDetector(Detector):
         return data, arrays
 
     def doPause(self):
-        self._attached_trigger.pause()
+        success = self._attached_trigger.pause()
         for det in self._attached_followers:
-            det.pause()
+            success &= det.pause()
+        return success
 
     def doResume(self):
         for det in self._attached_followers:

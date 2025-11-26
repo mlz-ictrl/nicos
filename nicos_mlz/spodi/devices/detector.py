@@ -235,7 +235,7 @@ class Detector(MeasureSequencer):
         # self._attached_motor.maw(self._startpos)
 
     def doPause(self):
-        self._attached_detector.pause()
+        return self._attached_detector.pause()
 
     def doResume(self):
         self._attached_detector.resume()

@@ -242,6 +242,7 @@ class HistogramMemoryChannel(PassiveChannel):
 
     def doPause(self):
         self.connector.get('pausedaq.egi')
+        return True
 
     def doResume(self):
         self.connector.get('continuedaq.egi')

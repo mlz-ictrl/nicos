@@ -554,6 +554,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def doPause(self):
         self._put_pv('pausepv', 1)
+        return True
 
     def doResume(self):
         self._put_pv('continuepv', 1)

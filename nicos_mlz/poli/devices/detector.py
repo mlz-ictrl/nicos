@@ -161,7 +161,7 @@ class AsymDetector(MeasureSequencer):
         return seq
 
     def doPause(self):
-        self._attached_detector.pause()
+        return self._attached_detector.pause()
 
     def doResume(self):
         self._attached_detector.resume()
