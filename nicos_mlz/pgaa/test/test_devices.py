@@ -90,7 +90,7 @@ class TestSampleChanger:
     def test_move(self, session):
         sc = session.getDevice('sc')
         assert sc.read(0) == 1
-        assert sc._attached_push.read() == 'down'
+        assert sc._attached_push.read(0) == 'down'
         sc.maw(2)
         assert sc.read(0) == 2
         # Check if not move if already at target
