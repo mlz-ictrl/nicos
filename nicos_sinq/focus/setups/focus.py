@@ -94,25 +94,33 @@ devices = dict(
         abslimits = (0.2, 30),
         crystalside = 1,
     ),
-    mdif_lower = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
+    mdif_lower = device('nicos.devices.epics.pva.epics_devices.EpicsAnalogMoveable',
         description = 'Lower Detector MDIF',
-        commandpv = 'SQ:FOCUS:mdiflower' + '.AOUT',
-        replypv = 'SQ:FOCUS:mdiflower' + '.AINP',
+        readpv = "SQ:FOCUS:mdiflower:DELAY_RBV",
+        writepv = "SQ:FOCUS:mdiflower:DELAY",
+        fmtstr = '%.1f',
+        monitor = True,
     ),
-    mdif_middle = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
+    mdif_middle = device('nicos.devices.epics.pva.epics_devices.EpicsAnalogMoveable',
         description = 'Middle Detector MDIF',
-        commandpv = 'SQ:FOCUS:mdifmiddle' + '.AOUT',
-        replypv = 'SQ:FOCUS:mdifmiddle' + '.AINP',
+        readpv = "SQ:FOCUS:mdifmiddle:DELAY_RBV",
+        writepv = "SQ:FOCUS:mdifmiddle:DELAY",
+        fmtstr = '%.1f',
+        monitor = True,
     ),
-    mdif_upper = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
+    mdif_upper = device('nicos.devices.epics.pva.epics_devices.EpicsAnalogMoveable',
         description = 'Upper Detector MDIF',
-        commandpv = 'SQ:FOCUS:mdifupper' + '.AOUT',
-        replypv = 'SQ:FOCUS:mdifupper' + '.AINP',
+        readpv = "SQ:FOCUS:mdifupper:DELAY_RBV",
+        writepv = "SQ:FOCUS:mdifupper:DELAY",
+        fmtstr = '%.1f',
+        monitor = True,
     ),
-    mdif_f2d = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
+    mdif_f2d = device('nicos.devices.epics.pva.epics_devices.EpicsAnalogMoveable',
         description = '2D Detector MDIF',
-        commandpv = 'SQ:FOCUS:mdif2d' + '.AOUT',
-        replypv = 'SQ:FOCUS:mdif2d' + '.AINP',
+        readpv = "SQ:FOCUS:mdif2d:DELAY_RBV",
+        writepv = "SQ:FOCUS:mdif2d:DELAY",
+        fmtstr = '%.1f',
+        monitor = True,
     ),
     emmi = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
         description = 'Direct communication with Emmenegger',
@@ -171,14 +179,3 @@ devices = dict(
         states = ['In', 'Out'],
     ),
 )
-
-startupcode = """
-mdif_lower.execute('RMT 1')
-mdif_lower.execute('ECHO 0')
-mdif_middle.execute('RMT 1')
-mdif_middle.execute('ECHO 0')
-mdif_upper.execute('RMT 1')
-mdif_upper.execute('ECHO 0')
-mdif_f2d.execute('RMT 1')
-mdif_f2d.execute('ECHO 0')
-"""
