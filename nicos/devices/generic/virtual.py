@@ -827,9 +827,10 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         while not self._stopflag:
             elapsed = self._timer.elapsed_time()
             self.log.debug('update image: elapsed = %.1f', elapsed)
-            array = self._generate(self._base_loop_delay).astype('<u4')
-            self._buf = self._buf + array
-            self.readresult = [self._buf.sum()]
+            if self._timer.is_running():
+                array = self._generate(self._base_loop_delay).astype('<u4')
+                self._buf = self._buf + array
+                self.readresult = [self._buf.sum()]
             time.sleep(self._base_loop_delay)
 
     def doPause(self):
