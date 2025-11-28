@@ -28,6 +28,8 @@ from nicos_mlz.nexus import Slit, mm, signal
 from nicos_mlz.nexus.elements import SampleEnv
 from nicos_mlz.nexus.nexus_templates import PowderTemplateProvider
 
+from nicos_mlz.stressi.devices import PreciseManualSwitch
+
 
 def Gap(device):
     """Return a slit structure."""
@@ -38,6 +40,14 @@ def Gap(device):
             'x': DeviceDataset(f'{device}.center'),
             # 'y': DeviceDataset(f'{device}.centery'),
         },
+    }
+
+
+def Collimator():
+    return {
+        'type': ConstDataset('soller', dtype='string'),
+        'transmitting_material': ConstDataset('air', dtype='string'),
+        'soller_angle': ConstDataset(0, dtype='float'),
     }
 
 
@@ -80,6 +90,22 @@ class StressiTemplateProvider(PowderTemplateProvider):
                 'distance': ConstDataset(100, 'float', units=mm),
             })
         if 'pss' in session.devices:
+            # Check, if the device is a collimator device. Maybe there is a
+            # better way, but ...
+            if isinstance(session.devices['pss']._attached_horizontal,
+                          PreciseManualSwitch):
+                self._inst.update({
+                    'primary_collimator:NXcollimator': Collimator()
+                })
+                self._inst['primary_collimator:NXcollimator'].update({
+                    'geometry:NXgeometry': {
+                        'shape:NXshape': {
+                            'shape': ConstDataset('nxbox', dtype='string'),
+                            'size': ConstDataset([1, 2, 3], dtype='float',
+                                                 units=mm),
+                        },
+                    },
+                })
             ename = 'pss:NXslit'
             self._inst.update({
                 ename: Slit('pss'),
@@ -88,6 +114,22 @@ class StressiTemplateProvider(PowderTemplateProvider):
                 'distance': DeviceDataset('psx', units=mm),
             })
         if 'ssw' in session.devices:
+            # Check, if the device is a collimator device. Maybe there is a
+            # better way, but ...
+            if isinstance(session.devices['ssw']._attached_moveable,
+                          PreciseManualSwitch):
+                self._inst.update({
+                    'secondary_collimator:NXcollimator': Collimator()
+                })
+                self._inst['secondary_collimator:NXcollimator'].update({
+                    'geometry:NXgeometry': {
+                        'shape:NXshape': {
+                            'shape': ConstDataset('nxcone', dtype='string'),
+                            'size': ConstDataset([1, ], dtype='float',
+                                                 units=mm),
+                        },
+                    },
+                })
             ename = 'ssw:NXslit'
             self._inst.update({
                 ename: Gap('ssw')
