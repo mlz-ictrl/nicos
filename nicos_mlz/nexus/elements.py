@@ -24,6 +24,7 @@
 """Some convenience classes for NeXus data writing."""
 
 import time
+from datetime import datetime
 
 import numpy as np
 
@@ -96,8 +97,8 @@ class SampleEnv(NexusElementBase):
         dset = loggroup.create_dataset('time', (1,), maxshape=(None,),
                                        dtype='float32')
         dset[0] = .0
-        dset.attrs['start'] = time.strftime('%Y-%m-%d %H:%M:%S',
-                                            time.localtime(self.starttime))
+        dset.attrs['start'] = datetime.fromtimestamp(self.starttime).isoformat(
+            sep=' ', timespec='milliseconds')
         dset = loggroup.create_dataset('value', (1,), maxshape=(None,),
                                        dtype='float32')
         dset[0] = value
