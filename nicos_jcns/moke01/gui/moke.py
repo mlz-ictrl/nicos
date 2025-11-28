@@ -357,25 +357,20 @@ class MokePanel(NicosWidget, MokeBase):
                                                    legend=self.m['name'])
 
     def on_cmb_mode_currentTextChanged(self, mode):
-        if mode == 'stepwise':
-            self.ln_step.setEnabled(True)
-            self.ln_steptime.setEnabled(True)
-            self.cmb_ramp.setEnabled(False)
-        elif mode == 'continuous':
-            self.ln_step.setEnabled(False)
-            self.ln_steptime.setEnabled(False)
-            self.cmb_ramp.setEnabled(True)
+        self.cmb_ramp.clear()
+        self.cmb_ramp.addItems(self.calibration[mode].keys())
+        self.ln_step.setEnabled(mode == 'stepwise')
 
     def on_chk_calibration_unlock_stateChanged(self, state):
         self.ln_calibration_ramp.setEnabled(bool(state))
-        self.ln_calibration_cycles.setEnabled(bool(state))
         self.btn_calibration.setEnabled(bool(state))
 
     @pyqtSlot()
     def on_btn_calibration_clicked(self):
         self.client.run(f'MagB.calibrate("{self.cmb_mode.currentText()}", '
                         f'{self.ln_calibration_ramp.text()}, '
-                        f'{self.ln_calibration_cycles.text()})')
+                        f'{self.ln_cycles.text()}, '
+                        f'{self.ln_steptime.text()})')
 
     def on_chk_baseline_unlock_stateChanged(self, state):
         self.btn_baseline_import.setEnabled(bool(state))
