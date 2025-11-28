@@ -432,10 +432,10 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
         # at least 100 measurement points if time between measurements is >0.5s
         # or as many as possible but the time between measurements is 0.5s
         num = 100
-        dt = abs(val2 - val1) / num / (ramp / 60)
+        dt = abs(val2 - val1) / num / ((ramp or self.maxramp) / 60)
         if dt < 0.5:
             dt = 0.5
-            num = int(abs(val2 - val1) / (dt * ramp / 60))
+            num = int(abs(val2 - val1) / (dt * (ramp or self.maxramp) / 60))
         ranges = [(val1, val2, num, False), (val2, val1, num, False)]
         self.progress = 0
         self.maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * n
@@ -455,7 +455,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
         self.ramp = temp
 
     @usermethod
-    def calibrate(self, mode, ramp, n):
+    def calibrate(self, mode, ramp, n, steptime=None):
         """Measures B(I) calibration curves.
         Calibration curves are stored in self.calibration as a dict:
         self.calibration = {'continuous': _ramps_, 'stepwise': _ramps_}
@@ -495,7 +495,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
                     if (B := self.read(0)) is not None:
                         self._Bvt.append((time.time(), B if not with_std else
                                           ufloat(B, self._attached_magsensor.readStd(B))))
-                    session.delay(0.5)
+                    session.delay(0.5 if steptime is None else steptime)
                 self._cycling_thread.join()
                 self._cycling_thread = None
                 self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt)
@@ -508,7 +508,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
                     for i in numpy.linspace(*r):
                         self._attached_currentsource.start(i)
                         # hardcoded 10 secs to reach quasi steady state condition
-                        session.delay(10)
+                        session.delay(10 if steptime is None else steptime)
                         while (B := self.read(0)) is None:
                             session.breakpoint(1)
                             session.delay(0.1)
