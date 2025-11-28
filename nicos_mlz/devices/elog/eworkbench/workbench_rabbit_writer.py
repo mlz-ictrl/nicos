@@ -101,11 +101,10 @@ class Handler(BaseHandler):
         # with restart handle_enable is called before handle directory
         if self._proposal != '':
             headers = rb_headers_note(proposal=self._proposal,
-                                      subject=f'EnableELN  '
-                                              f'{wb_timestring_1(time)}',
+                                      subject='EnableELN',
                                       line_count=1,
-                                      eln_enabled=True,
-                                      title=self._title)
+                                      title=self._title,
+                                      timestamp=wb_timestring_1(time))
 
             self._rabbit_producer.produce(headers=headers,
                                           message=wb_format
@@ -124,11 +123,12 @@ class Handler(BaseHandler):
             f'Proposal:   {self._proposal}')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Directory  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Directory',
                                   line_count=3,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  grouping='Setup',
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers, message=wb_text)
 
@@ -137,11 +137,12 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle newexperiment')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject='NewExperiment  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='NewExperiment',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  grouping='Setup',
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(
@@ -153,11 +154,12 @@ class Handler(BaseHandler):
         wb_text = wb_format(
             f'Setup Components:  {escape(", ".join(setupnames))}')
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Setup  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Setup',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  grouping='Setup',
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers, message=wb_text)
 
@@ -165,11 +167,11 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle entry')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Entry  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Entry',
                                   line_count=1 + escape(data).count('\n'),
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  timestamp=wb_timestring_1(time))
 
         data = data.replace('\n', '<br>')
         self._rabbit_producer.produce(headers=headers,
@@ -179,11 +181,11 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle remark')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Remark  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Remark',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(f'{remark}'))
@@ -192,11 +194,11 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle scriptend')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Scriptend  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Scriptend',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(f'{escape(script)}'))
@@ -205,11 +207,11 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle scriptbegin')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Scriptbegin  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Scriptbegin',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(f'{escape(script)}'))
@@ -218,11 +220,12 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle sample')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Sample  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Sample',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  grouping='Sample',
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(
@@ -232,11 +235,12 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle detectors')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Detectors  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Detectors',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  grouping='Setup',
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(
@@ -247,11 +251,12 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle environment')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Environment  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Environment',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  grouping='Setup',
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(
@@ -266,11 +271,11 @@ class Handler(BaseHandler):
                              (dev, old, new))
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Offset  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Offset',
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(f'{offset_info}'))
@@ -285,8 +290,7 @@ class Handler(BaseHandler):
                 self._rabbit_producer.handle_file(
                     headers={'proposal': self._proposal,
                              'subject': f'{self._proposal}  '
-                                        f'{description} {name}  '
-                                        f'{wb_timestring_1(time)}',
+                                        f'{description} {name}',
                              'note': 0,
                              'loglevel': None,
                              'attachment': 0,
@@ -294,7 +298,10 @@ class Handler(BaseHandler):
                              'line_count': 0,
                              'img_rows': 0,
                              'eln_enabled': self._eln_enabled,
-                             'exp_title': self._title},
+                             'exp_title': self._title,
+                             'grouping': None,
+                             'timestamp': wb_timestring_1(time)
+                             },
                     file_stream=data)
 
     def handle_image(self, time, data):
@@ -331,8 +338,7 @@ class Handler(BaseHandler):
                         headers={
                             'proposal': self._proposal,
                             'subject': f'{self._proposal}  '
-                                       f'{description} {name}  '
-                                       f'{wb_timestring_1(time)}',
+                                       f'{description} {name}',
                             'note': 0,
                             'loglevel': None,
                             'attachment': 1,
@@ -340,7 +346,9 @@ class Handler(BaseHandler):
                             'line_count': 0,
                             'img_rows': img_rows,
                             'eln_enabled': self._eln_enabled,
-                            'exp_title': self._title
+                            'exp_title': self._title,
+                            'grouping': None,
+                            'timestamp': wb_timestring_1(time)
                         }, png_stream=finalimg)
 
     def handle_message(self, time, message):
@@ -349,12 +357,12 @@ class Handler(BaseHandler):
             return
         self.log.info('workbench_writer: message')
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'{getLevelName(message[2])}   '
-                                          f'{wb_timestring_1(time)}',
+                                  subject=f'{getLevelName(message[2])}',
                                   loglevel=getLevelName(message[2]),
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  timestamp=wb_timestring_1(time))
         self._rabbit_producer.produce(headers=headers,
                                       message=formatted)
 
@@ -365,11 +373,12 @@ class Handler(BaseHandler):
             f'Started at:   {datetime(*dataset.started[:6])}')
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Scanbegin  '
-                                          f'{wb_timestring_1(time)}',
+                                  subject='Scanbegin',
                                   line_count=4,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  timestamp=wb_timestring_1(time),
+                                  grouping='Scan')
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_text)
@@ -380,9 +389,6 @@ class Handler(BaseHandler):
         scannumber = dataset.counter or -1
         scan_end_results = ''
 
-        scan_end_results += wb_format(f'Starting scan:   {dataset.scaninfo}')
-        scan_end_results += wb_format(
-            f'Started  at:   {datetime(*dataset.started[:6])}')
         scan_end_results += wb_format(
             f'Finished at:   {wb_timestring_2(time)}')
         for file_name in dataset.filepaths:
@@ -445,11 +451,12 @@ class Handler(BaseHandler):
                                     x_results=dataset.xresults)
 
         headers = rb_headers_note(proposal=self._proposal,
-                                  subject=f'Scanresults {scannumber}   '
-                                          f'{wb_timestring_1(time)}',
+                                  subject=f'Scanresults {scannumber}',
                                   line_count=15,
                                   eln_enabled=self._eln_enabled,
-                                  title=self._title)
+                                  title=self._title,
+                                  timestamp=wb_timestring_1(time),
+                                  grouping='Scan')
 
         self._rabbit_producer.produce(headers=headers,
                                       message=scan_end_results)
@@ -465,7 +472,9 @@ class Handler(BaseHandler):
                          'line_count': 0,
                          'img_rows': 0,
                          'eln_enabled': self._eln_enabled,
-                         'exp_title': self._title},
+                         'exp_title': self._title,
+                         'grouping': None,
+                         'timestamp': wb_timestring_1(time)},
                 file_stream=csv_data.encode('utf-8'))
 
 
@@ -496,7 +505,10 @@ def eln_csv_data(x_names, x_results):
     return si.getvalue()
 
 
-def rb_headers_note(proposal, subject, line_count, eln_enabled, title,
+def rb_headers_note(proposal, subject, line_count, title,
+                    timestamp,
+                    eln_enabled=True,
+                    grouping=None,
                     loglevel=None):
     return {
         'proposal': proposal,
@@ -508,5 +520,7 @@ def rb_headers_note(proposal, subject, line_count, eln_enabled, title,
         'line_count': line_count,
         'img_rows': 0,
         'eln_enabled': eln_enabled,
-        'exp_title': title
+        'exp_title': title,
+        'grouping': grouping,
+        'timestamp': timestamp
     }
