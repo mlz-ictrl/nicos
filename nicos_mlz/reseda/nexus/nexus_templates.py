@@ -28,6 +28,7 @@ from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Polarizer, \
     Selector, TimerMonitor
+from nicos_mlz.nexus.structures import signal
 from nicos_sinq.nexus.specialelements import OptionalDeviceDataset
 
 all_devices_dict = {
@@ -149,7 +150,7 @@ class ResedaTemplateProvider(MLZTemplateProvider):
 
     def updateDetector(self):
         self._det.update({
-            'data': ImageDataset(0, 0, signal=NXAttribute(1, 'int32')),
+            'data': ImageDataset(0, 0, signal=signal),
             'distance': DeviceDataset('L_sd'),
             'x_pixel_size': ConstDataset(1.5625, 'float',
                                          units=NXAttribute('mm', 'string')),
@@ -199,7 +200,7 @@ class ResedaTemplateProvider(MLZTemplateProvider):
     def updateData(self):
         self._entry['data:NXdata'].update({
             'signal': 'data',
-            'data': NXLink('/entry1/instrument/detector/data'),
+            'data': NXLink(f'/{self.entry}/{self.instrument}/detector/data'),
         })
 
     def updateSample(self):
