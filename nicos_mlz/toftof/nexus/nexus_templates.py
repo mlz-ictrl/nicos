@@ -109,6 +109,7 @@ class TofTofTemplate(MLZTemplateProvider):
             'data': ImageDataset(0, 0, signal=signal, units='counts',
                                  # axes='time of flight:detector number',
                                  ),
+            'type': ConstDataset('He3 gas cylinder', 'string'),
             'distance': DetectorDistances(),
             'time_of_flight': TimeOfFlight(),
             'polar_angle': DetInfo(5, units='deg'),
