@@ -24,8 +24,10 @@
 """VTOFTOF detector image based on McSTAS simulation."""
 
 from nicos.core import Attach, Override, Param, intrange
+from nicos.core.constants import MASTER
 from nicos.devices.generic.slit import Slit
-from nicos.devices.mcstas import DetectorMixin, McStasImage, \
+from nicos.devices.mcstas import MIN_RUNTIME, DetectorMixin, \
+    McStasCounter as BaseCounter, McStasImage, \
     McStasSimulation as BaseSimulation
 
 from nicos_mlz.toftof.devices import Detector as BaseDetector, Ratio, \
@@ -136,6 +138,21 @@ class Image(McStasImage):
             wanted_timeinterval += calc.ttr
             self.timeinterval = wanted_timeinterval
             actual_timeinterval = self.timeinterval
+
+
+class McStasCounter(BaseCounter):
+
+    def doRead(self, maxage=0):
+        if self._mode == MASTER:
+            try:
+                with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
+                    line = list(f)[-1]
+                    self.curvalue = float(line.split()[2])
+            except Exception:
+                if self._attached_mcstas._getTime() > MIN_RUNTIME:
+                    self.log.warning('could not read result file', exc=1)
+                self.curvalue = 0
+        return self.curvalue
 
 
 class Detector(DetectorMixin, BaseDetector):
