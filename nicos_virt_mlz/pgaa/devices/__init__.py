@@ -21,5 +21,5 @@
 #
 # *****************************************************************************
 
-from nicos_virt_mlz.pgaa.devices.dspec import DSPec, DSPecTimer, DSPecSpectrum
+from nicos_virt_mlz.pgaa.devices.dspec import DSPec, DSPecSpectrum, DSPecTimer
 from nicos_virt_mlz.pgaa.devices.sampledevices import PushReader

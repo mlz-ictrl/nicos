@@ -47,7 +47,7 @@ devices = dict(
     LEGe = device('nicos_virt_mlz.pgaa.devices.DSPec',
         description = 'DSPec detector for low energy gamma x-rays',
         timers = ['truetim', 'livetim'],
-        images = ['image_lege'],
+        images = ['image_lege',],
         gates = ['shutter'],
         enablevalues = ['open'],
         disablevalues = ['closed'],
@@ -55,23 +55,4 @@ devices = dict(
         liveinterval = 0.5,
         prefix = 'L'
     ),
-    # image_lege = device('nicos_virt_mlz.pgaa.devices.DSPecSpectrum',
-    #     description = 'Image data device',
-    #     fmtstr = '%d',
-    #     pollinterval = 86400,
-    #     size = (16384, 1),
-    #     visibility = (),
-    #     prefix = 'L'
-    # ),
-    # LEGe = device('nicos_virt_mlz.pgaa.devices.DSPec',
-    #     description = 'DSPec detector for low energy gamma x-rays',
-    #     timers = ['truetim', 'livetim'],
-    #     images = ['image_lege'],
-    #     gates = ['shutter'],
-    #     enablevalues = ['open'],
-    #     disablevalues = ['closed'],
-    #     pollinterval = None,
-    #     liveinterval = 0.5,
-    #     prefix = 'L'
-    # ),
 )
