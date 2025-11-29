@@ -46,6 +46,14 @@ class McStasSimulation(BaseSimulation):
         'mcstasprog': Override(default='toftof'),
     }
 
+    parameters = {
+        'repeat_factor': Param('Factor to calculate the number of "repeat" '
+                               'parameter, which determines the number of '
+                               'neutrons',
+                               type=float, default=4/3,
+                               ),
+    }
+
     attached_devices = {
         'sample': Attach('Sample', Sample),
         'wavelength': Attach('Wave length device', Wavelength),
@@ -88,7 +96,7 @@ class McStasSimulation(BaseSimulation):
             # 0 = Vanadium, 1 = empty cell, 2 = water
             'sample=%d' % self._attached_sample.sampletype,
             'scat_order=%d' % 0,
-            'repeat=%d' % 1000,
+            'repeat=%d' % round(self.repeat_factor * self.preselection),
             'split_var=%d' % 1000,
         ]
 
