@@ -39,5 +39,5 @@ Slits
 -----
 
 .. module:: nicos_mlz.stressi.devices.slits
-.. autoclass:: OffCenteredTwoSlitAxis
-.. autoclass:: SingleSlitAxis
+.. autoclass:: OffCenteredTwoAxisSlit()
+.. autoclass:: SingleAxisGap()

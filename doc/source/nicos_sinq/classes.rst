@@ -20,7 +20,7 @@ SINQ classes
 .. autoclass:: SelectSliceImageChannel
 .. autoclass:: ReadableToChannel
 
-.. module:: nicos_sinq.devices.datasinks
+.. module:: nicos_sinq.devices.datasinks.sinq_datasinks
 .. autoclass:: SinqNexusFileSinkHandler
 .. autoclass:: SinqNexusFileSink
 .. autoclass:: QuieckHandler
@@ -39,9 +39,9 @@ SINQ classes
 .. module:: nicos_sinq.devices.epics.SINQ_area_detector
 .. autoclass:: AndorAreaDetector
 
-.. module:: nicos_sinq.devices.epics.__init__
-.. autoclass:: EpicsDigitalMoveable
-.. autoclass:: EpicsReadable
+.. module:: nicos_sinq.devices.epics.base
+.. autoclass:: EpicsDigitalMoveableSinq
+.. autoclass:: EpicsReadableSinq
 
 .. module:: nicos_sinq.devices.epics.area_detector
 .. autoclass:: EpicsAreaDetectorTimerPassiveChannel
