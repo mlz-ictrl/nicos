@@ -36,6 +36,7 @@ Contributors:
 * Josef Baudisch <josef.baudisch@frm2.tum.de>
 * Nikhil Biyani <nikhil.biyani@psi.ch>
 * Pierre Boillat <pierre.boillat@psi.ch>
+* Sebastian Busch <sebastian.busch@hereon.de>
 * Matt Clarke <matt.clarke@ess.eu>
 * Robert Georgii <robert.georgii@frm2.tum.de>
 * Jonathan Hähne <jonathan.haehne@frm2.tum.de>

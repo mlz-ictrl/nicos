@@ -454,7 +454,8 @@ class LiveViewSinkHandler(BaseLiveViewSinkHandler):
         start = ds.metainfo.get((detname, 'ecalintercept'), [0.563822])[0]
         steps = ds.metainfo.get((detname, 'size'), [[65535]])[0][0]
         erange = np.linspace(start, start + slope * (steps - 1), steps)
-        self.log.debug('start: %s, end: %s', erange[0], erange[-1])
+        self.log.debug('start: %s, end: %s, len: %d',
+                       erange[0], erange[-1], len(erange))
         return [erange]
 
     def getLabelDescs(self, result):
