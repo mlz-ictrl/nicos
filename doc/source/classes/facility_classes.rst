@@ -12,4 +12,5 @@ facilities.
    nicos_ess
    nicos_jcns
    nicos_mlz
+   nicos_virt_mlz
    nicos_sinq

@@ -21,5 +21,5 @@
 #
 # *****************************************************************************
 
-from nicos_demo.vpgaa.devices.dspec import DSPec, Spectrum
-from nicos_demo.vpgaa.devices.sampledevices import PushReader
+from nicos_virt_mlz.pgaa.devices.dspec import DSPec, Spectrum
+from nicos_virt_mlz.pgaa.devices.sampledevices import PushReader

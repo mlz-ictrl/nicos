@@ -10,6 +10,7 @@
 
       nicos_mlz
       nicos_mlz/labs
+      nicos_virt_mlz
       nicos_ess
       nicos_sinq
       nicos_batan

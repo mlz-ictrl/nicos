@@ -7,6 +7,8 @@ VPGAA
 
 It can also be used as a quick development environment.
 
+``INSTRUMENT=nicos_virt_mlz.pgaa bin/nicos-demo -MO``
+
 
 Instrument setups
 =================
