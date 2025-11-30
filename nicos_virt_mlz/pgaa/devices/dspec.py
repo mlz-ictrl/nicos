@@ -52,12 +52,12 @@ class Spectrum(VirtualImage):
             return None
         if self.is_timer:
             return self.preselection - elapsed
-        else:
-            counted = float(self.doRead()[0])
-            # only estimated if we have more than 3% or at least 100 counts
-            if counted > 100 or counted > 0.03 * self.preselection:
-                if 0 <= counted <= self.preselection:
-                    return (self.preselection - counted) * elapsed / counted
+
+        counted = float(self.doRead()[0])
+        # only estimated if we have more than 3% or at least 100 counts
+        if counted > 100 or counted > 0.03 * self.preselection:
+            if 0 <= counted <= self.preselection:
+                return (self.preselection - counted) * elapsed / counted
 
     def doReadArray(self, _quality):
         if self._buf is not None:

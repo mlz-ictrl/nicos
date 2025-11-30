@@ -71,6 +71,6 @@ class BeamFocus(Moveable):
         col = self._attached_collimator.read(maxage)
         if [ell, col] == [0, 1]:
             return 'Col'
-        elif [ell, col] == [1, 0]:
+        if [ell, col] == [1, 0]:
             return 'Ell'
         return None

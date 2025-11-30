@@ -254,7 +254,7 @@ class TableWidget(QTableWidget):
             assert self.hidden_row is None
             self.handle_drop(row_at, e.source())
             return
-        elif e.mimeData().text() != str(self.state):
+        if e.mimeData().text() != str(self.state):
             return
         if row_at == -1:
             row_at = self.rowCount() - 1

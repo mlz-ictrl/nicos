@@ -64,7 +64,6 @@ else:
         QGLWidget = QWidget
 
 
-
 class GLWidget(QGLWidget):
     """Class drawing the max. space and the measurement cells."""
 

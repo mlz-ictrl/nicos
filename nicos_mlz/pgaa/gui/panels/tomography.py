@@ -145,7 +145,7 @@ class TomographyPanel(Panel):
             result = qwindow.exec()
             if result == QMessageBox.StandardButton.Cancel:
                 return
-            elif result == QMessageBox.StandardButton.Apply:
+            if result == QMessageBox.StandardButton.Apply:
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)

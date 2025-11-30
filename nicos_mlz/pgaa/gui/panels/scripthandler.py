@@ -40,9 +40,9 @@ class TemplateScriptHandler(ast.NodeVisitor):
             return []
         if isinstance(node1, ast.Assign):
             return self._extract_assign(node1, node2)
-        elif isinstance(node1, ast.Expr):
+        if isinstance(node1, ast.Expr):
             return self._extract_expr(node1, node2)
-        elif isinstance(node1, ast.For):
+        if isinstance(node1, ast.For):
             return self._extract_for(node1, node2)
 
     def _extract_attribute(self, node1, node2):
@@ -70,8 +70,7 @@ class TemplateScriptHandler(ast.NodeVisitor):
             return []
         if isinstance(node1.value, ast.Call):
             return self._extract_call(node1.value, node2.value)
-        else:
-            print('EXPR', node1.value, node2.value)
+        print('EXPR', node1.value, node2.value)
 
     def _extract_call(self, node1, node2):
         ret = []
@@ -122,16 +121,15 @@ class TemplateScriptHandler(ast.NodeVisitor):
     def _value(self, node):
         if isinstance(node, ast.Num):
             return node.n
-        elif isinstance(node, ast.Str):
+        if isinstance(node, ast.Str):
             return node.s
-        elif isinstance(node, ast.Name):
+        if isinstance(node, ast.Name):
             return node.id
-        elif isinstance(node, ast.List):
+        if isinstance(node, ast.List):
             return self._list(node)
-        elif isinstance(node, ast.Tuple):
+        if isinstance(node, ast.Tuple):
             return tuple(self._list(node))
-        else:
-            print('Value', node.value)
+        print('Value', node.value)
 
     def _list(self, node):
         return [self._value(e) for e in node.elts]

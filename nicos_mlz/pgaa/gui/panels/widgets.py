@@ -292,7 +292,7 @@ class ValueData(QStackedWidget):
             w = self.currentWidget()
         if isinstance(w, TimeEditWidget):
             return float(w.value())
-        elif isinstance(w, QSpinBox):
+        if isinstance(w, QSpinBox):
             return w.value()
 
     def on_returnPressed(self):

@@ -222,9 +222,9 @@ class DSPec(PyTangoDevice, Measurable):
     def doTime(self, preset):
         if 'TrueTime' in preset:
             return preset['TrueTime']
-        elif 'LiveTime' in preset:
+        if 'LiveTime' in preset:
             return preset['LiveTime']
-        elif 'counts' in preset:
+        if 'counts' in preset:
             return 1
         return None
 
@@ -232,7 +232,7 @@ class DSPec(PyTangoDevice, Measurable):
         if self.doStatus()[0] == status.BUSY:
             if 'TrueTime' in self._lastpreset:
                 return self._lastpreset['TrueTime'] - elapsed
-            elif 'LiveTime' in self._lastpreset:
+            if 'LiveTime' in self._lastpreset:
                 return self._lastpreset['LiveTime'] - elapsed
         return None
 
@@ -310,9 +310,9 @@ class DSPec(PyTangoDevice, Measurable):
 
         if 'TrueTime' in self._lastpreset:
             return self._dev.TrueTime >= self._lastpreset['TrueTime']
-        elif 'LiveTime' in self._lastpreset:
+        if 'LiveTime' in self._lastpreset:
             return self._dev.LiveTime >= self._lastpreset['LiveTime']
-        elif 'counts' in self._lastpreset:
+        if 'counts' in self._lastpreset:
             return self.doRead(0)[2] >= self._lastpreset['counts']
         try:
             # self.log.warning('poll')

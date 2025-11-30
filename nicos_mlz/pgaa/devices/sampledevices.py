@@ -48,7 +48,7 @@ class SamplePusher(Moveable):
         self._attached_actuator.move(target)
         if target == 'up':
             self._target_sens = self._attached_sensort
-        elif target == 'down':
+        if target == 'down':
             self._target_sens = self._attached_sensorl
 
     def doStatus(self, maxage=0):
@@ -56,12 +56,12 @@ class SamplePusher(Moveable):
         if self._target_sens:
             if self._target_sens.read(maxage) == 0:
                 return status.BUSY, 'moving'
-            elif self._target_sens.read(maxage) == 1:
+            if self._target_sens.read(maxage) == 1:
                 self._target_sens = None
         return status.OK, 'idle'
 
     def doRead(self, maxage=0):
         if self._attached_sensort.read(maxage):
             return 'up'
-        elif self._attached_sensorl.read(maxage):
+        if self._attached_sensorl.read(maxage):
             return 'down'
