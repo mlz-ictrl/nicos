@@ -92,8 +92,7 @@ class BaseChopperController(HasTimeout, Readable):
             else:
                 speed += speeds[5 - 1] * self.ratio / 7.
             return speed / 7.
-        else:
-            return speed / 6.
+        return speed / 6.
 
     def doReadResolution(self):
         return calc.Eres1(self.wavelength, self.speed)

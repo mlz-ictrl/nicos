@@ -102,9 +102,8 @@ class DelayBox(Moveable):
     def doIsAllowed(self, target):
         if 0 <= target <= 65535:
             return True, ''
-        else:
-            return False, '%r is not in the allowed range [0, 65535], please '\
-                          'check your delay calculation' % (target,)
+        return False, '%r is not in the allowed range [0, 65535], please '\
+                      'check your delay calculation' % (target,)
 
     def doStatus(self, maxage=0):
         return status.OK, ''

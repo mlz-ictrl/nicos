@@ -422,7 +422,7 @@ class DetInfo(NexusElementBase):
             theta[i] = float(entry[5])
             if self.column == 5:
                 continue
-            elif self.column == 13:
+            if self.column == 13:
                 if entry[self.column] == "'None'":
                     list_of_none_detectors.append(_detNr)
             elif haveBoxInfo and len(entry) == 16:

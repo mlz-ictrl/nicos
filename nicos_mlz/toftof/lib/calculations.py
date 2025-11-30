@@ -92,7 +92,7 @@ Ls = 0.02
 def speedRatio(ratio=1):
     if ratio in [2, 3, 4, 5, 6, 7, 8]:
         return (ratio - 1.0) / float(ratio)
-    elif ratio in [9, 10]:
+    if ratio in [9, 10]:
         return 7.0 / float(ratio)
     return 1.0
 
