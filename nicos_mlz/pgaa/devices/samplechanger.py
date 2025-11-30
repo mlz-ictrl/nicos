@@ -41,6 +41,8 @@ class SeqSampleMotor(SeqDev):
             if isinstance(self.target, number_types):
                 if not limits[0] <= self.target <= limits[1]:
                     raise LimitError(self.dev, 'limits are [%s, %s]' % limits)
+        # The isAllowed will be called before running the sequence! Therefore
+        # the 'doIsAllowed' has to be used.
         if hasattr(self.dev, 'doIsAllowed'):
             allowed, remark = self.dev.doIsAllowed(self.target)
             if not allowed:
