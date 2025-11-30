@@ -108,8 +108,7 @@ class Attenuator(HasLimits, Moveable):
                 if fil == 1:
                     result += self._filterlist[i]
             return result
-        else:
-            raise NicosError(self, 'device undefined; check it!')
+        raise NicosError(self, 'device undefined; check it!')
 
     def doReset(self):
         self.start(0)
@@ -121,8 +120,7 @@ class Attenuator(HasLimits, Moveable):
         stat3 = checkstatus[0]
         if (abs(stat1 - stat3) == 0) and stat2 == 31:
             return (status.OK, 'idle')
-        else:
-            return (status.ERROR, 'device undefined, please check')
+        return (status.ERROR, 'device undefined, please check')
 
     def _checkstatus(self, maxage=0):
         stat1 = self._attached_io_status.read(maxage)

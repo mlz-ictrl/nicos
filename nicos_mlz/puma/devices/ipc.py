@@ -249,7 +249,7 @@ class ReferenceMotor(CanReference, Motor1):
         """Return the status of the motor controller."""
         if self._mode == SIMULATION:
             return (status.OK, '')
-        elif self._refcontrol and self._refcontrol.is_alive():
+        if self._refcontrol and self._refcontrol.is_alive():
             return (status.BUSY, 'referencing')
         return Motor1.doStatus(self, maxage)
 

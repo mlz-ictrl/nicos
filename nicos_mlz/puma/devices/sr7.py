@@ -72,11 +72,11 @@ class SR7Shutter(HasTimeout, Moveable):
         if res == status.OK:
             if self._attached_sr7cl.read(maxage) == 1:
                 return 'close'
-            elif self._attached_sr7p1.read(maxage) == 1:
+            if self._attached_sr7p1.read(maxage) == 1:
                 return 'S1'
-            elif self._attached_sr7p2.read(maxage) == 1:
+            if self._attached_sr7p2.read(maxage) == 1:
                 return 'S2'
-            elif self._attached_sr7p3.read(maxage) == 1:
+            if self._attached_sr7p3.read(maxage) == 1:
                 return 'S3'
         else:
             raise PositionError(self, 'SR7 shutter moving or undefined')
@@ -87,7 +87,6 @@ class SR7Shutter(HasTimeout, Moveable):
             self._attached_sr7p3.read(maxage)
         if p1 == 1 and p2 == 1 and p3 == 1:
             return status.BUSY, 'moving'
-        elif cl == 1 or p1 == 1 or p2 == 1 or p3 == 1:
+        if cl == 1 or p1 == 1 or p2 == 1 or p3 == 1:
             return status.OK, 'idle'
-        else:
-            return status.ERROR, 'undefined position'
+        return status.ERROR, 'undefined position'

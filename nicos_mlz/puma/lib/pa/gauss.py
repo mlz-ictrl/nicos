@@ -25,6 +25,7 @@ from math import exp, log
 
 _4_log_2 = -4 * log(2)
 
+
 def gaussian(a, xc, dx, x):
     """Calculates the value of a Gaussian.
 

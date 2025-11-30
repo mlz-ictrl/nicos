@@ -88,10 +88,9 @@ class SecCollBlockChanger(Moveable):
         val = 1 - (self._read_status(maxage) & 1)
         if val == 1:
             return 'in'
-        elif val == 0:
+        if val == 0:
             return 'out'
-        else:
-            return 'unknown'
+        return 'unknown'
 
     def doStatus(self, maxage=0):
         stat = self._read_status(maxage) & 0x2  # 0xaaaa  # 43690
@@ -258,10 +257,9 @@ class SecCollPair(HasTimeout, BlockingSequencer):
             raise NicosError(self, 'frame and cover in beam?!')
         if r1:
             return 'cover'
-        elif r2:
+        if r2:
             return 'frame'
-        else:
-            return 'open'
+        return 'open'
 
     def doReset(self):
         for d in self._devices:
