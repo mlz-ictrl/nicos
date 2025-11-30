@@ -434,27 +434,25 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
             mode = self.mode
             if mode == 0:
                 return status.ERROR, 'inactive'
-            elif mode == 1:
+            if mode == 1:
                 return status.ERROR, 'not calibrated'
-            elif mode == 2:
+            if mode == 2:
                 return status.BUSY, 'commute'
-            elif mode == 3:
+            if mode == 3:
                 return status.BUSY, 'brake'
-            elif mode == 4:
+            if mode == 4:
                 if self.chopper == 1:
                     return status.OK, 'speed'
-                else:
-                    return status.WARN, 'speed'
-            elif mode == 5:
+                return status.WARN, 'speed'
+            if mode == 5:
                 return status.OK, 'phase'
-            elif mode == 6:
+            if mode == 6:
                 return status.ERROR, 'idle'
-            elif mode == 7:
+            if mode == 7:
                 return status.WARN, 'position'
-            elif mode == 8:
+            if mode == 8:
                 return status.ERROR, 'E-Stop'
-            else:
-                return status.ERROR, 'unknown >%d<' % mode
+            return status.ERROR, 'unknown >%d<' % mode
         return status.BUSY, 'moving'
 
     def doIsCompleted(self):
@@ -545,7 +543,7 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
         self.log.debug('_status: %d', val)
         if val == 99:
             return status.BUSY, 'moving'
-        elif val == 0:
+        if val == 0:
             return status.NOTREACHED, 'device not referenced'
         try:
             self.valuetype(val)

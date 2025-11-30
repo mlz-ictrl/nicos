@@ -161,7 +161,7 @@ def angles_SC2_time(t_SC2o, t_SC2c, freq):
                         in seconds (float)
         freq:           chopper frequency, in Hertz (float)
 
-    Output :
+    Output:
 
         ang_SC2:        a numpy array containing the phases of discs 5 and 6,
                         in degrees (float)
@@ -228,7 +228,7 @@ def practical_SC2(wl_min=0.0, wl_max=6.0, D=22.8, disk2_pos=3,
                             should not be illuminated between the end of a frame
                             and the beginning of the next one (float)
 
-    Output :
+    Output:
 
         a nested dictionary with different keys. The outer dictionary contains,
         as keys, the opening and closing times of SC2 disks (in seconds) for
@@ -290,18 +290,18 @@ def practical_SC2(wl_min=0.0, wl_max=6.0, D=22.8, disk2_pos=3,
     ang_SC2, SC2_opening = angles_SC2_time(t_SC2o, t_SC2c, freq)
     overlap = -gap / (1.0 + gap)
 
-    res = {'t_SC2o' : t_SC2o,
-           't_SC2c' : t_SC2c,
-           'default': {'per' : per,
+    res = {'t_SC2o': t_SC2o,
+           't_SC2c': t_SC2c,
+           'default': {'per': per,
                        'freq': freq,
-                       'rpm' : rpm,
-                       'ang_SC2' : ang_SC2,
-                       'SC2_opening' : SC2_opening,
-                       'D' : D,
-                       'overlap' : overlap,
-                       'resolution' : resol,
-                       'disk2_pos' : disk2_pos,
-                       'wl_min_realised' : wl_min
+                       'rpm': rpm,
+                       'ang_SC2': ang_SC2,
+                       'SC2_opening': SC2_opening,
+                       'D': D,
+                       'overlap': overlap,
+                       'resolution': resol,
+                       'disk2_pos': disk2_pos,
+                       'wl_min_realised': wl_min
                        }
            }
 
@@ -492,7 +492,7 @@ def chopper_parasitic(res, wl_start=25.0, wl_stop=95.0, wl_step=0.1,
     disk2_pos = res['disk2_Pos']
 
     if disk2_pos == 6:
-        raise Exception('Error! A value indicating the REAL position of' \
+        raise Exception('Error! A value indicating the REAL position of'
                         'slave chopper has to be provided')
 
     if wl_stop < wl_start:
@@ -676,7 +676,7 @@ def chopper_parasitic_bool(res, wl_start=25.0, wl_stop=95.0, wl_step=0.1,
     disk2_pos = res['disk2_Pos']
 
     if disk2_pos == 6:
-        raise Exception('Error! A value indicating the REAL position of' \
+        raise Exception('Error! A value indicating the REAL position of'
                         'slave chopper has to be provided')
 
     if wl_stop < wl_start:
@@ -999,9 +999,9 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
     else:
         # SC2 is not in operation. We use SC1 as disks to determine the
         # wavelength band
-        SC2 = {'angles'         : None,
-               'rpm'            : None,
-               'freq'           : None,
+        SC2 = {'angles':          None,
+               'rpm':             None,
+               'freq':            None,
                'wl_min_realised': None
                }
 
@@ -1022,19 +1022,19 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
 
     # The proper dictionary (cut if interface is True) is managed at the end of
     # this routine
-    res = {'freq'           : freq,
-           'rpm'            : rpm,
-           'angles'         : angles,
-           'delay_time'     : delay,
-           'delay_angle'    : delay * freq * 360,
-           'disk2_Pos'      : disk2_pos,
-           'SC1_open_angle' : angles[2] - angles[3],
-           'SC1_phase'      : angles[3],
-           'SC2_phase'      : angles[5],
-           'wl_min'         : wl_min_realised,
-           'wl_max'         : wl_max,
-           'D'              : D,
-           'SC2_mode'       : SC2_mode,
+    res = {'freq':           freq,
+           'rpm':            rpm,
+           'angles':         angles,
+           'delay_time':     delay,
+           'delay_angle':    delay * freq * 360,
+           'disk2_Pos':      disk2_pos,
+           'SC1_open_angle': angles[2] - angles[3],
+           'SC1_phase':      angles[3],
+           'SC2_phase':      angles[5],
+           'wl_min':         wl_min_realised,
+           'wl_max':         wl_max,
+           'D':              D,
+           'SC2_mode':       SC2_mode,
            }
     if SC2_mode is not None:
         res['SC2_open_angle'] = angles[4] - angles[5]
@@ -1214,9 +1214,8 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
                     # transmits parasitic wavelengths. The routine is
                     # stopped
                     return None, 6 * [None], None, None, None, None
-                else:
-                    res['angles'][2] = new_ph[0]
-                    res['angles'][3] = new_ph[1]
+                res['angles'][2] = new_ph[0]
+                res['angles'][3] = new_ph[1]
 
             # Now we check that the found configuration does not produce
             # any other parasitic bands. If the check fails, a warning

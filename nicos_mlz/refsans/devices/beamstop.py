@@ -54,7 +54,7 @@ class BeamStopCenter(Readable):
         val = self._attached_att.read(maxage)
         if val < 4:
             return 'None'
-        elif val > 7:
+        if val > 7:
             return 'On'
         return 'Off'
 
