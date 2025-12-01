@@ -5,11 +5,20 @@ group = 'lowlevel'
 includes = ['tensile', 'sampletable']
 
 devices = dict(
-    mon = device('nicos.devices.generic.VirtualCounter',
+    # mon = device('nicos.devices.generic.VirtualCounter',
+    #     description = 'Monitor (MON)',
+    #     fmtstr = '%d',
+    #     type = 'monitor',
+    #     visibility = (),
+    # ),
+    mon = device('nicos_virt_mlz.stressi.devices.detector.McStasCounter',
         description = 'Monitor (MON)',
-        fmtstr = '%d',
+        mcstas = 'mcstas',
+        mcstasfile = 'Beam_mon.dat',
         type = 'monitor',
+        fmtstr = '%d',
         visibility = (),
+        pollinterval = None,
     ),
     tim1 = device('nicos.devices.mcstas.McStasTimer',
         description='McStas virtual neutron counts timer channel',

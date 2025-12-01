@@ -26,9 +26,9 @@
 import numpy as np
 
 from nicos.core import Attach, Override, Param, Readable, oneof, tupleof
-from nicos.core.constants import FINAL, LIVE
-from nicos.devices.mcstas import McStasImage, \
-    McStasSimulation as BaseSimulation
+from nicos.core.constants import FINAL, LIVE, MASTER
+from nicos.devices.mcstas import MIN_RUNTIME, McStasCounter as BaseCounter, \
+    McStasImage, McStasSimulation as BaseSimulation
 
 from nicos_virt_mlz.stressi.devices.sample import Sample
 
@@ -111,3 +111,18 @@ class Image(McStasImage):
         else:
             self.readresult = [0]
             self._buf = np.zeros(self.size).astype(self.image_data_type)
+
+
+class McStasCounter(BaseCounter):
+
+    def doRead(self, maxage=0):
+        if self._mode == MASTER:
+            try:
+                with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
+                    line = list(f)[-1]
+                    self.curvalue = float(line.split()[2])
+            except Exception:
+                if self._attached_mcstas._getTime() > MIN_RUNTIME:
+                    self.log.warning('could not read result file', exc=1)
+                self.curvalue = 0
+        return self.curvalue
