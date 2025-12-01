@@ -27,7 +27,7 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
 from nicos.nexus.specialelements import CellArray, UBMatrix
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Reflection, \
-    ScanDeviceDataset, TimerMonitor, aa, axis1, counts, nounit, signal
+    ScanDeviceDataset, Slit, TimerMonitor, aa, axis1, counts, nounit, signal
 
 
 class TasTemplateProvider(MLZTemplateProvider):
@@ -47,6 +47,9 @@ class TasTemplateProvider(MLZTemplateProvider):
         self.att = kwargs.get('att', 'att')
         self.ei = kwargs.get('ei', 'Ei')
         self.ef = kwargs.get('ef', 'Ef')
+        self.ss1 = kwargs.get('ss1', 'ss1')
+        self.ss2 = kwargs.get('ss2', 'ss2')
+        self.ms = kwargs.get('ms', 'ms1')
         self.detector = kwargs.get('detector', 'det')
         self.monitor = kwargs.get('monitor', 'mon1')
         self.timer = kwargs.get('timer', 'timer')
@@ -74,6 +77,11 @@ class TasTemplateProvider(MLZTemplateProvider):
                 'wavelength': DeviceDataset(self.ana, units='A-1'),
             },
         })
+        for slit, name in ((self.ss1, 'ss1'),
+                           (self.ss2, 'ss2'),
+                           (self.ms, 'ms'),):
+            if slit in session.devices:
+                self._inst.update({f'{name}:NXslit': Slit(slit)})
 
     def updateDetector(self):
         self._det.update({

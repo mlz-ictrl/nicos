@@ -63,6 +63,11 @@ devices = dict(
         templateclass = 'nicos_mlz.nexus.nexus_templates.TasTemplateProvider',
         filenametemplate = ['%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },
+        device_mapping = {
+            'ss1': 'slit1',
+            'ss2': 'slit2',
+            'ms': 'vs',
+        },
         filemode = 0o440,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
