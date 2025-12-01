@@ -183,7 +183,7 @@ class MokeBase(Panel):
             QMessageBox.information(None, '', 'The measurement is not yet finished')
             return
 
-        IntvB = self.m['IntvB']
+        IntvB = Curve2D(self.m['IntvB'])
         int_mean = IntvB.series_to_curves().mean().yvx(0)
         IntvB = self._subtract_baseline(IntvB)
         angle = float(self.ln_canting_angle.text()) # [SKT]
@@ -323,7 +323,7 @@ class MokePanel(NicosWidget, MokeBase):
                 IntvB = self._subtract_baseline(IntvB)
                 self.plot_IntvB.reset()
                 self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
-                m = self.m
+                m = self.m.copy()
                 m['IntvB'] = IntvB
                 m['BvI'] = self.client.eval('session.getDevice("MagB")._BvI')
                 self.display_rawdata(generate_output(m))
@@ -350,7 +350,7 @@ class MokePanel(NicosWidget, MokeBase):
                 self.ln_cycles.setText(str(self.m['cycles']))
                 self.plot_IntvB.reset()
                 if self.m['IntvB']:
-                    IntvB = self.m['IntvB']
+                    IntvB = Curve2D(self.m['IntvB'])
                     IntvB = self._subtract_baseline(IntvB)
                     self.plot_IntvB.reset()
                     self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),
@@ -532,7 +532,7 @@ class MokeHistory(MokeBase):
             item = self._model.itemFromIndex(current)
             self.m = self.measurements[item.text()]
             self.display_rawdata(generate_output(self.m))
-        IntvB = self.m['IntvB']
+        IntvB = Curve2D(self.m['IntvB'])
         IntvB = self._subtract_baseline(IntvB)
         self.plot_IntvB.reset()
         self.plot_EvB.reset()
