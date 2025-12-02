@@ -451,7 +451,7 @@ class TestReferenceMotor(VirtualReferenceMotor):
     def doReference(self):
         if self._ref_error:
             raise self._ref_error  # pylint: disable=raising-bad-type
-        VirtualReferenceMotor.doReference(self)
+        return VirtualReferenceMotor.doReference(self)
 
 
 def cleanup():

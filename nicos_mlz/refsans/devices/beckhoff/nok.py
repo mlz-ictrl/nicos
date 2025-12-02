@@ -521,6 +521,7 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffBase, BaseSequencer):
     def doReference(self):
         self._HW_wait_while_BUSY()
         self._HW_reference()
+        self.wait()
 
     def doStop(self):
         self._HW_stop()
@@ -740,6 +741,7 @@ class DoubleMotorBeckhoff(PseudoNOK, BeckhoffMotorBase):
         Just set the do_reference bit and check for completion
         """
         self.log.error('nope')
+        self.wait()
 
     def doReadMaxvalue(self):
         return 1111

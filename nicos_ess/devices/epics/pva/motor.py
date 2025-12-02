@@ -382,6 +382,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
     def doReference(self):
         self._put_pv('home%s' % self.reference_direction, 1)
+        self.wait()
 
     def doEnable(self, on):
         what = 1 if on else 0

@@ -273,6 +273,7 @@ class ReferenceMotor(CanReference, Motor1):
                 self._refcontrol = createThread(threadname, self._reference,
                                                 args=())
                 session.delay(0.2)
+                self._refcontrol.join()
         else:
             raise NicosError(self, 'in error or busy state')
 

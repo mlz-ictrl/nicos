@@ -284,6 +284,7 @@ class MultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
         with self._allowed():
             self._startSequence([SeqMethod(self, '_checkedRefRot'),
                                  SeqMethod(self, '_checkedRefTrans')])
+        self.wait()
 
     def _checkedRefRot(self):
         if not self._refrotation():

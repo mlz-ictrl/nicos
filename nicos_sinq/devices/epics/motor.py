@@ -198,8 +198,8 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         if self.encoder_type == 'absolute':
             self.log.warning(
                 'This motor does not require homing - command ignored')
-        else:
-            CoreEpicsMotor.doReference(self)
+            return
+        return CoreEpicsMotor.doReference(self)
 
     def doReadUserlimits(self):
         return DynamicUserlimits.doReadUserlimits(self)

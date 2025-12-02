@@ -127,7 +127,7 @@ class RefAxis(Axis):
                                                           self.abslimits[0],
                                                           error=False):
                 self.log.error('Referencing: No refswitch found!!! Exiting')
-                self.start(oldpos)
+                self.maw(oldpos)
                 return
 
             # Step 2) Try to find a position without refswitch active, but close
@@ -144,7 +144,7 @@ class RefAxis(Axis):
             else:
                 self.log.error('Referencing: RefSwitch still active after '
                                '%.1f %s, exiting!', sum(steps), self.unit)
-                self.start(oldpos)
+                self.maw(oldpos)
                 return
 
             # Step 3) Now SLOWLY crawl onto the refswitch
@@ -152,7 +152,7 @@ class RefAxis(Axis):
                 m.speed = self.refspeed
             maxtries = tries = 7
             self.log.info('Referencing: SLOW Mode: find refswitch')
-            while not(refsw(m)) and tries > 0:
+            while not refsw(m) and tries > 0:
                 self.log.debug('Another %d slots left to try', tries)
                 try:
                     m.doStart(m.doRead() - stepsize / 3.)
@@ -167,7 +167,7 @@ class RefAxis(Axis):
             if tries == 0:
                 self.log.error('Referencing: RefSwitch still not active after '
                                '%d tries, exiting!', maxtries)
-                self.start(oldpos)
+                self.maw(oldpos)
                 return
 
             # Step 4) We are _at_ refswitch, motor stopped
@@ -186,7 +186,7 @@ class RefAxis(Axis):
             self.poll()
 
             self.log.info('Referenced, moving to position (%.2f)...', oldpos)
-            self.start(oldpos)
+            self.maw(oldpos)
             self._moves = 0
         finally:
             m.speed = oldspeed
@@ -304,7 +304,7 @@ class RotAxis(RefAxis):
                 if tries == 0:
                     self.log.error('Referencing: switch not found after '
                                    '%.1f %s, exiting!', self.wraparound, self.unit)
-                    self.doStart(oldpos)
+                    self.maw(oldpos)
                     return
 
                 # Step 2) Go quickly some distance.
@@ -328,7 +328,7 @@ class RotAxis(RefAxis):
             if tries == 0:
                 self.log.error('Referencing: refswitch still active after '
                                '%.1f %s, exiting!', 360, self.unit)
-                self.doStart(oldpos)
+                self.maw(oldpos)
                 return
 
             # Step 4) We are _at_ refswitch, motor stopped

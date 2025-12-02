@@ -294,7 +294,7 @@ class ChopperDiscTranslation(CanReference, IsController, DeviceMixinBase):
     }
 
     def doReference(self):
-        self.move(1)
+        self.maw(1)
 
     def doIsAllowed(self, target):
         if self._attached_disc._isStopped():

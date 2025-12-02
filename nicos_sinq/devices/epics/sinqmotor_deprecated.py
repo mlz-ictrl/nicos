@@ -179,8 +179,8 @@ class SinqMotor(CoreEpicsMotor):
         if self.encoder_type == 'absolute':
             self.log.warning(
                 'This motor does not require homing - command ignored')
-        else:
-            CoreEpicsMotor.doReference(self)
+            return
+        return CoreEpicsMotor.doReference(self)
 
     def doReset(self):
         self._put_pv_checked('reseterrorpv', 1)

@@ -234,7 +234,7 @@ class StickMotor(SinqMotor):
     def doReference(self):
         if not self.enabled:
             self._throw_mode_error('run Reference Run')
-        SinqMotor.doReference(self)
+        return SinqMotor.doReference(self)
 
     def doSetPosition(self, pos):
         if not self.enabled:

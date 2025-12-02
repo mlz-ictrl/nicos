@@ -463,6 +463,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         # The reference field resets itself immediately after it has been
         # written to
         self._put_pv('home%s' % self.reference_direction, 1)
+        self.wait()
 
     def doReset(self):
         if self.errorbitpv and self.reseterrorpv:
@@ -530,4 +531,4 @@ class HomingProtectedEpicsMotor(EpicsMotor):
 
     @requires(level=ADMIN)
     def doReference(self):
-        EpicsMotor.doReference(self)
+        return EpicsMotor.doReference(self)

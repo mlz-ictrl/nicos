@@ -63,6 +63,7 @@ class HexapodMaster(PyTangoDevice, CanReference, Readable):
 
     def doReference(self):
         self._dev.Reference()
+        self.wait()
 
     def doReset(self):
         self._dev.Reset()

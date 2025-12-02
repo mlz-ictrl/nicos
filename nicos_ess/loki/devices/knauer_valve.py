@@ -87,4 +87,5 @@ class KnauerValve(EpicsDevice, CanReference, Moveable):
         self._set_pv(self._get_pv_name('home'), 1)
         # After homing the device will be at position 1
         self._setROParam('target', 1)
+        self.wait()
         return 1
