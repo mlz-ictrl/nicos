@@ -196,7 +196,8 @@ class MokeBase(Panel):
             QMessageBox.information(None, '', f'Calculation has failed:\n{e}')
             return
         # upd IntvB plot with mean curve and fits
-        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])])
+        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])]) * 0.9
+        self.plot_IntvB.reset()
         self.plot_IntvB.add_curve(list(zip(x, fit_min[0] * x + fit_min[1])),
                                   legend='Fit min')
         self.plot_IntvB.add_curve(list(zip(x, fit_max[0] * x + fit_max[1])),
