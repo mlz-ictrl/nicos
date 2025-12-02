@@ -32,21 +32,23 @@ from nicos.utils.functioncurves.calcs import mean
 
 
 def fit_curve(curve, fittype):
-    """MOKE-specific fitting function. Fitting result is a line.
-    Returns (k, b), assuming the fit is y(x) = k * x + b"""
-
+    """MOKE-specific fitting function.
+    It filters values on a curve of ``_/‾`` shape from min or max horizontal
+    saturation areas to fit them into a line with least squares method.
+    :param curve: ``_/‾`` shaped curve of class Curve2D
+    :param fittype: ``'min'`` or ``'max'``
+    :return: python tuple ``(k, b)`` for a fitting line y(x) = k * x + b
+    """
     fittypes = ['min', 'max']
     if fittype not in fittypes:
         return
     m = Curves.from_series(curve).mean().yvx(0)
-    curve_max = Curve2D([p for p in curve if p.y > m.y])
-    curve_min = Curve2D([p for p in curve if p.y < m.y])
-    if curve_max.ymax < curve_min.ymax:
-        curve_min, curve_max = curve_max, curve_min
+    curve_max = Curve2D([p for p in curve if p.y.n - p.y.s > m.y.n + m.y.s])
+    curve_min = Curve2D([p for p in curve if p.y.n + p.y.s < m.y.n - m.y.s])
     c = curve_min if fittype == 'min' else curve_max
     e = mean(c.y)
-    c = Curve2D([p for p in c \
-                 if max(e.n - e.s, p.y.n - p.y.s) < min(e.n + e.s, p.y.n + p.y.s)])
+    _filter = (lambda y: y < e) if fittype == 'min' else (lambda y: y > e)
+    c = Curve2D([p for p in c if _filter(p.y)])
     return c.lsm()
 
 
