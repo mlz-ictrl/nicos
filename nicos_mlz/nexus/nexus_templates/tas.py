@@ -65,6 +65,7 @@ class TasTemplateProvider(MLZTemplateProvider):
                 'polar_angle': ScanDeviceDataset(self.mtt),
                 'ei': ScanDeviceDataset(self.ei, axis=axis1),
                 'wavelength': DeviceDataset(self.mono, unit='A-1'),
+                'focus_mode': DeviceDataset(self.mono, 'focmode', dtype='string'),
             },
             'analyser:NXcrystal': {
                 'usage': ConstDataset('Bragg', 'string'),
@@ -75,6 +76,7 @@ class TasTemplateProvider(MLZTemplateProvider):
                 'polar_angle': ScanDeviceDataset(self.att),
                 'ef': ScanDeviceDataset(self.ef, axis=axis1),
                 'wavelength': DeviceDataset(self.ana, units='A-1'),
+                'focus_mode': DeviceDataset(self.mono, 'focmode', dtype='string'),
             },
         })
         for slit, name in ((self.ss1, 'ss1'),
