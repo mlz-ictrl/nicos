@@ -70,6 +70,7 @@ class McStasSimulation(Readable):
 
     # to be implemented in derived classes
     _mcstas_params = None
+    _mcstasdirpath = ''
 
     parameters = {
         'mcstasprog': Param('Name of the McStas simulation executable',
@@ -106,6 +107,8 @@ class McStasSimulation(Readable):
         self._workdir = os.getcwd()
         self._interesting_files = set([self.mcsiminfo])
         self._hostname = socket.getfqdn()
+        self._mcstasdirpath = session.experiment.data.expandNameTemplates(
+             self.mcstasdir)[0]
 
     def doStatus(self, maxage=0):
         if self._started or (self._mythread and self._mythread.is_alive()):
