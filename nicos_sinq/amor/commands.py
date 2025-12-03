@@ -31,16 +31,13 @@ from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import ADDSCANHELP0, ADDSCANHELP2, _handleScanArgs, \
     _infostr
-
 from nicos_sinq.amor.scan import WallTimeScan
 from nicos_sinq.devices.detector import SinqDetector
-
 
 @usercommand
 def synchronize_daq():
     """Synchronize the time on the data acquisition computer with that of the
     ring modules.
-
     The local clocks on the ESS data acquisition PC and on the ring modules go
     quickly out of sync, which causes time offsets between the neutron signal
     and the proton current signal. To combat this, it is necessary to
@@ -49,7 +46,6 @@ def synchronize_daq():
     with subprocess.Popen(['ssh', '-t', 'essdaq@det-efu02'],
                           stdin=subprocess.PIPE,
                           stdout=subprocess.PIPE) as sshProcess:
-
         command = b"""
                   essdaq; cd /home/essdaq/detg_git/dgro_master/
                   python_slow_ctl2/utgard_kc705_vmm; sh update_rmm_time.sh
@@ -116,20 +112,21 @@ walltimecount.__doc__ += \
 @usercommand
 @helparglist('state')
 def spin(state):
-    """Change the spin state to + or -.
+    """Change the spin state to p (plus) or m (minus).
 
     Example:
 
     Following command brings spin state to +
 
-    >>> spin('+')
+    >>> spin('p')
     """
-    if state not in ('+', '-'):
-        session.log.error('Expected only +/- as the state for spin')
+    if state not in ('p', 'm'):
+        session.log.error('Expected only p/m as the state for spin')
+        return
 
     flipper = session.getDevice('SpinFlipper')
 
-    if state == '+':
+    if state == 'p':
         flipper.maw('SPIN UP')
-    elif state == '-':
+    elif state == 'm':
         flipper.maw('SPIN DOWN')

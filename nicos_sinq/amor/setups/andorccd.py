@@ -1,6 +1,6 @@
 description = 'Setup for the ANDOR CCD camera at AMOR using the CCDWWW server without counter box'
 
-excludes = ['detector', 'detector_mon']
+excludes = ['detector']
 
 devices = dict(
     ccdwww_connector = device('nicos_sinq.boa.devices.ccdwww.CCDWWWConnector',

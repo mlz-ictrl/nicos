@@ -303,7 +303,9 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
         for msg in messages:
 
             if get_schema(msg.value()) not in deserialiser_by_schema:
-                self.log.info('Wrong type of message')
+                self.log.warning('Wrong type of message: %s not in %s',
+                                 get_schema(msg.value()),
+                                 deserialiser_by_schema.keys())
                 continue
 
             try:

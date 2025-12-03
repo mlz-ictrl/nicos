@@ -1,11 +1,18 @@
-description = 'AMOR reduced parameter choice'
+description = 'reduced parameter set for (high intensity) specular reflectometry'
 
 group = 'basic'
 
-includes = ['director_devices']
+includes = ['base', 'qz', 'diaphragm4']
 
-excludes = ['universal', 'deflector']
+excludes = ['deflector_stage', 'trough', 'universal']
+
+alias_config = {
+        'kappa': {'ka0': 10},
+        }
 
 startupcode = '''
-amor_director.mode = 'simple'
+if 'som' in locals():
+    release(som)
+if 'sample_roll' in locals():
+    release(sample_roll)
 '''
