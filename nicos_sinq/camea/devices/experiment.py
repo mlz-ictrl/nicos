@@ -23,7 +23,7 @@
 
 from nicos import session
 
-from nicos_sinq.camea.commands.camea import printToDiscord
+from nicos_sinq.camea.commands import printToDiscord
 from nicos_sinq.devices.experiment import SinqExperiment
 
 
