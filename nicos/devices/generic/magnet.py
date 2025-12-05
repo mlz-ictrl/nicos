@@ -280,8 +280,9 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
     """Base class for a magnet, which relies on current-to-field curves
     obtained experimentally for different power supply ramps through a
     calibration procedure. Calibration curves are stored in a cached parameter.
+    And can be measured through ``calibrate`` method.
     Requires an external magnetic field sensing nicos device attached as
-    `magsensor`.
+    ``magsensor``.
     """
 
     attached_devices = {
@@ -303,7 +304,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
             type=float, settable=True, default=0.0,
         ),
         'mode': Param(
-            'Measurement mode: stepwise or continuous',
+            'Measurement mode: `stepwise` or `continuous`',
             type=oneof('stepwise', 'continuous'), default='stepwise',
             settable=True
         ),
@@ -312,7 +313,7 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
             unit='A/min', type=float, settable=True
         ),
         'maxramp': Param(
-            'Maximal ramp value',
+            'Maximal allowed ramp of the currentsource',
             unit='A/min', type=float, mandatory=True
         ),
         'cycle': Param(
@@ -330,6 +331,11 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
     }
 
     def _check_calibration(self, mode, ramp):
+        """Verify that calibration data exist for the requested experiment mode
+        and ramp value.
+        :param mode: experiment mode ``stepwise`` or ``continuous``
+        :param ramp: ramp of the attached currentsource device [A/min]
+        """
         if not self.calibration:
             raise NicosError(self, 'Magnet must be calibrated.')
         if mode not in self.calibration.keys():
@@ -343,7 +349,13 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
                                    'might help.' % (mode, ramp))
 
     def _current2field(self, current):
-        """Returns field in T for given current in A.
+        """Convert an electric (coil) current into the corresponding magnetic
+        field.
+        This method applies the device's calibration curve to determine the
+        magnetic field produced when the specified electric current flows
+        through the magnet's coil.
+        :param current: Electric current in the power supply [A]
+        :return: The resulting magnetic field strength [T]
         """
         self._check_calibration(self.mode, self.ramp)
         curves = self.calibration[self.mode][format(self.ramp, '.1f')]
@@ -353,7 +365,13 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
         return curves.decreasing()[0].yvx(current).y * self.calfac[self.mode]
 
     def _field2current(self, field):
-        """Returns required current in A for requested field in T.
+        """Convert a magnetic field value into the corresponding electric
+        current.
+        This method applies the device's calibration curve to compute the
+        electric current that must be delivered by the power supply in order to
+        generate the requested magnetic field.
+        :param field: Target magnetic field strength [T]
+        :return: The required electric current [A]
         """
         self._check_calibration(self.mode, self.ramp)
         curves = self.calibration[self.mode][format(self.ramp, '.1f')]
@@ -422,8 +440,11 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
         self._attached_currentsource.ramp = value
 
     def cycle_currentsource(self, val1, val2, ramp, n):
-        """Cycles current source from val1 [A] to val2 [A] n times at a given
-        ramp in [A/min].
+        """Cycles current source between two values.
+        :param val1: a value the cycle starts with [A]
+        :param val2: a value the cycle ends with [A]
+        :param ramp: ramp of the attached currentsource device [A/min]
+        :param n: number of cycles [a.u.]
         """
         self._stop_requested = False
         self._Ivt, self._cycling_steps = Curve2D(), []
@@ -456,16 +477,36 @@ class MagnetWithCalibrationCurves(CanDisable, Magnet):
 
     @usermethod
     def calibrate(self, mode, ramp, n, steptime=None):
-        """Measures B(I) calibration curves.
-        Calibration curves are stored in self.calibration as a dict:
-        self.calibration = {'continuous': _ramps_, 'stepwise': _ramps_}
-        Ramps are ramps of the currentsource and are also dicts:
-        _ramps_ = {'200.0': _curves_, '400.0': _curves_}
-        Curves must be a set of two curves:
-        _curves_ = (_increasing_curve_, _decreasing_curve_)
-        Increasing and decreasing curves must be lists of (X, Y(X)) tuples:
-        _increasing_curve_ = [(0, 1), (1, 2), (2, 4),]
-        X and Y values can be also uncertainties.core.ufloat.
+        """Measure B(I) calibration curves.
+        Calibration curves are stored in ``self.calibration`` as a dictionary::
+
+            self.calibration = {'continuous': _ramps_, 'stepwise': _ramps_}
+
+        Each ``_ramps_`` entry is itself a dictionary whose keys are ramp values
+        of the current source::
+
+            _ramps_ = {'200.0': _curves_, '400.0': _curves_}
+
+        Each ``_curves_`` entry contains two curves to account for hysteresis::
+
+            _curves_ = (increasing_curve, decreasing_curve)
+
+        The increasing and decreasing curves are lists of ``(X, Y(X))`` tuples::
+
+            increasing_curve = [(0, 1), (1, 2), (2, 4), ...]
+
+        X and Y values may also be instances of ``uncertainties.core.ufloat``
+        class.
+        :param mode: ``'stepwise'`` or ``'continuous'``.
+            In stepwise mode, the power supply ramps to a value,
+            waits for ``steptime``, and then the magnetic field is measured.
+            In ``continuous`` mode, the power supply sweeps between its
+            absolute limits, and magnetic field values are measured at
+            intervals of ``steptime``
+        :param ramp: ramp of the attached current-source device [A/min]
+        :param n: number of calibration cycles [a.u.]
+        :param steptime: in stepwise mode, the wait time before reading a value.
+            In continuous mode, the time interval between measurements [s]
         """
         self._stop_requested = False
         absmin = self._attached_currentsource.absmin

@@ -46,6 +46,12 @@ from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 
 class MokePlotCurve(MaskedPlotCurve):
+    """This PlotCurve allows switch between several states, through ``status``
+    property:
+    1. showing plot, marks and error bars,
+    2. showing plot and marks, hiding the error bars,
+    3. hiding all
+    """
 
     ShowAll = 0
     HideErrorBars = 1
@@ -83,6 +89,11 @@ class MokePlotCurve(MaskedPlotCurve):
 
 
 class MokePlot(LiveWidget1D):
+    """Allows to plot Curve2D and Curves objects through a simple interface.
+    Intercepts clicks on the legend to rotate the status of the corresponding
+    ``MokePlotCurve`` object.
+    """
+
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
         LiveWidget1D.__init__(self, parent, **kwds)
         self.axes.resetCurves()

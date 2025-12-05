@@ -42,6 +42,10 @@ from nicos_jcns.moke01.utils import fix_filename, generate_output
 
 
 class MokeMagnet(MagnetWithCalibrationCurves):
+    """MOKE magnet device provides methods to perform relevant measurements and
+    esport the measurement data.
+    Requires an external sensing nicos device attached as ``intensity``.
+    """
 
     attached_devices = {
         'intensity': Attach('Voltmeter reads intensity of a laser beam',
@@ -71,6 +75,10 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                 Curve2D(), Curve2D(), Curve2D()
 
     def _readRaw(self, maxage=0):
+        """Reads value from attached magsensor. Sometimes device might not
+        return value within Entangle timeout time. We don't want this to break
+        the measurement cycle.
+        """
         try:
             B = self._attached_magsensor.read(maxage)
         except Exception as e:
@@ -80,6 +88,10 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         return B
 
     def _readIntensity(self, maxage=0):
+        """Reads value from attached intensity sensor. Sometimes device might
+        not return value within Entangle timeout time. We don't want this to
+        break the measurement cycle.
+        """
         try:
             Int = self._intensity.read(maxage)
         except Exception as e:
@@ -89,6 +101,10 @@ class MokeMagnet(MagnetWithCalibrationCurves):
         return Int
 
     def measure_intensity(self, mrmnt):
+        """Initiates measurement of intensity vs. magnetic field curves.
+        :param mrmnt: python dict object that collects necessary measurement
+            information
+        """
         self._measuring = True
         self.progress = self.maxprogress = self.cycle = 0
         self.mode = mrmnt['mode']
@@ -180,6 +196,10 @@ class MokeMagnet(MagnetWithCalibrationCurves):
             self.disable()
 
     def save_measurement(self, measurement):
+        """Exports current measurent into an ASCII data table.
+        :param measurement: python dict object that collects necessary
+            measurement information
+        """
         if not measurement or 'name' not in measurement.keys():
             return None
         try:
@@ -195,6 +215,10 @@ class MokeMagnet(MagnetWithCalibrationCurves):
 
 
 class MokePowerSupply(PowerSupply):
+    """The power supply nicos device that can automatically turn itself on when
+    it starts from a disabled state. It also can move to ``0 A`` target at its
+    maxramp when it is requested to shut down.
+    """
 
     parameters = {
         'maxramp': Param(
@@ -227,6 +251,15 @@ class MokePSVoltage(AnalogInput):
 
 
 class MokeTeslameter(Sensor):
+    """Sensor of the magnetic field coupled with Group3 DTM-151 digital
+    teslameter.
+    It provides ``readStd`` method to return instrument error based on measured
+    value according to the data sheet.
+    To provide the instrument error the date of the last calibration of the
+    device and the probe wire length should be passed in the setup file.
+    Calculation also relies on the current ambient temperature, which should be
+    provided through an attached ``temperature`` nicos device.
+    """
 
     attached_devices = {
         'temperature': Attach('Temperature, °C', device.Readable)
@@ -247,6 +280,9 @@ class MokeTeslameter(Sensor):
         self._T = self._attached_temperature
 
     def readStd(self, value):
+        """Calculates instrument value for a given measured value.
+        :param value: measured value to provide the instrument error for
+        """
         # value is ÷/* 1000 because the NICOS device displays values in mT
         value = abs(value) / 1000
         i = self._dev.GetProperties().index('range')
@@ -262,6 +298,14 @@ class MokeTeslameter(Sensor):
 
 
 class MokeVoltmeter(Sensor):
+    """Sensor of the intensity coupled with Keithley Model 2000 Multimeter.
+    It provides ``readStd`` method to return instrument error based on measured
+    value according to the data sheet.
+    To provide the instrument error the date of the last calibration of the
+    device should be passed in the setup file.
+    Calculation also relies on the current ambient temperature, which should be
+    provided through an attached ``temperature`` nicos device.
+    """
 
     accuracies = {
         0.1: {
@@ -315,7 +359,7 @@ class MokeVoltmeter(Sensor):
 
     def readStd(self, value):
         # value is ÷/* 1000 because the NICOS device displays values in mV
-        value = abs(value) / 1000
+        value = abs(value) / 1000 # [V]
         days = (datetime.now() -
                 datetime.strptime(self.calibration_date, '%Y-%m-%d')).days
         meas_range = None
@@ -331,4 +375,4 @@ class MokeVoltmeter(Sensor):
         temp = self._T.read(60)
         if not 18 < temp < 28:
             err += MokeVoltmeter.temp_coefs[meas_range]
-        return (value * err[0] + meas_range * err[1]) * 1e-6 * 1000
+        return (value * err[0] + meas_range * err[1]) * 1e-6 * 1000 # [mV]

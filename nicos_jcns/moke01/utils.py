@@ -52,9 +52,25 @@ def fit_curve(curve, fittype):
     return c.lsm()
 
 
-def calc_ellipticity(imin, imax, int_mean, ext, angle):
-    """Calculates ellipticity values from intensity values."""
-
+def calc_kerr(imin, imax, int_mean, ext, angle):
+    """Calculates kerr angle which is the rotation of the polarization plane of
+    light that occurs when linearly polarized light reflects from a magnetized
+    material.
+    :param imin: lower intensity value obtained from ``fit_curve`` at 0 T
+        magnetic field strength. The value can be taken from both raw and
+        subtracted ``Int(B)`` curves [mV]
+    :param imax: higher intensity value obtained from ``fit_curve`` at 0 T
+        magnetic field strength. The value can be taken from both raw and
+        subtracted ``Int(B)`` curves [mV]
+    :param int_mean: mean intensity value at 0 T magnetic field strength, should
+        only be taken from raw (non-subtracted) ``Int(B)`` curve [mV]
+    :param ext: extinction voltage, a small residual intensity voltage measured
+        when the optical system is adjusted to the point where, ideally,
+        no light should reach the photodetector [mV]
+    :param angle: canting angle is an angle between the magnetization vector and
+        the sample plane [µrad]
+    :return: Kerr angle [µrad]
+    """
     if imin == imax:
         raise ValueError('calc_ellipticity(i, imin, imax) cannot be finished '
                          'when imin == imax. Check input data.')
@@ -62,9 +78,17 @@ def calc_ellipticity(imin, imax, int_mean, ext, angle):
 
 
 def scale_intensity(i, imin, imax, kerr):
-    """Scales intensity value.
+    """Recalculates given intensity value into ellipticity value.
+    :param i: intensity value to recalculate [mV]
+    :param imin: lower intensity value obtained from ``fit_curve`` at 0 T
+        magnetic field strength. The value can be taken from both raw and
+        subtracted ``Int(B)`` curves [mV]
+    :param imax: higher intensity value obtained from ``fit_curve`` at 0 T
+        magnetic field strength. The value can be taken from both raw and
+        subtracted ``Int(B)`` curves [mV]
+    :param kerr: Kerr angle [µrad]
+    :return: ellipticity value [µrad]
     """
-
     if imin == imax:
         raise ValueError('calc_ellipticity(i, imin, imax) cannot be finished '
                          'when imin == imax. Check input data.')
@@ -72,12 +96,23 @@ def scale_intensity(i, imin, imax, kerr):
 
 
 def calculate(IntvB, int_mean, angle, ext):
-    """MOKE-specific measurement analysis."""
-
+    """High-level function to fit MOKE curves, calculate kerr angle and
+    recalculate intensity curves into ellipticity curves.
+    :param IntvB: ``Int(B)`` curve of class Cyrve2D, can be both raw and
+        subtracted curve.
+    :param int_mean: mean intensity value at 0 T magnetic field strength, should
+        only be taken from raw (non-subtracted) ``Int(B)`` curve [mV]
+    :param angle: canting angle is an angle between the magnetization vector and
+        the sample plane [µrad]
+    :param ext: extinction voltage, a small residual intensity voltage measured
+        when the optical system is adjusted to the point where, ideally,
+        no light should reach the photodetector [mV]
+    :return: python tuple of ``(fit_min, fit_max, IntvB, EvB, kerr)``
+    """
     fit_min = fit_curve(IntvB, 'min') # [mV]
     fit_max = fit_curve(IntvB, 'max') # [mV]
-    # calculate kerr angle/ellipticity in [µrad]
-    kerr = calc_ellipticity(fit_min[1], fit_max[1], int_mean, ext, angle)
+    # calculate kerr angle in [µrad]
+    kerr = calc_kerr(fit_min[1], fit_max[1], int_mean, ext, angle)
 
     # separate increasing and decreasing curves and mean them
     curves = Curves.from_series(IntvB) # ([mT, mV])
@@ -93,13 +128,20 @@ def calculate(IntvB, int_mean, angle, ext):
 
 
 def generate_output(measurement, angle=None, ext=None):
-    """Generates 2 type of output:
-    1. measurement settings with full measurement curve of intensity vs.
-    magnetic field;
-    2. measurement and analysis settings, mean (by number of cycles) intensity
-    vs. magnetic field curve, calculated ellipticity vs. magnetic field curve
-    and output parameter kerr."""
-
+    """Generates two type of output:
+    1. only measurement settings with raw and subtracted ``B(I)`` and ``Int(B)``
+    curves;
+    2. measurement settings and analysis data, such as mean (by number of
+    cycles) ``Int(B)`` and ``E(B)`` curves and Kerr angle.
+    :param measurement: python dict object that collects necessary measurement
+        information
+    :param angle: canting angle is an angle between the magnetization vector and
+        the sample plane [µrad]
+    :param ext: extinction voltage, a small residual intensity voltage measured
+        when the optical system is adjusted to the point where, ideally,
+        no light should reach the photodetector [mV]
+    :return: ASCII data table
+    """
     keys = ['name', 'time', 'IntvB', 'exp_type', 'mode', 'ramp', 'Bmin', 'Bmax',
             'cycles', 'BvI', 'baseline', 'field_orientation', 'id',
             'description', 'calfac']
@@ -165,6 +207,8 @@ def generate_output(measurement, angle=None, ext=None):
 
 def fix_filename(filename):
     """Restrict filename string to limited amount of symbols.
+    :param filename: desired filename
+    :return: allowed filename
     """
     allowed = [ord(' '), ord('_'), ord('-')]
     allowed += range(ord('0'), ord('9'))
@@ -180,6 +224,8 @@ def fix_filename(filename):
 def asciitable(data):
     """Creates custom ASCII table. Column widths are adjusted to fit entries.
     All columns are aligned by right.
+    :param data: 2D python list that contains headers and values of a table
+    :return: a python string containing an ASCII formatted table
     """
     res = ''
     if data:
