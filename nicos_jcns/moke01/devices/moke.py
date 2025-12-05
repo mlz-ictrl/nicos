@@ -233,8 +233,14 @@ class MokeTeslameter(Sensor):
     }
 
     parameters = {
-        'calibration_date': Param('Last calibration date in iso format', str),
-        'probe_wire_length': Param('Length of probe cable in meters', float),
+        'calibration_date': Param(
+            'Last calibration date in iso format',
+            str, default='1960-01-01',
+        ),
+        'probe_wire_length': Param(
+            'Length of probe cable in meters',
+            float, mandatory=True,
+        ),
     }
 
     def doInit(self, mode):
@@ -298,7 +304,10 @@ class MokeVoltmeter(Sensor):
     }
 
     parameters = {
-        'calibration_date': Param('Last calibration date in iso format', str),
+        'calibration_date': Param(
+            'Last calibration date in iso format',
+            str, default='1960-01-01',
+        ),
     }
 
     def doInit(self, mode):
