@@ -2,6 +2,8 @@ description = 'BOA Table 2'
 
 pvprefix = 'SQ:BOA:turboPmac2:'
 
+group = 'lowlevel'
+
 devices = dict(
     t2tx = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Table 2 x translation',

@@ -22,3 +22,7 @@ devices = dict(
         auto = 'shutterauto',
     ),
 )
+
+extended = dict(
+    representative = 'shutter',
+)

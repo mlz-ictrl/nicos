@@ -43,28 +43,31 @@ def UpdateTimeBinning(start, step, count):
     """
     # FOCUS uses one shared array for TOF configuration
     hms = ['middle', 'upper', 'lower', 'f2d']
+
     # Keep a copy of delay for writing to data file
     dl = session.getDevice('delay')
     maw(dl, start)
-    # First set the delay time to all MDIF's
-    dt = start % 200000
-    for hm in hms:
-        try:
-            mdif = session.getDevice('mdif_' + hm)
-            mdif.execute('DT %d\r' % dt)
-        except ConfigurationError:
-            pass
+
+    # Delay that that each MDIF should be set to
+    dt = start / 10.
+
     tof = session.getDevice('hm_tof_array')
     # For configuration we start at 0
     tof.updateTimeBins(0, step, count)
+
     # Now configure all, possibly four HM
     for hm in hms:
         try:
             cfg = session.getDevice(hm + '_configurator')
             cfg.updateConfig()
+
+            # only try to set the mdif if the configurator is available
+            mdif = session.getDevice('mdif_' + hm)
+            mdif.maw(dt)
         except ConfigurationError:
             # Missing HM's are normal
             pass
+
     # Now make sure that the user sees the right thing
     tof.updateTimeBins(start, step, count)
 

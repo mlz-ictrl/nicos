@@ -1,5 +1,7 @@
 description = 'Devices for configuring the EMBL detectors Histogram Memory'
 
+group = 'lowlevel'
+
 devices = dict(
     hm_connector = device('nicos_sinq.devices.sinqhm.connector.HttpConnector',
         description = "Connector for Histogram Memory Server",
@@ -108,14 +110,12 @@ devices = dict(
             90.5469, 91.2891, 92.0312, 92.7734, 93.5156, 94.2578, 95
         ]
     ),
-    hm_tof_array = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfArray',
+    hm_tof_array = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfTofArray',
         data = [0, 20000],
         tag = 'tof',
-        dim = [
-            2,
-        ],
+        dim = [2],
         description = 'TOF Array',
-        visibility = (),
+        visibility = ('metadata', 'devlist'),
         formatter = '%9d',
     ),
     hm_ax_tof = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
@@ -139,6 +139,11 @@ devices = dict(
         active = '0x00000000',
         increment = 1,
         banks = ['hm_bank0'],
-        connector = 'hm_connector'
+        connector = 'hm_connector',
+        visibility = (),
     ),
+)
+
+extended = dict(
+    representative = 'hm_tof_array',
 )

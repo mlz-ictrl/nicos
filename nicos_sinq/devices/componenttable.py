@@ -95,6 +95,13 @@ class ComponentTable(Device):
             self.additional_devices = tmp
 
     @usermethod
+    def empty(self):
+        """Removes all devices and setups from this device.
+        """
+        self.setups = []
+        self.additional_devices = []
+
+    @usermethod
     def show(self):
         """Show the current configuration of the table"""
         txt = 'Table %s Configuration:\n' % self.name

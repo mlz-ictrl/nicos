@@ -24,22 +24,32 @@
 import numpy as np
 from lxml import etree
 
-from nicos.core import Attach, Device, Override, Param, listof, oneof
+from nicos.core import Attach, Override, Param, Readable, listof, oneof, status
 from nicos.core.constants import SIMULATION
 
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
 
-class HistogramConfElement(Device):
+class HistogramConfElement(Readable):
     """ Basic element for configuring the histogram memory.
     Each element should be able to get an XML.
     """
+
+    parameter_overrides = {
+        'unit': Override(default='', mandatory=False),
+    }
 
     def getXml(self):
         raise NotImplementedError('Method needs to te implemented')
 
     def getXmlString(self, **config):
         return etree.tostring(self.getXml(), **config)
+
+    def doRead(self, maxage=0):
+        return None
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''
 
 
 class HistogramConfArray(HistogramConfElement):
@@ -143,6 +153,11 @@ class HistogramConfTofArray(HistogramConfArray):
         self.start_delay = tmin
         self.channel_width = tstep
 
+    def doRead(self, maxage=0):
+        return (f'{self.start_delay} x 0.1us',
+                f'{self.channel_width} x 0.1us',
+                len(self.data)
+               )
 
 # pylint: disable=anomalous-backslash-in-string
 class HistogramConfAxis(HistogramConfElement):

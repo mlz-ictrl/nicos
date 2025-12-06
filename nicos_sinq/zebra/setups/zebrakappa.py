@@ -9,7 +9,19 @@ sysconfig = dict(instrument = 'ZEBRA',)
 pvpref = 'SQ:ZEBRA:masterMacs1:'
 
 devices = dict(
-    omk = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+    chi = device('nicos.devices.generic.ManualMove',
+        description = 'Simulated chi motor',
+        abslimits = (70, 212.5),
+        default = 180,
+        unit = 'degree',
+    ),
+    phi = device('nicos.devices.generic.ManualMove',
+        description = 'Simulated phi motor',
+        abslimits = (-180, 180),
+        default = 0,
+        unit = 'degree',
+    ),
+    omk = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Kappa omega rotation',
         motorpv = pvpref + 'omk',
     ),

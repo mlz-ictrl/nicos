@@ -1,3 +1,8 @@
+# TODO I think this file can be removed, so I am hiding it from the list to see
+# if anyone complains
+group = 'lowlevel'
+
+
 description = 'Setup for the ANDOR CCD camera at BOA'
 
 pvprefix = 'KM36:sim:'
@@ -38,7 +43,7 @@ devices = dict(
     protoncurr = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
         description = 'Monitor for proton current',
         type = 'monitor',
-        readpv = counterprefix + '.S5',
+        readpv = counterprefix + '.S4',
     ),
     el737 = device('nicos_sinq.devices.detector.SinqDetector',
         description = 'EL737 counter box that counts neutrons and '

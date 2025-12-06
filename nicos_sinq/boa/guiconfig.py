@@ -27,6 +27,8 @@ main_window = docked(
                      ('Output',
                       panel('nicos.clients.flowui.panels.console.ConsolePanel',
                             hasinput=False)),
+                     ('Table Setup',
+                      panel('nicos_sinq.boa.gui.panels.table_overview.TableViewPanel')),
                      ('Scan Plot',
                       panel('nicos.clients.flowui.panels.scans.ScansPanel')),
                      ('Detector Image',

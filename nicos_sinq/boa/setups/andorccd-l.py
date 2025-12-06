@@ -1,42 +1,19 @@
-description = 'Setup for the ANDOR CCD camera IKON-L at BOA ' \
-              'using the CCDWWW server'
+description = 'Setup for the ANDOR CCD IKON-L camera'
 
-excludes = ['andor', 'embl', 'fastcomtec', 'camini']
+group = 'basic'
+
+includes = [
+    'el737',
+]
 
 motprefix = 'SQ:BOA:turboPmac1:DCCDATZ'
-counterprefix = 'SQ:BOA:counter'
+
+sysconfig = dict(datasinks = ['livesink'])
 
 devices = dict(
     dccdatz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Andor focus motor',
         motorpv = motprefix,
-    ),
-    el737_preset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
-        description = 'Used to set and view time preset',
-        unit = 'sec',
-        readpv = counterprefix + '.TP',
-        presetpv = counterprefix + '.TP',
-    ),
-    elapsedtime = device('nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
-        description = 'Used to view elapsed time while counting',
-        unit = 'sec',
-        readpv = counterprefix + '.T',
-    ),
-    monitorpreset = device('nicos_sinq.devices.epics.detector.EpicsCounterActiveChannel',
-        description = 'Used to set and view monitor preset',
-        type = 'monitor',
-        readpv = counterprefix + '.PR2',
-        presetpv = counterprefix + '.PR2',
-    ),
-    monitorval = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Monitor for neutron beam',
-        type = 'monitor',
-        readpv = counterprefix + '.S2',
-    ),
-    protoncurr = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Monitor for proton current',
-        type = 'monitor',
-        readpv = counterprefix + '.S4',
     ),
     ccdwww_connector = device('nicos_sinq.boa.devices.ccdwww.CCDWWWConnector',
         description = 'Connector for CCDWWW',
@@ -80,19 +57,13 @@ devices = dict(
         ],
         visibility = ()
     ),
-    el737 = device('nicos_sinq.devices.detector.SinqDetector',
-        description = 'EL737 counter box that counts neutrons and '
-        'starts streaming events',
-        startpv = counterprefix + '.CNT',
-        pausepv = counterprefix + ':Pause',
-        statuspv = counterprefix + ':Status',
-        errormsgpv = counterprefix + ':MsgTxt',
-        monitorpreset = [
-            'monitorpreset',
-        ],
-        timepreset = ['el737_preset'],
-        thresholdpv = counterprefix + ':Threshold',
-        thresholdcounterpv = counterprefix + ':ThresholdCounter',
+
+    # Detector Device
+    el737 = device('nicos_sinq.devices.epics.sinqdaq.SinqDetector',
+        description = 'Nicos Detector Device',
+        timers = ['elapsedtime'],
+        monitors = ['hardware_preset', 'monitorval', 'protoncurr'],
+        visibility = {'metadata', 'namespace'},
     ),
     boacontrol = device('nicos_sinq.boa.devices.ccdcontrol.BoaControlDetector',
         description = 'BOA CCD control',
@@ -102,6 +73,10 @@ devices = dict(
         minimum_rate = 0,
         rate_monitor = 'monitorval',
         elapsed_time = 'elapsedtime'
+    ),
+
+    livesink = device('nicos.devices.datasinks.LiveViewSink',
+        description = "Sink for forwarding live data to the GUI",
     ),
 )
 
