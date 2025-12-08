@@ -7,7 +7,8 @@ sysconfig = dict(
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = [
-        'conssink', 'filesink', 'dmnsink', 'livesink', 'tofsink', 'nxsink', 'legacy_nxsink',
+        'conssink', 'filesink', 'dmnsink', 'livesink', 'tofsink',
+        'nxsink', 'legacy_nxsink',
     ],
 )
 
@@ -41,7 +42,7 @@ devices = dict(
         sample = 'Sample',
         reporttemplate = '',
         elog = True,
-        forcescandata = True,
+        # forcescandata = True,
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,
@@ -61,12 +62,14 @@ devices = dict(
     ),
     legacy_nxsink = device('nicos.nexus.NexusSink',
         templateclass = 'nicos_mlz.toftof.datasinks.nexustemplate.LegacyTemplate',
-        filenametemplate = ['L_TOFTOF%(pointcounter)08d.hdf5'],
+        filenametemplate = ['TOFTOF%(pointcounter)08d.nxs'],
+        settypes = {'point', },
         detectors = ['det'],
     ),
     nxsink = device('nicos.nexus.NexusSink',
         templateclass = 'nicos_mlz.toftof.nexus.nexus_templates.TofTofTemplate',
-        filenametemplate = ['TOFTOF%(scancounter)08d.nxs'],
+        filenametemplate = ['N_TOFTOF%(pointcounter)08d.nxs'],
+        settypes = {'point', },
         detectors = ['det'],
     ),
     Space = device('nicos.devices.generic.FreeSpace',

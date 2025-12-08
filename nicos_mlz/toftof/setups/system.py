@@ -8,8 +8,7 @@ sysconfig = dict(
     experiment = 'Exp',
     datasinks = [
         'conssink', 'filesink', 'dmnsink', 'livesink', 'tofsink',
-        'legacy_nxsink',
-        # 'nxsink'
+        'legacy_nxsink', 'nxsink'
     ],
     notifiers = ['emailer', 'smser'],
 )
@@ -59,12 +58,13 @@ devices = dict(
     ),
     legacy_nxsink = device('nicos_mlz.toftof.datasinks.NexusSink',
         templateclass = 'nicos_mlz.toftof.datasinks.nexustemplate.LegacyTemplate',
-        filenametemplate = ['L_TOFTOF%(pointcounter)08d.hdf5'],
+        filenametemplate = ['TOFTOF%(pointcounter)08d.nxs'],
+        settypes = {'point', },
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        # templateclass = 'nicos_mlz.toftof.datasinks.nexustemplate.TofTofNexusTemplate',
-        templateclass = 'nicos_mlz.toftof.datasinks.nexustemplate.LegacyTemplate',
-        filenametemplate = ['TOFTOF%(pointcounter)08d.nxs'],
+        templateclass = 'nicos_mlz.toftof.nexus.nexus_templates.TofTofTemplate',
+        filenametemplate = ['N_TOFTOF%(pointcounter)08d.nxs'],
+        settypes = {'point', },
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
