@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 devices = dict(
     hipa_current = device(
-        'nicos.devices.epics.pva.epics_devices.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description = "Proton Current",
         readpv = "SQ:BOA:proton:BEAM",
         monitor = True,

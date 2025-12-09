@@ -6,7 +6,7 @@ channels = ['raw_counts', 'm1', 'm2', 'proton']
 
 devices = dict(
     hipa_current = device(
-        'nicos.devices.epics.pva.epics_devices.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description = "Proton Current",
         readpv = "MHC6:IST:2",
         monitor = True,
@@ -22,31 +22,31 @@ devices = dict(
 
     # Detector Technical Measures
     dropped_packets = device(
-        'nicos.devices.epics.pva.epics_devices.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description = "Number of packets that didn't arrive at DAQ PC",
         readpv = pvprefix + ':UDP_DROPPED',
         monitor = True,
     ),
     udp_queue = device(
-        'nicos.devices.epics.pva.epics_devices.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description = "Max % that queue was filled during processing",
         readpv = pvprefix + ':UDP_WATERMARK',
         monitor = True,
     ),
     normalised_queue = device(
-        'nicos.devices.epics.pva.epics_devices.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description = "Max % that queue was filled during processing",
         readpv = pvprefix + ':NORMALISED_WATERMARK',
         monitor = True,
     ),
     process_queue = device(
-        'nicos.devices.epics.pva.epics_devices.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description = "Max % that queue was filled during processing",
         readpv = pvprefix + ':SORTED_WATERMARK',
         monitor = True,
     ),
     correlation_unit = device(
-        'nicos.devices.epics.pva.epics_devices.EpicsMappedMoveable',
+        'nicos.devices.epics.EpicsMappedMoveable',
         description = "Enable or Disable Detector Electronics",
         readpv = pvprefix + ':Enable_RBV',
         writepv = pvprefix + ':Enable',

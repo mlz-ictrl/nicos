@@ -22,7 +22,7 @@ devices = dict(
     ),
 
     # Other
-    chopper_delay = device('nicos.devices.epics.pva.epics_devices.EpicsAnalogMoveable',
+    chopper_delay = device('nicos.devices.epics.EpicsAnalogMoveable',
         description = 'EMBL MDIF Unit',
         readpv = "SQ:BOA:MDIF:DELAY_RBV",
         writepv = "SQ:BOA:MDIF:DELAY",
