@@ -1,3 +1,8 @@
+# TODO I think this file can be removed, so I am hiding it from the list to see
+# if anyone complains
+group = 'lowlevel'
+
+
 description = 'User devices'
 
 display_order = 90

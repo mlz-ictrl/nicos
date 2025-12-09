@@ -1,3 +1,8 @@
+# TODO I think this file can be removed, so I am hiding it from the list to see
+# if anyone complains
+group = 'lowlevel'
+
+
 description = 'This is shutter for use in simulations of BOA'
 
 excludes = [

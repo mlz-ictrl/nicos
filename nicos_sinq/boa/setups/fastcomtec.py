@@ -1,55 +1,26 @@
 description = 'Setup for the FastcomTec MCA coming with the mobile ' \
               'chopper unit'
 
-excludes = ['andor', 'embl']
+group = 'basic'
+
+includes = [
+    'el737',
+]
 
 counterprefix = 'SQ:BOA:counter'
 
 devices = dict(
-    el737_preset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
-        description = 'Used to set and view time preset',
-        unit = 'sec',
-        readpv = counterprefix + '.TP',
-        presetpv = counterprefix + '.TP',
-    ),
-    elapsedtime = device('nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
-        description = 'Used to view elapsed time while counting',
-        unit = 'sec',
-        readpv = counterprefix + '.T',
-    ),
-    monitorpreset = device('nicos_sinq.devices.epics.detector.EpicsCounterActiveChannel',
-        description = 'Used to set and view monitor preset',
-        type = 'monitor',
-        readpv = counterprefix + '.PR2',
-        presetpv = counterprefix + '.PR2',
-    ),
-    monitorval = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Monitor for neutron beam',
-        type = 'monitor',
-        readpv = counterprefix + '.S2',
-    ),
-    protoncurr = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Monitor for proton current',
-        type = 'monitor',
-        readpv = counterprefix + '.S4',
+    el737 = device('nicos_sinq.devices.epics.sinqdaq.SinqDetector',
+        description = 'Detector Nicos Device',
+        timers = ['elapsedtime'],
+        monitors = ['hardware_preset', 'monitorval', 'protoncurr'],
+        liveinterval = 20,
+        saveintervals = [60],
+        visibility = {'metadata', 'namespace'},
     ),
     fastcomtec = device('nicos_sinq.boa.devices.fastcomtec.FastComtecChannel',
         description = 'FastComtec MCA channel',
         pvprefix = 'SQ:BOA:mca',
-    ),
-    el737 = device('nicos_sinq.devices.detector.SinqDetector',
-        description = 'EL737 counter box that counts neutrons and '
-        'starts streaming events',
-        startpv = counterprefix + '.CNT',
-        pausepv = counterprefix + ':Pause',
-        statuspv = counterprefix + ':Status',
-        errormsgpv = counterprefix + ':MsgTxt',
-        monitorpreset = [
-            'monitorpreset',
-        ],
-        timepreset = ['el737_preset'],
-        thresholdpv = counterprefix + ':Threshold',
-        thresholdcounterpv = counterprefix + ':ThresholdCounter',
     ),
     fcdet = device('nicos.devices.generic.detector.Detector',
         description = 'Dummy detector to encapsulate fastcomtec',

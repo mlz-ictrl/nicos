@@ -18,6 +18,7 @@
 #
 # Module authors:
 #   Mark Koennecke <mark.koennecke@psi.ch>
+#   Edward Wall    <edward.wall@psi.ch>
 #
 # *****************************************************************************
 from nicos.core import Attach, HasPrecision, Moveable, Param, floatrange
@@ -46,15 +47,12 @@ class A6Motor(HasPrecision, BaseSequencer):
         return self._attached_raw_motor.read(maxage)
 
     def doStart(self, target):
-        self.reset()
-        BaseSequencer.doStart(self, target)
+        self.stop()
+        if not self._attached_raw_motor.isAtTarget(target):
+            BaseSequencer.doStart(self, target)
 
     def _generateSequence(self, target):
         return [
             SeqDev(self._attached_raw_motor, target),
             SeqSleep(self.wait_period)
         ]
-
-    def doReset(self):
-        BaseSequencer.doReset(self)
-        self._attached_raw_motor.reset()
