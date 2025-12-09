@@ -52,7 +52,7 @@ Specific classes using one or more PVs
 Dual protocol bindings
 ----------------------
 
-.. module:: nicos.devices.epics.pva
+.. module:: nicos.devices.epics
 
 Basic EPICS binding mixin
 -------------------------
@@ -65,16 +65,16 @@ Allows specify which EPICS protocol to use.
 Wrapper classes for EPICS protocols
 -----------------------------------
 
-.. module:: nicos.devices.epics.pva.caproto
+.. module:: nicos.devices.epics.wrapper.caproto
 .. autoclass:: CaprotoWrapper()
 
-.. module:: nicos.devices.epics.pva.p4p
+.. module:: nicos.devices.epics.wrapper.p4p
 .. autoclass:: P4pWrapper()
 
 Specific classes using one or more PVs
 --------------------------------------
 
-.. currentmodule:: nicos.devices.epics.pva
+.. currentmodule:: nicos.devices.epics
 .. autoclass:: EpicsReadable()
 
 .. autoclass:: EpicsMoveable()

@@ -11,6 +11,10 @@ facilities.
    nicos_demo
    nicos_ess
    nicos_jcns
+   nicos_lahn
+   nicos_mgml
    nicos_mlz
-   nicos_virt_mlz
+   nicos_pnpi
    nicos_sinq
+   nicos_tuw
+   nicos_virt_mlz
