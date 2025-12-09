@@ -18,7 +18,7 @@
 #
 # Module authors:
 #   Michele Brambilla <michele.brambilla@psi.ch>
-#   Mark Koennecke    <mark.koennecke@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
 from time import time as currenttime

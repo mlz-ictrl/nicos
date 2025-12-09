@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   AUC Hardal <umit.hardal@ess.eu>
+#   AÜC Hardal <umit.hardal@ess.eu>
 #   Matt Clarke <matt.clarke@ess.eu>
 # *****************************************************************************
 import json

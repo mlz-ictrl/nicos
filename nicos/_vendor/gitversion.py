@@ -1,6 +1,6 @@
 # Author: Douglas Creager <dcreager@dcreager.net>
 # This file is placed into the public domain.
-# Updated by Bjoern Pedersen <bjoern.pedersen@frm2.tum.de>
+# Updated by Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 
 # Calculates the current version number.  If possible, this is the
 # output of “git describe”, modified to conform to the versioning

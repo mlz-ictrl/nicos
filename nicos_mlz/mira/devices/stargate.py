@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#    Tobias Weber <tweber@frm2.tum.de>
+#   Tobias Weber <tobias.weber@frm2.tum.de>
 #
 # *****************************************************************************
 

@@ -18,7 +18,7 @@
 #
 # Module authors:
 #   AÜC Hardal <umit.hardal@ess.eu>
-#   Ebad Kamil <Ebad.Kamil@ess.eu>
+#   Ebad Kamil <ebad.kamil@ess.eu>
 #   Matt Clarke <matt.clarke@ess.eu>
 #   Kenan Muric <kenan.muric@ess.eu>
 #   Jonas Petersson <jonas.petersson@ess.eu>

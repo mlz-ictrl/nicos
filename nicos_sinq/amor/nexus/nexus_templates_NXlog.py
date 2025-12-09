@@ -17,8 +17,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#  Mark Koennecke <make.koennecke@psi.ch>
-#  Jochen Stahn <jochen.stahn@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
+#   Jochen Stahn <jochen.stahn@psi.ch>
 #
 # *****************************************************************************
 

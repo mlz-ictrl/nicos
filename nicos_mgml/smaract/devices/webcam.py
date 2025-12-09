@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Petr Cermak <petr.cermak@matfyz.cuni.cz>
+#   Petr Čermák <cermak@mag.mff.cuni.cz>
 #
 # ****************************************************************************
 

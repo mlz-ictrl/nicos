@@ -22,7 +22,7 @@
 # instruments.
 #
 # Module authors:
-#   Mark Koennecke <Mark.Koennecke@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
 

@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krueger <jens.krueger@tum.de>
+#   Jens Krueger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 

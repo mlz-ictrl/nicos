@@ -18,7 +18,7 @@
 #
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
-#   Petr Cermak <p.cermak@fz-juelich.de>
+#   Petr Čermák <p.cermak@fz-juelich.de>
 #
 # *****************************************************************************
 

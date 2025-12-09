@@ -18,7 +18,7 @@
 #
 # Module authors:
 #   Michele Brambilla <michele.brambilla@psi.ch>
-#   Ebad Kamil <Ebad.Kamil@ess.eu>
+#   Ebad Kamil <ebad.kamil@ess.eu>
 #   Matt Clarke <matt.clarke@ess.eu>
 #   Kenan Muric <kenan.muric@ess.eu>
 #   AÜC Hardal <umit.hardal@ess.eu>

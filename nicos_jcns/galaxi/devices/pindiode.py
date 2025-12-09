@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Lydia Fleischhauer-Fuß <l.fleischhauer-fuss@fz-juelich.de>
+#   Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
 #   Alexander Steffens <a.steffens@fz-juelich.de>
 #
 # *****************************************************************************

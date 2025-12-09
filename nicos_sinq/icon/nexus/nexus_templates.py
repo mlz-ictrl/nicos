@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Mark.Koennecke@psi.ch
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
 from copy import deepcopy

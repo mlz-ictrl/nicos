@@ -18,7 +18,7 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
-#   Petr Cermak <cermak@mag.mff.cuni.cz>
+#   Petr Čermák <cermak@mag.mff.cuni.cz>
 #
 # *****************************************************************************
 

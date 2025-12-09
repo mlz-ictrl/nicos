@@ -18,7 +18,7 @@
 #
 # Module authors:
 #   Alexander Lenz <alexander.lenz@frm2.tum.de>
-#   Petr Cermak <cermak@mag.mff.cuni.cz>
+#   Petr Čermák <cermak@mag.mff.cuni.cz>
 #
 # *****************************************************************************
 
