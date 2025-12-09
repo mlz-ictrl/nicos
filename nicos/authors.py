@@ -100,6 +100,7 @@ Instrument-specific code was contributed by:
 * Ebad Kamil <ebad.kamil@ess.eu>
 * Stefanie Keuler <s.keuler@fz-juelich.de>
 * Sabrina Kirstein <s.kirstein@fz-juelich.de>
+* Joachim Kohlbrecher <joachim.kohlbrecher@psi.ch>
 * Christine Klauser <christine.klauser@psi.ch>
 * Wiebke Lohstroh <wiebke.lohstroh@frm2.tum.de>
 * Adrian Losko <adrian.losko@frm2.tum.de>
@@ -135,6 +136,7 @@ Instrument-specific code was contributed by:
 * Henrik Thoma <henrik.thoma@frm2.tum.de>
 * Lukas Vogl <lukas.vogl@frm2.tum.de>
 * Michael Wagener <m.wagener@fz-juelich.de>
+* Simon Ward <simon.ward@psi.ch>
 * Alexander Weber <al.weber@fz-juelich.de>
 * Tobias Weber <tobias.weber@frm2.tum.de>
 * Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
