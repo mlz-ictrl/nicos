@@ -5,7 +5,7 @@ group = 'lowlevel'
 
 description = 'Setup for the ANDOR CCD camera at BOA using the CCDWWW server'
 
-excludes = ['andor', 'embl', 'fastcomtec', 'camini', 'andorccd-l']
+excludes = ['andor', 'embl', 'fastcomtec', 'camini', 'andorccd-l', 'el737']
 
 motprefix = 'SQ:BOA:turboPmac1:DCCDATZ'
 counterprefix = 'SQ:BOA:counter'

@@ -7,6 +7,8 @@ includes = [
     'el737',
 ]
 
+excludes = ['andor']
+
 counterprefix = 'SQ:BOA:counter'
 
 devices = dict(
