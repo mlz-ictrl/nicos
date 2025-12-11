@@ -104,8 +104,9 @@ def test_textclient(daemon):
         # Take a long list, the length is not predictable, the more tests
         # run against the session the longer the log list is needed to find
         # the requested entry
-        yield '/log 1000'
-        assert has_msg('# Printing 1000 previous messages.')
+        loglines = 1100
+        yield f'/log {loglines}'
+        assert has_msg(f'# Printing {loglines} previous messages.')
         assert has_msg('setting up NICOS')
         assert has_msg('# End of messages.')
 

@@ -3,9 +3,20 @@ include =
 	nicos/*
 	nicos_*/*
 	nicos/guisupport/typedvalue.py
+	nicos/clients/gui/cmdlets/*
 omit =
 	nicos/_vendor/*
-	nicos/clients/gui/*
+	nicos/clients/gui/client.py
+	nicos/clients/gui/config.py
+	nicos/clients/gui/data.py
+	nicos/clients/gui/__init__.py
+	nicos/clients/gui/main.py
+	nicos/clients/gui/mainwindow.py
+	nicos/clients/gui/utils.py
+	nicos/clients/gui/dialogs/*
+	nicos/clients/gui/panels/*
+	nicos/clients/gui/tools/*
+	nicos/clients/gui/widgets/*
 	nicos/commands/taco.py
 	nicos/devices/taco/*
 	nicos/devices/tango.py
