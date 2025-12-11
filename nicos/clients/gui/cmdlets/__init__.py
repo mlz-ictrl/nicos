@@ -158,8 +158,6 @@ class Cmdlet(QWidget):
     def generate(self):
         """Generate code for the commandlet.
 
-        *mode* is 'python' or 'simple'.
-
         Should generate a string of lines, complete with newlines.
         """
         return ''
