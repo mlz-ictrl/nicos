@@ -4,11 +4,11 @@ display_order = 30
 
 pvprefix = 'SQ:NEUTRA:turboPmacSample:'
 devices = dict(
-    sp3_tx = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    sp3_tx = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample Position 3, Translation X',
         motorpv = pvprefix + 'sp3_tx',
     ),
-    sp3_ty = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    sp3_ty = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample Position 3, Translation Y',
         motorpv = pvprefix + 'sp3_ty',
     ),

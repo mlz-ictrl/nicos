@@ -5,19 +5,19 @@ pvprefix = 'SQ:NEUTRA:turboPmacSlit:'
 display_order = 10
 
 devices = dict(
-    bl1top = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    bl1top = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Beam Limiter 1 top',
         motorpv = pvprefix + 'bl1_top',
     ),
-    bl1bottom = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    bl1bottom = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Beam Limiter 1 bottom',
         motorpv = pvprefix + 'bl1_bot',
     ),
-    bl1right = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    bl1right = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Beam Limiter 1 right',
         motorpv = pvprefix + 'bl1_rig',
     ),
-    bl1left = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    bl1left = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Beam Limiter 1 left',
         motorpv = pvprefix + 'bl1_lef',
     ),

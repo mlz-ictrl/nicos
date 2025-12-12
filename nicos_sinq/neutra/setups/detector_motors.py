@@ -4,11 +4,11 @@ display_order = 30
 
 pvprefix = 'SQ:NEUTRA:turboPmacSample:'
 devices = dict(
-    focus_maxi = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    focus_maxi = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Camera box translation',
         motorpv = pvprefix + 'camera',
     ),
-    xray_tx = device('nicos_sinq.devices.epics.motor.SinqMotor',
+    xray_tx = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'X-ray, Translation X',
         motorpv = pvprefix + 'xray_tx',
     ),
