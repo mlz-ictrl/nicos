@@ -1,39 +1,25 @@
 description = 'Beam limiter device at measurement position 2'
 
-pvprefix = 'SQ:NEUTRA:board5:'
+pvprefix = 'SQ:NEUTRA:turboPmacSlit:'
 
 display_order = 20
 
-group = 'lowlevel'
-
 devices = dict(
-    bl2left = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
-        description = 'Beam Limiter 2 -X',
-        motorpv = pvprefix + 'B2nX',
-        errormsgpv = pvprefix + 'B2nX-MsgTxt',
-        precision = 0.01,
-        visibility = set(),
+    bl2top = device('nicos_sinq.devices.epics.motor.SinqMotor',
+        description = 'Beam Limiter 2 top',
+        motorpv = pvprefix + 'bl2_top',
     ),
-    bl2right = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
-        description = 'Beam Limiter 2 +X',
-        motorpv = pvprefix + 'B2pX',
-        errormsgpv = pvprefix + 'B2pX-MsgTxt',
-        precision = 0.01,
-        visibility = set(),
+    bl2bottom = device('nicos_sinq.devices.epics.motor.SinqMotor',
+        description = 'Beam Limiter 2 bottom',
+        motorpv = pvprefix + 'bl2_bot',
     ),
-    bl2top = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
-        description = 'Beam Limiter 2 +Y',
-        motorpv = pvprefix + 'B2pY',
-        errormsgpv = pvprefix + 'B2pY-MsgTxt',
-        precision = 0.01,
-        visibility = set(),
+    bl2right = device('nicos_sinq.devices.epics.motor.SinqMotor',
+        description = 'Beam Limiter 2 right',
+        motorpv = pvprefix + 'bl2_rig',
     ),
-    bl2bottom = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
-        description = 'Beam Limiter 2 -Y',
-        motorpv = pvprefix + 'B2nY',
-        errormsgpv = pvprefix + 'B2nY-MsgTxt',
-        precision = 0.01,
-        visibility = set(),
+    bl2left = device('nicos_sinq.devices.epics.motor.SinqMotor',
+        description = 'Beam Limiter 2 left',
+        motorpv = pvprefix + 'bl2_lef',
     ),
     bl2 = device('nicos.devices.generic.slit.Slit',
         description = 'Beam Limiter 2',
@@ -42,6 +28,7 @@ devices = dict(
         right = 'bl2right',
         top = 'bl2top',
         bottom = 'bl2bottom',
+        coordinates = 'opposite',
         visibility = set(),
     ),
     bl2_width = device('nicos.devices.generic.slit.WidthSlitAxis',

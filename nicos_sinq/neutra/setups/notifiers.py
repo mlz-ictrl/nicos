@@ -10,16 +10,7 @@ devices = dict(
         mailserver = 'mailsend.psi.ch',
         sender = 'neutra@psi.ch',
         copies = [
-            ('pierre.boillat@psi.ch', 'important'),
-        ],
-        subject = 'NEUTRA',
-    ),
-    warning = device('nicos.devices.notifiers.Mailer',
-        description = 'Watchdog email notifier',
-        mailserver = 'mailsend.psi.ch',
-        sender = 'neutra@psi.ch',
-        copies = [
-            ('pierre.boillat@psi.ch', 'all'),
+            ('pavel.trtik@psi.ch', 'important'),
         ],
         subject = 'NEUTRA',
     ),
