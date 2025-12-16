@@ -72,8 +72,8 @@ class SeopPlot(LiveWidget1D):
             self.changeMarkerSize(1.5)
 
         self.axes.addCurves(self._curves[0])
-        self.setSizePolicy(QSizePolicy.MinimumExpanding,
-                           QSizePolicy.MinimumExpanding)
+        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
+                           QSizePolicy.Policy.MinimumExpanding)
 
     def setPlotData(self, x, y):
         self._curves[0].x = array(x)
@@ -303,7 +303,7 @@ class SeopControlPanel(Panel, SeopControl):
     def __init__(self, parent, client, options):
         super().__init__(parent, client, options)
         loadUi(self, findResource('nicos_jcns/seop/gui/seopcontrol.ui'))
-        parent.layout().setSizeConstraint(QLayout.SetFixedSize)
+        parent.layout().setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         # self.client.connected.connect(self.on_client_connected)
         # self.client.disconnected.connect(self.on_client_disconnected)
 
