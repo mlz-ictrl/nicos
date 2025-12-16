@@ -78,7 +78,7 @@ def copy_nexus_template(template):
     """
     if isinstance(template, dict):
         return {k: copy_nexus_template(v) for k, v in template.items()}
-    elif isinstance(template, list):
+    if isinstance(template, list):
         return [copy_nexus_template(elem) for elem in template]
     return template
 
