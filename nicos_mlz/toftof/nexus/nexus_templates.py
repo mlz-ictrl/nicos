@@ -31,7 +31,7 @@ from nicos.nexus.elements import ConstDataset, DeviceDataset, \
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Slit, \
     TimerMonitor, axis2, signal
 from nicos_mlz.toftof.lib import calculations as calc
-from nicos_mlz.toftof.nexus.elements import AzimutalAngles, \
+from nicos_mlz.toftof.nexus.elements import AzimuthalAngles, \
     DetectorDistances, DetInfo, Duration, EntryIdentifier, NeutronEnergy, \
     TimeOfFlight
 
@@ -113,7 +113,7 @@ class TofTofTemplate(MLZTemplateProvider):
             'distance': DetectorDistances(),
             'time_of_flight': TimeOfFlight(),
             'polar_angle': DetInfo(5, units='deg'),
-            'azimuthal_angle': AzimutalAngles(),
+            'azimuthal_angle': AzimuthalAngles(),
             'crate': DetInfo(1),
             'detector_number': DetInfo(0, axis=axis2),
 

@@ -509,7 +509,7 @@ class TimeOfFlight(NexusElementBase):
         self.createAttributes(dset, sinkhandler)
 
 
-class AzimutalAngles(DetInfo):
+class AzimuthalAngles(DetInfo):
 
     azimuth = {
         1: -64.45,
