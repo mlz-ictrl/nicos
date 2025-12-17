@@ -6,6 +6,8 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
+from nicos_sinq.sans.nexus.NexusImageManipulation import SliceTofImage
+
 from nicos_sinq.nexus.specialelements import AbsoluteTime, FixedArray, \
     OptionalDeviceDataset, SaveSampleEnv
 
@@ -68,6 +70,7 @@ sans_default = {'NeXus_Version': '4.4.0',
                             'lambda': DeviceDataset('vs_lambda'),
                             'rotation_speed': DeviceDataset('vs_speed'),
                             'tilt': DeviceDataset('vs_tilt'),
+                            'tilt_null': DeviceDataset('vs_tilt', 'offset'),
                         },
                         'monochromator:NXmonochromator': {
                           'wavelength': NXLink(
@@ -220,12 +223,26 @@ class SANSTemplateProvider(NexusTemplateProvider):
         full = deepcopy(sans_default)
         full['entry1:NXentry']['SANS:NXinstrument']['detector:NXdetector'] =\
             deepcopy(sans_detector)
+        entry1 = 'entry1:NXentry'
         if 'sample' in session.loaded_setups:
-            full['entry1:NXentry']['sample:NXsample'] = \
+            full[entry1]['sample:NXsample'] = \
                 dict(sample_common, **sample_std)
         elif 'emagnet_sample' in session.loaded_setups:
-            full['entry1:NXentry']['sample:NXsample'] = \
+            full[entry1]['sample:NXsample'] = \
                 dict(sample_common, **sample_magnet)
         else:
-            full['entry1:NXentry']['sample:NXsample'] = sample_common
+            full[entry1]['sample:NXsample'] = sample_common
+
+        if 'detector_strobo' in session.loaded_setups:
+            monitors_strobo = {
+                   'tof_monitors' : SliceTofImage(
+                   'sans_raw_hmbank',
+                   'tof_array',
+                   16384, 16387,
+                   signal=NXAttribute(1,'uint32'),
+                   units=NXAttribute('counts','string')
+                   ),
+            }
+            full[entry1].update(monitors_strobo)
+
         return full

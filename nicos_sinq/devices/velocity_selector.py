@@ -22,11 +22,12 @@
 # *****************************************************************************
 from nicos.core import Attach, Moveable, Param, listof, tupleof
 
-from nicos_sinq.devices.epics.generic import WindowMoveable
+from nicos.devices.epics.pva import EpicsDigitalMoveable
+
 from nicos_sinq.devices.epics.motor import SinqMotor
 
 
-class VSForbiddenMoveable(WindowMoveable):
+class VSForbiddenMoveable(EpicsDigitalMoveable):
     """
     Velocity selectors have forbidden regions in which they are
     not supposed to run for reason of excessive vibration. This class
@@ -41,9 +42,12 @@ class VSForbiddenMoveable(WindowMoveable):
 
     valuetype = int
 
+    def doStop(self):
+        pass
+
     def doIsAllowed(self, value):
         for region in self.forbidden_regions:
-            if region[0] < value < region[1]:
+            if region[0] <= value < region[1]:
                 return False, \
                        'Desired value value is within ' \
                        'forbidden region %f to %f' \
