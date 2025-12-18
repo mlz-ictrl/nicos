@@ -1,0 +1,28 @@
+schemaVersion: 2.2.0
+metadata:
+  name: nicos-tinl
+components:
+  - name: container-1
+    container:
+      image: 'quay.io/devfile/universal-developer-image:latest'
+      mountSources: true
+      memoryRequest: 500Mi
+      memoryLimit: 6G
+      cpuRequest: 1000m
+      cpuLimit: 4000m
+
+commands:
+- id: run
+  exec:
+    label: "Run the application"
+    component: container-1
+    workingDir: ${PROJECTS_ROOT}/nicos
+    commandLine: |
+      set -x
+      python -m venv /home/user/.venv/
+      $HOME/.venv/bin/pip install -r requirements.txt
+      $HOME/.venv/bin/pip install -r requirements-dev.txt
+      $HOME/.venv/bin/pip install -r nicos_mlz/requirements.txt
+      $HOME/.venv/bin/python bin/nicos-demo -MWNO
+    group:
+      kind: run
