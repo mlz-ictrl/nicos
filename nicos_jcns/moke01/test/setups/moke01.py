@@ -23,34 +23,49 @@
 
 name = 'test_moke01 setup'
 
+from nicos.utils.functioncurves import Curves
+from nicos_jcns.moke01.utils import generate_intvb
+
 devices = {
-    'MagB': device('nicos_jcns.moke01.devices.moke.MokeMagnet',
+    'MagB': device('nicos_jcns.moke01.devices.virtual.VirtualMokeMagnet',
+        unit = 'mT',
         intensity = 'Intensity',
         magsensor = 'Mag_sensor',
         currentsource = 'PS_current',
-        maxramp = 400.0,
-        ramp = 400.0,
-        fmtstr = '%.6f',
+        calibration = {
+            'stepwise': {
+                '10000.0':
+                    Curves([[(-1000, -1000), (-250, -750), (300, 750), (1000, 1000)],
+                            [(1000, 1000), (250, 750), (-300, -750), (-1000, -1000)]])
+            },
+            'continuous': {
+            },
+        },
+        ramp = 1e4,
+        maxramp = 1e6,
+        pollinterval = 0.5,
+        fmtstr = '%.3f',
     ),
-    'Intensity': device('nicos_jcns.moke01.test.utils.VirtualSensor',
+    'Intensity': device('nicos_jcns.moke01.devices.virtual.VirtualMokeSensor',
+        mappeddevice = 'Mag_sensor',
         unit = 'V',
-        curvalue = 1,
-        abslimits = (0, 3),
-        speed = 0,
-        ramp = 0,
+        valuemap = generate_intvb(-1000, 1000),
+        error = 0.02,
+        pollinterval = 0.5,
     ),
-    'Mag_sensor': device('nicos_jcns.moke01.test.utils.VirtualSensor',
-        unit = 'T',
-        curvalue = 0,
-        abslimits = (-400, 400),
-        speed = 0,
-        ramp = 0,
+    'Mag_sensor': device('nicos_jcns.moke01.devices.virtual.VirtualMokeSensor',
+        mappeddevice = 'PS_current',
+        unit = 'mT',
+        valuemap = Curves([[(-1000, -1000), (-250, -750), (300, 750), (1000, 1000)],
+                           [(1000, 1000), (250, 750), (-300, -750), (-1000, -1000)]]),
+        error = 0.01,
+        pollinterval = 0.5,
     ),
-    'PS_current': device('nicos_jcns.moke01.test.utils.VirtualPS',
+    'PS_current': device('nicos_jcns.moke01.devices.virtual.VirtualPowerSupply',
         unit = 'A',
-        curvalue = 0,
-        abslimits = (-400, 400),
-        speed = 0,
-        ramp = 400.0,
+        abslimits = (-1000, 1000),
+        ramp = 1e4,
+        maxramp = 1e6,
+        fmtstr = '%.1f',
     ),
 }

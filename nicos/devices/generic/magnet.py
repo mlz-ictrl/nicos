@@ -33,8 +33,8 @@ from scipy.optimize import fsolve
 from scipy.special import erf
 
 from nicos import session
-from nicos.core import Attach, HasLimits, LimitError, NicosError, Readable, \
-    status, usermethod
+from nicos.core import Attach, CanDisable, HasLimits, LimitError, NicosError, \
+    Readable, status, usermethod
 from nicos.core.params import Param, oneof, dictof, tupleof
 from nicos.core.sessions.utils import MASTER
 from nicos.core.utils import multiStop
@@ -276,12 +276,13 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
         currentsource.userlimits = (0, maxcurr)
 
 
-class MagnetWithCalibrationCurves(Magnet):
+class MagnetWithCalibrationCurves(CanDisable, Magnet):
     """Base class for a magnet, which relies on current-to-field curves
     obtained experimentally for different power supply ramps through a
     calibration procedure. Calibration curves are stored in a cached parameter.
+    And can be measured through ``calibrate`` method.
     Requires an external magnetic field sensing nicos device attached as
-    `magsensor`.
+    ``magsensor``.
     """
 
     attached_devices = {
@@ -303,7 +304,7 @@ class MagnetWithCalibrationCurves(Magnet):
             type=float, settable=True, default=0.0,
         ),
         'mode': Param(
-            'Measurement mode: stepwise or continuous',
+            'Measurement mode: `stepwise` or `continuous`',
             type=oneof('stepwise', 'continuous'), default='stepwise',
             settable=True
         ),
@@ -312,7 +313,7 @@ class MagnetWithCalibrationCurves(Magnet):
             unit='A/min', type=float, settable=True
         ),
         'maxramp': Param(
-            'Maximal ramp value',
+            'Maximal allowed ramp of the currentsource',
             unit='A/min', type=float, mandatory=True
         ),
         'cycle': Param(
@@ -330,33 +331,50 @@ class MagnetWithCalibrationCurves(Magnet):
     }
 
     def _check_calibration(self, mode, ramp):
+        """Verify that calibration data exist for the requested experiment mode
+        and ramp value.
+        :param mode: experiment mode ``stepwise`` or ``continuous``
+        :param ramp: ramp of the attached currentsource device [A/min]
+        """
         if not self.calibration:
             raise NicosError(self, 'Magnet must be calibrated.')
         if mode not in self.calibration.keys():
             raise NicosError(self, 'Magnet not calibrated in %s mode.' % mode)
-        if str(float(ramp)) not in self.calibration[mode].keys():
+        if format(ramp, '.1f') not in self.calibration[mode].keys():
             raise NicosError(self, 'Magnet not calibrated for %s A/min '
                                    'currensource ramp.' % ramp)
-        if len(self.calibration[mode][str(float(ramp))]) != 2:
+        if len(self.calibration[mode][format(ramp, '.1f')]) != 2:
             raise NicosError(self, 'Error reading calibration in %s mode for %s'
                                    ' A/min ramp. Performing new calibration '
                                    'might help.' % (mode, ramp))
 
     def _current2field(self, current):
-        """Returns field in T for given current in A.
+        """Convert an electric (coil) current into the corresponding magnetic
+        field.
+        This method applies the device's calibration curve to determine the
+        magnetic field produced when the specified electric current flows
+        through the magnet's coil.
+        :param current: Electric current in the power supply [A]
+        :return: The resulting magnetic field strength [T]
         """
         self._check_calibration(self.mode, self.ramp)
-        curves = self.calibration[self.mode][str(float(self.ramp))]
+        curves = self.calibration[self.mode][format(self.ramp, '.1f')]
         target = curves.mean().yvx(current).y * self.calfac[self.mode]
         if target > self.prevtarget:
             return curves.increasing()[0].yvx(current).y * self.calfac[self.mode]
         return curves.decreasing()[0].yvx(current).y * self.calfac[self.mode]
 
     def _field2current(self, field):
-        """Returns required current in A for requested field in T.
+        """Convert a magnetic field value into the corresponding electric
+        current.
+        This method applies the device's calibration curve to compute the
+        electric current that must be delivered by the power supply in order to
+        generate the requested magnetic field.
+        :param field: Target magnetic field strength [T]
+        :return: The required electric current [A]
         """
         self._check_calibration(self.mode, self.ramp)
-        curves = self.calibration[self.mode][str(float(self.ramp))]
+        curves = self.calibration[self.mode][format(self.ramp, '.1f')]
         if field > self.prevtarget:
             return curves.increasing()[0].xvy(field / self.calfac[self.mode]).x
         else:
@@ -370,8 +388,17 @@ class MagnetWithCalibrationCurves(Magnet):
             self._progress = self._maxprogress = self._cycle = 0
             self._stop_requested = False
 
+    def doEnable(self, on):
+        if on:
+            self._attached_currentsource.enable()
+        else:
+            self._attached_currentsource.disable()
+        self.prevtarget = 0
+
     def doRead(self, maxage=0):
-        return self._attached_magsensor.read(maxage) * self.calfac[self.mode]
+        if (B := self._readRaw(maxage)) is not None:
+            B *= self.calfac[self.mode]
+        return B
 
     def _readRaw(self, maxage=0):
         return self._attached_magsensor.read(maxage)
@@ -413,8 +440,11 @@ class MagnetWithCalibrationCurves(Magnet):
         self._attached_currentsource.ramp = value
 
     def cycle_currentsource(self, val1, val2, ramp, n):
-        """Cycles current source from val1 [A] to val2 [A] n times at a given
-        ramp in [A/min].
+        """Cycles current source between two values.
+        :param val1: a value the cycle starts with [A]
+        :param val2: a value the cycle ends with [A]
+        :param ramp: ramp of the attached currentsource device [A/min]
+        :param n: number of cycles [a.u.]
         """
         self._stop_requested = False
         self._Ivt, self._cycling_steps = Curve2D(), []
@@ -423,10 +453,10 @@ class MagnetWithCalibrationCurves(Magnet):
         # at least 100 measurement points if time between measurements is >0.5s
         # or as many as possible but the time between measurements is 0.5s
         num = 100
-        dt = abs(val2 - val1) / num / (ramp / 60)
+        dt = abs(val2 - val1) / num / ((ramp or self.maxramp) / 60)
         if dt < 0.5:
             dt = 0.5
-            num = int(abs(val2 - val1) / (dt * ramp / 60))
+            num = int(abs(val2 - val1) / (dt * (ramp or self.maxramp) / 60))
         ranges = [(val1, val2, num, False), (val2, val1, num, False)]
         self.progress = 0
         self.maxprogress = sum(len(numpy.linspace(*r)) for r in ranges) * n
@@ -446,28 +476,48 @@ class MagnetWithCalibrationCurves(Magnet):
         self.ramp = temp
 
     @usermethod
-    def calibrate(self, mode, ramp, n):
-        """Measures B(I) calibration curves.
-        Calibration curves are stored in self.calibration as a dict:
-        self.calibration = {'continuous': _ramps_, 'stepwise': _ramps_}
-        Ramps are ramps of the currentsource and are also dicts:
-        _ramps_ = {'200.0': _curves_, '400.0': _curves_}
-        Curves must be a set of two curves:
-        _curves_ = (_increasing_curve_, _decreasing_curve_)
-        Increasing and decreasing curves must be lists of (X, Y(X)) tuples:
-        _increasing_curve_ = [(0, 1), (1, 2), (2, 4),]
-        X and Y values can be also uncertainties.core.ufloat.
+    def calibrate(self, mode, ramp, n, steptime=None):
+        """Measure B(I) calibration curves.
+        Calibration curves are stored in ``self.calibration`` as a dictionary::
+
+            self.calibration = {'continuous': _ramps_, 'stepwise': _ramps_}
+
+        Each ``_ramps_`` entry is itself a dictionary whose keys are ramp values
+        of the current source::
+
+            _ramps_ = {'200.0': _curves_, '400.0': _curves_}
+
+        Each ``_curves_`` entry contains two curves to account for hysteresis::
+
+            _curves_ = (increasing_curve, decreasing_curve)
+
+        The increasing and decreasing curves are lists of ``(X, Y(X))`` tuples::
+
+            increasing_curve = [(0, 1), (1, 2), (2, 4), ...]
+
+        X and Y values may also be instances of ``uncertainties.core.ufloat``
+        class.
+        :param mode: ``'stepwise'`` or ``'continuous'``.
+            In stepwise mode, the power supply ramps to a value,
+            waits for ``steptime``, and then the magnetic field is measured.
+            In ``continuous`` mode, the power supply sweeps between its
+            absolute limits, and magnetic field values are measured at
+            intervals of ``steptime``
+        :param ramp: ramp of the attached current-source device [A/min]
+        :param n: number of calibration cycles [a.u.]
+        :param steptime: in stepwise mode, the wait time before reading a value.
+            In continuous mode, the time interval between measurements [s]
         """
         self._stop_requested = False
         absmin = self._attached_currentsource.absmin
         absmax = self._attached_currentsource.absmax
         self.mode = mode
-        self.ramp = float(ramp)
+        self.ramp = ramp
         _calfac = self.calfac.copy()
+        session.log.info('Calibration factor is reset from %s to 1.0', _calfac[mode])
         _calfac[mode] = 1.0
         self.calfac = _calfac
-        session.log.info('Calibration factor is reset to 1.0')
-        self._attached_currentsource.start(self._attached_currentsource.absmin)
+        self._attached_currentsource.start(self._attached_currentsource.absmax)
         self._hw_wait()
 
         with_std = hasattr(self._attached_magsensor, 'readStd')
@@ -477,37 +527,32 @@ class MagnetWithCalibrationCurves(Magnet):
                     self._cycling = True
                     self._cycling_thread = createThread('',
                                                         self.cycle_currentsource,
-                                                        (absmin, absmax, float(ramp), n,))
+                                                        (absmax, absmin, ramp, n,))
                 else:
                     raise NicosError(self, 'Power supply is busy.')
                 self._Bvt = Curve2D()
                 while self._cycling:
                     session.breakpoint(1)
-                    try:
-                        B = self._attached_magsensor.read(0)
-                    except Exception:
-                        B = None
-                    if B:
+                    if (B := self.read(0)) is not None:
                         self._Bvt.append((time.time(), B if not with_std else
                                           ufloat(B, self._attached_magsensor.readStd(B))))
-                    session.delay(0.5)
+                    session.delay(0.5 if steptime is None else steptime)
                 self._cycling_thread.join()
                 self._cycling_thread = None
                 self._BvI = Curve2D.from_two_temporal(self._Ivt, self._Bvt)
             elif mode == 'stepwise':
                 num = 100
-                ranges = [(absmin, absmax, num, False), (absmax, absmin, num, False)]
+                ranges = [(absmax, absmin, num, False), (absmin, absmax, num, False)]
                 self._BvI, self._cycling_steps = Curve2D(), []
                 for r in ranges * n:
                     self._cycling_steps.append(len(numpy.linspace(*r)))
                     for i in numpy.linspace(*r):
                         self._attached_currentsource.start(i)
                         # hardcoded 10 secs to reach quasi steady state condition
-                        session.delay(10)
-                        B = None
-                        while B is None:
-                            with suppress(Exception):
-                                B = self._attached_magsensor.read(0)
+                        session.delay(10 if steptime is None else steptime)
+                        while (B := self.read(0)) is None:
+                            session.breakpoint(1)
+                            session.delay(0.1)
                         self._BvI.append((i, B if not with_std else
                                           ufloat(B, self._attached_magsensor.readStd(B))))
         finally:
@@ -519,6 +564,7 @@ class MagnetWithCalibrationCurves(Magnet):
             curves = Curves.from_series(self._BvI, self._cycling_steps)
             calibration = Curves([curves.increasing().mean(), curves.decreasing().mean()])
             temp = self.calibration.copy()
-            temp[mode][str(float(ramp))] = calibration
+            temp[mode][format(ramp, '.1f')] = calibration
             self.calibration = temp
             self._stop_requested = False
+            self.disable()

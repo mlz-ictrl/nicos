@@ -22,64 +22,105 @@
 # *****************************************************************************
 
 import math
+from random import randint
 
-from nicos.utils.functioncurves import Curve2D, Curves
+import numpy
+import scipy
+
+from nicos.utils.functioncurves import Curve2D, Curves, ufloat
 from nicos.utils.functioncurves.calcs import mean
 
 
 def fit_curve(curve, fittype):
-    """MOKE-specific fitting function. Fitting result is a line.
-    Returns (k, b), assuming the fit is y(x) = k * x + b"""
-
+    """MOKE-specific fitting function.
+    It filters values on a curve of ``_/‾`` shape from min or max horizontal
+    saturation areas to fit them into a line with least squares method.
+    :param curve: ``_/‾`` shaped curve of class Curve2D
+    :param fittype: ``'min'`` or ``'max'``
+    :return: python tuple ``(k, b)`` for a fitting line y(x) = k * x + b
+    """
     fittypes = ['min', 'max']
     if fittype not in fittypes:
-        return
+        return None
     m = Curves.from_series(curve).mean().yvx(0)
-    curve_max = Curve2D([p for p in curve if p.y > m.y])
-    curve_min = Curve2D([p for p in curve if p.y < m.y])
-    if curve_max.ymax < curve_min.ymax:
-        curve_min, curve_max = curve_max, curve_min
+    curve_max = Curve2D([p for p in curve if p.y.n - p.y.s > m.y.n + m.y.s])
+    curve_min = Curve2D([p for p in curve if p.y.n + p.y.s < m.y.n - m.y.s])
     c = curve_min if fittype == 'min' else curve_max
     e = mean(c.y)
-    c = Curve2D([p for p in c \
-                 if max(e.n - e.s, p.y.n - p.y.s) < min(e.n + e.s, p.y.n + p.y.s)])
+    _filter = (lambda y: y < e) if fittype == 'min' else (lambda y: y > e)
+    c = Curve2D([p for p in c if _filter(p.y)])
     return c.lsm()
 
 
-def calc_ellipticity(imin, imax, int_mean, ext, angle):
-    """Calculates ellipticity values from intensity values."""
-
+def calc_kerr(imin, imax, int_mean, ext, angle):
+    """Calculates kerr angle which is the rotation of the polarization plane of
+    light that occurs when linearly polarized light reflects from a magnetized
+    material.
+    :param imin: lower intensity value obtained from ``fit_curve`` at 0 T
+        magnetic field strength. The value can be taken from both raw and
+        subtracted ``Int(B)`` curves [mV]
+    :param imax: higher intensity value obtained from ``fit_curve`` at 0 T
+        magnetic field strength. The value can be taken from both raw and
+        subtracted ``Int(B)`` curves [mV]
+    :param int_mean: mean intensity value at 0 T magnetic field strength, should
+        only be taken from raw (non-subtracted) ``Int(B)`` curve [mV]
+    :param ext: extinction voltage, a small residual intensity voltage measured
+        when the optical system is adjusted to the point where, ideally,
+        no light should reach the photodetector [mV]
+    :param angle: canting angle is an angle between the magnetization vector and
+        the sample plane [µrad]
+    :return: Kerr angle [µrad]
+    """
     if imin == imax:
         raise ValueError('calc_ellipticity(i, imin, imax) cannot be finished '
                          'when imin == imax. Check input data.')
-    return (imax - imin) / (int_mean - ext) * angle / 4 # [µrad]
+    return (imax - imin) / (int_mean - ext) * angle / 4  # [µrad]
 
 
 def scale_intensity(i, imin, imax, kerr):
-    """Scales intensity value.
+    """Recalculates given intensity value into ellipticity value.
+    :param i: intensity value to recalculate [mV]
+    :param imin: lower intensity value obtained from ``fit_curve`` at 0 T
+        magnetic field strength. The value can be taken from both raw and
+        subtracted ``Int(B)`` curves [mV]
+    :param imax: higher intensity value obtained from ``fit_curve`` at 0 T
+        magnetic field strength. The value can be taken from both raw and
+        subtracted ``Int(B)`` curves [mV]
+    :param kerr: Kerr angle [µrad]
+    :return: ellipticity value [µrad]
     """
-
     if imin == imax:
         raise ValueError('calc_ellipticity(i, imin, imax) cannot be finished '
                          'when imin == imax. Check input data.')
-    return (i - (imin + imax) / 2) / (imax - imin) * 2 * kerr # [µrad]
+    return (i - (imin + imax) / 2) / (imax - imin) * 2 * kerr  # [µrad]
 
 
 def calculate(IntvB, int_mean, angle, ext):
-    """MOKE-specific measurement analysis."""
-
-    fit_min = fit_curve(IntvB, 'min') # [mV]
-    fit_max = fit_curve(IntvB, 'max') # [mV]
-    # calculate kerr angle/ellipticity in [µrad]
-    kerr = calc_ellipticity(fit_min[1], fit_max[1], int_mean, ext, angle)
+    """High-level function to fit MOKE curves, calculate kerr angle and
+    recalculate intensity curves into ellipticity curves.
+    :param IntvB: ``Int(B)`` curve of class Cyrve2D, can be both raw and
+        subtracted curve.
+    :param int_mean: mean intensity value at 0 T magnetic field strength, should
+        only be taken from raw (non-subtracted) ``Int(B)`` curve [mV]
+    :param angle: canting angle is an angle between the magnetization vector and
+        the sample plane [µrad]
+    :param ext: extinction voltage, a small residual intensity voltage measured
+        when the optical system is adjusted to the point where, ideally,
+        no light should reach the photodetector [mV]
+    :return: python tuple of ``(fit_min, fit_max, IntvB, EvB, kerr)``
+    """
+    fit_min = fit_curve(IntvB, 'min')  # [mV]
+    fit_max = fit_curve(IntvB, 'max')  # [mV]
+    # calculate kerr angle in [µrad]
+    kerr = calc_kerr(fit_min[1], fit_max[1], int_mean, ext, angle)
 
     # separate increasing and decreasing curves and mean them
-    curves = Curves.from_series(IntvB) # ([mT, mV])
+    curves = Curves.from_series(IntvB)  # ([mT, mV])
     IntvB = Curve2D()
     IntvB.append(curves.increasing().mean())
     IntvB.append(curves.decreasing().mean())
     # rescale intensity into ellipticity curves
-    EvB = Curve2D() # ([mT, µrad])
+    EvB = Curve2D()  # ([mT, µrad])
     for B, Int in IntvB:
         EvB.append((B, scale_intensity(Int, fit_min[1], fit_max[1], kerr)))
 
@@ -87,21 +128,30 @@ def calculate(IntvB, int_mean, angle, ext):
 
 
 def generate_output(measurement, angle=None, ext=None):
-    """Generates 2 type of output:
-    1. measurement settings with full measurement curve of intensity vs.
-    magnetic field;
-    2. measurement and analysis settings, mean (by number of cycles) intensity
-    vs. magnetic field curve, calculated ellipticity vs. magnetic field curve
-    and output parameter kerr."""
-
+    """Generates two type of output:
+    1. only measurement settings with raw and subtracted ``B(I)`` and ``Int(B)``
+    curves;
+    2. measurement settings and analysis data, such as mean (by number of
+    cycles) ``Int(B)`` and ``E(B)`` curves and Kerr angle.
+    :param measurement: python dict object that collects necessary measurement
+        information
+    :param angle: canting angle is an angle between the magnetization vector and
+        the sample plane [µrad]
+    :param ext: extinction voltage, a small residual intensity voltage measured
+        when the optical system is adjusted to the point where, ideally,
+        no light should reach the photodetector [mV]
+    :return: ASCII data table
+    """
     keys = ['name', 'time', 'IntvB', 'exp_type', 'mode', 'ramp', 'Bmin', 'Bmax',
-            'cycles', 'BvI', 'baseline', 'field_orientation', 'id', 'description']
+            'cycles', 'BvI', 'baseline', 'field_orientation', 'id',
+            'description', 'calfac']
     if not measurement or not all(key in measurement.keys() for key in keys):
         return ''
     BvI = measurement['BvI']
     IntvB = measurement['IntvB']
     int_mean = IntvB.series_to_curves().mean().yvx(0)
     baseline = measurement['baseline']
+    calfac = measurement['calfac']
 
     # Measurement settings
     output = f'Measurement name: {measurement["name"]}\n'
@@ -110,6 +160,7 @@ def generate_output(measurement, angle=None, ext=None):
     output += f'Measurement start time: {measurement["time"]}\n'
     output += f'Measurement type: {measurement["exp_type"]}\n'
     output += f'Measurement mode: {measurement["mode"]}\n'
+    output += f'Calibration factor: {calfac}\n'
     output += f'Field orientation: {measurement["field_orientation"]}\n'
     output += f'Power supply ramp: {measurement["ramp"]} [A/min]\n'
     output += f'Bmin: {measurement["Bmin"]} (mT)\n'
@@ -137,7 +188,7 @@ def generate_output(measurement, angle=None, ext=None):
         try:
             _, _, IntvB_sub, EvB, kerr = calculate(IntvB_sub, int_mean.y, angle, ext)
             output += f'Canting angle: {angle / (1.5 / 25 / 180 * math.pi * 1e6)} (SKT)' \
-                      f' {angle / 1000 :.3f} (mrad)\n'
+                      f' {angle / 1000:.3f} (mrad)\n'
             output += f'Extinction: {ext} (mV)\n'
             output += f'Kerr angle: {kerr} (µrad)\n\n'
             output += 'Mean intensity and ellipticity curves:\n'
@@ -156,6 +207,8 @@ def generate_output(measurement, angle=None, ext=None):
 
 def fix_filename(filename):
     """Restrict filename string to limited amount of symbols.
+    :param filename: desired filename
+    :return: allowed filename
     """
     allowed = [ord(' '), ord('_'), ord('-')]
     allowed += range(ord('0'), ord('9'))
@@ -171,6 +224,8 @@ def fix_filename(filename):
 def asciitable(data):
     """Creates custom ASCII table. Column widths are adjusted to fit entries.
     All columns are aligned by right.
+    :param data: 2D python list that contains headers and values of a table
+    :return: a python string containing an ASCII formatted table
     """
     res = ''
     if data:
@@ -185,3 +240,36 @@ def asciitable(data):
                 res += f'{col:>{w}}   '
             res += '\n'
     return res
+
+
+def generate_intvb(Bmin, Bmax):
+    """Generates two ``Int(B)`` curves to account for hysteresis for a given
+    magnetic field range, similar to what can be obtained in a real MOKE
+    experiment.
+    The curves are generated using an error function having some randomized
+    input to affect its shape. The values have randomized jitter and instrument
+    error. Finally, the error functions are distorted by adding to them random
+    small linear component.
+    :param Bmin: minimum value of the magnetic field range
+    :param Bmax: minimum value of the magnetic field range
+    :return: two Curve2D ``Int(B)`` curves wrapped in Curves class
+    """
+    # width of hysteresis
+    width = randint(5, 15) / 10
+    # how sharp is the rise
+    sharp = randint(10, 20) / 1e3
+    # take 100 data points for the range
+    x = numpy.linspace(Bmin, Bmax, 100, True)
+    # increasing curve with random jitter
+    y1 = (scipy.special.erf(x * sharp + width) / 20 + 1.65) * 1e3
+    y1 = [ufloat(y * (randint(1, 10) / 1e4 + 1), randint(1, 10) / 1000) for y in y1]
+    # decreasing curve with random jitter
+    y2 = (scipy.special.erf(x * sharp - width) / 20 + 1.649) * 1e3
+    y2 = [ufloat(y * (randint(1, 10) / 1e4 + 1), randint(1, 10) / 1000) for y in y2]
+    IntvB = Curves([Curve2D.from_x_y(x, y1), Curve2D.from_x_y(x[::-1], y2[::-1])])
+    # random inclination
+    k = randint(0, 20) / 1e3
+    x = numpy.array([Bmin, Bmax])
+    y = k * x
+    line = Curve2D.from_x_y(x, y)
+    return Curves([IntvB[0] + line, IntvB[1] + line])

@@ -46,6 +46,12 @@ from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 
 class MokePlotCurve(MaskedPlotCurve):
+    """This PlotCurve allows switch between several states, through ``status``
+    property:
+    1. showing plot, marks and error bars,
+    2. showing plot and marks, hiding the error bars,
+    3. hiding all
+    """
 
     ShowAll = 0
     HideErrorBars = 1
@@ -53,8 +59,8 @@ class MokePlotCurve(MaskedPlotCurve):
 
     def __init__(self, *args, **kwargs):
         MaskedPlotCurve.__init__(self, *args, **kwargs)
-        self._show_error_bars = True
-        self._status = MokePlotCurve.ShowAll
+        self._show_error_bars = False
+        self._status = MokePlotCurve.HideErrorBars
 
     @property
     def status(self):
@@ -83,6 +89,11 @@ class MokePlotCurve(MaskedPlotCurve):
 
 
 class MokePlot(LiveWidget1D):
+    """Allows to plot Curve2D and Curves objects through a simple interface.
+    Intercepts clicks on the legend to rotate the status of the corresponding
+    ``MokePlotCurve`` object.
+    """
+
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
         LiveWidget1D.__init__(self, parent, **kwds)
         self.axes.resetCurves()
@@ -183,24 +194,21 @@ class MokeBase(Panel):
             QMessageBox.information(None, '', 'The measurement is not yet finished')
             return
 
-        IntvB = self.m['IntvB']
-        int_mean = IntvB.series_to_curves().mean().yvx(0) # [mV]
-        if self.chk_subtract_baseline.isChecked():
-            if 'baseline' in self.m and self.m['baseline']:
-                IntvB -= self.m['baseline'] # ([mT, mV])
-            if int_mean:
-                IntvB -= int_mean.y # ([mT, mV])
-        angle = float(self.ln_canting_angle.text()) # [SKT]
+        IntvB = Curve2D(self.m['IntvB'])
+        int_mean = IntvB.series_to_curves().mean().yvx(0)
+        IntvB = self._subtract_baseline(IntvB)
+        angle = float(self.ln_canting_angle.text())  # [SKT]
         # recalculate angle in SKT to µrad
-        angle *= 1.5 / 25 / 180 * math.pi * 1e6 # [µrad]
-        ext = float(self.ln_extinction.text()) # mV
+        angle *= 1.5 / 25 / 180 * math.pi * 1e6  # [µrad]
+        ext = float(self.ln_extinction.text())  # mV
         try:
             fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean.y, angle, ext)
         except Exception as e:
             QMessageBox.information(None, '', f'Calculation has failed:\n{e}')
             return
         # upd IntvB plot with mean curve and fits
-        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])])
+        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])]) * 0.9
+        self.plot_IntvB.reset()
         self.plot_IntvB.add_curve(list(zip(x, fit_min[0] * x + fit_min[1])),
                                   legend='Fit min')
         self.plot_IntvB.add_curve(list(zip(x, fit_max[0] * x + fit_max[1])),
@@ -222,6 +230,13 @@ class MokeBase(Panel):
     def display_rawdata(self, output):
         self.txt_rawdata.clear()
         self.txt_rawdata.insertPlainText(output)
+
+    def _subtract_baseline(self, IntvB):
+        if self.chk_subtract_baseline.isChecked() and IntvB:
+            if 'baseline' in self.m and self.m['baseline']:
+                IntvB -= self.m['baseline']  # ([mT, mV])
+            IntvB -= IntvB.series_to_curves().mean().yvx(0).y  # ([mT, mV])
+        return IntvB
 
 
 class MokePanel(NicosWidget, MokeBase):
@@ -306,10 +321,10 @@ class MokePanel(NicosWidget, MokeBase):
         elif key == 'magb/cycle':
             self.lcd_cycle.display(value + 1)
         elif key == 'magb/maxprogress':
-            self.bar_cycles.setMaximum(value) # progress bar
+            self.bar_cycles.setMaximum(value)  # progress bar
         elif key == 'magb/progress':
             if value:
-                self.bar_cycles.setValue(value) # progress bar
+                self.bar_cycles.setValue(value)  # progress bar
                 timeleft = self._timeleft(value)
                 self.lcd_timeleft.display(f'{int(timeleft / 60):02}:{int(timeleft % 60):02}')
             # live-update graph of intensity vs field
@@ -317,15 +332,10 @@ class MokePanel(NicosWidget, MokeBase):
             # IntvB can be fetched from MagB._IntvB
             if self.m:
                 IntvB = self.client.eval('session.getDevice("MagB")._IntvB')
-                int_mean = IntvB.series_to_curves().mean().yvx(0)
-                if self.chk_subtract_baseline.isChecked() and IntvB:
-                    if 'baseline' in self.m and self.m['baseline']:
-                        IntvB -= self.m['baseline']
-                    if int_mean:
-                        IntvB -= int_mean.y
+                IntvB = self._subtract_baseline(IntvB)
                 self.plot_IntvB.reset()
                 self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
-                m = self.m
+                m = self.m.copy()
                 m['IntvB'] = IntvB
                 m['BvI'] = self.client.eval('session.getDevice("MagB")._BvI')
                 self.display_rawdata(generate_output(m))
@@ -348,41 +358,31 @@ class MokePanel(NicosWidget, MokeBase):
                 self.ln_Bmax.setText(str(self.m['Bmax']))
                 self.ln_step.setText(str(self.m['step']))
                 self.ln_steptime.setText(str(self.m['steptime']))
-                self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(str(self.m['ramp'])))
+                self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(format(self.m['ramp'], '.1f')))
                 self.ln_cycles.setText(str(self.m['cycles']))
                 self.plot_IntvB.reset()
                 if self.m['IntvB']:
-                    IntvB = self.m['IntvB']
-                    int_mean = IntvB.series_to_curves().mean().yvx(0)
-                    if self.chk_subtract_baseline.isChecked():
-                        if 'baseline' in self.m and self.m['baseline']:
-                            IntvB -= self.m['baseline']
-                        if int_mean:
-                            IntvB -= int_mean.y
+                    IntvB = Curve2D(self.m['IntvB'])
+                    IntvB = self._subtract_baseline(IntvB)
                     self.plot_IntvB.reset()
                     self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),
                                                    legend=self.m['name'])
 
     def on_cmb_mode_currentTextChanged(self, mode):
-        if mode == 'stepwise':
-            self.ln_step.setEnabled(True)
-            self.ln_steptime.setEnabled(True)
-            self.cmb_ramp.setEnabled(False)
-        elif mode == 'continuous':
-            self.ln_step.setEnabled(False)
-            self.ln_steptime.setEnabled(False)
-            self.cmb_ramp.setEnabled(True)
+        self.cmb_ramp.clear()
+        self.cmb_ramp.addItems(self.calibration[mode].keys())
+        self.ln_step.setEnabled(mode == 'stepwise')
 
     def on_chk_calibration_unlock_stateChanged(self, state):
         self.ln_calibration_ramp.setEnabled(bool(state))
-        self.ln_calibration_cycles.setEnabled(bool(state))
         self.btn_calibration.setEnabled(bool(state))
 
     @pyqtSlot()
     def on_btn_calibration_clicked(self):
         self.client.run(f'MagB.calibrate("{self.cmb_mode.currentText()}", '
                         f'{self.ln_calibration_ramp.text()}, '
-                        f'{self.ln_calibration_cycles.text()})')
+                        f'{self.ln_cycles.text()}, '
+                        f'{self.ln_steptime.text()})')
 
     def on_chk_baseline_unlock_stateChanged(self, state):
         self.btn_baseline_import.setEnabled(bool(state))
@@ -393,7 +393,7 @@ class MokePanel(NicosWidget, MokeBase):
         if self.m and self.m['IntvB']:
             mode = self.m['mode']
             field = self.m['field_orientation']
-            ramp = str(self.m['ramp'])
+            ramp = format(self.m['ramp'], '.1f')
             self.plot_baseline.add_curve(
                 self.m['IntvB'].series_to_curves().mean() -
                 self.m['IntvB'].series_to_curves().mean().yvx(0).y,
@@ -407,7 +407,7 @@ class MokePanel(NicosWidget, MokeBase):
             field = self.m['field_orientation']
             ramp = self.m['ramp']
             self.client.run('temp = MagB.baseline.copy()')
-            self.client.run(f'temp["{mode}"]["{field}"]["{ramp}"] = '
+            self.client.run(f'temp["{mode}"]["{field}"]["{ramp:.1f}"] = '
                              'MagB.measurement["IntvB"].series_to_curves().mean()'
                              ' - MagB.measurement["IntvB"].series_to_curves().mean().yvx(0).y')
             self.client.run('MagB.baseline = temp')
@@ -424,9 +424,9 @@ class MokePanel(NicosWidget, MokeBase):
             'steptime': float(self.ln_steptime.text()),
             'id': self.ln_id.text(),
             'description': self.ln_description.text(),
-            'exp_type': 'rotation' if self.rad_rotation.isChecked() \
+            'exp_type': 'rotation' if self.rad_rotation.isChecked()
                 else 'ellipticity',
-            'field_orientation': 'polar' if self.rad_polar.isChecked() \
+            'field_orientation': 'polar' if self.rad_polar.isChecked()
                 else 'longitudinal'
         }
         for key, item in measurement.items():
@@ -465,9 +465,9 @@ class MokePanel(NicosWidget, MokeBase):
                     I0 = self._field2current(B0, values[progress] > B0).n
                     for B1 in values[progress:]:
                         I1 = self._field2current(B1, B1 > B0).n
-                        t += abs(I1 - I0) / ramp * 60 + 1 # ~1 s overhead
+                        t += abs(I1 - I0) / ramp * 60 + 1  # ~1 s overhead
                         t += steptime
-                        t += 0.5 # avg measurement delay
+                        t += 0.5  # avg measurement delay
                         B0, I0 = B1, I1
             else:
                 if self.calibration:
@@ -490,7 +490,7 @@ class MokePanel(NicosWidget, MokeBase):
     def _field2current(self, field, increasing):
         mode = self.m['mode']
         ramp = self.m['ramp']
-        curves = self.calibration[mode][str(ramp)]
+        curves = self.calibration[mode][format(ramp, '.1f')]
         return curves.increasing()[0].xvy(field).x \
             if increasing else curves.decreasing()[0].xvy(field).x
 
@@ -544,13 +544,8 @@ class MokeHistory(MokeBase):
             item = self._model.itemFromIndex(current)
             self.m = self.measurements[item.text()]
             self.display_rawdata(generate_output(self.m))
-        IntvB = self.m['IntvB']
-        int_mean = IntvB.series_to_curves().mean().yvx(0)
-        if self.chk_subtract_baseline.isChecked():
-            if 'baseline' in self.m and self.m['baseline']:
-                IntvB -= self.m['baseline']
-            if int_mean:
-                IntvB -= int_mean.y
+        IntvB = Curve2D(self.m['IntvB'])
+        IntvB = self._subtract_baseline(IntvB)
         self.plot_IntvB.reset()
         self.plot_EvB.reset()
         self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),

@@ -25,14 +25,13 @@
 
 import os
 import time
-from contextlib import suppress
 from datetime import datetime
 
 import numpy
 from uncertainties import ufloat  # pylint: disable=import-error
 
 from nicos import session
-from nicos.core import Attach, CanDisable, Param, device, errors, status
+from nicos.core import Attach, Param, device, errors, status
 from nicos.core.sessions.utils import MASTER
 from nicos.devices.entangle import AnalogInput, PowerSupply, Sensor
 from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
@@ -42,7 +41,11 @@ from nicos.utils.functioncurves import Curve2D
 from nicos_jcns.moke01.utils import fix_filename, generate_output
 
 
-class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
+class MokeMagnet(MagnetWithCalibrationCurves):
+    """MOKE magnet device provides methods to perform relevant measurements and
+    esport the measurement data.
+    Requires an external sensing nicos device attached as ``intensity``.
+    """
 
     attached_devices = {
         'intensity': Attach('Voltmeter reads intensity of a laser beam',
@@ -71,14 +74,37 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             self._Bvt, self._Intvt, self._BvI, self._IntvB = Curve2D(), \
                 Curve2D(), Curve2D(), Curve2D()
 
-    def doEnable(self, on):
-        if on:
-            self._attached_currentsource.enable()
-        else:
-            self._attached_currentsource.disable()
-        self.prevtarget = 0
+    def _readRaw(self, maxage=0):
+        """Reads value from attached magsensor. Sometimes device might not
+        return value within Entangle timeout time. We don't want this to break
+        the measurement cycle.
+        """
+        try:
+            B = self._attached_magsensor.read(maxage)
+        except Exception as e:
+            session.log.info('Magsensor value was not read due to failure in'
+                             'entangle device:\n%s', e)
+            return None
+        return B
+
+    def _readIntensity(self, maxage=0):
+        """Reads value from attached intensity sensor. Sometimes device might
+        not return value within Entangle timeout time. We don't want this to
+        break the measurement cycle.
+        """
+        try:
+            Int = self._intensity.read(maxage)
+        except Exception as e:
+            session.log.info('Intensity value was not read due to failure in'
+                             'entangle device:\n%s', e)
+            return None
+        return Int
 
     def measure_intensity(self, mrmnt):
+        """Initiates measurement of intensity vs. magnetic field curves.
+        :param mrmnt: python dict object that collects necessary measurement
+            information
+        """
         self._measuring = True
         self.progress = self.maxprogress = self.cycle = 0
         self.mode = mrmnt['mode']
@@ -93,13 +119,14 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             self.baseline[mrmnt['mode']][mrmnt['field_orientation']][str(mrmnt['ramp'])] \
             if str(mrmnt['ramp']) in self.baseline[mrmnt['mode']][mrmnt['field_orientation']].keys() \
                 else []
+        mrmnt['calfac'] = self.calfac[self.mode]
         self.measurement = mrmnt
 
         try:
             if mrmnt['mode'] == 'stepwise':
                 n = int(abs(mrmnt['Bmax'] - mrmnt['Bmin']) / mrmnt['step'])
-                ranges = [[mrmnt['Bmin'], mrmnt['Bmax'], n, False],
-                          [mrmnt['Bmax'], mrmnt['Bmin'], n, False]] * mrmnt['cycles']
+                ranges = [[mrmnt['Bmax'], mrmnt['Bmin'], n, False],
+                          [mrmnt['Bmin'], mrmnt['Bmax'], n, False]] * mrmnt['cycles']
                 ranges[-1][2] += 1
                 ranges[-1][3] = True
                 self._BvI, self._IntvB = Curve2D(), Curve2D()
@@ -113,14 +140,12 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                         self.start(_B)
                         self._hw_wait()
                         session.delay(mrmnt['steptime'])
-                        B = None
-                        while B is None:
-                            with suppress(Exception):
-                                B = self.read(0)
-                        Int = None
-                        while Int is None:
-                            with suppress(Exception):
-                                Int = self._intensity.read(0)
+                        while (B := self.read(0)) is None:
+                            session.breakpoint(3)
+                            session.delay(0.1)
+                        while (Int := self._readIntensity()) is None:
+                            session.breakpoint(3)
+                            session.delay(0.1)
                         self._BvI.append((self._field2current(_B).n, _B))
                         self._IntvB.append((ufloat(B, self._magsensor.readStd(B)),
                                             ufloat(Int, self._intensity.readStd(Int))))
@@ -135,7 +160,7 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                     self._cycling = True
                     self._cycling_thread = \
                         createThread('', self.cycle_currentsource,
-                                     (IBmin, IBmax, mrmnt['ramp'], mrmnt['cycles']))
+                                     (IBmax, IBmin, mrmnt['ramp'], mrmnt['cycles']))
                 else:
                     raise errors.NicosError(self, 'Power supply is busy.')
                 # measures magnetic field and intensity vallues
@@ -146,18 +171,10 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
                         session.breakpoint(2)
                     _cycle = self.cycle
                     session.breakpoint(3)
-                    try:
-                        B = self.read(0)
-                    except Exception:
-                        B = None
-                    if B:
+                    if (B := self.read(0)) is not None:
                         self._Bvt.append((time.time(),
                                           ufloat(B, self._magsensor.readStd(B))))
-                    try:
-                        Int = self._intensity.read(0)
-                    except Exception:
-                        Int = None
-                    if Int:
+                    if (Int := self._readIntensity()) is not None:
                         self._Intvt.append((time.time(),
                                             ufloat(Int, self._intensity.readStd(Int))))
                     if self._Ivt and self._Bvt:
@@ -179,6 +196,10 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
             self.disable()
 
     def save_measurement(self, measurement):
+        """Exports current measurent into an ASCII data table.
+        :param measurement: python dict object that collects necessary
+            measurement information
+        """
         if not measurement or 'name' not in measurement.keys():
             return None
         try:
@@ -194,10 +215,21 @@ class MokeMagnet(CanDisable, MagnetWithCalibrationCurves):
 
 
 class MokePowerSupply(PowerSupply):
+    """The power supply nicos device that can automatically turn itself on when
+    it starts from a disabled state. It also can move to ``0 A`` target at its
+    maxramp when it is requested to shut down.
+    """
+
+    parameters = {
+        'maxramp': Param(
+            'Maximal ramp value',
+            unit='A/min', type=float, mandatory=True
+        ),
+    }
 
     def doEnable(self, on):
         if not on:
-            self.ramp = 400
+            self.ramp = self.maxramp
             PowerSupply.start(self, 0)
             self._hw_wait()
         PowerSupply.doEnable(self, on)
@@ -207,9 +239,6 @@ class MokePowerSupply(PowerSupply):
             self.enable()
             self._hw_wait()
         PowerSupply.doStart(self, target)
-
-    def doStop(self):
-        PowerSupply.doStop(self)
 
 
 class MokePSVoltage(AnalogInput):
@@ -222,20 +251,38 @@ class MokePSVoltage(AnalogInput):
 
 
 class MokeTeslameter(Sensor):
+    """Sensor of the magnetic field coupled with Group3 DTM-151 digital
+    teslameter.
+    It provides ``readStd`` method to return instrument error based on measured
+    value according to the data sheet.
+    To provide the instrument error the date of the last calibration of the
+    device and the probe wire length should be passed in the setup file.
+    Calculation also relies on the current ambient temperature, which should be
+    provided through an attached ``temperature`` nicos device.
+    """
 
     attached_devices = {
         'temperature': Attach('Temperature, °C', device.Readable)
     }
 
     parameters = {
-        'calibration_date': Param('Last calibration date in iso format', str),
-        'probe_wire_length': Param('Length of probe cable in meters', float),
+        'calibration_date': Param(
+            'Last calibration date in iso format',
+            str, default='1960-01-01',
+        ),
+        'probe_wire_length': Param(
+            'Length of probe cable in meters',
+            float, mandatory=True,
+        ),
     }
 
     def doInit(self, mode):
         self._T = self._attached_temperature
 
     def readStd(self, value):
+        """Calculates instrument value for a given measured value.
+        :param value: measured value to provide the instrument error for
+        """
         # value is ÷/* 1000 because the NICOS device displays values in mT
         value = abs(value) / 1000
         i = self._dev.GetProperties().index('range')
@@ -251,6 +298,14 @@ class MokeTeslameter(Sensor):
 
 
 class MokeVoltmeter(Sensor):
+    """Sensor of the intensity coupled with Keithley Model 2000 Multimeter.
+    It provides ``readStd`` method to return instrument error based on measured
+    value according to the data sheet.
+    To provide the instrument error the date of the last calibration of the
+    device should be passed in the setup file.
+    Calculation also relies on the current ambient temperature, which should be
+    provided through an attached ``temperature`` nicos device.
+    """
 
     accuracies = {
         0.1: {
@@ -293,7 +348,10 @@ class MokeVoltmeter(Sensor):
     }
 
     parameters = {
-        'calibration_date': Param('Last calibration date in iso format', str),
+        'calibration_date': Param(
+            'Last calibration date in iso format',
+            str, default='1960-01-01',
+        ),
     }
 
     def doInit(self, mode):
@@ -301,7 +359,7 @@ class MokeVoltmeter(Sensor):
 
     def readStd(self, value):
         # value is ÷/* 1000 because the NICOS device displays values in mV
-        value = abs(value) / 1000
+        value = abs(value) / 1000  # [V]
         days = (datetime.now() -
                 datetime.strptime(self.calibration_date, '%Y-%m-%d')).days
         meas_range = None
@@ -317,4 +375,4 @@ class MokeVoltmeter(Sensor):
         temp = self._T.read(60)
         if not 18 < temp < 28:
             err += MokeVoltmeter.temp_coefs[meas_range]
-        return (value * err[0] + meas_range * err[1]) * 1e-6 * 1000
+        return (value * err[0] + meas_range * err[1]) * 1e-6 * 1000  # [mV]
