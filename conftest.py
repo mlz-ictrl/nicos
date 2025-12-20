@@ -35,4 +35,5 @@ pytest_plugins = [
     'test.fixtures.session',
     'test.fixtures.log',
     'test.fixtures.dataroot',
+    'test.fixtures.guiclient',
 ]
