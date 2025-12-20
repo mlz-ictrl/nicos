@@ -119,7 +119,7 @@ class MLZTemplateProvider(NexusTemplateProvider):
         self.updateData()
 
     def getTemplate(self):
-        self._template = copy_nexus_template(self.getBase())
+        self._template = self.getBase()
         self._entry = self._template[f'{self.entry}:NXentry']
         self._inst = self._entry[f'{self.instrument}:NXinstrument']
         self._det = self._inst[f'{self.detector}:NXdetector']
