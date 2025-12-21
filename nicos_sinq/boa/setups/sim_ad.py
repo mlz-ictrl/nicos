@@ -11,7 +11,7 @@ detector_channel = 'cam1:'
 motprefix = 'SQ:BOA:turboPmac1:DCCDATZ'
 counterprefix = 'SQ:BOA:counter'
 
-excludes = ['andorccd', 'embl', 'andorccd-l', 'andor', 'fastcomtec', 'camini']
+excludes = ['andorccd', 'embl', 'andorccd-l', 'andor', 'fastcomtec', 'camini', 'el737']
 
 devices = dict(
     dccdatz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',

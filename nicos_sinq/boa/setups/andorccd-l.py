@@ -6,6 +6,10 @@ includes = [
     'el737',
 ]
 
+excludes = [
+    'andor',
+]
+
 motprefix = 'SQ:BOA:turboPmac1:DCCDATZ'
 
 sysconfig = dict(datasinks = ['livesink'])

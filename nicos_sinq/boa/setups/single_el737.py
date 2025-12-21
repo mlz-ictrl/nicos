@@ -6,6 +6,10 @@ includes = [
     'el737',
 ]
 
+excludes = [
+    'andor',
+]
+
 pvprefix = 'SQ:BOA:counter'
 
 devices = dict(

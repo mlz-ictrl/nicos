@@ -10,6 +10,10 @@ includes = [
     'el737',
 ]
 
+excludes = [
+    'andor',
+]
+
 devices = dict(
     el737 = device('nicos_sinq.devices.epics.sinqdaq.SinqDetector',
         description = 'Detector Nicos Device',
