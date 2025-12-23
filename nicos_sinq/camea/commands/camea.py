@@ -42,24 +42,24 @@ from nicos_sinq.sxtal.commands import AddAuxRef, AddRef, CalcUB, getSampleInst
 
 # two theta limits
 # DO NOT CHANGE!
-#incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.4, 6.6, 6.8, 6.9, 7.0, 8.0, 8.2, 8.45,
-#             8.6, 8.7, 9.5,  9.8, 9.9, 10.5, 11.4, 11.7, 12.0, 12.2, 12.9,
-#             13.5, 13.8, 14, 15, 16, 17]
-#twoTheta = [-79.5, -79.5, -79.5, -79, -79,  -79, -79, -78, -78, -76.5, -73.0,
-#            -71, -70, -66, -64, -64, -62, -60, -54, -54, -52, -51, -51, 48,
-#            -47, -46.5, -46.5, -44, -41.5, -39.5]
+# incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.4, 6.6, 6.8, 6.9, 7.0, 8.0, 8.2, 8.45,
+#              8.6, 8.7, 9.5,  9.8, 9.9, 10.5, 11.4, 11.7, 12.0, 12.2, 12.9,
+#              13.5, 13.8, 14, 15, 16, 17]
+# twoTheta = [-79.5, -79.5, -79.5, -79, -79,  -79, -79, -78, -78, -76.5, -73.0,
+#             -71, -70, -66, -64, -64, -62, -60, -54, -54, -52, -51, -51, 48,
+#             -47, -46.5, -46.5, -44, -41.5, -39.5]
 #
-#incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.45, 6.5, 6.6, 6.65, 6.8, 6.9,
-#             7.0, 7.5, 7.7, 8.0, 8.5, 8.6, 8.8, 9, 9.2, 9.4, 9.6, 9.8, 10,
-#             10.5, 11, 11.5, 12.0, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16,
-#             16.5, 17]
+# incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.45, 6.5, 6.6, 6.65, 6.8, 6.9,
+#              7.0, 7.5, 7.7, 8.0, 8.5, 8.6, 8.8, 9, 9.2, 9.4, 9.6, 9.8, 10,
+#              10.5, 11, 11.5, 12.0, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16,
+#              16.5, 17]
 #
-#twoTheta = [-79.5, -79.5, -79.5, -79, -79, -79, -79, -78.0, -78.0, -78.0, -77,
-#            -77, -77, -73.5, -72.5, -72, -70, -66, -64, -64, -64, -63, -62,
-#            -60, -57, -56, -54, -52, -50, -47, -47, -46, -44, -43, -42, -41,
-#            -40.5, -39.5]
+# twoTheta = [-79.5, -79.5, -79.5, -79, -79, -79, -79, -78.0, -78.0, -78.0, -77,
+#             -77, -77, -73.5, -72.5, -72, -70, -66, -64, -64, -64, -63, -62,
+#             -60, -57, -56, -54, -52, -50, -47, -47, -46, -44, -43, -42, -41,
+#             -40.5, -39.5]
 #
-#twoThetaLimitInterp = interp1d(incomingE, twoTheta)
+# twoThetaLimitInterp = interp1d(incomingE, twoTheta)
 
 
 logbookTitles = ['File No.', 'Ei', 's2t', 'a3 start', 'a3 stop',
@@ -523,7 +523,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
     The above command will perform 4 a3 scans with a step size of 1 degree
     starting at 0 and ending at 180, i.e. 181 steps. The monitor value is
     100 000 and no scans are skipped. That is, the following is measured
-    
+
     Ei, s2t
     5.0, -40
     5.0, -44
@@ -571,7 +571,6 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
     if temperature is None:
         session.log.info("No temperature found, this can't be right, can it?")
 
-
     try:
         B = session.getDevice('B')
     except ConfigurationError:
@@ -607,7 +606,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
     if not np.all(checks):  # if any of the checks fail, break script
         erroneous = np.asarray(setups)[np.logical_not(checks)]
         errorSetups = ['Ei = {} meV, s2t = {} degrees, A3 from {} in steps of {} degrees with {} steps'.format(
-            e, s,*a3s) for e, s,*a3s in erroneous]
+            e, s, *a3s) for e, s, *a3s in erroneous]
         msg = 'Errors found in wanted scans for:\n{}'.format(
             '\n'.join(errorSetups))
         session.log.error(
@@ -696,7 +695,6 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
                     session.log.error(
                         'Writing to logbook failed with following error: '
                         '%s', e)
-
 
         endText = 'CAMEA scan set is done, files {:} - {:}'.format(
             scanFilesStart, scanFilesLast)

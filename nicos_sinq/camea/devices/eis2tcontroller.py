@@ -45,9 +45,9 @@ class EIS2TController(IsController, Device):
         's2t_values': Param('S2T limit for each ei in ei_Values',
                             type=listof(float), settable=True),
         'file': Param('/home/nicos/nicos/nicos_sinq/camea/s2tlimits.txt',
-                      type=str,settable=True),
-        'padding': Param('Padding to allow s2t to go to limit value',default=0.1,
-                      type=float,settable=True)
+                      type=str, settable=True),
+        'padding': Param('Padding to allow s2t to go to limit value', default=0.1,
+                         type=float, settable=True)
     }
 
     def doInit(self, mode):
@@ -58,14 +58,13 @@ class EIS2TController(IsController, Device):
         # Load energy dependent limits for the wall collision detection
         if mode != SIMULATION:
             try:
-                values = np.loadtxt(self.file,delimiter=',')
+                values = np.loadtxt(self.file, delimiter=',')
                 self.ei_values = values[0]
                 self.s2t_values = values[1]
             except (FileNotFoundError, OSError):
                 session.log.error('Limits file "%s" not found! Reverting to previous values', self.file)
 
         self._interpolate_s2t = interp1d(self.ei_values, np.asarray(self.s2t_values)-abs(self.padding))
-
 
     def isAdevTargetAllowed(self, adev, adevtarget):
         if adev == self._attached_ei:
@@ -78,6 +77,6 @@ class EIS2TController(IsController, Device):
                 return False, 'You are running the detector into the wall. The limit is {:.3f}'.format(s2t_limit+abs(self.padding))
         return True, ''
 
-    def twoThetaLimitInterp(self,ei):
+    def twoThetaLimitInterp(self, ei):
         "calculate and return interpolated value"
         return self._interpolate_s2t(ei)

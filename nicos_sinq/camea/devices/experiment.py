@@ -32,10 +32,10 @@ class CameaExperiment(SinqExperiment):
 
     def doFinish(self):
         SinqExperiment.doFinish(self)
-        text = '''This message marks the end of your CAMEA experiment. We hope you
+        text = """This message marks the end of your CAMEA experiment. We hope you
         had a transcendent experience with us and hope to welcome you again for
         another experiment. \n We appreciate your feedback on DUO, and please
         cite RSI 94, 023302 (2023) and Software X 12, 100600 (2020) when
-        publishing CAMEA data'''
+        publishing CAMEA data"""
         printToDiscord(text)
         session.log.info(text)
