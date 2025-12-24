@@ -340,7 +340,7 @@ def moves2t(value, retries=3):
         if i > 0:  # There was a retry
             session.log.info('Success after %d tries', i+1)
     except Exception as e:
-        errorMessage.substitute(msg=e)
+        errorMessage = errMesgTp.substitute(msg=e)
         printToDiscord(errorMessage)
         session.log.error(errorMessage)
         CAMEApause()
