@@ -372,7 +372,7 @@ def checkLimits(ei, s2t, verbose=True):
         errors = True
         if verbose:
             session.log.error(
-                'The desired stt (%s.3f deg) is in the direct beam!!!\n'
+                'The desired stt (%.3f deg) is in the direct beam!!!\n'
                 'Please check your input and try again.....', stt)
     if errors:
         return False
