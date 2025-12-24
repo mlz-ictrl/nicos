@@ -4,9 +4,45 @@ Changelog
 Release 3.13.0
 --------------
 
+* Core
+
+  - Declaring an override for a non-existing parameter now raises an exception.
+
+* Commands
+
+  - Added ``ClearAllCache()`` to replace ``ClearCache('*')``.
+
+* Devices
+
+  - Added a simple crystal monochromator device.
+
+  - The EPICS devices package structure has been changed; the misleading
+    ``nicos.devices.epics.pva`` does not exist anymore.
+
+  - Added new EPICS motor class based on caproto.
+
+  - Added support for SECoP ``Acquisition`` based modules.
+
+  - All ``doReference`` implementations have been checked to be blocking.  The
+    additional "device-specific" argument of ``reference()`` has been removed.
+
+* Services
+
+  - Retry device creation in poller after device is successfully created in the
+    daemon.
+
+  - Added Elog handler for MLZ ELN.
+
+* Installer
+
+  - Refactor Mac bundles to make the GUI app start more quickly.
+
 * Tests
 
-  - Change the structure for the facility specific setups
+  - Change the structure for the facility specific setups.
+
+  - Use newer pytest style recommendations for tests.
+
 
 Release 3.12.0
 --------------
