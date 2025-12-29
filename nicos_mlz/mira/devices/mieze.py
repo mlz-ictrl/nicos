@@ -85,7 +85,7 @@ class MiezeMaster(Moveable):
                 dev = session.getDevice(devname)
                 dev.move(0)
         for devname, devvalue in devs:
-            if devname.startswith('_') or devname.startswith('amp'):
+            if devname.startswith(('_', 'amp')):
                 continue
             self.log.debug('moving %r to %r', devname, devvalue)
             dev = session.getDevice(devname)

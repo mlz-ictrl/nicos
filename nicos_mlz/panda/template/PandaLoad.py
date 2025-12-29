@@ -729,7 +729,7 @@ def PandaLoad(filename):
                         for i in f.readline().strip().split():
                             #~ if i  != ';':  # somehow figure out 'x' and 'y' and set the fields....
                             if self.polarized:  # mangle column names for detx, monx+time
-                                if i.startswith('det') or i.startswith('mon') or i.startswith('time'):
+                                if i.startswith(('det', 'mon', 'time')):
                                     if i.startswith('time'): polstate += 1 # time is always first det column
                                     for d in self.pol_devices:
                                         i = i + '__' + d + '_' + self.pol_states[polstate][d]

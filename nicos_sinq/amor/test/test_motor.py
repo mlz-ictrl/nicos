@@ -56,10 +56,9 @@ class TestEpicsMotor:
 
     def asyn_dev_controller(self):
         dev = self.device.name
-        if dev.startswith('c') or dev.startswith('e') or dev.startswith(
-                'x') or dev.startswith('s'):
+        if dev.startswith(('c', 'e', 'x', 's')):
             return 'serial1'
-        elif dev.startswith('a') or dev.startswith('m') or dev.startswith('f'):
+        elif dev.startswith(('a', 'm', 'f')):
             return 'serial2'
         elif dev.startswith('d'):
             return 'serial3'

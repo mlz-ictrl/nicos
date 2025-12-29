@@ -110,7 +110,7 @@ class DoubleValidator(QDoubleValidator):
             return QValidator.State.Invalid, string, pos
         elif string.startswith('.'):
             return QDoubleValidator.validate(self, '0' + string, pos + 1)
-        elif string.startswith('-.') or string.startswith('+.'):
+        elif string.startswith(('-.', '+.')):
             return QDoubleValidator.validate(
                 self, '%s0%s' % (string[0], string[1:]), pos + 1)
         return QDoubleValidator.validate(self, string, pos)

@@ -261,7 +261,7 @@ class MainWindow(QMainWindow):
                 print('targeter: setting addr %d to %f' % (addr, v))
                 self.WriteFloat(addr, v)
             else:
-                if v.startswith('0x') or v.startswith('0X'):
+                if v.startswith(('0x', '0X')):
                     v = int(v[2:], 16)
                 elif v.startswith(('x', 'X', '$')):
                     v = int(v[1:], 16)

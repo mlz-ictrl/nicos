@@ -23,7 +23,7 @@ with open('PCWSPGR.DAT', encoding='utf-8') as f:  # from PowderCell
 with open('nph-list_table', encoding='utf-8') as g:  # from www.cryst.ehu.es
     for line in g:
         line = line.strip()
-        if not line or line.startswith('#') or line.startswith('231'):
+        if not line or line.startswith(('#', '231')):
             continue
         nr, hm = line.split()
         nr = int(nr)

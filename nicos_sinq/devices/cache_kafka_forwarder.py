@@ -141,7 +141,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
             time.sleep(self.update_interval)
 
     def _checkKey(self, key):
-        if key.endswith('/value') or key.endswith('/status'):
+        if key.endswith(('/value', '/status')):
             return True
         return False
 

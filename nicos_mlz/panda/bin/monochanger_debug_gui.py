@@ -258,11 +258,11 @@ class WriteWord(ReadWord):
 
     def _str2bin(self, value):
         v = str(value).strip()
-        if v.startswith('0x') or v.startswith('0X'):
+        if v.startswith(('0x', '0X')):
             v = int(v[2:], 16)
-        elif v.startswith('0b') or v.startswith('0B'):
+        elif v.startswith(('0b', '0B')):
             v = int(v[2:], 2)
-        elif v.startswith('0') or v.startswith('o'):
+        elif v.startswith(('0', 'o')):
             v = int(v[2:], 8)
         elif v.startswith(('x', 'X', '$')):
             v = int(v[1:], 16)
