@@ -268,7 +268,7 @@ class DetsetDialog(QDialog):
         # do not close the whole dialog when pressing Enter in an input box
         if event.key() == Qt.Key.Key_Return:
             return
-        return QDialog.keyPressEvent(self, event)
+        QDialog.keyPressEvent(self, event)
 
     def toDefs(self):
         return [self._rows]
@@ -397,7 +397,7 @@ class DevicesWidget(QWidget):
         # do not close the whole dialog when pressing Enter in an input box
         if event.key() == Qt.Key.Key_Return:
             return
-        return QWidget.keyPressEvent(self, event)
+        QWidget.keyPressEvent(self, event)
 
     def getDef(self):
         if self._edit:

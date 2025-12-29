@@ -179,7 +179,7 @@ class ConsoleBox(QPlainTextEdit):
         elif event.key() == Qt.Key.Key_D and \
              event.modifiers() == Qt.KeyboardModifier.ControlModifier:
             self.closeConsole.emit()
-        return QPlainTextEdit.keyPressEvent(self, event)
+        QPlainTextEdit.keyPressEvent(self, event)
 
 
 class DebugConsole(QMainWindow):
