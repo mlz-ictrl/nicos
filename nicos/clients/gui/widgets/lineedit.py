@@ -266,12 +266,12 @@ class ShadowTextLineEdit(QLineEdit):
     def focusInEvent(self, event):
         if self._shadowed:
             self.setText('')
-        return QLineEdit.focusInEvent(self, event)
+        QLineEdit.focusInEvent(self, event)
 
     def focusOutEvent(self, event):
         if not self.text():
             self._setShadow()
-        return QLineEdit.focusOutEvent(self, event)
+        QLineEdit.focusOutEvent(self, event)
 
     def setText(self, text):
         self._shadowed = False
