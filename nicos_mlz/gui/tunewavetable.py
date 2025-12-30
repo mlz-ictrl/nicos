@@ -135,7 +135,7 @@ class TimelineWidget(QGraphicsView):
         if item in self._time_point_items:
             self._select_item(item)
 
-        return QGraphicsView.mousePressEvent(self, event)
+        QGraphicsView.mousePressEvent(self, event)
 
     def _select_item(self, item):
         """Select the given item by drawing a colored circle beneath the
