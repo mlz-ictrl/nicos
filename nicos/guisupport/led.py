@@ -77,7 +77,7 @@ class BaseLed(QLabel, NicosWidget):
 
     def resizeEvent(self, event):
         self._refresh()
-        return QWidget.resizeEvent(self, event)
+        QWidget.resizeEvent(self, event)
 
     def registerKeys(self):
         self.registerKey(self.props['key'])

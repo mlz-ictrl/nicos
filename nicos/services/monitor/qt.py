@@ -138,7 +138,7 @@ class BlockBox(QFrame):
 
     def resizeEvent(self, event):
         self._repos()
-        return QFrame.resizeEvent(self, event)
+        QFrame.resizeEvent(self, event)
 
     def _repos(self):
         if self._label:
