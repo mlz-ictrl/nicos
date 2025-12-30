@@ -134,7 +134,7 @@ class BlockBox(QFrame):
 
     def moveEvent(self, event):
         self._repos()
-        return QFrame.moveEvent(self, event)
+        QFrame.moveEvent(self, event)
 
     def resizeEvent(self, event):
         self._repos()
