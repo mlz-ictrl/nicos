@@ -79,7 +79,7 @@ class PnPSetupQuestion(QMessageBox):
 
     def closeEvent(self, event):
         self.closed.emit(self)
-        return QMessageBox.closeEvent(self, event)
+        QMessageBox.closeEvent(self, event)
 
     def on_client_setup(self, data):
         setupnames = data[0]

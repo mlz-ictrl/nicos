@@ -1261,7 +1261,7 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
     def closeEvent(self, event):
         self.saveSettings(self.settings)
-        return QMainWindow.closeEvent(self, event)
+        QMainWindow.closeEvent(self, event)
 
 
 class StandaloneHistoryApp(CacheClient):

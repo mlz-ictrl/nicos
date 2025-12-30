@@ -107,7 +107,7 @@ class SimResultFrame(QWidget):
 
     def closeEvent(self, event):
         self.panel.simWindows.remove(self)
-        return QWidget.closeEvent(self, event)
+        QWidget.closeEvent(self, event)
 
     def on_client_simmessage(self, simmessage):
         if simmessage[5] != self.simuuid:
