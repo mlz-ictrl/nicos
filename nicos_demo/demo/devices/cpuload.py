@@ -66,6 +66,7 @@ class CPULoad(Readable):
         while True:
             self._setROParam('lastvalue', psutil.cpu_percent(self.interval))
 
+
 class ProcessCPULoad(Readable):
     """Read CPU percentage for a given process.
     This device tries to find a process whose command line invocation includes
@@ -80,8 +81,9 @@ class ProcessCPULoad(Readable):
     than reporting it's a zombie.
     """
     parameters = {
-        'process_strings': Param('List of strings that are checked against the process cmdline',
-                             type=listof(str), settable=False),
+        'process_strings': Param('List of strings that are checked against '
+                                 'the process cmdline',
+                                 type=listof(str), settable=False),
     }
 
     def init(self):
@@ -123,9 +125,8 @@ class ProcessCPULoad(Readable):
                 return status.ERROR, f'{self._PIDint} is a zombie'
             if self._PIDobject.is_running():
                 return status.OK, '%d' % self._PIDint
-            else:
-                self._PIDobject = None
-                return status.ERROR, f'{self._PIDint} isn\'t running.'
+            self._PIDobject = None
+            return status.ERROR, f"{self._PIDint} isn't running."
         except psutil.NoSuchProcess:
             self._PIDobject = None
             return status.ERROR, 'Process stopped for unknown reason.'

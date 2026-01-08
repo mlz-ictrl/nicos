@@ -124,7 +124,7 @@ class SANSPanel(Panel):
             qwindow.exec()
             if result[0] == 0:
                 return
-            elif result[0] == 2:
+            if result[0] == 2:
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)

@@ -37,7 +37,6 @@ except ImportError:
     mpy = None
 
 
-
 class MantidDeviceWatcher(NicosWidget, QWidget):
     """
     Updates the instrument view when device values change.
