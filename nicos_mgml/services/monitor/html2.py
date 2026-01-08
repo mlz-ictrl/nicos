@@ -196,11 +196,13 @@ class Field:
 
 
 class Static(str):
+
     def getHTML(self):
         return self
 
 
 class Block:
+
     def __init__(self, config):
         self.enabled = True
         self._content = []
@@ -222,6 +224,7 @@ class Block:
 
 
 class Label:
+
     def __init__(
         self,
         cls='label',
@@ -252,6 +255,7 @@ class Label:
 
 
 class Card:
+
     def __init__(self, text='', header='', style='primary'):
         self.text = text
         self.header = header
@@ -279,7 +283,9 @@ TIMEFMT = '%H:%M:%S'
 class PlotCurve:
     COUNT = 0
 
-    def __init__(self, x, y, linetype=DEFAULT_BLUE, legend=None, secondaxis=False):
+    def __init__(self, x, y, linetype=None, legend=None, secondaxis=False):
+        if linetype is None:
+            linetype = DEFAULT_BLUE
         self.secondaxis = secondaxis
         self._x, self._y = x, y
         self._linetype = (linetype,)
@@ -406,10 +412,10 @@ class Plot:
 
         return x.build_chart()
 
-        return (
-            '<img src="data:image/svg+xml;base64,%s" '
-            'style="width: %sex; height: %sex">' % ('', self.width, self.height)
-        )
+        # return (
+        #     '<img src="data:image/svg+xml;base64,%s" '
+        #     'style="width: %sex; height: %sex">' % ('', self.width, self.height)
+        # )
 
 
 class Roll:
@@ -424,7 +430,9 @@ class Roll:
         s = ''
         if not self.enabled:
             return s
+        # pylint: disable=consider-using-with
         content = urllib.request.urlopen(self.url).read().decode('utf-8')
+        # pylint: enable=consider-using-with
         s = f"""
     <div>
       <div class="row marquee">

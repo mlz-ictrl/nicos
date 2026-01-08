@@ -71,7 +71,7 @@ DEFAULT_BLACK = {
 
 class ScatterChart():
 
-    def __init__(self, width=450, height=340, params={}):
+    def __init__(self, width=450, height=340, params=None):
         self.embed = f'<div class="chart-area"><canvas id="myChart" height="{height}"></canvas></div><script>'
         self.type = 'Scatter'
         self.struct = 'points'
@@ -80,26 +80,28 @@ class ScatterChart():
         self.x = {}
         self.y = {}
         self.params = {'datasetFill': False, 'animation': True, 'pointDot': False}
-        self.params.update(params)
+        if isinstance(params, dict):
+            self.params.update(params)
 
     def set_color(self, dimension, color_scheme):
         self.y[dimension].update(color_scheme)
         return dimension
 
-    def add_line(self, name, lst, options={}):
+    def add_line(self, name, lst, options=None):
         self.y[name] = {'values': lst, 'name': name}
         self.set_color(name, DEFAULT_RED)
 
-        for key in options.keys():
-            if 'color' in key and type(options[key]) == dict:
-                options[key] = construct_color(options[key].get('color', (0, 0, 0)), options[key].get('opacity', 1))
-        self.y[name].update(options)
+        if isinstance(options, dict):
+            for key in options.keys():
+                if 'color' in key and isinstance(options[key], dict):
+                    options[key] = construct_color(options[key].get('color', (0, 0, 0)), options[key].get('opacity', 1))
+            self.y[name].update(options)
 
     def update_line(self, name, key, value):
         self.y.get(name, {})[key] = value
 
     def build_chart(self):
-        data  = {'labels': self.x, 'datasets': []}
+        data = {'labels': self.x, 'datasets': []}
         for dimension in reversed(self.y.keys()):
             line = {
                 'label': str(self.y[dimension].get('name')),
@@ -165,9 +167,16 @@ class ScatterChart():
         # chart = chart + "\n" + "var myLineChart = new Chart(ctx).%s(data, %s ); \n " % ( self.type ,str(json.dumps(self.params)))
         token = random.randint(1, 10000)
         chart = chart + '</script>'
-        return chart.replace('myScatterChart', 'myScatterChart%d' % token).replace('config', 'config%d' % token).replace('myChart', 'myChart%d' % token).replace('chartdata', 'chartdata%d' % token)
+        return chart.replace('myScatterChart', 'myScatterChart%d' % token).replace(
+            'config', 'config%d' % token).replace('myChart', 'myChart%d' % token).replace('chartdata', 'chartdata%d' % token)
 
     def build_html(self):
-        html = '<html>\n<head>\n<title>Chart</title>\n<script src= "http://www.chartjs.org/assets/Chart.js"></script> \n</head>\n<body>\n %s' % self.build_chart()
-        html = html + '\n</body></html>'
-        return html
+        return """<html>
+<head>
+<title>Chart</title>
+<script src= "http://www.chartjs.org/assets/Chart.js"></script>
+</head>
+<body>
+%s
+</body>
+</html>""" % self.build_chart()
