@@ -25,8 +25,8 @@ from logging import INFO
 from os import path
 
 import elog
-from elog import LogbookInvalidMessageID, LogbookMessageRejected, \
-    LogbookServerProblem
+from elog.logbook_exceptions import LogbookInvalidMessageID, \
+    LogbookMessageRejected, LogbookServerProblem
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
