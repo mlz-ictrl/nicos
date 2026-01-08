@@ -43,14 +43,12 @@ def prepare(session, dataroot):
 
     count(t=0.01, resosteps=2)
 
-    yield
 
-
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def datafile(session, dataroot):
     datafile = path.join(session.experiment.datapath, 'p1234_00000043.txt')
 
-    yield datafile
+    return datafile
 
 
 class TestSinks:
