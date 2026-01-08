@@ -34,9 +34,9 @@ class CollimatorLoverD(BaseCollimatorLoverD):
             d = int(self._attached_d.read(maxage))
             if d == 62:
                 Zpinhole = 2540
-            return [ (l - Zpinhole) / d ] * 2
+            return [(l - Zpinhole) / d] * 2
         except ValueError:
             r = self._attached_d.read(maxage)
             if 'x' in r:
-                return [ (l - Zpinhole) / int(x) for x in r.split('x') ]
-        return [ 0 ] * 2
+                return [(l - Zpinhole) / int(x) for x in r.split('x')]
+        return [0] * 2

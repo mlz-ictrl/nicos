@@ -35,7 +35,9 @@ def test_monoblock(session):
     session.getDevice('xi1').maw(1)
     session.getDevice('alpha1').maw(3)
     monoblock = session.getDevice('Si')
-    assert monoblock.tran == 5 and monoblock.incl == 1 and monoblock.curv == 3
+    assert monoblock.tran == 5
+    assert monoblock.incl == 1
+    assert monoblock.curv == 3
     assert monoblock.read(0) == [5, 1, 3]
 
 
@@ -54,16 +56,24 @@ def test_exchange_focus(session):
     # setFocus()
     exchange.setFocus(tran=10, incl=0.1, curv=2)
     monoblock = session.getDevice('Si')
-    assert monoblock.tran == 10 and monoblock.incl == 0.1 and monoblock.curv == 2
+    assert monoblock.tran == 10
+    assert monoblock.incl == 0.1
+    assert monoblock.curv == 2
     # setFocus() changing the order of the arguments
     exchange.setFocus(curv=1, tran=1, incl=1)
-    assert monoblock.tran == 1 and monoblock.incl == 1 and monoblock.curv == 1
+    assert monoblock.tran == 1
+    assert monoblock.incl == 1
+    assert monoblock.curv == 1
     # setFocus() with only one argument
     exchange.setFocus(tran=5)
-    assert monoblock.tran == 5 and monoblock.incl == 1 and monoblock.curv == 1
+    assert monoblock.tran == 5
+    assert monoblock.incl == 1
+    assert monoblock.curv == 1
     # setFocus() with two arguments
     exchange.setFocus(tran=0, curv=0)
-    assert monoblock.tran == 0 and monoblock.incl == 1 and monoblock.curv == 0
+    assert monoblock.tran == 0
+    assert monoblock.incl == 1
+    assert monoblock.curv == 0
 
 
 def test_exchange_errors(session):

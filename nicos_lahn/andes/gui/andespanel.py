@@ -59,13 +59,14 @@ class ANDESPanel(Panel):
 
     @pyqtSlot()
     def on_start_clicked(self):
-        code = []
-        code.append('move(sw.width, %r)' % self.sw_value.text())
-        code.append('move(hole, %r)' % self.cbCollimator.currentText())
-        code.append('maw(mtt, %r)' % self.mtt_value.text())
-        code.append('maw(x, %r, y, %r, z, %r, phi, %r)' % (self.x_value.text(), self.y_value.text(),
-                                                           self.z_value.text(), self.phi_value.text()))
-        code.append('read()')
+        code = [
+            'move(sw.width, %r)' % self.sw_value.text(),
+            'move(hole, %r)' % self.cbCollimator.currentText(),
+            'maw(mtt, %r)' % self.mtt_value.text(),
+            'maw(x, %r, y, %r, z, %r, phi, %r)' % (self.x_value.text(), self.y_value.text(),
+                                                           self.z_value.text(), self.phi_value.text()),
+            'read()',
+        ]
         self.execScript('\n'.join(code))
 
     def execScript(self, script):
@@ -75,6 +76,6 @@ class ANDESPanel(Panel):
             result = qwindow.exec()
             if result == QMessageBox.Cancel:
                 return
-            elif result == QMessageBox.Apply:
+            if result == QMessageBox.Apply:
                 action = 'execute'
         self.client.tell(script, action)

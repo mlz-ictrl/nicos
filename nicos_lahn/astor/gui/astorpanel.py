@@ -53,13 +53,15 @@ class ASTORPanel(Panel):
 
     @pyqtSlot()
     def on_start_clicked(self):
-        code = ['move(pinhole, %r)' % self.cbCollimator.currentText()]
-        code.append('move(sbl, [%r, %r])' % (self.sbl_value.text(),
-                                             self.sbl_value.text()))
-        code.append('move(crystal, %r)' % self.cbFilter.currentText())
-        code.append('maw(dtx, %r, dty, %r)' % (self.dtx_value.text(),
-                                               self.dty_value.text()))
-        code.append('read()')
+        code = [
+            'move(pinhole, %r)' % self.cbCollimator.currentText(),
+            'move(sbl, [%r, %r])' % (self.sbl_value.text(),
+                                             self.sbl_value.text()),
+            'move(crystal, %r)' % self.cbFilter.currentText(),
+            'maw(dtx, %r, dty, %r)' % (self.dtx_value.text(),
+                                               self.dty_value.text()),
+            'read()',
+        ]
         self.execScript('\n'.join(code))
 
     def execScript(self, script):
@@ -69,6 +71,6 @@ class ASTORPanel(Panel):
             result = qwindow.exec()
             if result == QMessageBox.Cancel:
                 return
-            elif result == QMessageBox.Apply:
+            if result == QMessageBox.Apply:
                 action = 'execute'
         self.client.tell(script, action)
