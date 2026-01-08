@@ -8,6 +8,8 @@ includes = [
     'slits',
 ]
 
+excludes = ['vdetector']
+
 tango_base = 'tango://mesydaq.puma.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
