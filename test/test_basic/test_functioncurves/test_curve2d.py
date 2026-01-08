@@ -28,7 +28,7 @@ Tests for the functioncurve Curve2D class
 import pickle
 from random import randint
 
-from utils import compare_lists
+from .utils import compare_lists
 
 from nicos.utils.functioncurves import Curve2D, ufloat
 
@@ -37,8 +37,10 @@ def test_basic():
     n = randint(10, 100)
     curve1 = Curve2D([(i, i) for i in range(n)])
     curve2 = Curve2D.from_x_y(list(range(n)), list(range(n)))
-    assert curve1.x == list(range(n)) and curve1.y == list(range(n))
-    assert curve1.x == curve2.x and curve1.y == curve2.y
+    assert curve1.x == list(range(n))
+    assert curve1.y == list(range(n))
+    assert curve1.x == curve2.x
+    assert curve1.y == curve2.y
     assert curve1.xmin == 0
     assert curve1.xmax == n - 1
     assert curve1.ymin == 0
@@ -50,14 +52,16 @@ def test_append():
     curve1.append((10, 10))
     curve1.append(Curve2D([(i, i) for i in range(11, 15)]))
     curve2 = Curve2D([(i, i) for i in range(15)])
-    assert curve1.x == curve2.x and curve1.y == curve2.y
+    assert curve1.x == curve2.x
+    assert curve1.y == curve2.y
 
 
 def test_pickle():
     curve1 = Curve2D([(i, i) for i in range(10)])
     temp = pickle.dumps(curve1)
     curve2 = pickle.loads(temp)
-    assert curve1.x == curve2.x and curve1.y == curve2.y
+    assert curve1.x == curve2.x
+    assert curve1.y == curve2.y
 
 
 def test_from_temporal():
@@ -66,11 +70,11 @@ def test_from_temporal():
     xvt = Curve2D([(i, ufloat(i, 0)) for i in range(n)])
     yvt = Curve2D([(i + xoff, ufloat((i + xoff) * k, 0)) for i in range(n)])
     curve = Curve2D.from_two_temporal(xvt, yvt)
-    assert compare_lists(curve.x, xvt.y) and \
-           compare_lists(curve.y, [ufloat(i * k, 0) for i in range(n)])
+    assert compare_lists(curve.x, xvt.y)
+    assert compare_lists(curve.y, [ufloat(i * k, 0) for i in range(n)])
     curve = Curve2D.from_two_temporal(xvt, yvt, pick_yvt_points=True)
-    assert compare_lists(curve.x, [ufloat(i + xoff, 0) for i in range(n)]) and \
-           compare_lists(curve.y, yvt.y)
+    assert compare_lists(curve.x, [ufloat(i + xoff, 0) for i in range(n)])
+    assert compare_lists(curve.y, yvt.y)
 
 
 def test_series_to_curves():
