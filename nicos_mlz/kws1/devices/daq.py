@@ -305,10 +305,10 @@ class KWSDetector(Detector):
 
     _img = None
 
-    def doInit(self, session_mode):
-        Detector.doInit(self, session_mode)
+    def doInit(self, mode):
+        Detector.doInit(self, mode)
         self._img = self._attached_images[0]
-        if session_mode == MASTER:
+        if mode == MASTER:
             if not self._attached_images:
                 raise ConfigurationError(self, 'KWSDetector needs a KWSChannel '
                                          'as attached image')
