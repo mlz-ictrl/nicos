@@ -99,6 +99,6 @@ class TOFTOFChannel(TOFChannel):
 
     def doReadArray(self, quality):
         ndata = TOFChannel.doReadArray(self, quality)
-        self.readresult = [ndata[2:self.monitorchannel].sum() +
-                           ndata[self.monitorchannel + 1:].sum()]
+        self.readresult = [d[2:self.monitorchannel].sum() +
+                           d[self.monitorchannel + 1:].sum() for d in ndata]
         return ndata
