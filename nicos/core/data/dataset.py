@@ -230,6 +230,12 @@ class PointDataset(BaseDataset):
         #: Keys are usually parameters or 'value', 'status'.
         self.metainfo = {}
 
+        # Mapping for experiment metadata (for e.g. the catalogue).
+        # Dictionary with two dict entries 'devs' and 'constants'.
+        # Both contain metadata names mapped to dev(.param) entries (devs) or
+        # constant values (constants).
+        self.metamapping = {}
+
         BaseDataset.__init__(self, **kwds)
 
     def _reslist(self, devices, resdict, index=-1):
@@ -326,6 +332,13 @@ class ScanDataset(BaseDataset):
         if not self.subsets:
             raise ProgrammingError('metainfo is not available without points')
         return self.subsets[0].metainfo
+
+    @property
+    def metamapping(self):
+        """The metamapping is the same as for the first datapoint or subscan."""
+        if not self.subsets:
+            raise ProgrammingError('metamapping is not available without points')
+        return self.subsets[0].metamapping
 
     @property
     def devvaluelists(self):

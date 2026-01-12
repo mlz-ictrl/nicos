@@ -17,7 +17,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Christian Felder <c.felder@fz-juelich.de>
 #   Moritz Hannemann <m.hannemann@fz-juelich.de>
+#   Alexander Zaft <a.zaft@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -40,9 +42,9 @@ def metainfo_to_json(metainfo):
     """Prepare metadata in suitable json format"""
     metadata = {}
 
-    for (dev, parm), (value, _str_value, unit, category) in metainfo.items():
+    for (dev, param), (value, _str_value, unit, category) in metainfo.items():
         metadata.setdefault(dev, {})
-        metadata[dev][parm] = {
+        metadata[dev][param] = {
             'value': value,
             'unit': unit,
             'category': category
@@ -58,7 +60,7 @@ def metainfo_to_json(metainfo):
 # pylint: enable=line-too-long
 
 
-MESSAGE_VERSION = 'v1alpha1'
+MESSAGE_VERSION = 'v1alpha2'
 
 
 def valuestats_to_json(valuestats):
@@ -72,6 +74,7 @@ def json_serial(obj):
 
 
 class Message:
+    """RabbitMQ message object."""
     id: str  # pylint: disable=redefined-builtin
     event: str
     metadata: dict
@@ -93,6 +96,7 @@ class Message:
         propinfo: dict,
         metainfo: dict,
         statistics: dict,
+        metamapping: dict,
         counterinfo: dict,
         canonicalvalues: dict,
     ):
@@ -110,6 +114,7 @@ class Message:
         self.propinfo = propinfo
         self.metadata = metainfo
         self.statistics = statistics
+        self.metamapping = metamapping
         self.counterinfo = counterinfo
         self.canonicalvalues = canonicalvalues
 
@@ -132,29 +137,30 @@ class RabbitSinkHandler(DataSinkHandler):
         metadata = {}
         if dataset.settype != BLOCK:
             metadata = metainfo_to_json(dataset.metainfo)
-        msg = Message(
-            id=dataset.uid,
-            scanid=scands.uid if scands else None,
-            blockid=blockds.uid if blockds else None,
-            event=event,
-            started=started,
-            dataroot=path.realpath(session.experiment.dataroot),
-            proposalpath=path.realpath(session.experiment.proposalpath),
-            samplepath=path.realpath(session.experiment.samplepath),
-            fileinfos=self._handleFileInfo(dataset),
-            mapping={
-                'experiment': session.experiment.name,
-                'sample': session.experiment.sample.name,
-                'instrument': session.instrument.name,
-                'environment': [dev.name for dev in dataset.environment],
-            },
-            propinfo=session.experiment.propinfo,
-            metainfo=metadata,
-            statistics=valuestats_to_json(dataset.valuestats),
-            counterinfo=self.getCounterInfo(dataset),
-            canonicalvalues=dataset.canonical_values,
+        self.sink._sendMessage(Message(
+                id=dataset.uid,
+                scanid=scands.uid if scands else None,
+                blockid=blockds.uid if blockds else None,
+                event=event,
+                started=started,
+                dataroot=path.realpath(session.experiment.dataroot),
+                proposalpath=path.realpath(session.experiment.proposalpath),
+                samplepath=path.realpath(session.experiment.samplepath),
+                fileinfos=self._handleFileInfo(dataset),
+                mapping={
+                    'experiment': session.experiment.name,
+                    'sample': session.experiment.sample.name,
+                    'instrument': session.instrument.name,
+                    'environment': [dev.name for dev in dataset.environment],
+                },
+                propinfo=session.experiment.propinfo,
+                metainfo=metadata,
+                statistics=valuestats_to_json(dataset.valuestats),
+                metamapping=dataset.metamapping,
+                counterinfo=self.getCounterInfo(dataset),
+                canonicalvalues=dataset.canonical_values,
+            )
         )
-        self.sink._sendMessage(msg)
 
     def getCounterInfo(self, dataset):
         """ Get the counter infos"""

@@ -35,7 +35,7 @@ from nicos.core.errors import ConfigurationError
 from nicos.core.params import nicosdev_re
 from nicos.core.sessions.setups import SETUP_GROUPS, fixup_stacked_devices, \
     prepareNamespace
-from nicos.utils import checkSetupSpec, importString
+from nicos.utils import assertMapping, checkSetupSpec, importString
 from nicos.utils.files import findSetupRoots, iterSetups
 from nicos.utils.loggers import StreamHandler
 
@@ -492,6 +492,7 @@ class SetupChecker:
             ('devices', dict),
             ('alias_config', dict),
             ('startupcode', str),
+            ('metamapping', dict),
             ('display_order', int),
             ('extended', dict),
             ('watch_conditions', list),
@@ -567,6 +568,9 @@ class SetupChecker:
                     'defined in the current setup',
                     extra=self.find_global('extended')
                 )
+
+        # check for validity of metamapping
+        assertMapping(self.ns.get('metamapping', {}))
 
         # check for valid device classes (if importable) and parameters
         for devname, devconfig in devs.items():

@@ -223,6 +223,7 @@ class DataManager:
             self.log.warning('No current point dataset, ignoring metainfo')
             return
         self._current.metainfo.update(metainfo)
+        self._current.metamapping.update(session.metamapping)
         self._current.dispatch('putMetainfo', metainfo)
 
     def putValues(self, values):

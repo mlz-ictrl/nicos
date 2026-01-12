@@ -48,6 +48,7 @@ from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, \
     S_IXOTH, S_IXUSR
 from time import localtime, mktime, sleep, strftime, strptime, \
     time as currenttime
+from typing import TypedDict
 
 import numpy
 
@@ -241,6 +242,22 @@ class Secret(tuple):
     """Helper class for reading setups, to distinguish secret() from
     lists/tuples.
     """
+
+class Mapping(TypedDict):
+    constants: dict
+    devs: dict
+
+# To have this more pretty, we need sth. like pydantic, but at the moment
+# the `Mapping` type needs to behave like a normal dict because of the setup files.
+def assertMapping(mapping, valid=None):
+    if valid is None:
+        valid = {'constants', 'devs'}
+    if invalid := set(mapping).difference(set(valid)):
+        from nicos.core.errors import ConfigurationError
+        invalid = ', '.join(f'{name!r}' for name in invalid)
+        raise ConfigurationError(
+            f"Invalid keys for mapping: {invalid}. Valid keys are 'constants' and 'devs'"
+        )
 
 
 def _s(n):

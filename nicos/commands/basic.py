@@ -44,7 +44,7 @@ from nicos.utils.timer import Timer
 
 __all__ = [
     'help', 'dir', 'ListCommands', 'sleep',
-    'NewSetup', 'AddSetup', 'RemoveSetup', 'ListSetups',
+    'NewSetup', 'AddSetup', 'RemoveSetup', 'ListSetups', 'ListMetaMapping',
     '_Restart', 'Keep',
     'CreateDevice', 'RemoveDevice', 'CreateAllDevices',
     'NewExperiment', 'FinishExperiment', 'AddUser', 'ListUsers',
@@ -302,6 +302,48 @@ def ListSetups(listall=False):
     items.sort()
     printTable(('name', 'loaded', 'description', 'devices'), items,
                session.log.info)
+
+
+@usercommand
+@parallel_safe
+@helparglist('[show_values]')
+def ListMetaMapping(show_values=False):
+    """Show the currently defined metadata mapping.
+
+    Warns about nonexistent devices and parameters.
+    """
+    rows = []
+    for mapped, c in session.metamapping.get('constants', {}).items():
+        row = [mapped, 'constants', '']
+        if show_values:
+            row.append(c)
+        rows.append(row)
+    for mapped, device in session.metamapping.get('devs', {}).items():
+        devname, param = (device.split('.') + [None])[:2]
+        if devname not in session.devices:
+            session.log.warning('%s -> %s: device not found', device, mapped)
+            continue
+        dev = session.getDevice(devname)
+        if param not in dev.parameters:
+            session.log.warning('%s -> %s: parameter not found', device, mapped)
+            continue
+        row = [mapped, "devs", device]
+        if show_values:
+            try:
+                if param is not None:
+                    value = getattr(dev, param)
+                else:
+                    value = dev.read()
+            except Exception:
+                session.log.exception('Error reading device or parameter')
+                row.append('')
+            else:
+                row.append(str(value))
+        rows.append(row)
+    header = ['Key', 'Type', 'Source']
+    if show_values:
+        header.append('Value')
+    printTable(header, rows, session.log.info)
 
 
 @hiddenusercommand

@@ -24,7 +24,7 @@
 """Setup file handling."""
 
 from nicos.core.params import nicosdev_re
-from nicos.utils import Device, Secret
+from nicos.utils import Device, Mapping, Secret
 from nicos.utils.files import iterSetups
 
 SETUP_GROUPS = {
@@ -156,6 +156,7 @@ def prepareNamespace(setupname, filepath, all_setups):
         'Row': Row, 'Column': Column, 'BlockRow': Row,
         'Block': Block, 'Field': Field, 'SetupBlock': SetupBlock,
         'secret': lambda key, **kwds: Secret((key, kwds)),
+        'mapping': Mapping,
     }
     return ns
 
@@ -269,6 +270,7 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
         'monitor_blocks': ns.get('monitor_blocks', {}),
         'watch_conditions': ns.get('watch_conditions', []),
         'help_topics': ns.get('help_topics', {}),
+        'metamapping': ns.get('metamapping', {}),
         # internal value, not to be set by setups
         '_filenames_': [filepath] + list(ns.get('_dep_files', ())),
     }

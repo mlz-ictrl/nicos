@@ -39,6 +39,7 @@ except the :ref:`description <setup-description>` entry:
 * :ref:`watch_conditions <setup-watch_conditions>`
 * :ref:`extended <setup-extended>`
 * :ref:`help_topics <setup-help_topics>`
+* :ref:`metamapping<setup-metamapping>`
 
 .. _setup-description:
 
@@ -387,6 +388,34 @@ except the :ref:`description <setup-description>` entry:
          Example link for help topic `cryo <topic:nicos_demo_cryo>`_.
          ''',
       )
+
+.. _setup-metamapping:
+
+``metamapping``
+   A dictionary `devs` that maps device values or parameters onto metadata fields,
+   translating from nicos internal terminology to another terminology, e.g.
+   for harmonizing the naming in metadata catalogues or data files.
+   Additionally a dict `constants` with fixed metdata information may be
+   defined.
+
+   Example::
+
+      metamapping = {
+         'constants': {
+             'techniques': [
+               {
+                 'pid': 'https://purl.org/pan-science/PaNET/PaNET01276',
+                 'name': 'GISANS'
+               }
+             ]
+         },
+         'devs': {
+             'wavelength': 'selector_lambda',
+             'incident_angle': 'omega',
+             'polarizer': 'pow42.spin',
+             'analyzer': 'pow89.spin'
+         }
+      }
 
 .. _config-setups:
 

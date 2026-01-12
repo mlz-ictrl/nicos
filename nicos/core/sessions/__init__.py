@@ -59,8 +59,8 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
 from nicos.devices.instrument import Instrument
 from nicos.devices.notifiers import Notifier
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.utils import fixupScript, formatArgs, formatDocstring, \
-    formatScriptError
+from nicos.utils import assertMapping, fixupScript, formatArgs, \
+     formatDocstring, formatScriptError, merge_dicts
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, get_facility_log_handlers, initLoggers
 
@@ -124,6 +124,8 @@ class Session:
         self.current_sysconfig = {}
         # current "alias preferences" config
         self.alias_config = {}
+        # current metadata mapping
+        self.metamapping = {}
         # paths to setup files
         self._setup_paths = [path.join(config.setup_package_path, p.strip(), 'setups')
                              for p in config.setup_subdirs]
@@ -639,6 +641,8 @@ class Session:
                 load_module(modname)
 
             self.configured_devices.update(info['devices'])
+            assertMapping(info['metamapping'])
+            self.metamapping = merge_dicts(self.metamapping, info['metamapping'])
 
             merge_sysconfig(sysconfig, info['sysconfig'])
             devlist.update(info['devices'].items())
@@ -834,6 +838,7 @@ class Session:
         self.alias_config.clear()
         self.loaded_setups = set()
         self.excluded_setups = set()
+        self.metamapping.clear()
         self.explicit_setups = []
         self.user_modules = set()
         for handler in self._log_handlers:
