@@ -1,8 +1,8 @@
 description = 'Tensile machine'
 
-group = 'optional'
+group = 'plugplay'
 
-tango_base = 'tango://tension02.stressi.frm2.tum.de:10000/test/doli/'
+tango_base = 'tango://doli01:10000/test/doli/'
 
 devices = dict(
     teload = device('nicos.devices.entangle.Actuator',
