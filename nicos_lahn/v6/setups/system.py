@@ -4,28 +4,33 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache='localhost',
-    # Adapt this name to your instrument's name (also below).
-    instrument='V6',
+    instrument='RNP',
     experiment='Exp',
-    datasinks=['conssink', 'filesink', 'daemonsink', 'livesink'],
-    #notifiers = ['email'],
+    datasinks=[
+        'conssink',
+        'filesink',
+        'daemonsink',
+        'livesink',
+        'nxsink'],
+    # 'rawsink', 'nxsink'],
+    # notifiers = [],  # ['email'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'nicos_lahn.commands.secoplist']
 
 includes = [
     #    'notifiers',
 ]
 
 devices = dict(
-    V6=device('nicos.devices.instrument.Instrument',
-              description='Neutron Reflectometer (Polarized)',
-              instrument='V6',
-              responsible='Marina Tortarolo <tortarol@tandar.cnea.gov.ar>',
-              website='https://www.lahn.cnea.gov.ar',
-              operators=['Laboratorio Argentino de Haces de Neutrones'],
-              facility='LAHN',
-              ),
+    RNP=device('nicos.devices.instrument.Instrument',
+               description='Polarized Neutron Reflectometer',
+               instrument='RNP',
+               responsible='Marina Tortarolo <tortarol@tandar.cnea.gov.ar>',
+               website='https://www.argentina.gob.ar/laboratorio-argentino-de-haces-de-neutrones/instrumento-de-reflectometria-de-neutrones',
+               operators=['Laboratorio Argentino de Haces de Neutrones'],
+               facility='LAHN',
+               ),
     Sample=device('nicos.devices.sample.Sample',
                   description='The currently used sample',
                   ),
@@ -33,24 +38,30 @@ devices = dict(
     # Configure dataroot here (usually /data).
     Exp=device('nicos.devices.experiment.Experiment',
                description='experiment object',
-               dataroot='data',
+               dataroot='/mnt/nfs/rnp/data',
                sendmail=True,
                serviceexp='service',
                sample='Sample',
+               forcescandata=True,
                ),
     filesink=device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink=device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink=device('nicos.devices.datasinks.DaemonSink'),
     livesink=device('nicos.devices.datasinks.LiveViewSink'),
+    #rawsink = device ('nicos.devices.datasinks.RawImageSink'),
+    nxsink=device('nicos.nexus.NexusSink',
+                  templateclass='nicos_lahn.v6.nexus.nexus_templates.RNPTemplateProvider',
+                  filenametemplate=['%(proposal)s_%(scancounter)08d.hdf'],
+                  ),
     Space=device('nicos.devices.generic.FreeSpace',
                  description='The amount of free space for storing data',
-                 path=None,
+                 path='/mnt/nfs',
                  warnlimits=(5., None),
                  minfree=5,
                  ),
     LogSpace=device('nicos.devices.generic.FreeSpace',
                     description='Space on log drive',
-                    path='log',
+                    path=None,
                     warnlimits=(.5, None),
                     minfree=0.5,
                     visibility=('devlist',),
