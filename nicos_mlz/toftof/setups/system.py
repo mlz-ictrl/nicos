@@ -7,7 +7,9 @@ sysconfig = dict(
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = [
-        'conssink', 'filesink', 'dmnsink', 'livesink', 'tofsink', 'nxsink'
+        'conssink', 'filesink', 'dmnsink', 'livesink', 'tofsink',
+        'legacy_nxsink',
+        # 'nxsink'
     ],
     notifiers = ['emailer', 'smser'],
 )
