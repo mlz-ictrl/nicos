@@ -29,10 +29,16 @@ from nicos_mlz.devices.sample import Sample as NicosSample
 
 
 class Sample(NicosSample):
-    """Special TOFTOF specific sample to store the nature of the sample."""
+    """TOFTOF specific sample to store the nature of the sample."""
 
     parameters = {
-        'nature': Param('Nature of the sample, needed for NeXus',
+        'nature': Param('Nature of the sample (needed for NeXus)',
                         type=oneof('powder', 'liquid', 'single crystal'),
-                        settable=True, default='powder', category='sample'),
+                        settable=True, userparam=True, category='sample'),
+        'type': Param('Sample type (needed for NeXus)',
+                      type=oneof('sample', 'sample+can', 'can', 'sample+buffer',
+                                 'buffer', 'calibration sample',
+                                 'normalisation sample', 'simulated data',
+                                 'none', 'sample environment'),
+                      settable=True, userparam=True, category='sample'),
     }

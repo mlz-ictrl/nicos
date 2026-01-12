@@ -21,10 +21,10 @@
 #
 # *****************************************************************************
 
-"""VStressi sample device."""
+"""VTOFTOF sample device."""
 
-from nicos.core import Override, Param, intrange, oneof
-from nicos.devices.sample import Sample as BaseSample
+from nicos.core import Override, Param, intrange
+from nicos_mlz.toftof.devices.sample import Sample as BaseSample
 
 
 class Sample(BaseSample):
@@ -36,15 +36,6 @@ class Sample(BaseSample):
                             '2 - Water ',
                             type=intrange(0, 2), userparam=True,
                             settable=True),
-        'nature': Param('Sample nature',
-                        type=oneof('powder', 'liquid', 'single crystal'),
-                        settable=True, userparam=True),
-        'type': Param('Sample type',
-                      type=oneof('sample', 'sample+can', 'can', 'sample+buffer',
-                                 'buffer', 'calibration sample',
-                                 'normalisation sample', 'simulated data',
-                                 'none', 'sample environment'),
-                      settable=True, userparam=True),
     }
 
     parameter_overrides = {
