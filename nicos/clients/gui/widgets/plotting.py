@@ -412,10 +412,11 @@ class NicosPlotCurve(MaskedPlotCurve):
 
     def __init__(self, x, y, errBar1=None, errBar2=None,
                  linetype=gr.LINETYPE_SOLID, markertype=GRMARKS['dot'],
-                 linecolor=None, markercolor=None, legend=None, fillx=0, filly=0):
+                 linecolor=None, markercolor=None, legend=None, linewidth=1,
+                 fillx=0, filly=0):
         MaskedPlotCurve.__init__(self, x, y, errBar1, errBar2,
                                  linetype, markertype, linecolor, markercolor,
-                                 legend, fillx=fillx, filly=filly)
+                                 legend, linewidth, fillx=fillx, filly=filly)
         self._dependent = []
         self._enableErrBars = True
 
