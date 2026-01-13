@@ -34,4 +34,6 @@ devices = {
                       uri=f'tcp://localhost:{secop_port}'),
     'enumvalue': device('nicos.devices.secop.devices.SecopMoveable',
                         secnode='secnode', secop_module='enumvalue'),
+    'renamed_enumvalue': device('nicos.devices.secop.devices.SecopMoveable',
+                                secnode='secnode', secop_module='enumvalue'),
 }
