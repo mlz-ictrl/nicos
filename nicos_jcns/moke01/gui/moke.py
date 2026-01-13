@@ -96,7 +96,6 @@ class MokePlot(LiveWidget1D):
 
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
         LiveWidget1D.__init__(self, parent, **kwds)
-        self.axes.resetCurves()
         self.axes.xdual = self.axes.ydual = False
         self.plot.setLegend(True)
         self.setTitles({'x': xlabel, 'y': ylabel})
@@ -149,26 +148,26 @@ class MokePlot(LiveWidget1D):
             self.add_curve(mean, color=1, legend='mean')
         self.plot.title = legend
 
-    def reset(self):
+    def clear(self):
         self.axes.resetCurves()
         self._curves = []
         self._update()
 
     def _update(self):
         self.plot.reset()
-        self.update()
+        self.gr.update()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.MiddleButton:
-            self._update()
+            self.gr.update()
 
     def on_legendItemClicked(self, event):
         if event.getButtons() & MouseEvent.LEFT_BUTTON:
             event.curve.status = (event.curve.status + 1) % 3
-            self._update()
+            self.gr.update()
         if event.getButtons() & MouseEvent.RIGHT_BUTTON:
             event.curve.status = (event.curve.status - 1) % 3
-            self._update()
+            self.gr.update()
 
 
 class MokeBase(Panel):
@@ -208,14 +207,14 @@ class MokeBase(Panel):
             return
         # upd IntvB plot with mean curve and fits
         x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])]) * 0.9
-        self.plot_IntvB.reset()
+        self.plot_IntvB.clear()
         self.plot_IntvB.add_curve(list(zip(x, fit_min[0] * x + fit_min[1])),
                                   legend='Fit min')
         self.plot_IntvB.add_curve(list(zip(x, fit_max[0] * x + fit_max[1])),
                                   legend='Fit max')
         self.plot_IntvB.add_curve(IntvB, legend='Mean')
         # show EvB plot and kerr angle
-        self.plot_EvB.reset()
+        self.plot_EvB.clear()
         self.plot_EvB.add_curve(EvB, legend=self.m['name'])
         self.ln_kerr.setText(str(kerr))
 
@@ -296,7 +295,7 @@ class MokePanel(NicosWidget, MokeBase):
             if self.calibration:
                 self.cmb_ramp.clear()
                 self.cmb_ramp.addItems(self.calibration[mode].keys())
-            self.plot_calibration.reset()
+            self.plot_calibration.clear()
             for mode in self.calibration:
                 for ramp, curves in self.calibration[mode].items():
                     self.plot_calibration.add_curve(
@@ -308,7 +307,7 @@ class MokePanel(NicosWidget, MokeBase):
                         legend=f'{mode} decreasing B @ {ramp} A/min'
                     )
         elif key == 'magb/baseline':
-            self.plot_baseline.reset()
+            self.plot_baseline.clear()
             if value:
                 for mode in value:
                     for field in value[mode]:
@@ -333,7 +332,7 @@ class MokePanel(NicosWidget, MokeBase):
             if self.m:
                 IntvB = self.client.eval('session.getDevice("MagB")._IntvB')
                 IntvB = self._subtract_baseline(IntvB)
-                self.plot_IntvB.reset()
+                self.plot_IntvB.clear()
                 self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
                 m = self.m.copy()
                 m['IntvB'] = IntvB
@@ -360,11 +359,11 @@ class MokePanel(NicosWidget, MokeBase):
                 self.ln_steptime.setText(str(self.m['steptime']))
                 self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(format(self.m['ramp'], '.1f')))
                 self.ln_cycles.setText(str(self.m['cycles']))
-                self.plot_IntvB.reset()
+                self.plot_IntvB.clear()
                 if self.m['IntvB']:
                     IntvB = Curve2D(self.m['IntvB'])
                     IntvB = self._subtract_baseline(IntvB)
-                    self.plot_IntvB.reset()
+                    self.plot_IntvB.clear()
                     self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),
                                                    legend=self.m['name'])
 
@@ -546,8 +545,8 @@ class MokeHistory(MokeBase):
             self.display_rawdata(generate_output(self.m))
         IntvB = Curve2D(self.m['IntvB'])
         IntvB = self._subtract_baseline(IntvB)
-        self.plot_IntvB.reset()
-        self.plot_EvB.reset()
+        self.plot_IntvB.clear()
+        self.plot_EvB.clear()
         self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),
                                        legend=self.m['name'])
 
