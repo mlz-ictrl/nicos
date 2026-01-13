@@ -26,15 +26,16 @@ import math
 import os
 
 import numpy
-from gr.pygr import ErrorBar
-from qtgr.events import LegendEvent, MouseEvent
+from gr.pygr import CoordConverter, ErrorBar, RegionOfInterest
+from qtgr.events import LegendEvent, MouseEvent, ROIEvent
 # pylint: disable=import-error
 from uncertainties.core import AffineScalarFunc
 
 from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
-from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
+from nicos.guisupport.plots import GRMARKS
 from nicos.guisupport.qt import QDate, QFont, QMessageBox, QStandardItem, \
     QStandardItemModel, Qt, QToolBar, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
@@ -45,7 +46,7 @@ from nicos.utils.functioncurves import Curve2D, Curves
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 
-class MokePlotCurve(MaskedPlotCurve):
+class MokePlotCurve(NicosPlotCurve):
     """This PlotCurve allows switch between several states, through ``status``
     property:
     1. showing plot, marks and error bars,
@@ -58,7 +59,7 @@ class MokePlotCurve(MaskedPlotCurve):
     HideAll = 2
 
     def __init__(self, *args, **kwargs):
-        MaskedPlotCurve.__init__(self, *args, **kwargs)
+        NicosPlotCurve.__init__(self, *args, **kwargs)
         self._show_error_bars = False
         self._status = MokePlotCurve.HideErrorBars
 
@@ -88,20 +89,112 @@ class MokePlotCurve(MaskedPlotCurve):
         return self._e2 if self._show_error_bars else None
 
 
-class MokePlot(LiveWidget1D):
+class LiveWidget1DWithMarkers(LiveWidget1D):
+    """Extends LiveWidget1D with support for interactive draggable markers.
+
+    Markers can be added to the plot and repositioned by clicking on them
+    and moving the mouse. A second click releases the marker at its new
+    position.
+    """
+
+    def __init__(self, parent=None, **kwds):
+        LiveWidget1D.__init__(self, parent, **kwds)
+        self.gr.cbm.addHandler(ROIEvent.ROI_CLICKED, self.on_markerClicked, ROIEvent)
+        self.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
+        self._move_marker = False
+        self._current_marker_roi = None
+
+    def _rescale(self):
+        for roi in self.plot._rois:
+            self._roi_update(roi)
+
+    def _roi_update(self, roi):
+        coord = CoordConverter(self.axes.sizex, self.axes.sizey, self.axes.getWindow())
+        roi._poly = None
+        for nxi, nyi in zip(*roi.reference.getBoundingBox()):
+            coord.setNDC(nxi, nyi)
+            roi.append(coord.getWC(self.axes.viewport))
+
+    def add_marker(self, marker, curve):
+        """Add marker and assign it to an existing curve.
+        """
+        marker._axes = self.axes
+        curve.dependent.append(marker)
+        roi = RegionOfInterest(reference=marker, regionType=RegionOfInterest.TEXT, axes=self.axes)
+        self._roi_update(roi)
+        self.plot.addROI(roi)
+
+    def _redraw_with_marker(self, marker_roi):
+        """Implement in derived classes to redraw something related to the
+        dragged marker.
+        """
+
+    def on_markerClicked(self, event):
+        if event.getButtons() & MouseEvent.LEFT_BUTTON:
+            self._move_marker = not self._move_marker
+            if self._move_marker:
+                self._current_marker_roi = event.roi
+
+    def on_mouseMove(self, event):
+        if self._move_marker:
+            wc = event.getWC(self.plot.viewport)
+            self._current_marker_roi.reference._x = wc.x
+            self._current_marker_roi.reference._y = wc.y
+            self._roi_update(self._current_marker_roi)
+            self._redraw_with_marker(self._current_marker_roi)
+            self.gr.update()
+
+
+class MokeLiveWidget(LiveWidget1DWithMarkers):
+    """Plot widget with legend interaction and curve visibility control.
+
+    Extends LiveWidget1DWithMarkers with:
+    - Legend display enabled by default
+    - Left/right click on legend items cycles through curve visibility states
+    - Middle mouse button resets the plot view
+    - Methods for clearing curves and updating the display
+    """
+
+    def __init__(self, parent=None, **kwds):
+        LiveWidget1DWithMarkers.__init__(self, parent, **kwds)
+        self.plot.setLegend(True)
+        self.gr.cbm.addHandler(LegendEvent.ROI_CLICKED,
+                               self.on_legendItemClicked, LegendEvent)
+
+    def clear(self):
+        self.axes.resetCurves()
+        self._curves = []
+        self._update()
+
+    def _update(self):
+        self.plot.reset()
+        self._rescale()
+        self.gr.update()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.MiddleButton:
+            self._update()
+
+    def on_legendItemClicked(self, event):
+        if event.getButtons() & MouseEvent.LEFT_BUTTON:
+            event.curve.status = (event.curve.status + 1) % 3
+            self.gr.update()
+        if event.getButtons() & MouseEvent.RIGHT_BUTTON:
+            event.curve.status = (event.curve.status - 1) % 3
+            self.gr.update()
+
+
+class MokePlot(MokeLiveWidget):
     """Allows to plot Curve2D and Curves objects through a simple interface.
     Intercepts clicks on the legend to rotate the status of the corresponding
     ``MokePlotCurve`` object.
     """
 
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
-        LiveWidget1D.__init__(self, parent, **kwds)
+        MokeLiveWidget.__init__(self, parent, **kwds)
         self.axes.xdual = self.axes.ydual = False
-        self.plot.setLegend(True)
         self.setTitles({'x': xlabel, 'y': ylabel})
-        self._curves = []
-        self.gr.cbm.addHandler(LegendEvent.ROI_CLICKED,
-                               self.on_legendItemClicked, LegendEvent)
+        self.clear()
 
     def add_curve(self, curve, color=None, legend=None):
         self.plot.title = legend
@@ -148,27 +241,6 @@ class MokePlot(LiveWidget1D):
             self.add_curve(mean, color=1, legend='mean')
         self.plot.title = legend
 
-    def clear(self):
-        self.axes.resetCurves()
-        self._curves = []
-        self._update()
-
-    def _update(self):
-        self.plot.reset()
-        self.gr.update()
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.MiddleButton:
-            self.gr.update()
-
-    def on_legendItemClicked(self, event):
-        if event.getButtons() & MouseEvent.LEFT_BUTTON:
-            event.curve.status = (event.curve.status + 1) % 3
-            self.gr.update()
-        if event.getButtons() & MouseEvent.RIGHT_BUTTON:
-            event.curve.status = (event.curve.status - 1) % 3
-            self.gr.update()
-
 
 class MokeBase(Panel):
     panelName = 'MOKE'
@@ -176,7 +248,7 @@ class MokeBase(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         self.plot_IntvB = MokePlot('MagB, mT', 'Intensity, mV', self)
-        # viewport of IntvB plot is set to accomodate plot title
+        # viewport of IntvB plot is set to accommodate plot title
         self.plot_IntvB.plot.viewport = (.1, .9, .1, .9)
         self.plot_EvB = MokePlot('MagB, mT', 'Ellipticity, µrad.', self)
         self.m = {}
