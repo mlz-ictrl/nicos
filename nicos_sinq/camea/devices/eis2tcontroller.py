@@ -55,15 +55,8 @@ class EIS2TController(IsController, Device):
         if mode != SIMULATION:
             try:
                 values = np.loadtxt(self.file, delimiter=',')
-<<<<<<< HEAD
-                self.ei_values = values[0]
-                self.s2t_values = values[1]
-            except (FileNotFoundError, OSError):
-                session.log.error('Limits file "%s" not found! Reverting to previous values', self.file)
-=======
             except FileNotFoundError as exc:
                 raise ConfigurationError(self, 'Limits file %s not found!', self.file) from exc
->>>>>>> 88e638dd7 (SINQ: Upload of changes to CAMEA throughout 2025)
 
             self.ei_values = values[0]
             self.s2t_values = values[1]

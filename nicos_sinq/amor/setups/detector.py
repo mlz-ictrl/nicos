@@ -83,7 +83,7 @@ devices = dict(
                               statustopic = 'AMOR_filewriter',
                               unit = '',
                               ),
-    FileWriterControl = device('nicos_sinq.devices.datasinks.SinqFileWriterControlSink',
+    FileWriterControl = device('nicos_sinq.devices.datasinks.sinq_datasinks.SinqFileWriterControlSink',
                                description = 'Control for the file-writer',
                                brokers = configdata('config.KAFKA_BROKERS'),
                                pool_topic = 'AMOR_filewriterPool',

@@ -34,13 +34,11 @@ devices = dict(
     ),
     ThresholdChannel = device(
         'nicos_sinq.devices.epics.sinqdaq.DAQMinThresholdChannel',
-        description = "Value of this channel is compared against the Threshold device",
         daqpvprefix = countprefix,
         channels = ['protoncount'],
     ),
     Threshold = device(
         'nicos_sinq.devices.epics.sinqdaq.DAQMinThreshold',
-        description = "If the value of ThresholdChannel is below the value of this device, the counterbox is paused",
         daqpvprefix = countprefix,
         min_rate_channel = 'ThresholdChannel',
     ),

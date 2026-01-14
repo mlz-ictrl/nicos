@@ -6,10 +6,6 @@ includes = ['base', 'qz', 'diaphragm4']
 
 excludes = ['deflector_stage', 'trough', 'universal']
 
-alias_config = {
-        'kappa': {'ka0': 10},
-        }
-
 startupcode = '''
 if 'som' in locals():
     release(som)
