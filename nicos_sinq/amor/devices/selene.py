@@ -24,7 +24,6 @@ import os
 from datetime import datetime
 
 from nicos import session
-from nicos.commands.output import printinfo
 from nicos.core import Attach, CanDisable, HasPrecision, IsController, \
     Moveable, Override, Param, Readable, listof, oneof, status, tupleof
 from nicos.core.params import limits as unpack_limits
@@ -32,7 +31,7 @@ from nicos.core.utils import multiStatus
 from nicos.devices.abstract import Motor
 from nicos.devices.epics.pyepics import EpicsDevice, EpicsDigitalMoveable, \
     EpicsReadable
-from nicos.devices.epics.pyepics.motor import EpicsMotor
+from nicos_sinq.devices.epics.sinqmotor_deprecated import SinqMotor
 
 from nicos_sinq.devices.epics.extensions import EpicsCommandReply
 
@@ -228,7 +227,7 @@ class RangeSelector(EpicsDigitalMoveable):
         return status.OK, ''
 
 
-class SeleneEpicsMotor(EpicsMotor):
+class SeleneEpicsMotor(SinqMotor):
 
     parameter_overrides = {
         'abslimits': Override(volatile=True, settable=True),
@@ -237,7 +236,7 @@ class SeleneEpicsMotor(EpicsMotor):
     pv_cache_relations = {'readpv': 'value', 'writepv': 'target'}
 
     def _get_record_fields(self):
-        record_fields = EpicsMotor._record_fields
+        record_fields = SinqMotor._record_fields
         record_fields.update({
                 'highlimit': 'DHLM',
                 'lowlimit': 'DLLM',
@@ -257,7 +256,7 @@ class SeleneEpicsMotor(EpicsMotor):
             self.pv_cache_relations['errorbitpv'] = 'errorbit'
         if self.reseterrorpv:
             self.pv_cache_relations['reseterrorpv'] = 'reseterror'
-        return EpicsMotor._get_pv_parameters(self)
+        return SinqMotor._get_pv_parameters(self)
 
     def _get_pv_name(self, pvparam):
         """
@@ -266,13 +265,19 @@ class SeleneEpicsMotor(EpicsMotor):
         :param pvparam: PV alias.
         :return: Actual PV name.
         """
-        pv_name = EpicsMotor._get_pv_name(self, pvparam)
+        pv_name = SinqMotor._get_pv_name(self, pvparam)
         if '.-' in pv_name:
             return pv_name.replace('.-', '-')
         return pv_name
 
 #   def _get_pv(self, pvparam, as_string=False):
 #        return self._get_pv(pvparam)
+
+    def doStatus(self, maxage=0):
+        (stat, msg) = SinqMotor.doStatus(self, maxage)
+        if '01 = 10)' in msg:
+            return status.OK, ''
+        return (stat, msg)
 
     def doWriteAbslimits(self, limits):
         """
@@ -287,11 +292,11 @@ class SeleneEpicsMotor(EpicsMotor):
 
         low, high = unpack_limits(limits)
 
-        self._put_pv_blocking('lowlimit', -10)
-        self._put_pv_blocking('highlimit', 10)
+        self._put_pv_checked('lowlimit', -10)
+        self._put_pv_checked('highlimit', 10)
         self.userlimits = limits
-        self._put_pv_blocking('lowlimit', low)
-        self._put_pv_blocking('highlimit', high)
+        self._put_pv_checked('lowlimit', low)
+        self._put_pv_checked('highlimit', high)
 
     def isAtEndswitch(self):
         return self._get_pv('lowlimitswitch') or \
@@ -508,10 +513,6 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
         position = list(self.position)
         position[self._pitch] =\
             self._attached_motor[self._get_motor_id()].read(0)
-        printinfo(
-            'Updating position of pitch %d to %f'
-            % (self._pitch, self._attached_motor[self._get_motor_id()].read(0))
-        )
         self._setROParam('position', position)
         return position[self._pitch]
 
@@ -549,12 +550,18 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
 
         position = self.position[self._pitch]
         limits = get_limits()
-        printinfo('enable_active: setting pos, limits: %f, %s'
-                  % (position, str(limits)))
 
-        # Set the motor position. This should be possible with the PV as well
+        # Set the motor position.
+        self._attached_asyn.execute(
+                f'Q{7 + self._get_motor_id()}53={10}')
+        self._attached_asyn.execute(
+                f'Q{7 + self._get_motor_id()}54={-10}')
         self._attached_asyn.execute(
                 f'Q{7 + self._get_motor_id()}59={position}')
+        self._attached_asyn.execute(
+                f'Q{7 + self._get_motor_id()}53={limits[1]}')
+        self._attached_asyn.execute(
+                f'Q{7 + self._get_motor_id()}54={limits[0]}')
 
         self._attached_motor[self._get_motor_id()].abslimits = limits
         self._attached_digital_input[self._pitch].enable()

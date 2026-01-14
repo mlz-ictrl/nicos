@@ -11,6 +11,8 @@ sysconfig = dict(
     instrument = 'CAMEA',
 )
 
+includes = ['alias']
+
 devices = dict(
     CAMEA = device('nicos_sinq.sxtal.instrument.TASSXTal',
         description = 'instrument object',
@@ -86,14 +88,6 @@ devices = dict(
         abslimits = (-15, 15),
         default = 0,
         unit = 'degree',
-    ),
-    sgl = device('nicos.core.device.DeviceAlias',
-        description = 'Alias goniometer lower',
-        alias = 'gl_sim',
-    ),
-    sgu = device('nicos.core.device.DeviceAlias',
-        description = 'Alias goniometer upper',
-        alias = 'gu_sim',
     ),
     gm = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Monochromator goniometer',
@@ -253,3 +247,8 @@ devices = dict(
         visibility = {},
     ),
 )
+
+alias_config = {
+    'sgl': {'gl_sim': 100},
+    'sgu': {'gu_sim': 100},
+}

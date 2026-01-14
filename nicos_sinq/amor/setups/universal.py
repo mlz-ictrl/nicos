@@ -1,11 +1,12 @@
-description = 'AMOR full parameter choice'
+description = 'individual movement of all devices'
 
 group = 'basic'
 
-includes = ['director_devices']
-
-excludes = ['simple', 'deflector']
+includes = ['base']
 
 startupcode = '''
-amor_director.mode = 'universal'
+if 'som' in locals():
+    release(som)
+if 'sample_roll' in locals():
+    release(sample_roll)
 '''
