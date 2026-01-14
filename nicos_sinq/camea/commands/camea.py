@@ -32,7 +32,6 @@ import numpy as np
 
 from nicos import session
 from nicos.commands import parallel_safe, usercommand
-from nicos.commands.basic import FinishExperiment
 from nicos.commands.scan import scan
 from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError, InvalidValueError, \
@@ -74,7 +73,7 @@ __all__ = ['loadcalibration', 'SelectDetectorAnalyser',
            'chooseDetectorAnalyser', 'moveDevice', 'changeEi',
            'printToDiscord', 'writeToLogbook', 'CAMEApause', 'CAMEAresume',
            'moves2t', 'checkLimits', 'moves2tPeak', 'moveCAMEA', 'CAMEAscan',
-           'prepareCAMEA', 'FinishExperiment']
+           'prepareCAMEA']
 
 
 @usercommand
@@ -90,12 +89,6 @@ def loadcalibration():
         c = session.getDevice(d)
         c.load(findResource(os.path.join('nicos_sinq', 'camea', n)))
 
-@usercommand
-def loadLimits():
-    """Load the limits of the s2t as function of energy from /home/nicos/nicos/nicos_sinq/camea/s2tlimits.txt"""
-
-    ctrl = session.getDevice('eis2tcontroller')
-    session.log.info('Ei and S2T limits loaded from %s', ctrl.file)
 
 @usercommand
 def SelectDetectorAnalyser(detNo, anaNo):
@@ -110,13 +103,16 @@ def SelectDetectorAnalyser(detNo, anaNo):
     if anaNo < 0 or anaNo > 7:
         session.log.error('anaNo %d out of range 0 - 7', anaNo)
         return
-
-    calib1 = session.getDevice('calib1')
-    a4 = session.getDevice('a4')
-    cts = session.getDevice('counts')
-    efd = session.getDevice('ef')
-    dn = session.getDevice('detNo')
-    an = session.getDevice('anaNo')
+    try:
+        calib1 = session.getDevice('calib1')
+        a4 = session.getDevice('a4')
+        cts = session.getDevice('counts')
+        efd = session.getDevice('ef')
+        dn = session.getDevice('detNo')
+        an = session.getDevice('anaNo')
+    except ConfigurationError:
+        session.log.error('Camea devices NOT found, cannot proceed')
+        return
 
     idx = 8*detNo + anaNo
     a4offset = calib1.a4offset[idx]
@@ -139,9 +135,13 @@ def chooseDetectorAnalyser(HKLE=None, A4=None):
     This command selects the closest detector given an A4 or a peak at 5 meV.
 
     """
-    calib1 = session.getDevice('calib1')
-    s2t = session.getDevice('s2t')
-    an = session.getDevice('anaNo')
+    try:
+        calib1 = session.getDevice('calib1')
+        s2t = session.getDevice('s2t')
+        an = session.getDevice('anaNo')
+    except ConfigurationError:
+        session.log.error('Camea devices NOT found, cannot proceed')
+        return
 
     if HKLE is None and A4 is None:
         session.log.error('Either HKLE or A4 has to be provided')
@@ -212,23 +212,27 @@ def moveDevice(device, value, retries=3):
 @usercommand
 def changeEi(energy, retries=3, retryMC=3):
     """Change incoming energy with a retry three times"""
+    device = 'ei'
     e = None
     mch = session.getDevice('mch')
     mcv = session.getDevice('mcv')
-    ei = session.getDevice('ei')
+    if isinstance(device, str):
+        dev = session.getDevice(device)
+    else:
+        dev = device
 
     k = 0
     while k < retries:
         k = k + 1
         try:
-            ei.maw(energy)
+            dev.maw(energy)
             success = True
             break
         except (PositionError, MoveError, InvalidValueError) as e:
             session.log.info('Got error "%s"', str(e))
             success = False
             MCtries = 0
-            while ((mch.enabled is False or mcv.enabled is False)
+            while ((mch.isEnabled is False or mcv.isEnabled is False)
                    or MCtries < retryMC):
                 mch.enable()
                 mcv.enable()
@@ -236,14 +240,14 @@ def changeEi(energy, retries=3, retryMC=3):
 
     if not success:
         session.log.error(
-            'Could not move %s to %.3f within %d tries', ei, energy, retries)
+            'Could not move %s to %.3f within %d tries', dev, energy, retries)
         if e is not None:
             raise e
     else:
-        devName = ei.name
-        devUnit = ei.unit
+        devName = dev.name
+        devUnit = dev.unit
         session.log.info('Wanted %s = %s %s, actual %s = %s %s',
-                         devName, energy, devUnit, devName, str(ei()),
+                         devName, energy, devUnit, devName, str(dev()),
                          devUnit)
 
 
@@ -302,7 +306,6 @@ def moves2t(value, retries=3):
     s2t = session.getDevice('s2t')
     ei = session.getDevice('ei')
     ctrl = session.getDevice('eis2tcontroller')
-
     # Check limits from table above
 
     limit = ctrl.twoThetaLimitInterp(ei())
@@ -400,9 +403,13 @@ def moves2tPeak(HKLE=None, A4=None):
         session.log.error('Either HKLE or A4 has to be provided')
         return
 
-    calib1 = session.getDevice('calib1')
-    s2t = session.getDevice('s2t')
-    an = session.getDevice('anaNo')
+    try:
+        calib1 = session.getDevice('calib1')
+        s2t = session.getDevice('s2t')
+        an = session.getDevice('anaNo')
+    except ConfigurationError:
+        session.log.error('Camea devices NOT found, cannot proceed')
+        return
 
     if HKLE is not None:
         try:
@@ -509,15 +516,10 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
     and magnetic field are ONLY used for titles in files and logbook if
     provided! Scans can be skipped.
 
-    The detector `preset` needs to be defined as a key-value argument. The
-    following keys are valid:
-    - `m` or `monitor_value`: Neutron count preset
-    - `t` or `time_value`: Count time preset
-
     Example:
 
     CAMEAscan([5,5.13],  s2ts=[-40], a3Start=0, a3Stepsize=1, a3Steps=181,
-              skipScans=0, m=100000)
+              m=100000, skipScans=0)
     The above command will perform 4 a3 scans with a step size of 1 degree
     starting at 0 and ending at 180, i.e. 181 steps. The monitor value is
     100 000 and no scans are skipped. That is, the following is measured
@@ -528,35 +530,37 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
     5.13, -44
     5.13, -40
     """
-    monitor_value = preset.get('monitor_value', None)
-    if monitor_value is not None:
-        preset['m'] = monitor_value
-    else:
-        monitor_value = preset.get('m', None)
+    allowed_presets = ['m', 'monitor', 'monitor_value', 't', 'time', 'time_value']
 
-    time_value = preset.get('time_value', None)
-    if time_value is not None:
-        preset['t'] = time_value
-    else:
-        time_value = preset.get('t', None)
+    # Do some checking to ensure that exactly one preset has been given
+    scanParams = None
+    logbookMonitor = None
+    for key in allowed_presets:
+        val = preset.get(key)
+        if val is not None:
+            if scanParams is None:
+                scanParams = {key: val}
+                logbookMonitor = val
+            else:
+                session.log.error('More than one preset has been given: '
+                                  '%s and %s', scanParams, {key: val})
+                return
 
-    if monitor_value is None and time_value is None:
-        session.log.error(
-            'Either monitor or time has to be provided by monitor_value or m, or '
-            'time_value or t')
+    if scanParams is None:
+        session.log.error('At least one of %s needs to be specified',
+                          ", ".join(allowed_presets))
         return
 
-    if monitor_value is None:
-        logbookMonitor = time_value
-    else:
-        logbookMonitor = monitor_value
-
-
     # Get devices
-    a3 = session.getDevice('a3')
-    ei = session.getDevice('ei')
-    s2t = session.getDevice('s2t')
-    Exp = session.getDevice('Exp')
+    try:
+        a3 = session.getDevice('a3')
+        ei = session.getDevice('ei')
+        s2t = session.getDevice('s2t')
+        Exp = session.getDevice('Exp')
+
+    except ConfigurationError:
+        session.log.error('Camea devices NOT found, cannot proceed')
+        return
 
     # Get temperature in order to actually do a scan
     try:
@@ -571,6 +575,9 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
         B = session.getDevice('B')
     except ConfigurationError:
         B = None
+
+    if B is None:
+        pass  # session.log.info('No magnet found')
 
     # Generate list of configurations wanted
     # At each energy perform both s2t and s2t+4
@@ -596,7 +603,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
         newCheck = checkLimits(ei=checkEi, s2t=checkS2t, verbose=False)
         checks.append(newCheck)
 
-    if not all(checks):  # if any of the checks fail, break script
+    if not np.all(checks):  # if any of the checks fail, break script
         erroneous = np.asarray(setups)[np.logical_not(checks)]
         errorSetups = ['Ei = {} meV, s2t = {} degrees, A3 from {} in steps of {} degrees with {} steps'.format(
             e, s, *a3s) for e, s, *a3s in erroneous]
@@ -638,8 +645,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
             scanNumMod = scanNumber-skipScans+1
             fileNumber = Exp.lastscan+1
 
-            if session.mode != SIMULATION:
-                moveCAMEA(ei=eiValue, s2t=s2tValue)
+            moveCAMEA(ei=eiValue, s2t=s2tValue)
             discordString = discordTemplate.substitute(eiTarget=eiValue,
                                                        eiActual=ei(),
                                                        s2tTarget=s2tValue,
@@ -647,6 +653,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
                                                        scanNumber=scanNumMod,
                                                        totalScans=totalScans,
                                                        fileNumber=fileNumber)
+
             printToDiscord(discordString)
             session.log.info(discordString)
 
@@ -657,12 +664,11 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
                 experimentText = ', '.join(experimentText)
             else:
                 experimentText = ''
-            if session.mode != SIMULATION:
-                Exp.title = experimentText
+            Exp.title = experimentText
 
             for _ in range(retries):
                 try:
-                    scan(a3, a3Start, a3Stepsize, a3Steps, **preset)
+                    scan(a3, a3Start, a3Stepsize, a3Steps, **scanParams)
                     success = True
                     break
                 except (OSError) as e:
@@ -696,8 +702,8 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
         session.log.info(endText)
 
     except Exception as e:
-        text = 'Script broken at ei = {:.3f}, s2t = {:.3f}, '.format(ei(), s2t()) + \
-               'and a3 = {:.2f} with following error message: "{:}"'.format(a3(), e)
+        text = 'Script broken at ei = {:.3f}, s2t = {:.3f}, and a3 = {:.2f} with following error message: "{:}"'.format(
+                           ei(), s2t(), a3(), e)
         printToDiscord('MENTIONALL\n'+text)
         session.log.error(text)
         raise (e)
@@ -708,22 +714,15 @@ def prepareCAMEA(alignmentPeak1=None, alignmentPeak2=None):
 
     moveCAMEA(ei=5.0, s2t=-45)
 
-    names = ['mch', 'sgu', 'sgl', 'mst', 'msb', 'msr',
-             'msl', 'Sample', 'calib1', 'calib3', 'calib5', 'calib8',
-             'CAMEA']
-
-    (mch, sgu, sgl, mst, msb, msr, msl, Sample, calib1, calib3, calib5, calib8,
-                CAMEA) = [session.getDevice(name) for name in names]
-    if not all(e in session.devices for e in ['mch', 'mst', 'msb', 'msr', 'msl', 'Sample']):
-        session.log.error('Could not load standard motors for CAMEA, setup not possible')
-        return
-
-    # These variables are currently not used, but kept around in case this
-    # function needs to be modified.
-    _ = calib1
-    _ = calib3
-    _ = calib5
-    _ = calib8
+    mch = session.getDevice('mch')
+    sgu = session.getDevice('sgu')
+    sgl = session.getDevice('sgl')
+    mst = session.getDevice('mst')
+    msb = session.getDevice('msb')
+    msr = session.getDevice('msr')
+    msl = session.getDevice('msl')
+    Sample = session.getDevice('Sample')
+    CAMEA = session.getDevice('CAMEA')
 
     mch.maw(0)
     mch.fix()

@@ -7,7 +7,6 @@ __pycache__/
 *.log.gz
 *.log.bz2
 *.pid
-*.pyc
 MANIFEST
 /nicos.conf
 nicos/RELEASE-VERSION

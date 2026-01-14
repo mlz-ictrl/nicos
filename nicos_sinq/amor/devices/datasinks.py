@@ -155,7 +155,7 @@ class AmorStructureTemplate(NexusStructureTemplate):
         delete_keys = []
         if 'deflector' not in session.loaded_setups:
             delete_keys.append('deflector:NXmirror')
-        if 'polarizer' not in session.loaded_setups:
+        if 'polariser' not in session.loaded_setups:
             delete_keys.append('polarizer:NXpolariser')
         if 'diaphragm2' not in session.loaded_setups:
             delete_keys.append('diaphragm2:NXslit')

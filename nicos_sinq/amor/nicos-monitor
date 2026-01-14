@@ -1,4 +1,0 @@
-#!/bin/bash
-NICOSROOT=/home/nicos/nicos
-source /home/software/virtualenv/nicosenv/bin/activate
-${NICOSROOT}/bin/nicos-monitor -p 0 -s 10

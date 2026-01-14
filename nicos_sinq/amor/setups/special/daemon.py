@@ -4,7 +4,9 @@ group = 'special'
 devices = dict(
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'sha1',
-        passwd = configdata('config_sinq.passwds'),
+        passwd = configdata('config_sinq.passwds') + [
+            ('lnsadmin', '76702e9ada292df094a875e5f72e9f778099d477', 'admin'),
+        ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '',

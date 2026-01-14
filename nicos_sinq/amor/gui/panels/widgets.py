@@ -127,18 +127,16 @@ class ValueLabel(QLabel, NicosWidget):
 
 
 class ListEntryLabel(ValueLabel):
-    value = PropDef('value', float, 0.0, 'value')
-    _values = []
+    values = PropDef('values', list, [], 'List containing the values')
 
     def setClient(self, client):
         ValueLabel.setClient(self, client)
         self._client.connected.connect(self.on_connected)
 
     def on_connected(self):
-        self._values = self._client.getDeviceParam('selene',
+        self.values = self._client.getDeviceParam('selene',
                                                   self.props['key'].split('/')[
                                                       1])
-        self.value = self._values[self.value_index]
 
     def registerKeys(self):
         ValueLabel.registerKeys(self)
@@ -148,10 +146,9 @@ class ListEntryLabel(ValueLabel):
         if key == 'selene/_pitch':
             self.value_index = value
         if key == self.props['key']:
-            self._values = value
-            self.value = self._values[self.value_index]
+            self.values = value
 
-        if self.value_index >= 0 and self._values:
-            self.setText(f'{self._values[self.value_index]:.3f}')
+        if self.value_index >= 0 and self.values:
+            self.setText(f'{self.values[self.value_index]:.3f}')
         else:
             self.setText(':(')

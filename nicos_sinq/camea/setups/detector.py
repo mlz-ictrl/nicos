@@ -44,13 +44,13 @@ devices = dict(
     ),
     Gate1 = device(
         'nicos_sinq.devices.epics.sinqdaq.DAQGate',
-        description = "Gate 1 of the counter box",
+        description = 'Gate 1 of the counter box',
         daqpvprefix = countprefix,
         channel = 1,
     ),
     Gate2 = device(
         'nicos_sinq.devices.epics.sinqdaq.DAQGate',
-        description = "Gate 2 of the counter box",
+        description = 'Gate 2 of the counter box',
         daqpvprefix = countprefix,
         channel = 2,
     ),

@@ -7,7 +7,7 @@ pvmcu2 = 'SQ:CAMEA:turboPmac2:'
 pvmcu3 = 'SQ:CAMEA:turboPmac3:'
 pvmcu4 = 'SQ:CAMEA:turboPmac4:'
 
-includes = ['alias']
+includes = ['cameabasic']
 
 devices = dict(
     gl = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
