@@ -115,6 +115,12 @@ def lsm(x, y, dx=None, dy=None):
 
     if len(x) == 1:
         return ufloat(0, 0), ufloat(y, dy if dy.any() else 0)
+    if len(x) == 2:
+        dx0, dx1 = (dx[0], dx[1]) if dx.any() else (0, 0)
+        dy0, dy1 = (dy[0], dy[1]) if dy.any() else (0, 0)
+        x0, x1, y0, y1 = x[0], x[1], y[0], y[1]
+        k = (ufloat(y1, dy1) - ufloat(y0, dy0)) / (ufloat(x1, dx1) - ufloat(x0, dx0))
+        return k, y1 - k * x1
     if not dx.any() and not dy.any():
         return _lsm(x, y)
     elif not dx.any():
