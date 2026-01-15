@@ -25,8 +25,9 @@ import datetime
 import math
 import os
 
+import gr
+from gr.pygr import CoordConverter, ErrorBar, RegionOfInterest, Text
 import numpy
-from gr.pygr import CoordConverter, ErrorBar, RegionOfInterest
 from qtgr.events import LegendEvent, MouseEvent, ROIEvent
 # pylint: disable=import-error
 from uncertainties.core import AffineScalarFunc
@@ -37,7 +38,7 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS
 from nicos.guisupport.qt import QDate, QFont, QMessageBox, QStandardItem, \
-    QStandardItemModel, Qt, QToolBar, pyqtSlot
+    QStandardItemModel, Qt, QToolBar, pyqtSignal, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 from nicos.protocols.daemon import BREAK_AFTER_STEP, BREAK_NOW
 from nicos.utils import findResource
@@ -129,6 +130,10 @@ class LiveWidget1DWithMarkers(LiveWidget1D):
         dragged marker.
         """
 
+    @property
+    def is_marker_moving(self):
+        return self._move_marker
+
     def on_markerClicked(self, event):
         if event.getButtons() & MouseEvent.LEFT_BUTTON:
             self._move_marker = not self._move_marker
@@ -190,11 +195,22 @@ class MokePlot(MokeLiveWidget):
     ``MokePlotCurve`` object.
     """
 
+    redraw_marker = pyqtSignal()
+    redraw_marker_finished = pyqtSignal(bool)
+
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
         MokeLiveWidget.__init__(self, parent, **kwds)
         self.axes.xdual = self.axes.ydual = False
         self.setTitles({'x': xlabel, 'y': ylabel})
         self.clear()
+
+    def clear(self):
+        MokeLiveWidget.clear(self)
+        self._fits = {}
+
+    @property
+    def fits(self):
+        return self._fits
 
     def add_curve(self, curve, color=None, legend=None):
         self.plot.title = legend
@@ -241,6 +257,48 @@ class MokePlot(MokeLiveWidget):
             self.add_curve(mean, color=1, legend='mean')
         self.plot.title = legend
 
+    def add_fit(self, x1, x2, fit, label):
+        """Add a linear fit line with draggable markers at endpoints.
+
+        The fit is stored in self.fits[label] and can be interactively`
+        adjusted by dragging the markers.
+
+        :param x1: left x-coordinate of the fit line
+        :param x2: right x-coordinate of the fit line
+        :param fit: tuple (k, b) for line equation y = k*x + b
+        :param label: legend label and dictionary key for accessing this fit`
+        """
+        x = numpy.array([x1, x2])
+        y = fit[0] * x + fit[1]
+        self.add_curve(list(zip(x, y)), color=2, legend=label)
+        self._curves[-1].markersize = 0
+
+        for _x, _y in list(zip(x, y)):
+            if isinstance(_x, AffineScalarFunc):
+                _x = _x.n
+            if isinstance(_y, AffineScalarFunc):
+                _y = _y.n
+            self.add_marker(
+                Text(
+                    _x, _y, '✕', charheight=.027, textcolor=2, font=101,
+                    halign=gr.TEXT_HALIGN_CENTER, valign=gr.TEXT_VALIGN_HALF,
+                ),
+                self._curves[-1]
+            )
+        self._fits[label] = self._curves[-1]
+
+    def _redraw_with_marker(self, marker_roi):
+        for _, curve in self.fits.items():
+            if marker_roi.reference in curve.dependent:
+                curve.x = [marker.x for marker in curve.dependent]
+                curve.y = [marker.y for marker in curve.dependent]
+                self.redraw_marker.emit()
+
+    def on_markerClicked(self, event):
+        LiveWidget1DWithMarkers.on_markerClicked(self, event)
+        if not self.is_marker_moving:
+            self.redraw_marker_finished.emit(True)
+
 
 class MokeBase(Panel):
     panelName = 'MOKE'
@@ -252,6 +310,8 @@ class MokeBase(Panel):
         self.plot_IntvB.plot.viewport = (.1, .9, .1, .9)
         self.plot_EvB = MokePlot('MagB, mT', 'Ellipticity, µrad.', self)
         self.m = {}
+        self.plot_IntvB.redraw_marker.connect(self._recalculate)
+        self.plot_IntvB.redraw_marker_finished.connect(self._recalculate)
 
     @pyqtSlot()
     def on_btn_calc_clicked(self):
@@ -265,6 +325,18 @@ class MokeBase(Panel):
             QMessageBox.information(None, '', 'The measurement is not yet finished')
             return
 
+        self.plot_IntvB.clear()
+        try:
+            fit_min, fit_max, IntvB = self._recalculate(save=True)
+        except Exception as e:
+            QMessageBox.information(None, '', f'Calculation has failed:\n{e}')
+            return
+        self.plot_IntvB.add_curve(IntvB, legend='Mean')
+        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])]) * 0.9
+        self.plot_IntvB.add_fit(*x, fit_min, 'fit min')
+        self.plot_IntvB.add_fit(*x, fit_max, 'fit max')
+
+    def _recalculate(self, save=False):
         IntvB = Curve2D(self.m['IntvB'])
         int_mean = IntvB.series_to_curves().mean().yvx(0)
         IntvB = self._subtract_baseline(IntvB)
@@ -272,35 +344,32 @@ class MokeBase(Panel):
         # recalculate angle in SKT to µrad
         angle *= 1.5 / 25 / 180 * math.pi * 1e6 # [µrad]
         ext = float(self.ln_extinction.text()) # mV
-        try:
-            fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean.y, angle, ext)
-        except Exception as e:
-            QMessageBox.information(None, '', f'Calculation has failed:\n{e}')
-            return
-        # upd IntvB plot with mean curve and fits
-        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])]) * 0.9
-        self.plot_IntvB.clear()
-        self.plot_IntvB.add_curve(list(zip(x, fit_min[0] * x + fit_min[1])),
-                                  legend='Fit min')
-        self.plot_IntvB.add_curve(list(zip(x, fit_max[0] * x + fit_max[1])),
-                                  legend='Fit max')
-        self.plot_IntvB.add_curve(IntvB, legend='Mean')
-        # show EvB plot and kerr angle
+        fit_min, fit_max = None, None
+        if self.plot_IntvB.fits:
+            fit_min, fit_max = [Curve2D.from_x_y(self.plot_IntvB.fits[fit].x,
+                                                 self.plot_IntvB.fits[fit].y).lsm()
+                                for fit in ['fit min', 'fit max']]
+        fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean.y, angle, ext, fit_min, fit_max)
         self.plot_EvB.clear()
         self.plot_EvB.add_curve(EvB, legend=self.m['name'])
         self.ln_kerr.setText(str(kerr))
 
-        output = generate_output(self.m, angle, ext)
+        output = generate_output(self.m, angle, ext, fit_min, fit_max)
         self.display_rawdata(output)
+        if save:
+            self.save_rawdata(output)
+        return fit_min, fit_max, IntvB
+
+    def display_rawdata(self, output):
+        self.txt_rawdata.clear()
+        self.txt_rawdata.insertPlainText(output)
+
+    def save_rawdata(self, output):
         folder = os.path.join(os.path.expanduser('~'), 'Measurements', 'moke')
         os.makedirs(folder, exist_ok=True)
         with open(os.path.join(folder, f'{fix_filename(self.m["name"])}.txt'),
                   'w', encoding='utf-8') as f:
             f.write(output)
-
-    def display_rawdata(self, output):
-        self.txt_rawdata.clear()
-        self.txt_rawdata.insertPlainText(output)
 
     def _subtract_baseline(self, IntvB):
         if self.chk_subtract_baseline.isChecked() and IntvB:
