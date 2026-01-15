@@ -32,7 +32,7 @@ devices = dict(
     ),
     mcstas = device('nicos_virt_mlz.stressi.devices.detector.McStasSimulation',
         description = 'McStas simulation',
-        mcstasprog = 'stressi_fast2',
+        mcstasprog = 'stressi_fast',
         neutronspersec = {
             'stressictrl': 5.3e5,
             'stressictrl02': 2.7e6,
@@ -52,7 +52,7 @@ devices = dict(
         theta2 = 'tths',
         force = 'teload',
     ),
-    image = device('nicos.devices.mcstas.McStasImage',
+    image = device('nicos_virt_mlz.stressi.devices.detector.Image',
         description = 'Image data device',
         mcstas = 'mcstas',
         mcstasfile = 'PSD_STRESSI_total.psd',
