@@ -29,6 +29,7 @@ import os
 import re
 import shutil
 import socket
+import tempfile
 from math import log10
 from os import path
 from signal import SIGTERM, SIGUSR2
@@ -105,6 +106,9 @@ class McStasSimulation(Readable):
 
     def doInit(self, mode):
         self._workdir = os.getcwd()
+        if os.path.dirname(self._workdir) == self._workdir:  # Root dir "/"
+            self._workdir = tempfile.gettempdir()
+        self.log.debug('Working dir: %s', self._workdir)
         self._interesting_files = set([self.mcsiminfo])
         self._hostname = socket.getfqdn()
         self._mcstasdirpath = session.experiment.data.expandNameTemplates(
