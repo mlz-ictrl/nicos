@@ -23,6 +23,7 @@
 
 import math
 from random import randint
+import re
 
 import numpy
 import scipy
@@ -223,15 +224,8 @@ def fix_filename(filename):
     :param filename: desired filename
     :return: allowed filename
     """
-    allowed = [ord(' '), ord('_'), ord('-')]
-    allowed += range(ord('0'), ord('9'))
-    allowed += range(ord('A'), ord('Z'))
-    allowed += range(ord('a'), ord('z'))
-
-    res = ''
-    for l in filename:
-        res += l if ord(l) in allowed else '-'
-    return res
+    p = re.compile ('[^a-zA-Z0-9 _-]')
+    return p.sub('-', filename)
 
 
 def asciitable(data):
