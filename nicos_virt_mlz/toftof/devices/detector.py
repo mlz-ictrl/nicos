@@ -25,7 +25,8 @@
 
 import numpy as np
 
-from nicos.core import Attach, Override, Param, intrange, oneof
+from nicos.core import Attach, Override, Param, intrange, listof, oneof, \
+    tupleof
 from nicos.core.constants import FINAL, LIVE, MASTER
 from nicos.devices.generic.slit import Slit
 from nicos.devices.mcstas import MIN_RUNTIME, DetectorMixin, \
@@ -51,9 +52,15 @@ class McStasSimulation(BaseSimulation):
     parameters = {
         'repeat_factor': Param('Factor to calculate the number of "repeat" '
                                'parameter, which determines the number of '
-                               'neutrons',
+                               'neutrons (used in case of not give parameter '
+                               '"repeat_curve")',
                                type=float, default=4/3,
                                ),
+        'repeat_curve': Param('Repeat alignment curve to calculate the McStas '
+                              '"repeat" factor. Given as list of '
+                              '(repeat, runtime) tuples.',
+                              type=listof(tupleof(float, float)),
+                              ),
     }
 
     attached_devices = {
@@ -84,7 +91,22 @@ class McStasSimulation(BaseSimulation):
     # split_var    [1]      repetition of the neutrons arriving in front of the
     #                       sample
 
+
+    def doInit(self, mode):
+        BaseSimulation.doInit(self, mode)
+        self._x = []
+        self._y = []
+        for (x, y) in self.repeat_curve:
+            self._x.append(x)
+            self._y.append(y)
+
     def _prepare_params(self):
+        if self.repeat_curve:
+            repeat_factor = np.interp(self.preselection, self._y, self._x)
+        else:
+            repeat_factor = self.repeat_factor * self.preselection
+        if round(repeat_factor) < repeat_factor:
+            repeat_factor += 1
         return [
             'lambda=%s' % self._dev_value(self._attached_wavelength),  # 6
             'speed=%s' % self._dev_value(self._attached_speed),  # 14000
@@ -98,7 +120,7 @@ class McStasSimulation(BaseSimulation):
             # 0 = Vanadium, 1 = empty cell, 2 = water
             'sample=%d' % self._attached_sample.sampletype,
             'scat_order=%d' % 0,
-            'repeat=%d' % round(self.repeat_factor * self.preselection),
+            'repeat=%d' % round(repeat_factor),
             'split_var=%d' % 1000,
         ]
 
@@ -126,6 +148,10 @@ class Image(McStasImage):
         'neutron_section': Param("Section to take 'neutrons' from PSD file",
                                  type=oneof('Data', 'Events'), mandatory=False,
                                  default='Events'),
+        'monitorchannel': Param('Channel number of the monitor counter',
+                                type=intrange(1, 1024), settable=False,
+                                default=956,
+                                ),
     }
 
     def _readpsd(self, quality):
@@ -139,9 +165,7 @@ class Image(McStasImage):
                     factor = 1 if blocks == 1 else self._attached_mcstas._getScaleFactor()
                     buf = factor * np.loadtxt(lines[1:self.size[1] + 1],
                                               dtype=np.float32)
-                    self._buf = buf.astype(self.image_data_type)
                     self._buf = np.transpose(buf.astype(self.image_data_type))
-                    self.readresult = [self._buf.sum()]
                 elif quality != LIVE:
                     raise OSError('Did not find start line: %s' % lines[0])
             except OSError:
@@ -150,9 +174,11 @@ class Image(McStasImage):
                 elif quality != LIVE:
                     self.log.exception('Could not read result file', exc=1)
         else:
-            self.readresult = [0]
             self._buf = np.transpose(
                 np.zeros(self.size).astype(self.image_data_type))
+        self.readresult = [sum(d[:self.monitorchannel].sum() +
+                               d[self.monitorchannel + 1:].sum()
+                               for d in self._buf)]
 
     def doReadFrametime(self):
         return self.timeinterval * self.timechannels
