@@ -23,7 +23,7 @@
 
 """TOFTOF image channel devices."""
 
-from nicos.core import Override, Param, intrange, status
+from nicos.core import Override, Param, Value, intrange, status
 from nicos.devices.entangle import TOFChannel
 
 from nicos_mlz.toftof.lib import calculations as calc
@@ -99,6 +99,10 @@ class TOFTOFChannel(TOFChannel):
 
     def doReadArray(self, quality):
         ndata = TOFChannel.doReadArray(self, quality)
-        self.readresult = [d[2:self.monitorchannel].sum() +
-                           d[self.monitorchannel + 1:].sum() for d in ndata]
+        self.readresult = [sum(d[:self.monitorchannel].sum() +
+                               d[self.monitorchannel + 1:].sum() for d in ndata)]
         return ndata
+
+    def valueInfo(self):
+        return (Value(self.name + '.sum', unit='cts', type='counter',
+                      errors='sqrt', fmtstr='%d'),)
