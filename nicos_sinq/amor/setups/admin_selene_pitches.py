@@ -22,7 +22,7 @@ devices = dict(
                                  description = 'Direct communication to the mcu',
                                  commandpv = 'SQ:AMOR:SEL2.AOUT',
                                  replypv = 'SQ:AMOR:SEL2.AINP',
-                                 # requires = {'level': 'admin'},
+                                 requires = {'level': 'admin'},
                                  ),
     smp1 = device('nicos_sinq.amor.devices.selene.SeleneEpicsMotor',
                   description = 'Pitch motor for selene1',
@@ -62,7 +62,7 @@ devices = dict(
                   description = 'Controller of the devices connected to the selene MCU',
                   commandpv = 'SQ:AMOR:SEL2' + '.AOUT',
                   replypv = 'SQ:AMOR:SEL2' + '.AINP',
-                  # requires = {'level': 'admin'},
+                  requires = {'level': 'admin'},
                   ),
     )
 

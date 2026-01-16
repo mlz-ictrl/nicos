@@ -25,9 +25,11 @@
 """
 This module contains specific EPICS devices.
 """
+from nicos import session
 from nicos.core import Device, Param, pvname, status, usermethod
 from nicos.core.constants import SIMULATION
-from nicos.core.params import Override, none_or
+from nicos.core.errors import AccessError
+from nicos.core.params import Override, anytype, dictof, none_or
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.epics.pyepics import EpicsAnalogMoveable, EpicsDevice
 
@@ -109,6 +111,10 @@ class EpicsCommandReply(EpicsDevice, Device):
                   mandatory=False,
                   settable=False,
                   userparam=False),
+        'requires':
+            Param('Access requirements for sending commands',
+                  type=dictof(str, anytype),
+                  userparam=False),
     }
 
     def _get_pv_parameters(self):
@@ -127,6 +133,14 @@ class EpicsCommandReply(EpicsDevice, Device):
         """
         if self._mode == SIMULATION:
             return ''
+
+        if self.requires:
+            try:
+                session.checkAccess(self.requires)
+            except AccessError as err:
+                raise AccessError(
+                    self, 'cannot send command: %s' % err) from None
+
         # Send the command to the commandpv
         self._put_pv_blocking('commandpv', command)
 
