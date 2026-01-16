@@ -25,10 +25,11 @@
 """
 This module contains specific EPICS devices.
 """
-from nicos.core import Device, Param, pvname, usermethod
+from nicos.core import Device, Param, pvname, status, usermethod
 from nicos.core.constants import SIMULATION
+from nicos.core.params import Override, none_or
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics.pyepics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsAnalogMoveable, EpicsDevice
 
 from nicos_sinq.devices.epics.base import EpicsDigitalMoveableSinq
 
@@ -131,3 +132,80 @@ class EpicsCommandReply(EpicsDevice, Device):
 
         # If reply PV is set, return it's output
         return self._get_pv('replypv') if self.replypv else ''
+
+
+class EpicsControlledAnalogMoveable(EpicsAnalogMoveable):
+    '''
+    Extends `EpicsAnalogMoveable` with additional PV's to check device
+    readyness and to stop it.
+
+    This class extends `EpicsAnalogMoveable` with additional functionality
+    via two optional PVs. If none of these PVs are given in the setup file, this
+    class is equivalent to its parent class EpicsAnalogMoveable.
+
+    - `readypv`: If this parameter is 0, the device is busy and not able to
+    receive a new movement command.
+
+    - `stoppv`: Setting this parameter to 1 should stop the device. If this PV
+    is not given, the `doStop` implementation of the base class is used, if
+    the device is actually busy (target not equal to current position or
+    `readypv == 0`)
+    '''
+    parameters = {
+        'readypv': Param('Optional PV which should be 0 if the device is not ' \
+                         'ready to move and 1 otherwise.',
+                         type=none_or(pvname), mandatory=False, userparam=False),
+        'stoppv': Param('Optional PV which is set to 1 when the device is stopped.',
+                         type=none_or(pvname), mandatory=False, userparam=False),
+    }
+
+    def _get_pv_parameters(self):
+        params = EpicsAnalogMoveable._get_pv_parameters(self)
+        if self.readypv:
+            params.add('readypv')
+        if self.stoppv:
+            params.add('stoppv')
+        return params
+
+    def doRead(self, maxage=0):
+        return self._get_pv('readpv')
+
+    def doIsAllowed(self, target):
+        if self.doStatus(0)[0] != status.OK:
+            return False, 'device not ready to start a movement'
+        return True, ''
+
+    def doStatus(self, maxage=0):
+        # First read the status of the underlying device. If it is ok, check
+        # the readypv
+        (stat, msg) = EpicsAnalogMoveable.doStatus(self, maxage)
+        if stat != status.OK:
+            return stat, msg
+        if self._get_pv('readypv') == 0:
+            return status.BUSY, msg
+        return status.OK, msg
+
+    def doStop(self):
+        if self.stoppv:
+            self._put_pv('stoppv', 1)
+        else:
+            if self.readypv:
+                if self.status()[0] == status.BUSY:
+                    self.doStart(self.doRead())
+            else:
+                # Default behaviour of EpicsAnalogMoveable
+                self.doStart(self.doRead())
+
+
+class EpicsControlledDigitalMoveable(EpicsControlledAnalogMoveable):
+    """
+    `EpicsControlledAnalogMoveable` for integer values.
+    """
+    valuetype = int
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
+
+    def doRead(self, maxage=0):
+        return int(EpicsControlledAnalogMoveable.doRead(self, maxage))

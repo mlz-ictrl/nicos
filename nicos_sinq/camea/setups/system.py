@@ -15,7 +15,7 @@ modules = [
     'nicos_sinq.commands.sics',
     'nicos_sinq.commands.hmcommands',
     'nicos_sinq.commands.epicscommands',
-    'nicos_sinq.camea.commands.camea',
+    'nicos_sinq.camea.commands',
     'nicos.commands.tas',
     'nicos_sinq.sxtal.commands'
 ]

@@ -8,8 +8,8 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'Amor',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'FileWriterControl'],
-)
+    datasinks = ['conssink', 'dmnsink', 'syncdaqsink'],
+    )
 
 modules = [
     'nicos.commands.standard',
@@ -18,31 +18,29 @@ modules = [
     'nicos_sinq.commands.epicscommands',
 ]
 
-includes = ['sample']
-
 devices = dict(
     Amor = device('nicos.devices.instrument.Instrument',
-        description = 'instrument object',
-        instrument = 'SINQ AMOR',
-        responsible = 'Jochen Stahn <jochen.stahn@psi.ch>',
-        operators = ['Paul-Scherrer-Institut (PSI)'],
-        facility = 'SINQ, PSI',
-        website = 'https://www.psi.ch/sinq/amor/amor'
-    ),
+                  description = 'instrument object',
+                  instrument = 'SINQ AMOR',
+                  responsible = 'Jochen Stahn <jochen.stahn@psi.ch>',
+                  operators = ['Paul-Scherrer-Institut (PSI)'],
+                  facility = 'SINQ, PSI',
+                  website = 'https://www.psi.ch/sinq/amor/amor'
+                  ),
     Sample = device('nicos_sinq.amor.devices.sample.AmorSample',
-        description = 'The currently used sample',
-    ),
+                    description = 'The currently used sample',
+                    ),
     Exp = device('nicos_sinq.devices.experiment.SinqExperiment',
-        description = 'experiment object',
-        dataroot = configdata('config.DATA_PATH'),
-        sample = 'Sample',
-    ),
+                 description = 'experiment object',
+                 dataroot = configdata('config.DATA_PATH'),
+                 sample = 'Sample',
+                 ),
     Space = device('nicos.devices.generic.FreeSpace',
-        description = 'The amount of free space for storing data',
-        path = None,
-        minfree = 5,
-        visibility = (),
-    ),
+                   description = 'The amount of free space for storing data',
+                   path = None,
+                   minfree = 5,
+                   visibility = (),
+                   ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     FileWriterStatus = device('nicos_sinq.devices.datasinks.file_writer.FileWriterStatus',
@@ -71,6 +69,7 @@ devices = dict(
         readpv = 'SQ:AMOR:sumi:BEAMCPY',
         unit = 'uA',
         fmtstr = '%6.1f',
+        # fmtstr = '%4.f',  # TODO: this was in detector.py setup, please check
     ),
     ltz_sim = device('nicos.devices.generic.manual.ManualMove',
         description = 'Deflector vertical translation',
@@ -95,6 +94,6 @@ devices = dict(
         devclass = 'nicos.core.device.Moveable'
         ),
     syncdaqsink = device('nicos_sinq.amor.devices.datasinks.SyncDaqSink',
-        description = 'Sink for synchronizing the DAQ PC and the ring modules at the start of each measurement'
-    ),
-)
+                         description = 'Sink for synchronizing the DAQ PC and the ring modules at the start of each measurement'
+                         ),
+    )

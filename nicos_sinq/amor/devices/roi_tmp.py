@@ -17,25 +17,31 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Stefan Mathis <stefan.mathis@psi.ch>
-#
+#    Artur Glavic <artur.glavic@psi.ch>
 # *****************************************************************************
 
-from nicos import session
+from nicos.core import Attach, Value
+from nicos.devices.generic.detector import RectROIChannel
 
-from nicos_sinq.camea.commands import printToDiscord
-from nicos_sinq.devices.experiment import SinqExperiment
+from nicos_sinq.devices.just_bin_it import JustBinItImage
 
 
-class CameaExperiment(SinqExperiment):
-    """Special doFinish method for CAMEA"""
+class CutROI(RectROIChannel):
+    """
+    A class which cuts a ROI out of another image for a single counter, roi is user changable.
+    """
 
-    def doFinish(self):
-        SinqExperiment.doFinish(self)
-        text = """This message marks the end of your CAMEA experiment. We hope you
-        had a transcendent experience with us and hope to welcome you again for
-        another experiment. \n We appreciate your feedback on DUO, and please
-        cite RSI 94, 023302 (2023) and Software X 12, 100600 (2020) when
-        publishing CAMEA data"""
-        printToDiscord(text)
-        session.log.info(text)
+    attached_devices = {
+        'raw_image': Attach('image to cut data from', devclass=JustBinItImage),
+    }
+
+    def getReadResult(self, _arrays, _results, _quality):
+        raw_data = self._attached_raw_image.doReadArray(None)
+        if any(self.roi):
+            x, y, w, h = self.roi
+            return [float(raw_data[y:y+h, x:x+w].sum())]
+        return [0.]
+
+
+    def valueInfo(self):
+        return Value(self.name, type='counter', unit=self.unit),
