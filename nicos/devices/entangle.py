@@ -34,10 +34,11 @@ import ast
 import numpy
 from tango import DevState
 
-from nicos.core import SIMULATION, ArrayDesc, CanDisable, Device, HasLimits, \
-    HasPrecision, HasTimeout, Moveable, NicosError, Override, Param, \
-    Readable, Value, dictof, intrange, listof, nonemptylistof, oneof, \
-    oneofdict, status, waitForCompletion
+from nicos import session
+from nicos.core import SIMULATION, AccessError, ArrayDesc, CanDisable, \
+    Device, HasLimits, HasPrecision, HasTimeout, Moveable, NicosError, \
+    Override, Param, Readable, Value, anytype, dictof, intrange, listof, \
+    nonemptylistof, oneof, oneofdict, status, waitForCompletion
 from nicos.core.constants import FINAL, INTERRUPTED, LIVE, SLAVE
 from nicos.core.mixins import HasOffset, HasWindowTimeout
 from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
@@ -536,6 +537,9 @@ class StringIO(PyTangoMixin, Device):
                              settable=True, unit='s'),
         'endofline':   Param('End of line', type=str, settable=True),
         'startofline': Param('Start of line', type=str, settable=True),
+        'requires':    Param('Access requirements for sending commands',
+                             type=dictof(str, anytype), default={},
+                             userparam=False),
     }
 
     def doReadBustimeout(self):
@@ -557,24 +561,29 @@ class StringIO(PyTangoMixin, Device):
         self._dev.startOfLine = value
 
     def communicate(self, value):
+        self._checkAccess('communicate')
         return self._dev.Communicate(value)
 
     def flush(self):
+        self._checkAccess('flush')
         self._dev.Flush()
 
     def read(self, value):
         return self._dev.Read(value)
 
     def write(self, value):
+        self._checkAccess('write')
         return self._dev.Write(value)
 
     def readLine(self):
         return self._dev.ReadLine()
 
     def writeLine(self, value):
+        self._checkAccess('write line')
         return self._dev.WriteLine(value)
 
     def multiCommunicate(self, value):
+        self._checkAccess('multi communicate')
         return self._dev.MultiCommunicate(value)
 
     @property
@@ -588,6 +597,14 @@ class StringIO(PyTangoMixin, Device):
         if self._sim_intercept:
             return 0
         return self._dev.availableLines
+
+    def _checkAccess(self, message):
+        if self.requires:
+            try:
+                session.checkAccess(self.requires)
+            except AccessError as err:
+                raise AccessError(
+                    self, f'cannot {message}: {err}') from None
 
 
 class DetectorChannel(PyTangoDevice, ActiveChannel):
