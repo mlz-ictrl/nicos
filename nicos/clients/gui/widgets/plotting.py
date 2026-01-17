@@ -504,6 +504,7 @@ class NicosPlot(DlgUtils):
         bold = QFont(font)
         bold.setBold(True)
         larger = scaledFont(font, 1.6)
+        gr.settextfontprec(gr.FONT_DEJAVUSANS, gr.TEXT_PRECISION_OUTLINE)
         self.setFonts(font, bold, larger)
 
     def setBackgroundColor(self, color):
