@@ -18,11 +18,7 @@ main_window = docked(
           )
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-           # to configure panels to show on New/FinishExperiment
-           # new_exp_panel=panel('nicos_demo.demo.some.panel'),
-           # finish_exp_panel=panel('nicos_demo.demo.some.panel'),
-          )
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')
     ),
 )
 
