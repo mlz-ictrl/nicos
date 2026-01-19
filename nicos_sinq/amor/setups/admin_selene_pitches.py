@@ -74,4 +74,5 @@ for p in range(1, 37):
                                   readpv = f'SQ:AMOR:SEL2:P{p}:Selected',
                                   fmtstr = '%d',
                                   pollinterval = 5,
+                                  requires = {'level': 'admin'},
                                   )

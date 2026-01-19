@@ -26,7 +26,7 @@ from datetime import datetime
 from nicos import session
 from nicos.core import Attach, CanDisable, HasPrecision, IsController, \
     Moveable, Override, Param, Readable, listof, oneof, status, tupleof
-from nicos.core.params import limits as unpack_limits
+from nicos.core.params import anytype, dictof, limits as unpack_limits
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import Motor
 from nicos.devices.epics.pyepics import EpicsDevice, EpicsDigitalMoveable, \
@@ -67,7 +67,10 @@ class DigitalInput(CanDisable, EpicsDigitalReadable):
         'selectable': Param('Whether the pitch can be selected or not',
                             settable=False, volatile=True, mandatory=False),
         'parkposition': Param('Whether the motor is at park position or not',
-                              settable=False, volatile=True, mandatory=False)
+                              settable=False, volatile=True, mandatory=False),
+        'requires': Param('Access requirements for sending commands',
+                          type=dictof(str, anytype),
+                          userparam=False),
     }
 
     parameter_overrides = {
