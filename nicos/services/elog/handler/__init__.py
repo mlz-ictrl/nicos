@@ -35,6 +35,7 @@ class Handler(Device):
         self._dir = self._logdir = None
         self._proposal = self._title = None
         self._instr = None
+        self._users = self._localcontact = None
 
     def handle(self, key, timestamp, data):
         fun = getattr(self, f'handle_{key}', None)
@@ -56,9 +57,9 @@ class Handler(Device):
     def handle_newexperiment(self, time, data):
         """Handle the 'newexperiment' event.
 
-            data = [proposal, title]
+            data = [proposal, title, users, localcontact]
         """
-        self._proposal, self._title = data
+        self._proposal, self._title, self._users, self._localcontact = data[:4]
 
     def handle_setup(self, time, setupnames):
         """Handle the 'setup' event."""

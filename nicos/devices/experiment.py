@@ -730,7 +730,8 @@ class Experiment(Device):
         self.log.info('data directory is now %s', self.datapath)
 
         # notify logbook
-        session.elogEvent('newexperiment', (proposal, self.title), store=True)
+        session.elogEvent('newexperiment', (proposal, self.title, self.users,
+                                            self.localcontact), store=True)
         session.elogEvent('setup', list(session.explicit_setups))
 
         # run hook
