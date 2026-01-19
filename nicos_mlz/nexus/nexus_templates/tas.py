@@ -35,8 +35,8 @@ class TasTemplateProvider(MLZTemplateProvider):
     definition = 'NXtas'
 
     def init(self, **kwargs):
-        self.sgx = kwargs.get('sgx', 'sgx')
-        self.sgy = kwargs.get('sgy', 'sgy')
+        self.sgx = kwargs.get('sgu', 'sgx')
+        self.sgy = kwargs.get('sgl', 'sgy')
         self.stt = kwargs.get('phi', 'phi')
         self.sth = kwargs.get('psi', 'psi')
         self.ana = kwargs.get('ana', 'ana')
@@ -76,7 +76,7 @@ class TasTemplateProvider(MLZTemplateProvider):
                 'polar_angle': ScanDeviceDataset(self.att),
                 'ef': ScanDeviceDataset(self.ef, axis=axis1),
                 'wavelength': DeviceDataset(self.ana, units='A-1'),
-                'focus_mode': DeviceDataset(self.mono, 'focmode', dtype='string'),
+                'focus_mode': DeviceDataset(self.ana, 'focmode', dtype='string'),
             },
         })
         for slit, name in ((self.ss1, 'ss1'),
@@ -117,8 +117,8 @@ class TasTemplateProvider(MLZTemplateProvider):
         self._sample.update({
             'orientation_matrix': UBMatrix(),
             'unit_cell': CellArray(),
-            'sgu': ScanDeviceDataset(self.sgx),
-            'sgl': ScanDeviceDataset(self.sgy),
+            'sgu': ScanDeviceDataset(self.sgu),
+            'sgl': ScanDeviceDataset(self.sgl),
             'polar_angle': ScanDeviceDataset(self.stt),
             'rotation_angle': ScanDeviceDataset(self.sth),
             'qh': ScanDeviceDataset('h', units=nounit, axis=axis1),
