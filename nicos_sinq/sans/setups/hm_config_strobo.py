@@ -14,7 +14,7 @@ devices = dict(
     hm_b0_ax_x = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description = 'Detector ID',
         visibility = (),
-        length = 16385,
+        length = 16387, # 128x128 + 3 monitors
         mapping = 'direct',
         label = 'ID',
         unit = '',
@@ -38,7 +38,6 @@ devices = dict(
     ),
     hm_bank0 = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfBank',
         description = 'HM First Bank',
-        visibility = (),
         bankid = 0,
         axes = ['hm_b0_ax_x', 'hm_ax_tof']
     ),

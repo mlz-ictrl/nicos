@@ -2,95 +2,103 @@ description = 'Devices for the Detector'
 
 group = 'basic'
 
-includes = ['hm_config_strobo', 'attenuator', 'velocity_selector', 'beamstop', 'collimator_s7', 'sample', 'shutter', 'asyncontroller']
-exludes = ['detector']
+includes = ['hm_config_strobo', 'attenuator', 'velocity_selector', 'beamstop', 'collimator_s7', 
+            'sample', 'shutter', 'asyncontroller', 'detector_motors']
+excludes = ['detector']
 
-pvprefix = 'SQ:SANS:motb:'
-pvdprefix = 'SQ:SANS:counter'
+pvdprefix = 'SANSCNTBOX1'
+
+channels = ['monitor1', 'monitor2', 'monitor3', 'monitor4', 'monitor5', 'protoncount', 'monitor6', 'monitor7',  'monitor8']
+
 
 devices = dict(
-    detx = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'Detector X Translation',
-        motorpv = pvprefix + 'detX',
-        errormsgpv = pvprefix + 'detX-MsgTxt',
-        precision = 0.5,
+    elapsedtime = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQTime',
+        daqpvprefix = pvdprefix,
     ),
-    dety = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'Detector Y Translation',
-        motorpv = pvprefix + 'detY',
-        errormsgpv = pvprefix + 'detY-MsgTxt',
-        precision = 0.2,
+    DAQPreset = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQPreset',
+        description = '2nd Generation Data Acquisition',
+        daqpvprefix = pvdprefix,
+        channels = channels,
+        time_channel = ['elapsedtime'],
     ),
-    detphi = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
-        description = 'Detector Rotation',
-        motorpv = pvprefix + 'phi',
-        errormsgpv = pvprefix + 'phi-MsgTxt',
-        precision = 0.2,
+    ThresholdChannel = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThresholdChannel',
+        daqpvprefix = pvdprefix,
+        channels = channels,
     ),
-    timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
-        description = 'Used to set and view time preset',
-        unit = 'sec',
-        readpv = pvdprefix + '.TP',
-        presetpv = pvdprefix + '.TP',
+    Threshold = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThreshold',
+        daqpvprefix = pvdprefix,
+        min_rate_channel = 'ThresholdChannel',
     ),
-    elapsedtime = device('nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
-        description = 'Used to view elapsed time while counting',
-        unit = 'sec',
-        readpv = pvdprefix + '.T',
-    ),
-    monitorpreset = device('nicos_sinq.devices.epics.detector.EpicsCounterActiveChannel',
-        description = 'Used to set and view monitor preset',
+    monitor1 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor 1',
+        daqpvprefix = pvdprefix,
+        channel = 1,
         type = 'monitor',
-        readpv = pvdprefix + '.PR2',
-        presetpv = pvdprefix + '.PR2',
     ),
-    monitor1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'First scalar counter channel',
+    monitor2 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor 2',
+        daqpvprefix = pvdprefix,
+        channel = 2,
         type = 'monitor',
-        readpv = pvdprefix + '.S2',
     ),
-    monitor2 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Second scalar counter channel',
+    monitor3 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor 3',
+        daqpvprefix = pvdprefix,
+        channel = 3,
         type = 'monitor',
-        readpv = pvdprefix + '.S3',
+        visibility = {'metadata', 'namespace', 'devlist'},
     ),
-    monitor3 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Third scalar counter channel',
+    monitor4 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor 4',
+        daqpvprefix = pvdprefix,
+        channel = 4,
         type = 'monitor',
-        readpv = pvdprefix + '.S4',
+        visibility = {'metadata', 'namespace', 'devlist'},
     ),
-    monitor4 = device('nicos_sinq.devices.epics.detector'
-        '.EpicsCounterPassiveChannel',
-        description = 'Third scalar counter channel',
+    monitor5 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor 4',
+        daqpvprefix = pvdprefix,
+        channel = 5,
         type = 'monitor',
-        readpv = pvdprefix + '.S5',
+        visibility = {'metadata', 'namespace', 'devlist'},
     ),
-    monitor5 = device('nicos_sinq.devices.epics.detector'
-        '.EpicsCounterPassiveChannel',
-        description = 'Third scalar counter channel',
+    protoncount = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor for proton current',
+        daqpvprefix = pvdprefix,
+        channel = 5,
         type = 'monitor',
-        readpv = pvdprefix + '.S6',
     ),
-    monitor6 = device('nicos_sinq.devices.epics.detector'
-        '.EpicsCounterPassiveChannel',
-        description = 'Third scalar counter channel',
+    monitor6 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor before sample',
+        daqpvprefix = pvdprefix,
+        channel = 6,
         type = 'monitor',
-        readpv = pvdprefix + '.S7',
     ),
-    monitor7 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Seventh scalar counter channel',
+    monitor7 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor after chopper',
+        daqpvprefix = pvdprefix,
+        channel = 7,
         type = 'monitor',
-        readpv = pvdprefix + '.S8',
     ),
-    monitor8 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Eigth scalar counter channel',
+    monitor8 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor before chopper',
+        daqpvprefix = pvdprefix,
+        channel = 8,
         type = 'monitor',
-        readpv = pvdprefix + '.S2',
-    ),
-    protoncount = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
-        description = 'Fourth scalar counter channel',
-        type = 'monitor',
-        readpv = pvdprefix + '.S5',
+        visibility = {'metadata', 'namespace', 'devlist'},
     ),
     histogrammer = device('nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description = "Histogram Memory Channel",
@@ -98,7 +106,7 @@ devices = dict(
     ),
     sans_detector = device('nicos_sinq.sans.devices.sanschannel.StroboHistogramImageChannel',
         description = "Image channel for area detector",
-        visibility = (),
+        visibility = ('metadata', 'namespace', 'devlist'),
         bank = 'hm_bank0',
         dimensions = {
             'x': 128,
@@ -107,30 +115,27 @@ devices = dict(
         connector = 'hm_connector',
         tof_axis = 'hm_ax_tof',
     ),
+    sans_raw_hmbank = device('nicos_sinq.devices.sinqhm.channel.HistogramImageChannel',
+        description = "Image channel for area detector",
+        visibility = ('metadata', 'namespace', 'devlist'),
+        bank = 'hm_bank0',
+        connector = 'hm_connector',
+    ),
     sans_slice = device('nicos_sinq.devices.channel.SelectSliceImageChannel',
         description = 'Slice selector',
         data_channel = 'sans_detector'
     ),
-    sansdet = device('nicos_sinq.devices.detector.SinqDetector',
-        description = 'EL737 counter box that counts neutrons and '
-        'starts streaming events',
-        startpv = pvdprefix + '.CNT',
-        pausepv = pvdprefix + ':Pause',
-        statuspv = pvdprefix + ':Status',
-        errormsgpv = pvdprefix + ':MsgTxt',
-        thresholdpv = pvdprefix + ':Threshold',
-        monitorpreset = 'monitorpreset',
-        timepreset = 'timepreset',
+    sansdet = device(
+        'nicos_sinq.devices.epics.sinqdaq.SinqDetector',
+        description = 'EL737 counter box that counts neutrons and starts streaming events',
         timers = ['elapsedtime'],
-        monitors = [
-            'monitor1', 'protoncount', 'monitor2', 'monitor3', 'monitor4',
-            'monitor5', 'monitor6', 'monitor7', 'monitor8'
-        ],
-        images = ['sans_detector', 'sans_slice'],
-        others = ['histogrammer'],
+        monitors = ['DAQPreset'] + channels,
+        images = ['sans_detector', 'sans_raw_hmbank'],
+        counters = [],
+        others = ['histogrammer', 'sans_slice'],
         liveinterval = 7,
         saveintervals = [60]
-    )
+    ),
 )
 startupcode = """
 hm_configurator.updateConfig()

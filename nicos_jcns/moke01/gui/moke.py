@@ -25,18 +25,20 @@ import datetime
 import math
 import os
 
+import gr
+from gr.pygr import CoordConverter, ErrorBar, RegionOfInterest, Text
 import numpy
-from gr.pygr import ErrorBar
-from qtgr.events import LegendEvent, MouseEvent
+from qtgr.events import LegendEvent, MouseEvent, ROIEvent
 # pylint: disable=import-error
 from uncertainties.core import AffineScalarFunc
 
 from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.livewidget import LiveWidget1D
-from nicos.guisupport.plots import GRMARKS, MaskedPlotCurve
+from nicos.guisupport.plots import GRMARKS
 from nicos.guisupport.qt import QDate, QFont, QMessageBox, QStandardItem, \
-    QStandardItemModel, Qt, QToolBar, pyqtSlot
+    QStandardItemModel, Qt, QToolBar, pyqtSignal, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 from nicos.protocols.daemon import BREAK_AFTER_STEP, BREAK_NOW
 from nicos.utils import findResource
@@ -45,7 +47,7 @@ from nicos.utils.functioncurves import Curve2D, Curves
 from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
 
 
-class MokePlotCurve(MaskedPlotCurve):
+class MokePlotCurve(NicosPlotCurve):
     """This PlotCurve allows switch between several states, through ``status``
     property:
     1. showing plot, marks and error bars,
@@ -58,7 +60,7 @@ class MokePlotCurve(MaskedPlotCurve):
     HideAll = 2
 
     def __init__(self, *args, **kwargs):
-        MaskedPlotCurve.__init__(self, *args, **kwargs)
+        NicosPlotCurve.__init__(self, *args, **kwargs)
         self._show_error_bars = False
         self._status = MokePlotCurve.HideErrorBars
 
@@ -88,21 +90,127 @@ class MokePlotCurve(MaskedPlotCurve):
         return self._e2 if self._show_error_bars else None
 
 
-class MokePlot(LiveWidget1D):
+class LiveWidget1DWithMarkers(LiveWidget1D):
+    """Extends LiveWidget1D with support for interactive draggable markers.
+
+    Markers can be added to the plot and repositioned by clicking on them
+    and moving the mouse. A second click releases the marker at its new
+    position.
+    """
+
+    def __init__(self, parent=None, **kwds):
+        LiveWidget1D.__init__(self, parent, **kwds)
+        self.gr.cbm.addHandler(ROIEvent.ROI_CLICKED, self.on_markerClicked, ROIEvent)
+        self.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
+        self._move_marker = False
+        self._current_marker_roi = None
+
+    def _rescale(self):
+        for roi in self.plot._rois:
+            self._roi_update(roi)
+
+    def _roi_update(self, roi):
+        coord = CoordConverter(self.axes.sizex, self.axes.sizey, self.axes.getWindow())
+        roi._poly = None
+        for nxi, nyi in zip(*roi.reference.getBoundingBox()):
+            coord.setNDC(nxi, nyi)
+            roi.append(coord.getWC(self.axes.viewport))
+
+    def add_marker(self, marker, curve):
+        """Add marker and assign it to an existing curve.
+        """
+        marker._axes = self.axes
+        curve.dependent.append(marker)
+        roi = RegionOfInterest(reference=marker, regionType=RegionOfInterest.TEXT, axes=self.axes)
+        self._roi_update(roi)
+        self.plot.addROI(roi)
+
+    def _redraw_with_marker(self, marker_roi):
+        """Implement in derived classes to redraw something related to the
+        dragged marker.
+        """
+
+    @property
+    def is_marker_moving(self):
+        return self._move_marker
+
+    def on_markerClicked(self, event):
+        if event.getButtons() & MouseEvent.LEFT_BUTTON:
+            self._move_marker = not self._move_marker
+            if self._move_marker:
+                self._current_marker_roi = event.roi
+
+    def on_mouseMove(self, event):
+        if self._move_marker:
+            wc = event.getWC(self.plot.viewport)
+            self._current_marker_roi.reference._x = wc.x
+            self._current_marker_roi.reference._y = wc.y
+            self._roi_update(self._current_marker_roi)
+            self._redraw_with_marker(self._current_marker_roi)
+            self.gr.update()
+
+
+class MokeLiveWidget(LiveWidget1DWithMarkers):
+    """Plot widget with legend interaction and curve visibility control.
+
+    Extends LiveWidget1DWithMarkers with:
+    - Legend display enabled by default
+    - Left/right click on legend items cycles through curve visibility states
+    - Middle mouse button resets the plot view
+    - Methods for clearing curves and updating the display
+    """
+
+    def __init__(self, parent=None, **kwds):
+        LiveWidget1DWithMarkers.__init__(self, parent, **kwds)
+        self.plot.setLegend(True)
+        self.gr.cbm.addHandler(LegendEvent.ROI_CLICKED,
+                               self.on_legendItemClicked, LegendEvent)
+
+    def clear(self):
+        self.axes.resetCurves()
+        self._curves = []
+        self._update()
+
+    def _update(self):
+        self.plot.reset()
+        self._rescale()
+        self.gr.update()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.MiddleButton:
+            self._update()
+
+    def on_legendItemClicked(self, event):
+        if event.getButtons() & MouseEvent.LEFT_BUTTON:
+            event.curve.status = (event.curve.status + 1) % 3
+            self.gr.update()
+        if event.getButtons() & MouseEvent.RIGHT_BUTTON:
+            event.curve.status = (event.curve.status - 1) % 3
+            self.gr.update()
+
+
+class MokePlot(MokeLiveWidget):
     """Allows to plot Curve2D and Curves objects through a simple interface.
     Intercepts clicks on the legend to rotate the status of the corresponding
     ``MokePlotCurve`` object.
     """
 
+    redraw_marker = pyqtSignal()
+    redraw_marker_finished = pyqtSignal(bool)
+
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
-        LiveWidget1D.__init__(self, parent, **kwds)
-        self.axes.resetCurves()
+        MokeLiveWidget.__init__(self, parent, **kwds)
         self.axes.xdual = self.axes.ydual = False
-        self.plot.setLegend(True)
         self.setTitles({'x': xlabel, 'y': ylabel})
-        self._curves = []
-        self.gr.cbm.addHandler(LegendEvent.ROI_CLICKED,
-                               self.on_legendItemClicked, LegendEvent)
+        self.clear()
+
+    def clear(self):
+        MokeLiveWidget.clear(self)
+        self._fits = {}
+
+    @property
+    def fits(self):
+        return self._fits
 
     def add_curve(self, curve, color=None, legend=None):
         self.plot.title = legend
@@ -149,26 +257,47 @@ class MokePlot(LiveWidget1D):
             self.add_curve(mean, color=1, legend='mean')
         self.plot.title = legend
 
-    def reset(self):
-        self.axes.resetCurves()
-        self._curves = []
-        self._update()
+    def add_fit(self, x1, x2, fit, label):
+        """Add a linear fit line with draggable markers at endpoints.
 
-    def _update(self):
-        self.plot.reset()
-        self.update()
+        The fit is stored in self.fits[label] and can be interactively`
+        adjusted by dragging the markers.
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.MiddleButton:
-            self._update()
+        :param x1: left x-coordinate of the fit line
+        :param x2: right x-coordinate of the fit line
+        :param fit: tuple (k, b) for line equation y = k*x + b
+        :param label: legend label and dictionary key for accessing this fit`
+        """
+        x = numpy.array([x1, x2])
+        y = fit[0] * x + fit[1]
+        self.add_curve(list(zip(x, y)), color=2, legend=label)
+        self._curves[-1].markersize = 0
 
-    def on_legendItemClicked(self, event):
-        if event.getButtons() & MouseEvent.LEFT_BUTTON:
-            event.curve.status = (event.curve.status + 1) % 3
-            self._update()
-        if event.getButtons() & MouseEvent.RIGHT_BUTTON:
-            event.curve.status = (event.curve.status - 1) % 3
-            self._update()
+        for _x, _y in list(zip(x, y)):
+            if isinstance(_x, AffineScalarFunc):
+                _x = _x.n
+            if isinstance(_y, AffineScalarFunc):
+                _y = _y.n
+            self.add_marker(
+                Text(
+                    _x, _y, '✕', charheight=.027, textcolor=2, font=101,
+                    halign=gr.TEXT_HALIGN_CENTER, valign=gr.TEXT_VALIGN_HALF,
+                ),
+                self._curves[-1]
+            )
+        self._fits[label] = self._curves[-1]
+
+    def _redraw_with_marker(self, marker_roi):
+        for _, curve in self.fits.items():
+            if marker_roi.reference in curve.dependent:
+                curve.x = [marker.x for marker in curve.dependent]
+                curve.y = [marker.y for marker in curve.dependent]
+                self.redraw_marker.emit()
+
+    def on_markerClicked(self, event):
+        LiveWidget1DWithMarkers.on_markerClicked(self, event)
+        if not self.is_marker_moving:
+            self.redraw_marker_finished.emit(True)
 
 
 class MokeBase(Panel):
@@ -177,10 +306,12 @@ class MokeBase(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         self.plot_IntvB = MokePlot('MagB, mT', 'Intensity, mV', self)
-        # viewport of IntvB plot is set to accomodate plot title
+        # viewport of IntvB plot is set to accommodate plot title
         self.plot_IntvB.plot.viewport = (.1, .9, .1, .9)
         self.plot_EvB = MokePlot('MagB, mT', 'Ellipticity, µrad.', self)
         self.m = {}
+        self.plot_IntvB.redraw_marker.connect(self._recalculate)
+        self.plot_IntvB.redraw_marker_finished.connect(self._recalculate)
 
     @pyqtSlot()
     def on_btn_calc_clicked(self):
@@ -194,6 +325,18 @@ class MokeBase(Panel):
             QMessageBox.information(None, '', 'The measurement is not yet finished')
             return
 
+        self.plot_IntvB.clear()
+        try:
+            fit_min, fit_max, IntvB = self._recalculate(save=True)
+        except Exception as e:
+            QMessageBox.information(None, '', f'Calculation has failed:\n{e}')
+            return
+        self.plot_IntvB.add_curve(IntvB, legend='Mean')
+        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])]) * 0.9
+        self.plot_IntvB.add_fit(*x, fit_min, 'fit min')
+        self.plot_IntvB.add_fit(*x, fit_max, 'fit max')
+
+    def _recalculate(self, save=False):
         IntvB = Curve2D(self.m['IntvB'])
         int_mean = IntvB.series_to_curves().mean().yvx(0)
         IntvB = self._subtract_baseline(IntvB)
@@ -201,35 +344,33 @@ class MokeBase(Panel):
         # recalculate angle in SKT to µrad
         angle *= 1.5 / 25 / 180 * math.pi * 1e6  # [µrad]
         ext = float(self.ln_extinction.text())  # mV
-        try:
-            fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean.y, angle, ext)
-        except Exception as e:
-            QMessageBox.information(None, '', f'Calculation has failed:\n{e}')
-            return
-        # upd IntvB plot with mean curve and fits
-        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])]) * 0.9
-        self.plot_IntvB.reset()
-        self.plot_IntvB.add_curve(list(zip(x, fit_min[0] * x + fit_min[1])),
-                                  legend='Fit min')
-        self.plot_IntvB.add_curve(list(zip(x, fit_max[0] * x + fit_max[1])),
-                                  legend='Fit max')
-        self.plot_IntvB.add_curve(IntvB, legend='Mean')
-        # show EvB plot and kerr angle
-        self.plot_EvB.reset()
+        fit_min, fit_max = None, None
+        if self.plot_IntvB.fits:
+            fit_min, fit_max = [Curve2D.from_x_y(self.plot_IntvB.fits[fit].x,
+                                                 self.plot_IntvB.fits[fit].y).lsm()
+                                for fit in ['fit min', 'fit max']]
+        fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean.y, angle, ext, fit_min, fit_max)
+        self.plot_EvB.clear()
+
         self.plot_EvB.add_curve(EvB, legend=self.m['name'])
         self.ln_kerr.setText(str(kerr))
 
-        output = generate_output(self.m, angle, ext)
+        output = generate_output(self.m, angle, ext, fit_min, fit_max)
         self.display_rawdata(output)
+        if save:
+            self.save_rawdata(output)
+        return fit_min, fit_max, IntvB
+
+    def display_rawdata(self, output):
+        self.txt_rawdata.clear()
+        self.txt_rawdata.insertPlainText(output)
+
+    def save_rawdata(self, output):
         folder = os.path.join(os.path.expanduser('~'), 'Measurements', 'moke')
         os.makedirs(folder, exist_ok=True)
         with open(os.path.join(folder, f'{fix_filename(self.m["name"])}.txt'),
                   'w', encoding='utf-8') as f:
             f.write(output)
-
-    def display_rawdata(self, output):
-        self.txt_rawdata.clear()
-        self.txt_rawdata.insertPlainText(output)
 
     def _subtract_baseline(self, IntvB):
         if self.chk_subtract_baseline.isChecked() and IntvB:
@@ -296,7 +437,7 @@ class MokePanel(NicosWidget, MokeBase):
             if self.calibration:
                 self.cmb_ramp.clear()
                 self.cmb_ramp.addItems(self.calibration[mode].keys())
-            self.plot_calibration.reset()
+            self.plot_calibration.clear()
             for mode in self.calibration:
                 for ramp, curves in self.calibration[mode].items():
                     self.plot_calibration.add_curve(
@@ -308,7 +449,7 @@ class MokePanel(NicosWidget, MokeBase):
                         legend=f'{mode} decreasing B @ {ramp} A/min'
                     )
         elif key == 'magb/baseline':
-            self.plot_baseline.reset()
+            self.plot_baseline.clear()
             if value:
                 for mode in value:
                     for field in value[mode]:
@@ -333,7 +474,7 @@ class MokePanel(NicosWidget, MokeBase):
             if self.m:
                 IntvB = self.client.eval('session.getDevice("MagB")._IntvB')
                 IntvB = self._subtract_baseline(IntvB)
-                self.plot_IntvB.reset()
+                self.plot_IntvB.clear()
                 self.plot_IntvB.add_curve(IntvB, legend=self.m['name'])
                 m = self.m.copy()
                 m['IntvB'] = IntvB
@@ -360,11 +501,11 @@ class MokePanel(NicosWidget, MokeBase):
                 self.ln_steptime.setText(str(self.m['steptime']))
                 self.cmb_ramp.setCurrentIndex(self.cmb_ramp.findText(format(self.m['ramp'], '.1f')))
                 self.ln_cycles.setText(str(self.m['cycles']))
-                self.plot_IntvB.reset()
+                self.plot_IntvB.clear()
                 if self.m['IntvB']:
                     IntvB = Curve2D(self.m['IntvB'])
                     IntvB = self._subtract_baseline(IntvB)
-                    self.plot_IntvB.reset()
+                    self.plot_IntvB.clear()
                     self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),
                                                    legend=self.m['name'])
 
@@ -546,8 +687,8 @@ class MokeHistory(MokeBase):
             self.display_rawdata(generate_output(self.m))
         IntvB = Curve2D(self.m['IntvB'])
         IntvB = self._subtract_baseline(IntvB)
-        self.plot_IntvB.reset()
-        self.plot_EvB.reset()
+        self.plot_IntvB.clear()
+        self.plot_EvB.clear()
         self.plot_IntvB.add_mokecurves(IntvB.series_to_curves(),
                                        legend=self.m['name'])
 

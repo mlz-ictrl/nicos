@@ -23,6 +23,7 @@
 
 import math
 from random import randint
+import re
 
 import numpy
 import scipy
@@ -95,9 +96,10 @@ def scale_intensity(i, imin, imax, kerr):
     return (i - (imin + imax) / 2) / (imax - imin) * 2 * kerr  # [µrad]
 
 
-def calculate(IntvB, int_mean, angle, ext):
-    """High-level function to fit MOKE curves, calculate kerr angle and
-    recalculate intensity curves into ellipticity curves.
+def calculate(IntvB, int_mean, angle, ext, fit_min=None, fit_max=None):
+    """High-level function to execute MOKE analysis: fit curves if necessary,
+    calculate kerr angle and recalculate intensity curves into ellipticity
+    curves.
     :param IntvB: ``Int(B)`` curve of class Cyrve2D, can be both raw and
         subtracted curve.
     :param int_mean: mean intensity value at 0 T magnetic field strength, should
@@ -107,10 +109,16 @@ def calculate(IntvB, int_mean, angle, ext):
     :param ext: extinction voltage, a small residual intensity voltage measured
         when the optical system is adjusted to the point where, ideally,
         no light should reach the photodetector [mV]
+    :param fit_min: python tuple ``(k, b)`` for a fitting line y(x) = k * x + b
+        of min horizontal saturation area
+    :param fit_max: python tuple ``(k, b)`` for a fitting line y(x) = k * x + b
+        of min horizontal saturation area
     :return: python tuple of ``(fit_min, fit_max, IntvB, EvB, kerr)``
     """
-    fit_min = fit_curve(IntvB, 'min')  # [mV]
-    fit_max = fit_curve(IntvB, 'max')  # [mV]
+    if fit_min is None:
+        fit_min = fit_curve(IntvB, 'min')  # [mV]
+    if fit_max is None:
+        fit_max = fit_curve(IntvB, 'max')  # [mV]
     # calculate kerr angle in [µrad]
     kerr = calc_kerr(fit_min[1], fit_max[1], int_mean, ext, angle)
 
@@ -127,7 +135,7 @@ def calculate(IntvB, int_mean, angle, ext):
     return fit_min, fit_max, IntvB, EvB, kerr
 
 
-def generate_output(measurement, angle=None, ext=None):
+def generate_output(measurement, angle=None, ext=None, fit_min=None, fit_max=None):
     """Generates two type of output:
     1. only measurement settings with raw and subtracted ``B(I)`` and ``Int(B)``
     curves;
@@ -140,6 +148,10 @@ def generate_output(measurement, angle=None, ext=None):
     :param ext: extinction voltage, a small residual intensity voltage measured
         when the optical system is adjusted to the point where, ideally,
         no light should reach the photodetector [mV]
+    :param fit_min: python tuple ``(k, b)`` for a fitting line y(x) = k * x + b
+        of min horizontal saturation area
+    :param fit_max: python tuple ``(k, b)`` for a fitting line y(x) = k * x + b
+        of min horizontal saturation area
     :return: ASCII data table
     """
     keys = ['name', 'time', 'IntvB', 'exp_type', 'mode', 'ramp', 'Bmin', 'Bmax',
@@ -186,7 +198,9 @@ def generate_output(measurement, angle=None, ext=None):
     else:
         # analysis output
         try:
-            _, _, IntvB_sub, EvB, kerr = calculate(IntvB_sub, int_mean.y, angle, ext)
+            fit_min, fit_max, IntvB_sub, EvB, kerr = calculate(IntvB_sub, int_mean.y, angle, ext, fit_min, fit_max)
+            output += f'Intensity min: {fit_min[1]:.3f} mV\n'
+            output += f'Intensity max: {fit_max[1]:.3f} mV\n'
             output += f'Canting angle: {angle / (1.5 / 25 / 180 * math.pi * 1e6)} (SKT)' \
                       f' {angle / 1000:.3f} (mrad)\n'
             output += f'Extinction: {ext} (mV)\n'
@@ -210,15 +224,8 @@ def fix_filename(filename):
     :param filename: desired filename
     :return: allowed filename
     """
-    allowed = [ord(' '), ord('_'), ord('-')]
-    allowed += range(ord('0'), ord('9'))
-    allowed += range(ord('A'), ord('Z'))
-    allowed += range(ord('a'), ord('z'))
-
-    res = ''
-    for l in filename:
-        res += l if ord(l) in allowed else '-'
-    return res
+    p = re.compile('[^a-zA-Z0-9 _-]')
+    return p.sub('-', filename)
 
 
 def asciitable(data):
