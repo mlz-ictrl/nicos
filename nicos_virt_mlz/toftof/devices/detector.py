@@ -25,8 +25,8 @@
 
 import numpy as np
 
-from nicos.core import Attach, Override, Param, intrange, listof, oneof, \
-    tupleof
+from nicos.core import Attach, Override, Param, floatrange, intrange, listof, \
+    oneof, tupleof
 from nicos.core.constants import FINAL, LIVE, MASTER
 from nicos.devices.generic.slit import Slit
 from nicos.devices.mcstas import MIN_RUNTIME, DetectorMixin, \
@@ -61,7 +61,17 @@ class McStasSimulation(BaseSimulation):
                               '(repeat, runtime) tuples.',
                               type=listof(tupleof(float, float)),
                               ),
+        'repeat_scale': Param('Rescale factor of the "repeat" value.',
+                              type=floatrange(0, 1), default=1,
+                              settable=False, userparam=False),
     }
+
+    parameters['repeat_scale'].ext_desc = """
+Due to the fact that every time sending a signal USR2 (save current state)
+the simulation process will be stopped, the runtime increases with every save.
+To correct this issue in the calculation of the runtime an empirical determined
+factor can reduce the number of repetitions ("repeat") in the McStas call.
+"""
 
     attached_devices = {
         'sample': Attach('Sample', Sample),
@@ -102,7 +112,7 @@ class McStasSimulation(BaseSimulation):
 
     def _prepare_params(self):
         if self.repeat_curve:
-            repeat_factor = np.interp(self.preselection, self._y, self._x)
+            repeat_factor = np.interp(self.preselection, self._y, self._x) * self.repeat_scale
         else:
             repeat_factor = self.repeat_factor * self.preselection
         if round(repeat_factor) < repeat_factor:
