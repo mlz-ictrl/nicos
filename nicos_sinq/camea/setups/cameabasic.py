@@ -245,6 +245,7 @@ devices = dict(
             -40.501, -39.501
         ],
         visibility = {},
+        file = '/home/nicos/nicos/nicos_sinq/camea/s2tlimits.txt',
     ),
 )
 
