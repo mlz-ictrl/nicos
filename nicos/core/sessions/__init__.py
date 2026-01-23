@@ -1395,7 +1395,7 @@ class Session:
            | Data: name, created, level, message, exc_text, reqid
         ``newexperiment``: New experiment started
            | From `Experiment.new` and the `NewExperiment` command
-           | Data: proposal, title
+           | Data: proposal, title, users, localcontact
         ``offset``: New offset of a device
            | From `HasOffset.doWriteOffset`
            | Data: device, old offset, new offset
