@@ -299,7 +299,7 @@ class NexusSinkHandler(DataSinkHandler):
             when it is done.  I use this to detect the end. If the NICOS
             engine in some stage change on this one, this code will break.
         """
-        if self.startdataset.finished is not None:
+        if self.startdataset.finished is not None and self._filename:
             # if self.startdataset.settype == SCAN:
             # Take the first entry found in the list to make it as
             # default to plot
