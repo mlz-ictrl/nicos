@@ -141,7 +141,12 @@ class MultiADScan(Scan):
         self._data._last_scans.append(self.dataset)
         self.dataset.dispatch('prepare')
         self.dataset.dispatch('begin')
-        session.elogEvent('scanbegin', self.dataset)
+        try:
+            from nicos.core.data import ScanData
+            session.elogEvent('scanbegin', ScanData(self.dataset))
+        except Exception:
+            session.log.debug('could not add scan to electronic logbook',
+                              exc=1)
 
     def beginTemporaryPoint(self, **kwds):
         """Create and begin a point dataset that does not use datasinks."""

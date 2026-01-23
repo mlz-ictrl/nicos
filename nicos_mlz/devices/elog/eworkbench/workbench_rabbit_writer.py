@@ -360,8 +360,8 @@ class Handler(BaseHandler):
     def handle_scanbegin(self, time, dataset):
         self.log.info('workbench_writer: handle scanbegin')
 
-        wb_text = wb_format(f'Starting scan:   {dataset.info}') + wb_format(
-            f'Started at:   {wb_timestring_2(dataset.started)}')
+        wb_text = wb_format(f'Starting scan:   {dataset.scaninfo}') + wb_format(
+            f'Started at:   {datetime(*dataset.started[:6])}')
 
         headers = rb_headers_note(proposal=self._proposal,
                                   subject=f'Scanbegin  '
