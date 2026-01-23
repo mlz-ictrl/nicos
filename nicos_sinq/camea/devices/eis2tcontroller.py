@@ -43,8 +43,7 @@ class EIS2TController(IsController, Device):
         'ei_values': Param('List of EI values', type=listof(float), settable=True),
         's2t_values': Param('S2T limit for each ei in ei_Values',
                             type=listof(float), settable=True),
-        'file': Param('/home/nicos/nicos/nicos_sinq/camea/s2tlimits.txt',
-                      type=str, settable=True),
+        'file': Param('Location of the limit file', type=str, settable=True),
         'padding': Param('Padding to allow s2t to go to limit value', default=0.1,
                          type=float, settable=True)
     }
@@ -52,7 +51,8 @@ class EIS2TController(IsController, Device):
     def doInit(self, mode):
         """
         Initialise EIS2TController taking the energy and s2t arrays, and the
-        padding into account. The energy limits are read from
+        padding into account. The energy limits are read from the path given
+        in the 'file' parameter.
         """
         if mode != SIMULATION:
             try:

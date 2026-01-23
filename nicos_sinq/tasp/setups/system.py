@@ -37,7 +37,7 @@ devices = dict(
     ),
     illsink = device('nicos_sinq.devices.illasciisink.ILLAsciiSink',
         filenametemplate = ['tasp%(year)sn%(scancounter)06d.dat'],
-        scaninfo = ['mon1', 'mon2', 'mon3','ctr1', 'elapsedtime'],
+        scaninfo = ['mon1', 'mon2','ctr1', 'elapsedtime', 'mon3'],
         settypes = {'scan'},
         varia = [
             'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'mcv', 'sro', 'ach', 'mtl',

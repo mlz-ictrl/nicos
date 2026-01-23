@@ -8,3 +8,4 @@
 
 read()
 status()
+count(embl_tof, t=.01)
