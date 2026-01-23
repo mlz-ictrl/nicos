@@ -457,10 +457,7 @@ class SweepScan(Scan):
             self._simpoints = len(multistep[0][1])
             self._numpoints = numpoints * self._simpoints
         self._sweepdevices = devices
-        if numpoints < 0:
-            points = Repeater([])
-        else:
-            points = [[]] * numpoints
+        points = Repeater([], None if numpoints < 0 else numpoints)
         # start for sweep devices are "firstmoves"
         firstmoves = firstmoves or []
         self._sweeptargets = []

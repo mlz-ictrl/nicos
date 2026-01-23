@@ -186,8 +186,9 @@ class AutoDefaultODict(OrderedDict):
 
 
 class Repeater:
-    def __init__(self, obj):
+    def __init__(self, obj, times=None):
         self.object = obj
+        self._left = times
         self._stop = False
 
     def __iter__(self):
@@ -196,10 +197,14 @@ class Repeater:
     def __next__(self):
         if self._stop:
             raise StopIteration
+        if self._left:
+            self._left -= 1
+            if self._left == 0:
+                self._stop = True
         return self.object
 
     def __len__(self):
-        return 0
+        return self._left or 0
 
     def __getitem__(self, item):
         return self.object
