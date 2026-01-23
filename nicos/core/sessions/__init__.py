@@ -1378,15 +1378,15 @@ class Session:
         ``directory``: New data directory
            | From Experiment device
            | Data: directory, instrument, proposal
-        ``hidden``: New events should be hidden by default or not
-           | From: `HideLog` command via `Experiment.elog_hidden` param
-           | Data: hidden (bool)
         ``entry``: New freetext entry
            | From `LogEntry` command
            | Data: markdown text
         ``environment``: New environment devices
            | From `Experiment.setEnvironment` and `Set/AddEnvironment` commands
            | Data: device names
+        ``hidden``: New events should be hidden by default or not
+           | From: `HideLog` command via `Experiment.elog_hidden` param
+           | Data: hidden (bool)
         ``image``: Add image attachment to the logbook
            | From `_LogAttachImage` command
            | Data: description, paths, extensions, names
