@@ -75,7 +75,7 @@ class McStasSimulation(Readable):
 
     parameters = {
         'mcstasprog': Param('Name of the McStas simulation executable',
-                            type=str, settable=False),
+                            type=str, settable=False, prefercache=False),
         'mcstasdir':  Param('Directory where McStas stores results', type=str,
                             default='%(session.experiment.dataroot)s'
                                     '/singlecount',
