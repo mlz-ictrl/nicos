@@ -195,7 +195,12 @@ class Scan:
             chain=self._chain,
             chain_direction=self._chain_direction,
         )
-        session.elogEvent('scanbegin', self.dataset)
+        try:
+            from nicos.core.data import ScanData
+            session.elogEvent('scanbegin', ScanData(self.dataset))
+        except Exception:
+            session.log.debug('could not add scan to electronic logbook',
+                              exc=1)
 
     def preparePoint(self, num, xvalues):
         # called before moving to current scanpoint
