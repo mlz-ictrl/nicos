@@ -808,6 +808,7 @@ class MainWindow(DlgUtils, QMainWindow):
         dlg.customVersion.setText(dinfo.get('custom_version', ''))
         dlg.contributors.setPlainText(nicos.authors.authors_list)
         dlg.adjustSize()
+        dlg.tabWidget.tabBarClicked[int].connect(dlg.contributors.animate)
         dlg.exec()
 
     @pyqtSlot(bool)

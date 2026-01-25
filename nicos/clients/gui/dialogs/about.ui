@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
+    <width>503</width>
     <height>671</height>
    </rect>
   </property>
@@ -430,7 +430,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QPlainTextEdit" name="contributors">
+        <widget class="AuthorsList" name="contributors">
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -471,6 +471,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AuthorsList</class>
+   <extends>QTextBrowser</extends>
+   <header>nicos/clients/gui/widgets/authorslist.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
