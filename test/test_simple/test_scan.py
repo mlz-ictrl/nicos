@@ -383,6 +383,11 @@ def test_appendscan(session):
     m2 = session.getDevice('motor2')
     det = session.getDevice('det')
 
+    # Check for no point
+    pytest.raises(UsageError, appendscan, 0, [0, 1])
+    # Check for no previous scan
+    pytest.raises(NicosError, appendscan, 1, [1])
+
     scan(m1, 0, 1, 3, det, t=0.)
     dataman = session.experiment.data
     dataset1 = dataman.getLastScans()[-1]
@@ -412,6 +417,22 @@ def test_appendscan(session):
     appendscan(3, [0, 1])
     dataset5 = dataman.getLastScans()[-1]
     assert dataset5.startpositions == [[5, 21], [5, 22], [5, 23]]
+
+    # invalid values in steps
+    dataset5.startpositions[0] = [5, [21]]
+    pytest.raises(NicosError, appendscan, 1)
+
+    # Have some array like parameters
+    dataset5.startpositions[0] = [5, (21,)]
+    dataset5.startpositions[-1] = [5, (23,)]
+    appendscan(3, [0, 1])
+    appendscan(-1, [0, 1])
+
+    pytest.raises(NicosError, appendscan, 1, 0)
+
+    # No real scan was before (only a single point)
+    scan(m1, 0, 1, 1, det, t=0)
+    pytest.raises(NicosError, appendscan, 1)
 
 
 def test_twodscan(session):
