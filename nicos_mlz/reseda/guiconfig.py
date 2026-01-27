@@ -3,10 +3,14 @@
 main_window = tabbed(
     ('Instrument', docked(
         vsplit(
-            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-            # panel('nicos.clients.gui.panels.watch.WatchPanel'),
+            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+            panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
+                  eta=True,
+                  ),
             panel('nicos.clients.gui.panels.console.ConsolePanel',
-                  watermark='nicos_mlz/reseda/gui/watermark.png'),
+                  watermark='nicos_mlz/reseda/gui/watermark.png',
+                  hasinput=False,
+                  ),
         ),
         ('NICOS devices',
          panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
