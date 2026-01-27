@@ -64,7 +64,7 @@ devices = dict(
         detectors = ['adet'],
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass='nicos_mlz.nexus.SpodiTemplateProvider',
+        templateclass='nicos_mlz.spodi.nexus.SpodiTemplateProvider',
         device_mapping = {'instrument': 'Spodi'},
         settypes = {'point',},
         filenametemplate = ['m1%(pointcounter)08d.nxs'],
