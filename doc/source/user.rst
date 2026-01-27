@@ -14,3 +14,4 @@ using setups please check :doc:`installconfig`.
    userscripts
    gui/invocation
    ipython
+   stopping

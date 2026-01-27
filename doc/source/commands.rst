@@ -70,6 +70,8 @@ Experiment-related commands
 
 .. autofunction:: ListUsers
 
+.. _script_commands:
+
 Script-related commands
 -----------------------
 
@@ -116,6 +118,9 @@ Device commands
 .. autofunction:: maw
 .. autofunction:: rmove
 .. autofunction:: rmaw
+
+.. _stop_command:
+
 .. autofunction:: stop
 
 .. autofunction:: status
@@ -162,6 +167,8 @@ Measuring commands
 .. autofunction:: ListDatasinks
 .. autofunction:: avg
 .. autofunction:: minmax
+
+.. _scanning_commands:
 
 Scanning commands
 -----------------
