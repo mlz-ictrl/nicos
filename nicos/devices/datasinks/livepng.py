@@ -90,13 +90,13 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
             image = np.sum(image, axis=self.sink.sumaxis - 1)
         max_pixel = image.max()
         if self.sink.log10:
-            zeros = (image == 0)
-            # set 0's to 1's to avoid division by 0 errors
-            image += zeros.astype(image.dtype)
-            image = np.log10(image)
-            max_pixel_log = np.log10(max_pixel) if max_pixel else 1
+            if not image.all():
+                # Use log1p to solve issue with non-defined logarithm for 0
+                image = np.log1p(image) / np.log(10)
+            else:
+                image = np.log10(image)
+            max_pixel_log = image.max()
             norm_arr = image.astype(float) * 255. / max_pixel_log
-            norm_arr[zeros] = 0
         else:
             if max_pixel == 0:
                 norm_arr = image
