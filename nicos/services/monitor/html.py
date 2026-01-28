@@ -485,9 +485,9 @@ class Monitor(BaseMonitor):
                     fvalue = value
             else:
                 fvalue = value
-            if field.min is not None and fvalue < field.min:
+            if field.min is not None and fvalue is not None and fvalue < field.min:
                 field._namelabel.back = self._red
-            elif field.max is not None and fvalue > field.max:
+            elif field.max is not None and fvalue is not None and fvalue > field.max:
                 field._namelabel.back = self._red
             else:
                 field._namelabel.back = self._bgcolor
