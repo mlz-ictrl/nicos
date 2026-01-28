@@ -9,18 +9,18 @@ includes = [
 pvprefix = 'SQ:AMOR:masterMacs1:'
 
 devices = dict(
-    ltz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
-                 description = 'Lift (z translation) of deflector & flight tube',
-                 motorpv = pvprefix + 'ltz',
-                 unit = 'mm',
-                 visibility = ('devlist', 'metadata', 'namespace'),
-                 ),
-    lom = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
-                 description = 'Tilt (pitch) of deflector & flight tube',
-                 motorpv = pvprefix + 'lom',
-                 unit = 'deg',
-                 visibility = ('devlist', 'metadata', 'namespace'),
-                 ),
+    ltz_defl = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+                      description = 'Lift (z translation) of deflector & flight tube',
+                      motorpv = pvprefix + 'ltz',
+                      unit = 'mm',
+                      visibility = ('devlist', 'metadata', 'namespace'),
+                      ),
+    lom_defl = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+                      description = 'Tilt (pitch) of deflector & flight tube',
+                      motorpv = pvprefix + 'lom',
+                      unit = 'deg',
+                      visibility = ('devlist', 'metadata', 'namespace'),
+                      ),
     kap = device('nicos_sinq.amor.devices.deflector_defs.AmorDeflector',
                  description = 'Beam inclination and deflector devices',
                  distances = 'distances',
@@ -39,5 +39,8 @@ devices = dict(
                 ),
     )
 
-
-alias_config = {'kappa': {'kap': 100}}
+alias_config = {
+    'ltz': {'ltz_defl': 200},
+    'lom': {'ltz_defl': 200},
+    'kappa': {'kap': 100},
+}

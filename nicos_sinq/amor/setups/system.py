@@ -85,15 +85,18 @@ devices = dict(
     ),
     lom = device('nicos.core.device.DeviceAlias',
         description = 'Alias for lom',
-        alias = 'lom_sim',
         devclass = 'nicos.core.device.Moveable'
     ),
     ltz = device('nicos.core.device.DeviceAlias',
         description = 'Alias for ltz',
-        alias = 'ltz_sim',
         devclass = 'nicos.core.device.Moveable'
-        ),
+    ),
     syncdaqsink = device('nicos_sinq.amor.devices.datasinks.SyncDaqSink',
                          description = 'Sink for synchronizing the DAQ PC and the ring modules at the start of each measurement'
                          ),
     )
+
+alias_config = {
+    'ltz': {'ltz_sim': 100},
+    'lom': {'ltz_sim': 100},
+}
