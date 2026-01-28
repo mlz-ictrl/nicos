@@ -55,7 +55,7 @@ class SafetyInputs(Readable):
 
     def doRead(self, maxage=0):
         state = self._readHWState(maxage)
-        self.log.info('val description')
+        self.log.debug('val description')
         for i, bit in enumerate(bin(state)[2:][::-1]):
             self.log.debug('%s   %s', bit, bit_description[i])
         return state
