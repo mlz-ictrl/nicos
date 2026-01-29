@@ -20,8 +20,8 @@
 #   Josef Baudisch <josef.baudisch@frm2.tum.de>
 #
 # *****************************************************************************
-import io
 import csv
+import io
 from datetime import datetime
 from html import escape
 from logging import getLevelName
@@ -29,7 +29,7 @@ from logging import getLevelName
 from PIL import Image
 
 from nicos.core import Param
-from nicos.core.params import secret
+from nicos.core.params import dictof, none_or, oneof, secret
 from nicos.services.elog.handler import Handler as BaseHandler
 from nicos.services.elog.utils import formatMessage
 
@@ -68,6 +68,30 @@ class Handler(BaseHandler):
         'static_queue': Param('RabbitMQ queue name used in given pika '
                               'channel',
                               type=str, ext_desc=ext_desc_chann),
+        'group_mapping': Param('Mapping of events to groups',
+                               type=dictof(
+                                   oneof('hidden', 'directory', 'newexperiment',
+                                         'setup', 'entry', 'remark', 'scriptend',
+                                         'scriptbegin', 'sample', 'detectors',
+                                         'environment', 'offset', 'attachment',
+                                         'image', 'message', 'scanbegin',
+                                         'scanend',
+                                         ),
+                                   none_or(oneof('Setup', 'Sample', 'Scan', ))
+                               ),
+                               settable=False, userparam=False,
+                               default={
+                                   'directory': 'Setup',
+                                   'newexperiment': 'Setup',
+                                   'setup': 'Setup',
+                                   'sample': 'Sample',
+                                   'detectors': 'Setup',
+                                   'environment': 'Setup',
+                                   'attachment': None,
+                                   'image': None,
+                                   'scanbegin': 'Scan',
+                                   'scanend': 'Scan',
+                               }),
     }
 
     def doInit(self, mode):
@@ -127,7 +151,7 @@ class Handler(BaseHandler):
                                   line_count=3,
                                   eln_enabled=self._eln_enabled,
                                   title=self._title,
-                                  grouping='Setup',
+                                  grouping=self.group_mapping.get('directory'),
                                   timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers, message=wb_text)
@@ -141,7 +165,7 @@ class Handler(BaseHandler):
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
                                   title=self._title,
-                                  grouping='Setup',
+                                  grouping=self.group_mapping.get('newexperiment'),
                                   timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
@@ -158,7 +182,7 @@ class Handler(BaseHandler):
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
                                   title=self._title,
-                                  grouping='Setup',
+                                  grouping=self.group_mapping.get('setup'),
                                   timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers, message=wb_text)
@@ -224,7 +248,7 @@ class Handler(BaseHandler):
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
                                   title=self._title,
-                                  grouping='Sample',
+                                  grouping=self.group_mapping.get('sample'),
                                   timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
@@ -239,7 +263,7 @@ class Handler(BaseHandler):
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
                                   title=self._title,
-                                  grouping='Setup',
+                                  grouping=self.group_mapping.get('detectors'),
                                   timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
@@ -255,7 +279,7 @@ class Handler(BaseHandler):
                                   line_count=1,
                                   eln_enabled=self._eln_enabled,
                                   title=self._title,
-                                  grouping='Setup',
+                                  grouping=self.group_mapping.get('environment'),
                                   timestamp=wb_timestring_1(time))
 
         self._rabbit_producer.produce(headers=headers,
@@ -299,7 +323,7 @@ class Handler(BaseHandler):
                              'img_rows': 0,
                              'eln_enabled': self._eln_enabled,
                              'exp_title': self._title,
-                             'grouping': None,
+                             'grouping': self.group_mapping.get('attachment'),
                              'timestamp': wb_timestring_1(time)
                              },
                     file_stream=data)
@@ -347,7 +371,7 @@ class Handler(BaseHandler):
                             'img_rows': img_rows,
                             'eln_enabled': self._eln_enabled,
                             'exp_title': self._title,
-                            'grouping': None,
+                            'grouping': self.group_mapping.get('image'),
                             'timestamp': wb_timestring_1(time)
                         }, png_stream=finalimg)
 
@@ -378,7 +402,7 @@ class Handler(BaseHandler):
                                   eln_enabled=self._eln_enabled,
                                   title=self._title,
                                   timestamp=wb_timestring_1(time),
-                                  grouping='Scan')
+                                  grouping=self.group_mapping.get('scanbegin'))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_text)
@@ -456,7 +480,7 @@ class Handler(BaseHandler):
                                   eln_enabled=self._eln_enabled,
                                   title=self._title,
                                   timestamp=wb_timestring_1(time),
-                                  grouping='Scan')
+                                  grouping=self.group_mapping.get('scanend'))
 
         self._rabbit_producer.produce(headers=headers,
                                       message=scan_end_results)
