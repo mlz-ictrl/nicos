@@ -171,6 +171,7 @@ class Handler(BaseHandler):
                                   eln_enabled=self._eln_enabled,
                                   title=self._title)
 
+        data = data.replace('\n', '<br>')
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(f'{data}'))
 

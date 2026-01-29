@@ -341,11 +341,12 @@ class Handler(BaseHandler):
             data = markdown.markdown(data, extensions=[
                 'markdown.extensions.tables',
                 'markdown.extensions.fenced_code',
+                'markdown.extensions.nl2br',
                 header_ext,
             ])
             headers = header_ext.headers
         else:
-            data, headers = escape(data), []
+            data, headers = escape(data.replace('\n', '<br>')), []
         self._out.newstate('entry', '', '', data)
         for level, text, targetid in headers:
             self._out.toc_entry(level, text, targetid)
