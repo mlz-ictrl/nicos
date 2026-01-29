@@ -98,6 +98,14 @@ def test_repeater():
     assert next(it) == 1
     assert next(it) == 1
     assert r[23] == 1
+    it.stop()
+    pytest.raises(StopIteration, next, it)
+
+    r = Repeater(1, times=2)
+    it = iter(r)
+    assert next(it) == 1
+    assert next(it) == 1
+    pytest.raises(StopIteration, next, it)
 
 
 def test_functions():
