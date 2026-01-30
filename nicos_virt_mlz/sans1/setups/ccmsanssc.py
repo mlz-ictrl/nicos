@@ -13,6 +13,7 @@ devices = dict(
         visibility = (),
         abslimits = (0, 600),
         unit = 'mm',
+        curvalue = 4,
     ),
     ccmsanssc_axis = device('nicos_mlz.sans1.devices.ccmsanssc.SwordAxis',
         description = 'translation of the sword',

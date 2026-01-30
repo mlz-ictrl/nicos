@@ -2,7 +2,7 @@ description = 'Q range displaying devices'
 
 group = 'lowlevel'
 
-includes = ['detector', 'det1', 'alias_det1', 'alias_lambda']
+includes = ['detector', 'alias_det1', 'alias_lambda']
 
 devices = dict(
     QRange = device('nicos_mlz.sans1.devices.resolution.Resolution',
