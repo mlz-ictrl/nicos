@@ -23,9 +23,9 @@
 
 import numpy as np
 
-from nicos.core import Attach, Device, Waitable,  Param, tupleof, Override
+from nicos.core import Attach, Device, Override, Param, Waitable, tupleof
 from nicos.core.device import Moveable
-from nicos.core.utils import multiStatus
+
 
 class Distances(Device):
     """
@@ -125,6 +125,8 @@ class AmorBase(Waitable):
     _wait_for = []
 
     def _startDevices(self, target):
+        # Reset the list before each start command to avoid infinite growth
+        self._wait_for.clear()
         for name, value in target.items():
             dev = self._adevs[name]
             dev.start(value)
@@ -132,9 +134,6 @@ class AmorBase(Waitable):
 
     def _getWaiters(self):
         return self._wait_for
-
-    def doStatus(self, maxage=0):
-        return multiStatus(self._adevs)
 
     def doRead(self, maxage = 0):
         return 0
