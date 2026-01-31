@@ -229,9 +229,10 @@ class ConsolePanel(Panel):
     def on_actionAttachElog_triggered(self):
         html = self.outView.textCursor().selection().toHtml()
         if html:
-            htmlconv = HTML2Text()
+            htmlconv = HTML2Text(bodywidth=0)
             htmlconv.ignore_links = True
-            text = '<br>'.join(s for s in htmlconv.handle(html).split('\n') if s)
+            htmlconv.single_line_break = True
+            text = htmlconv.handle(html)
             self.client.eval(f'LogEntry({text!r})')
 
     @pyqtSlot()

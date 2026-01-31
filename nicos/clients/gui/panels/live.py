@@ -500,7 +500,10 @@ class LiveDataPanel(PlotPanel):
             widget.gr.setAdjustSelection(False)  # don't use adjust on ROIs
 
             # update with current data
-            data = self.getDataFromItem(self.fileList.currentItem())
+            item = self.fileList.currentItem()
+            if not item and self.fileList.count():
+                item = self.fileList.item(0)
+            data = self.getDataFromItem(item)
             if data is not None:
                 widget.setData(data['dataarrays'], data.get('labels'))
 
