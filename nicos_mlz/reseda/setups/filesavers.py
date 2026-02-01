@@ -12,7 +12,7 @@ devices = dict(
         detectors = ['X'],  # effectively disabled, to re-enable: set to []
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass = 'nicos_mlz.reseda.nexus.nexus_templates.ResedaTemplateProvider',
+        templateclass = 'nicos_mlz.reseda.nexus.templates.ResedaTemplateProvider',
         filenametemplate = ['%(scancounter)07d.nxs'],
     ),
 )

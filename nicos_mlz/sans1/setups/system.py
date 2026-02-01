@@ -53,7 +53,7 @@ devices = dict(
         description = 'daemonsink',
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass = 'nicos_mlz.sans1.nexus.nexus_templates.SANSTemplateProvider',
+        templateclass = 'nicos_mlz.sans1.nexus.templates.SANSTemplateProvider',
         settypes = {'scan', 'point', 'subscan'},
         filenametemplate = ['%(scancounter)07d.nxs'],
     ),

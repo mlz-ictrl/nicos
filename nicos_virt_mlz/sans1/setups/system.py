@@ -38,7 +38,7 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass = 'nicos_mlz.sans1.nexus.nexus_templates.SANSTemplateProvider',
+        templateclass = 'nicos_mlz.sans1.nexus.templates.SANSTemplateProvider',
         settypes = {'scan', 'point', 'subscan'},
         filenametemplate = ['sans1%(scancounter)07d.nxs'],
     ),

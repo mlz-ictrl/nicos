@@ -56,7 +56,7 @@ devices = dict(
         filemode = 0o440,
     ),
     nxscansink = device('nicos.nexus.NexusSink',
-        templateclass = 'nicos_mlz.nexus.nexus_templates.ScanTemplateProvider',
+        templateclass = 'nicos_mlz.nexus.templates.ScanTemplateProvider',
         filenametemplate = ['puma%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},
         filemode = 0o440,

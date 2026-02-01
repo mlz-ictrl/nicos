@@ -21,4 +21,4 @@
 #
 # *****************************************************************************
 
-from nicos_mlz.stressi.nexus.template import StressiTemplateProvider
+from nicos_mlz.stressi.nexus.templates import StressiTemplateProvider

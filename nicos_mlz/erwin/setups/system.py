@@ -56,7 +56,7 @@ devices = dict(
         detectors = ['adet'],
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass='nicos_mlz.nexus.nexus_templates.PowderTemplateProvider',
+        templateclass='nicos_mlz.nexus.templates.PowderTemplateProvider',
         device_mapping = {'instrument': 'erwin'},
         settypes = {'point',},
         filenametemplate = ['%(pointcounter)08d.nxs'],

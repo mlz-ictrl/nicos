@@ -26,8 +26,8 @@ from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset
 
 from nicos_mlz.nexus import Slit, mm, signal
 from nicos_mlz.nexus.elements import SampleEnv
-from nicos_mlz.nexus.nexus_templates import PowderTemplateProvider
-
+# from nicos_mlz.nexus.structures import SollerCollimator
+from nicos_mlz.nexus.templates import PowderTemplateProvider
 from nicos_mlz.stressi.devices import PreciseManualSwitch
 
 
@@ -40,14 +40,6 @@ def Gap(device):
             'x': DeviceDataset(f'{device}.center'),
             # 'y': DeviceDataset(f'{device}.centery'),
         },
-    }
-
-
-def Collimator():
-    return {
-        'type': ConstDataset('soller', dtype='string'),
-        'transmitting_material': ConstDataset('air', dtype='string'),
-        'soller_angle': ConstDataset(0, dtype='float'),
     }
 
 
@@ -95,7 +87,7 @@ class StressiTemplateProvider(PowderTemplateProvider):
             if isinstance(session.devices['pss']._attached_horizontal,
                           PreciseManualSwitch):
                 self._inst.update({
-                    'primary_collimator:NXcollimator': Collimator()
+                    # 'primary_collimator:NXcollimator': SollerCollimator()
                 })
                 self._inst['primary_collimator:NXcollimator'].update({
                     'geometry:NXgeometry': {
@@ -119,7 +111,7 @@ class StressiTemplateProvider(PowderTemplateProvider):
             if isinstance(session.devices['ssw']._attached_moveable,
                           PreciseManualSwitch):
                 self._inst.update({
-                    'secondary_collimator:NXcollimator': Collimator()
+                    # 'secondary_collimator:NXcollimator': SollerCollimator()
                 })
                 self._inst['secondary_collimator:NXcollimator'].update({
                     'geometry:NXgeometry': {

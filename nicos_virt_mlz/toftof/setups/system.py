@@ -67,7 +67,7 @@ devices = dict(
         detectors = ['det'],
     ),
     nxsink = device('nicos.nexus.NexusSink',
-        templateclass = 'nicos_mlz.toftof.nexus.nexus_templates.TofTofTemplate',
+        templateclass = 'nicos_mlz.toftof.nexus.templates.TofTofTemplate',
         filenametemplate = ['N_TOFTOF%(pointcounter)08d.nxs'],
         settypes = {'point', },
         detectors = ['det'],

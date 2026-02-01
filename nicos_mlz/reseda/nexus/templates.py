@@ -100,7 +100,7 @@ sample_magnet = {
 class ResedaTemplateProvider(MLZTemplateProvider):
 
     entry = 'entry1'
-    definition = 'NXsas'
+    definition = 'NXsastof'
 
     def updateInstrument(self):
         selectorlink = f'/{self.entry}/{self.instrument}/monochromator/velocity_selector'

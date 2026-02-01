@@ -44,6 +44,7 @@ mass_density = NXAttribute('g/cm^3', 'string')
 
 
 def LocalContact():
+    """Create local contact structure."""
     return {
         'role': ConstDataset('local_contact', 'string'),
         # TODO: split name from email address
@@ -53,6 +54,7 @@ def LocalContact():
 
 
 def User():
+    """Create a NXuser structure."""
     return {
         'role': ConstDataset('principal_investigator', 'string'),
         # TODO: split name from email address
@@ -114,7 +116,6 @@ def Polarizer(typ='supermirror', **attrs):
         efficiency
         composition
     """
-
     ret = {'type': ConstDataset(typ, 'string')}
     if reflection := attrs.get('reflection'):
         ret['reflection'] = ConstDataset(reflection, 'float')
@@ -144,6 +145,7 @@ def Flipper(typ='coil', **kwds):
 
 
 def Selector(speed, wl, delta_wl, tilt):
+    """Create a NXvelocity_selector structure."""
     return {
         'type': ConstDataset('Astrium Velocity Selector', 'string'),
         'rotation_speed': DeviceDataset(speed),
@@ -160,13 +162,24 @@ def Selector(speed, wl, delta_wl, tilt):
     }
 
 
-def Collimator(device):
+def SollerCollimator(device, **args):
+    """Create a NXcollimator structure for Soller type collimator.
+
+    Optional keywords:
+        - blade_thickness
+        - blade_spacing
+        - absorber
+
+    """
+    thickness = args.get('blade_thickness', 0.1)
+    spacing = args.get('blade_spacing', 1)
+    material = args.get('absorber', 'Gd')
     return {
         'type': ConstDataset('Soller', 'string'),
         'soller_angle': DeviceDataset(device, dtype='float'),
-        'blade_thickness': ConstDataset(0.1, dtype='float', units=mm),
-        'blade_spacing': ConstDataset(1., dtype='float', units=mm),
-        'absorbing_material': ConstDataset('Gd', 'string'),
+        'blade_thickness': ConstDataset(thickness, dtype='float', units=mm),
+        'blade_spacing': ConstDataset(spacing, dtype='float', units=mm),
+        'absorbing_material': ConstDataset(material, 'string'),
         'transmitting_material': ConstDataset('air', 'string'),
         'geometry:NXgeometry': {
             'shape:NXshape': {
@@ -177,6 +190,7 @@ def Collimator(device):
 
 
 def Filter(device, material, thickness=5):
+    """Create a NXfilter structure."""
     density_map = {
         'C': 2.26,  # 2.25 - 2.265
         'Be': 1.848,

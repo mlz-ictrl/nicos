@@ -23,7 +23,7 @@
 
 from nicos.nexus.elements import ConstDataset
 
-from nicos_mlz.nexus.nexus_templates import PowderTemplateProvider
+from nicos_mlz.nexus.templates import PowderTemplateProvider
 
 
 class SpodiTemplateProvider(PowderTemplateProvider):

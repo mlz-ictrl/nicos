@@ -24,9 +24,9 @@
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DeviceDataset, NXLink
 
-from nicos_mlz.nexus import Collimator, CounterMonitor, Filter, SampleEnv, \
-    Slit, TimerMonitor, mm
-from nicos_mlz.nexus.nexus_templates import TasTemplateProvider
+from nicos_mlz.nexus import CounterMonitor, Filter, SampleEnv, Slit, \
+    SollerCollimator, TimerMonitor, mm
+from nicos_mlz.nexus.templates import TasTemplateProvider
 
 sample_std = {
     'x_position': DeviceDataset('xo'),
@@ -58,8 +58,8 @@ class PumaTemplateProvider(TasTemplateProvider):
     def updateInstrument(self):
         TasTemplateProvider.updateInstrument(self)
         self._inst.update({
-            'ca1:NXcollimator': Collimator('alpha3'),
-            'ca2:NXcollimator': Collimator('alpha4'),
+            'ca1:NXcollimator': SollerCollimator('alpha3'),
+            'ca2:NXcollimator': SollerCollimator('alpha4'),
             'attenuator:NXattenuator': {
                 'type': ConstDataset('unknown', dtype='string'),
                 'thickness': ConstDataset(5, dtype='float', units=mm),

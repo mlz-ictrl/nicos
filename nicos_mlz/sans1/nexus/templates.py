@@ -26,20 +26,8 @@ from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
     NexusSampleEnv, NXAttribute, NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Polarizer, \
-    Selector, TimerMonitor, signal
+    SollerCollimator, Selector, TimerMonitor, signal
 from nicos_sinq.nexus.specialelements import OptionalDeviceDataset
-
-
-def Collimator():
-    return {
-        'geometry:NXgeometry': {
-            'shape:NXshape': {
-                'shape': ConstDataset('nxbox', 'string'),
-                'type': ConstDataset('Soller', 'string'),
-                'soller_angle': DeviceDataset('col', dtype='float'),
-            },
-        },
-    }
 
 
 def BeamStop():
@@ -101,7 +89,7 @@ class SANSTemplateProvider(MLZTemplateProvider):
                     'selector_rpm', 'selector_lambda', 'selector_delta_lambda',
                     'selector_tilt'),
             },
-            'collimator:NXcollimator': Collimator(),
+            'collimator:NXcollimator': SollerCollimator('col'),
             'attenuator:NXattenuator': {
                 'attenuator_transmission': DeviceDataset('att'),
             },
