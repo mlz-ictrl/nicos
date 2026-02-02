@@ -27,7 +27,7 @@ import h5py
 import numpy as np
 
 from nicos import session
-from nicos.core.device import Readable
+from nicos.core.device import DeviceParInfo, Readable
 from nicos.core.errors import NicosError
 
 
@@ -207,17 +207,25 @@ class DeviceDataset(NexusElementBase):
             self.doAppend = False
 
     def create(self, name, h5parent, sinkhandler):
-        if (self.device, self.parameter) in sinkhandler.dataset.metainfo:
-            self.value = sinkhandler.dataset.metainfo[
-                (self.device, self.parameter)]
-        else:
-            self.value = (self.defaultval,)
-        if self.value[0] is not None:
+        self.value = sinkhandler.dataset.metainfo.get(
+            (self.device, self.parameter),
+            DeviceParInfo(self.defaultval, '', '', ''))
+        if self.value.value is not None:
             self.determineType()
         else:
             try:
                 dev = session.getDevice(self.device)
-                self.value = (getattr(dev, self.parameter, self.defaultval),)
+                if self.parameter == 'value':
+                    pval = dev.read(0) if self.defaultval is None else self.defaultval
+                    self.value = DeviceParInfo(
+                        pval, dev.format(pval), dev.unit, '')
+                # elif self.parameter == 'status':
+                #     self.value = DeviceParInfo(dev.status(), '', '', '')
+                else:
+                    pinfo = dev.parameters.get(self.parameter)
+                    defaultval = self.defaultval if self.defaultval is not None else pinfo.default
+                    pval = getattr(dev, self.parameter, defaultval)
+                    self.value = DeviceParInfo(pval, '', pinfo.unit, pinfo.category)
                 self.determineType()
             except Exception as e:
                 session.log.warning(
@@ -227,16 +235,16 @@ class DeviceDataset(NexusElementBase):
         if self.parameter == 'value':
             self.testAppend(sinkhandler)
         if self.dtype == 'string':
-            dtype = 'S%d' % (len(self.value[0].encode('utf-8')) + 1)
+            dtype = 'S%d' % (len(self.value.value.encode('utf-8')) + 1)
             dset = h5parent.create_dataset(name, (1,), dtype=dtype)
-            dset[0] = np.array(self.value[0].encode('utf-8'), dtype=dtype)
+            dset[0] = np.array(self.value.value.encode('utf-8'), dtype=dtype)
         else:
             if self.doAppend:
                 dset = h5parent.create_dataset(name, (1,), maxshape=(None,),
                                                dtype=self.dtype)
             else:
                 dset = h5parent.create_dataset(name, (1,), dtype=self.dtype)
-            dset[0] = self.value[0]
+            dset[0] = self.value.value
             if 'units' not in self.attrs:
                 if self.parameter in ['target']:
                     try:
@@ -245,7 +253,7 @@ class DeviceDataset(NexusElementBase):
                     except NicosError:
                         pass
                 elif len(self.value) > 2:
-                    dset.attrs['units'] = np.bytes_(self.value[2])
+                    dset.attrs['units'] = np.bytes_(self.value.unit)
         self.createAttributes(dset, sinkhandler)
 
     def update(self, name, h5parent, sinkhandler, values):
