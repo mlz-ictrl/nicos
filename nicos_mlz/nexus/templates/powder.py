@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Nexus data template for monochromatic powder applications."""
+"""Nexus data template for monochromatic powder diffraction application."""
 
 from nicos.nexus.elements import DeviceDataset, ImageDataset, NXLink
 
@@ -44,6 +44,7 @@ class PowderTemplateProvider(MLZTemplateProvider):
         self.timer = kwargs.get('timer', 'tim1')
 
     def updateInstrument(self):
+        MLZTemplateProvider.updateInstrument(self)
         self._inst.update({
             'mono:NXcrystal': {
                 'wavelength': DeviceDataset(self.wav),
@@ -51,6 +52,7 @@ class PowderTemplateProvider(MLZTemplateProvider):
         })
 
     def updateDetector(self):
+        MLZTemplateProvider.updateDetector(self)
         self._det.update({
             'polar_angle': DeviceDataset(self.tths, axis=axis1),
             'data': ImageDataset(0, 0, dtype=int, signal=signal),

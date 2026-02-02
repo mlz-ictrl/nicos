@@ -23,11 +23,10 @@
 
 """Nexus data template for simple scan applications."""
 
-from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceDataset, NXLink
+from nicos.nexus.elements import ConstDataset, DeviceDataset, NXLink
 
-from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, \
-    TimerMonitor, signal
+from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, TimerMonitor
+
 #   ScanDeviceDataset, aa, axis1, counts, nounit
 
 
@@ -43,18 +42,8 @@ class ScanTemplateProvider(MLZTemplateProvider):
         self.monitor = kwargs.get('monitor', 'mon')
         self.timer = kwargs.get('timer', 'timer')
 
-    def updateInstrument(self):
-        # self._inst.update({
-        #     'mono:NXcrystal': {
-        #         'wavelength': DeviceDataset(self.wav),
-        #     },
-        # })
-        pass
-
     def updateDetector(self):
-        self._det.update({
-            'data': DetectorDataset(self.detector, int, signal=signal),
-        })
+        MLZTemplateProvider.updateDetector(self)
         self._entry.update({
             'mon:NXmonitor': CounterMonitor(self.monitor),
             'tim1:NXmonitor': TimerMonitor(self.timer),

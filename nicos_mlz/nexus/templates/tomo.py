@@ -38,9 +38,6 @@ class TomoTemplateProvider(MLZTemplateProvider):
         self.sty = kwargs.get('sty', 'sty')
         self.sry = kwargs.get('sry', 'sry')
 
-    def updateInstrument(self):
-        pass
-
     def updateDetector(self):
         self._det.update({
             'data': ImageDataset(0, 0, dtype=int, signal=signal),

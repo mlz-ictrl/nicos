@@ -38,6 +38,11 @@ class TasTemplateProvider(MLZTemplateProvider):
 
     def init(self, **kwargs):
         MLZTemplateProvider.init(self, **kwargs)
+        self.sgu = kwargs.get('sgu', 'sgx')
+        self.sgl = kwargs.get('sgl', 'sgy')
+        self.stt = kwargs.get('phi', 'phi')
+        self.sth = kwargs.get('psi', 'psi')
+        self.ana = kwargs.get('ana', 'ana')
         self.mono = kwargs.get('mono', 'mono')
         self.mth = kwargs.get('mth', 'mth')
         self.mtt = kwargs.get('mtt', 'mtt')
@@ -144,8 +149,8 @@ class TasTemplateProvider(MLZTemplateProvider):
             'None': NXScanLink(),
         })
 
-    def completeTemplate(self):
-        MLZTemplateProvider.completeTemplate(self)
+    def updateEntry(self):
+        MLZTemplateProvider.updateEntry(self)
         self._entry.update({
             'comment': DeviceDataset('Exp', 'remark'),
         })
