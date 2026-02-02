@@ -157,7 +157,7 @@ _devcolumn = Column(
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = '',
-                     cache = 'localhost',
+                     cache = 'amor',
                      layout = [
                         [_expcolumn],
                         [_beamcolumn, _devcolumn],
