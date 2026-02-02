@@ -36,7 +36,7 @@ from nicos.core import POLLER, SIMULATION, Attach, Moveable, Override, Param, \
     Readable, Value, floatrange, intrange, none_or, nonzero, oneof, pvname, \
     status
 from nicos.core.constants import MASTER
-from nicos.core.errors import UsageError
+from nicos.core.errors import ConfigurationError, UsageError
 from nicos.core.mixins import CanDisable, HasLimits
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.epics import EpicsDevice
@@ -65,7 +65,7 @@ class DAQEpicsDevice(EpicsDevice):
                   fmtstr='%s',
                   userparam=False,
                   internal=False,
-                 ),
+                  ),
     }
 
     parameter_overrides = {
@@ -75,7 +75,7 @@ class DAQEpicsDevice(EpicsDevice):
         'warnlimits': Override(userparam=False),
         'unit': Override(mandatory=False, userparam=False,
                          settable=False, volatile=True),
-        'monitor': Override(default=True), # Enable Callbacks by default
+        'monitor': Override(default=True),  # Enable Callbacks by default
     }
 
     def _get_pv_parameters(self):
@@ -139,7 +139,7 @@ class DAQChannelEpicsDevice(DAQEpicsDevice):
                   fmtstr='%s',
                   userparam=True,
                   internal=False,
-                 ),
+                  ),
     }
 
     def _get_pv_name(self, pvparam):
@@ -168,7 +168,7 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
                   fmtstr='%s',
                   userparam=False,
                   internal=True,
-                 ),
+                  ),
     }
 
     parameter_overrides = {
@@ -234,7 +234,7 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
                   fmtstr='%s',
                   userparam=False,
                   internal=True,
-                 ),
+                  ),
     }
 
     parameter_overrides = {
@@ -313,7 +313,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                   fmtstr='%s',
                   userparam=False,
                   internal=True,
-                 ),
+                  ),
         'hardware_time':
             Param('Internal: in-hardware time preset',
                   type=none_or(nonzero(floatrange(0, float('inf')))),
@@ -325,7 +325,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                   fmtstr='%s',
                   userparam=False,
                   internal=True,
-                 ),
+                  ),
         'hardware_count':
             Param('Internal: in-hardware count preset',
                   type=none_or(nonzero(intrange(0, 2147483647))),
@@ -337,7 +337,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                   fmtstr='%d',
                   userparam=False,
                   internal=True,
-                 ),
+                  ),
         'monitor_channel':
             Param('currently configured channel for count-based preset',
                   type=str,
@@ -348,7 +348,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                   fmtstr='%s',
                   userparam=True,
                   internal=True,
-                 ),
+                  ),
         'used_preset':
             Param(('Internal: Set when the next call to `setChannelPreset` '
                    'should first clear all presets'),
@@ -362,7 +362,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                   prefercache=False,
                   userparam=True,
                   internal=True,
-                 ),
+                  ),
     }
 
     parameter_overrides = {
@@ -386,13 +386,13 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                    DAQChannel,
                    multiple=True,
                    optional=False
-                  ),
+                   ),
         'time_channel':
             Attach('Time channels that can be selected for in-hardware time presets',
                    DAQTime,
                    multiple=False,
                    optional=False
-                  ),
+                   ),
     }
 
     _daqpvs = {
@@ -433,7 +433,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                 # so we can't know here from the limits that it should be
                 # channel 1.
                 if (absmin == absmax and channel.channel == 1)
-                or (channel.channel >= absmin and channel.channel <= absmax)
+                or (absmin <= channel.channel <= absmax)
             }
 
         self._inv_mapping = {
@@ -470,8 +470,12 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def doRead(self, maxage=0):
         if self.isTimePreset:
-            return self._attached_time_channel.read()
-        return self._mapping[self.monitor_channel].read()
+            return self._attached_time_channel.read(maxage)
+
+        # Monitor Preset, but no Valid Monitor Channel Selected
+        if self.monitor_channel is None:
+            return None
+        return self._mapping[self.monitor_channel].read(maxage)
 
     def value_change_callback(self, name, param, value, units, severity,
                               message, **kwargs):
@@ -479,8 +483,8 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def doReadMonitor_Channel(self):
         channel = self._get_pv('monitorchannelrbvpv')
-        if channel == 0:
-            return "None"
+        if channel not in self._inv_mapping:
+            return None
         return self._inv_mapping[channel].name
 
     def doWriteMonitor_Channel(self, newValue):
@@ -508,9 +512,9 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                     self.value_change_callback, pvname, 'readpv')
 
     def doStart(self):
-        if not (self.hardware_time or self.hardware_count):
+        if self.used_preset or not (self.hardware_time or self.hardware_count):
             raise UsageError(("Either a 't' or 'm' preset must be specified "
-                              "to use this detector hardware."))
+                              'to use this detector hardware.'))
 
         self.used_preset = True
         self.started_count = True
@@ -526,6 +530,8 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
             self._update_value_callback(self._attached_time_channel)
             self._put_pv('presettimepv', self.hardware_time, timeout=self.epicstimeout)
         else:
+            if self.monitor_channel is None:
+                raise ConfigurationError('No Valid Monitor Channel Selected.')
             self._update_value_callback(self._mapping[self.monitor_channel])
             self._put_pv('presetcountpv', self.hardware_count, timeout=self.epicstimeout)
 
@@ -577,13 +583,16 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                 self._setROParam('started_count', False)
                 started_count = False
 
+            if self.monitor_channel is None:
+                return status.ERROR, 'No Valid Monitor Channel Selected.'
+
             time_channel = self._attached_time_channel
             count_channel = self._mapping[self.monitor_channel]
 
             if self.isTimePreset:
                 status_msg = '%.3f sec on %s' % (self.hardware_time, time_channel.name)
             else:
-                status_msg = "%d cts on %s" % (self.hardware_count, count_channel.name)
+                status_msg = '%d cts on %s' % (self.hardware_count, count_channel.name)
 
             if st_code == 1 or started_count:
 
@@ -609,7 +618,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                 return status.OK, 'Preset: ' + status_msg
 
             elif st_code == 2:
-                return status.BUSY, 'Low Rate' # TODO might be better to use WARN, but that stops the count
+                return status.BUSY, 'Low Rate'  # TODO might be better to use WARN, but that stops the count
 
             elif st_code == 3:
                 return status.BUSY, 'Paused'
@@ -648,7 +657,7 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
                   fmtstr='%d',
                   userparam=True,
                   internal=True,
-                 ),
+                  ),
         'device_threshold_monitor':
             Param('In-Hardware Configured Channel for Low Rate Detection',
                   type=int,
@@ -659,7 +668,7 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
                   fmtstr='%d',
                   userparam=False,
                   internal=True,
-                 ),
+                  ),
     }
 
     parameter_overrides = {
@@ -678,7 +687,7 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
                    DAQChannel,
                    multiple=True,
                    optional=False
-                  ),
+                   ),
     }
 
     _daqpvs = {
@@ -792,7 +801,7 @@ class DAQMinThreshold(DAQEpicsDevice, HasLimits, Moveable):
                   fmtstr='%.3f',
                   userparam=True,
                   internal=True,
-                 ),
+                  ),
     }
 
     parameter_overrides = {
@@ -809,7 +818,7 @@ class DAQMinThreshold(DAQEpicsDevice, HasLimits, Moveable):
                    DAQMinThresholdChannel,
                    multiple=False,
                    optional=False
-                  ),
+                   ),
     }
 
     _daqpvs = {
@@ -958,7 +967,7 @@ class DAQTestGen(CanDisable, DAQEpicsDevice, Readable):
                   volatile=True,
                   mandatory=False,
                   internal=True
-                 ),
+                  ),
         'highrate':
             Param('Multiple of 10ns that the signal is high',
                   type=int,
@@ -967,7 +976,7 @@ class DAQTestGen(CanDisable, DAQEpicsDevice, Readable):
                   volatile=True,
                   mandatory=False,
                   internal=True
-                 ),
+                  ),
         # There is no way to readback from the box whether or not this is enabled
         'enabled':
             Param('Whether the test generator is enabled',
@@ -978,7 +987,7 @@ class DAQTestGen(CanDisable, DAQEpicsDevice, Readable):
                   volatile=True,
                   mandatory=False,
                   internal=True
-                 ),
+                  ),
     }
 
     parameter_overrides = {
