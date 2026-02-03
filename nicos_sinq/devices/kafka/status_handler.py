@@ -93,7 +93,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         # is up then the status will be remedied quickly.
         self._next_update = currenttime()
 
-        if self._mode == MASTER:
+        if mode == MASTER:
             self._setROParam('curstatus',
                              (status.WARN, 'Trying to connect...'))
 
