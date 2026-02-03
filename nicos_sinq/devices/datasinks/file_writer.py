@@ -344,6 +344,9 @@ class FileWriterSinkHandler(DataSinkHandler):
         if self.sink._manual_start or self._scan_set:
             return
 
+        if hasattr(session, '_currentscan') and session._currentscan:
+            self.sink.one_file_per_scan = session._currentscan._preset.get('onefile', False)
+
         self.sink.check_okay_to_start()
 
         # Assign the counter
@@ -411,8 +414,8 @@ class FileWriterSinkHandler(DataSinkHandler):
 
         parents = list(self.manager.iterParents(self.dataset))
 
-        if parents and isinstance(parents[~0], ScanDataset):
-            return parents[~0]
+        if parents and isinstance(parents[-1], ScanDataset):
+            return parents[-1]
         return None
 
     def putResults(self, quality, results):
@@ -427,7 +430,7 @@ class FileWriterController:
     def __init__(self, brokers, pool_topic, status_topic, timeout_interval):
         self.brokers = brokers
         self.pool_topic = pool_topic
-        self.instrument_topic = status_topic
+        self.status_topic = status_topic
         self.timeout_interval = timeout_interval * 2
         self.command_channel = None
 
@@ -453,7 +456,7 @@ class FileWriterController:
             broker=self.brokers[0],
             instrument_name='',
             run_name='',
-            control_topic=self.instrument_topic,
+            control_topic=self.status_topic,
         )
 
         delivered = False
@@ -484,7 +487,7 @@ class FileWriterController:
         )
 
         producer = KafkaProducer.create(self.brokers)
-        producer.produce(self.instrument_topic, message)
+        producer.produce(self.status_topic, message)
 
 
 class FileWriterControlSink(FileSink):

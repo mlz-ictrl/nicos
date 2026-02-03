@@ -32,7 +32,6 @@ from streaming_data_types import serialise_hs01
 from nicos import session
 from nicos.core import SIMULATION, Attach, DataSink, DataSinkHandler, \
     Override, Param
-from nicos.core.constants import SCAN
 from nicos.core.errors import ProgrammingError
 from nicos.devices.generic.manual import ManualSwitch
 from nicos.nexus.nexussink import NexusSink
@@ -197,16 +196,6 @@ class ImageForwarderSink(ProducesKafkaMessages, DataSink):
 
 
 class SinqFileWriterSinkHandler(FileWriterSinkHandler):
-
-    def prepare(self):
-        # At SINQ counter assignement works only for scan
-        oldtype = self.dataset.countertype
-        if oldtype != SCAN and self.sink.one_file_per_scan:
-            self.dataset.countertype = 'scan'
-            FileWriterSinkHandler.prepare(self)
-            self.dataset.countertype = oldtype
-            return
-        FileWriterSinkHandler.prepare(self)
 
     def begin(self):
         if self.sink._manual_start:
