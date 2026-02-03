@@ -102,11 +102,16 @@ class SetupCollection:
             return
 
         if self.all_setups is None:
+            f_root = path.dirname(filename)
             try:
                 setup_roots = findSetupRoots(filename)
             except RuntimeError as err:
                 self.log.error(str(err))
-                setup_roots = (path.dirname(filename),)
+                setup_roots = (f_root, )
+            # Extend the setup roots in case for the file is in one of the test
+            # setups directories of a facility or an instrument
+            if f_root.endswith('/setups') and f_root not in setup_roots:
+                setup_roots += (f_root,)
             setuplist = list(iterSetups(setup_roots))
             self.all_setups = dict(setuplist)
             self._exec_all(setuplist)
@@ -158,8 +163,12 @@ class SetupChecker:
                 self.log_exception(exc)
             self.good = False
         else:
-            self.ns = collection.namespace[filename]
-            self.good = True
+            try:
+                self.ns = collection.namespace[filename]
+                self.good = True
+            except KeyError:
+                self.log_error("%r isn't found in setups directories", filename)
+                self.good = False
 
     def log_exception(self, exception):
         formatted_lines = traceback.format_exc().splitlines()
