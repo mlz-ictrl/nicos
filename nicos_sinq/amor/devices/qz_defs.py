@@ -24,6 +24,7 @@ import numpy as np
 
 from nicos.core import Attach, Override, Param, Waitable
 from nicos.core.device import Moveable
+from nicos.core.mixins import HasLimits
 
 
 class AmorQz(Waitable):
@@ -46,7 +47,7 @@ class AmorQz(Waitable):
         'sample_tilt': Attach('sample alignment tilt', Moveable),
         'mu': Attach('mu', Moveable),
         'nu': Attach('nu', Moveable),
-        'det_nu': Attach('det_nu', Moveable),
+        'det_nu': Attach('det_nu', HasLimits),
     }
 
     # Note to Jochen:
