@@ -21,9 +21,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import Attach, Waitable,  Param, Override, oneof
+from nicos.core import Attach, Override, Param, Waitable, oneof
 from nicos.core.device import Moveable
-from nicos.core.utils import multiStatus
+
 
 class AmorPolarizer(Waitable):
     """
@@ -56,6 +56,8 @@ class AmorPolarizer(Waitable):
     _wait_for = []
 
     def _startDevices(self, target):
+        # Reset the list before each start command to avoid infinite growth
+        self._wait_for.clear()
         for name, value in target.items():
             dev = self._adevs[name]
             dev.start(value)
@@ -63,9 +65,6 @@ class AmorPolarizer(Waitable):
 
     def _getWaiters(self):
         return self._wait_for
-
-    def doStatus(self, maxage=0):
-        return multiStatus(self._adevs)
 
     def doRead(self, maxage=0):
         pass

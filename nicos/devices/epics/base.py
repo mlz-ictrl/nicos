@@ -272,8 +272,9 @@ class EpicsDevice(DeviceMixinBase):
         start = time.monotonic()
         while not isEqual(pvparam, value, abstol):
             if time.monotonic() - start > timeout:
-                raise TimeoutError('changing value of %s to %s within %d '
-                                    'seconds failed' % (pvparam, value, timeout))
+                raise TimeoutError('changing value of %r to %s within %d '
+                                    'seconds failed' %
+                                    (self._param_to_pv[pvparam], value, timeout))
             session.delay(self._base_loop_delay)
 
     def get_alarm_status(self, pvparam):

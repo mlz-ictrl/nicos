@@ -25,9 +25,8 @@ import numpy as np
 
 from nicos.core import Attach
 from nicos.core.device import Moveable
-from nicos.core.utils import multiStatus
-from nicos_sinq.amor.devices.base_defs import Distances
 
+from nicos_sinq.amor.devices.base_defs import Distances
 
 
 class AmorDeflector(Moveable):
@@ -54,6 +53,8 @@ class AmorDeflector(Moveable):
     _wait_for = []
 
     def _startDevices(self, target):
+        # Reset the list before each start command to avoid infinite growth
+        self._wait_for.clear()
         for name, value in target.items():
             dev = self._adevs[name]
             dev.start(value)
@@ -61,9 +62,6 @@ class AmorDeflector(Moveable):
 
     def _getWaiters(self):
         return self._wait_for
-
-    def doStatus(self, maxage=0):
-        return multiStatus(self._adevs)
 
     def doRead(self, maxage=0):
         sx = self._attached_distances.sample

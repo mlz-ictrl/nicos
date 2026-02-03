@@ -22,8 +22,9 @@
 
 import numpy as np
 
-from nicos.core import Attach, Param, Waitable, status, Override
+from nicos.core import Attach, Override, Param, Waitable
 from nicos.core.device import Moveable
+
 
 class AmorQz(Waitable):
     """
@@ -57,6 +58,8 @@ class AmorQz(Waitable):
     _wait_for = []
 
     def _startDevices(self, target):
+        # Reset the list before each start command to avoid infinite growth
+        self._wait_for.clear()
         for name, value in target.items():
             dev = self._adevs[name]
             dev.start(value)
@@ -67,9 +70,6 @@ class AmorQz(Waitable):
 
     def doRead(self, maxage=0):
         pass
-
-    def doStatus(self, maxage=0):
-        return status.OK, 'Note to Jochen: Do we want the status of the attached devices here?'
 
     def doReadQl(self):
         kappa = self._attached_kappa.read(0)
@@ -115,7 +115,7 @@ class AmorQz(Waitable):
         mu = np.rad2deg(np.arcsin(target * 3.5 / (4*np.pi))) - kappa - kad - 0.5*div
         nu = 2*mu + kappa + kad
         if nu>self._attached_det_nu.absmax:
-            self.log.warning('ql = %5.2f corresponds to nu = %5.2f, which exceeds the hardware limits', target, nu)
+            self.log.warning('qh = %5.2f corresponds to nu = %5.2f, which exceeds the hardware limits', target, nu)
         else:
             self.log.info("moving 'mu' to %4.2f deg and 'nu' to %5.2f deg", mu, 2*mu+kappa+kad)
             positions = {}
