@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Nexus data template for Antares."""
+"""Nexus data template for tomography applications."""
 
 from nicos.nexus.elements import DeviceDataset, ImageDataset, NXLink
 

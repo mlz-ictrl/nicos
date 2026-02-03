@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+"""Nexus data template for simple scan applications."""
+
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceDataset, NXLink
 

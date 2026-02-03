@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+"""Nexus data template for triple axes (TAS) applications."""
+
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceDataset, NXLink, NXScanLink

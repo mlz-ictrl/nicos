@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+"""Nexus data template for monochromatic powder applications."""
+
 from nicos.nexus.elements import DeviceDataset, ImageDataset, NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, \
