@@ -49,7 +49,7 @@ devices = dict(
         errormsgpv = 'SQ:ICON:board3:SP2RX-MsgTxt',
         precision = 0.01,
     ),
-    sp2_ry = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    sp2_ry = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Sample Position 2, Rotation Y',
         motorpv = 'SQ:ICON:board5:SP2RY',
         errormsgpv = 'SQ:ICON:board5:SP2RY-MsgTxt',

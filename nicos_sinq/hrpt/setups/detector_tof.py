@@ -7,7 +7,7 @@ includes = ['hm_config_tof']
 excludes = ['detector']
 
 devices = dict(
-    s2t = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    s2t = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Detector Two Theta',
         motorpv = pvmprefix + 'STT',
         errormsgpv = pvmprefix + 'STT-MsgTxt',
