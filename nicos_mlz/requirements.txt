@@ -1,4 +1,4 @@
 --extra-index-url https://forge.frm2.tum.de/simple
-ghostapi>=1.2.0
+ghostapi>=1.3.0
 nemoapi>=1.0.4
 pika>=1.3.1

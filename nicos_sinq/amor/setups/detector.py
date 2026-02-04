@@ -4,7 +4,7 @@ display_order = 15
 
 sysconfig = dict(datasinks = ['jbi_liveview', 'FileWriterControl'],)
 
-#sysconfig = dict(datasinks = ['jbi_liveview', 'synchronize_daq'],)
+includes = ['chopper_sim']
 
 sumpv = 'SQ:AMOR:sumi:'
 
@@ -77,6 +77,14 @@ devices = dict(
                             unit = 'mC',
                             type = 'monitor',
                             ),
+    detector_rate = device('nicos_sinq.amor.devices.detector.DetectorRate',
+                           description = 'Status of the file-writer',
+                           brokers = configdata('config.KAFKA_BROKERS'),
+                           topic = configdata('config.DETECTOR_EVENTS_TOPIC'),
+                           chopper_speed = 'ch1_speed',
+                           unit = '/s',
+                           ),
+
     jbi_liveview = device('nicos.devices.datasinks.LiveViewSink'),
     synchronize_daq = device('nicos_sinq.amor.devices.datasinks.SyncDaqSink'),
     )
