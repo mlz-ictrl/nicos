@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'POLDI',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink', 'quiecksink'],
+    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink'],
 )
 
 modules = ['nicos.commands.standard', 'nicos_sinq.commands.sics',
@@ -41,10 +41,6 @@ devices = dict(
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sink for forwarding live data to the GUI',
-    ),
-    quiecksink = device('nicos_sinq.devices.datasinks.sinq_datasinks.QuieckSink',
-        description = 'Sink for sending UDP datafile '
-        'notifications'
     ),
     nxsink = device('nicos.nexus.nexussink.NexusSink',
         description = 'Sink for NeXus file writer',

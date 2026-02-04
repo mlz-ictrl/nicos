@@ -2,7 +2,7 @@ description = 'Devices for writing NeXus files'
 
 excludes = ['detector']
 
-sysconfig = dict(datasinks = ['nxsink', 'quiecksink', 'fits'],)
+sysconfig = dict(datasinks = ['nxsink', 'fits'],)
 
 devices = dict(
     sample_pos1 = device('nicos_sinq.devices.componenttable.ComponentTable',
@@ -66,9 +66,6 @@ devices = dict(
         filenametemplate = ['icon%(year)sn%(scancounter)06d.hdf'],
         templateclass =
         'nicos_sinq.icon.nexus.nexus_templates.ICONTemplateProvider',
-    ),
-    quiecksink = device('nicos_sinq.devices.datasinks.sinq_datasinks.QuieckSink',
-        description = 'Sink for sending UDP datafile notifications'
     ),
     fits = device('nicos_sinq.devices.niagfitssink.NIAGFitsSink',
         description = 'Sink for FITS files',
