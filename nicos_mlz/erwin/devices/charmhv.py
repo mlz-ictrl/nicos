@@ -89,8 +89,8 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         'tripped': Param('Indicator for hardware trip',
                          type=bool, internal=True, default=False),
         'lasthv': Param('When was hv applied last (timestamp)',
-                        type=float, internal=True, default=0.0,
-                        mandatory=False, settable=False),
+                        type=floatrange(0), internal=True, default=0.0,
+                        mandatory=False, settable=True),
         'onstate': Param('Value indicating the HV is switched on',
                          type=str, default='on'),
         'offstate': Param('Value indicating the HV is switched on',
@@ -163,12 +163,6 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         return stat, statmsg
 
     def doIsAllowed(self, target):
-        if target == self.offstate:
-            return True, ''
-        if target == self.safestate:
-            if self.read(0) == self.offstate:
-                return False, f'Only from {self.onstate!r} target '\
-                    f'{self.safestate!r} is allowed'
         ok = not self.tripped
         return ok, '' if ok else 'hardware is tripped'
 
@@ -189,16 +183,20 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         if pos == {k: target[k] for k in pos}:
             return True
         for dev in pos:
-            # If there are some warnlimits defined, the difference will be used
-            # as precision value
             device = self._devices[dev]
+            if device.isAtTarget(pos[dev], target[dev]):
+                continue
+            self.log.debug('not at target %s: %s %s',
+                           dev, pos[dev], target[dev])
+            # If there are some 'warnlimits' set, the target and current
+            # position will be checked to be inside the warn limits
             if wlims := device.warnlimits:
-                prec = target[dev] - wlims[0], wlims[1] - target[dev]
-                if not (target[dev] - prec[0] <= pos[dev] <= target[dev] + prec[1]):
-                    self.log.warning('%s: %s %s %s', dev, pos[dev], target[dev], prec)
-                    return False
-            elif not self._devices[dev].isAtTarget(pos[dev], target[dev]):
-                return False
+                self.log.debug('target %s: check for %s %s %s',
+                               dev, wlims, pos[dev], target[dev])
+                if (wlims[0] <= target[dev] <= wlims[1] and
+                   wlims[0] <= pos[dev] <= wlims[1]):
+                    continue
+            return False
         return True
 
     def _mapReadValue(self, value):
@@ -213,7 +211,7 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         return {dev.name: dev.read(maxage) for dev in self._devices.values()}
 
     def _cold_start(self, target):
-        if target != self.onstate:
+        if self._move_downwards(target):
             return False
         # check off time
         return not self.lasthv or currenttime() - self.lasthv > self.maxofftime
@@ -227,28 +225,46 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         pos = self.read(0)
         if pos == self.onstate:  # ON -> SAFE
             return True
+        if pos == self.safestate:
+            return target == self.offstate
         return False
 
-    def _generateSequence(self, target):
-        ramp = self.slowramp
-        if not self._cold_start(target):
-            ramp = self.fastramp
+    def _generate_warmup(self, target):
         seq = [
             tuple(SeqDev(dev, self.mapping[target][dev.name])
-                  for dev in self._attached_window),
-            tuple(SeqDev(dev, self.mapping[target][dev.name])
-                  for dev in self._attached_edges),
+                  for dev in self._attached_edges) +
+            # Edges and anodes should run simultaneous
+            tuple(SeqDev(dev, self.rampsteps[0][0])
+                  for dev in self._anodes),
+            SeqSleep(self.rampsteps[0][1] * 60),
+        ]
+        lim = self.mapping[target][self._anodes[0].name]
+        for steptarget, waittime in self.rampsteps[1:]:
+            if steptarget < lim:
+                seq.extend((
+                    tuple(SeqDev(dev, steptarget) for dev in self._anodes),
+                    SeqSleep(waittime * 60)))
+        return seq
+
+    def _generateSequence(self, target):
+        window = self._attached_window[0]
+        seq = [
+            # Window
+            SeqDev(window, self.mapping[target][window.name])
         ]
         if self._cold_start(target):
-            for steptarget, waittime in self.rampsteps:
-                seq.append(tuple(SeqDev(dev, steptarget)
-                                 for dev in self._anodes))
-                seq.append(SeqSleep(waittime * 60))
+            seq.extend(self._generate_warmup(target))
+
+        # Edges and anodes should run simultaneous
         seq.append(tuple(SeqDev(dev, self.mapping[target][dev.name])
-                         for dev in self._anodes))
-        if self._move_downwards('target'):
+                   for dev in self._attached_edges + self._anodes))
+
+        if self._move_downwards(target):
             seq.reverse()
-        return [SeqRampParam(d, ramp) for d in self._devices.values()] + seq
+        ramp = self.slowramp if self._cold_start(target) else self.fastramp
+        self.log.debug('ramp: %s, %s', self._cold_start(target), ramp)
+        seq = [SeqRampParam(d, ramp) for d in self._devices.values()] + seq
+        return seq
 
     def _startRaw(self, target):
         if self._seq_is_running():
@@ -263,11 +279,13 @@ class HVSwitch(SequencerMixin, MappedMoveable):
     def doRead(self, maxage=0):
         val = MappedMoveable.doRead(self, maxage)
         if val == self.onstate:
-            self._setROParam('lasthv', currenttime())
+            self.lasthv = currenttime()
         return val
 
 
 class HVOffDuration(Readable):
+
+    hardware_access = False
 
     attached_devices = {
         'hv_supply': Attach('HV Device', HVSwitch),
@@ -297,8 +315,13 @@ class HVOffDuration(Readable):
             return status.OK, ''
         return stat, statmsg
 
+    def doReset(self):
+        self._attached_hv_supply.lasthv = 0
+
 
 class HVTrip(Readable):
+
+    hardware_access = False
 
     attached_devices = {
         'hv_supply': Attach('HV Device', HVSwitch),
