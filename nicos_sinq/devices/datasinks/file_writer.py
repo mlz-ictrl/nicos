@@ -555,10 +555,11 @@ class FileWriterControlSink(FileSink):
         self._handler = None
         self._active_sim_job = False
         self._consumer = None
-        self._controller = FileWriterController(
-            self.brokers, self.pool_topic, self._attached_status.statustopic,
-            self.timeoutinterval)
+        self._controller = None
         if mode != SIMULATION:
+            self._controller = FileWriterController(
+                self.brokers, self.pool_topic, self._attached_status.statustopic,
+            self.timeoutinterval)
             self._consumer = KafkaConsumer.create(self.brokers)
             self._consumer.subscribe(self.pool_topic)
 

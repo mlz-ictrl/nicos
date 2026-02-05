@@ -196,6 +196,8 @@ class KafkaSubscriber(DeviceMixinBase):
         """ Create the thread that provides call backs on new messages
         """
         # Remove all the assigned topics
+        if self._consumer is None:
+            return
         self._consumer.unsubscribe()
 
         self._consumer.subscribe(topic)

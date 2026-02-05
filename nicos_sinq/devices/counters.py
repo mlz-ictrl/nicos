@@ -30,8 +30,8 @@ from streaming_data_types import deserialise_ev42, deserialise_ev43, \
     deserialise_ev44, deserialise_f142
 from streaming_data_types.utils import get_schema
 
-from nicos.core import MASTER, Override, Param, Value, host, listof, oneof, \
-    status, tupleof
+from nicos.core import SIMULATION, Override, Param, Value, host, listof, \
+    oneof, status, tupleof
 from nicos.devices.generic import ActiveChannel
 from nicos.utils import createThread
 
@@ -41,6 +41,7 @@ deserialiser_by_schema = {
     'ev43': deserialise_ev43,
     'ev44': deserialise_ev44
 }
+
 
 # TODO should be removed, once the most recent Amor state is pushed to Gerrit
 class KafkaChannel(ActiveChannel):
@@ -61,6 +62,8 @@ class KafkaChannel(ActiveChannel):
     }
 
     def doPreinit(self, mode):
+        if mode == SIMULATION:
+            return
         self._consumer = Consumer(
             {
                 'bootstrap.servers': self.brokers[0],
@@ -75,8 +78,7 @@ class KafkaChannel(ActiveChannel):
 
     def doInit(self, mode):
         self._count = False
-        if mode == MASTER:
-            self.curvalue = 0
+        self.curvalue = 0
 
     def doStart(self):
         self.curvalue = 0

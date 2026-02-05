@@ -39,6 +39,7 @@ from nicos.utils import createThread
 
 from nicos_sinq.devices.kafka.consumer import KafkaSubscriber
 
+
 class Hist1dTof:
     name = 'hist1d'
 
@@ -495,6 +496,7 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
         self._hist_id = 'all'
         self.doStop()
         self._status = status.OK, ''
+
 
 class JustBinItImageKafka(KafkaSubscriber, JustBinItImage):
 
