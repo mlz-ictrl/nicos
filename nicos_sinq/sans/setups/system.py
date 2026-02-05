@@ -27,7 +27,7 @@ devices = dict(
     Sample = device('nicos.devices.experiment.Sample',
         description = 'The currently used sample',
     ),
-    Exp = device('nicos_sinq.devices.experiment.Experiment',
+    Exp = device('nicos_sinq.devices.experiment.SinqExperiment',
         description = 'experiment object',
         dataroot = configdata('config.DATA_PATH'),
         sample = 'Sample',

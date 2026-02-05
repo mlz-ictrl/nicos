@@ -1,10 +1,8 @@
-from copy import deepcopy
-
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
     NXScanLink, NXTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.sans.nexus.NexusImageManipulation import SliceTofImage
 
@@ -64,17 +62,7 @@ sans_default = {'NeXus_Version': '4.4.0',
                     },
                     'SANS:NXinstrument': {
                         'name': ConstDataset('SANS', 'string'),
-                        'Dornier-VS:NXchopper': {
-                            'type': ConstDataset('Dornier Velocity Selector',
-                                                 'string'),
-                            'lambda': DeviceDataset('vs_lambda'),
-                            'rotation_speed': DeviceDataset('vs_speed'),
-                            'tilt': DeviceDataset('vs_tilt'),
-                            'tilt_null': DeviceDataset('vs_tilt', 'offset'),
-                        },
                         'monochromator:NXmonochromator': {
-                          'wavelength': NXLink(
-                              '/entry1/SANS/Dornier-VS/lambda'),
                           'wavelength_spread': ConstDataset(.1, 'float'),
                         },
                         'SINQ:NXsource': {
@@ -179,11 +167,18 @@ sans_default = {'NeXus_Version': '4.4.0',
                             '/entry1/SANS/detector/detector_x'),
                         'detector_y': NXLink(
                             '/entry1/SANS/detector/detector_y'),
-                        'lambda': NXLink('/entry1/SANS/Dornier-VS/lambda'),
                         'None': NXScanLink(),
                     },
                 }  # entry
-                }  # root
+            }  # root
+
+velocity_selector = {
+    'type': ConstDataset('Dornier Velocity Selector','string'),
+    'lambda': DeviceDataset('vs_lambda'),
+    'rotation_speed': DeviceDataset('vs_speed'),
+    'tilt': DeviceDataset('vs_tilt'),
+    'tilt_null': DeviceDataset('vs_tilt', 'offset'),
+}
 
 sample_common = {
     'name': DeviceDataset('Sample', 'samplename'),
@@ -220,18 +215,26 @@ sample_magnet = {
 
 class SANSTemplateProvider(NexusTemplateProvider):
     def getTemplate(self):
-        full = deepcopy(sans_default)
+        full = copy_nexus_template(sans_default)
         full['entry1:NXentry']['SANS:NXinstrument']['detector:NXdetector'] =\
-            deepcopy(sans_detector)
+            copy_nexus_template(sans_detector)
         entry1 = 'entry1:NXentry'
         if 'sample' in session.loaded_setups:
             full[entry1]['sample:NXsample'] = \
-                dict(sample_common, **sample_std)
+                copy_nexus_template(dict(sample_common, **sample_std))
         elif 'emagnet_sample' in session.loaded_setups:
             full[entry1]['sample:NXsample'] = \
-                dict(sample_common, **sample_magnet)
+                copy_nexus_template(dict(sample_common, **sample_magnet))
         else:
-            full[entry1]['sample:NXsample'] = sample_common
+            full[entry1]['sample:NXsample'] = copy_nexus_template(sample_common)
+
+        if 'velocity_selector' in session.loaded_setups:
+            full['entry1:NXentry']['SANS:NXinstrument']['Dornier-VS:NXchopper']\
+                    = copy_nexus_template(velocity_selector)
+            full['entry1:NXentry']['SANS:NXinstrument']['data1:NXdata']['lambda']\
+                    = NXLink('/entry1/SANS/Dornier-VS/lambda'),
+            full['entry1:NXentry']['SANS:NXinstrument']['monochromator:NXmonochromator']['wavelength']\
+                    = NXLink('/entry1/SANS/Dornier-VS/lambda')
 
         if 'detector_strobo' in session.loaded_setups:
             monitors_strobo = {
@@ -245,4 +248,4 @@ class SANSTemplateProvider(NexusTemplateProvider):
             }
             full[entry1].update(monitors_strobo)
 
-        return full
+        return copy_nexus_template(full)

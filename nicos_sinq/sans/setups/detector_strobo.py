@@ -2,11 +2,11 @@ description = 'Devices for the Detector'
 
 group = 'basic'
 
-includes = ['hm_config_strobo', 'attenuator', 'velocity_selector', 'beamstop', 'collimator_s7', 
+includes = ['hm_config_strobo', 'attenuator', 'beamstop', 'collimator_s7',
             'sample', 'shutter', 'asyncontroller', 'detector_motors']
 excludes = ['detector']
 
-pvdprefix = 'SANSCNTBOX1'
+pvdprefix = 'SQ:SANS:DAQ'
 
 channels = ['monitor1', 'monitor2', 'monitor3', 'monitor4', 'monitor5', 'protoncount', 'monitor6', 'monitor7',  'monitor8']
 

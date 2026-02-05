@@ -69,14 +69,14 @@ _Bfieldcolumn = Row(
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
         title = '',
-        filename = '/home/sans/data/html/sample.html',
+        filename = '/home/status/sample.html',
         interval = 10,
         loglevel = 'info',
         cache = 'localhost',
         prefix = 'nicos/',
         font = 'Droid Sans',
         valuefont = 'Droid Sans Moni',
-        fontsize = 12,
+        fontsize = 18,
         padding = 3,
         layout = [
             [_st1column, _st2column ],
