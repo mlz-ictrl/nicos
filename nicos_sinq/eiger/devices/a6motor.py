@@ -36,6 +36,8 @@ class A6Motor(HasPrecision, BaseSequencer):
     parameters = {
         'wait_period': Param('Waiting time after the motor finished',
                              type=floatrange(0), default=7),
+        'offset': Param('Offset of attached motor', settable=False, volatile=True,
+                        category='offsets', fmtstr='main'),
     }
 
     attached_devices = {
@@ -50,6 +52,9 @@ class A6Motor(HasPrecision, BaseSequencer):
         self.stop()
         if not self._attached_raw_motor.isAtTarget(target):
             BaseSequencer.doStart(self, target)
+
+    def doReadOffset(self):
+        return self._attached_raw_motor.offset
 
     def _generateSequence(self, target):
         return [
