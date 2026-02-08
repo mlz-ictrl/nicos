@@ -2,10 +2,12 @@ description = 'Wave length spread devices'
 
 group = 'lowlevel'
 
+includes = ['alias_lambda']
+
 devices = dict(
     selector_delta_lambda = device('nicos.devices.vendor.astrium.SelectorLambdaSpread',
         description = 'Selector wavelength spread',
-        lamdev = 'selector_lambda',
+        lamdev = 'wl',
         unit = '%',
         fmtstr = '%.1f',
         n_lamellae = 64,
