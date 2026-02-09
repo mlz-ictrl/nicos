@@ -64,7 +64,9 @@ class AmorPolarizer(Waitable):
             self._wait_for.append(dev)
 
     def _getWaiters(self):
-        return self._wait_for
+        if self._wait_for:
+            return self._wait_for
+        return Waitable._getWaiters(self)
 
     def doRead(self, maxage=0):
         pass
