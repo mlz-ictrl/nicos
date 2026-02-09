@@ -29,11 +29,10 @@ main_window = tabbed(
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
     ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
+    ('Live data', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
 )
 
-windows = [
-    window('Live data', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
-]
+windows = []
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
