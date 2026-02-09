@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../resources/material/icons/stop-24px.svg</normaloff>../../../../resources/material/icons/stop-24px.svg</iconset>
+    <normaloff>:/material/stop</normaloff>:/material/stop</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">

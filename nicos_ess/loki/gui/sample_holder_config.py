@@ -456,12 +456,12 @@ class LokiSampleHolderPanel(PanelBase):
 
         cut_action = QAction('Cut', self)
         cut_action.triggered.connect(self._on_cut)
-        cut_action.setIcon(get_icon('cut_24px.svg'))
+        cut_action.setIcon(get_icon('cut-24px.svg'))
         menu.addAction(cut_action)
 
         paste_action = QAction('Paste', self)
         paste_action.triggered.connect(self._on_paste)
-        paste_action.setIcon(get_icon('paste_24px.svg'))
+        paste_action.setIcon(get_icon('paste-24px.svg'))
         menu.addAction(paste_action)
 
         clear_action = QAction('Clear', self)

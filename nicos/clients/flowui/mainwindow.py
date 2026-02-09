@@ -28,7 +28,7 @@ from os import path
 from time import time as current_time
 
 from nicos.clients.flowui import uipath
-from nicos.clients.flowui.panels import get_icon, root_path
+from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
 from nicos.clients.flowui.panels.status import ScriptStatusPanel
 from nicos.guisupport.qt import QIcon, QLabel, QMenu, QPixmap, QPoint, \
@@ -146,9 +146,7 @@ class MainWindow(DefaultMainWindow):
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], spacer)
 
         nicos_label = QLabel()
-        pxr = decolor_logo(QPixmap(path.join(root_path, 'resources',
-                                             'nicos-logo-high.svg')),
-                           Qt.GlobalColor.white)
+        pxr = decolor_logo(QPixmap(':/nicos-logo-high'), Qt.GlobalColor.white)
         nicos_label.setPixmap(pxr.scaledToHeight(
             self.toolBarMain.height(),
             Qt.TransformationMode.SmoothTransformation))
@@ -159,15 +157,12 @@ class MainWindow(DefaultMainWindow):
         instrument = self.client.eval('session.instrument', None)
         self.instrument_label.setText('Instrument:')
         if instrument:
-            logo = decolor_logo(QPixmap(path.join(root_path,
-                                'resources', f'{instrument}-logo.svg')),
-                                Qt.GlobalColor.white)
-            if logo.isNull():
-                self.instrument_text.setText(instrument.upper())
-                return
-            self.instrument_text.setPixmap(logo.scaledToHeight(
-                self.toolBarMain.height(),
-                Qt.TransformationMode.SmoothTransformation))
+            self.instrument_text.setText(instrument.upper())
+            # Alternate with logo graphic
+            # logo = decolor_logo(QPixmap(...), Qt.GlobalColor.white)
+            # self.instrument_text.setPixmap(logo.scaledToHeight(
+            #     self.toolBarMain.height(),
+            #     Qt.TransformationMode.SmoothTransformation))
         else:
             self.instrument_text.setText('UNKNOWN')
 

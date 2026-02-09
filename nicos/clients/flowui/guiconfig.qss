@@ -278,7 +278,7 @@ Panel QToolBar > QComboBox::drop-down {
     subcontrol-position: center right;
     border-top-right-radius: 5px; /* same radius as the QComboBox */
     border-bottom-right-radius: 5px;
-    image: None ; /*url('resources/icons/down-arrow.png');*/
+    image: None;
 }
 
 Panel QToolBar > QMenu,

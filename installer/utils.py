@@ -54,16 +54,6 @@ def find_custom():
                 res.append((path.join(root, fn), root[len(rootdir) + 1:]))
     return res
 
-# find resource files
-def find_resources():
-    res = []
-    for root, _dirs, files in os.walk(path.join(rootdir,  'resources')):
-        targetdir = root[len(rootdir) + 1:]
-        for fn in files:
-            res.append((path.join(root, fn), targetdir))
-    res.append((path.join(rootdir,'nicos/clients/flowui/guiconfig.qss'), 'nicos/clients/flowui'))
-    return res
-
 # Include all .ui files for the main GUI module.
 def find_uis():
     res = []
@@ -73,6 +63,8 @@ def find_uis():
                 res.append((path.join(root, '*.ui'),
                             path.join(guidir,
                                       root[len(path.join(rootdir, guidir)) + 1:])))
+    res.append((path.join(rootdir, 'nicos/clients/flowui/guiconfig.qss'),
+                'nicos/clients/flowui'))
     return res
 
 

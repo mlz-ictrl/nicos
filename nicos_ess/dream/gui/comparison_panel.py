@@ -174,7 +174,7 @@ class ComparisonPanel(LiveDataPanel):
 
         delete_action = QAction('Remove', self)
         delete_action.triggered.connect(self._remove_snapshot)
-        delete_action.setIcon(get_icon('cut_24px.svg'))
+        delete_action.setIcon(get_icon('cut-24px.svg'))
         menu.addAction(delete_action)
 
         menu.exec(QCursor.pos())

@@ -151,12 +151,12 @@ class LokiScriptBuilderPanel(PanelBase):
         self.cut_action = QAction('Cut', self)
         self.cut_action.triggered.connect(
             self.table_helper.cut_selected_to_clipboard)
-        self.cut_action.setIcon(get_icon('cut_24px.svg'))
+        self.cut_action.setIcon(get_icon('cut-24px.svg'))
 
         self.paste_action = QAction('Paste', self)
         self.paste_action.triggered.connect(
             self.table_helper.paste_from_clipboard)
-        self.paste_action.setIcon(get_icon('paste_24px.svg'))
+        self.paste_action.setIcon(get_icon('paste-24px.svg'))
 
         self.quick_fill_action = QAction('Quick Fill', self)
         self.quick_fill_action.triggered.connect(self._quick_fill)

@@ -6,7 +6,7 @@ from os import path
 sys.path.insert(0, path.abspath('.'))
 
 from utils import find_custom, find_gr, find_gr_osx, find_modules, \
-                  find_resources, find_uis, find_uncertainties, nicos_version, \
+                  find_uis, find_uncertainties, nicos_version, \
                   rootdir
 
 a = Analysis(
@@ -16,7 +16,6 @@ a = Analysis(
     datas=find_uis() +
           find_custom() +
           find_gr_osx() +
-          find_resources() +
           find_uncertainties() +
           [(path.join(rootdir, 'nicos', 'RELEASE-VERSION'), 'nicos')],
     hiddenimports=find_modules('nicos', 'clients', 'gui') +
