@@ -29,29 +29,81 @@ from nicos import session
 from nicos.core import Override, Param, UsageError, oneof, pvname, \
     status
 from nicos.core.constants import MASTER
+from nicos.core.errors import LimitError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.core.params import anytype, limits
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics import EpicsAnalogMoveable
 from nicos.devices.epics.status import SEVERITY_TO_STATUS
 
+# Type of the last issued move command known to NICOS - used in doStatus to
+# return the correct status message in case the motor is moving
+POSITION = 'position'
+REFERENCE = 'reference'
+VELOCITY = 'velocity'
+
+# The messages returned by doStatus if the motor is moving and the last issued
+# move command was position, reference or velocity
+MSG_POSITION = 'Motor is moving to target ...'
+MSG_REFERENCE = 'Motor is referencing ...'
+MSG_VELOCITY = 'Motor is moving continuously ...'
+
 class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor):
     """
-    This device exposes some of the functionality provided by the
-    `EPICS motor record <https://epics.anl.gov/bcda/synApps/motor/motorRecord.html>`_.
+    Interface to the `EPICS motor record
+    <https://epics.anl.gov/bcda/synApps/motor/motorRecord.html>`_.
 
+    PV naming
+    ---------
     The PV names for the fields of the record (readback, speed, etc.)
     are derived by combining the motorpv-parameter with the predefined field
     names.
 
-    The reseterrorpv can be provided optionally in case the supports a reset-
-    mechanism that tries to recover from certain errors. If present, these are
-    used when calling the reset()-method.
+    Resetting errors
+    ----------------
+    The reseterrorpv can be provided optionally in case the underlying EPICS
+    driver supports a reset mechanism that tries to recover from certain errors.
+    If present, this PV is set to 1 when calling the reset()-method.
 
+    Custom error messages from the driver
+    -------------------------------------
     Another optional PV is the errormsgpv, which contains an error message that
     may originate from the motor controller or the IOC. If it is present,
     doStatus uses it for some of the status messages.
 
+    Velocity mode
+    -------------
+    The default "movement" uses the "positioning" mode of the motor record
+    (which corresponds to the default behaviour of the motor record when writing
+    to its VAL field). However, this device also supports the "velocity" or
+    "jog" mode which in the record is controlled via the fields JVEL, JOGF and
+    JOGR. The functionality of these three fields is combined into the single
+    device parameter "velocity_move", which allows using a standard ParamDevice
+    to control the velocity mode. Writing a value to "velocity_move" starts a
+    movement in forward direction, if the written value was positive, and in
+    reverse direction otherwise with the absolute value used as speed input
+    JVEL. When reading the parameter, the RVEL (raw / readback velocity) field
+    of the motor record is read.
+
+    It is recommended to use a ParamDevice for controlling the motor in velocity
+    mode. The setup could look like this:
+
+    ```
+    motor = device('',
+        unit = 'mm',
+        motorpv = 'IOC:m1',
+        errormsgpv = 'IOC:m1-MsgTxt',
+        reseterrorpv = 'IOC:m1:Reset',
+    ),
+    jogmove_motor = device('nicos.devices.generic.paramdev.ParamDevice',
+        description = 'Jogmove param device of motor',
+        device = 'motor',
+        parameter = 'velocity_move',
+    )
+    ```
+
+    Offset handling
+    ---------------
     The EPICS motor record includes an
     `offset field <https://epics.anl.gov/bcda/synApps/motor/motorRecord.html#Fields_calib>`_,
     that, when changed, automatically updates the
@@ -92,15 +144,23 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
                   settable=False,
                   userparam=False),
         'reference_direction':
-            Param('Reference run direction.',
+            Param('Run direction in reference mode',
                   type=oneof('forward', 'reverse'),
                   default='forward',
                   settable=False,
                   userparam=False,
                   mandatory=False),
         'direction':
-            Param('Run direction',
+            Param('Run direction in positioning mode',
                   type=oneof('forward', 'reverse'),
+                  settable=True,
+                  mandatory=False,
+                  userparam=True,
+                  volatile=True),
+        'velocity_move':
+            Param('Starts a movement in velocity mode with the given speed and ' \
+                  'reads the actual speed',
+                  type=float,
                   settable=True,
                   mandatory=False,
                   userparam=True,
@@ -165,6 +225,14 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
                   settable=True,
                   mandatory=False,
                   default=False),
+        'last_move_command':
+            Param('Last motor status',
+                  type=oneof(REFERENCE, POSITION, VELOCITY),
+                  category='general',
+                  settable=True,
+                  mandatory=False,
+                  internal=True,
+                  default=POSITION),
     }
 
     parameter_overrides = {
@@ -224,6 +292,10 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         'alarm_status': 'STAT',
         'alarm_severity': 'SEVR',
         'position_deadband': 'SPDB',
+        'jogspeed': 'JVEL',
+        'jogforward': 'JOGF',
+        'jogreverse': 'JOGR',
+        'rawvelocity': 'RVEL',
     }
 
     def _get_pv_parameters(self):
@@ -315,25 +387,56 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
     def doReadPosition_Deadband(self):
         return self._get_pv('position_deadband')
 
-    def doWriteSpeed(self, value):
-        basespeed, maxspeed = self.speedlimits
-        if value < basespeed:
-            self.log.warning(
-                'Selected speed %s is lower than the low limit %s. '
-                'Using low limit %s instead.', value, basespeed, basespeed)
-            value = basespeed
+    def doReadUnit(self):
+        unit = self._epics_wrapper.get_units(self._param_to_pv['readpv'])
 
-        elif value > maxspeed:
-            self.log.warning(
-                'Selected speed %s is higher than the high limit %s. '
-                'Using high limit %s instead.', value, maxspeed, maxspeed)
-            value = maxspeed
+        # Also write the unit of the speed here so it is shown properly in the
+        # ParamDevice using velocity_move.
+        self.velocity_move.unit = unit + ' / s'
+        return unit
+
+    def doWriteSpeed(self, value):
+        self._check_speed(value)
 
         # Before proceeding, we want to make sure that the PV has actually been
         # changed.
         self._put_pv_readback_checked('speed', value,
                                       timeout=self.epicstimeout,
                                       abstol=self.precision)
+        return value
+
+    def doReadVelocity_Move(self):
+        """
+        Returns the readback velocity value in EGU/s (e.g. mm/s or deg/s) from
+        the MotorRecord if the motor is moving.
+        """
+
+        # Since the raw velocity is steps per second, we have to multiply it
+        # with the resolution to get the value in EGU (engineering units) / s.
+        if self._get_pv('moving'):
+            return self._get_pv('rawvelocity') * self._get_pv('resolution')
+        return 0.0
+
+    def doWriteVelocity_Move(self, value):
+        """
+        Writing to this parameter starts a velocity movement ("jog move" in
+        EPICS terms). If the given value is positive, the motor will move
+        forward, otherwise it will move in reverse.
+        """
+        absvalue = abs(value)
+        self._check_speed(absvalue)
+
+        # Set the jog speed (absolute value)
+        self._put_pv_readback_checked('jogspeed', absvalue,
+                                      timeout=self.epicstimeout,
+                                      abstol=self.precision)
+
+        if value > 0:
+            self._put_pv('jogforward', 1)
+        else:
+            self._put_pv('jogreverse', 1)
+
+        self.last_move_command = VELOCITY
         return value
 
     def doReadEpics_Offset(self):
@@ -375,6 +478,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         self._put_pv_readback_checked('writepv', value,
                                         timeout=self.epicstimeout,
                                         abstol=self.precision)
+        self.last_move_command = POSITION
 
     def doReadTarget(self):
         return self._get_pv('writepv')
@@ -457,7 +561,14 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
             return status.ERROR, 'starting %s failed' %self
 
         if self._get_pv('donemoving') == 0 or moving != 0:
-            return status.BUSY, message or 'Motor is moving to target...'
+            if not message:
+                if self.last_move_command == POSITION:
+                    message = MSG_POSITION
+                elif self.last_move_command == REFERENCE:
+                    message = MSG_REFERENCE
+                elif self.last_move_command == VELOCITY:
+                    message = MSG_VELOCITY
+            return status.BUSY, message
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
@@ -522,6 +633,8 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         # The reference field resets itself immediately after it has been
         # written to
         self._put_pv('home%s' % self.reference_direction, 1)
+
+        self.last_move_command = REFERENCE
 
         # This function should only return once the reference drive is finished
         # The loop therefore blocks until:
@@ -613,3 +726,14 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         """
         status_bits = format(int(self._get_pv('status')), '016b')
         return int(status_bits[8])
+
+    def _check_speed(self, speed):
+        """Assert that the given speed is within limits. Raises a LimitError if
+        it isn't
+        """
+        basespeed, maxspeed = self.speedlimits
+        if speed < basespeed or speed > maxspeed:
+            raise LimitError(self, 'requested speed %g %s/s out of range '
+                             '(minimum allowed speed = %g %s/s, maximum ' \
+                             'allowed speed = %g %s/s)'
+                             % (speed, self.unit, basespeed, self.unit, maxspeed, self.unit))

@@ -151,18 +151,22 @@ class DefTestSinqMotor(DefTest):
 
 class TestSinqmotor1(DefTestSinqMotor):
     motor = None
+    jogmove = None
 
     @pytest.fixture(autouse=True)
     def prepare(self, session):
         self.session = session
         self.motor = self.session.getDevice('motor1')
         self.motor.reset()
+        self.jogmove = self.session.getDevice('jogmove1')
 
 class TestsSinqMotor2(DefTestSinqMotor):
     motor = None
+    jogmove = None
 
     @pytest.fixture(autouse=True)
     def prepare(self, session):
         self.session = session
         self.motor = self.session.getDevice('motor2')
         self.motor.reset()
+        self.jogmove = self.session.getDevice('jogmove2')

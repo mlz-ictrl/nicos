@@ -28,7 +28,7 @@ import threading
 
 from nicos.commands.device import adjust
 from nicos.core import status, LimitError
-from nicos.devices.epics.motor import EpicsMotor
+from nicos.devices.epics.motor import EpicsMotor, MSG_VELOCITY, MSG_REFERENCE
 
 session_setup = 'epics_motor'
 
@@ -71,6 +71,9 @@ class FakeEpicsMotor(EpicsMotor):
         'homeforward': 0,
         'homereverse': 0,
         'status': 0,
+        'jogspeed': 0,
+        'jogforward': 0,
+        'jogreverse': 0,
         'position_deadband': 0,
     }
 
@@ -94,6 +97,17 @@ class FakeEpicsMotor(EpicsMotor):
             self.values['donemoving'] = 0
         elif pvparam == 'homereverse' and value == 1:
             self.values['donemoving'] = 0
+        elif pvparam == 'jogforward' and value == 1:
+            self.values['donemoving'] = 0
+            self.values['moving'] = 1
+        elif pvparam == 'jogreverse' and value == 1:
+            self.values['donemoving'] = 0
+            self.values['moving'] = 1
+        elif pvparam == 'stop' and value == 1:
+            self.values['donemoving'] = 1
+            self.values['moving'] = 0
+            self.values['jogforward'] = 0
+            self.values['jogreverse'] = 0
         self.values[pvparam] = value
 
     def _get_pv(self, pvparam, as_string=False, use_monitor=True):
@@ -121,6 +135,9 @@ class FakeEpicsMotor(EpicsMotor):
         self.values['lowlimitswitch'] = 0
         self.values['homeforward'] = 0
         self.values['homereverse'] = 0
+        self.values['jogspeed'] = 0
+        self.values['jogforward'] = 0
+        self.values['jogreverse'] = 0
         self.values['status'] = int('0000000000000000', 2)
         self.userlimits = (self.values['lowlimit'], self.values['highlimit'])
         if hasattr(self, '_new_offset'):
@@ -137,6 +154,7 @@ class DerivedFakeEpicsMotor(FakeEpicsMotor):
 
 class DefTest:
     motor = None
+    jogmove = None
     motor_no_opt_pv = None
 
     @pytest.fixture(autouse=True)
@@ -144,6 +162,7 @@ class DefTest:
         self.session = session
         self.motor = self.session.getDevice('motor1')
         self.motor.reset()
+        self.jogmove = self.session.getDevice('jogmove1')
         self.motor_no_opt_pv = self.session.getDevice('motor2')
         self.motor_no_opt_pv.reset()
 
@@ -302,11 +321,11 @@ class DefTest:
         self.motor.speed = 9
         assert self.motor.speed == 9
 
-        self.motor.speed = 1
-        assert self.motor.speed == 2
+        with pytest.raises(LimitError):
+            self.motor.speed = 1
 
-        self.motor.speed = 12
-        assert self.motor.speed == 10
+        with pytest.raises(LimitError):
+            self.motor.speed = 12
 
     def test_read_speed_limits(self):
 
@@ -376,7 +395,7 @@ class DefTest:
         # Motor is now doing a reference run
         stat = self.motor.status()
         assert stat[0] == status.BUSY
-        assert stat[1]
+        assert stat[1] == MSG_REFERENCE
 
         # Pause the test until the reference run is done. Within the motor
         # device, it is checked if the motor reports done_moving for at least
@@ -422,7 +441,7 @@ class DefTest:
         # Motor is now doing a reference run
         stat = self.motor.status()
         assert stat[0] == status.BUSY
-        assert stat[1]
+        assert stat[1] == MSG_REFERENCE
 
         # Pause the test until the reference run is done. Within the motor
         # device, it is checked if the motor reports done_moving and bit 8 has
@@ -601,6 +620,38 @@ class DefTest:
         stat = self.motor_no_opt_pv.status()
         assert stat[0] == status.WARN
         assert stat[1]
+
+    def test_jogmode(self):
+
+        # Motor is idle
+        stat = self.motor.status()
+        assert stat[0] == status.OK
+
+        # Jogmove forward
+        self.jogmove.start(10)
+        stat = self.motor.status()
+        assert stat[0] == status.BUSY
+        assert stat[1] == MSG_VELOCITY
+        assert self.motor._get_pv('jogspeed') == 10
+        assert self.motor._get_pv('jogforward') == 1
+        assert self.motor._get_pv('jogreverse') == 0
+
+        # Stop
+        self.motor.stop()
+        stat = self.motor.status()
+        assert stat[0] == status.OK
+        assert stat[1] == ''
+        assert self.motor._get_pv('jogforward') == 0
+        assert self.motor._get_pv('jogreverse') == 0
+
+        # Jogmove reverse
+        self.jogmove.move(-10)
+        stat = self.motor.status()
+        assert stat[0] == status.BUSY
+        assert stat[1] == MSG_VELOCITY
+        assert self.motor._get_pv('jogspeed') == 10
+        assert self.motor._get_pv('jogforward') == 0
+        assert self.motor._get_pv('jogreverse') == 1
 
 # This class runs the actual tests
 class TestEpicsMotor(DefTest):
