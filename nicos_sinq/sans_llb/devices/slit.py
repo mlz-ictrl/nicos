@@ -17,22 +17,23 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Mark Koennecke <mark.koennecke@psi.ch>
+#   Artur Glavic <artur.glavic@psi.ch>
 #
 # *****************************************************************************
-from nicos.devices.generic.slit import CenterXSlitAxis
+from nicos.core import CanDisable
+from nicos.devices.generic.slit import Slit
 
 
-class InvertedXSlitAxis(CenterXSlitAxis):
+class EnableableSlit(CanDisable, Slit):
     """
-    This subclass just inverts the sign of the movement
+    A slit that can enable and disable all its axes.
     """
 
-    def doRead(self, maxage=0):
-        return -CenterXSlitAxis.doRead(self, maxage)
-
-    def doStart(self, target):
-        CenterXSlitAxis.doStart(self, -target)
-
-    def doIsAllowed(self, target):
-        return CenterXSlitAxis.doIsAllowed(self, -target)
+    def doEnable(self, on):
+        for axis in self._axes:
+            if not isinstance(axis, CanDisable):
+                continue
+            if on:
+                axis.enable()
+            else:
+                axis.disable()

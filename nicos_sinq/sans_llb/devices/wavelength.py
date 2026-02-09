@@ -22,7 +22,7 @@
 # *****************************************************************************
 from nicos.core.device import Attach, Moveable, Param
 from nicos.devices.abstract import TransformedMoveable
-
+from numpy import nan
 
 class SANSWL(TransformedMoveable):
     """
@@ -61,4 +61,9 @@ class SANSWL(TransformedMoveable):
         return self._attached_speed.read(maxage)
 
     def _mapReadValue(self, value):
-        return self.a + self.b/value
+        if value == 0:
+            return nan
+        wl = self.a + self.b/value
+        if wl<0:
+            return nan
+        return wl
