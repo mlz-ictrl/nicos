@@ -29,8 +29,8 @@ from confluent_kafka import TopicPartition
 from nicos import session
 from nicos.core import status
 from nicos.core.constants import POLLER
-from nicos.core.device import Moveable, Readable
-from nicos.core.params import Attach, Override, Param
+from nicos.core.device import Readable
+from nicos.core.params import Override, Param
 
 from nicos_sinq.devices.kafka.consumer import KafkaSubscriber
 
@@ -63,10 +63,6 @@ class DetectorRate(KafkaSubscriber, Readable):
         'unit': Override(default='1/s'),
     }
 
-    attached_devices = {
-        'chopper_speed': Attach('Chopper speed', Moveable),
-    }
-
     def doPreinit(self, mode):
         KafkaSubscriber.doPreinit(self, mode)
         if session.sessiontype == POLLER:
@@ -89,19 +85,21 @@ class DetectorRate(KafkaSubscriber, Readable):
 
                 if last_offset > low:
                     consumer.seek(TopicPartition(self.topic, 0, last_offset))
-                    data = consumer.poll(1)
+
+                    # A new update should be available after 5 seconds latest.
+                    data = consumer.poll(5)
 
                     if data is not None:
-
-                        # Schema is known to be ev44
-                        # Schema can be printed out with print(get_schema(data.value()))
-                        message = streaming_data_types.deserialise_ev44(data.value())
-
-                        # Chopper speed in rpm -> divide by 60
-                        rate = len(message.pixel_id) * self._attached_chopper_speed.read(0) / 60
+                        rate = streaming_data_types.deserialise_f144(data.value())
 
                         # Force fast cache updates
-                        self._cache.put(self._name, 'value', rate, time.time())
+                        self._cache.put(self._name, 'value', rate.value, time.time())
+                        continue
+
+                # In case no new information is available on Kafka, assume that
+                # the detector rate is currently zero.
+                self._cache.put(self._name, 'value', 0, time.time())
+
         except Exception as e:
             self._cache.put(self._name, 'error_msg', str(e), time.time())
 
@@ -109,21 +107,14 @@ class DetectorRate(KafkaSubscriber, Readable):
         return self._cache.get(self._name, 'value', None)
 
     def doStatus(self, maxage=0):
-
-        # Restart the message poller thread, if it is not running and no error
-        # message is in the cache (because this means that the error has ben
-        # reset)
-        if (session.sessiontype == POLLER and
-            not self._updater_thread.is_alive() and
-            not self.error_msg):
-            self.subscribe(self.topic)
-
         if self.error_msg:
             return status.ERROR, self.error_msg
         return status.OK, ''
 
     def doReset(self):
+        """
+        Restarts the Kafka messages poller thread, if it has crashed.
+        """
         if self.error_msg:
-            # This also indicates to the poller that it should restart the
-            # thread
             self._cache.put(self._name, 'error_msg', '', time.time())
+            self.subscribe(self.topic)
