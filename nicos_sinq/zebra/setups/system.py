@@ -42,7 +42,6 @@ devices = dict(
         description = 'experiment object',
         dataroot = configdata('config.DATA_PATH'),
         sendmail = False,
-        serviceexp = 'Service',
         sample = 'Sample',
         forcescandata = True,
     ),

@@ -30,7 +30,7 @@ devices = dict(
     Sample = device('nicos_sinq.amor.devices.sample.AmorSample',
                     description = 'The currently used sample',
                     ),
-    Exp = device('nicos_sinq.devices.experiment.SinqExperiment',
+    Exp = device('nicos_sinq.devices.experiment.Experiment',
                  description = 'experiment object',
                  dataroot = configdata('config.DATA_PATH'),
                  sample = 'Sample',

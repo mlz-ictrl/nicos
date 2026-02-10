@@ -24,14 +24,14 @@
 from nicos import session
 
 from nicos_sinq.camea.commands import printToDiscord
-from nicos_sinq.devices.experiment import SinqExperiment
+from nicos_sinq.devices.experiment import Experiment
 
 
-class CameaExperiment(SinqExperiment):
+class CameaExperiment(Experiment):
     """Special doFinish method for CAMEA"""
 
     def doFinish(self):
-        SinqExperiment.doFinish(self)
+        Experiment.doFinish(self)
         text = """This message marks the end of your CAMEA experiment. We hope you
         had a transcendent experience with us and hope to welcome you again for
         another experiment. \n We appreciate your feedback on DUO, and please
