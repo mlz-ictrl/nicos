@@ -463,6 +463,18 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         if limit_violation != 0:
             return status.WARN, message or 'Soft limit violation.'
 
+        # If there is nothing more important to be reported, check if the motor
+        # is currently homed.
+        if not message:
+            # The 16th bit from the .MSTA field corresponds to HOMED.
+            status_bits = format(int(self._get_pv('status')), '016b')
+
+            # status_bits is a string with 16 characters, so status_bits[15] is
+            # a substring with a single entry which is not False - hence the
+            # conversion to integer first.
+            if int(status_bits[15]):
+                return status.OK, 'homed'
+
         return status.OK, message
 
     def doStop(self):
