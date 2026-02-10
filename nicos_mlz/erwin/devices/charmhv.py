@@ -61,7 +61,7 @@ class SeqRampParam(SeqParam):
                 return
             session.delay(0.2)
             session.log.info('waiting')
-        raise NicosError('Setting Parameter %s of dev %s to %r failed!' % (
+        raise NicosError(self, 'Setting Parameter %s of dev %s to %r failed!' % (
             self.paramname, self.dev, self.value))
 
     def isCompleted(self):
@@ -273,7 +273,7 @@ class HVSwitch(SequencerMixin, MappedMoveable):
                 self._seq_thread = None
             else:
                 raise MoveError(self, 'Cannot start device, sequence is still '
-                                      'running (at %s)!' % self._seq_status[1])
+                                'running (at %s)!' % self._seq_status[1])
         self._startSequence(self._generateSequence(self.target))
 
     def doRead(self, maxage=0):
@@ -294,8 +294,6 @@ class HVOffDuration(Readable):
     parameter_overrides = {
         'unit': Override(mandatory=False, volatile=True),
     }
-
-    valuetype = str
 
     def doRead(self, maxage=0):
         if self._attached_hv_supply:
@@ -330,8 +328,6 @@ class HVTrip(Readable):
     parameter_overrides = {
         'unit': Override(mandatory=False, volatile=True),
     }
-
-    valuetype = str
 
     def doRead(self, maxage=0):
         return 'Tripped' if self._attached_hv_supply.tripped else ''
