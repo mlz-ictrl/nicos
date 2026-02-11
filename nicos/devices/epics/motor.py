@@ -517,14 +517,14 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         return absmin + offset, absmax + offset
 
     def doReference(self):
+
         # The reference field resets itself immediately after it has been
         # written to
         self._put_pv('home%s' % self.reference_direction, 1)
 
         # This function should only return once the reference drive is finished
-        # (16th bit of the MSTA field is 1). This function blocks until either
-        # this bit has been set or the motor reports movement done for a certain
-        # time period
+        # The loop therefore blocks until the motor reports movement done for a
+        # certain time period.
         movement_done_period = 1  # Seconds
         movement_done_start = None
         stat = status.OK
@@ -536,22 +536,21 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
             if stat == status.OK:
                 (stat, _) = self.status(0)
 
-            # Read the 16th bit from the .MSTA field
-            status_bits = format(int(self._get_pv('status')), '016b')
-            homed = int(status_bits[15])
-
-            # The motor record resets the homing fields to zero once it is done,
-            # see https://epics.anl.gov/bcda/synApps/motor/motorRecord.html#Fields_command
-            if homed or (not self._get_pv('homeforward') and not self._get_pv('homereverse')):
-                # Update the status of the motor so it shows idle
-                self.status(0)
-                return
-
-            # If the motor reports donemoving for a certain time period, assume that the
-            # reference drive is done
+            # If the motor reports donemoving for a certain time period, assume
+            # that the reference drive is done. The "HOMED" bit 16 from the
+            # motor record MSTA status is not usable, because the motor record
+            # assumes that referencing the motor is done once it reached the HLM
+            # / LLM limits even though it might actually still move ...
             if self._get_pv('donemoving'):
                 if movement_done_start:
                     if time.monotonic() > movement_done_start + movement_done_period:
+
+                        # Check if the "HOMED" bit is set in the motor record
+                        status_bits = format(int(self._get_pv('status')), '016b')
+                        homed = int(status_bits[15])
+                        if not homed:
+                            self.log.warning('finished moving, but not homed yet')
+
                         # Update the status of the motor so it shows idle
                         self.status(0)
                         return
