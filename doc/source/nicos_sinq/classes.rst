@@ -64,10 +64,6 @@ SINQ classes
 .. module:: nicos_sinq.devices.epics.motor
 .. autoclass:: SinqMotor
 
-.. module:: nicos_sinq.devices.epics.proton_counter
-.. autoclass:: SINQProtonCurrent
-.. autoclass:: SINQProtonCharge
-
 .. module:: nicos_sinq.devices.epics.scaler_record
 .. autoclass:: EpicsScalerRecord
 
