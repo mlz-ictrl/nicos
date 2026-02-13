@@ -31,7 +31,7 @@ devices = dict(
 #    ),
 #    omega_minikappa_cod = device('nicos.devices.entangle.Sensor',
 #        description = 'Mini-kappa omega encoder (23 bit)',
-#        tangodevice = tango_base + 'FZJDP_Analog/omega_mini_stepper',
+#        tangodevice = tango_base + 's7_io/omega_mini_stepper',
 #        fmtstr = '%.3f',
 #        unit = 'deg',
 #    ),

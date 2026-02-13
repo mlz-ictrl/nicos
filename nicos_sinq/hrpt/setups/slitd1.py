@@ -3,14 +3,14 @@ description = 'D1 Slit at HRPT'
 pvprefix = 'SQ:HRPT:motb:'
 
 devices = dict(
-    d1r = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    d1r = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'D1 Slit Right Blade',
         motorpv = pvprefix + 'D1R',
         errormsgpv = pvprefix + 'D1R-MsgTxt',
         precision = 0.01,
         abslimits = (0.0, 341.0),
     ),
-    d1l = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    d1l = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'D1 Slit Left Blade',
         motorpv = pvprefix + 'D1L',
         errormsgpv = pvprefix + 'D1L-MsgTxt',

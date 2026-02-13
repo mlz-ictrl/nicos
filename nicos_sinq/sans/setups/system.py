@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'SANS',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink', 'quiecksink'],
+    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink'],
 )
 
 modules = [
@@ -69,9 +69,5 @@ devices = dict(
         filenametemplate = ['sans%(year)sn%(scancounter)06d.hdf'],
         templateclass =
         'nicos_sinq.sans.nexus.nexus_templates.SANSTemplateProvider',
-    ),
-    quiecksink = device('nicos_sinq.devices.datasinks.sinq_datasinks.QuieckSink',
-        description = 'Sink for sending UDP datafile '
-        'notifications'
     ),
 )

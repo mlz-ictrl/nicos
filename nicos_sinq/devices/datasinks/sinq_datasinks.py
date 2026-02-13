@@ -22,7 +22,6 @@
 #
 # *****************************************************************************
 import queue
-import socket
 from datetime import datetime
 from os import path
 from time import monotonic as currenttime
@@ -128,62 +127,6 @@ class SinqNexusFileSink(NexusFileWriterSink):
     def doReadSubdir(self):
         counter = session.experiment.sicscounter
         return ('%3s' % int(counter / 1000)).replace(' ', '0')
-
-
-class QuieckHandler(DataSinkHandler):
-    _startdataset = None
-
-    def begin(self):
-        DataSinkHandler.begin(self)
-        if not self._startdataset:
-            self._startdataset = self.dataset
-
-    def end(self):
-        DataSinkHandler.end(self)
-        if self._startdataset.finished is not None:
-            try:
-                message = 'QUIECK/' + self._startdataset.filepaths[0]
-                with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as socke:
-                    socke.sendto(message.encode(),
-                                 (self.sink.host, self.sink.port))
-            except Exception:
-                # In no event shall the failure to send this message break
-                # something
-                pass
-            self._startdataset = None
-            self.sink.end()
-
-
-class QuieckSink(DataSink):
-    """
-    A simple DataSink which sends a UDP message at a specified port
-    when a file is closed. At SINQ, there is a separate Java server which
-    listens to these messages and initiates the synchronisation of data
-    files from the local disk to backuped network storage.
-
-    NICOS created a datasink for every intermediate dataset. This class
-    contains logic that in a scan, a handler is created only for the
-    first datset received.
-    """
-
-    parameters = {
-        'port': Param('Port to which UDP Messages are sent', type=int,
-                      default=2108),
-        'host': Param('Host to which to send messages', type=str,
-                      default='127.0.0.1'), }
-
-    handlerclass = QuieckHandler
-    _handlerObj = None
-
-    def createHandlers(self, dataset):
-        if not self._handlerObj:
-            self._handlerObj = self.handlerclass(self, dataset, None)
-        else:
-            self._handlerObj.dataset = dataset
-        return [self._handlerObj]
-
-    def end(self):
-        self._handlerObj = None
 
 
 class SwitchableNexusSink(NexusSink):

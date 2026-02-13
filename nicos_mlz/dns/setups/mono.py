@@ -61,7 +61,7 @@ devices = dict(
     ),
     ton_pos = device('nicos.devices.entangle.AnalogInput',
         description = 'Angle of ton relative to neutron guide',
-        tangodevice = tango_base + 's7_analog/ton_pos',
+        tangodevice = tango_base + 's7_io/ton_pos',
         visibility = (),
     ),
     ton_lambda = device('nicos_mlz.dns.devices.mono.Wavelength',

@@ -8,7 +8,7 @@ sysconfig = dict(
     cache = 'localhost',
     experiment = 'Exp',
     datasinks = [
-        'conssink', 'dmnsink', 'livesink', 'quiecksink', 'asciisink', 'cclsink'
+        'conssink', 'dmnsink', 'livesink', 'asciisink', 'cclsink'
     ],
 )
 
@@ -54,10 +54,6 @@ devices = dict(
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sink for forwarding live data to the GUI',
-    ),
-    quiecksink = device('nicos_sinq.devices.datasinks.sinq_datasinks.QuieckSink',
-        description = 'Sink for sending UDP datafile '
-        'notifications'
     ),
     asciisink = device('nicos_sinq.sxtal.datasink.SxtalScanSink',
         description = 'Sink for writing SINQ ASCII files',

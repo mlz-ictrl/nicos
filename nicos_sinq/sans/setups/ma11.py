@@ -1,7 +1,7 @@
 description = 'Setup for the ma11 dom motor'
 
 devices = dict(
-    dom = device('nicos.devices.epics.pyepics.motor.EpicsMotor',
+    dom = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Sample stick rotation',
         motorpv = 'SQ:SANS:ma11:dom',
         errormsgpv = 'SQ:SANS:ma11:dom-MsgTxt',
