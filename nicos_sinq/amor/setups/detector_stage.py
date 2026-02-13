@@ -48,7 +48,7 @@ devices = dict(
                           requires = {'level': 'admin'},
                           visibility = ('metadata', 'namespace'),
                           ),
-    det_mount_pos_num = device('nicos_sinq.devices.epics.extensions.EpicsControlledDigitalMoveable',
+    det_mount_pos_num = device('nicos_sinq.devices.epics.extensions_pva.EpicsControlledDigitalMoveable',
                                readpv = pvprefix + 'det_nu:ChangingStateRBV_int',
                                writepv = pvprefix + 'det_nu:ChangeState',
                                targetpv = pvprefix + 'det_nu:ChangeStateRBV',
