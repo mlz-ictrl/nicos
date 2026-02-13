@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Moveable
+from nicos.core import Moveable, Param
 from nicos.core.errors import ProgrammingError
 from nicos.core.params import Attach, oneof
 from nicos.devices.generic import BaseSequencer
@@ -29,6 +29,14 @@ from nicos.devices.generic.sequence import SeqDev, SeqSleep
 
 
 class NarzissSpin(BaseSequencer):
+    parameters = {
+        'spinup_field': Param('Magnetic field value for spin-up state holding',
+                         type=float,
+                         default=0.04, userparam=True, settable=True),
+        'spindown_field': Param('Magnetic field value for spin-down state holding',
+                         type=float,
+                         default=1.0, userparam=True, settable=True),
+	}
 
     attached_devices = {
         'pom': Attach('Polariser rotation', Moveable),
@@ -43,17 +51,17 @@ class NarzissSpin(BaseSequencer):
         if target == '+':
             seq.append((SeqDev(self._attached_pom, 0.8),
                        SeqDev(self._attached_pmag, -2.5)))
-            seq.append(SeqSleep(4.))
-            seq.append(SeqDev(self._attached_pmag, .4))
-            seq.append(SeqSleep(4.))
-            seq.append(SeqDev(self._attached_pmag, .4))
+            seq.append(SeqSleep(2.))
+            seq.append(SeqDev(self._attached_pmag, self.spinup_field))
+            seq.append(SeqSleep(2.))
+            seq.append(SeqDev(self._attached_pmag, self.spinup_field))
         elif target == '-':
             seq.append((SeqDev(self._attached_pom, 0.8),
                        SeqDev(self._attached_pmag, 2.5)))
-            seq.append(SeqSleep(4.))
-            seq.append(SeqDev(self._attached_pmag, 1.))
-            seq.append(SeqSleep(4.))
-            seq.append(SeqDev(self._attached_pmag, 1.))
+            seq.append(SeqSleep(2.))
+            seq.append(SeqDev(self._attached_pmag, self.spindown_field))
+            seq.append(SeqSleep(2.))
+            seq.append(SeqDev(self._attached_pmag, self.spindown_field))
         elif target == '0':
             seq.append((SeqDev(self._attached_pom, 3),
                        SeqDev(self._attached_pmag, 0)))
@@ -64,9 +72,9 @@ class NarzissSpin(BaseSequencer):
 
     def doRead(self, maxage=0):
         val = self._attached_pmag.read(maxage)
-        if abs(val - .4) < .02:
+        if abs(val - self.spinup_field) < .02:
             return '+'
-        if abs(val - 1.) < .05:
+        if abs(val - self.spindown_field) < .05:
             return '-'
         if abs(val) < .05:
             return '0'
