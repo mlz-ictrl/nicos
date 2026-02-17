@@ -224,7 +224,7 @@ class AmorBase(Waitable):
 
     def doReadSampletilt(self, maxage=0):
         target = self._attached_sample_tilt_target.read(maxage)
-        if not target:
+        if target is None:
             self.log.warning('No cached value for sampletilt found, using 0.0')
             return 0.0
         return target
