@@ -27,7 +27,7 @@ devices = dict(
         description = 'Low-angle detector translation along the beam axis',
         motorpv = pvprefix + 'dtlz',
     ),
-    detz=device('nicos_sinq.sans-llb.devices.detector_coupling.SansLlbCoupledDetectors',
+    detz=device('nicos_sinq.sans_llb.devices.detector_coupling.SansLlbCoupledDetectors',
                 description='Detectors coupled translation, position is low-angle detector distance',
                 unit='mm',
                 fmtstr='%.1f',

@@ -33,7 +33,7 @@ devices = dict(
         abslimits = (-50.0, 50.0),
         precision = 0.1,
     ),
-    detz=device('nicos_sinq.sans-llb.devices.detector_coupling.SansLlbCoupledDetectors',
+    detz=device('nicos_sinq.sans_llb.devices.detector_coupling.SansLlbCoupledDetectors',
                 description='Detectors coupled translation, position is low-angle detector distance',
                 low_angle_x='dtlx',
                 low_angle_z='dtlz',
