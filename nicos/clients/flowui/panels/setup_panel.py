@@ -276,6 +276,15 @@ class FinishPanel(Panel):
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
         client.experiment.connect(self.on_experiment_changed)
+        client.setup.connect(self.on_setup_changed)
+
+    def on_setup_changed(self, a):
+        # Checking the enabling of the finish button after each setup
+        # interaction makes sure the button is also enabled when the daemon has
+        # been restarted (since this prompts a reload of the setups). Relying
+        # on the 'experiment' signal is not sufficient here, as it gets emitted
+        # BEFORE the actual experiment value has been retrieved from the cache.
+        self._enable_finishing()
 
     def on_experiment_changed(self, a):
         self._enable_finishing()
