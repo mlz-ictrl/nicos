@@ -10,6 +10,12 @@ main_window = docked(
               panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
          ),
         ),
+        (
+            'Sample Changer',
+            vsplit(
+                panel('nicos_sinq.sans-llb.gui.panels.sample_changer_panel.SampleChangerPanel'),
+            ), # vsplit
+        ),
         ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
         ('Instrument interaction',
          hsplit(

@@ -32,6 +32,7 @@ import os
 import socket
 import sys
 import time
+import traceback
 from os import path
 
 UNITDIR = '/run/systemd/system'
@@ -119,7 +120,7 @@ def main():
     wants_dir = path.join(UNITDIR, 'nicos.target.wants')
     if not path.isdir(wants_dir):
         os.mkdir(wants_dir)
-    printerr('Generating unit files for services: %s' % services)
+    printerr('Generating unit files for services: %s' % list(services))
 
     for name in services:
         unitfile = path.join(UNITDIR, 'nicos-' + name + '.service')
@@ -159,4 +160,5 @@ try:
     main()
 except BaseException as e:
     printerr('ERROR:', e.__class__.__name__, '-', e)
+    traceback.print_exc()
     sys.exit(1)
