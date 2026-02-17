@@ -1,8 +1,9 @@
 import pytest
 
+from nicos.commands.device import maw
 from nicos.core import status
 
-session_setup = 'sinq_sansllb'
+session_setup = 'coupled_detector'
 
 class TestCoupledDetectors:
     detz = None
@@ -32,9 +33,9 @@ class TestCoupledDetectors:
 
     def test_status(self):
         """Test that moving one of the individual axes changes status of coupled device."""
-        self.detz.move(4000)
+        maw(self.detz, 4000)
         assert self.detz.status()[0]==status.OK
-        self.dthz.move(3000)
+        maw(self.dthz, 3000)
         assert self.detz.status()[0]==status.NOTREACHED
 
     def test_ratio_z(self):
@@ -42,23 +43,23 @@ class TestCoupledDetectors:
         for ratio in [1.2, 1.5, 1.8, 2.0, 2.5, 3.0]:
             self.detz.low_high_ratio=ratio
             for dest in [5000., 8000., 12000., 18000.]:
-                self.detz.move(dest)
+                maw(self.detz, dest)
                 assert self.dtlz()==dest
                 assert self.dthz()==min(max(dest/ratio, self.dthz.abslimits[0]), self.dthz.abslimits[1])
 
     def test_ratio_xmove(self):
         """Test that horizontal movement of high angle detector corresponds to ratio of low angle movement"""
         self.detz.low_high_ratio=2.0
-        self.dthx(0.)
-        self.detz(10000.)
+        maw(self.dthx, 0.)
+        maw(self.detz, 10000.)
         xstart = self.dthx()
         assert xstart==(self.detz.low_angle_frame_x/2.0-self.detz.high_angle_opening_x)
-        self.dtlx(-50.)
-        self.detz(10000.)
+        maw(self.dtlx, -50.)
+        maw(self.detz, 10000.)
         assert self.dthx()==xstart+50./2.
 
     def test_ratio_y(self):
         """Test that horizontal movement of high angle detector corresponds to ratio of low angle movement"""
         self.detz.low_high_ratio=2.0
-        self.detz(10000.)
+        maw(self.detz, 10000.)
         assert self.dthy()==(-self.detz.low_angle_frame_y/2.0+self.detz.high_angle_opening_y)
