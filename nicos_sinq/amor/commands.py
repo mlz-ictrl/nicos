@@ -43,19 +43,18 @@ def synchronize_daq():
     and the proton current signal. To combat this, it is necessary to
     synchronize the clocks before each measurement with this command.
     """
-    with subprocess.Popen(['ssh', '-t', 'essdaq@det-efu02'],
-                          stdin=subprocess.PIPE,
-                          stdout=subprocess.PIPE) as sshProcess:
-        command = b"""
-                  essdaq; cd /home/essdaq/detg_git/dgro_master/
-                  python_slow_ctl2/utgard_kc705_vmm; sh update_rmm_time.sh
-                  """
-        (_, error) = sshProcess.communicate(command)
-        if error:
-            session.log.error('Synchronizing the DAQ time failed. Check if '
-                              'the computer det-efu02 is online.')
-        else:
-            session.log.debug('Synchronization successfull.')
+
+    result = subprocess.run(
+        ["ssh", "essdaq@det-efu02", "sh /home/essdaq/update_rmm_time.sh"],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        session.log.error("Synchronizing the DAQ time failed.\n"
+                          "Error: %s", result.stderr)
+    else:
+        session.log.info("Synchronization successful.")
 
 
 @usercommand
