@@ -22,11 +22,13 @@
 # *****************************************************************************
 """Class for the sample changer."""
 
+from nicos import session
 from nicos.core import Attach, IsController, Moveable, Override, Param, status
 from nicos.core.errors import LimitError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import floatrange, intrange
-from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
+    SeqSleep
 from nicos.utils import number_types
 
 
@@ -80,15 +82,16 @@ class SampleChanger(IsController, BaseSequencer):
         return True, ''
 
     def _generateSequence(self, target):
-        seq = []
-        if target != self.doRead(0):
-            seq.append(SeqDev(self._attached_push, 'up', stoppable=False))
-            seq.append(SeqSleep(self.delay))
-            seq.append(SeqSampleMotor(self._attached_motor, target,
-                                      stoppable=False))
-            seq.append(SeqSleep(self.delay))
-            seq.append(SeqDev(self._attached_push, 'down', stoppable=False))
-        return seq
+        if target == self.doRead(0):
+            return []
+        return [
+            SeqDev(self._attached_push, 'up', stoppable=False),
+            SeqSleep(self.delay),
+            SeqSampleMotor(self._attached_motor, target, stoppable=False),
+            SeqSleep(self.delay),
+            SeqDev(self._attached_push, 'down', stoppable=False),
+            SeqMethod(session.experiment.sample, 'select', target),
+        ]
 
     def doRead(self, maxage=0):
         return round(self._attached_motor.read(maxage))

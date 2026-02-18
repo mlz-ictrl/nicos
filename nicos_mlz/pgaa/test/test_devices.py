@@ -25,7 +25,7 @@
 
 import pytest
 
-from nicos.core.errors import InvalidValueError, LimitError
+from nicos.core.errors import InvalidValueError, LimitError, MoveError
 
 session_setup = 'pgaa'
 
@@ -77,6 +77,9 @@ class TestSampleChanger:
         sc = session.getDevice('sc')
         motor = sc._attached_motor
         push = sc._attached_push
+        sample = session.experiment.sample
+        for i in range(1, 6):
+            sample.set(i, {'name': f'Sample{i}'})
 
         motor.curvalue = 1
         push.maw('down')
@@ -90,7 +93,13 @@ class TestSampleChanger:
         assert sc._attached_push.read() == 'down'
         sc.maw(2)
         assert sc.read(0) == 2
+        # Check if not move if already at target
+        sc.maw(2)
+        assert sc.read(0) == 2
+        # Check for not allowed target
         pytest.raises(InvalidValueError, sc.maw, 0)
+        # Check for not existing sample
+        pytest.raises(MoveError, sc.maw, 8)
 
     def test_block_pusher(self, session):
         sc = session.getDevice('sc')
