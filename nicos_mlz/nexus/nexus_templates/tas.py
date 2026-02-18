@@ -37,14 +37,14 @@ class TasTemplateProvider(MLZTemplateProvider):
     definition = 'NXtas'
 
     def init(self, **kwargs):
-        self.sgu = kwargs.get('sgu', 'sgx')
-        self.sgl = kwargs.get('sgl', 'sgy')
-        self.stt = kwargs.get('phi', 'phi')
-        self.sth = kwargs.get('psi', 'psi')
-        self.ana = kwargs.get('ana', 'ana')
         self.mono = kwargs.get('mono', 'mono')
         self.mth = kwargs.get('mth', 'mth')
         self.mtt = kwargs.get('mtt', 'mtt')
+        self.stt = kwargs.get('phi', 'phi')
+        self.sth = kwargs.get('psi', 'psi')
+        self.sgu = kwargs.get('sgu', 'sgx')
+        self.sgl = kwargs.get('sgl', 'sgy')
+        self.ana = kwargs.get('ana', 'ana')
         self.ath = kwargs.get('ath', 'ath')
         self.att = kwargs.get('att', 'att')
         self.ei = kwargs.get('ei', 'Ei')
