@@ -24,7 +24,7 @@ for target in ('on', 'safe', 'on', 'off'):
 # Test case 2
 assert int(b_hv_offtime.read(0).split(':')[0]) < 12
 assert b_hv.read(0) == 'off'
-for target in ('safe', 'off'):
+for target in ('safe', 'off', 'on', 'off'):
     maw(b_hv, target)
     sleep(wait_time)
 
