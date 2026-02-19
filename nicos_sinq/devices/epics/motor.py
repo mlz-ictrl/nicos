@@ -58,7 +58,7 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         'connected_rbv': ':Connected',
         'encoder_type': ':EncoderType',
         'reseterrorpv': ':Reset',
-        'errormsgpv': '-MsgTxt',
+        'errormsgpv': ':ErrorMessage',
     }
 
     # Maximum allowed delay for enabling / disabling a motor before an error
@@ -133,12 +133,12 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
     def doReadErrormsgpv(self):
         if pv := self._config.get('errormsgpv', None):
             return pv
-        return pvname(self.motorpv + '-MsgTxt')
+        return pvname(self.motorpv + self._extension_records.get('errormsgpv'))
 
     def doReadReseterrorpv(self):
         if pv := self._config.get('reseterrorpv', None):
             return pv
-        return pvname(self.motorpv + ':Reset')
+        return pvname(self.motorpv + self._extension_records.get('reseterrorpv'))
 
     def doEnable(self, on):
 
