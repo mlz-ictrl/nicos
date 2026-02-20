@@ -1,0 +1,161 @@
+description = 'Devices for the detectors'
+## TODO: Time and monitors are not counting, preset is not working
+
+group = 'lowlevel'
+
+pvprefix = 'SQ:SANS-LLB:DAQ'
+
+# channels = ['monitor2', 'protoncount']
+
+# TODO temporarily want to be able to select all channels
+channels = ['monitor0', 'monitor1', 'monitor2', 'protoncount']
+
+sysconfig = dict(datasinks = ['nxsink'])
+
+devices = dict(
+    elapsedtime = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQTime',
+        daqpvprefix = pvprefix,
+    ),
+    protoncount = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor for proton current',
+        daqpvprefix = pvprefix,
+        channel = 1,
+        type = 'monitor',
+    ),
+    monitor0 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor up-stream of main shutter',
+        daqpvprefix = pvprefix,
+        channel = 2,
+        type = 'monitor',
+    ),
+    monitor1 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor down-stream of instrument shutter',
+        daqpvprefix = pvprefix,
+        channel = 3,
+        type = 'monitor',
+    ),
+    monitor2 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
+        description = 'Monitor before the attenuator wheel',
+        daqpvprefix = pvprefix,
+        channel = 4,
+        type = 'monitor',
+    ),
+    hardware_preset = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQPreset',
+        description = 'In-hardware Time/Count Preset',
+        daqpvprefix = pvprefix,
+        channels = channels,
+        time_channel = 'elapsedtime',
+    ),
+    ThresholdChannel = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThresholdChannel',
+        daqpvprefix = pvprefix,
+        channels = channels,
+        visibility = {'metadata', 'namespace'},
+    ),
+    Threshold = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThreshold',
+        daqpvprefix = pvprefix,
+        min_rate_channel = 'ThresholdChannel',
+        visibility = {'metadata', 'namespace'},
+    ),
+    Gate1 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQGate',
+        daqpvprefix = pvprefix,
+        channel = 1,
+        visibility = {'metadata', 'namespace'},
+    ),
+    Gate2 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQGate',
+        daqpvprefix = pvprefix,
+        channel = 2,
+        visibility = {'metadata', 'namespace'},
+    ),
+    det_image = device('nicos_sinq.devices.just_bin_it.JustBinItImage',
+        description = 'Detector image channel',
+        hist_topic = configdata('config.JUST_BIN_IT_HISTOGRAMS_TOPIC'),
+        data_topic = configdata('config.JUST_BIN_IT_DATA_TOPIC'),
+        command_topic = configdata('config.JUST_BIN_IT_COMMANDS_TOPIC'),
+        brokers = configdata('config.KAFKA_BROKERS'),
+        unit = 'cts',
+        hist_type = '2-D SANSLLB',
+        det_width = 182, # this configures the actual binnin along the wire axes from continous values #det_width = 512,
+        det_height = 160,
+        det_range = (0, 160 * 182), # (0, 160 * 512),
+        visibility={'metadata', 'namespace'},
+        ),
+    det_main = device('nicos_sinq.sans_llb.devices.detector.RotateCutImage',
+        description = 'Cut main detector out of raw detector data',
+        raw_image = 'det_image',
+        x = 0,
+        ntubes = 128,
+        ymin = 27,
+        ymax = 154,
+        #ymin = 76,
+        #ymax = 436,
+    ),
+    det_lower = device('nicos_sinq.sans_llb.devices.detector.RotateCutImage',
+        description = 'Cut lower detector out of raw detector data',
+        raw_image = 'det_image',
+        x = 128,
+        ntubes = 16,
+        #ymin = 64,
+        #ymax = 448,
+        ymin = 23,
+        ymax = 158,
+    ),
+    det_side = device('nicos_sinq.sans_llb.devices.detector.CutImage',
+        description = 'Cut side detector out of raw detector data',
+        raw_image = 'det_image',
+        x = 144,
+        ntubes = 16,
+        #ymin = 64,
+        #ymax = 448,
+        ymin = 23,
+        ymax = 158,
+    ),
+    roi1 = device("nicos.devices.generic.detector.RectROIChannel",
+        description = "ROI 1 - Full Image Range",
+        roi = (0, 196, 128, 128),
+        fmtstr = '%d',
+        unit = 'cts',
+    ),
+    roi2 = device("nicos.devices.generic.detector.RectROIChannel",
+        description = "ROI 2 - Main Detector Range",
+        roi = (52, 52, 20, 20),
+        fmtstr = '%d',
+        unit = 'cts',
+    ),
+    sansllbdet = device('nicos_sinq.devices.epics.sinqdaq.SinqDetector',
+        description = 'SANS-LLB detector that counts neutrons and '
+        'starts streaming events',
+        timers = ['elapsedtime'],
+        monitors = ['hardware_preset', 'monitor0', 'monitor1', 'monitor2', 'protoncount'],
+        images = ['det_image', 'det_main', 'det_lower', 'det_side'],
+        counters = ['roi1', 'roi2'],
+        others = [],
+        postprocess = [('roi1', 'det_image'), ('roi2', 'det_main')],
+        liveinterval = 5,
+        saveintervals = [60],
+        visibility = {'metadata', 'namespace'},
+    ),
+    jbi_liveview = device('nicos.devices.datasinks.LiveViewSink',
+    ),
+    histogram_cpu = device('nicos_demo.demo.devices.cpuload.ProcessCPULoad',
+        description = 'CPU utilization',
+        process_strings = ['python', 'histogrammer', 'sans-llb.ini'],
+        pollinterval = 6.0,
+        unit = 'percent',
+        fmtstr = '%d',
+        visibility = {'metadata', 'namespace'},
+    ),
+)
+
+startupcode = '''
+SetDetectors(sansllbdet)
+'''

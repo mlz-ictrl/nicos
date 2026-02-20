@@ -63,7 +63,7 @@ devices = dict(
         alias = 'slit1.width',
         devclass = 'nicos.devices.generic.slit.WidthSlitAxis'
     ),
-    sl1xc = device('nicos_sinq.sans-llb.devices.slit.InvertedXSlitAxis',
+    sl1xc = device('nicos_sinq.sans_llb.devices.slit.InvertedXSlitAxis',
         description = 'slit 1 x center position',
         slit = 'slit1',
         unit = 'mm',
@@ -138,7 +138,7 @@ devices = dict(
         alias = 'slit2.width',
         devclass = 'nicos.devices.generic.slit.WidthSlitAxis'
     ),
-    sl2xc = device('nicos_sinq.sans-llb.devices.slit.InvertedXSlitAxis',
+    sl2xc = device('nicos_sinq.sans_llb.devices.slit.InvertedXSlitAxis',
         description = 'slit 2 x center position',
         slit = 'slit2',
         unit = 'mm',

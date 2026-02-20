@@ -34,7 +34,7 @@ devices = dict(
         description = 'Velocity Water Temperature',
         readpv = selprefix + 'WOUTT_RBV'
     ),
-    wavelength = device('nicos_sinq.sans-llb.devices.wavelength.SANSWL',
+    wavelength = device('nicos_sinq.sans_llb.devices.wavelength.SANSWL',
         description = 'Device which translates wavelength to'
         'VS speed',
         a = .2285,

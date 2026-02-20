@@ -26,48 +26,89 @@ import pytest
 from nicos.core.errors import NicosError
 from nicos.core.utils import multiWait
 
+from test.utils import ErrorLogged
+
 session_setup = 'stopo'
 
 
-def test_stored_positions(session):
+class TestStoredPositions:
 
-    v1 = session.getDevice('v1')
-    v1.precision = .1
-    v3 = session.getDevice('v3')
-    v3.precision = .1
+    @pytest.fixture(autouse=True)
+    def stopo(self, session):
+        v1 = session.getDevice('v1')
+        v1.speed = 0
+        v1.precision = .1
+        v3 = session.getDevice('v3')
+        v3.precision = .1
 
-    stopo = session.getDevice('stopo')
+        stopo = session.getDevice('stopo')
 
-    v1.start(3.3)
-    v3.start(7.7)
-    multiWait([v1, v3])
+        v1.start(3.3)
+        v3.start(7.7)
+        multiWait([v1, v3])
 
-    stopo.define_position('p1', ('v1', 2.2), ('v3', 5.5))
-    stopo.define_position('p2', v1, v3)
-    stopo.define_position('p3', v1=1.7, v3=8.4)
+        yield stopo
 
-    stopo.maw('p1')
-    assert abs(v1.read(0)-2.2) < v1.precision
-    assert abs(v3.read(0)-5.5) < v3.precision
-    assert stopo.read(0) == 'p1'
+        stopo.clear()
 
-    stopo.maw('p2')
-    assert abs(v1.read(0)-3.3) < v1.precision
-    assert abs(v3.read(0)-7.7) < v3.precision
-    assert stopo.read(0) == 'p2'
+    def test_defines_fails(self, session, stopo):
+        pytest.raises(ErrorLogged, stopo.define_position, 'p1', ('v4', 2.2), ('v3', 5.5))
+        pytest.raises(ErrorLogged, stopo.define_position, 'p3', ('v1', 7), ('v3', 8.4))
 
-    stopo.maw('p3')
-    assert abs(v1.read(0)-1.7) < v1.precision
-    assert abs(v3.read(0)-8.4) < v3.precision
-    assert stopo.read(0) == 'p3'
+    def test_undefined_positions(self, stopo):
+        pytest.raises(NicosError, stopo.maw, 'gurke')
 
-    with pytest.raises(NicosError):
-        stopo.maw('gurke')
+    def test_stop(self, stopo):
+        stopo.stop()
 
-    stopo.delete('p1')
-    with pytest.raises(NicosError):
-        stopo.maw('p1')
+    def test_undefined_pos(self, session, stopo):
+        v1 = session.getDevice('v1')
 
-    stopo.clear()
-    with pytest.raises(NicosError):
-        stopo.maw('p2')
+        pytest.raises(NicosError, stopo.move, 'p1')
+        stopo.define_position('p1', ('v1', 2.2), ('v3', 5.5))
+
+        v1.maw(1)
+        assert stopo.read(0) == 'Undefined'
+
+    def test_stored_positions(self, session, log, stopo):
+        v1 = session.getDevice('v1')
+        v3 = session.getDevice('v3')
+
+        stopo.define_position('p1', ('v1', 2.2), ('v3', 5.5))
+        stopo.define_position('p2', v1, v3)
+        stopo.define_position('p3', v1=1.7, v3=8.4)
+
+        with log.assert_msg_matches([
+            r'Name  Device positions',
+            r'====  ==========================',
+            r"p1    \[\('v1', 2.2\), \('v3', 5.5\)\]",
+            r"p2    \[\('v1', 3.3\), \('v3', 7.7\)\]",
+            r"p3    \[\('v1', 1.7\), \('v3', 8.4\)\]",
+        ]):
+            stopo.show()
+
+        for target in ('p1', 'p2', 'p3'):
+            stopo.maw(target)
+            assert stopo.read(0) == target
+            assert v1.isAtTarget()
+            assert v3.isAtTarget()
+            stopo.stop()
+
+        stopo.delete('p1')
+        with log.assert_msg_matches([
+            r'Name  Device positions',
+            r'====  ==========================',
+            r"p2    \[\('v1', 3.3\), \('v3', 7.7\)\]",
+            r"p3    \[\('v1', 1.7\), \('v3', 8.4\)\]",
+        ]):
+            stopo.show()
+
+        pytest.raises(NicosError, stopo.maw, 'p1')
+
+        stopo.clear()
+        with log.assert_msg_matches([
+            r'Name  Device positions',
+            r'====  ================',
+        ]):
+            stopo.show()
+        pytest.raises(NicosError, stopo.maw, 'p2')

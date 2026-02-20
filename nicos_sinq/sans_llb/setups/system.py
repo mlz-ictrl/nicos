@@ -56,6 +56,6 @@ devices = dict(
         description = 'Sink for NeXus file writer',
         filenametemplate = ['sans-llb%(year)04dn%(scancounter)06d.hdf'],
         templateclass =
-        'nicos_sinq.sans-llb.nexus.nexus_templates.SANSLLBTemplateProvider',
+        'nicos_sinq.sans_llb.nexus.nexus_templates.SANSLLBTemplateProvider',
     ),
 )

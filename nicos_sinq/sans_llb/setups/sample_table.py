@@ -35,7 +35,7 @@ devices = dict(
         description = 'Sample chnager position',
         motorpv = pvprefix + 'spos',
     ),
-    schanger = device('nicos_sinq.sans-llb.devices.sample_switcher.SampleSwitcher',
+    schanger = device('nicos_sinq.sans_llb.devices.sample_switcher.SampleSwitcher',
         description = 'Sample ID to select',
         switch_axis = 'spos',
         perp_axis = 'sty',

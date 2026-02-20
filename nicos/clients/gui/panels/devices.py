@@ -984,8 +984,9 @@ class ControlDialog(QDialog):
             self.device_panel.exec_command('stop(%s)' % self.devrepr,
                                            immediate=True)
 
-        self.moveBtns.addButton(
-            'Reset', QDialogButtonBox.ButtonRole.ResetRole).clicked.connect(reset)
+        if 'nicos.core.device.Readable' in classes:
+            self.moveBtns.addButton(
+                'Reset', QDialogButtonBox.ButtonRole.ResetRole).clicked.connect(reset)
 
         if 'nicos.core.device.Moveable' in classes or \
            'nicos.core.device.Measurable' in classes:

@@ -49,7 +49,7 @@ devices = dict(
         bottom = 'sl0yn',
         visibility = (),
     ),
-    sl0xc = device('nicos_sinq.sans-llb.devices.slit.InvertedXSlitAxis',
+    sl0xc = device('nicos_sinq.sans_llb.devices.slit.InvertedXSlitAxis',
         description = 'slit 0 x center position',
         slit = 'slit0',
         unit = 'mm',

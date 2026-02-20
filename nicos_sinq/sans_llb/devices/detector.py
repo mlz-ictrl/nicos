@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from nicos.core import Attach, Param, Value
+from nicos.core import Attach, listof, Override, Param, Value
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
 from nicos_sinq.devices.imagesink import HistogramDesc, HistogramDimDesc
@@ -41,10 +41,15 @@ class RotateCutImage(ImageChannelMixin, PassiveChannel):
     parameters = {
         'x': Param('start x for cutting', type=int),
         'ntubes': Param('Number of tubes to cut', type=int),
+        'ymin': Param('begin of active pixel area', type=int, default=0),
+        'ymax': Param('end of active pixel area', type=int, default=511),
     }
 
     attached_devices = {
         'raw_image': Attach('image to cut data from', devclass=JustBinItImage),
+    }
+    parameter_overrides = {
+        'readresult': Override(type=listof(int)),
     }
 
     def doReadArray(self, quality):
@@ -52,7 +57,7 @@ class RotateCutImage(ImageChannelMixin, PassiveChannel):
         if isinstance(raw_data, np.ndarray):
             rot_data = np.rot90(raw_data, k=3)
             # interchanged axis order after rotation
-            result = rot_data[self.x:self.x+self.ntubes, 0:]
+            result = rot_data[self.x:self.x+self.ntubes, self.ymin:self.ymax+1]
             self.readresult = [result.sum()]
             return result
         else:
@@ -64,12 +69,12 @@ class RotateCutImage(ImageChannelMixin, PassiveChannel):
     def arraydesc(self):
         return HistogramDesc(self.name, 'uint32', [
             HistogramDimDesc(self.ntubes, 'tubes', ''),
-            HistogramDimDesc(self._attached_raw_image.det_width,
+            HistogramDimDesc(min(self._attached_raw_image.det_width, self.ymax-self.ymin+1),
                              'positions', '')
         ])
 
     def valueInfo(self):
-        return Value(self.name, type='counter', unit=self.unit),
+        return Value(self.name, type='counter', unit=self.unit, fmtstr='%d'),
 
 
 class CutImage(ImageChannelMixin, PassiveChannel):
@@ -82,16 +87,21 @@ class CutImage(ImageChannelMixin, PassiveChannel):
     parameters = {
         'x': Param('start x for cutting', type=int),
         'ntubes': Param('Number of tubes to cut', type=int),
+        'ymin': Param('begin of active pixel area', type=int, default=0),
+        'ymax': Param('end of active pixel area', type=int, default=511),
     }
 
     attached_devices = {
         'raw_image': Attach('image to cut data from', devclass=JustBinItImage),
     }
+    parameter_overrides = {
+        'readresult': Override(type=listof(int)),
+    }
 
     def doReadArray(self, quality):
         raw_data = self._attached_raw_image.doReadArray(quality)
         if isinstance(raw_data, np.ndarray):
-            result = raw_data[0:, self.x:self.x+self.ntubes]
+            result = raw_data[self.ymin:self.ymax+1, self.x:self.x+self.ntubes]
             self.readresult = [result.sum()]
             return result
         else:
@@ -102,7 +112,7 @@ class CutImage(ImageChannelMixin, PassiveChannel):
     @property
     def arraydesc(self):
         return HistogramDesc(self.name, 'uint32', [
-            HistogramDimDesc(self._attached_raw_image.det_width,
+            HistogramDimDesc(min(self._attached_raw_image.det_width, self.ymax-self.ymin+1),
                              'positions', ''),
             HistogramDimDesc(self.ntubes, 'tubes', '')
         ])
@@ -111,4 +121,4 @@ class CutImage(ImageChannelMixin, PassiveChannel):
         return self._attached_raw_image.det_width, self.ntubes
 
     def valueInfo(self):
-        return Value(self.name, type='counter', unit=self.unit),
+        return Value(self.name, type='counter', unit=self.unit, fmtstr='%d'),
