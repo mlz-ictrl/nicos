@@ -24,8 +24,8 @@
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DeviceDataset, NXLink
 
-from nicos_mlz.nexus import CounterMonitor, Filter, SampleEnv, Slit, \
-    SollerCollimator, TimerMonitor, mm
+from nicos_mlz.nexus import CounterMonitor, Filter, Slit, SollerCollimator, \
+    TimerMonitor, mm
 from nicos_mlz.nexus.templates import TasTemplateProvider
 
 sample_std = {
@@ -134,23 +134,6 @@ class PumaTemplateProvider(TasTemplateProvider):
         if monitor != 'timer':
             self._entry['control:NXmonitor'].update({
                 'type': NXLink(f'{monitor_link}/type'),
-            })
-
-    def updateSample(self):
-        TasTemplateProvider.updateSample(self)
-        temp_env = ['T', 'Ts', ]
-        if any(e in session.devices for e in temp_env):
-            self._sample.update({
-                'temperature_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(temp_env),
-                },
-            })
-        magfield_env = ['B']
-        if any(e in session.devices for e in magfield_env):
-            self._sample.update({
-                'magnetic_field_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(magfield_env),
-                },
             })
 
     def completeTemplate(self):

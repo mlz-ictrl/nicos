@@ -37,6 +37,7 @@ class TasTemplateProvider(MLZTemplateProvider):
     definition = 'NXtas'
 
     def init(self, **kwargs):
+        MLZTemplateProvider.init(self, **kwargs)
         self.mono = kwargs.get('mono', 'mono')
         self.mth = kwargs.get('mth', 'mth')
         self.mtt = kwargs.get('mtt', 'mtt')
@@ -129,6 +130,7 @@ class TasTemplateProvider(MLZTemplateProvider):
             'sgx': NXLink('sgu'),
             'sgy': NXLink('sgl'),
         })
+        MLZTemplateProvider.updateSample(self)
 
     def updateData(self):
         self._entry['data:NXdata'].update({

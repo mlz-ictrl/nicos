@@ -36,6 +36,7 @@ class ScanTemplateProvider(MLZTemplateProvider):
     definition = 'NXscan'
 
     def init(self, **kwargs):
+        MLZTemplateProvider.init(self, **kwargs)
         self.sample = kwargs.get('sample', 'sample')
         self.omgs = kwargs.get('omgs')
         self.detector = kwargs.get('detector', 'det')
@@ -74,3 +75,4 @@ class ScanTemplateProvider(MLZTemplateProvider):
             self._sample.update({
                 'rotation_angle': ConstDataset(0, dtype='float'),
             })
+        MLZTemplateProvider.updateSample(self)

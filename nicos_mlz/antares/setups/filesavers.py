@@ -11,7 +11,7 @@ devices = dict(
         filenametemplate = ['%(pointcounter)08d.fits'],
         filemode = 0o440,
     ),
-    nxsink = device('nicos.nexus.NexusSink',
+    nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass = 'nicos_mlz.nexus.templates.TomoTemplateProvider',
         filenametemplate = ['%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },

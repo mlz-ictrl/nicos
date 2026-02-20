@@ -67,6 +67,7 @@ class TofTofTemplate(MLZTemplateProvider):
     definition = 'NXdirecttof'
 
     def init(self, **kwargs):
+        MLZTemplateProvider.init(self, **kwargs)
         self.detector = kwargs.get('detector', 'det')
         self.monitor = kwargs.get('monitor', 'monitor')
         self.timer = kwargs.get('timer', 'timer')
@@ -156,6 +157,7 @@ class TofTofTemplate(MLZTemplateProvider):
             # 'total_counts': SampleCounts(),
             # 'total_count_rate': SampleCountRate(),
         })
+        MLZTemplateProvider.updateSample(self)
 
     def completeTemplate(self):
         MLZTemplateProvider.completeTemplate(self)

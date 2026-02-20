@@ -27,7 +27,7 @@ from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
     NXAttribute, NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Polarizer, \
-    SampleEnv, Selector, TimerMonitor
+    Selector, TimerMonitor
 from nicos_mlz.nexus.structures import signal
 
 all_devices_dict = {
@@ -75,9 +75,6 @@ class ResedaTemplateProvider(MLZTemplateProvider):
 
     entry = 'entry1'
     definition = 'NXsastof'
-
-    temp_env = ['T', 'Ts', ]
-    magnet_env = ['B']
 
     def updateInstrument(self):
         selectorlink = f'/{self.entry}/{self.instrument}/monochromator/velocity_selector'
@@ -179,20 +176,6 @@ class ResedaTemplateProvider(MLZTemplateProvider):
             'signal': 'data',
             'data': NXLink(f'/{self.entry}/{self.instrument}/detector/data'),
         })
-
-    def updateSample(self):
-        if any(e in session.devices for e in self.temp_env):
-            self._sample.update({
-                'temperature_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(self.temp_env),
-                },
-            })
-        if any(e in session.devices for e in self.magnet_env):
-            self._sample.update({
-                'magnetic_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(self.magnet_env),
-                },
-            })
 
     def completeTemplate(self):
         MLZTemplateProvider.completeTemplate(self)

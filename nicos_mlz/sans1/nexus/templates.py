@@ -26,7 +26,7 @@ from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
     NXAttribute, NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Polarizer, \
-    SampleEnv, Selector, SollerCollimator, TimerMonitor, signal
+    Selector, SollerCollimator, TimerMonitor, signal
 
 
 def BeamStop():
@@ -42,9 +42,6 @@ class SANSTemplateProvider(MLZTemplateProvider):
 
     # entry = 'entry1'
     definition = 'NXsas'
-
-    temp_env = ['T', 'Ts', ]
-    magnet_env = ['B']
 
     def updateInstrument(self):
         self._inst.update({
@@ -117,20 +114,6 @@ class SANSTemplateProvider(MLZTemplateProvider):
         if monitor != 'timer':
             self._entry['control:NXmonitor'].update({
                 'type': NXLink(f'{monitor_link}/type'),
-            })
-
-    def updateSample(self):
-        if any(e in session.devices for e in self.temp_env):
-            self._sample.update({
-                'temperature_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(self.temp_env),
-                },
-            })
-        if any(e in session.devices for e in self.magnet_env):
-            self._sample.update({
-                'magnetic_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(self.magnet_env),
-                },
             })
 
     def updateData(self):

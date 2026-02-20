@@ -29,7 +29,7 @@ from nicos.nexus.elements import ConstDataset, DeviceDataset, EndTime, \
 from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 from nicos.nexus.specialelements import NicosProgramDataset
 
-from nicos_mlz.nexus import LocalContact, ReactorSource, User
+from nicos_mlz.nexus import LocalContact, ReactorSource, SampleEnv, User
 
 NeXus_version = NXAttribute('4.4.3', 'string')
 NXDL_version = NXAttribute('v2024.02', 'string')
@@ -44,6 +44,12 @@ class MLZTemplateProvider(NexusTemplateProvider):
     version = '1.0'
     definition = ''
     source = 'source'
+
+    def init(self, **kwargs):
+        self.temp_env = kwargs.get('temp_env', ['T', 'Ts', ])
+        self.magnet_env = kwargs.get('magnet_env', ['B'])
+        self.stress_env = kwargs.get('stress_env', ['teload', 'tepos', 'teext', ])
+        self.efield_env = kwargs.get('efield_env', [])
 
     def getBase(self):
 
@@ -102,7 +108,30 @@ class MLZTemplateProvider(NexusTemplateProvider):
         raise NotImplementedError
 
     def updateSample(self):
-        raise NotImplementedError
+        if any(e in session.devices for e in self.temp_env):
+            self._sample.update({
+                'temperature_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(self.temp_env),
+                },
+            })
+        if any(e in session.devices for e in self.magnet_env):
+            self._sample.update({
+                'magnetic_field_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(self.magnet_env),
+                },
+            })
+        if any(e in session.devices for e in self.stress_env):
+            self._sample.update({
+                'stress_field_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(self.stress_env, 1),
+                },
+            })
+        if any(e in session.devices for e in self.efield_env):
+            self._sample.update({
+                'electric_field_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(self.efield_env),
+                },
+            })
 
     def updateUsers(self):
         self._entry.update({

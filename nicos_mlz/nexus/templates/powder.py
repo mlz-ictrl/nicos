@@ -34,6 +34,7 @@ class PowderTemplateProvider(MLZTemplateProvider):
     definition = 'NXmonopd'
 
     def init(self, **kwargs):
+        MLZTemplateProvider.init(self, **kwargs)
         self.instrument = kwargs.get('instrument', 'instrument')
         self.wav = kwargs.get('wav', 'wav')
         self.tths = kwargs.get('tths', 'tths')
@@ -63,6 +64,7 @@ class PowderTemplateProvider(MLZTemplateProvider):
         self._sample.update({
             'rotation_angle': DeviceDataset(self.omgs, dtype='float'),
         })
+        MLZTemplateProvider.updateSample(self)
 
     def updateData(self):
         self._entry['data:NXdata'].update({

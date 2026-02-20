@@ -44,7 +44,7 @@ devices = dict(
         description = 'Currently used sample',
         lattice = [4.05, 4.05, 4.05],
     ),
-    nxtassink = device('nicos.nexus.NexusSink',
+    nxtassink = device('nicos_mlz.nexus.NexusSink',
         templateclass = 'nicos_mlz.puma.nexus.templates.PumaTemplateProvider',
         filenametemplate = ['tpuma%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },

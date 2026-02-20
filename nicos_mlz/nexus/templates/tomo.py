@@ -33,6 +33,7 @@ class TomoTemplateProvider(MLZTemplateProvider):
     definition = 'NXtomo'
 
     def init(self, **kwargs):
+        MLZTemplateProvider.init(self, **kwargs)
         self.stx = kwargs.get('stx', 'stx')
         self.sty = kwargs.get('sty', 'sty')
         self.sry = kwargs.get('sry', 'sry')
@@ -52,6 +53,7 @@ class TomoTemplateProvider(MLZTemplateProvider):
             'x_translation': DeviceDataset(self.stx),
             'y_translation': DeviceDataset(self.sty),
         })
+        MLZTemplateProvider.updateSample(self)
 
     def updateData(self):
         self._entry['data:NXdata'].update({

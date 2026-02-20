@@ -25,7 +25,6 @@ from nicos import session
 from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset
 
 from nicos_mlz.nexus import Slit, mm, signal
-from nicos_mlz.nexus.elements import SampleEnv
 # from nicos_mlz.nexus.structures import SollerCollimator
 from nicos_mlz.nexus.templates import PowderTemplateProvider
 from nicos_mlz.stressi.devices import PreciseManualSwitch
@@ -44,9 +43,6 @@ def Gap(device):
 
 
 class StressiTemplateProvider(PowderTemplateProvider):
-
-    temp_env = ['T', 'Ts', ]
-    stress_env = ['teload', 'tepos', 'teext', ]
 
     def init(self, **kwargs):
         PowderTemplateProvider.init(self, **kwargs)
@@ -189,15 +185,3 @@ class StressiTemplateProvider(PowderTemplateProvider):
             },
             # 'chemical_formula': ,
         })
-        if any(e in session.devices for e in self.temp_env):
-            self._sample.update({
-                'temperature_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(self.temp_env),
-                },
-            })
-        if any(e in session.devices for e in self.stress_env):
-            self._sample.update({
-                'stress_field_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(self.stress_env, 1),
-                },
-            })

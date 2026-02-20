@@ -10,7 +10,7 @@ devices = dict(
         description = 'Saves image data in FITS format',
         filenametemplate = ['%(pointcounter)08d.fits'],
     ),
-    nxsink = device('nicos.nexus.NexusSink',
+    nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass = 'nicos_mlz.nexus.templates.TomoTemplateProvider',
         filenametemplate = ['nectar%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },
