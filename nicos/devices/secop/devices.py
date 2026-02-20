@@ -629,9 +629,11 @@ class SecNodeDevice(Readable):
                 kwds['visibility'] = ()
             if 'ignore_general_stop' in cls.parameters:
                 kwds['ignore_general_stop'] = module in general_stop_blacklist
+            mdescription = mod_desc.get('properties', {}).get('description', '')
+            # a nicos description should only have one line, strip the rest
+            mdescription = mdescription.split('\n', 1)[0]
             desc = dict(secnode=self.name,
-                        description=mod_desc.get('properties', {}).get(
-                            'description', ''),
+                        description=mdescription,
                         secop_module=module,
                         params_cfg=params_cfg,
                         commands_cfg=commands_cfg,
