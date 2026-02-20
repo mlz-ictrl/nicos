@@ -23,11 +23,10 @@
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
-    NexusSampleEnv, NXAttribute, NXLink
+    NXAttribute, NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Polarizer, \
-    SollerCollimator, Selector, TimerMonitor, signal
-from nicos_sinq.nexus.specialelements import OptionalDeviceDataset
+    SampleEnv, Selector, SollerCollimator, TimerMonitor, signal
 
 
 def BeamStop():
@@ -39,44 +38,13 @@ def BeamStop():
     }
 
 
-sample_common = {
-    'hugo': NexusSampleEnv(),
-    'temperature': DeviceDataset('temperature', 'value', defaultval=0.0),
-    'magfield': DeviceDataset('magfield', 'value', defaultval=0.0),
-    'aequatorial_angle': ConstDataset(0, 'float',
-                                      units=NXAttribute('degree', 'string')),
-    'stick_rotation': OptionalDeviceDataset('dom'),
-}
-
-sample_std = {
-    'x_position': DeviceDataset('xo'),
-    'x_null': DeviceDataset('xo', 'offset'),
-    'x_position_lower': DeviceDataset('xu'),
-    'x_null_lower': DeviceDataset('xu', 'offset'),
-    'y_position': DeviceDataset('yo'),
-    'y_null': DeviceDataset('yo', 'offset'),
-    'z_position': DeviceDataset('z'),
-    'z_null': DeviceDataset('z', 'offset'),
-    'omega': DeviceDataset('sg'),
-    'omega_null': DeviceDataset('sg', 'offset'),
-    'a3': DeviceDataset('a3'),
-    'a3_null': DeviceDataset('a3', 'offset'),
-    'position': DeviceDataset('spos'),
-    'position_null': DeviceDataset('spos', 'offset'),
-}
-
-sample_magnet = {
-    'magnet_omega': DeviceDataset('mom'),
-    'magnet_omega_null': DeviceDataset('mom', 'offset'),
-    'magnet_z': DeviceDataset('mz'),
-    'magnet_z_null': DeviceDataset('mz', 'offset'),
-}
-
-
 class SANSTemplateProvider(MLZTemplateProvider):
 
     # entry = 'entry1'
     definition = 'NXsas'
+
+    temp_env = ['T', 'Ts', ]
+    magnet_env = ['B']
 
     def updateInstrument(self):
         self._inst.update({
@@ -152,13 +120,18 @@ class SANSTemplateProvider(MLZTemplateProvider):
             })
 
     def updateSample(self):
-        # if 'sample' in session.loaded_setups:
-        #     self._sample.update(dict(sample_common, **sample_std))
-        # elif 'emagnet_sample' in session.loaded_setups:
-        #     self._sample.update(dict(sample_common, **sample_magnet))
-        # else:
-        #     self._sample.update(sample_common)
-        pass
+        if any(e in session.devices for e in self.temp_env):
+            self._sample.update({
+                'temperature_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(self.temp_env),
+                },
+            })
+        if any(e in session.devices for e in self.magnet_env):
+            self._sample.update({
+                'magnetic_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(self.magnet_env),
+                },
+            })
 
     def updateData(self):
         pass

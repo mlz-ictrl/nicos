@@ -45,6 +45,9 @@ def Gap(device):
 
 class StressiTemplateProvider(PowderTemplateProvider):
 
+    temp_env = ['T', 'Ts', ]
+    stress_env = ['teload', 'tepos', 'teext', ]
+
     def init(self, **kwargs):
         PowderTemplateProvider.init(self, **kwargs)
         self.xs = kwargs.get('xs', 'xt')
@@ -184,17 +187,15 @@ class StressiTemplateProvider(PowderTemplateProvider):
             },
             # 'chemical_formula': ,
         })
-        temp_env = ['T', 'Ts', ]
-        if any(e in session.devices for e in temp_env):
+        if any(e in session.devices for e in self.temp_env):
             self._sample.update({
                 'temperature_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(temp_env),
+                    'value_log:NXlog': SampleEnv(self.temp_env),
                 },
             })
-        stress_env = ['teload', 'tepos', 'teext', ]
-        if any(e in session.devices for e in stress_env):
+        if any(e in session.devices for e in self.stress_env):
             self._sample.update({
                 'stress_field_env:NXenvironment': {
-                    'value_log:NXlog': SampleEnv(stress_env, 1),
+                    'value_log:NXlog': SampleEnv(self.stress_env, 1),
                 },
             })

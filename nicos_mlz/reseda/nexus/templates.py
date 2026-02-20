@@ -24,12 +24,11 @@
 from nicos import session
 from nicos.core.device import Readable
 from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
-    NexusSampleEnv, NXAttribute, NXLink
+    NXAttribute, NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Polarizer, \
-    Selector, TimerMonitor
+    SampleEnv, Selector, TimerMonitor
 from nicos_mlz.nexus.structures import signal
-from nicos_sinq.nexus.specialelements import OptionalDeviceDataset
 
 all_devices_dict = {
     key: val for key, val in session.devices.items()
@@ -72,35 +71,13 @@ for key in list(all_devices_dict.keys()):
         all_devices_dict.pop(key)
 
 
-sample_std = {
-    'x_position': DeviceDataset('xo'),
-    'x_null': DeviceDataset('xo', 'offset'),
-    'x_position_lower': DeviceDataset('xu'),
-    'x_null_lower': DeviceDataset('xu', 'offset'),
-    'y_position': DeviceDataset('yo'),
-    'y_null': DeviceDataset('yo', 'offset'),
-    'z_position': DeviceDataset('z'),
-    'z_null': DeviceDataset('z', 'offset'),
-    'omega': DeviceDataset('sg'),
-    'omega_null': DeviceDataset('sg', 'offset'),
-    'a3': DeviceDataset('a3'),
-    'a3_null': DeviceDataset('a3', 'offset'),
-    'position': DeviceDataset('spos'),
-    'position_null': DeviceDataset('spos', 'offset'),
-}
-
-sample_magnet = {
-    'magnet_omega': DeviceDataset('mom'),
-    'magnet_omega_null': DeviceDataset('mom', 'offset'),
-    'magnet_z': DeviceDataset('mz'),
-    'magnet_z_null': DeviceDataset('mz', 'offset'),
-}
-
-
 class ResedaTemplateProvider(MLZTemplateProvider):
 
     entry = 'entry1'
     definition = 'NXsastof'
+
+    temp_env = ['T', 'Ts', ]
+    magnet_env = ['B']
 
     def updateInstrument(self):
         selectorlink = f'/{self.entry}/{self.instrument}/monochromator/velocity_selector'
@@ -204,18 +181,18 @@ class ResedaTemplateProvider(MLZTemplateProvider):
         })
 
     def updateSample(self):
-        self._sample.update({
-            'hugo': NexusSampleEnv(),
-            'temperature': DeviceDataset('temperature', defaultval=0.0),
-            'magfield': DeviceDataset('magfield', defaultval=0.0),
-            'aequatorial_angle': ConstDataset(
-                0, 'float', units=NXAttribute('degree', 'string')),
-            'stick_rotation': OptionalDeviceDataset('dom'),
-        })
-        if 'sample' in session.loaded_setups:
-            self._sample.update(sample_std)
-        elif 'emagnet_sample' in session.loaded_setups:
-            self._sample.update(sample_magnet)
+        if any(e in session.devices for e in self.temp_env):
+            self._sample.update({
+                'temperature_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(self.temp_env),
+                },
+            })
+        if any(e in session.devices for e in self.magnet_env):
+            self._sample.update({
+                'magnetic_env:NXenvironment': {
+                    'value_log:NXlog': SampleEnv(self.magnet_env),
+                },
+            })
 
     def completeTemplate(self):
         MLZTemplateProvider.completeTemplate(self)
