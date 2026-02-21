@@ -342,6 +342,11 @@
     </widget>
    </item>
   </layout>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset device</string>
+   </property>
+  </action>
   <action name="actionSetLimits">
    <property name="text">
     <string>Set limits...</string>

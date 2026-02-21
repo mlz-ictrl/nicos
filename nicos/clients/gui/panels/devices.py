@@ -957,6 +957,8 @@ class ControlDialog(QDialog):
             menu.addAction(self.actionSetLimits)
         if 'nicos.core.mixins.HasOffset' in classes:
             menu.addAction(self.actionAdjustOffset)
+        if 'nicos.core.device.Readable' in classes:
+            menu.addAction(self.actionReset)
         if 'nicos.devices.abstract.CanReference' in classes:
             menu.addAction(self.actionReference)
         if 'nicos.devices.abstract.Coder' in classes:
@@ -977,16 +979,9 @@ class ControlDialog(QDialog):
             self.moveBtns.addButton(menuBtn,
                                     QDialogButtonBox.ButtonRole.ResetRole)
 
-        def reset(checked):
-            self.device_panel.exec_command('reset(%s)' % self.devrepr)
-
         def stop(checked):
             self.device_panel.exec_command('stop(%s)' % self.devrepr,
                                            immediate=True)
-
-        if 'nicos.core.device.Readable' in classes:
-            self.moveBtns.addButton(
-                'Reset', QDialogButtonBox.ButtonRole.ResetRole).clicked.connect(reset)
 
         if 'nicos.core.device.Moveable' in classes or \
            'nicos.core.device.Measurable' in classes:
@@ -1149,6 +1144,10 @@ class ControlDialog(QDialog):
     @pyqtSlot()
     def on_actionReference_triggered(self):
         self.device_panel.exec_command('reference(%s)' % self.devrepr)
+
+    @pyqtSlot()
+    def on_actionReset_triggered(self):
+        self.device_panel.exec_command('reset(%s)' % self.devrepr)
 
     @pyqtSlot()
     def on_actionFix_triggered(self):
