@@ -24,8 +24,7 @@
 """Support classes for the CCR ControlBoxes"""
 
 from nicos.core import SIMULATION, Attach, ConfigurationError, HasLimits, \
-    InvalidValueError, Moveable, Override, Param, ProgrammingError, \
-    floatrange, oneof
+    InvalidValueError, Moveable, Override, Param, floatrange, oneof
 from nicos.utils import clamp
 
 
@@ -43,6 +42,9 @@ class CCRControl(HasLimits, Moveable):
       while the stick regulates.
 
     """
+
+    hardware_access = False
+
     attached_devices = {
         'stick': Attach('Temperature controller for the stick', Moveable),
         'tube':  Attach('Temperature controller for the outer ccr/tube',
@@ -69,9 +71,6 @@ class CCRControl(HasLimits, Moveable):
 
     def doInit(self, mode):
         if mode != SIMULATION:
-            if self._attached_stick is None or self._attached_tube is None:
-                raise ConfigurationError(self, 'Both stick and tube needs to '
-                                         'be set for this device!')
             absmin = min(self._attached_tube.absmin, self._attached_stick.absmin)
             absmax = self._attached_stick.absmax
             self._setROParam('abslimits', (absmin, absmax))
@@ -110,12 +109,9 @@ class CCRControl(HasLimits, Moveable):
                 self.__start_tube_stick(max(self._attached_tube.absmin, 0), target)
             elif self.regulationmode == 'tube':
                 self.__start_tube_stick(target, max(self._attached_stick.absmin, 0))
-            elif self.regulationmode == 'both':
+            else:
                 self.__start_tube_stick(max(self._attached_tube.absmin, target),
                                         max(self._attached_stick.absmin, target))
-            else:
-                raise ProgrammingError(self, "unknown mode %r, don't know how"
-                                       ' to handle it!' % self.regulationmode)
         else:
             self.log.debug('ignoring mode, as target %r is above %s.absmax',
                            target, self._attached_tube.name)
@@ -127,11 +123,7 @@ class CCRControl(HasLimits, Moveable):
                 return self._attached_stick.read(maxage)
         if self.regulationmode in ('stick', 'both'):
             return self._attached_stick.read(maxage)
-        elif self.regulationmode == 'tube':
-            return self._attached_tube.read(maxage)
-        else:
-            raise ProgrammingError(self, "unknown mode %r, don't know how to "
-                                   'handle it!' % self.regulationmode)
+        return self._attached_tube.read(maxage)
 
     def doPoll(self, n, maxage):
         if n % 50 == 0:
@@ -142,8 +134,7 @@ class CCRControl(HasLimits, Moveable):
             return [self._attached_stick]
         elif self.regulationmode == 'tube':
             return [self._attached_tube]
-        elif self.regulationmode == 'both':
-            return self._adevs
+        return self._adevs
 
     #
     # Parameters
@@ -187,30 +178,29 @@ class CCRControl(HasLimits, Moveable):
         return res
 
     def doReadRamp(self):
+        ramp = self.__get_param('ramp')
         # do not return a value the validator would reject, or
         # device creation fails
-        ramp = self.__get_param('ramp')
-        # this works only for the floatrange type of the ramp parameter!
-        rampmin = self.parameters['ramp'].type.fr
-        rampmax = self.parameters['ramp'].type.to
-        if rampmin <= ramp <= rampmax:
-            return ramp
-        clampramp = clamp(ramp, rampmin, rampmax)
-        self.log.warning('Ramp parameter %.3g is outside of the allowed range '
-                         '%.3g..%.3g, setting it to %.3g',
-                         ramp, rampmin, rampmax, clampramp)
-        # clamp read value to allowed range and re-set it
-        return self.doWriteRamp(clampramp)
+        try:
+            return self.parameters['ramp'].type(ramp)
+        except ValueError:
+            # this works only for the floatrange type of the ramp parameter!
+            ramptype = self.parameters['ramp'].type
+            clampramp = clamp(ramp, ramptype.fr, ramptype.to)
+            self.log.warning('Ramp parameter %.3g is outside of the allowed '
+                             'range %.3g..%.3g, setting it to %.3g',
+                             ramp, ramptype.fr, ramptype.to, clampramp)
+            # clamp read value to allowed range and re-set it
+            return self.doWriteRamp(clampramp)
 
     def doWriteRamp(self, value):
         # this works only for the floatrange type of the ramp parameter!
-        rampmin = self.parameters['ramp'].type.fr
-        rampmax = self.parameters['ramp'].type.to
+        ramptype = self.parameters['ramp'].type
         if value == 0.0:
-            value = rampmax
+            value = ramptype.to
             self.log.warning('Ramp rate of 0 is deprecated, using %d '
                              'K/min instead', value)
-        self.__set_param('ramp', clamp(value, rampmin, rampmax))
+        self.__set_param('ramp', clamp(value, ramptype.fr, ramptype.to))
         return self.__get_param('ramp')
 
     def doWriteRegulationmode(self, value):
@@ -224,8 +214,4 @@ class CCRControl(HasLimits, Moveable):
         # take the more important one, closer to the sample.
         if self.regulationmode in ('stick', 'both'):
             return self._attached_stick.setpoint
-        elif self.regulationmode == 'tube':
-            return self._attached_tube.setpoint
-        else:
-            raise ProgrammingError(self, "unknown mode %r, don't know how to "
-                                   'handle it!' % self.regulationmode)
+        return self._attached_tube.setpoint
