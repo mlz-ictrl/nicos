@@ -1,0 +1,18 @@
+devices = dict(
+    T_stick = device('nicos.devices.generic.VirtualTemperature',
+        abslimits = (2, 600),
+        warnlimits = (0, 600),
+        speed = 6,
+        unit = 'K',
+    ),
+    T_tube = device('nicos.devices.generic.VirtualTemperature',
+        abslimits = (0, 300),
+        warnlimits = (0, 300),
+        speed = 6,
+        unit = 'K',
+    ),
+    T_ccr = device('nicos_mlz.devices.ccr.CCRControl',
+        stick = 'T_stick',
+        tube = 'T_tube',
+    ),
+)
