@@ -2,9 +2,12 @@
 
 main_window = docked(
     vsplit(
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
         # panel('nicos.clients.gui.panels.watch.WatchPanel'),
-        panel('nicos.clients.gui.panels.console.ConsolePanel'),
+        panel('nicos.clients.gui.panels.console.ConsolePanel',
+              watermark='nicos_demo/demo/gui/nicos-watermark.png',
+              hasinput=False),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right', )
