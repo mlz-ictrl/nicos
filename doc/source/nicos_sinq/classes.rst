@@ -23,8 +23,6 @@ SINQ classes
 .. module:: nicos_sinq.devices.datasinks.sinq_datasinks
 .. autoclass:: SinqNexusFileSinkHandler
 .. autoclass:: SinqNexusFileSink
-.. autoclass:: QuieckHandler
-.. autoclass:: QuieckSink
 .. autoclass:: SwitchableNexusSink
 .. autoclass:: ImageForwarderSinkHandler
 .. autoclass:: ImageForwarderSink
