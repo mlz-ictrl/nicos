@@ -24,7 +24,7 @@ includes = [
 
 devices = dict(
     WONI = device('nicos.devices.instrument.Instrument',
-        description = 'instrument object',
+        description = 'The WOnderful New Instrument',
         instrument = 'WONI',
         responsible = 'R. Esponsible <r.esponsible@hynes.org>',
         website = 'http://www.hynes.org/woni',
