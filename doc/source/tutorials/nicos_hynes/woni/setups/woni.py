@@ -1,4 +1,4 @@
-description = 'The basic WONI instrument'
+description = 'The WOnderful New instrument'
 
 group = 'basic'
 
