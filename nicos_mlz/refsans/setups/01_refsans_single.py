@@ -24,7 +24,7 @@ includes = [
     'memograph',
     'nl2b',
     'optic_elements',
-    'poti_ref',
+    # 'poti_ref',
     'prim_monitor',
     'psutil',
     'pumpstand',
