@@ -171,10 +171,18 @@ class AmorStructureTemplate(NexusStructureTemplate):
     def get_structure(self, dataset, start_time):
         template = copy.deepcopy(self._template)
         template = self._remove_optional_components(template)
-        self._add_start_time(dataset)
 
         converter = NexusTemplateConverter()
         structure = converter.convert(template, dataset.metainfo)
+
+        # Possible with new filewriter version 6:
+        # Instructs the filewriter to add start and end time to the HDF file.
+        # This is hacky, as we're modifying the JSON structure directly,
+        # but it works. ESS certainly has more elegant ways to do that, but
+        # since we're just using this at AMOR, it is probably not worth
+        # the time to improve this.
+        structure['children'][0]['children'].append(
+            {"module": "mdat", "config": {"items": ["start_time", "end_time"]}})
         return json.dumps(structure)
 
 
