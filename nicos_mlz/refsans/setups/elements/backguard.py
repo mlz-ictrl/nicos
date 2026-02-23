@@ -7,7 +7,9 @@ instrument_values = configdata('instrument.values')
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 
-adjust = ('metadata', 'devlist', 'namespace')
+adjust = ()
+#adjust = ('metadata', 'devlist', 'namespace')
+visibility = ('metadata', 'devlist', 'namespace')
 
 devices = dict(
     backguard = device(code_base + 'skew_motor.SkewMotor',
@@ -17,6 +19,7 @@ devices = dict(
         abslimits = (-30.0, 30.0),
         offset = 0,
         unit = 'mm',
+        visibility = visibility,
     ),
     backguard1 = device('nicos.devices.generic.Axis',
         description = 'Backguard axis KWS. Use this to adjust KWS-side',
@@ -27,7 +30,8 @@ devices = dict(
     backguard1_motor = device('nicos.devices.entangle.Motor',
         description = 'Backguard motor KWS. Use setPositon',
         tangodevice = tango_base + 'sample/phy_mo2/bg_1_m',
-        visibility = adjust,
+        # abslimits = (-0.5, 61.0),
+        visibility = visibility,
         unit = 'mm',
     ),
     backguard2 = device('nicos.devices.generic.Axis',
@@ -39,7 +43,8 @@ devices = dict(
     backguard2_motor = device('nicos.devices.entangle.Motor',
         description = 'Backguard motor TOFTOF. Use setPositon',
         tangodevice = tango_base + 'sample/phy_mo2/bg_2_m',
-        visibility = adjust,
+        # abslimits = (-0.5, 61.0),
+        visibility = visibility,
         unit = 'mm',
     ),
 )
