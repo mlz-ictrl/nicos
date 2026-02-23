@@ -54,7 +54,6 @@ class ConsolePanel(DefaultConsolePanel):
       order, i.e. scrolling top to bottom
     """
 
-    panelName = 'Console'
     ui = path.join('panels', 'console.ui')
 
     def __init__(self, parent, client, options):

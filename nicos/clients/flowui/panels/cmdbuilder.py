@@ -37,7 +37,6 @@ class CommandPanel(DefaultCommandPanel):
     SelectCommand widget.
     """
 
-    panelName = 'Command'
     ui = path.join(uipath, 'panels', 'ui_files', 'cmdbuilder.ui')
     frame_visible = False
 
