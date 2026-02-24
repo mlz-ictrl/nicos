@@ -118,7 +118,7 @@ devices = dict(
         errormsgpv = motbprefix + 'A6-MsgTxt',
         precision = 0.02,
     ),
-    a6 = device('nicos_sinq.eiger.devices.a6motor.A6Motor',
+    a6 = device('nicos_sinq.devices.a6motor.A6Motor',
         description = 'Analyser two theta',
         raw_motor = 'a6_raw',
         wait_period = 7,
