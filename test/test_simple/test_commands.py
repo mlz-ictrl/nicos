@@ -254,7 +254,7 @@ class TestSample:
 
 class TestDevice:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         """Prepare a clean setup for each test on device commands."""
         motor = session.getDevice('motor')
@@ -689,7 +689,7 @@ def test_notifiers(session, log):
 
 class TestEnvironment:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session, log):
         with log.assert_msg_matches([r'at the moment no standard environment '
                                      r'is set']):

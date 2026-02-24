@@ -37,7 +37,7 @@ from nicos.utils.fitting import CosineFit, ExponentialFit, GaussFit, \
     SigmoidFit, TcFit
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def fitconf(request):
     fitclass = request.param[0]
     fitparams = request.param[1]

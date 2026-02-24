@@ -63,7 +63,7 @@ class TestEpicsAreaDetector:
                 (monotonic() - start) < (preset + 1):
             sleep(0.01)
 
-    @pytest.fixture()
+    @pytest.fixture
     def reset_time(self, request):
         def fin():
             self.PVtime.put(0.01)
@@ -417,7 +417,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
 
         request.addfinalizer(fin)
 
-    @pytest.fixture()
+    @pytest.fixture
     def reset_time(self, request):
         def fin():
             self.PVtime.put(0.01)

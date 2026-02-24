@@ -34,7 +34,7 @@ session_setup = 'device'
 
 class TestDevicePriviledged:
 
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(autouse=True)
     def prepare(self, session):
         """Prepare a clean setup for each test on device commands."""
         motor = session.getDevice('mot')

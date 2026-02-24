@@ -34,6 +34,6 @@ class TestGuiClient(ClientTestMixin, NicosGuiClient):
         NicosGuiClient.__init__(self, None, print)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def guiclient(daemon):
     yield from client_with_class(TestGuiClient, 'user:user')

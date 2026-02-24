@@ -32,7 +32,7 @@ pytest.importorskip('cv2')
 from nicos.utils.gammafilter import gam_rem_adp_log, scharr_filter
 
 
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def img():
     """Return a test image read from file."""
     with np.load('test/test_basic/data/ascent.npz') as data:

@@ -544,7 +544,7 @@ def test_tupelize():
     assert list(tupelize(ilist[:4], 3)) == [('a', 1, 'b')]
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def nonexistantfile(tmpdir):
     fc1 = str(tmpdir.join('testcounter1'))
     try:
@@ -558,7 +558,7 @@ def nonexistantfile(tmpdir):
         pass
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def filecounterfile(tmpdir):
     fc = str(tmpdir.join('testcounter2'))
     with open(fc, 'w', encoding='utf-8') as f:

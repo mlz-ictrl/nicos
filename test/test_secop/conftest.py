@@ -49,7 +49,7 @@ def secnode_wait_cb():
         raise Exception('secnode failed to start within %s sec' % wait)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def secnode():
     """Start a test secnode"""
 

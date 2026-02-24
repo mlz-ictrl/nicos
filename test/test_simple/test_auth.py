@@ -110,13 +110,13 @@ class TestOAuthAuthenticator:
         Auth = OAuthAuthenticator('authenicator',
                                   tokenurl='https://unit.test/',
                                   clientid='')
-        yield Auth
+        return Auth
 
     def test_oauth_errors(self, session, OAuthAuth):
         pytest.raises(AuthenticationError, OAuthAuth.authenticate, 'user', '')
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def ListAuth(request):
     passwds = []
     for (user, pw, level) in request.function.passwd:

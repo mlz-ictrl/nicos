@@ -30,7 +30,7 @@ from nicos.core import ConfigurationError, status
 session_setup = 'oscillator'
 
 
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def osci(session):
     osci = session.getDevice('osci')
     yield osci

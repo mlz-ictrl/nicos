@@ -111,7 +111,7 @@ class MyTestFS(AbstractedFS):
         self.cmd_channel.ds.mkdirpath = path
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def ftpserver():
     """Provide a ftp server with virtual files"""
     handler = FTPTestHandler
@@ -130,7 +130,7 @@ def ftpserver():
 TEST_CONTENT = 'A test\n'
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def upload(session):
     """Provide a file to use as upload"""
     fd, t = tempfile.mkstemp(suffix='.txt')

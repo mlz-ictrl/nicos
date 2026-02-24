@@ -40,7 +40,7 @@ from test.utils import ErrorLogged
 session_setup = 'tas'
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def tas(session):
     """Create a common set up at the start of the TAS test."""
 

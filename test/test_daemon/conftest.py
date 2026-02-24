@@ -102,11 +102,11 @@ def client_with_class(client_class, auth):
         client.disconnect()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def client(daemon):
     yield from client_with_class(TestClient, 'user:user')
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def adminclient(daemon):
     yield from client_with_class(TestClient, 'admin:admin')

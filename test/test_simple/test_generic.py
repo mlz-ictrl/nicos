@@ -159,7 +159,7 @@ class TestSwitcher:
         assert sw2.status(0)[0] == status.OK
         assert sw2.read(0) == 'right'
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def relaxed_switcher(self, session):
         sw = session.getDevice('sw2')
         fallback = sw.fallback
