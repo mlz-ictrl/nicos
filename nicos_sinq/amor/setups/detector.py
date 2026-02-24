@@ -85,7 +85,8 @@ devices = dict(
                            ),
 
     jbi_liveview = device('nicos.devices.datasinks.LiveViewSink'),
-    synchronize_daq = device('nicos_sinq.amor.devices.datasinks.SyncDaqSink'),
+    synchronize_daq = device('nicos_sinq.amor.devices.datasinks.SyncDaqSink',
+                             settypes={'scan'}),
     )
 
 startupcode = '''
