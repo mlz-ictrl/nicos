@@ -40,7 +40,8 @@ main_window = tabbed(
     ('Scan Plotting',
      panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting',
-     panel('nicos.clients.gui.panels.history.HistoryPanel')),
+     panel('nicos.clients.gui.panels.history.HistoryPanel',
+           symbols=True)),
     ('Logbook',
      panel('nicos.clients.gui.panels.elog.ELogPanel')),
 )

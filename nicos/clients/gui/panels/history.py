@@ -505,6 +505,7 @@ class BaseHistoryWindow:
         self.currentPlot = None
         self.fitclass = LinearFitter
         self.fitfuncmap = {}
+        self.symbols_by_default = False
 
         self.enablePlotActions(False)
 
@@ -961,6 +962,7 @@ class BaseHistoryWindow:
     def openView(self, view):
         if not view.plot:
             view.plot = ViewPlot(self.plotFrame, self, view)
+            view.plot.setSymbols(self.symbols_by_default)
         self.viewList.setCurrentItem(view.listitem)
         self.setCurrentView(view)
 
@@ -1147,7 +1149,12 @@ class BaseHistoryWindow:
 
 
 class HistoryPanel(BaseHistoryWindow, PlotPanel):
-    """Provides a panel to show time series plots of any cache values."""
+    """Provides a panel to show time series plots of any cache values.
+
+    Options:
+
+    * ``symbols`` (default False) -- Display a symbol at every point by default.
+    """
 
     panelName = 'History viewer'
 
@@ -1162,6 +1169,7 @@ class HistoryPanel(BaseHistoryWindow, PlotPanel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
+        self.symbols_by_default = options.get('symbols', False)
         self._disconnected_since = 0
 
         self.splitter.setSizes([20, 80])
