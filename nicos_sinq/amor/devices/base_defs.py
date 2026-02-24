@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2026 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-present by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -133,7 +133,9 @@ class AmorBase(Waitable):
             self._wait_for.append(dev)
 
     def _getWaiters(self):
-        return self._wait_for
+        if self._wait_for:
+            return self._wait_for
+        return Waitable._getWaiters(self)
 
     def doRead(self, maxage = 0):
         return 0

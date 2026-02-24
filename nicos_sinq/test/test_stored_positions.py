@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2026 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-present by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -23,7 +23,7 @@
 
 import pytest
 
-from nicos.core.errors import NicosError
+from nicos.core.errors import LimitError, NicosError
 from nicos.core.utils import multiWait
 
 from test.utils import ErrorLogged
@@ -50,16 +50,36 @@ class TestStoredPositions:
         yield stopo
 
         stopo.clear()
+        v1.userlimits = v1.abslimits
 
     def test_defines_fails(self, session, stopo):
         pytest.raises(ErrorLogged, stopo.define_position, 'p1', ('v4', 2.2), ('v3', 5.5))
         pytest.raises(ErrorLogged, stopo.define_position, 'p3', ('v1', 7), ('v3', 8.4))
+        pytest.raises(ErrorLogged, stopo.define_position, 'p4', ('timer', 1))
 
     def test_undefined_positions(self, stopo):
         pytest.raises(NicosError, stopo.maw, 'gurke')
 
     def test_stop(self, stopo):
         stopo.stop()
+
+    def test_is_allowed(self, session, stopo):
+        stopo.define_position('p1', ('v1', 2.2), ('v3', 5.5))
+        assert stopo.isAllowed('p1')[0]
+        assert not stopo.isAllowed('p2')[0]
+
+        v1 = session.getDevice('v1')
+        v1.userlimits = (0, 1)
+        assert not stopo.isAllowed('p1')[0]
+
+        pytest.raises(LimitError, stopo.maw, 'p1')
+
+    def test_set_position(self, stopo):
+        stopo.positions = {'p1': (('v1', 2.2), ('v3', 5.5))}
+        pytest.raises(ErrorLogged, setattr, stopo, 'positions',
+                      {'p2': (('v1', 6), ('v3', 5.5))})
+        pytest.raises(ErrorLogged, setattr, stopo, 'positions',
+                      {'p3': (('v4', 6), ('v3', 5.5))})
 
     def test_undefined_pos(self, session, stopo):
         v1 = session.getDevice('v1')
@@ -73,6 +93,8 @@ class TestStoredPositions:
     def test_stored_positions(self, session, log, stopo):
         v1 = session.getDevice('v1')
         v3 = session.getDevice('v3')
+        assert v1() == 3.3
+        assert v3() == 7.7
 
         stopo.define_position('p1', ('v1', 2.2), ('v3', 5.5))
         stopo.define_position('p2', v1, v3)
