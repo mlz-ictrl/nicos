@@ -7,6 +7,7 @@ devices = dict(
     focus_maxi = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Camera box translation',
         motorpv = pvprefix + 'camera',
+        precision = 0.001,
     ),
     xray_tx = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'X-ray, Translation X',

@@ -21,7 +21,6 @@ devices = dict(
               right='slit_right',
               coordinates='opposite',
               opmode='centered',
-              fmtstr='%.2f',
               requires={'level': 'admin'},
               unit='mm',
               ),

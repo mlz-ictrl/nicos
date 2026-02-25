@@ -23,7 +23,6 @@ devices = dict(
     image = device('nicos_mlz.toftof.devices.tof.TOFTOFChannel',
         description = 'The TOFTOF image',
         tangodevice = tango_base + 'toftof/det/histogram',
-        timechannels = 1024,
         fmtstr = '%d',
         unit = 'cts',
         visibility = (),

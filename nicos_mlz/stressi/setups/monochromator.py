@@ -76,7 +76,6 @@ devices = dict(
         crystal = 'transm',
         base = 'tthm_r',
         plane = '100',
-        unit = 'AA',
         fmtstr = '%.2f',
         abslimits = (0.9, 2.5),
         requires = {'level': 'admin'},

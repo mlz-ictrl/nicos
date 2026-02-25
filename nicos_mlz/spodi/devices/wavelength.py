@@ -44,7 +44,7 @@ class Wavelength(HasLimits, Moveable):
     }
 
     parameter_overrides = {
-        'unit': Override(volatile=True),
+        'unit': Override(volatile=True, mandatory=False),
     }
 
     attached_devices = {

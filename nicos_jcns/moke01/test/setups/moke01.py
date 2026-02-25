@@ -64,7 +64,6 @@ devices = {
     'PS_current': device('nicos_jcns.moke01.devices.virtual.VirtualPowerSupply',
         unit = 'A',
         abslimits = (-1000, 1000),
-        ramp = 1e4,
         maxramp = 1e6,
         fmtstr = '%.1f',
     ),

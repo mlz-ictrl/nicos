@@ -148,10 +148,15 @@ class Param:
         self.ext_desc = ext_desc
         self.classname = None  # filled by DeviceMeta
 
-        if internal and mandatory:
-            raise ProgrammingError("Ambiguous parameter settings detected. "
-                                   "'internal' and 'mandatory' must be used "
-                                   "exclusively.")
+        if mandatory:
+            if internal:
+                raise ProgrammingError("Ambiguous parameter settings detected. "
+                                       "'internal' and 'mandatory' must must " \
+                                       "not be 'True' at the same time.")
+            if volatile:
+                raise ProgrammingError("Ambiguous parameter settings detected. "
+                                       "'volatile' and 'mandatory' must must " \
+                                       "not be 'True' at the same time.")
 
         if userparam is None:  # implicit settings
             self.userparam = not self.internal

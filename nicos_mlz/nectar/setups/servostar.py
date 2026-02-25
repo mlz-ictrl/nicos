@@ -10,7 +10,6 @@ devices = dict(
         pollinterval = 5,
         maxage = 12,
         userlimits = (0, 1010),
-        abslimits = (0, 1010),
         comtries = 5,
     ),
     sty = device('nicos.devices.entangle.Motor',
@@ -19,7 +18,6 @@ devices = dict(
         pollinterval = 5,
         maxage = 12,
         userlimits = (0, 580),
-        abslimits = (0, 580),
         comtries = 5,
     ),
     sry = device('nicos.devices.entangle.Motor',
@@ -28,7 +26,6 @@ devices = dict(
         pollinterval = 5,
         maxage = 12,
         userlimits = (0, 360),
-        abslimits = (0, 360),
         comtries = 5,
     ),
 )

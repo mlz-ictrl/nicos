@@ -11,7 +11,6 @@ devices = dict(
     shutter_motor = device('nicos.devices.entangle.Motor',
         description = 'Instrument shutter linear motor',
         tangodevice = tango_base + 'shutter/shutter/motor',
-        abslimits = (0, 55),
         precision = 0.5,
         visibility = (),
     ),

@@ -7,3 +7,5 @@ nicos/arm1_rot_mot/abslimits=(-90, 5)
 nicos/arm1_rot/abslimits=(-90, 5)
 nicos/arm1_rot_enc/value=-50
 nicos/arm2_rot/abslimits=(-15, 55)
+nicos/selector_speed/abslimits=(1, 30000)
+nicos/selector_speed/userlimits=(1, 30000)

@@ -24,7 +24,6 @@ devices = dict(
         pollinterval = 15,
         maxage = 61,
         fmtstr = '%.2f',
-        abslimits = (-4.2, 30),
         precision = 0.01,
     ),
     lubrication = device('nicos_mlz.poli.devices.lubrication.LubeSwitch',

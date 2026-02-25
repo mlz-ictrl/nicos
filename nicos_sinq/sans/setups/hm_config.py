@@ -14,7 +14,6 @@ devices = dict(
     hm_b0_ax_x = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description = 'Detector ID',
         visibility = (),
-        length = 16384,
         mapping = 'direct',
         label = 'Detector-ID',
         unit = '',

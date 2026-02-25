@@ -51,6 +51,7 @@ SetDetectors(det)
 cscan(sth, 0, 0.1, 2, 1)
 cscan(stt, 0, 0.2, 2, 1)
 
+sgy.userlimits = (0, 1)
 for i in [0, 1, 0]:
     maw(stx, i)
 for i in [0, 1, 0]:

@@ -1,7 +1,7 @@
 `ICON <https://www.psi.ch/sinq/icon/>`_
 =======================================
 
-.. module:: nicos_sinq.icon.devices.enabledmotor
+.. module:: nicos_sinq.icon.devices.iconmotor
 .. autoclass:: EnabledMotor()
 
 .. module:: nicos_sinq.icon.devices.shuttersink

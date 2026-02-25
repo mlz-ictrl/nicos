@@ -21,9 +21,6 @@ devices = dict(
         description = 'selector neutron guide motor',
         tangodevice = tango_base + 'selector/z_mot',
         fmtstr = '%.2f',
-        #abslimits = (-140, 140), old
-        abslimits = (-140, 142.5), #new
-        userlimits = (-140, 142.5), #new
         visibility = (),
         requires = dict(level='admin'),
     ),
@@ -50,7 +47,6 @@ devices = dict(
         coder = 'selector_tilt_enc',
         precision = 0.05,
         fmtstr = '%.2f',
-        abslimits = (-7.5, 7.5),
         maxage = 120,
         pollinterval = 15,
         offset = 0,
@@ -60,7 +56,6 @@ devices = dict(
         description = 'selector tilt motor',
         tangodevice = tango_base + 'selector/tilt_mot',
         fmtstr = '%.2f',
-        abslimits = (-10, 10),
         visibility = (),
         requires = dict(level='admin'),
     ),

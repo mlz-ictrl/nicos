@@ -20,7 +20,6 @@ devices = dict(
         unit = 'mm',
         description = 'Sample translation parallel to the beam direction',
         tangodevice = tango_base + 'phytron6/mot',
-        abslimits = (0, 100),
         userlimits = (0, 100),
         maxage = 5,
         pollinterval = 3,

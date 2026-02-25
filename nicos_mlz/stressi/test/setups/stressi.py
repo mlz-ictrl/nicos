@@ -141,7 +141,6 @@ devices = dict(
         crystal = 'transm',
         plane = '',
         base = 'tthm',
-        unit = 'AA',
         abslimits = (0.9, 2.5),
     ),
     mon1 = device('nicos.devices.generic.VirtualCounter',

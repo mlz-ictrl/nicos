@@ -25,7 +25,6 @@ devices = dict(
     det_hv = device('nicos.devices.entangle.PowerSupply',
         description = 'High voltage power supply of the 3he detector',
         tangodevice = '%s/3he_det/hv' % tango_base,
-        abslimits = (0, 1350),
         unit = 'V',
     ),
     det_rot_mot = device('nicos.devices.entangle.Motor',

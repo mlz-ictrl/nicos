@@ -221,7 +221,6 @@ devices = dict(
         },
         fallback = 'interstage',
         timeout = 10.0,
-        fast = False,
     ),
     fs_he_auto = device('nicos.devices.generic.manual.ManualSwitch',
         description =

@@ -10,7 +10,6 @@ devices = dict(
         tangodevice = tango_base + 'ccmot',
         fmtstr = '%7.3f',
         userlimits = (-131.4, 0.),
-        abslimits = (-131.4, 0.),
         requires = {'level': 'admin'},
         unit = 'mm',
         visibility = (),

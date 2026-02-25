@@ -87,7 +87,6 @@ devices = dict(
         motor = 'omega_m',
         coder = 'omega_m',
         precision = 0.01,
-        abslimits = (0, 361),
         pollinterval = 11,
         maxage = 13,
     ),

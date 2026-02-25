@@ -32,7 +32,6 @@ devices = dict(
     # mon_hv = device('nicos.devices.entangle.PowerSupply',
     #     description = 'High voltage power supply of the monitor',
     #     tangodevice = tango_base + 'mon/hv',
-    #     abslimits = (0, 1050),
     #     unit = 'V',
     # ),
     # counter = device('nicos.devices.entangle.CounterChannel',

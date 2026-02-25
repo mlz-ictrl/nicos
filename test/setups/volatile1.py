@@ -21,13 +21,10 @@
 #
 # *****************************************************************************
 
+name = 'test_volatile1'
+
+includes = ['stdsystem']
+
 devices = dict(
-    motor1 = device('test.test_simple.test_epics_motor.FakeEpicsMotor',
-        motorpv = 'IOC:m1',
-        errormsgpv = 'IOC:m1-MsgTxt',
-        reseterrorpv = 'IOC:m1:Reset',
-    ),
-    motor2 = device('test.test_simple.test_epics_motor.DerivedFakeEpicsMotor',
-        motorpv = 'IOC:m2',
-    ),
+    dev1 = device('test.test_simple.test_volatile_param.Foo'),
 )

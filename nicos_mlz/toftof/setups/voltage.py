@@ -77,12 +77,10 @@ devices = dict(
         description = 'ISEG HV power supply 1',
         requires = {'level': 'admin'},
         tangodevice = tango_base + 'iseg1/voltage',
-        ramp = 120,
     ),
     hv1 = device('nicos.devices.entangle.PowerSupply',
         description = 'ISEG HV power supply 2',
         requires = {'level': 'admin'},
         tangodevice = tango_base + 'iseg2/voltage',
-        ramp = 120,
     ),
 )

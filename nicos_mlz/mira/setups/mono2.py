@@ -25,7 +25,6 @@ devices = dict(
         coder = 'co_m2tt',
         startdelay = 1,
         stopdelay = 4,
-        speed = 0.25,
         switch = 'air_mono',
         switchvalues = (0, 1),
         fmtstr = '%.3f',

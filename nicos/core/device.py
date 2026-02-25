@@ -159,6 +159,22 @@ class DeviceMeta(DeviceMixinMeta):
             if override:
                 info = newtype.parameters[param] = override.apply(info)
 
+            # Check the combined, final parameter configuration composed of
+            # Param and Override.
+            if info.mandatory:
+                if info.internal:
+                    raise ProgrammingError(
+                            'Ambiguous parameter definition detected for' \
+                            "parameter %r (device %r): 'internal' and "
+                            "'mandatory' must not be 'True' at the same time."
+                            %(param, name))
+                if info.volatile:
+                    raise ProgrammingError(
+                            'Ambiguous parameter definition detected for' \
+                            "parameter %r (device %r): 'volatile' and "
+                            "'mandatory' must not be 'True' at the same time."
+                            %(param, name))
+
             # create the getter method
             if not info.volatile:
                 def getter(self, param=param):
@@ -535,7 +551,16 @@ class Device(metaclass=DeviceMeta):
             # mandatory parameters must be in config, regardless of cache
             if paraminfo.mandatory and param not in self._config:
                 raise ConfigurationError(self, 'missing configuration '
-                                         'parameter %r' % param)
+                                         'parameter %r in setup file' % param)
+
+            # A volatile parameter must not be given in the setup (except for
+            # tests, there it is ok because there is no hardware to read from)
+            if session.mode != SIMULATION:
+                if paraminfo.volatile and param in self._config:
+                    raise ConfigurationError(self, 'parameter %r is volatile and '
+                                            'must not be defined in the '
+                                            'setup file' % param)
+
             # Ellipsis representing "no value" since None is a valid value for
             # some parameters
             value = Ellipsis

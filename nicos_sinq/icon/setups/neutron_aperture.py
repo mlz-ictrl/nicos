@@ -5,11 +5,12 @@ group = 'lowlevel'
 display_order = 5
 
 devices = dict(
-    na_selector_pos = device('nicos.devices.epics.pyepics.motor.HomingProtectedEpicsMotor',
+    na_selector_pos = device('nicos_sinq.icon.devices.iconmotor.HomingProtectedEpicsMotor',
         description = 'Rotary position of neutron aperture selector',
         motorpv = 'SQ:ICON:board5:NA',
         errormsgpv = 'SQ:ICON:board5:NA-MsgTxt',
         visibility = (),
+        precision = 10,
     ),
     na_selector = device('nicos.devices.generic.Switcher',
         description = 'Selected neutron aperture',

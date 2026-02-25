@@ -163,8 +163,7 @@ class NiagExpShutter(NiagShutter):
 
     parameters = {
         'fast': Param('Fast shutter opening/closing',
-                      mandatory=True, default=False, settable=True,
-                      type=bool, volatile=True),
+                      default=False, settable=True, type=bool, volatile=True),
     }
 
     def doReadFast(self):

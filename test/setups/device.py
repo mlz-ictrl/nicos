@@ -80,8 +80,6 @@ devices = dict(
         missingok = device('nicos.devices.generic.Axis',
             motor = 'mot',
             precision = 0,
-            abslimits = (0, 10),
-            unit = 'mm',
         ),
         param2 = 1,
         unit = 'mm',

@@ -17,7 +17,6 @@ devices = dict(
     ),
     stt = device('nicos_mlz.devices.axes.HoveringAxis',
         description = 'sample two-theta angle',
-        abslimits = (-120, 120),
         motor = 'mo_stt',
         coder = 'co_stt',
         startdelay = 1,

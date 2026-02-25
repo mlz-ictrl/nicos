@@ -10,7 +10,6 @@ devices = dict(
     selector_rpm = device('nicos.devices.entangle.WindowTimeoutAO',
         description = 'Selector speed control',
         tangodevice = tango_base + 'speed',
-        abslimits = (3100, 20000),
         unit = 'rpm',
         fmtstr = '%.0f',
         timeout = 600,

@@ -24,6 +24,8 @@
 
 import pytest
 
+tango = pytest.importorskip("tango")
+
 session_setup = 'lpa_kompass'
 
 

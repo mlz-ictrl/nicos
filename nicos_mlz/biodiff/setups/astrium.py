@@ -11,7 +11,6 @@ devices = dict(
         unit = 'rpm',
         fmtstr = '%.0f',
         warnlimits = (9000, 22000),
-        abslimits = (9000, 22000),
         precision = 10,
         timeout = 180,
     ),

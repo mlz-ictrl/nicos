@@ -21,8 +21,11 @@
 #
 # *****************************************************************************
 
-session_setup = 'lpa_kompass'
+import pytest
 
+tango = pytest.importorskip("tango")
+
+session_setup = 'lpa_kompass'
 
 def test_guide_field(session):
 

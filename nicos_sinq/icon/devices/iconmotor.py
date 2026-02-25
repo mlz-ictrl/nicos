@@ -24,12 +24,22 @@
 from nicos import session
 from nicos.core import Attach, Readable
 from nicos.core.errors import NicosError
+from nicos.core.params import Override
 from nicos.core.status import BUSY
 from nicos.devices.epics.pyepics.motor import EpicsMotor, \
-    HomingProtectedEpicsMotor
+    HomingProtectedEpicsMotor as EssHomingProtectedEpicsMotor
 
 # pylint: disable=no-else-raise
 
+class HomingProtectedEpicsMotor(EssHomingProtectedEpicsMotor):
+    """
+    In 2025, EssEpicsMotor was changed to read the precision from the motor
+    record. We want the old behaviour (where precision is set in the setup).
+    """
+
+    parameter_overrides = {
+        'precision': Override(settable=False, mandatory=True, volatile=False),
+    }
 
 class EnabledMotor(HomingProtectedEpicsMotor):
     """

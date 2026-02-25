@@ -57,7 +57,6 @@ devices = dict(
         unit = 'deg',
         description = 'Sample rotation',
         tangodevice = tango_base + 'phytron5/mot',
-        abslimits = (-999, 999),
         userlimits = (-999, 999),
         maxage = 5,
         pollinterval = 3,

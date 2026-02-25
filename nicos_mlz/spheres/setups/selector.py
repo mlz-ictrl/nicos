@@ -12,7 +12,6 @@ devices = dict(
         unit = 'rpm',
         fmtstr = '%.0f',
         warnlimits = (11000, 22000),
-        abslimits = (0, 26000),
         precision = 10,
         visibility = (),
         requires = {'level': 'admin'}

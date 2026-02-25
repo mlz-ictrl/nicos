@@ -90,7 +90,6 @@ devices = dict(
         states = (155.,),
     ),
     wav = device('nicos_mlz.spodi.devices.Wavelength',
-        unit = 'AA',
         omgm = 'omgm',
         tthm = 'tthm',
         crystal = 'crystal',

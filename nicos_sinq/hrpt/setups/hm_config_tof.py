@@ -12,7 +12,6 @@ devices = dict(
     hm_b0_ax_x = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description = 'First bank axis two theta',
         visibility = (),
-        length = 1601,
         mapping = 'direct',
         label = 'Two Theta',
         unit = 'degree',

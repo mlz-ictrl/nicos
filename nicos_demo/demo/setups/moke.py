@@ -25,7 +25,6 @@ devices = dict(
         description = 'Powersupply supplies current in magnetic coils',
         unit = 'A',
         abslimits = (-1000, 1000),
-        ramp = 1e4,
         maxramp = 1e6,
         fmtstr = '%.1f',
     ),

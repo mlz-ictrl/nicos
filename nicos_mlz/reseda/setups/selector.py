@@ -22,7 +22,6 @@ devices = dict(
         unit = 'rpm',
         fmtstr = '%.0f',
         warnlimits = (8500, 28500),
-        abslimits = (0, 28500),
         precision = 10,
     ),
     selector_lambda = device('nicos_mlz.reseda.devices.SelectorLambda',

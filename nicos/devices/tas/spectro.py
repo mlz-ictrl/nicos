@@ -462,7 +462,7 @@ class TASConstant(Moveable):
     }
 
     parameter_overrides = {
-        'unit':     Override(volatile=True),
+        'unit':     Override(volatile=True, mandatory=False),
     }
 
     attached_devices = {
@@ -579,7 +579,7 @@ class QModulus(Readable):
     """
 
     parameter_overrides = {
-        'unit':     Override(volatile=True),
+        'unit':     Override(volatile=True, mandatory=False),
     }
 
     attached_devices = {

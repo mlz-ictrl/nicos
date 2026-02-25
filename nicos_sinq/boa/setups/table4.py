@@ -12,7 +12,6 @@ devices = dict(
     t4ty = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Table 4 Y Translation',
         motorpv = pvprefix + 'T4TY',
-        can_disable = True,
     ),
     Table4 = device('nicos_sinq.devices.componenttable.ComponentTable',
         description = 'Table 4',

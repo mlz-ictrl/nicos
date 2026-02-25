@@ -125,7 +125,6 @@ devices = dict(
     det_hv = device('nicos.devices.entangle.PowerSupply',
         description = 'High voltage power supply of the Cascade detector',
         tangodevice = tango_base + 'cascade/hv',
-        abslimits = (-3000, 0),
         warnlimits = (-3000, -2700),
         pollinterval = 10,
         maxage = 20,

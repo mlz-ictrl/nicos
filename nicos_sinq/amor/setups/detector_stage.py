@@ -16,7 +16,6 @@ devices = dict(
                          motorpv = pvprefix + 'det_zoffset',
                          visibility = ('metadata', 'namespace'),
                          unit='mm',
-                         precision=0.005,
                          ),
     det_com_origin = device('nicos.devices.epics.base.EpicsReadable',
                             readpv = pvprefix + 'det_nu:Origin',

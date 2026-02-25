@@ -20,7 +20,6 @@ devices = dict(
                       base='mtt',
                       crystal='crystal',
                       plane='511',
-                      unit='AA',
                       fmtstr='%.2f',
                       abslimits=(1.25, 1.54),
                       requires={'level': 'admin'},

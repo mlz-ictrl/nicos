@@ -40,7 +40,6 @@ devices = dict(
     psx_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel5/motor',
         fmtstr = '%.2f',
-        speed = 2,
         visibility = (),
     ),
     psx_c = device('nicos.devices.entangle.Sensor',

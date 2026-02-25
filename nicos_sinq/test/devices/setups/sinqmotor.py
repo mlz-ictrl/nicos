@@ -23,12 +23,10 @@
 
 devices = dict(
     motor1 = device('nicos_sinq.test.devices.test_sinqmotor.FakeSinqMotor',
-        unit = 'mm',
         motorpv = 'IOC:m1',
         userlim_follow_abslim = True,
     ),
     motor2 = device('nicos_sinq.test.devices.test_sinqmotor.FakeSinqMotor',
-        unit = 'mm',
         motorpv = 'IOC:m1',
         userlim_follow_abslim = False,
     ),

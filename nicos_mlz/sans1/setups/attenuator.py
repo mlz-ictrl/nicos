@@ -34,7 +34,6 @@ devices = dict(
         description = 'Attenuator motor',
         tangodevice = tango_base + 'att_mot',
         unit = 'mm',
-        abslimits = (-400, 600),
         visibility = (),
         precision = 0.0025,
     ),

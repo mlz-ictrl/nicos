@@ -41,7 +41,7 @@ class F71Teslameter(Readable):
     }
 
     parameter_overrides = {
-            'unit': Override(volatile=True),
+            'unit': Override(volatile=True, mandatory=False),
     }
 
     valuetype = tupleof(float, float, float, float)
