@@ -3,14 +3,16 @@ description = 'Basic setup for SPHERES containing sis detector, doppler, ' \
 
 group = 'basic'
 
-includes = ['sis',
-            'doppler',
-            'cct6',
-            'sps',
-            'shutter',
-            'memograph',
-            'selector',
-            ]
+includes = [
+    'sis',
+    'doppler',
+    'sps',
+    'shutter',
+    'memograph',
+    'selector',
+    'alias_T',
+    'cct6',
+]
 
 startupcode = 'SetDetectors(sis)\n' \
               'SetEnvironment(cct6_c_temperature, cct6_setpoint)'

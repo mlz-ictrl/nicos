@@ -35,7 +35,7 @@ main_window = tabbed(
          )),
         ('Temperature/Flux',
          panel('nicos.clients.gui.panels.history.BareHistoryPanel',
-               dockpos='right', device_keys='cct6_T_sample.value, flux.value[1]',
+               dockpos='right', device_keys='Ts.value, flux.value[1]',
                detailthreshold=[300, 200])),
      )),
     ('Script Editor',

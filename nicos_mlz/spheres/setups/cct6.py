@@ -94,3 +94,8 @@ devices = dict(
         unit = 'K'
     ),
 )
+
+alias_config = {
+    'T':  {f'{setupname}_c_temperature': 99},
+    'Ts': {f'{setupname}_T_sample': 99},
+}
