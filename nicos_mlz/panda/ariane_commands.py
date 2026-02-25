@@ -128,17 +128,17 @@ def qaiscan(Q0, Q1, Q2, *args, **kwargs):
     q1 = np.array(_getQ(Q1, 'Q1')).astype(float)
     q2 = np.array(_getQ(Q2, 'Q2')).astype(float)
 
-    scanstr = _infostr('qaigrid' if initonly else 'qaiscan',
+    scaninfo = _infostr('qaigrid' if initonly else 'qaiscan',
                       (Q0, Q1, Q2) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(args, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs)
     if multistep:
         raise UsageError('Multi-step scan points are impossible with ARIANE')
     scan = QAIScan(q0, q1, q2, initpts=initpts, initscans=initscans, initres=initres,
                    initonly=initonly, maxpts=maxpts, maxtime=maxtime,
                    background=background, int_threshold=int_threshold,
                    firstmoves=move, detlist=detlist, envlist=envlist,
-                   preset=preset, scaninfo=scaninfo)
+                   preset=preset, scaninfo=scaninfo, scanuserinfo=scanuserinfo)
     qaiscan.last = scan  # for debugging purposes
     scan.run()
 
@@ -149,9 +149,10 @@ class QAIScan(QScan):
     _socket = None
 
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
     def __init__(self, q0, q1, q2, initpts, initscans, initres, initonly, maxpts,
                  maxtime, background, int_threshold, firstmoves=None,
-                 detlist=None, envlist=None, preset=None, scaninfo=None):
+                 detlist=None, envlist=None, preset=None, scaninfo=None, scanuserinfo=None):
 
         # first establish connection
         hostport = getattr(session.experiment, 'ariane_host', None)
@@ -316,7 +317,7 @@ class QAIScan(QScan):
         self._startVisualization()
 
         QScan.__init__(self, self._initial_pos, firstmoves, [], detlist,
-                       envlist, preset, scaninfo, subscan=False)
+                       envlist, preset, scaninfo, scanuserinfo, subscan=False)
 
         self._npoints = maxpts or 0
 

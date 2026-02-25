@@ -331,7 +331,8 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             Listfile = Listfile,
             Setupfile = Setupfile,
             LookUpTable = LookUpTable,
-            Command = self.dataset.info,
+            # XXX: clarify w/ instrument scientists
+            Command = self.dataset.combinedinfo,
         )
 
         nicosheader = []

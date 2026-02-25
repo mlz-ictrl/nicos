@@ -28,8 +28,6 @@ Created on 06.06.2011
 """
 from nicos import session
 from nicos.commands import usercommand
-#from nicos.core.scan import Scan, TimeScan, ContinuousScan, ManualScan
-#from nicos.core import Device, Measurable, Moveable, Readable
 from nicos.core import UsageError
 
 from nicos_mlz.resi.devices import residevice

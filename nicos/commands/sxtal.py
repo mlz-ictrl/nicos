@@ -45,12 +45,12 @@ class HKLScan(Scan):
     def __init__(self, devices, startpositions, scanmode='omega',
                  endpositions=None, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
-                 subscan=False):
+                 scanuserinfo=None, subscan=False):
         self._intensity = Intensity('intensity')
         detlist = [self._intensity]
         Scan.__init__(self, devices, startpositions, endpositions,
                       firstmoves, multistep, detlist, envlist,
-                      preset, scaninfo, subscan)
+                      preset, scaninfo, scanuserinfo, subscan)
         self.scanmode = scanmode
 
     def acquire(self, point, preset):

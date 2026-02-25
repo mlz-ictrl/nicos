@@ -376,11 +376,12 @@ def _getQ(v, name):
     raise UsageError(f'{name} must be a sequence of (h, k, l)')
 
 
-def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
+def _handleQScanArgs(args, kwargs, Q, dQ):
     preset, detlist, envlist, move, multistep = {}, None, None, [], []
+    scanuserinfo = None
     for arg in args:
         if isinstance(arg, str):
-            scaninfo = arg + ' - ' + scaninfo
+            scanuserinfo = arg + ' - ' + scanuserinfo if scanuserinfo else arg
         elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
@@ -417,7 +418,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
                 move.append((session.devices[key], value))
         else:
             preset[key] = value
-    return preset, scaninfo, detlist, envlist, move, multistep, Q, dQ
+    return preset, scanuserinfo, detlist, envlist, move, multistep, Q, dQ
 
 
 class QScan(Scan):
@@ -427,14 +428,14 @@ class QScan(Scan):
 
     def __init__(self, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
-                 subscan=False):
+                 scanuserinfo=None, subscan=False):
         inst = session.instrument
         if not isinstance(inst, SXTalBase):
             raise NicosError('cannot do a Q scan, your instrument device '
                              'is not a sxtal device')
         Scan.__init__(self, [inst], positions, [],
                       firstmoves, multistep, detlist, envlist, preset,
-                      scaninfo, subscan)
+                      scaninfo, scanuserinfo, subscan)
         self._envlist[0:0] = [inst._attached_gamma,
                               inst._attached_omega, inst._attached_nu]
         if inst in self._envlist:
@@ -477,14 +478,14 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
     will perform an L scan at (100) with the given monitor counts per point.
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    scanstr = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
-        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+    scaninfo = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
+    preset, scanuserinfo, detlist, envlist, move, multistep, Q, dQ = \
+        _handleQScanArgs(args, kwargs, Q, dQ)
     if all(v == 0 for v in dQ) and numpoints > 1:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2])]
               for i in range(numpoints)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
+    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo, scanuserinfo)
     scan.run()
 
 
@@ -503,15 +504,15 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     per point.
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
-        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+    scaninfo = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
+    preset, scanuserinfo, detlist, envlist, move, multistep, Q, dQ = \
+        _handleQScanArgs(args, kwargs, Q, dQ)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2])]
               for i in range(-numperside, numperside+1)]
     scan = QScan(values, move, multistep, detlist, envlist, preset,
-                 scaninfo)
+                 scaninfo, scanuserinfo)
     scan.run()
 
 

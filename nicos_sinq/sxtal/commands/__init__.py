@@ -791,12 +791,12 @@ class HKLScan(Scan):
                  self, devices, startpositions, scanmode='omega',
                  endpositions=None, firstmoves=None,
                  multistep=None, detlist=None, envlist=None,
-                 scaninfo=None, subscan=False, **preset):
+                 scaninfo=None, scanuserinfo=None, subscan=False, **preset):
         self._intensity = session.getDevice('intensity')
         detlist = [self._intensity]
         Scan.__init__(self, devices, startpositions, endpositions,
                       firstmoves, multistep, detlist, envlist,
-                      preset, scaninfo, subscan)
+                      preset, scaninfo, scanuserinfo, subscan)
         self.scanmode = scanmode
 
     def acquire(self, point, preset):
@@ -1079,11 +1079,12 @@ def PeakSearch(reflist=None, threshold=100, **preset):
                         session.log.warning('Failed centering at phi = %f', p)
 
 
-def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
+def _handleQScanArgs(args, kwargs, Q, dQ):
     preset, detlist, envlist, move, multistep = {}, None, None, [], []
+    scanuserinfo = None
     for arg in args:
         if isinstance(arg, str):
-            scaninfo = arg + ' - ' + scaninfo
+            scanuserinfo = arg + ' - ' + scanuserinfo if scanuserinfo else arg
         elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
@@ -1124,14 +1125,14 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
                 move.append((session.devices[key], value))
         else:
             preset[key] = value
-    return preset, scaninfo, detlist, envlist, move, multistep, Q, dQ
+    return preset, scanuserinfo, detlist, envlist, move, multistep, Q, dQ
 
 
 class SinqQScan(Scan):
     def __init__(  # pylint: disable=too-many-positional-arguments
                  self, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
-                 subscan=False):
+                 scanuserinfo=None, subscan=False):
         inst = session.instrument
         if not isinstance(inst, SXTalBase):
             raise NicosError('cannot do a Q scan, your instrument device '
@@ -1139,7 +1140,7 @@ class SinqQScan(Scan):
         self._xindex = 0
         Scan.__init__(self, [inst], positions, [],
                       firstmoves, multistep, detlist, envlist, preset,
-                      scaninfo, subscan)
+                      scaninfo, scanuserinfo, subscan)
         # self._envlist[0:0] = inst.get_motors()
         if inst in self._envlist:
             self._envlist.remove(inst)
@@ -1184,9 +1185,9 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
         return False
 
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    scanstr = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
-        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+    scaninfo = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
+    preset, scanuserinfo, detlist, envlist, move, multistep, Q, dQ = \
+        _handleQScanArgs(args, kwargs, Q, dQ)
     if all(v == 0 for v in dQ) and numpoints > 1:
         raise UsageError('scanning with zero step width')
     if hasFourVariables():
@@ -1197,7 +1198,7 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
                   for i in range(numpoints)]
 
     scan = SinqQScan(values, move, multistep, detlist, envlist, preset,
-                     scaninfo)
+                     scaninfo, scanuserinfo)
     scan.run()
 
 
@@ -1223,9 +1224,9 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     * plot='hkl'  -- plot position of scan points in scattering plane
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
-        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+    scaninfo = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
+    preset, scanuserinfo, detlist, envlist, move, multistep, Q, dQ = \
+        _handleQScanArgs(args, kwargs, Q, dQ)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
 
@@ -1238,7 +1239,7 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
                   for i in range(-numperside, numperside+1)]
 
     scan = SinqQScan(values, move, multistep, detlist, envlist, preset,
-                     scaninfo)
+                     scaninfo, scanuserinfo)
     scan.run()
 
 

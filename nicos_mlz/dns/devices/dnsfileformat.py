@@ -55,7 +55,7 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         for ds in self.manager.iterParents(self.dataset):
             if ds.settype == 'scan':
                 scannumber = ds.counter
-                scaninfo = ds.info
+                scaninfo = ds.combinedinfo  # XXX: clarify w/ instrument scientists
                 scanpos = '%d/%d' % (self.dataset.number, ds.npoints)
                 break
 

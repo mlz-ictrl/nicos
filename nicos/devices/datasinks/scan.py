@@ -68,7 +68,7 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         self._rulerlen = max(100, sum(self._colwidths))
         if ds.settype != SUBSCAN:
             session.log.info('=' * self._rulerlen)
-            session.log.info('Starting scan:      %s', ds.info or '')
+            session.log.info('Starting scan:      %s', ds.combinedinfo)
             session.log.info('Started at:         %s',
                              strftime(TIMEFMT, localtime(ds.started)))
             session.log.info('Scan number:        %d', ds.counter)
@@ -156,7 +156,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         for name, value in [('number', self.dataset.counter),
                             ('filename', self._fname),
                             ('filepath', self._filepath),
-                            ('info', ds.info)]:
+                            ('info', ds.combinedinfo)]:
             self._write_comment('%25s : %s' % (name, value))
         bycategory = {}
         for (devname, key), info in ds.metainfo.items():
@@ -310,7 +310,7 @@ class AsciiScanfileReader:
                             self.scandataset.counter = '%s (%s)' % (
                                 value, basename(filename))
                         elif key == 'info':
-                            self.scandataset.info = value
+                            self.scandataset.userinfo, _, self.scandataset.info = value.rpartition('-')
                         else:
                             session.log.warning('unknown header: %s=%s',
                                                 key, value)

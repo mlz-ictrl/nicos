@@ -60,9 +60,9 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         stack = manager._stack
         if len(stack) >= 2 and isinstance(stack[-2], ScanDataset):
             scands = stack[-2]
-            meas['info'] = scands.info
+            meas['info'] = scands.combinedinfo  # XXX: clarify w/ instrument scientists
         else:
-            meas['info'] = self.dataset.info
+            meas['info'] = self.dataset.combinedinfo  # XXX: clarify w/ instrument scientists
 
         sample = session.experiment.sample
         meas['sample']['comment'] = sample.comment

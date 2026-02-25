@@ -413,9 +413,8 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         ds = self.dataset
         self.log.debug('self.dataset: %s', type(self.dataset))
         self.log.debug('self.dataset: %s', self.dataset)
-        scaninfo = ds.info.split('-')[-1].strip()
         if self._data:
-            self._data['measurement']['scaninfo'] = scaninfo
+            self._data['measurement']['scaninfo'] = ds.info  # XXX: clarify w/ instrument scientists
         # self._data['measurement']['usercomment'] = metainfo.get(
         #     ('det', 'usercomment'), ['None'])[0]
         self.dataAllocation('measurement', 'usercomment',

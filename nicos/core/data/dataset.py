@@ -62,7 +62,7 @@ class BaseDataset:
     settype = UNKNOWN
     countertype = UNKNOWN
 
-    def __init__(self, **kwds):
+    def __init__(self, info='', userinfo='', **kwds):
         # Unique id of the scan.
         self.uid = uuid4()
 
@@ -113,8 +113,11 @@ class BaseDataset:
         # Sink handlers involved in this dataset.
         self.handlers = []
 
+        # A nicos-generated "info string" for this dataset.
+        self.info = '' if info is None else info
+
         # A user-defined "info string" for this dataset.
-        self.info = ''
+        self.userinfo = '' if userinfo is None else userinfo
 
         # A lock to suppress updates to valuestats from the cacheCallback in
         # the datamanager
@@ -149,6 +152,10 @@ class BaseDataset:
 
                     # mean = t1 / t0
                     # stdev = sqrt(abs(t2 / t0 - t1 ** 2 / t0 ** 2))
+
+    @property
+    def combinedinfo(self):
+        return ' - '.join(info for info in [self.userinfo, self.info] if info)
 
     @property
     def valuestats(self):
@@ -400,7 +407,7 @@ class ScanData:
         else:
             self.uid = str(dataset.uid)
             self.started = localtime(dataset.started)
-            self.scaninfo = dataset.info
+            self.scaninfo = dataset.combinedinfo
             self.counter = dataset.counter
             self.filepaths = dataset.filepaths
             self.xindex = dataset.xindex

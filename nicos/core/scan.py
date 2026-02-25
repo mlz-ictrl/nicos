@@ -58,7 +58,8 @@ class Scan:
 
     def __init__(self, devices, startpositions, endpositions=None,
                  firstmoves=None, multistep=None, detlist=None, envlist=None,
-                 preset=None, scaninfo=None, subscan=False, xindex=None):
+                 preset=None, scaninfo=None, scanuserinfo=None, subscan=False,
+                 xindex=None):
         if session.mode == SLAVE:
             raise ModeError('cannot scan in slave mode')
         self.dataset = None
@@ -121,6 +122,7 @@ class Scan:
         self._envlist = allenvlist
         self._preset = preset or {}
         self._scaninfo = scaninfo
+        self._scanuserinfo = scanuserinfo
         self._subscan = subscan
         self._guessPlotIndex(xindex)
         self._chain = []
@@ -188,6 +190,7 @@ class Scan:
             detectors=self._detlist,
             preset=self._preset,
             info=self._scaninfo,
+            userinfo=self._scanuserinfo,
             npoints=self._npoints,
             xindex=self._xindex,
             startpositions=self._startpositions,
@@ -447,7 +450,7 @@ class SweepScan(Scan):
 
     def __init__(self, devices, startend, numpoints, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
-                 scaninfo=None, subscan=False, xindex=None):
+                 scaninfo=None, scanuserinfo=None, subscan=False, xindex=None):
         self._etime = ElapsedTime('SweepScan')
         # for sweeps the dry run usually shows only one step; in the case of
         # multisteps we take the first N
@@ -474,7 +477,7 @@ class SweepScan(Scan):
             raise UsageError('Invalid number of minstep values. For each '
                              'device a minstep value must be given!')
         Scan.__init__(self, [], points, [], firstmoves, multistep,
-                      detlist, envlist, preset, scaninfo, subscan, xindex)
+                      detlist, envlist, preset, scaninfo, scanuserinfo, subscan, xindex)
         # XXX(dataapi): devices should be in devlist, not envlist
         if not devices:
             self._envlist.insert(0, self._etime)
@@ -552,13 +555,13 @@ class ContinuousScan(Scan):
 
     def __init__(self, device, start, end, speed, timedelta=None,
                  firstmoves=None, detlist=None, envlist=None, scaninfo=None,
-                 xindex=None):
+                 scanuserinfo=None, subscan=False, xindex=None):
 
         self._speed = device.speed / 5. if speed is None else speed
         self._timedelta = timedelta or 1.0
 
         Scan.__init__(self, [device], [[start]], [[end]], firstmoves, None,
-                      detlist, envlist, None, scaninfo, xindex)
+                      detlist, envlist, None, scaninfo, scanuserinfo, subscan, xindex)
 
     def shortDesc(self):
         if self.dataset and self.dataset.counter > 0:
@@ -710,15 +713,15 @@ class ManualScan(Scan):
     """
 
     def __init__(self, firstmoves=None, multistep=None, detlist=None,
-                 envlist=None, preset=None, scaninfo=None, subscan=False,
-                 xindex=None):
+                 envlist=None, preset=None, scaninfo=None, scanuserinfo=None,
+                 subscan=False, xindex=None):
         # put mentioned envlist devices first in envlist (usually the desired
         # X-axis is among them)
         envlist = envlist or []
         envlist.extend(dev for dev in session.experiment.sampleenv
                        if dev not in envlist)
         Scan.__init__(self, [], Repeater([]), Repeater([]), firstmoves,
-                      None, detlist, envlist, preset, scaninfo,
+                      None, detlist, envlist, preset, scaninfo, scanuserinfo,
                       subscan, xindex)
         self._envlist = envlist
         self._multistep = multistep
@@ -779,7 +782,7 @@ class QScan(Scan):
 
     def __init__(self, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
-                 subscan=False):
+                 scanuserinfo=None, subscan=False):
         from nicos.devices.tas import TAS
         inst = session.instrument
         if not isinstance(inst, TAS):
@@ -788,7 +791,7 @@ class QScan(Scan):
         self._xindex = 0
         Scan.__init__(self, [inst], positions, [],
                       firstmoves, multistep, detlist, envlist, preset,
-                      scaninfo, subscan)
+                      scaninfo, scanuserinfo, subscan)
         if inst.scanmode == 'DIFF':
             self._envlist[0:0] = [inst._attached_mono,
                                   inst._attached_psi, inst._attached_phi]

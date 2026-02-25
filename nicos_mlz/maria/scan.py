@@ -34,11 +34,11 @@ class KScan(Scan):
 
     def __init__(self, devices, startpositions, endpositions, speed=None,
                  firstmoves=None, multistep=None, detlist=None, envlist=None,
-                 scaninfo=None, subscan=False):
+                 scaninfo=None, scanuserinfo=None, subscan=False):
         self._speed = speed if speed is not None else devices[0].speed
         preset = {'live': True}
         Scan.__init__(self, devices, startpositions, endpositions, firstmoves,
-                      multistep, detlist, envlist, preset, scaninfo, subscan)
+                      multistep, detlist, envlist, preset, scaninfo, scanuserinfo, subscan)
 
     def beginScan(self):
         device = self._devices[0]
@@ -152,12 +152,12 @@ def sscan(dev, *args, **kwargs):
             raise UsageError('all entries must generate the same number of '
                              'points')
 
-    scanstr = _infostr('sscan', (dev,) + args, kwargs)
+    scaninfo = _infostr('sscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(restargs, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs)
     Scan(devs, values, None, move, multistep, detlist, envlist, preset,
-         scaninfo).run()
+         scaninfo, scanuserinfo).run()
 
 
 # pylint:disable=keyword-arg-before-vararg
@@ -185,12 +185,12 @@ def kscan(dev, start, step, numpoints, speed=None, *args, **kwargs):
                 endpositions.append([start + ((i+1) % 2) * step])
         return startpositions, endpositions
     scanargs = (start, step, numpoints) + args
-    scanstr = _infostr('kscan', (dev,) + scanargs, kwargs)
+    scaninfo = _infostr('kscan', (dev,) + scanargs, kwargs)
     devs, values, restargs = _fixTypeNPoints(dev, scanargs, mkpos)
-    _preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(restargs, kwargs, scanstr)
+    _preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs)
     KScan(devs, values[0], values[1], speed, move, multistep, detlist, envlist,
-          scaninfo).run()
+          scaninfo, scanuserinfo).run()
 
 
 sscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'sscan(dev, ')

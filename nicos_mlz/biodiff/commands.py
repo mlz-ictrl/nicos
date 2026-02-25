@@ -194,10 +194,10 @@ def rscan(dev, *args, **kwargs):
             raise UsageError('all entries must generate the same number of '
                              'points')
 
-    scanstr = _infostr('rscan', (dev,) + args, kwargs)
+    scaninfo = _infostr('rscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(restargs, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs)
     oldspeed = dev.speed
     try:
         if len(values) > 1:
@@ -208,6 +208,6 @@ def rscan(dev, *args, **kwargs):
         else:
             raise UsageError('missing preset parameter t.')
         RScan(devs, values[:-1], values[1:], move, multistep, detlist,
-              envlist, preset, scaninfo).run()
+              envlist, preset, scaninfo, scanuserinfo).run()
     finally:
         dev.speed = oldspeed

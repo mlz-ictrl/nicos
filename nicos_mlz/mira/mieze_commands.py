@@ -40,7 +40,7 @@ class MiezeScan(Scan):
 
     def __init__(self, settings, devices, positions, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
-                 scaninfo=None, scantype=None):
+                 scaninfo=None, scanuserinfo=None, subscan=False):
         miezedev = session.getDevice('mieze', MiezeMaster)
         self._nsettings = 1
         self._notherdevs = len(devices)
@@ -59,8 +59,9 @@ class MiezeScan(Scan):
                 new_positions.extend(poslist + [sett] for sett in settings)
             devices = new_devices
             positions = new_positions
-        Scan.__init__(self, devices, positions, firstmoves, multistep,
-                      detlist, envlist, preset, scaninfo, scantype)
+        Scan.__init__(self, devices, positions,
+            firstmoves=firstmoves, multistep=multistep, detlist=detlist, envlist=envlist,
+            preset=preset, scaninfo=scaninfo, scanuserinfo=scanuserinfo, subscan=subscan)
 
     def beginScan(self):
         if self._notherdevs == 0:
@@ -80,10 +81,10 @@ class MiezeManualScan(ManualScan):
     """
 
     def __init__(self, settings, firstmoves=None, multistep=None, detlist=None,
-                 envlist=None, preset=None, scaninfo=None, scantype=None):
+                 envlist=None, preset=None, scaninfo=None, scanuserinfo=None, subscan=False):
         self.miezedev = session.getDevice('mieze', MiezeMaster)
         ManualScan.__init__(self, firstmoves, multistep, detlist, envlist,
-                            preset, scaninfo, scantype)
+                            preset, scaninfo, scanuserinfo, subscan)
         self._envlist.append(self.miezedev)
         if settings is not None:
             if settings in ('*', -1):
@@ -107,11 +108,11 @@ class MiezeManualScan(ManualScan):
 
 class _MiezeManualScan(_ManualScan):
     def __init__(self, settings, args, kwargs):  # pylint: disable=super-init-not-called
-        scanstr = _infostr('mmanualscan', (settings,) + args, kwargs)
-        preset, scaninfo, detlist, envlist, move, multistep = \
-            _handleScanArgs(args, kwargs, scanstr)
+        scaninfo = _infostr('mmanualscan', (settings,) + args, kwargs)
+        preset, scanuserinfo, detlist, envlist, move, multistep = \
+            _handleScanArgs(args, kwargs)
         self.scan = MiezeManualScan(settings, move, multistep, detlist,
-                                    envlist, preset, scaninfo)
+                                    envlist, preset, scaninfo, scanuserinfo)
 
 
 @usercommand
@@ -125,12 +126,12 @@ def mscan(settings, dev, *args, **kwargs):
     def mkpos(starts, steps, numsteps):
         return [[start + i*step for (start, step) in zip(starts, steps)]
                 for i in range(numsteps)]
-    scanstr = _infostr('mscan', (settings, dev) + args, kwargs)
+    scaninfo = _infostr('mscan', (settings, dev) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(restargs, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs)
     MiezeScan(settings, devs, values, move, multistep, detlist,
-              envlist, preset, scaninfo).run()
+              envlist, preset, scaninfo, scanuserinfo).run()
 
 
 @usercommand
@@ -144,12 +145,12 @@ def mcscan(settings, dev, *args, **kwargs):
     def mkpos(centers, steps, numperside):
         return [[center + (i-numperside)*step for (center, step)
                  in zip(centers, steps)] for i in range(2*numperside+1)]
-    scanstr = _infostr('mcscan', (settings, dev) + args, kwargs)
+    scaninfo = _infostr('mcscan', (settings, dev) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(restargs, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs)
     MiezeScan(settings, devs, values, move, multistep, detlist,
-              envlist, preset, scaninfo).run()
+              envlist, preset, scaninfo, scanuserinfo).run()
 
 
 @usercommand
@@ -160,11 +161,11 @@ def msingle(settings, *args, **kwargs):
 
     All other arguments are handled like for `count`.
     """
-    scanstr = _infostr('msingle', (settings,) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(args, kwargs, scanstr)
+    scaninfo = _infostr('msingle', (settings,) + args, kwargs)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs)
     MiezeScan(settings, [], [], move, multistep, detlist,
-              envlist, preset, scaninfo).run()
+              envlist, preset, scaninfo, scanuserinfo).run()
 
 
 @usercommand

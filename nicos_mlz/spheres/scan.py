@@ -41,11 +41,11 @@ VALIDTARGETS = ['eta', 'acq']
 class VariableTimeScan(SweepScan):
     def __init__(self, devices, startend, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
-                 scaninfo=None, subscan=False, xindex=None, totaltime=None,
+                 scaninfo=None, scanuserinfo=None, subscan=False, xindex=None, totaltime=None,
                  target=VALIDTARGETS[0]):
         SweepScan.__init__(self, devices, startend, -1, firstmoves,
                            multistep, detlist, envlist, preset, scaninfo,
-                           subscan, xindex)
+                           scanuserinfo, subscan, xindex)
 
         self.eta = time() + totaltime
         self.remainingTime = totaltime
@@ -110,14 +110,14 @@ def atscan(time, *args, **kwargs):
     """A timescan that has an adjustable running time."""
     time = parseDuration(time, 'atscan')
 
-    scanstr = _infostr('vartimescan', (time,) + args, kwargs)
+    scaninfo = _infostr('vartimescan', (time,) + args, kwargs)
     target = kwargs.pop('target', 'eta')
 
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(args, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs)
 
     scan = VariableTimeScan([], [], move, multistep, detlist, envlist,
-                            preset, scaninfo, totaltime=time, target=target)
+                            preset, scaninfo, scanuserinfo, totaltime=time, target=target)
     scan.run()
 
 

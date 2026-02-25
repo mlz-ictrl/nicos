@@ -59,10 +59,10 @@ def _getQ(v, name):
 
 def _handleQScanArgs(fn, args, kwargs, Q, dQ, numpoints):
     preset, detlist, envlist, move, multistep = {}, None, None, [], []
-    scaninfo = ''
+    scanuserinfo = None
     for arg in args:
         if isinstance(arg, str):
-            scaninfo = arg + ' - ' + scaninfo
+            scanuserinfo = arg + ' - ' + scanuserinfo if scanuserinfo else arg
         elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
@@ -100,8 +100,8 @@ def _handleQScanArgs(fn, args, kwargs, Q, dQ, numpoints):
                 move.append((session.devices[key], value))
         else:
             preset[key] = value
-    scaninfo += _infostr(fn, (Q, dQ, numpoints) + args, kwargs)
-    return preset, scaninfo, detlist, envlist, move, multistep, Q, dQ
+    scaninfo = _infostr(fn, (Q, dQ, numpoints) + args, kwargs)
+    return preset, scaninfo, scanuserinfo, detlist, envlist, move, multistep, Q, dQ
 
 
 @usercommand
@@ -126,7 +126,7 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
     * plot='res'  -- plot resolution ellipsoid along scan
     * plot='hkl'  -- plot position of scan points in scattering plane
     """
-    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
+    preset, scaninfo, scanuserinfo, detlist, envlist, move, multistep, Q, dQ = \
         _handleQScanArgs('qscan', args, kwargs, _getQ(Q, 'Q'), _getQ(dQ, 'dQ'),
                          numpoints)
     if all(v == 0 for v in dQ) and numpoints > 1:
@@ -142,7 +142,7 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
                 ki=kwargs.get('ki'))
     else:
         scan = QScan(values, move, multistep, detlist, envlist, preset,
-                     scaninfo)
+                     scaninfo, scanuserinfo)
         scan.run()
 
 
@@ -167,7 +167,7 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     * plot='res'  -- plot resolution ellipsoid along scan
     * plot='hkl'  -- plot position of scan points in scattering plane
     """
-    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
+    preset, scaninfo, scanuserinfo, detlist, envlist, move, multistep, Q, dQ = \
         _handleQScanArgs('qcscan', args, kwargs, _getQ(Q, 'Q'),
                          _getQ(dQ, 'dQ'), numperside)
     if all(v == 0 for v in dQ) and numperside > 0:
@@ -183,7 +183,7 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
                 ki=kwargs.get('ki'))
     else:
         scan = QScan(values, move, multistep, detlist, envlist, preset,
-                     scaninfo)
+                     scaninfo, scanuserinfo)
         scan.run()
 
 

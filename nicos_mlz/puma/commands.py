@@ -89,14 +89,14 @@ class ADScanDataset(ScanDataset):
 
 class MultiADScan(Scan):
 
-    def __init__(self, info_header, parnames, parlist, sthpos, sttpos, monopos,
-                 cadpos, preset, detseq=1):
+    def __init__(self, parnames, parlist, sthpos, sttpos, monopos,
+                 cadpos, preset, detseq=1, scaninfo=None, scanuserinfo=None):
         detlist = [session.getDevice('det')]
         move = [[session.getDevice(devname), pos]
                 for devname, pos in zip(['sth', 'stt', 'mono', 'cad'],
                                         [sthpos, sttpos, monopos, cadpos])]
         Scan.__init__(self, [], [[]], preset={'t': preset}, detlist=detlist,
-                      scaninfo=info_header, firstmoves=move)
+                      scaninfo=scaninfo, scanuserinfo=scanuserinfo, firstmoves=move)
         self._detseq = detseq
         self._parnames = [(v.split('/')[0:] or [''])[0] for v in parnames]
         self._parunits = [(v.split('/')[1:] or [''])[0] for v in parnames]
@@ -119,6 +119,7 @@ class MultiADScan(Scan):
             detectors=self._detlist,
             preset=self._preset,
             info=self._scaninfo,
+            userinfo=self._scanuserinfo,
             npoints=self._npoints,
             xindex=self._xindex,
             startpositions=self._startpositions,
@@ -266,15 +267,15 @@ def multiadscan(info_header, parnames, parlist, sthpos, sttpos, monopos,
                      [-3.56, 1.38, 0.00, 5.07, -10.00, -2.00, -12.39, 59.38],
                     ], 276.25, 19.995, 3.235, -0.8016, 1)
     """
-    MultiADScan(info_header, parnames, parlist, sthpos, sttpos, monopos,
-                cadpos, preset, detseq).run()
+    MultiADScan(parnames, parlist, sthpos, sttpos, monopos,
+                cadpos, preset, detseq, scaninfo=info_header, scanuserinfo=info_header).run()
 
 
 class TimeADScan(SweepScan):
 
     def __init__(self, header, parnames, parlist, numpoints, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
-                 scaninfo=None, subscan=False, xindex=None):
+                 scaninfo=None, scanuserinfo=None, subscan=False, xindex=None):
 
         self._parlist = parlist
         self._parnames = [(v.split('/')[0:] or [''])[0] for v in parnames]
@@ -282,8 +283,8 @@ class TimeADScan(SweepScan):
         self._valueInfo = tuple(Value(n, unit=u if u else 'rlu', fmtstr='%.2f')
                                 for n, u in zip(self._parnames, self._parunits))
         SweepScan.__init__(self, [], [], numpoints, firstmoves, multistep,
-                           detlist, envlist, preset, scaninfo, subscan,
-                           xindex)
+                           detlist, envlist, preset, scaninfo, scanuserinfo,
+                           subscan, xindex)
 
     def readEnvironment(self):
         SweepScan.readEnvironment(self)
@@ -346,7 +347,7 @@ def timeadscan(numpoints, header, parnames, parlist, sth, stt, mono, cad, t):
                    ], 276.25, 19.995, 3.235, -0.8016, 1)
     """
     preset = {'t': t}
-    scanstr = _infostr('timeadscan',
+    scaninfo = _infostr('timeadscan',
                        (numpoints,) + (sth, stt, mono, cad),
                        preset)
     move = [[session.getDevice(devname), pos]
@@ -354,5 +355,5 @@ def timeadscan(numpoints, header, parnames, parlist, sth, stt, mono, cad, t):
                                     [sth, stt, mono, cad])]
 
     scan = TimeADScan(header, parnames, parlist, numpoints, move,
-                      preset=preset, scaninfo='%s %s' % (scanstr, header))
+                      preset=preset, scaninfo=scaninfo, scanuserinfo=header)
     scan.run()

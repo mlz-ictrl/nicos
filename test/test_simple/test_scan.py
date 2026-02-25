@@ -75,7 +75,8 @@ def test_scan(session, log):
             ['timer', 'mon1', 'ctr1', 'ctr2', 'img.sum']
         assert [v.unit for v in dataset.detvalueinfo] == \
             ['s', 'cts', 'cts', 'cts', 'cts']
-        assert dataset.info.startswith('test scan')
+        assert dataset.combinedinfo.startswith('test scan')
+        assert dataset.userinfo == 'test scan'
         assert len(dataset.detvaluelists) == 5
         assert len(dataset.envvaluelists[0]) == 3
         assert dataset.envvaluelists[0] == [1., 1., 1.]  # avg, min, max
@@ -361,7 +362,8 @@ def test_manualscan(session):
         SetEnvironment()
     dataman = session.experiment.data
     dataset = dataman.getLastScans()[-1]
-    assert dataset.info.startswith('manscan')
+    assert dataset.combinedinfo.startswith('manscan')
+    assert dataset.userinfo == 'manscan'
     # note: here, the env devices given in the command come first
     assert dataset.envvaluelists == [[0., 0., 0.], [0., 0., 0.],
                                      [1., 1., 0.], [1., 1., 0.],
@@ -441,7 +443,8 @@ def test_twodscan(session):
     twodscan(m, 0, 1, 2, m2, 0, 1, 2, '2d')
     dataman = session.experiment.data
     dataset = dataman.getLastScans()[-1]
-    assert dataset.info.startswith('2d')
+    assert dataset.combinedinfo.startswith('2d')
+    assert dataset.userinfo == '2d'
     assert dataset.subsets[0].devvaluelist == [0.]
     assert dataset.subsets[0].envvaluelist == [1.]
     assert dataset.subsets[1].devvaluelist == [1.]

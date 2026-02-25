@@ -32,10 +32,10 @@ class WallTimeScan(SweepScan):
 
     def __init__(self, devices, startend, numpoints, walltime, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
-                 scaninfo=None, subscan=False):
+                 scaninfo=None, scanuserinfo=None, subscan=False):
         SweepScan.__init__(self, devices, startend, numpoints, firstmoves,
                            multistep, detlist, envlist, preset, scaninfo,
-                           subscan)
+                           scanuserinfo, subscan)
         self.walltime = walltime
 
     def preparePoint(self, num, xvalues):

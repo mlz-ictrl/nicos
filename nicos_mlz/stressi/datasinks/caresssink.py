@@ -290,15 +290,13 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 self._write_string('PROPOSAL', value)
 
     def _write_comment(self, valuelist=None):
-        comment = self.dataset.info.split('-')
-        if len(comment) > 1:
-            comment = comment[0].strip()
-        else:
+        comment = self.dataset.userinfo
+        if not comment:
             for device, key, value in valuelist:
                 if device == 'Exp' and key == 'remark':
                     comment = value
                     break
-        self._write_string('COM', comment)
+        self._write_string('COM', comment.strip())
 
     def _write_sample(self, valuelist):
         for device, key, value in valuelist:
@@ -466,7 +464,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     def begin(self):
         ds = self.dataset
         self.log.debug('begin: %r', ds.settype)
-        scaninfo = ds.info.split('-')[-1].strip()
+        scaninfo = ds.info
         if scaninfo.startswith('contscan'):
             self._scan_type = 'SGEN2'
         elif scaninfo.startswith('scan'):

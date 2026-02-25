@@ -81,11 +81,12 @@ def _fixType(dev, args, mkpos):
     return devs, values, restargs
 
 
-def _handleScanArgs(args, kwargs, scaninfo):
+def _handleScanArgs(args, kwargs):
     preset, detlist, envlist, move, multistep = {}, None, None, [], []
+    scanuserinfo = None
     for arg in args:
         if isinstance(arg, str):
-            scaninfo = arg + ' - ' + scaninfo
+            scanuserinfo = arg + ' - ' + scanuserinfo if scanuserinfo else arg
         elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
@@ -111,10 +112,10 @@ def _handleScanArgs(args, kwargs, scaninfo):
             else:
                 move.append((session.devices[key], value))
         elif key == 'info' and isinstance(value, str):
-            scaninfo = value + ' - ' + scaninfo
+            scanuserinfo = value + ' - ' + scanuserinfo if scanuserinfo else value
         else:
             preset[key] = value
-    return preset, scaninfo, detlist, envlist, move, multistep
+    return preset, scanuserinfo, detlist, envlist, move, multistep
 
 
 def _infostr(fn, args, kwargs):
@@ -205,12 +206,12 @@ def scan(dev, *args, **kwargs):
         return [[start + i*step for (start, step) in zip(starts, steps)]
                 for i in range(numpoints)]
 
-    scanstr = _infostr('scan', (dev,) + args, kwargs)
+    scaninfo = _infostr('scan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(restargs, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs)
     Scan(devs, values, None, move, multistep, detlist, envlist, preset,
-         scaninfo).run()
+         scaninfo, scanuserinfo).run()
 
 
 @usercommand
@@ -256,12 +257,12 @@ def gridscan(dev, *args, **kwargs):
             return [tuple(v[i] for v in values) for i in range(len(values[0]))]
         raise UsageError('numpoints must be a list')
 
-    scanstr = _infostr('gridscan', (dev,) + args, kwargs)
+    scaninfo = _infostr('gridscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(restargs, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs)
     Scan(devs, values, None, move, multistep, detlist, envlist, preset,
-         scaninfo).run()
+         scaninfo, scanuserinfo).run()
 
 
 @usercommand
@@ -307,13 +308,13 @@ def cscan(dev, *args, **kwargs):
     def mkpos(centers, steps, numperside):
         return [[center + (i-numperside)*step for (center, step)
                  in zip(centers, steps)] for i in range(2*numperside+1)]
-    scanstr = _infostr('cscan', (dev,) + args, kwargs)
+    scaninfo = _infostr('cscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
     subscan = kwargs.pop(SUBSCAN, False)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(restargs, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs)
     Scan(devs, values, None, move, multistep, detlist, envlist, preset,
-         scaninfo, subscan=subscan).run()
+         scaninfo, scanuserinfo, subscan=subscan).run()
 
 
 @usercommand
@@ -333,11 +334,11 @@ def timescan(numpoints, *args, **kwargs):
 
     >>> timescan(500, t=2, delay=5)
     """
-    scanstr = _infostr('timescan', (numpoints,) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(args, kwargs, scanstr)
+    scaninfo = _infostr('timescan', (numpoints,) + args, kwargs)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs)
     scan = SweepScan([], [], numpoints, move, multistep, detlist, envlist,
-                     preset, scaninfo)
+                     preset, scaninfo, scanuserinfo)
     scan.run()
 
 
@@ -366,11 +367,11 @@ def sweep(dev, start, end, *args, **kwargs):
     # XXX: the SweepScan supports a) max #points and b) multiple devices, but
     # we don't offer that in this simplified interface until it's actually
     # needed
-    scanstr = _infostr('sweep', (dev, start, end,) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(args, kwargs, scanstr)
+    scaninfo = _infostr('sweep', (dev, start, end,) + args, kwargs)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs)
     scan = SweepScan([dev], [(start, end)], -1, move, multistep, detlist,
-                     envlist, preset, scaninfo)
+                     envlist, preset, scaninfo, scanuserinfo)
     scan.run()
 
 
@@ -516,27 +517,27 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     if speed is not None and not isinstance(speed, number_types):
         args = (speed,) + args
         speed = None
-    scanstr = _infostr('contscan',
+    scaninfo = _infostr('contscan',
                        (dev, start, end, speed, timedelta) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(args, kwargs, scanstr)
+    preset, scanuserinfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs)
     if preset:
         raise UsageError('preset not supported in continuous scan')
     if multistep:
         raise UsageError('multi-step not supported in continuous scan')
     scan = ContinuousScan(dev, start, end, speed, timedelta, move,
-                          detlist, envlist, scaninfo)
+                          detlist, envlist, scaninfo, scanuserinfo)
     scan.run()
 
 
 class _ManualScan:
     def __init__(self, args, kwargs):
         title = kwargs.pop('_title', 'manualscan')
-        scanstr = _infostr(title, args, kwargs)
-        preset, scaninfo, detlist, envlist, move, multistep = \
-            _handleScanArgs(args, kwargs, scanstr)
+        scaninfo = _infostr(title, args, kwargs)
+        preset, scanuserinfo, detlist, envlist, move, multistep = \
+            _handleScanArgs(args, kwargs)
         self.scan = ManualScan(move, multistep, detlist, envlist,
-                               preset, scaninfo)
+                               preset, scaninfo, scanuserinfo)
 
     def __enter__(self):
         session._manualscan = self.scan
