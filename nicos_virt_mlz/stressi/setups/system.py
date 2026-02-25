@@ -92,7 +92,7 @@ devices = dict(
             'instrument': 'Stressi',
             'detector': 'image',
         },
-        settypes = {'point'},
+        settypes = {'scan', 'subscan'},
         filenametemplate = ['m2%(scancounter)08d.nxs'],
         detectors = ['adet'],
     ),
