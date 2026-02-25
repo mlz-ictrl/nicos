@@ -5,12 +5,6 @@ group = 'optional'
 tango_base = 'tango://phys.j-nse.frm2:10000/j-nse/'
 
 devices = dict(
-    coil_monitor = device('nicos.devices.entangle.Sensor',
-        description = 'Voltage from coil',
-        tangodevice = tango_base + 'datalogger/plc_analog1',
-        pollinterval = 10,
-        maxage = 30,
-    ),
     cc1r1 = device('nicos.devices.entangle.Sensor',
         description = 'Temp cc1r1',
         tangodevice = tango_base + 's7_io/CC1R1',
@@ -46,7 +40,7 @@ devices = dict(
     HeMon = device('nicos.devices.entangle.Sensor',
         description = 'He percentage',
         tangodevice = tango_base + 's7_io/HeMon',
-        unit = 'percent',
+        unit = '%',
         fmtstr = '%.3g',
         pollinterval = 60,
         maxage = 130,
@@ -122,16 +116,5 @@ devices = dict(
         fmtstr = '%.3g',
         pollinterval = 60,
         maxage = 130,
-    ),
-    KompassArmMono = device('nicos.devices.entangle.Sensor',
-        description = 'Position of Kompass mono-2theta',
-        # strange name, since it also masquerades as a GPIB communication device for NSE prog.
-        tangodevice = tango_base + 'gpib/7',
-        unit = 'deg',
-    ),
-    KompassArmSample = device('nicos.devices.entangle.Sensor',
-        description = 'Position of Kompass sample-2theta',
-        tangodevice = tango_base + 'gpib/8',
-        unit = 'deg',
     ),
 )
