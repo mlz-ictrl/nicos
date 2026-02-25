@@ -25,7 +25,7 @@
 
 
 from nicos.core.mixins import DeviceMixinBase
-from nicos.core.params import Param, floatrange, tupleof
+from nicos.core.params import Param, floatrange, nonzero, tupleof
 from nicos.devices.generic import Detector as GenericDetector, \
     GatedDetector as GenericGatedDetector, LockedDevice
 
@@ -34,7 +34,8 @@ class DetectorMixin(DeviceMixinBase):
     """Provide the size parameter."""
     parameters = {
         'size': Param('physical size of the active detector area',
-                      type=tupleof(floatrange(0), floatrange(0)),
+                      type=tupleof(nonzero(floatrange(0)),
+                                   nonzero(floatrange(0))),
                       settable=False, mandatory=False, unit='mm',
                       default=(1000., 1000.)),
     }

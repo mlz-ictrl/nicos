@@ -22,7 +22,7 @@
 # *****************************************************************************
 
 from nicos.core.params import Attach, Param, Value, floatrange, intrange, \
-    oneof, tupleof
+    nonzero, oneof, tupleof
 from nicos.devices.entangle import ImageChannel
 from nicos.devices.tango import PyTangoDevice
 
@@ -42,7 +42,8 @@ class Detector(ImageChannel):
 
     parameters = {
         'pixel_size': Param('Size of a single pixel (in mm)',
-                            type=tupleof(floatrange(0), floatrange(0)),
+                            type=tupleof(nonzero(floatrange(0)),
+                                         nonzero(floatrange(0))),
                             volatile=False, settable=False,
                             default=(64 / 1280, 8), unit='mm',
                             category='instrument'),

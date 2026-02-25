@@ -27,7 +27,7 @@ from time import time as currenttime
 
 from nicos import session
 from nicos.core import Attach, Override, Param, dictof, floatrange, listof, \
-    oneof, status, tupleof
+    nonzero, oneof, status, tupleof
 from nicos.core.constants import POLLER, SIMULATION
 from nicos.core.device import Moveable, Readable
 from nicos.core.errors import ConfigurationError, ModeError, MoveError, \
@@ -100,9 +100,9 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         'maxofftime': Param('Maximum allowed Off-time for fast ramp-up',
                             type=int, unit='s', default=12 * 3600),
         'slowramp': Param('Slow ramp-up speed (volt per minute)',
-                          type=floatrange(0), unit='main/min', default=90),
+                          type=nonzero(floatrange(0)), unit='main/min', default=90),
         'fastramp': Param('Fast ramp-up speed (volt per minute)',
-                          type=float, unit='main/min', default=360),
+                          type=nonzero(floatrange(0)), unit='main/min', default=360),
         'rampsteps': Param('Cold-ramp-up sequence (voltage, stabilize_minutes)',
                            type=listof(tupleof(floatrange(0), floatrange(0))),
                            unit='',

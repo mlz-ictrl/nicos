@@ -26,7 +26,7 @@ from nicos.core import status
 from nicos.core.device import Moveable
 from nicos.core.errors import InvalidValueError
 from nicos.core.params import Attach, Override, Param, floatrange, limits, \
-    oneof
+    nonzero, oneof
 from nicos.devices.entangle import Motor
 
 
@@ -44,7 +44,7 @@ class RadialCollimator(Moveable):
 
     parameters = {
         'frequency': Param('Frequency of oscillation',
-                           type=floatrange(0), unit='Hz', settable=True,
+                           type=nonzero(floatrange(0)), unit='Hz', settable=True,
                            userparam=True, category='instrument'),
         'frequency_limits': Param('The frequency limits',
                                   type=limits, unit='Hz', settable=False,
