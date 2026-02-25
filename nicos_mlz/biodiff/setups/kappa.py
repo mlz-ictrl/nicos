@@ -1,5 +1,5 @@
 description = 'Mini-kappa axes setup'
-group = 'lowlevel'
+group = 'optional'
 
 tango_base = 'tango://phys.biodiff.frm2:10000/biodiff/'
 

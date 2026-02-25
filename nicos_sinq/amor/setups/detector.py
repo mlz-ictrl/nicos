@@ -81,7 +81,6 @@ devices = dict(
                            description = 'Status of the file-writer',
                            brokers = configdata('config.KAFKA_BROKERS'),
                            topic = configdata('config.DETECTOR_EVENTS_TOPIC'),
-                           chopper_speed = 'ch1_speed',
                            unit = '/s',
                            ),
 
