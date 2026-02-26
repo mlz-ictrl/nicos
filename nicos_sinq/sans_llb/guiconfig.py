@@ -25,8 +25,23 @@ main_window = docked(
                     ),
                  tabbed(
                      ('Output',
-                      panel('nicos.clients.flowui.panels.console.ConsolePanel',
-                            hasinput=False)),
+                      vsplit(
+                          panel('nicos.clients.flowui.panels.console.ConsolePanel',
+                                hasinput=False),
+                          panel('nicos_sinq.sans_llb.gui.panels.sans_overview.SANSInstrumentSketch',
+                                guide_end = -18600,
+                                polarizer = ('col0', -18500, -15500),
+                                collimators = (
+                                    ('col1', -15500, -11750),
+                                    ('col2', -11750, -8000),
+                                    ('col3', -8000, -4250),
+                                    ('col4', -4250, -3000),
+                                    ('col5', -3000, -1250),
+                                ),
+                                samples = 9,
+                                sample_changer = 'schanger',
+                                ),
+                              )),
                      ('Scan Plot',
                       panel('nicos.clients.flowui.panels.scans.ScansPanel')),
                      ('Detector Image',
@@ -34,7 +49,7 @@ main_window = docked(
                      ('Script Status',
                       panel('nicos.clients.flowui.panels.status.ScriptStatusPanel',
                             eta=True)),
-                 ),
+                     ),
 
              ), # vsplit
              panel(
