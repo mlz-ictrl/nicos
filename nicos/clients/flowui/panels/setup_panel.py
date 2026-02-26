@@ -42,7 +42,6 @@ class ExpPanel(DefaultExpPanel):
       a new experiment has been started.
     """
 
-    panelName = 'Experiment setup'
     ui = path.join(uipath, 'panels', 'ui_files', 'setup_exp.ui')
 
     def __init__(self, parent, client, options):

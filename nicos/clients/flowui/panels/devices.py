@@ -32,7 +32,6 @@ from nicos.guisupport.qt import QCheckBox, Qt
 
 
 class DevicesPanel(DefaultDevicesPanel):
-    panelName = 'ESS Devices'
 
     @property
     def groupIcon(self):
