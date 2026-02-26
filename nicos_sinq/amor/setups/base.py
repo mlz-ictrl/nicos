@@ -31,6 +31,7 @@ devices = dict(
                        soz = 'soz',
                        som = 'som',
                        d3z = 'd3z',
+                       ka0 = 'ka0',
                        f_zoffset_target = 'f_zoffset_target',
                        s_zoffset_target = 's_zoffset_target',
                        sample_tilt_target = 'sample_tilt_target',

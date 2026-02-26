@@ -77,8 +77,6 @@ class AmorBase(Waitable):
     parameters = {
         'div': Param('Divergence aperture: Incident beam divergence',
                      type=float, userparam=True, settable=True, volatile=True),
-        'ka0': Param('Divergence aperture: Beam inclination after guide',
-                     type=float, userparam=True, settable=True),
         'kad': Param('Divergence aperture: Beam center offset', type=float,
                      volatile=True, userparam=True, settable=True),
         'fzoffset': Param('vertical focal point offset',
@@ -102,19 +100,20 @@ class AmorBase(Waitable):
         'd1b': Attach('slit 1 bottom', Moveable),
         'd1t': Attach('slit 1 top', Moveable),
         'd2z': Attach('slit 2 height', Moveable),
-        'd2b': Attach('slit2 bottom', Moveable),
-        'd2t': Attach('slit2 top', Moveable),
-        'd3b': Attach('slit3 bottom', Moveable),
-        'd3t': Attach('slit3 top', Moveable),
+        'd2b': Attach('slit 2 bottom', Moveable),
+        'd2t': Attach('slit 2 top', Moveable),
+        'd3b': Attach('slit 3 bottom', Moveable),
+        'd3t': Attach('slit 3 top', Moveable),
         'soz': Attach('sample height', Moveable),
         'f_zoffset_target': Attach('Manual moveable holding the target for f_zoffset', Moveable),
         's_zoffset_target': Attach('Manual moveable holding the target for s_zoffset', Moveable),
         'som': Attach('sample omega', Device),
         'sample_tilt_target': Attach('Manual moveable holding the target for sample_tilt', Moveable),
-        'd3z': Attach('slit3 height', Moveable),
+        'd3z': Attach('slit 3 height', Moveable),
         'det_zoffset': Attach('Detector tilt', Moveable),
         'det_nu': Attach('detector offset', Moveable),
         'kappa': Attach('beam inclination', Moveable),
+        'ka0': Attach('mean beam inclination', Moveable),
     }
 
     # A "Waitable" by default needs a unit. Here this does not make sense.
@@ -181,7 +180,7 @@ class AmorBase(Waitable):
 
     def doWriteKad(self, target):
         limit = 1.8
-        ka0 = self.ka0
+        ka0 = self._attached_ka0.read(0)
         sx = self._attached_distances.sample
         d1x = self._attached_distances.diaphragm1
         d2x = self._attached_distances.diaphragm2
