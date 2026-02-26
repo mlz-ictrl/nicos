@@ -91,6 +91,7 @@ class StressiTemplateProvider(PowderTemplateProvider):
                           PreciseManualSwitch):
                 self._inst.update({
                     # 'primary_collimator:NXcollimator': SollerCollimator()
+                    'primary_collimator:NXcollimator': {}
                 })
                 self._inst['primary_collimator:NXcollimator'].update({
                     'geometry:NXgeometry': {
@@ -115,6 +116,7 @@ class StressiTemplateProvider(PowderTemplateProvider):
                           PreciseManualSwitch):
                 self._inst.update({
                     # 'secondary_collimator:NXcollimator': SollerCollimator()
+                    'secondary_collimator:NXcollimator': {}
                 })
                 self._inst['secondary_collimator:NXcollimator'].update({
                     'geometry:NXgeometry': {
