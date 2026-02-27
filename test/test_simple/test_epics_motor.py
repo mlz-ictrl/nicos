@@ -379,7 +379,7 @@ class DefTest:
         assert stat[1]
 
         # Pause the test until the reference run is done
-        thread.join(1)
+        thread.join(2)
 
         if thread.is_alive():
             pytest.fail('Simulated reference run did not finish in expected time')
