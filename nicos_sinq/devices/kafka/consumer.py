@@ -19,6 +19,7 @@
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
 #   Matt Clarke <matt.clarke@ess.eu>
+#   Stefan Mathis <stefan.mathis@psi.ch>
 #
 # *****************************************************************************
 import time
@@ -92,16 +93,26 @@ class KafkaConsumer:
         """Remove any existing subscriptions."""
         self._consumer.unsubscribe()
 
-    def poll(self, timeout_ms=5):
+    def poll(self, timeout=5):
         """Poll for messages.
 
-        Note: returns at most one message.
+        Calls the poll method of the underlying consumer, see:
+        https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#confluent_kafka.Consumer.poll
 
-        :param timeout_ms: The poll timeout
-        :return: A message or None if no message received within the
-            timeout.
+        Note: returns at most one message.
         """
-        return self._consumer.poll(timeout_ms // 1000)
+        return self._consumer.poll(timeout)
+
+    def consume(self, num_messages=1, timeout=0.005):
+        """Consumes the defined number of messages.
+
+        Calls the consume method of the underlying consumer, see:
+        https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#confluent_kafka.Consumer.consume
+
+        Note: returns up to `num_messages` messages.
+        """
+        return self._consumer.consume(num_messages, timeout)
+
 
     def close(self):
         """Close the consumer."""
@@ -167,11 +178,19 @@ class KafkaSubscriber(DeviceMixinBase):
                   type=listof(host(defaultport=9092)),
                   mandatory=True,
                   preinit=True,
-                  userparam=False)
+                  userparam=False),
+        'num_messages':
+            Param('Maximum number of messages which will be consumed during ' \
+                  'one iteration of self._get_new_messages',
+                  type=int,
+                  userparam=False,
+                  default=1000,
+                  )
     }
     _updater_thread = None
 
     def doPreinit(self, mode):
+
         if mode != SIMULATION:
             self._consumer = KafkaConsumer.create(self.brokers)
         else:
@@ -212,7 +231,7 @@ class KafkaSubscriber(DeviceMixinBase):
             time.sleep(self._long_loop_delay)
 
             messages = []
-            data = self._consumer.poll(timeout_ms=5)
+            data = self._consumer.consume(self.num_messages, timeout=0.005)
             if data:
                 messages.append((data.timestamp(), data.value()))
 
