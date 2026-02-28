@@ -4,7 +4,7 @@ devices = dict(
     ka0 = device('nicos.devices.generic.manual.ManualMove',
                  default = 0.306,
                  unit = 'deg',
-                 abslimits = (0, 1),
+                 abslimits = (0.306, 0.306),
                  visibility = ('metadata', 'namespace'),
                  ),
     spin_flipper_current_p = device('nicos.devices.generic.manual.ManualMove',

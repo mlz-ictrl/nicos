@@ -55,7 +55,7 @@ def synchronize_daq():
             session.log.error('Synchronizing the DAQ time failed. Check if '
                               'the computer det-efu02 is online.')
         else:
-            session.log.info('Synchronization successfull.')
+            session.log.debug('Synchronization successfull.')
 
 
 @usercommand

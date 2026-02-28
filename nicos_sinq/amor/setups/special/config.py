@@ -4,17 +4,20 @@ import os
 group = 'configdata'
 
 KAFKA_BROKERS = [os.environ.get('KAFKABROKERS', 'linkafka01.psi.ch:9092')]
+NICOS_FORWARDER_TOPIC = 'amor_nicosForwarder'
 
-FILEWRITER_COMMAND_TOPIC = 'AMOR_filewriterConfig'
-FILEWRITER_STATUS_TOPIC = 'AMOR_filewriterStatus'
+FILEWRITER_COMMAND_TOPIC = 'amor_filewriterConfig'
+FILEWRITER_STATUS_TOPIC = 'amor_filewriterStatus'
+FILEWRITER_POOL_TOPIC = 'amor_filewriterPool'
 
-FORWARDER_COMMAND_TOPIC = 'AMOR_forwarderConfig'
-FORWARDER_STATUS_TOPIC = 'AMOR_forwarderStatus'
-FORWARDER_DATA_TOPIC = 'AMOR_forwarderData'
+HIST_COMMANDS_TOPIC = 'amor_histCommands'
+DETECTOR_HISTOGRAM_YZ_TOPIC = 'amor_histograms_YZ'
+DETECTOR_HISTOGRAM_TOFZ_TOPIC = 'amor_histograms_TofZ'
 
-HISTOGRAM_MEMORY_URL = 'http://amorhm:80/admin'
-HISTOGRAM_MEMORY_ENDIANESS = 'big'
+DETECTOR_EVENTS_TOPIC = 'amor_detector'
+DETECTOR_RATE_TOPIC = 'amor_detector_rate'
+MONITOR_EVENTS_TOPIC = 'amor_beam_monitor'
+CHOPPER_TRIGGER_TOPIC = 'amor_chopper_trigger'
 
-DETECTOR_EVENTS_TOPIC = 'amor_ev44'
-
-DATA_PATH = os.environ.get('NICOSDUMP', '.') + '/amor/'
+DATA_PATH = os.environ.get('NICOSDUMP', '.')
+SCRIPT_ROOT = "/home/sinquser"
