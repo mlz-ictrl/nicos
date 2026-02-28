@@ -53,6 +53,9 @@ class McStasSimulation(BaseSimulation):
         'gravity': Param('Switch the gravity on/off',
                          type=bool, settable=True, mandatory=False,
                          default=True),
+        'sim_chopper': Param('Use chopper simulation',
+                             type=bool, settable=True, mandatory=False,
+                             default=False),
     }
 
     attached_devices = {
@@ -187,7 +190,7 @@ class McStasSimulation(BaseSimulation):
         params.extend([
             # Diese Variable schaltet das Chopper-System ein (1) oder aus (0).
             # Lass sie bitte immer auf 1 eingestellt
-            'sim_chopper=1',
+            'sim_chopper=%d' % self.sim_chopper,
             'rpm=%s' % self._dev_value(self._attached_rpm),
             'disc2_Pos=%s' % self._dev_value(self._attached_disc2_pos),
             'angle2=%s' % self._attached_chopper2.phase,
@@ -279,6 +282,7 @@ class McStasSimulation(BaseSimulation):
 
             'l_probe=%s' % self._attached_sample.length,
             'w_probe=%s' % self._attached_sample.width,
+            'h_probe=%s' % self._attached_sample.height,
             'sample_name=%s' % self._attached_sample.samplename,
             'sample_file=%s' % os.path.join(self._attached_sample.datapath,
                                             self._attached_sample.sample_file),

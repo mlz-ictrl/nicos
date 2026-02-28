@@ -37,4 +37,7 @@ class Sample(BaseSample):
         'length': Param('length of sample in beam',
                         type=floatrange(0, 100), settable=True, default=100,
                         unit='mm', fmtstr='%.1f', category='sample'),
+        'height': Param('height of sample in beam',
+                        type=floatrange(0, 100), settable=True, default=0,
+                        unit='mm', fmtstr='%.1f', category='sample'),
     }
