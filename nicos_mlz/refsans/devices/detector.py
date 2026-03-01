@@ -35,4 +35,10 @@ class ImageChannel(BaseImageChannel):
                             volatile=False, settable=False,
                             default=(2.095, 2.923), unit='mm',
                             category='instrument'),
+        'vendor': Param('Detectors vendor',
+                        type=str, settable=False, default='Denex',
+                        category='instrument'),
+        'model': Param('Vendors detector model',
+                       type=str, settable=False, default='DNX-700 TN',
+                       category='instrument'),
     }

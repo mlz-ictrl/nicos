@@ -11,10 +11,6 @@ tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 
 devices = dict(
-    det_type = device('nicos.devices.generic.ManualSwitch',
-        description = 'type of detector',
-        states = ['DNX-700 TN'],
-    ),
     primary_beam = device('nicos.devices.generic.ManualMove',
         description = 'Number of primary beam measurement for analysis',
         abslimits = (0, 100000000),
