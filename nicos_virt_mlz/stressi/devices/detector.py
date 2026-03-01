@@ -25,7 +25,8 @@
 
 import numpy as np
 
-from nicos.core import Attach, Override, Param, Readable, oneof, tupleof
+from nicos.core import Attach, Override, Param, Readable, floatrange, \
+    nonzero, oneof, tupleof
 from nicos.core.constants import FINAL, LIVE, MASTER
 from nicos.devices.mcstas import MIN_RUNTIME, McStasCounter as BaseCounter, \
     McStasImage, McStasSimulation as BaseSimulation
@@ -81,8 +82,10 @@ class Image(McStasImage):
 
     parameters = {
         'pixel_size': Param('Size of a single pixel (in mm)',
-                            type=tupleof(float, float), volatile=False,
-                            settable=False, default=(0.85, 0.85), unit='mm',
+                            type=tupleof(nonzero(floatrange(0)),
+                                         nonzero(floatrange(0))),
+                            volatile=False, settable=False,
+                            default=(0.85, 0.85), unit='mm',
                             category='instrument'),
         'neutron_section': Param("Section to take 'neutrons' from PSD file",
                                  type=oneof('Data', 'Events'), mandatory=False,
