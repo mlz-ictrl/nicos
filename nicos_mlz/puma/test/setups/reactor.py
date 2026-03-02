@@ -9,7 +9,7 @@ devices = dict(
         pollinterval = 10,
         maxage = 61,
         unit = 'MW',
-        jitter = 0.1,
+        jitter = 0.,
         fmtstr = '%.1f',
         curvalue = 19.8,
     ),
