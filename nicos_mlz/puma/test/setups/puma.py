@@ -206,9 +206,11 @@ devices = dict(
         templateclass = 'nicos_mlz.puma.nexus.templates.PumaTemplateProvider',
         filenametemplate = ['%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },
-        ss1 = 'slit',
-        ss2 = 'slit2',
-        ms = 'slit3',
+        device_mapping = {
+            'ss1': 'slit',
+            'ss2': 'slit2',
+            'ms': 'slit3',
+        },
     ),
 )
 

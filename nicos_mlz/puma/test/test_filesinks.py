@@ -33,6 +33,7 @@ import pytest
 from nicos import config
 from nicos.commands.tas import qcscan
 from nicos.utils import updateFileCounter
+from nicos.commands.measure import SetEnvironment
 
 session_setup = 'puma'
 exp_dataroot = 'pumadata'
@@ -86,7 +87,11 @@ class TestSinks:
         ki = session.getDevice('t_ki')
         ki.maw(1.4)
 
-        qcscan((1, 0, 0, 0), (0.002, 0, 0, 0), 1, t=0.001, kf=1.4)
+        SetEnvironment('B')
+
+        qcscan((1, 0, 0, 0), (0.002, 0, 0, 0), 1, t=0.1, kf=1.4)
+
+        SetEnvironment()
 
     @pytest.mark.skipif('h5py is None', reason='h5py module not available')
     def test_nexus_sink(self, session):
@@ -192,6 +197,14 @@ class TestSinks:
                 'entry/proposal_user/role',
                 'entry/sample',
                 'entry/sample/magnetic_field_env',
+                'entry/sample/magnetic_field_env/B',
+                'entry/sample/magnetic_field_env/B/value_log',
+                'entry/sample/magnetic_field_env/B/value_log/average_value',
+                'entry/sample/magnetic_field_env/B/value_log/average_value_errors',
+                'entry/sample/magnetic_field_env/B/value_log/maximum_value',
+                'entry/sample/magnetic_field_env/B/value_log/minimum_value',
+                'entry/sample/magnetic_field_env/B/value_log/time',
+                'entry/sample/magnetic_field_env/B/value_log/value',
                 'entry/sample/name',
                 'entry/sample/orientation_matrix',
                 'entry/sample/polar_angle',
