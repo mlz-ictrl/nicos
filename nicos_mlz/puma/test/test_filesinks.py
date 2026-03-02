@@ -94,9 +94,9 @@ class TestSinks:
         assert datapath.with_suffix('.nxs').is_file()
 
         with h5py.File(datapath.with_suffix('.nxs')) as h5:
-            nxs_keys = []
-            h5.visit(nxs_keys.append)
-            assert nxs_keys == [
+            nxs_keys = set()
+            h5.visit(nxs_keys.add)
+            assert nxs_keys == {
                 'entry',
                 'entry/comment',
                 'entry/control',
@@ -202,7 +202,7 @@ class TestSinks:
                 'entry/start_time',
                 'entry/timer',
                 'entry/title',
-            ]
+            }
             assert ds_as_str(h5['entry/definition']) == 'NXtas'
             assert h5['entry/definition'].attrs['version'] == b'v2024.02'
             assert ds_as_str(h5['entry/sample/name']) == 'mysample'
