@@ -44,7 +44,7 @@ class StoredPositions(Moveable):
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False, default='name'),
+        'unit': Override(mandatory=False, default=''),
     }
 
     valuetype = oneof([])
@@ -118,11 +118,11 @@ class StoredPositions(Moveable):
         """
         Shows the list of stored positions
         """
-        session.log.info('Stored positions on %s\n', self.name)
+        self.log.info('Stored positions on %s\n', self.name)
         items = []
         for key, val in self.positions.items():
             items.append((key, str(val)))
-        printTable(('Name', 'Device positions'), items, session.log.info)
+        printTable(('Name', 'Device positions'), items, self.log.info)
 
     def doStart(self, target):
         if not self.isCompleted():
@@ -133,11 +133,11 @@ class StoredPositions(Moveable):
             try:
                 dev = session.getDevice(devname, Moveable)
             except ConfigurationError:
-                session.log.error('Stored position %s no longer valid, '
-                                  'device %s not found', target, devname)
+                self.log.error('Stored position %s no longer valid, device %r '
+                               'not found', target, devname)
                 return
             if not dev.isAllowed(t):
-                session.log.error('Cannot drive %s to %s anymore', devname, t)
+                self.log.error('Cannot drive %r to %s anymore', devname, t)
                 return
         for devname, t in self.positions[target]:
             dev = session.getDevice(devname, Moveable)
