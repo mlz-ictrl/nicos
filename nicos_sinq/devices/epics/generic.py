@@ -60,7 +60,7 @@ class WindowMoveable(HasLimits, HasPrecision, EpicsMoveable):
             if not self.isAtTarget(target=self._drive_target):
                 return status.BUSY, 'Moving'
             self._setROParam('_drive_target', None)
-        return status.OK, 'Done'
+        return EpicsMoveable.doStatus(self, maxage)
 
 
 class EpicsArrayReadable(EpicsReadable):

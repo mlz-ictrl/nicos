@@ -71,7 +71,7 @@ devices = dict(
         visibility = (),
         scaninfo = [
             ('Counts', 'counts'), ('Monitor1', 'monitor1'),
-            ('Time', 'elapsedtime')
+            ('Proton', 'protoncount'), ('Time', 'elapsedtime')
         ]
     ),
     cclsink = device('nicos_sinq.sxtal.datasink.CCLSink',
@@ -82,7 +82,7 @@ devices = dict(
         detector = 'counts',
         scaninfo = [
             ('Counts', 'counts'), ('Monitor1', 'monitor1'),
-            ('Time', 'elapsedtime')
+            ('Proton', 'protoncount'), ('Time', 'elapsedtime')
         ]
     ),
 )
