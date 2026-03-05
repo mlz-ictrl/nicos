@@ -67,6 +67,11 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                 internal=True,
                 type=tupleof(int, str),
                 settable=True,
+                # If this is not there, the status might go into (0, '') during
+                # startup and stay there until a new status is set (which could
+                # be a long time. Status 0 is undefined and the device will
+                # display a corresponding status message).
+                default=(status.OK, ''),
             ),
         'statusinterval':
             Param(
@@ -124,7 +129,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
     def no_messages_callback(self):
         # Check if the process is still running
         if self._mode == MASTER and not self.is_process_running():
-            self._setROParam('curstatus', DISCONNECTED_STATE)
+            self.curstatus = DISCONNECTED_STATE
 
     def is_process_running(self):
         # Allow some leeway in case of message lag.
@@ -142,6 +147,6 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
     def _set_next_update(self, update_interval):
         update_interval = update_interval // 1000
         if self.statusinterval != update_interval:
-            self._setROParam('statusinterval', update_interval)
+            self.statusinterval = update_interval
         next_update = currenttime() + self.statusinterval
         self._next_update = max(self._next_update, next_update)

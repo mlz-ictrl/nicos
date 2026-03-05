@@ -20,6 +20,9 @@ SINQ classes
 .. autoclass:: SelectSliceImageChannel
 .. autoclass:: ReadableToChannel
 
+.. module:: nicos_sinq.devices.a6motor
+.. autoclass:: A6Motor
+
 .. module:: nicos_sinq.devices.datasinks.sinq_datasinks
 .. autoclass:: SinqNexusFileSinkHandler
 .. autoclass:: SinqNexusFileSink
