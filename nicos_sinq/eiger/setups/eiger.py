@@ -89,7 +89,7 @@ devices = dict(
         motorpv = mcu4prefix + 'a6',
         visibility = {'metadata'},
     ),
-    a6 = device('nicos_sinq.eiger.devices.a6motor.A6Motor',
+    a6 = device('nicos_sinq.devices.a6motor.A6Motor',
         description = 'Analyser two theta',
         raw_motor = 'a6_raw',
         wait_period = 7,

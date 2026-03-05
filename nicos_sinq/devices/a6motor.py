@@ -21,14 +21,15 @@
 #   Edward Wall    <edward.wall@psi.ch>
 #
 # *****************************************************************************
-from nicos.core import Attach, HasPrecision, Moveable, Param, floatrange
+from nicos.core import Attach, HasPrecision, Param, floatrange
+from nicos.core.mixins import HasOffset
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 
 
 class A6Motor(HasPrecision, BaseSequencer):
     """
-    A6 at EIGER has to wait for the shielding blocks to be moved.
-    The plan was to check for this in the SPS, but this feature never
+    A6 at some instruments (EIGER, TASP) has to wait for the shielding blocks to
+    be moved. The plan was to check for this in the SPS, but this feature never
     materialized. Thus, we just wait for wait_period seconds after the motor
     finished. This is implemented in this class.
     """
@@ -41,8 +42,7 @@ class A6Motor(HasPrecision, BaseSequencer):
     }
 
     attached_devices = {
-        'raw_motor': Attach('The real motor to drive',
-                            Moveable),
+        'raw_motor': Attach('The real motor to drive', HasOffset),
     }
 
     def doRead(self, maxage=0):

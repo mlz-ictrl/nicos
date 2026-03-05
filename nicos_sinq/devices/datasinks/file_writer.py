@@ -726,10 +726,10 @@ class FileWriterControlSink(FileSink):
                             partition=partition,
                             offset=offset)
         poll_start = time.monotonic()
-        data = self._consumer.poll(timeout_ms=5)
+        data = self._consumer.poll(timeout=0.005)
         time_out_s = 5
         while not data:
-            data = self._consumer.poll(timeout_ms=5)
+            data = self._consumer.poll(timeout=0.005)
             if not data and time.monotonic() > poll_start + time_out_s:
                 raise RuntimeError(
                     'Could not replay job as could not retrieve job '
