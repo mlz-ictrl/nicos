@@ -116,7 +116,6 @@ include the management of
    **Miscellaneous**
 
    .. automethod:: commandHandler
-   .. automethod:: delay
 
    **Session-specific behavior**
 

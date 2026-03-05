@@ -24,5 +24,3 @@ development environment and coding guidelines.
    utils/index
    gui/index
    classes/facility_classes
-   services/elogevents
-   goodstyle
