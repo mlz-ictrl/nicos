@@ -205,6 +205,10 @@ def fixup_stacked_devices(logger, devdict):
         devdict[newname] = devconfig
         return newname
 
+    if isinstance(devdict, tuple):
+        raise Exception("The 'devices' entry has to be a dictionary, not tuple! "
+                        "Additional comma after closing ')'?")
+
     patched = True
     while patched:
         patched = False
@@ -239,11 +243,11 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
     ns = prepareNamespace(modname, filepath, all_setups)
     try:
         exec(code, ns)
+        devices = fixup_stacked_devices(logger, ns.get('devices', {}))
     except Exception as err:
         logger.exception('An error occurred while processing '
                          'setup %r: %s', filepath, err)
         return
-    devices = fixup_stacked_devices(logger, ns.get('devices', {}))
     for devname in devices:
         if not nicosdev_re.match(devname):
             logger.exception('While processing setup %r: device name %r is '
