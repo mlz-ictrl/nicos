@@ -1,0 +1,25 @@
+description = 'setup for the execution daemon'
+group = 'special'
+import hashlib
+
+devices = dict(
+    Auth = device('nicos.services.daemon.auth.list.Authenticator',
+        hashing = 'sha1',
+        passwd = [
+            ('guest', '', 'guest'),
+            ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
+            ('admin', hashlib.sha1(b'admin').hexdigest(), 'admin'),
+        ],
+    ),
+    Daemon = device('nicos.services.daemon.NicosDaemon',
+        server = '',
+        authenticators = [
+            'Auth',
+        ],
+        loglevel = 'debug',
+    ),
+)
+
+startupcode = '''
+import nicos.devices.epics.pyepics
+'''
