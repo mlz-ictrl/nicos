@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'SANSLLB',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink'],
+    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink', 'autoreduce'],
 )
 
 modules = [
@@ -57,5 +57,11 @@ devices = dict(
         filenametemplate = ['sans-llb%(year)04dn%(scancounter)06d.hdf'],
         templateclass =
         'nicos_sinq.sans_llb.nexus.nexus_templates.SANSLLBTemplateProvider',
+    ),
+    autoreduce = device('nicos_sinq.sans_llb.devices.autoreduce.AutoreduceSink',
+        description = 'Runs auto-reduction script',
+        filenametemplate = ['sans-llb%(year)04dn%(scancounter)06d.hdf'],
+        visibility = {'namespace', 'metadata', 'devlist'},
+        script='/home/software/sans_llb_autoreduce/sansllb_reduce.py',
     ),
 )

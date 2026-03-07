@@ -17,23 +17,20 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Artur Glavic <artur.glavic@psi.ch>
 #
 # *****************************************************************************
-"""NICOS test suite NeXus utilities."""
-import h5py
-# import numpy as np
+from nicos.core import oneof, Override
+from nicos.devices.generic.switcher import MultiSwitcher
 
+class CollimationChangeble(MultiSwitcher):
+    parameter_overrides = {
+        'mapping': Override(description='Mapping of state names to N values '
+                            'to move the moveables to',
+                            settable=True, userparam=False),
+        }
 
-def nxs_ds_as_str(ds):
-    """Convert a NeXus dataset to a string."""
-
-    if h5py.version.version_tuple[0] == 3:  # h5py >= 3
-        return ds.asstr()[()]
-
-    return list(ds[()].flat)[0].decode()
-
-    # bdata = ds[()]
-    # return np.array(
-    #    [b.decode('ascii') for b in bdata.flat], dtype=object
-    # ).reshape(bdata.shape)
+    def doWriteMapping(self, mapping):
+        # update the valuetype options when mapping changes
+        self._inverse_mapping = {v: k for k, v in mapping.items()}
+        self.valuetype = oneof(*mapping)
