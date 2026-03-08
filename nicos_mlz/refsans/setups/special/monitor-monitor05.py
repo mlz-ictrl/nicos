@@ -217,8 +217,8 @@ _sds_plot =     Block('SDS wegen Brakes of disc34 %d%s' % (Time_selection2[0], T
         ],
     )
 Time_selection_core = [30] + Time_min
-Elemente2 = ['core1', 'core2', 'core3', 'core4', 'Temperature2']
-_cores_plot =     Block('cores %d%s' % (Time_selection_core[0], Time_selection_core[1]) , [
+Elemente2 = ['chopper1_temp', 'chopper2_temp', 'chopper3_temp', 'chopper4_temp', 'chopper5_temp', 'chopper6_temp', 'Temperature2']
+_cores_plot =     Block('motor cores temp %d%s' % (Time_selection_core[0], Time_selection_core[1]) , [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
                   width=30,
@@ -829,6 +829,7 @@ Elemente2 = [
 
 wi = 30#80
 he = 15#37
+Elemente1 = ['chopper_speed', 'chopper2',  'chopper3', 'chopper4', 'chopper5', 'chopper6', 'cpt1',]
 _plot1_1_bl = Block('History motor %d%s' % (Time_selection1[0], Time_selection1[1]) , [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
