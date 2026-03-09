@@ -45,8 +45,8 @@ class FakeSinqMotor(FakeEpicsMotor, SinqMotor):
         self.values['can_disable'] = 1
         self.values['encoder_type'] = 'incremental'
 
-    def _reset_test_motor(self):
-        FakeEpicsMotor._reset_test_motor(self)
+    def doReset(self):
+        FakeEpicsMotor.doReset(self)
         self.values['enable'] = 0
         self.values['enable_rbv'] = 1
         self.values['connected_rbv'] = 1
@@ -157,7 +157,7 @@ class TestSinqmotor1(DefTestSinqMotor):
     def prepare(self, session):
         self.session = session
         self.motor = self.session.getDevice('motor1')
-        self.motor._reset_test_motor()
+        self.motor.reset()
 
 class TestsSinqMotor2(DefTestSinqMotor):
     motor = None
@@ -166,4 +166,4 @@ class TestsSinqMotor2(DefTestSinqMotor):
     def prepare(self, session):
         self.session = session
         self.motor = self.session.getDevice('motor2')
-        self.motor._reset_test_motor()
+        self.motor.reset()

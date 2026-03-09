@@ -102,7 +102,7 @@ class FakeEpicsMotor(EpicsMotor):
     def doReadUnit(self):
         return 'mm'
 
-    def _reset_test_motor(self):
+    def doReset(self):
         # This also updates the limits, therefore it needs to be set first
         self.offset = 0
 
@@ -142,9 +142,9 @@ class DefTest:
     def prepare(self, session):
         self.session = session
         self.motor = self.session.getDevice('motor1')
-        self.motor._reset_test_motor()
+        self.motor.reset()
         self.motor_no_opt_pv = self.session.getDevice('motor2')
-        self.motor_no_opt_pv._reset_test_motor()
+        self.motor_no_opt_pv.reset()
 
     def test_optional_pvs(self):
         assert self.motor.errormsgpv
