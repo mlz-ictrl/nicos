@@ -171,7 +171,7 @@ dmc_event_mode = {
         },
         'monitor:NXmonitor': {
             'time': DeviceDataset('timer', dtype='float'),
-            'count_mode': DeviceDataset('dmcdet', 'mode', 'string'),
+            'count_mode': DeviceDataset('dmcdet', 'mode', dtype='string'),
             'preset': DeviceDataset('dmcdet', 'preset'),
             'current:NXevent_data': {
                 'data':

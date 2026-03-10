@@ -114,14 +114,14 @@ fermi_chopper = {
     'name': ConstDataset('Dornier Fermi chopper', 'string'),
     'rotation_speed': DeviceDataset('ch1_speed'),
     'phase': DeviceDataset('ch_phase'),
-    'distance': DeviceDataset('fermidist', 'float32',
+    'distance': DeviceDataset('fermidist', dtype='float32',
                               units=NXAttribute('mm', 'string')),
     'energy': DeviceDataset('ei'),
 }
 
 flight_path = {
     'selection': ConstDataset('Standard', 'string'),
-    'length': DeviceDataset('fermidist', 'float32',
+    'length': DeviceDataset('fermidist', dtype='float32',
                             units=NXAttribute('mm', 'string')),
 }
 
