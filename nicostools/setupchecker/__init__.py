@@ -139,12 +139,14 @@ class SetupCollection:
                 self.exec_errors[filename] = (e, None)
             else:
                 self.setup_ast[filename] = ast.parse(code)
-                ns['devices'] = fixup_stacked_devices(self.log,
-                                                      ns.get('devices', {}))
-                self.namespace[filename] = ns
-
-                for dev in ns.get('devices', {}):
-                    self.all_devs_lc.add(dev.lower())
+                try:
+                    ns['devices'] = fixup_stacked_devices(self.log,
+                                                          ns.get('devices', {}))
+                    self.namespace[filename] = ns
+                    for dev in ns.get('devices', {}):
+                        self.all_devs_lc.add(dev.lower())
+                except Exception as e:
+                    self.exec_errors[filename] = (e, None)
 
 
 class SetupChecker:

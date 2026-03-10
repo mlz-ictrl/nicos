@@ -42,9 +42,6 @@ amor_streaming = {
             "role": NXDataset("principal_investigator", dtype="string"),
             },
         "proposal_id": DeviceDataset("Exp", "proposal"),
-        "start_time": DeviceDataset("dataset", "starttime"),
-        #"start_time_epoch": DeviceDataset("dataset", "starttimeepoch"),
-        #"end_time_epoch": DeviceDataset("dataset", "endtimeepoch"),
         "comment": DeviceDataset("Exp", "remark"),
         # measurement data
         "area_detector:NXData": {

@@ -232,6 +232,10 @@ class SinqFileWriterControlSink(FileWriterControlSink):
                                  userparam=False),
     }
 
+    parameter_overrides = {
+        'one_file_per_scan': Override(prefercache=False),
+    }
+
     handlerclass = SinqFileWriterSinkHandler
 
     def get_output_file_dir(self):
