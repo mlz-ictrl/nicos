@@ -25,7 +25,7 @@
 
 from nicos.core.constants import SLAVE
 from nicos.core.device import Readable
-from nicos.core.params import Attach, Override
+from nicos.core.params import Attach, Override, Param
 from nicos.devices.mcstas import MIN_RUNTIME, McStasCounter, \
     McStasSimulation as BaseSimulation
 from nicos.devices.tas import TAS, Energy, TASSample
@@ -97,6 +97,15 @@ class McStasSimulation(BaseSimulation):
 
 
 class Counter(McStasCounter):
+
+    parameters = {
+        'preselection': Param('Preset value for this channel', type=int,
+                              settable=True),
+    }
+
+    def setChannelPreset(self, name, value):
+        McStasCounter.setChannelPreset(self, name, value)
+        self.preselection = value
 
     def doRead(self, maxage=0):
         if self._mode == SLAVE:
