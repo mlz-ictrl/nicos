@@ -19,7 +19,14 @@ main_window = tabbed(
         ),
         ('Experiment Info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel', dockpos='left')),
         ('NICOS devices',
-            panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right')),
+            panel(
+                'nicos.clients.gui.panels.devices.DevicesPanel',
+                icons=True,
+                dockpos='right',
+                param_display={
+                    f'pow{i:02d}': ['voltage', 'label'] for i in range(1, 39)
+                },
+            )),
     )),
     ('Script Editor',
         vsplit(
