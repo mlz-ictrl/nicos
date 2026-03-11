@@ -31,7 +31,7 @@ from nicos.core.utils import multiStatus
 from nicos.devices.abstract import Motor
 from nicos.devices.epics.pyepics import EpicsDevice, EpicsDigitalMoveable, \
     EpicsReadable
-from nicos_sinq.devices.epics.sinqmotor_deprecated import SinqMotor
+from nicos_sinq.devices.epics.motor import SinqMotor
 
 from nicos_sinq.devices.epics.extensions import EpicsCommandReply
 
@@ -255,8 +255,6 @@ class SeleneEpicsMotor(SinqMotor):
         """
         if self.errormsgpv:
             self.pv_cache_relations['errormsgpv'] = 'errormsg'
-        if self.errorbitpv:
-            self.pv_cache_relations['errorbitpv'] = 'errorbit'
         if self.reseterrorpv:
             self.pv_cache_relations['reseterrorpv'] = 'reseterror'
         return SinqMotor._get_pv_parameters(self)
@@ -272,9 +270,6 @@ class SeleneEpicsMotor(SinqMotor):
         if '.-' in pv_name:
             return pv_name.replace('.-', '-')
         return pv_name
-
-#   def _get_pv(self, pvparam, as_string=False):
-#        return self._get_pv(pvparam)
 
     def doStatus(self, maxage=0):
         (stat, msg) = SinqMotor.doStatus(self, maxage)
@@ -378,9 +373,9 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
     }
 
     attached_devices = {
-        'digital_input': Attach('Pitch channels', Readable, multiple=True),
-        'motor': Attach('Motor', Moveable, multiple=True),
-        'range_selector': Attach('Pitch channels', Moveable, multiple=True),
+        'digital_input': Attach('Pitch channels', Readable, multiple=36),
+        'motor': Attach('Motor', Moveable, multiple=2),
+        'range_selector': Attach('Pitch channels', Moveable, multiple=2),
         'asyn': Attach('Direct communications to the MCUs', EpicsCommandReply)
     }
 
@@ -430,8 +425,7 @@ class Selene(CanDisable, HasPrecision, IsController, Moveable):
             self._attached_range_selector[motor_id],
         ]
         query_adevs += [
-            self._attached_digital_input[p + motor_id * self.npitch // 2]
-            for p in range(first, last)
+            self._attached_digital_input[p] for p in range(first, last)
         ]
 
         st, msg = multiStatus(query_adevs, maxage)
