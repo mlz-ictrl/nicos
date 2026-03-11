@@ -9,13 +9,13 @@ includes = [
 pvprefix = 'SQ:AMOR:masterMacs1:'
 
 devices = dict(
-    ltz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+    ltz = device('nicos_sinq.devices.epics.motor.SinqMotor',
                  description = 'Lift (z translation) of deflector & flight tube',
                  motorpv = pvprefix + 'ltz',
                  unit = 'mm',
                  visibility = ('devlist', 'metadata', 'namespace'),
                 ),
-    lom = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+    lom = device('nicos_sinq.devices.epics.motor.SinqMotor',
                  description = 'Tilt (pitch) of deflector & flight tube',
                  motorpv = pvprefix + 'lom',
                  unit = 'deg',
