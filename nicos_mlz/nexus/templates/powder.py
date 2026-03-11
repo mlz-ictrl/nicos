@@ -67,6 +67,7 @@ class PowderTemplateProvider(MLZTemplateProvider):
         MLZTemplateProvider.updateSample(self)
 
     def updateData(self):
+        MLZTemplateProvider.updateData(self)
         self._entry['data:NXdata'].update({
             'polar_angle': NXLink(
                 f'/{self.entry}/{self.instrument}/{self.detector}/polar_angle'),

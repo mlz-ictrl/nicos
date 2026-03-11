@@ -172,6 +172,7 @@ class ResedaTemplateProvider(MLZTemplateProvider):
             })
 
     def updateData(self):
+        MLZTemplateProvider.updateData(self)
         self._entry['data:NXdata'].update({
             'signal': 'data',
             'data': NXLink(f'/{self.entry}/{self.instrument}/detector/data'),

@@ -56,6 +56,7 @@ class TomoTemplateProvider(MLZTemplateProvider):
         MLZTemplateProvider.updateSample(self)
 
     def updateData(self):
+        MLZTemplateProvider.updateData(self)
         self._entry['data:NXdata'].update({
             'rotation_angle': NXLink(f'/{self.entry}/sample/rotation_angle'),
             'image_key': NXLink(

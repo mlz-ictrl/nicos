@@ -142,6 +142,7 @@ class TofTofTemplate(MLZTemplateProvider):
         })
 
     def updateData(self):
+        MLZTemplateProvider.updateData(self)
         det_path = f'/{self.entry}/{self.instrument}/{self.detector}'
         self._entry['data:NXdata'].update({
             'detector_number': NXLink(f'{det_path}/detector_number'),

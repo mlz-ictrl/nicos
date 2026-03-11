@@ -46,9 +46,9 @@ class MLZTemplateProvider(NexusTemplateProvider):
     source = 'source'
 
     def init(self, **kwargs):
-        self.temp_env = kwargs.get('temp_env', ['T', 'Ts', ])
+        self.temp_env = kwargs.get('temp_env', ['T', 'Ts'])
         self.magnet_env = kwargs.get('magnet_env', ['B'])
-        self.stress_env = kwargs.get('stress_env', ['teload', 'tepos', 'teext', ])
+        self.stress_env = kwargs.get('stress_env', ['teload', 'tepos', 'teext'])
         self.efield_env = kwargs.get('efield_env', [])
 
     def getBase(self):
@@ -89,14 +89,18 @@ class MLZTemplateProvider(NexusTemplateProvider):
                     'name': DeviceDataset(
                         session.experiment.sample.name, 'samplename'),
                 },
-                'data:NXdata': {
-                    'data': NXLink(f'/{self.entry}/{self.instrument}/'
-                                   f'{self.detector}/data'),
-                    'signal': NXAttribute('data', 'string'),
-                },
-                'default': NXAttribute('data', 'string'),
             },
         }
+
+    def updateData(self):
+        self._entry.update({
+            'data:NXdata': {
+                'data': NXLink(f'/{self.entry}/{self.instrument}/'
+                               f'{self.detector}/data'),
+                'signal': NXAttribute('data', 'string'),
+            },
+            'default': NXAttribute('data', 'string'),
+        })
 
     def updateInstrument(self):
         raise NotImplementedError
@@ -104,8 +108,8 @@ class MLZTemplateProvider(NexusTemplateProvider):
     def updateDetector(self):
         raise NotImplementedError
 
-    def updateData(self):
-        raise NotImplementedError
+    def updateEntry(self):
+        pass
 
     def updateSample(self):
         if any(e in session.devices for e in self.temp_env):
@@ -146,6 +150,7 @@ class MLZTemplateProvider(NexusTemplateProvider):
         self.updateUsers()
         self.updateSample()
         self.updateData()
+        self.updateEntry()
 
     def getTemplate(self):
         self._template = self.getBase()

@@ -22,38 +22,34 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.nexus.elements import ConstDataset, DeviceDataset, NXLink
+from nicos.nexus.elements import ConstDataset, DetectorDataset, \
+    DeviceDataset, NXAttribute, NXLink
 
-from nicos_mlz.nexus import CounterMonitor, Filter, Slit, SollerCollimator, \
-    TimerMonitor, mm
+from nicos_mlz.nexus import Filter, ScanDeviceDataset, SollerCollimator, \
+    counts, mm, signal
 from nicos_mlz.nexus.templates import TasTemplateProvider
-
-sample_std = {
-    'x_position': DeviceDataset('xo'),
-    'x_null': DeviceDataset('xo', 'offset'),
-    'x_position_lower': DeviceDataset('xu'),
-    'x_null_lower': DeviceDataset('xu', 'offset'),
-    'y_position': DeviceDataset('yo'),
-    'y_null': DeviceDataset('yo', 'offset'),
-    'z_position': DeviceDataset('z'),
-    'z_null': DeviceDataset('z', 'offset'),
-    'omega': DeviceDataset('sg'),
-    'omega_null': DeviceDataset('sg', 'offset'),
-    'a3': DeviceDataset('a3'),
-    'a3_null': DeviceDataset('a3', 'offset'),
-    'position': DeviceDataset('spos'),
-    'position_null': DeviceDataset('spos', 'offset'),
-}
-
-# sample_magnet = {
-#     'magnet_omega': DeviceDataset('mom'),
-#     'magnet_omega_null': DeviceDataset('mom', 'offset'),
-#     'magnet_z': DeviceDataset('mz'),
-#     'magnet_z_null': DeviceDataset('mz', 'offset'),
-# }
 
 
 class PumaTemplateProvider(TasTemplateProvider):
+
+    detectors = ['det1', 'det2', 'det3']
+
+    def updateData(self):
+        for det in self.detectors:
+            self._entry.update({
+                f'{det}_data:NXdata': {
+                    'data': NXLink(f'/{self.entry}/{self.instrument}/{det}/data'),
+                    'ei': NXLink(f'/{self.entry}/{self.instrument}/monochromator/ei'),
+                    'ef': NXLink(f'/{self.entry}/{self.instrument}/analyser/ef'),
+                    'en': NXLink(f'/{self.entry}/{self.sample}/en'),
+                    'qh': NXLink(f'/{self.entry}/{self.sample}/qh'),
+                    'qk': NXLink(f'/{self.entry}/{self.sample}/qk'),
+                    'ql': NXLink(f'/{self.entry}/{self.sample}/ql'),
+                }
+            })
+        self._entry.update({
+            'default': NXAttribute(f'{self.detectors[0]}_data', 'string'),
+        })
 
     def updateInstrument(self):
         TasTemplateProvider.updateInstrument(self)
@@ -72,58 +68,33 @@ class PumaTemplateProvider(TasTemplateProvider):
             'erbium_filter:NXfilter': Filter('erbium', 'Erbium'),
             'sapphire_filter:NXfilter': Filter('sapphire', 'Sapphire'),
         })
-        for slit, name in (('slit1', 'ss1'),
-                           ('slit2', 'ss2'),
-                           ('vs', 'ms1')):
-            session.log.info('slit: %s', slit)
-            if slit in session.devices:
-                session.log.info('Add slit: %s', slit)
-                self._inst.update({
-                    f'{name}:NXslit': Slit(slit)
-                })
 
     def updateDetector(self):
         TasTemplateProvider.updateDetector(self)
-        self._det.update({
-            # 'data': ImageDataset(0, 0, dtype=int, signal=signal),
-            'distance': DeviceDataset('lad'),
-            # 'x_pixel_size': ConstDataset(
-            #     8, 'float', units=NXAttribute('mm', 'string')),
-            # 'y_pixel_size': ConstDataset(
-            #     8, 'float', units=NXAttribute('mm', 'string')),
-            # 'polar_angle': ConstDataset(
-            #     0, 'float', units=NXAttribute('degree', 'string')),
-            # 'azimuthal_angle': ConstDataset(
-            #     0, 'float', units=NXAttribute('degree', 'string')),
-            # 'rotation_angle': ConstDataset(
-            #     0, 'float', units=NXAttribute('degree', 'string')),
-            # 'aequatorial_angle': ConstDataset(
-            #     0, 'float', units=NXAttribute('degree', 'string')),
-            # 'beam_center_x': ConstDataset(
-            #     0, 'float', units=NXAttribute('mm', 'string')),
-            # 'beam_center_y': ConstDataset(
-            #     0, 'float', units=NXAttribute('mm', 'string')),
-            'type': ConstDataset('He3 Gas cylinder', 'string'),
-            'layout': ConstDataset('point', 'string'),
-            'diameter': ConstDataset(25.4, 'float', units=mm),
-            'acquisition_mode': ConstDataset('pulse counting', 'string'),
-        })
+        self._inst.pop(f'{self.detector}:NXdetector', None)
+        for det in self.detectors:
+            self._inst[f'{det}:NXdetector'] = {
+                'acquisition_mode': ConstDataset('pulse counting', 'string'),
+                'data': DetectorDataset(det, dtype='int', units=counts,
+                                        signal=signal),
+                'diameter': ConstDataset(25.4, 'float', units=mm),
+                'distance': DeviceDataset('lad'),
+                'layout': ConstDataset('point', 'string'),
+                'polar_angle': ScanDeviceDataset(self.att),
+                'signal': NXAttribute('data', 'string'),
+                'type': ConstDataset('He3 Gas cylinder', 'string'),
+            }
 
-        self._entry.update({
-            'monitor1:NXmonitor': CounterMonitor('mon1'),
-            # 'monitor2:NXmonitor': CounterMonitor('mon2'),
-            # 'monitor3:NXmonitor': CounterMonitor('mon3'),
-            'timer:NXmonitor': TimerMonitor('timer'),
-        })
-        preset = session.getDevice('det').preset()
-        if preset.get('mon1'):
-            monitor = 'monitor1'
-        elif preset.get('mon2'):
-            monitor = 'monitor2'
-        elif preset.get('mon3'):
-            monitor = 'monitor3'
+        preset = session.getDevice(self.detector).preset()
+        if preset.get(self.monitor):
+            monitor = self.monitor
+        # elif preset.get('mon2'):
+        #     monitor = 'mon2'
+        # elif preset.get('mon3'):
+        #     monitor = 'mon3'
         else:
-            monitor = 'timer'
+            monitor = self.timer
+
         monitor_link = f'/{self.entry}/{monitor}/'
         self._entry.update({'control:NXmonitor': {
             'mode': NXLink(f'{monitor_link}/mode'),
@@ -131,7 +102,7 @@ class PumaTemplateProvider(TasTemplateProvider):
             'integral': NXLink(f'{monitor_link}/integral'),
             # 'data': NXLink(f'{monitor_link}/integral'),
         }})
-        if monitor != 'timer':
+        if monitor != self.timer:
             self._entry['control:NXmonitor'].update({
                 'type': NXLink(f'{monitor_link}/type'),
             })

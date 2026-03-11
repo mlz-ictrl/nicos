@@ -61,6 +61,7 @@ class ScanTemplateProvider(MLZTemplateProvider):
         })
 
     def updateData(self):
+        MLZTemplateProvider.updateData(self)
         self._entry['data:NXdata'].update({
             'rotation_angle': NXLink(
                 f'/{self.entry}/{self.sample}/rotation_angle'),

@@ -133,6 +133,7 @@ class TasTemplateProvider(MLZTemplateProvider):
         MLZTemplateProvider.updateSample(self)
 
     def updateData(self):
+        MLZTemplateProvider.updateData(self)
         self._entry['data:NXdata'].update({
             'ei': NXLink(f'/{self.entry}/{self.instrument}/monochromator/ei'),
             'ef': NXLink(f'/{self.entry}/{self.instrument}/analyser/ef'),
