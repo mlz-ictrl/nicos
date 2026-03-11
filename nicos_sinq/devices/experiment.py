@@ -140,13 +140,6 @@ class SinqExperiment(Experiment):
         # the counter is not yet in the file
         return 0
 
-    def doWriteScriptpath(self, scriptpath):
-        if not os.path.isdir(scriptpath):
-            raise ValueError('%s is not a directory' % scriptpath)
-        if not os.access(scriptpath, os.R_OK | os.W_OK | os.X_OK):
-            raise ValueError('Cannot access scriptpath %s' % scriptpath)
-        # param set in device.py
-
     def _newPropertiesHook(self, proposal, kwds):
         if 'proposal_title' in kwds:
             self.proposal_title = kwds['proposal_title']
