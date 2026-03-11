@@ -24,10 +24,13 @@
 import math
 
 from nicos.core import multiStatus, status
-from nicos.core.device import Attach, Moveable, Param, listof
+from nicos.core.device import Attach, HasOffset, Moveable, Override, Param, \
+    listof
+from nicos.core.errors import ConfigurationError
 from nicos.devices.generic.mono import to_k
 
-from nicos_sinq.devices.logical_motor import InterfaceLogicalMotorHandler
+from nicos_sinq.devices.logical_motor import InterfaceLogicalMotorHandler, \
+    LogicalMotor
 from nicos_sinq.devices.mono import SinqMonochromator
 
 
@@ -80,6 +83,33 @@ class EigerA2Controller(InterfaceLogicalMotorHandler):
         positions.append((self._attached_right, right))
         positions.append((self._attached_left, left))
         return positions
+
+
+class EigerA2LogicalMotor(HasOffset, LogicalMotor):
+    """
+    A specialised version of the LogicalMotor for Eiger that has access to the
+    offset of the raw motor
+    """
+
+    hardware_access = False
+
+    parameter_overrides = {
+        'offset': Override(volatile=True, mandatory=False, default=0.)
+    }
+
+    def _offsetPrecheck(self):
+        return isinstance(self._attached_controller, EigerA2Controller)
+
+    def doPreinit(self, mode):
+        LogicalMotor.doPreinit(self, mode)
+        if not self._offsetPrecheck():
+            return ConfigurationError("Motor Incorrectly Configured! Can't set offset")
+
+    def doReadOffset(self, maxage=0):
+        return self._attached_controller._attached_reala2.offset
+
+    def doWriteOffset(self, value):
+        self._attached_controller._attached_reala2.offset = value
 
 
 class EigerMonochromator(SinqMonochromator):

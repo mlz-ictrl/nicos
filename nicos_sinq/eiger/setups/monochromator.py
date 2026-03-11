@@ -1,5 +1,7 @@
 description = 'These are the devices for the EIGER monochromator'
 
+group = 'lowlevel'
+
 mcu1prefix = 'SQ:EIGER:turboPmac1:'
 mcu2prefix = 'SQ:EIGER:turboPmac2:'
 
@@ -11,7 +13,7 @@ devices = dict(
     a2_raw = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Monochromator two theta',
         motorpv = mcu1prefix + 'a2rot',
-        visibility = {'metadata'},
+        visibility = (),
     ),
     mch = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Monochromator horizontal curvature',
@@ -44,7 +46,7 @@ devices = dict(
         right = 'd2r',
         visibility = (),
     ),
-    a2 = device('nicos_sinq.devices.logical_motor.LogicalMotor',
+    a2 = device('nicos_sinq.eiger.devices.eigermono.EigerA2LogicalMotor',
         description = 'Logical A2 motor',
         controller = 'a2controller',
         abslimits = (17, 90.14)
@@ -79,10 +81,13 @@ devices = dict(
     ),
     ei = device('nicos.core.device.DeviceAlias',
         description = 'Alias for driving the monochromator',
-        alias = 'mono',
     ),
     ki = device('nicos_sinq.eiger.devices.KSpaceMoveable.KSpaceMoveable',
         description = 'K Space alias for driving the monochromator',
         raw_motor = 'mono',
     ),
 )
+
+alias_config = {
+    'ei': {'mono': 100},
+}
