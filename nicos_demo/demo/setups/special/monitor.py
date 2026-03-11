@@ -32,6 +32,14 @@ _axisblock = Block('Axes', [
     #     Field(dev='ath'),
     #     Field(dev='att'),
     # ),
+    BlockRow(
+        Field(widget='nicos.guisupport.valuewidgets.ValueGauge',
+              start_value=0, end_value=100, ticks=6,
+              status_led=True,
+              background_color='#ffffaa', boundary_color='#aa0000', inlay_color='#0000ff',
+              width=20, height=20,
+              dev='TBeFilter', name='T Be filter', format='%d'),
+        ),
     ],
     setups='tas',  # this is the name of a setup that must be loaded in the
                    # NICOS master instance for this block to be displayed
@@ -134,7 +142,7 @@ _sansblock = Block('SANS', [
               width=12, height=12),
         Field(name='Data (log)', picture='data/live_log.png', refresh=1,
               width=12, height=12),
-    )
+    ),
     ],
     setups='sans',
 )

@@ -454,7 +454,133 @@ Existing widget classes
 
 .. module:: nicos.guisupport.tas
 
-.. autoclass:: TasWidget()
+.. class:: TasWidget
 
    .. figure:: taswidget.png
       :align: center
+
+.. module:: nicos.guisupport.valuewidgets
+
+.. class:: ValueGauge
+
+   .. figure:: value_gauge.png
+      :align: center
+
+   Properties:
+
+    .. attribute:: dev
+
+       NICOS device name, if set, display value of this device'
+
+    .. attribute:: key
+
+       Cache key to display (without "nicos/" prefix), set either "dev" or this
+
+    .. attribute:: statuskey
+
+       Cache key to extract status information  for coloring value, if "dev" is
+       given this is set automatically
+
+    .. attribute:: name
+
+       Name of the value to display
+
+    .. attribute:: unit
+
+       Unit of the value to display
+
+    .. attribute:: fmtstr
+
+       Format string to use for the value. If "dev" is given this defaults to
+       the "fmtstr" set in NICOS
+
+    .. attribute:: width
+
+       Width of the widget in units of the width of one character
+
+    .. attribute:: height
+
+       Height of the widget in units of the width of one character
+
+    .. attribute:: start_value
+
+       Lowest value for display
+
+    .. attribute:: end_value
+
+       Highest value for display
+
+    .. attribute:: start_angle
+
+       Location of first tick, 0 is top
+
+    .. attribute:: end_angle
+
+       Location of last tick, 0 is top
+
+    .. attribute:: ticks
+
+       Number of tick-lines with values to draw
+
+    .. attribute:: log_values
+
+       Show values logarithmically
+
+    .. attribute:: status_led
+
+       Show LED status indicator
+
+    .. attribute:: background_color
+
+    .. attribute:: inley_color
+
+    .. attribute:: boundary_color
+
+.. class:: ValueProgressBar
+
+   .. figure:: value_progress_bar.png
+      :align: center
+
+   Properties:
+
+    .. attribute:: dev
+
+       NICOS device name, if set, display value of this device'
+
+    .. attribute:: key
+
+       Cache key to display (without "nicos/" prefix), set either "dev" or this
+
+    .. attribute:: statuskey
+
+       Cache key to extract status information  for coloring value, if "dev" is
+       given this is set automatically
+
+    .. attribute:: name
+
+       Name of the value to display
+
+    .. attribute:: unit
+
+       Unit of the value to display
+
+    .. attribute:: fmtstr
+
+       Format string to use for the value. If "dev" is given this defaults to
+       the "fmtstr" set in NICOS
+
+    .. attribute:: width
+
+       Width of the widget in units of the width of one character
+
+    .. attribute:: height
+
+       Height of the widget in units of the width of one character
+
+    .. attribute:: start_value
+
+       Lowest value for display
+
+    .. attribute:: end_value
+
+       Highest value for display
