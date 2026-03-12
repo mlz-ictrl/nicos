@@ -1,5 +1,7 @@
 description = 'Setup for the MesyDAQ detector'
 
+group = 'lowlevel'
+
 pvprefix = 'SQ:DMC-DAQ:SG'
 
 channels = ['raw_counts', 'm1', 'm2', 'proton']
