@@ -15,10 +15,6 @@
 .. autoclass:: AmorShutter()
 .. autoclass:: SpsSwitch()
 
-.. module:: nicos_sinq.amor.devices.logical_motor
-.. autoclass:: AmorLogicalMotorHandler()
-.. autoclass:: AmorLogicalMotor()
-
 .. module:: nicos_sinq.amor.devices.datasinks
 .. autoclass:: ImageKafkaWithLiveViewDataSink()
 
