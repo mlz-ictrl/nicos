@@ -1,24 +1,22 @@
 description = 'Devices for the Detector'
 
 pvdprefix = 'SQ:FOCUS:counter'
+
+group = 'lowlevel'
+
+channels = [
+    'monitor1',
+    'tof_sum',
+    'beam_monitor',
+    'protoncount',
+]
+
 devices = dict(
-    timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
-        description = 'Used to set and view time preset',
-        unit = 'sec',
-        readpv = pvdprefix + '.TP',
-        presetpv = pvdprefix + '.TP',
+    elapsedtime = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQTime',
+        daqpvprefix = pvdprefix,
     ),
-    elapsedtime = device('nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
-        description = 'Used to view elapsed time while counting',
-        unit = 'sec',
-        readpv = pvdprefix + '.T',
-    ),
-    monitorpreset = device('nicos_sinq.devices.epics.detector.EpicsCounterActiveChannel',
-        description = 'Used to set and view monitor preset',
-        type = 'monitor',
-        readpv = pvdprefix + '.PR2',
-        presetpv = pvdprefix + '.PR2',
-    ),
+
     # The Primary Monitor Signal (CH1) is duplicated and sent to the position
     # encoder of the middle detectorbank (through the histogrammer to CH3).
     # There will always be periods of time where the Chopper is out of phase
@@ -26,26 +24,66 @@ devices = dict(
     # signal (which passes through the detector box) we can more easily check
     # that the signal stayed in sync throughout a measurement by observing
     # whether the counts are equal.
-    monitor1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    monitor1 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Primary Monitor Signal - just before the sample - (Counterbox CH1)',
+        daqpvprefix = pvdprefix,
+        channel = 1,
         type = 'monitor',
-        readpv = pvdprefix + '.S2',
     ),
-    tof_sum = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    tof_sum = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Duplicated Monitor Signal - histogram sum - (CounterBox CH3)',
+        daqpvprefix = pvdprefix,
+        channel = 3,
         type = 'monitor',
-        readpv = pvdprefix + '.S4',
     ),
-    beam_monitor = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    beam_monitor = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Beam Monitor (Counterbox CH2)',
+        daqpvprefix = pvdprefix,
+        channel = 2,
         type = 'monitor',
-        readpv = pvdprefix + '.S3',
     ),
-    protoncount = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    protoncount = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Proton Count (Counterbox CH5)',
+        daqpvprefix = pvdprefix,
+        channel = 5,
         type = 'monitor',
-        readpv = pvdprefix + '.S6',
     ),
+    hardware_preset = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQPreset',
+        description = 'In-hardware Time/Count Preset',
+        daqpvprefix = pvdprefix,
+        channels = channels,
+        time_channel = 'elapsedtime',
+    ),
+    ThresholdChannel = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThresholdChannel',
+        daqpvprefix = pvdprefix,
+        channels = channels,
+        visibility = {'metadata', 'namespace'},
+    ),
+    Threshold = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThreshold',
+        daqpvprefix = pvdprefix,
+        min_rate_channel = 'ThresholdChannel',
+        visibility = {'metadata', 'namespace'},
+    ),
+    el737 = device(
+        'nicos_sinq.devices.epics.sinqdaq.SinqDetector',
+        description = 'EL737 counter box that counts neutrons and '
+        'starts streaming events',
+        timers = ['elapsedtime'],
+        monitors = ['hardware_preset'] + channels,
+        images = [
+            'merged_image',
+        ],
+        liveinterval = 7,
+        saveintervals = [60]
+    ),
+
     # As all banks use the same time binning, this axis is shared
     hm_tof_array = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfTofArray',
         description = 'TOF Array for histogramming',
@@ -102,30 +140,7 @@ devices = dict(
         tof = 'hm_tof_array',
         mergefile = 'nicos_sinq/focus/focusmerge.dat'
     ),
-    el737 = device('nicos_sinq.devices.detector.SinqDetector',
-        description = 'EL737 counter box that counts neutrons and '
-        'starts streaming events',
-        startpv = pvdprefix + '.CNT',
-        pausepv = pvdprefix + ':Pause',
-        statuspv = pvdprefix + ':Status',
-        errormsgpv = pvdprefix + ':MsgTxt',
-        thresholdpv = pvdprefix + ':Threshold',
-        thresholdcounterpv = pvdprefix + ':ThresholdCounter',
-        monitorpreset = 'monitorpreset',
-        timepreset = 'timepreset',
-        timers = ['elapsedtime'],
-        monitors = [
-            'monitor1',
-            'protoncount',
-            'beam_monitor',
-            'tof_sum',
-        ],
-        images = [
-            'merged_image',
-        ],
-        liveinterval = 7,
-        saveintervals = [60]
-    ),
+
     focusdet = device('nicos_sinq.focus.devices.detector.FocusDetector',
         description = 'FOCUS detector control',
         trigger = 'el737',

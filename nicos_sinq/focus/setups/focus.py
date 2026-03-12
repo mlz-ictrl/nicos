@@ -3,6 +3,15 @@ description = 'FOCUS standard devices'
 mota = 'SQ:FOCUS:mota:'
 motb = 'SQ:FOCUS:motb:'
 
+group = 'basic'
+
+includes = [
+    'detector',
+    'lowerbank',
+    'middlebank',
+    'upperbank',
+]
+
 devices = dict(
     mgo = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Monochromator Goniometer',
@@ -126,11 +135,6 @@ devices = dict(
         description = 'Direct communication with Emmenegger',
         commandpv = 'SQ:FOCUS:EMEG' + '.AOUT',
         replypv = 'SQ:FOCUS:EMEG' + '.AINP',
-    ),
-    el737direct = device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
-        description = 'Direct communication with EL737 counter box',
-        commandpv = 'SQ:FOCUS:cter' + '.AOUT',
-        replypv = 'SQ:FOCUS:cter' + '.AINP',
     ),
     col = device('nicos_sinq.devices.s5_switch.S5Switch',
         description = 'Switch for the radial collimator',
