@@ -53,8 +53,9 @@ class CalibrationData(Device):
         'boundaries': Param('Analyser boundaries', type=listof(int),
                             settable=True, default=[],
                             category='instrument'),
-
     }
+
+    hardware_access = False
 
     @usermethod
     def load(self, filename):

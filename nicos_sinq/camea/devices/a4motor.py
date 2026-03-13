@@ -49,6 +49,8 @@ class CameaA4Motor(Moveable):
         'rawa4': Attach('Real motor for driving A4', Moveable),
     }
 
+    hardware_access = False
+
     def doStart(self, target):
         return self._attached_rawa4.start(target - self.a4offset)
 

@@ -45,6 +45,8 @@ class A6Motor(HasPrecision, BaseSequencer):
         'raw_motor': Attach('The real motor to drive', HasOffset),
     }
 
+    hardware_access = False
+
     def doRead(self, maxage=0):
         return self._attached_raw_motor.read(maxage)
 

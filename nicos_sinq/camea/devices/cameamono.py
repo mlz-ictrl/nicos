@@ -50,6 +50,8 @@ class CameaMono(SinqMonochromator):
         'lower': Attach('Lower monochromator translation', Moveable),
     }
 
+    hardware_access = False
+
     def _movefoci(self, focmode, hfocuspars, vfocuspars):
         focusv = self._attached_focusv
         th, _ = self._calc_angles(to_k(self.target, self.unit))

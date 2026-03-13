@@ -47,6 +47,8 @@ class StoredPositions(Moveable):
         'unit': Override(mandatory=False, default=''),
     }
 
+    hardware_access = False
+
     valuetype = oneof([])
     _wait_list = []
     _mapping = {}

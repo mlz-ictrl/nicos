@@ -48,6 +48,8 @@ class EIS2TController(IsController, Device):
                          type=float, settable=True)
     }
 
+    hardware_access = False
+
     def doInit(self, mode):
         """
         Initialise EIS2TController taking the energy and s2t arrays, and the
