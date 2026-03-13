@@ -101,7 +101,6 @@ class EigerA2LogicalMotor(HasOffset, LogicalMotor):
         return isinstance(self._attached_controller, EigerA2Controller)
 
     def doPreinit(self, mode):
-        LogicalMotor.doPreinit(self, mode)
         if not self._offsetPrecheck():
             return ConfigurationError("Motor Incorrectly Configured! Can't set offset")
 
