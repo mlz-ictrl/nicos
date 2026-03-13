@@ -36,6 +36,8 @@ from nicos.devices.experiment import Experiment as CoreExperiment
 from nicos.core.errors import InvalidValueError
 from nicos.utils import readFile, writeFile
 
+SERVICE_EXP = 'Service'
+
 class Experiment(CoreExperiment):
     """Base experiment for SINQ
 
@@ -52,7 +54,7 @@ class Experiment(CoreExperiment):
     parameter_overrides = {
         'propprefix': Override(default=''),
         'serviceexp': Override(
-            default='Service', internal=True, settable=False),
+            default=SERVICE_EXP, internal=True, settable=False),
         'sendmail': Override(default=False),
         'zipdata': Override(default=False),
         'elog': Override(default=False),
@@ -111,6 +113,9 @@ class Experiment(CoreExperiment):
         # Do not try to create unwanted directories as
         # in nicos/devices/experiment
         pass
+
+    def doReadTitle(self):
+        return self.propinfo.get('title', SERVICE_EXP)
 
     def doFinish(self):
         """
