@@ -343,6 +343,13 @@ class ExpPanel(Panel):
                            'FinishExperiment first!')
             return
 
+        try:
+            self.client.eval(
+                    'session.experiment._newCheckHook(None, %r)' % prop)
+        except Exception as e:
+            self.showError('Experiment cannot be started:\n' + str(e))
+            return
+
         script_running = self.mainwindow.current_status != 'idle'
 
         # do some work

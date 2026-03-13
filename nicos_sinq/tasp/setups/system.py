@@ -15,10 +15,9 @@ modules = [
 ]
 
 devices = dict(
-    Exp = device('nicos_sinq.devices.experiment.SinqExperiment',
+    Exp = device('nicos_sinq.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = configdata('config.DATA_PATH'),
-        serviceexp = 'Service',
         sample = 'Sample',
         forcescandata = False,
     ),

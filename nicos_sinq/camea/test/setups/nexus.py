@@ -27,7 +27,6 @@ devices = dict(
     Exp = device('nicos_sinq.devices.experiment.SinqExperiment',
         description = 'experiment object',
         dataroot = path.join(runtime_root, 'data'),
-        serviceexp = 'Service',
         sample = 'Sample',
     ),
 )

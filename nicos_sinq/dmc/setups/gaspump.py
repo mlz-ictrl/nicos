@@ -1,5 +1,7 @@
 description = 'Gas pump for the DMC detector.'
 
+group = 'lowlevel'
+
 prefix = 'SQ:DMC:gaspump'
 
 devices = dict(

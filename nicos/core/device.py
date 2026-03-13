@@ -2414,7 +2414,7 @@ class DeviceAlias(Device):
     }
 
     _ownattrs = ['_obj', '_mode', '_cache', '_sim_intercept', 'alias']
-    _ownparams = {'alias', 'name', 'devclass', 'visibility'}
+    _ownparams = {'alias', 'name', 'devclass', 'visibility', 'description'}
     _initialized = False
 
     __display__ = True

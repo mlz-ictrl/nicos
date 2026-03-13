@@ -1,5 +1,7 @@
 description = 'Monochromator devices for SINQ DMC.'
 
+group = 'lowlevel'
+
 pvprefix = 'SQ:DMC:turboPmac1:'
 
 devices = dict(
