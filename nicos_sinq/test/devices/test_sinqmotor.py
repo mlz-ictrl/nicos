@@ -37,14 +37,6 @@ class FakeSinqMotor(FakeEpicsMotor, SinqMotor):
     Epics motor with fake getting and setting of PVs.
     """
 
-    def doPreinit(self, mode):
-        FakeEpicsMotor.doPreinit(self, mode)
-        self.values['enable'] = 0
-        self.values['enable_rbv'] = 1
-        self.values['connected_rbv'] = 1
-        self.values['can_disable'] = 1
-        self.values['encoder_type'] = 'incremental'
-
     def doReset(self):
         FakeEpicsMotor.doReset(self)
         self.values['enable'] = 0
@@ -52,8 +44,12 @@ class FakeSinqMotor(FakeEpicsMotor, SinqMotor):
         self.values['connected_rbv'] = 1
         self.values['can_disable'] = 1
         self.values['encoder_type'] = 'incremental'
+        self.values['fixifnothomed'] = 0
         self.inputlimits = self.doReadAbslimits()
         self.delta_limits = (0,0)
+
+    def doPreinit(self, mode):
+        self.doReset()
 
     # Suppress subscription of PV callbacks
     def doInit(self, mode):
@@ -146,6 +142,30 @@ class DefTestSinqMotor(DefTest):
 
         # Motors with absolute encoders do not perform a reference run
         self.motor.reference()
+        stat = self.motor.status()
+        assert stat[0] == status.OK
+        assert not stat[1]
+
+    def test_not_homed(self):
+        # Motor is not homed
+        self.motor.values['status'] = int('0000000000000000', 2)
+        assert not self.motor.homed
+
+        # Motor is not homed, but also not fixed if it hasn't been homed
+        self.motor.values['fixifnothomed'] = 0
+        stat = self.motor.status()
+        assert stat[0] == status.OK
+        assert not stat[1]
+
+        # Now motor is fixed within the EPICS driver if it hasn't been homed yet
+        self.motor.values['fixifnothomed'] = 1
+        stat = self.motor.status()
+        assert stat[0] == status.WARN
+        assert stat[1] == 'Motor needs to be referenced'
+
+        # Set the "homed" bit in the status PV - warning disappears
+        self.motor.values['status'] = int('0100000000000000', 2)
+        assert self.motor.homed
         stat = self.motor.status()
         assert stat[0] == status.OK
         assert not stat[1]

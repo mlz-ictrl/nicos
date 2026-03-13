@@ -125,6 +125,7 @@ class FakeEpicsMotor(EpicsMotor):
         if hasattr(self, '_new_offset'):
             del self._new_offset
         self.values['setpointdeadband'] = 0
+        self.values['status'] = '0000000000000000'
 
 
 class DerivedFakeEpicsMotor(FakeEpicsMotor):

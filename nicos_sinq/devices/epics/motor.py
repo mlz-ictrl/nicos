@@ -59,6 +59,7 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         'encoder_type': ':EncoderType',
         'reseterrorpv': ':Reset',
         'errormsgpv': ':ErrorMessage',
+        'fixifnothomed': ':FixIfNotHomed',
     }
 
     # Maximum allowed delay for enabling / disabling a motor before an error
@@ -83,6 +84,14 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         params.add('errormsgpv')
         return params
 
+    @property
+    def homed(self):
+        """
+        Returns whether the motor has been homed before
+        """
+        status_bits = format(int(self._get_pv('status')), '016b')
+        return int(status_bits[1])
+
     def doInit(self, mode):
         DynamicUserlimits.doInit(self, mode)
         CoreEpicsMotor.doInit(self, mode)
@@ -100,6 +109,17 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
             if stat == status.ERROR:
                 return (stat, 'Motor is disabled - ' + msg)
             return status.DISABLED, 'Motor is disabled'
+
+        # Check if the motor:
+        # - Has an incremental encoder
+        # - Is set to be fixed if it hasn't been homed before
+        # - Actually hasn't been homed yet
+        # - There is no other status to report
+        # If all of this is true, then inform the user that the motor needs to
+        # be referenced.
+        if (self.encoder_type == 'incremental' and self._get_pv('fixifnothomed')
+            and not self.homed and stat == status.OK):
+            return status.WARN, 'Motor needs to be referenced'
 
         return (stat, msg)
 
