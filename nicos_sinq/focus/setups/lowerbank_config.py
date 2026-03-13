@@ -37,6 +37,7 @@ devices = dict(
         active = '0x00200000',
         increment = 1,
         banks = ['hm_lower'],
-        connector = 'lower_connector'
+        connector = 'lower_connector',
+        visibility = ()
     ),
 )
