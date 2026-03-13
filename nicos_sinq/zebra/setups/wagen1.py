@@ -2,7 +2,12 @@ description = 'Devices for the first detector assembly'
 
 pvpref = 'SQ:ZEBRA:turboPmac3:'
 
-excludes = ['wagen2']
+group = 'lowlevel'
+
+excludes = [
+    'wagen2',
+    'detector_single_w2',
+]
 
 devices = dict(
     nu = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
@@ -18,6 +23,3 @@ devices = dict(
         unit = 'meV'
     ),
 )
-startupcode = """
-counts._setROParam('readpv', 'SQ:ZEBRA:counter.S3')
-"""

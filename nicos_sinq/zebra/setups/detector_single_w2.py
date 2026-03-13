@@ -1,16 +1,17 @@
-description = 'Setup for the single detector at ZEBRA'
+description = 'Setup for the single detector at ZEBRA on Wagen 2'
 
-group = 'lowlevel'
-
-pvprefix = 'SQ:ZEBRA:counter'
+includes = [
+    'wagen2'
+]
 
 excludes = [
     'detector_single',
     'detector_2d',
-    'detector_2d_v2',
 ]
 
 sysconfig = dict(datasinks = ['asciisink', 'cclsink'])
+
+pvprefix = 'SQ:ZEBRA:counter'
 
 channels = ['counts', 'monitor1', 'protoncount']
 
@@ -23,12 +24,12 @@ devices = dict(
         'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Actual counts',
         daqpvprefix = pvprefix,
-        channel = 2,
+        channel = 4,
         type = 'monitor',
     ),
     monitor1 = device(
         'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
-        description = 'First hardware channel',
+        description = 'First scalar counter channel',
         daqpvprefix = pvprefix,
         channel = 1,
         type = 'monitor',
@@ -37,7 +38,7 @@ devices = dict(
         'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Proton counter channel',
         daqpvprefix = pvprefix,
-        channel = 4,
+        channel = 3,
         type = 'monitor',
     ),
     hardware_preset = device(
@@ -59,15 +60,14 @@ devices = dict(
         min_rate_channel = 'ThresholdChannel',
         visibility = {'metadata', 'namespace'},
     ),
+
     intensity = device('nicos_sinq.sxtal.commands.Intensity',
         description = 'Dummy to try to get stuff to work'
     ),
-    zebradet = device(
-        'nicos_sinq.devices.epics.sinqdaq.SinqDetector',
-        description = 'Detector device that counts neutrons',
+    zebradet = device('nicos_sinq.devices.epics.sinqdaq.SinqDetector',
+        description = 'EL737 counter box that counts neutrons',
         timers = ['elapsedtime'],
-        counters = [],
-        monitors = ['DAQPreset'] + channels,
+        monitors = ['hardware_preset'] + channels,
         images = [],
         others = [],
         liveinterval = 7,
@@ -80,7 +80,7 @@ devices = dict(
         visibility = (),
         scaninfo = [
             ('Counts', 'counts'), ('Monitor1', 'monitor1'),
-            ('Time', 'elapsedtime')
+            ('Proton', 'protoncount'), ('Time', 'elapsedtime')
         ]
     ),
     cclsink = device('nicos_sinq.sxtal.datasink.CCLSink',
@@ -91,11 +91,12 @@ devices = dict(
         detector = 'counts',
         scaninfo = [
             ('Counts', 'counts'), ('Monitor1', 'monitor1'),
-            ('Time', 'elapsedtime')
+            ('Proton', 'protoncount'), ('Time', 'elapsedtime')
         ]
     ),
 )
 startupcode = """
 SetDetectors(zebradet)
 Exp._setROParam('forcescandata', False)
+stt.offset = 0
 """

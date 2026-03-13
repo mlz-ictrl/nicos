@@ -1,64 +1,73 @@
-description = 'Setup for the single detector at ZEBRA'
+description = 'Setup for the single detector at ZEBRA on Wagen 1'
 
-pvdet = 'SQ:ZEBRA:counter'
+includes = [
+    'wagen1',
+]
 
 excludes = [
-    'detector_single_v2',
     'detector_2d',
-    'detector_2d_v2',
+    'detector_single_w2',
 ]
 
 sysconfig = dict(datasinks = ['asciisink', 'cclsink'])
 
+pvprefix = 'SQ:ZEBRA:counter'
+
+channels = ['counts', 'monitor1', 'protoncount']
+
 devices = dict(
-    timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
-        description = 'Used to set and view time preset',
-        unit = 'sec',
-        readpv = pvdet + '.TP',
-        presetpv = pvdet + '.TP',
+    elapsedtime = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQTime',
+        daqpvprefix = pvprefix,
     ),
-    elapsedtime = device('nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
-        description = 'Used to view elapsed time while counting',
-        unit = 'sec',
-        readpv = pvdet + '.T',
-    ),
-    monitorpreset = device('nicos_sinq.devices.epics.detector.EpicsCounterActiveChannel',
-        description = 'Used to set and view monitor preset',
-        type = 'monitor',
-        readpv = pvdet + '.PR2',
-        presetpv = pvdet + '.PR2',
-    ),
-    counts = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    counts = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Actual counts',
+        daqpvprefix = pvprefix,
+        channel = 2,
         type = 'monitor',
-        readpv = pvdet + '.S3',
     ),
-    monitor1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    monitor1 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'First scalar counter channel',
+        daqpvprefix = pvprefix,
+        channel = 1,
         type = 'monitor',
-        readpv = pvdet + '.S2',
     ),
-    protoncount = device('nicos_sinq.devices.epics.detector'
-        '.EpicsCounterPassiveChannel',
+    protoncount = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Proton counter channel',
+        daqpvprefix = pvprefix,
+        channel = 3,
         type = 'monitor',
-        readpv = pvdet + '.S4',
     ),
+    hardware_preset = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQPreset',
+        description = 'In-hardware Time/Count Preset',
+        daqpvprefix = pvprefix,
+        channels = channels,
+        time_channel = 'elapsedtime',
+    ),
+    ThresholdChannel = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThresholdChannel',
+        daqpvprefix = pvprefix,
+        channels = channels,
+        visibility = {'metadata', 'namespace'},
+    ),
+    Threshold = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThreshold',
+        daqpvprefix = pvprefix,
+        min_rate_channel = 'ThresholdChannel',
+        visibility = {'metadata', 'namespace'},
+    ),
+
     intensity = device('nicos_sinq.sxtal.commands.Intensity',
         description = 'Dummy to try to get stuff to work'
     ),
-    zebradet = device('nicos_sinq.devices.detector.SinqDetector',
+    zebradet = device('nicos_sinq.devices.epics.sinqdaq.SinqDetector',
         description = 'EL737 counter box that counts neutrons',
-        startpv = pvdet + '.CNT',
-        pausepv = pvdet + ':Pause',
-        statuspv = pvdet + ':Status',
-        errormsgpv = pvdet + ':MsgTxt',
-        thresholdpv = pvdet + '.PR4',
-        thresholdcounterpv = pvdet + '.PR3',
-        monitorpreset = 'monitorpreset',
-        timepreset = 'timepreset',
         timers = ['elapsedtime'],
-        monitors = ['counts', 'monitor1', 'protoncount'],
+        monitors = ['hardware_preset'] + channels,
         images = [],
         others = [],
         liveinterval = 7,
