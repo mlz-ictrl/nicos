@@ -42,8 +42,6 @@ deserialiser_by_schema = {
     'ev44': deserialise_ev44
 }
 
-
-# TODO should be removed, once the most recent Amor state is pushed to Gerrit
 class KafkaChannel(ActiveChannel):
     parameters = {
         'brokers': Param('List of kafka hosts to be connected',
