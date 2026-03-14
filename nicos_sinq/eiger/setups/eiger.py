@@ -1,9 +1,13 @@
 description = 'Standard EIGER devices minus the monochromator'
 
+group = 'lowlevel'
+
 mcu2prefix = 'SQ:EIGER:turboPmac2:'
 mcu3prefix = 'SQ:EIGER:turboPmac3:'
 mcu4prefix = 'SQ:EIGER:turboPmac4:'
 cterprefix = 'SQ:EIGER:counter'
+
+channels = ['ctr1', 'mon1', 'mon2', 'mon3']
 
 devices = dict(
     d1l = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
@@ -44,8 +48,7 @@ devices = dict(
     ),
     a3 = device('nicos.core.device.DeviceAlias',
         description = 'Alias for a3',
-        alias = 'a3_raw',
-        devclass = 'nicos.core.device.Moveable'
+        devclass = 'nicos.core.device.Moveable',
     ),
     sslit = device('nicos.devices.generic.slit.Slit',
         description = 'Sample slit with left, right, bottom and '
@@ -58,15 +61,15 @@ devices = dict(
         coordinates = 'opposite',
         parallel_ref = True,
     ),
-    sslit_height = device('nicos.core.device.DeviceAlias',
+    sslit_height = device('nicos.devices.generic.slit.HeightSlitAxis',
         description = 'Sample slit height controller',
-        alias = 'sslit.height',
-        devclass = 'nicos.devices.generic.slit.HeightSlitAxis'
+        slit = 'sslit',
+        unit = 'mm',
     ),
-    sslit_width = device('nicos.core.device.DeviceAlias',
+    sslit_width = device('nicos.devices.generic.slit.WidthSlitAxis',
         description = 'Sample slit width controller',
-        alias = 'sslit.width',
-        devclass = 'nicos.devices.generic.slit.WidthSlitAxis'
+        slit = 'sslit',
+        unit = 'mm',
     ),
     a4 = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
         description = 'Sample two theta',
@@ -111,62 +114,63 @@ devices = dict(
         description = 'Analyser goniometer',
         motorpv = mcu4prefix + 'ag',
     ),
-    timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
-        description = 'Used to set and view time preset',
-        unit = 'sec',
-        readpv = cterprefix + '.TP',
-        presetpv = cterprefix + '.TP',
+    elapsedtime = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQTime',
+        daqpvprefix = cterprefix,
     ),
-    elapsedtime = device('nicos_sinq.devices.epics.detector.EpicsTimerPassiveChannel',
-        description = 'Used to view elapsed time while counting',
-        unit = 'sec',
-        readpv = cterprefix + '.T',
-    ),
-    monitorpreset = device('nicos_sinq.devices.epics.detector.EpicsCounterActiveChannel',
-        description = 'Used to set and view monitor preset',
-        type = 'monitor',
-        readpv = cterprefix + '.PR2',
-        presetpv = cterprefix + '.PR2',
-    ),
-    ctr1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    ctr1 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'The real neutron counter',
+        daqpvprefix = cterprefix,
+        channel = 2,
         type = 'counter',
-        readpv = cterprefix + '.S3',
     ),
-    mon1 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    mon1 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'First scalar counter channel',
+        daqpvprefix = cterprefix,
+        channel = 1,
         type = 'monitor',
-        readpv = cterprefix + '.S2',
     ),
-    mon2 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    mon2 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Second scalar counter channel',
+        daqpvprefix = cterprefix,
+        channel = 3,
         type = 'monitor',
-        readpv = cterprefix + '.S4',
     ),
-    mon3 = device('nicos_sinq.devices.epics.detector.EpicsCounterPassiveChannel',
+    mon3 = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Fourth scalar counter channel',
+        daqpvprefix = cterprefix,
+        channel = 4,
         type = 'monitor',
-        readpv = cterprefix + '.S5',
     ),
-    counter = device('nicos_sinq.devices.detector.SinqDetector',
+    hardware_preset = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQPreset',
+        description = 'In-hardware Time/Count Preset',
+        daqpvprefix = cterprefix,
+        channels = channels,
+        time_channel = 'elapsedtime',
+    ),
+    ThresholdChannel = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThresholdChannel',
+        daqpvprefix = cterprefix,
+        channels = channels,
+        visibility = {'metadata', 'namespace'},
+    ),
+    Threshold = device(
+        'nicos_sinq.devices.epics.sinqdaq.DAQMinThreshold',
+        daqpvprefix = cterprefix,
+        min_rate_channel = 'ThresholdChannel',
+        visibility = {'metadata', 'namespace'},
+    ),
+    counter = device('nicos_sinq.devices.epics.sinqdaq.SinqDetector',
         description = 'EL737 counter box that counts neutrons and '
         'starts streaming events',
-        startpv = cterprefix + '.CNT',
-        pausepv = cterprefix + ':Pause',
-        statuspv = cterprefix + ':Status',
-        errormsgpv = cterprefix + ':MsgTxt',
-        thresholdpv = cterprefix + ':Threshold',
-        thresholdcounterpv = cterprefix + ':ThresholdCounter',
-        monitorpreset = 'monitorpreset',
-        timepreset = 'timepreset',
         timers = ['elapsedtime'],
-        monitors = [
-            'ctr1',
-            'mon1',
-            'mon2',
-            'mon3',
-        ],
-        liveinterval = 7,
+        monitors = ['hardware_preset'] + channels,
+        liveinterval = 5,
         saveintervals = [60]
     ),
     ana = device('nicos_sinq.devices.mono.TasAnalyser',
@@ -186,13 +190,17 @@ devices = dict(
     ),
     ef = device('nicos.core.device.DeviceAlias',
         description = 'Alias for driving the analyser',
-        alias = 'ana',
     ),
     kf = device('nicos_sinq.eiger.devices.KSpaceMoveable.KSpaceMoveable',
         description = 'K Space alias for driving the monochromator',
         raw_motor = 'ana',
     ),
 )
+
+alias_config = {
+    'ef': {'ana': 100},
+    'a3': {'a3_raw': 100},
+}
 
 startupcode = """
 SetDetectors(counter)

@@ -1,6 +1,10 @@
 description = 'Devices for the analyser detector assembly'
 
-excludes = ['wagen1']
+group = 'lowlevel'
+
+excludes = [
+    'wagen1'
+]
 
 pvpref = 'SQ:ZEBRA:turboPmac3:'
 snpref = 'SQ:ZEBRA:turboPmac2:'
@@ -76,6 +80,3 @@ devices = dict(
         unit = 'mm',
     ),
 )
-startupcode = """
-counts._setROParam('readpv', 'SQ:ZEBRA:counter.S5')
-"""

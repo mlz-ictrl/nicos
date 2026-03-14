@@ -1,5 +1,7 @@
 description = 'HM configuration for the FOCUS lower detector bank'
 
+group = 'lowlevel'
+
 includes = [
     'lowerbank_config',
 ]

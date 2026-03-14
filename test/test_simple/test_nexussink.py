@@ -41,7 +41,7 @@ from nicos.commands.scan import scan
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, EndTime, ImageDataset, NXAttribute, \
     NXExternalLink, NXLink, NXScanLink, StartTime
-from nicos.utils import updateFileCounter
+from nicos.utils import readFileCounter, updateFileCounter
 
 from test.nexus.TestTemplateProvider import setTemplate
 
@@ -70,12 +70,14 @@ class TestNexusSink:
                       'data'))
         session.experiment.setEnvironment([])
 
-    def setScanCounter(self, session, no):
+    def setScanCounter(self, session, no, p=167):
         dataroot = path.join(config.nicos_root, self.datadir)
         counter = path.join(dataroot, session.experiment.counterfile)
         updateFileCounter(counter, 'scan', no)
+        assert readFileCounter(counter, 'scan') == no
         # print('SetCounter')
-        updateFileCounter(counter, 'point', 167)
+        updateFileCounter(counter, 'point', p)
+        assert readFileCounter(counter, 'point') == p
 
     def test_hierarchy(self, session):
         template = {
@@ -309,3 +311,39 @@ class TestNexusSink:
             if warn.find('Failed to create external link') > 0:
                 return
         pytest.fail('external link created')
+
+    def test_start_from_scratch_count(self, session, log):
+        template = {
+            'entry:NXentry': {
+                'time': DetectorDataset('timer', 'float32'),
+                'mon': DetectorDataset('mon1', 'uint32'),
+                'counts': ImageDataset(0, 0,
+                                       signal=NXAttribute(1, 'int32')),
+                'sry': DeviceDataset('sry'),
+            },
+            'data:NXdata': {'None': NXScanLink(), }
+        }
+
+        setTemplate(template)
+        session.experiment.setDetectors(['det'])
+        self.setScanCounter(session, 0, 0)
+        count(t=0.1)
+        os.unlink(path.join(session.experiment.datapath, 'test%sn000001.hdf' % year))
+
+    def test_start_from_scratch_scan(self, session, log):
+        template = {
+            'entry:NXentry': {
+                'time': DetectorDataset('timer', 'float32'),
+                'mon': DetectorDataset('mon1', 'uint32'),
+                'counts': ImageDataset(0, 0,
+                                       signal=NXAttribute(1, 'int32')),
+                'sry': DeviceDataset('sry'),
+            },
+            'data:NXdata': {'None': NXScanLink(), }
+        }
+        setTemplate(template)
+        session.experiment.setDetectors(['det'])
+        sry = session.getDevice('sry')
+        self.setScanCounter(session, 0, 0)
+        scan(sry, 0, 1, 5, t=0.001)
+        os.unlink(path.join(session.experiment.datapath, 'test%sn000001.hdf' % year))
