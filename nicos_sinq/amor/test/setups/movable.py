@@ -13,22 +13,6 @@ def create_epics_motor(controller_id, device_id):
                   )
 
 
-def create_epics_magnet(device_id):
-    """Create a magnet with the given device id."""
-    return device('nicos_sinq.amor.devices.epics_amor_magnet.EpicsAmorMagnet',
-                  description='Test magnet',
-                  basepv='SQ:AMOR:' + device_id,
-                  pvdelim=':',
-                  switchpvs={
-                      'read': 'SQ:AMOR:' + device_id + ':PowerStatusRBV',
-                      'write': 'SQ:AMOR:' + device_id + ':PowerStatus'},
-                  switchstates={'enable': 1, 'disable': 0},
-                  precision=0.1,
-                  timeout=None,
-                  window=5.0,
-                  )
-
-
 def create_epics_asyn_controller(device_id):
     """Create an asyn controller with the given device id."""
     return device('nicos_sinq.devices.epics.extensions.EpicsCommandReply',
@@ -74,5 +58,4 @@ devices = dict(
     serial1=create_epics_asyn_controller('serial1'),
     serial2=create_epics_asyn_controller('serial2'),
     serial3=create_epics_asyn_controller('serial3'),
-    pby=create_epics_magnet('PBY'),
 )
