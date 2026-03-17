@@ -27,8 +27,8 @@
 from math import asin, cos, degrees, pi, radians, sin
 
 from nicos.core import MASTER, SIMULATION, Attach, HasLimits, HasPrecision, \
-    LimitError, Moveable, Override, Param, listof, multiReset, multiStatus, \
-    oneof, status, tupleof
+    LimitError, Moveable, Override, Param, floatrange, intrange, listof, \
+    multiReset, multiStatus, none_or, nonzero, oneof, status, tupleof
 from nicos.devices.generic.mono import ANG2MEV, THZ2MEV, \
     Monochromator as BaseMonochromator, from_k, to_k
 
@@ -110,6 +110,19 @@ class Monochromator(HasLimits, HasPrecision, BaseMonochromator):
         'reflection': Param('Used hkl parameter of the reflection',
                             type=tupleof(int, int, int), mandatory=True,
                             category='instrument'),
+        # mainly to put into nexus
+        'segment_width': Param('Horizontal dimension of each segment',
+                               type=none_or(nonzero(floatrange(0))),
+                               unit='mm', category='instrument'),
+        'segment_height': Param('Vertical dimension of each segment',
+                                type=none_or(nonzero(floatrange(0))),
+                                unit='mm', category='instrument'),
+        'segment_columns': Param('Number of segments stacked horizontally',
+                                 type=none_or(intrange(1, 1000)),
+                                 category='instrument'),
+        'segment_rows': Param('Number of segments stacked vertically',
+                              type=none_or(intrange(1, 1000)),
+                              category='instrument'),
     }
 
     parameter_overrides = {
