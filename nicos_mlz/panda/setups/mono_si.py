@@ -27,6 +27,10 @@ devices = dict(
         dvalue = 3.455,   # 3.13
         scatteringsense = -1,
         crystalside = -1,
+        # segment_width = 1,
+        # segment_height = 1,
+        segment_columns = 1,
+        segment_rows = 5,
     ),
     mfh_si_step = device('nicos_mlz.panda.devices.mcc2.MCC2Motor',
         description = 'horizontal focusing MOTOR of Si monochromator',

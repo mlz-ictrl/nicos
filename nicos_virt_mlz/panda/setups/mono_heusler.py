@@ -24,6 +24,10 @@ devices = dict(
         dvalue = 3.45,
         scatteringsense = -1,
         crystalside = -1,
+        # segment_width = 1,
+        # segment_height = 1,
+        segment_columns = 2,
+        segment_rows = 9,
     ),
 
     mfv_heusler_step = device('nicos_virt_mlz.panda.devices.stubs.MccMotor',

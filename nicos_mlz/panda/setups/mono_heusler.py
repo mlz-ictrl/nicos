@@ -30,6 +30,10 @@ devices = dict(
         dvalue = 3.45,
         scatteringsense = -1,
         crystalside = -1,
+        # segment_width = 1,
+        # segment_height = 1,
+        segment_columns = 2,
+        segment_rows = 9,
     ),
     # for MFV_heusler motor, only one limit switch (-) is connected as a reference switch
     mfv_heusler_step = device('nicos_mlz.panda.devices.mcc2.MCC2Motor',
