@@ -1,10 +1,6 @@
 `AMOR <https://www.psi.ch/sinq/amor/>`_
 =======================================
 
-.. module:: nicos_sinq.amor.devices.epics_amor_magnet
-.. autoclass:: EpicsAmorMagnet()
-.. autoclass:: EpicsAmorMagnetSwitch()
-
 .. module:: nicos_sinq.amor.devices.dimetix
 .. autoclass:: EpicsDimetix()
 

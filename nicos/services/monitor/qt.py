@@ -262,16 +262,16 @@ class Monitor(BaseMonitor):
         self._plots = {}
 
         colorScheme = lightColorScheme if self.colors == 'light' else None
-        fontCache = {1.0: valuefont}
+        fontCache = {1.0: (valuefont, labelfont)}
 
         def _create_field(groupframe, field):
 
             def _setup(widget):
                 fontscale = field.get('fontscale', 1.0)
                 if fontscale not in fontCache:
-                    fontCache[fontscale] = scaledFont(valuefont, fontscale)
-                widget.valueFont = fontCache[fontscale]
-                widget.setFont(labelfont)
+                    fontCache[fontscale] = (scaledFont(valuefont, fontscale), scaledFont(labelfont, fontscale))
+                widget.valueFont = fontCache[fontscale][0]
+                widget.setFont(fontCache[fontscale][1])
                 for key in field:
                     if key in widget.properties:
                         setattr(widget, key, field[key])
