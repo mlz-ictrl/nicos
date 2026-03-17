@@ -159,12 +159,13 @@ class DeviceAttribute(NXAttribute):
     parameter of the device.
     """
 
-    def __init__(self, device, parameter='value', dtype=None, defaultval=None):
+    def __init__(self, device, parameter='value', dtype=None, defaultval=None, mapping=None):
         NXAttribute.__init__(self, defaultval, dtype)
         self.device = device
         self.parameter = parameter
         self.dtype = dtype
         self.defaultval = defaultval
+        self.mapping = None
         self.np = 0
         self.doAppend = False
 
@@ -174,6 +175,8 @@ class DeviceAttribute(NXAttribute):
                 sinkhandler.dataset.metainfo[(self.device, self.parameter)][0]
         else:
             self.value = self.defaultval
+        if self.mapping is not None:
+            self.value = self.mapping(self.value)
         if self.value is not None:
             self.determineType()
             NXAttribute.create(self, name, h5parent, sinkhandler)
@@ -186,12 +189,13 @@ class DeviceDataset(NexusElementBase):
     """
 
     def __init__(self, device, parameter='value', dtype=None, defaultval=None,
-                 **attr):
+                 mapping=None, **attr):
         NexusElementBase.__init__(self)
         self.device = device
         self.parameter = parameter
         self.dtype = dtype
         self.defaultval = defaultval
+        self.mapping = mapping
         self.attrs = {}
         self.doAppend = False
         for key, val in attr.items():
@@ -231,6 +235,14 @@ class DeviceDataset(NexusElementBase):
                 session.log.warning(
                     'NeXus: failed to locate data for %s %s in NICOS (%s)',
                     self.device, self.parameter, e)
+                return
+        if self.mapping is not None:
+            try:
+                self.value.value = self.mapping(self.value.value)
+            except Exception as e:
+                session.log.warning(
+                    'NeXus: failed to apply mapping %s for %s %s in NICOS (%s)',
+                    str(self.mapping), self.device, self.parameter, e)
                 return
         if self.parameter == 'value':
             self.testAppend(sinkhandler)
