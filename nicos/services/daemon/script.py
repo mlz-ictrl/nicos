@@ -141,6 +141,7 @@ class ScriptRequest(Request):
         # command when the experiment fails
         if session._experiment and session.mode == MASTER:
             session.experiment.scripts += [self.text]
+            session.experiment.scriptnames += [self.name]
             self._exp_script_index = len(session.experiment.scripts) - 1
         if self.name:
             session.elogEvent('scriptbegin', self.name)
@@ -162,6 +163,7 @@ class ScriptRequest(Request):
                 session.endActionScope()
             if session._experiment and session.mode == MASTER:
                 session.experiment.scripts = session.experiment.scripts[:-1]
+                session.experiment.scriptnames = session.experiment.scriptnames[:-1]
             if self.name:
                 session.elogEvent('scriptend', self.name)
 

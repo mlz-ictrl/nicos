@@ -106,8 +106,11 @@ class Experiment(Device):
         'elog_hidden':    Param('True if the events sent to the electronic '
                                 'logbook should be hidden by default',
                                 type=bool, default=False, settable=True),
-        'scripts':        Param('Currently executed scripts', type=listof(str),
-                                settable=True, internal=True,
+        'scripts':        Param('Stack of currently executed scripts',
+                                type=listof(str), settable=True, internal=True,
+                                no_sim_restore=True),
+        'scriptnames':    Param('Stack of filenames of self.scripts',
+                                type=listof(str), settable=True, internal=True,
                                 no_sim_restore=True),
         'templates':      Param('Name of the directory with script templates '
                                 '(relative to dataroot)', type=str),
