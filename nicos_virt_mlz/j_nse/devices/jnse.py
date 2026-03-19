@@ -22,17 +22,20 @@
 # *****************************************************************************
 
 from nicos.core import Param
-from nicos.core.mixins import DeviceMixinBase
-from nicos.devices.entangle import PowerSupply
+from nicos.devices.generic.virtual import VirtualMotor
+from nicos_mlz.j_nse.devices.jnse import HasLabel
 
 
-class HasLabel(DeviceMixinBase):
-    """For devices that store additional label parameter."""
+class JNSEVirtualMotor(HasLabel, VirtualMotor):
+    """VirtualMotor that stores additional label."""
 
     parameters = {
-        'label': Param('Device label from NIST table', type=str,),
+        'voltage': Param(
+            'Actual voltage',
+            unit='V', fmtstr='%.3f', internal=True, type=float, settable=False,
+            volatile=True, category='general',
+        ),
     }
 
-
-class JNSEPowerSupply(HasLabel, PowerSupply):
-    """PowerSupply that stores additional label."""
+    def doReadVoltage(self):
+        return (self.curvalue or 0.) * 0.1
