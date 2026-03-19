@@ -6,8 +6,8 @@ hide = True
 group = 'lowlevel'
 
 devices = dict(
-    shutter = device('nicos_sinq.devices.epics.shutter.Shutter',
-          shutterpvprefix = spsprefix,
+    shutter = device('nicos_sinq.sans_llb.devices.shutter.Shutter',
+          pvprefix = spsprefix,
           description = 'Control SANS-LLB instrument shutter and report access status',
     ),
 )
