@@ -371,8 +371,8 @@ class SicsDataManager(DataManager):
         result = []
         exp = session.experiment
         if countertype == 'scan':
-            val = exp.sicscounter
-            exp.updateSicsCounterFile(val+1)
+            val = exp.sicscounter + 1
+            exp.updateSicsCounterFile(val)
             result.append((countertype, val))
             result.append(('counter', val))
             self._pointcounter = 1

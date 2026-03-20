@@ -1,0 +1,53 @@
+description = 'Devices for the normal SANS sample holder'
+
+group = 'lowlevel'
+
+excludes = ['emagnet_sample']
+
+devices = dict(
+    z = device('nicos.devices.generic.VirtualMotor',
+        description = 'Sample Table Height',
+        unit = 'mm',
+        abslimits = (-0.2, 135),
+        speed = 0.27,
+    ),
+    xu = device('nicos.devices.generic.VirtualMotor',
+        description = 'Sample Upper X Translation',
+        unit = 'mm',
+        abslimits = (-148.0005, 148.0005),
+        speed = 2,
+    ),
+    xo = device('nicos.devices.generic.VirtualMotor',
+        description = 'Sample Table X Translation',
+        unit = 'mm',
+        abslimits = (-21, 21),
+        speed = 2,
+    ),
+    yo = device('nicos.devices.generic.VirtualMotor',
+        description = 'Sample Table Y Translation',
+        unit = 'mm',
+        abslimits = (-21, 21),
+        speed = 2,
+    ),
+    a3 = device('nicos.devices.generic.VirtualMotor',
+        description = 'Sample table Rotation',
+        unit = 'deg',
+        abslimits = (-91, 91),
+        speed = 1,
+        offset = -0.45637,
+    ),
+    sg = device('nicos.devices.generic.VirtualMotor',
+        description = 'Sample table Rotation',
+        unit = 'deg',
+        abslimits = (-7.0009, 7.0009),
+        speed = 0.15,
+        offset = -0.017375,
+    ),
+    spos = device('nicos.devices.generic.VirtualMotor',
+        description = 'Sample Position',
+        unit = '',
+        precision = 0.01,
+        abslimits = (0, 480),
+        speed = 2000,
+    )
+)
