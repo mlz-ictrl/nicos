@@ -9,7 +9,9 @@ excludes = ['detector']
 channels = ['monitor1', 'monitor2', 'monitor3', 'monitor4', 'monitor5', 'protoncount', 'monitor6', 'monitor7',  'monitor8']
 
 devices = dict(
-    elapsedtime = device('nicos.devices.generic.VirtualTimer'),
+    elapsedtime = device('nicos.devices.generic.VirtualTimer',
+        description = 'The elapsed time of current/most recent count',
+    ),
     # DAQPreset = device('nicos_sinq.devices.epics.sinqdaq.DAQPreset',
     #     description = '2nd Generation Data Acquisition',
     #     channels = channels,
