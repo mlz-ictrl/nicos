@@ -664,8 +664,7 @@ def reset(*devlist):
     """Reset the given device(s).
 
     This can restore communication with the device, re-set a positioning fault
-    or make a reference drive (only for devices where this cannot lead to
-    crashes, such as slits).
+    or try other forms of reinitialization without moving the device.
 
     Examples:
 
