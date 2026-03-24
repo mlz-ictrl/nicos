@@ -45,15 +45,24 @@ class Sample(Moveable):
     """
 
     parameters = {
-        'samplename':   Param('Current sample name', type=str, settable=True,
-                              category='sample'),
-        'samplenumber': Param('Current sample number: e.g. the position in '
-                              'a sample changer or the index of the sample '
-                              'among all defined samples', type=none_or(int),
-                              settable=True),
-        'samples':      Param('Information about all defined samples',
-                              type=dictof(int, dictof(str, anytype)),
-                              settable=True, internal=True, preinit=True),
+        'sampledescription': Param(
+            'Extended sample description',
+            type=str, settable=True, category='sample'
+        ),
+        'samplename': Param(
+            'Current sample name',
+            type=str, settable=True, category='sample'
+        ),
+        'samplenumber': Param(
+            'Current sample number: e.g. the position in a sample changer or '
+            'the index of the sample among all defined samples',
+            type=none_or(int), settable=True
+        ),
+        'samples': Param(
+            'Information about all defined samples',
+            type=dictof(int, dictof(str, anytype)), settable=True,
+            internal=True, preinit=True
+        ),
     }
 
     parameter_overrides = {
@@ -86,6 +95,7 @@ class Sample(Moveable):
 
     def clear(self):
         """Clear experiment-specific information."""
+        self.sampledescription = ''
         self.samplename = ''
         self.samplenumber = None
         self.samples = {}
@@ -151,6 +161,7 @@ class Sample(Moveable):
         subclasses, since they will not be provided for the empty sample
         created by NewExperiment.
         """
+        self.sampledescription = parameters.get('sampledescription', '')
         self.samplenumber = number
         self.samplename = parameters['name']
         self._setROParam('target', parameters['name'])
