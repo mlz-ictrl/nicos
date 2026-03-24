@@ -157,6 +157,14 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
                   mandatory=False,
                   internal=True,
                   default=(status.OK, '')),
+        'valid_pos_after_reference':
+            Param('If true, the motor moves back into the absolute limits ' \
+                  'range after a reference run',
+                  type=bool,
+                  category='general',
+                  settable=True,
+                  mandatory=False,
+                  default=False),
     }
 
     parameter_overrides = {
@@ -465,15 +473,8 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
 
         # If there is nothing more important to be reported, check if the motor
         # is currently homed.
-        if not message:
-            # The 16th bit from the .MSTA field corresponds to HOMED.
-            status_bits = format(int(self._get_pv('status')), '016b')
-
-            # status_bits is a string with 16 characters, so status_bits[15] is
-            # a substring with a single entry which is not False - hence the
-            # conversion to integer first.
-            if int(status_bits[15]):
-                return status.OK, 'homed'
+        if not message and self._at_home():
+            return status.OK, 'homed'
 
         return status.OK, message
 
@@ -523,8 +524,10 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         self._put_pv('home%s' % self.reference_direction, 1)
 
         # This function should only return once the reference drive is finished
-        # The loop therefore blocks until the motor reports movement done for a
-        # certain time period.
+        # The loop therefore blocks until:
+        # 1) the motor reports movement done and the "at home" status bit of the
+        # motor record has been set.
+        # 2) the motor reports movement done for a certain time period or
         movement_done_period = 1  # Seconds
         movement_done_start = None
         stat = status.OK
@@ -536,30 +539,38 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
             if stat == status.OK:
                 (stat, _) = self.status(0)
 
-            # If the motor reports donemoving for a certain time period, assume
-            # that the reference drive is done. The "HOMED" bit 16 from the
-            # motor record MSTA status is not usable, because the motor record
-            # assumes that referencing the motor is done once it reached the HLM
-            # / LLM limits even though it might actually still move ...
             if self._get_pv('donemoving'):
+                # Motor is not moving anymore and it reports that it is at its
+                # home position: Reference run is done
+                if self._at_home():
+                    self.status(0)
+                    break
+
+                # If the motor is idle for a certain time, assume that the
+                # reference run has finished even if the status bit does not
+                # reflect that (this points to a bug in the EPICS driver).
                 if movement_done_start:
                     if time.monotonic() > movement_done_start + movement_done_period:
-
-                        # Check if the "HOMED" bit is set in the motor record
-                        status_bits = format(int(self._get_pv('status')), '016b')
-                        homed = int(status_bits[15])
-                        if not homed:
+                        if not self._at_home():
                             self.log.warning('finished moving, but not homed yet')
 
                         # Update the status of the motor so it shows idle
                         self.status(0)
-                        return
+                        break
                 else:
                     movement_done_start = time.monotonic()
             else:
                 movement_done_start = None
 
             session.delay(self._base_loop_delay)
+
+        # Move the motor slightly back into the userlimits after a reference run
+        if self.valid_pos_after_reference:
+            pos = self.read(0)
+            if pos < self.absmin:
+                self.maw(self.absmin + self.position_deadband)
+            elif pos > self.absmax:
+                self.maw(self.absmax - self.position_deadband)
 
     def doReset(self):
         if self.reseterrorpv:
@@ -594,3 +605,11 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
     def doPoll(self, n, maxage):
         self.pollParams('speed', 'speedlimits', 'offset', 'abslimits',
                         'reference_direction')
+
+    def _at_home(self):
+        """
+        Status bit 8 of the motor record informs whether the motor is currently
+        at its "home" position.
+        """
+        status_bits = format(int(self._get_pv('status')), '016b')
+        return int(status_bits[8])

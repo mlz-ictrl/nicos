@@ -111,7 +111,6 @@ class DefTestSinqMotor(DefTest):
         self.motor.values['errormsgpv'] = 'TestError'
         self.motor.values['alarm_severity'] = 2
         stat = self.motor.status()
-        print(stat)
         assert stat[0] == status.DISABLED
         assert 'disconnected' in stat[1]
         assert 'TestError' not in stat[1] # Error is not shown if motor is disconnected

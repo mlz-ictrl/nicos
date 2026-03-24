@@ -94,7 +94,7 @@ main_window = docked(
         ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
 
         ('Finish Experiment',
-         panel('nicos.clients.flowui.panels.setup_panel.FinishPanel')),
+         panel('nicos_sinq.gui.panels.setup_panel.FinishPanel')),
 
         position='left',
     ), # tabbed

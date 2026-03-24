@@ -121,6 +121,7 @@ class FakeEpicsMotor(EpicsMotor):
         self.values['lowlimitswitch'] = 0
         self.values['homeforward'] = 0
         self.values['homereverse'] = 0
+        self.values['status'] = int('0000000000000000', 2)
         self.userlimits = (self.values['lowlimit'], self.values['highlimit'])
         if hasattr(self, '_new_offset'):
             del self._new_offset
@@ -345,10 +346,9 @@ class DefTest:
         assert not self.motor.isAtTarget()
 
     @pytest.mark.timeout(5)
-    def test_reference(self):
+    def test_reference_done_for_some_time(self):
 
-        def start_reference(motor, runtime):
-
+        def reference_run(motor, runtime):
             def simulate_hardware(motor, runtime):
                 time.sleep(runtime)
                 motor.values['donemoving'] = 1
@@ -357,7 +357,7 @@ class DefTest:
                 motor.values['readpv'] = -100
 
             # Hardware simulation
-            thread = threading.Thread(target=simulate_hardware, args=(self.motor, runtime))
+            thread = threading.Thread(target=simulate_hardware, args=(motor, runtime))
             thread.start()
             motor.reference()
 
@@ -368,7 +368,7 @@ class DefTest:
         runtime = 0.2
 
         # Start the reference run
-        thread = threading.Thread(target=start_reference, args=(self.motor, runtime))
+        thread = threading.Thread(target=reference_run, args=(self.motor, runtime))
         thread.start()
 
         # Wait until the simulated reference run has started
@@ -379,7 +379,10 @@ class DefTest:
         assert stat[0] == status.BUSY
         assert stat[1]
 
-        # Pause the test until the reference run is done
+        # Pause the test until the reference run is done. Within the motor
+        # device, it is checked if the motor reports done_moving for at least
+        # a second before homing is finished. Hence, we need to wait a bit more
+        # here.
         thread.join(2)
 
         if thread.is_alive():
@@ -388,7 +391,64 @@ class DefTest:
         # Motor has finished after the reference method returns
         stat = self.motor.status()
         assert stat[0] == status.OK
-        assert not stat[1]
+        assert stat[1] == ''
+
+    @pytest.mark.timeout(5)
+    def test_reference_done_at_home(self):
+
+        def reference_run(motor, runtime):
+            def simulate_hardware(motor, runtime):
+                time.sleep(runtime)
+                motor.values['donemoving'] = 1
+                motor.values['homeforward'] = 0
+                motor.values['homereverse'] = 0
+                motor.values['readpv'] = -100
+                motor.values['status'] = int('0000000010000000', 2)
+
+            # Hardware simulation
+            thread = threading.Thread(target=simulate_hardware, args=(motor, runtime))
+            thread.start()
+            motor.reference()
+
+        # Time the motor needs for its reference run in seconds
+        runtime = 0.2
+
+        # Start the reference run
+        thread = threading.Thread(target=reference_run, args=(self.motor, runtime))
+        thread.start()
+
+        # Wait until the simulated reference run has started
+        time.sleep(0.5*runtime)
+
+        # Motor is now doing a reference run
+        stat = self.motor.status()
+        assert stat[0] == status.BUSY
+        assert stat[1]
+
+        # Pause the test until the reference run is done. Within the motor
+        # device, it is checked if the motor reports done_moving and bit 8 has
+        # been set
+        thread.join(1)
+
+        if thread.is_alive():
+            pytest.fail('Simulated reference run did not finish in expected time')
+
+        # Motor has finished after the reference method returns
+        stat = self.motor.status()
+        assert stat[0] == status.OK
+        assert stat[1] == 'homed'
+
+    def test_at_home(self):
+        stat = self.motor.status()
+        assert stat[0] == status.OK
+        assert stat[1] == ''
+
+        # Set to "at home"
+        self.motor.values['status'] = int('0000000010000000', 2)
+        stat = self.motor.status()
+        assert stat[0] == status.OK
+        assert stat[1] == 'homed'
+
 
     def test_status_with_errormsgpv(self):
         stat = self.motor.status()

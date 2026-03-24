@@ -5,13 +5,13 @@ display_order = 76
 pvprefix = 'SQ:AMOR:turboPmac3:'
 
 devices = dict(
-    det_nu = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+    det_nu = device('nicos_sinq.devices.epics.motor.SinqMotor',
                     description = 'detector angle wrt. horizon',
                     motorpv = pvprefix + 'det_nu',
                     visibility = ('metadata', 'namespace'),
                     unit='degree',
                     ),
-    det_zoffset = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+    det_zoffset = device('nicos_sinq.devices.epics.motor.SinqMotor',
                          description = 'define coz zero position - only for instrument alignment',
                          motorpv = pvprefix + 'det_zoffset',
                          visibility = ('metadata', 'namespace'),

@@ -58,7 +58,7 @@ devices = dict(
                                default = 6.75,
                                visibility = ('metadata', 'namespace'),
                                ),
-    ch2_trigger = device('nicos_sinq.devices.counters.KafkaCounter',
+    ch2_trigger = device('nicos_sinq.amor.devices.monitor_counters.KafkaCounter',
                          description = 'trigger time of 1st chopper and delay of 2nd chopper',
                          brokers = configdata('config.KAFKA_BROKERS'),
                          # TODO: change topic name to 'ch2_trigger'

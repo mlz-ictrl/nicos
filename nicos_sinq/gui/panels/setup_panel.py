@@ -18,12 +18,14 @@
 #
 # Module authors:
 #   Michele Brambilla <michele.brambilla@psi.ch>
+#   Stefan Mathis <stefan.mathis@psi.ch>
 #
 # *****************************************************************************
 
 """NICOS GUI experiment setup window."""
 
-from nicos.clients.gui.panels.setup_panel import ExpPanel as MlzExpPanel
+from nicos.clients.flowui.panels.setup_panel import FinishPanel as CoreFinishPanel
+from nicos.clients.gui.panels.setup_panel import ExpPanel as CoreExpPanel
 from nicos.guisupport.qt import QDialog, QFileDialog, QLineEdit
 from nicos.guisupport.widget import NicosWidget, PropDef
 
@@ -45,15 +47,15 @@ class LineEdit(QLineEdit, NicosWidget):
         self.setText(value)
 
 
-class ExpPanel(MlzExpPanel):
+class ExpPanel(CoreExpPanel):
     """
-    Extends the MlzExpPanel and let the user select the experiment scriptpath
+    Extends the CoreExpPanel and let the user select the experiment scriptpath
     """
 
     ui = '%s/panels/setup_exp.ui' % uipath
 
     def __init__(self, parent, client, options):
-        MlzExpPanel.__init__(self, parent, client, options)
+        CoreExpPanel.__init__(self, parent, client, options)
         self.expTitle.key = 'exp/title'
         self.expTitle.setClient(client)
         self.scriptPathLine.returnPressed.connect(self.on_script_path_changed)
@@ -86,3 +88,45 @@ class ExpPanel(MlzExpPanel):
             scriptpath = dialog.selectedFiles()[0]
             self.client.run(f'Exp.scriptpath = "{scriptpath}"')
             self.scriptPathLine.setText(scriptpath)
+
+class FinishPanel(CoreFinishPanel):
+    """
+    A FinishPanel with an interface for providing instrument-specific
+    information on the effect of the "Finish Experiment" button via the
+    _finish_text method.
+    """
+
+    def _enable_finishing(self):
+        exp_name = self.client.eval('session.experiment.title', 'Service')
+        if self._is_user_experiment():
+            if self.client.viewonly:
+                self.finishText.setText(f'Experiment "{exp_name}" is currently '
+                                        'running. It cannot be finished from this '
+                                        'view-only client instance')
+                self.finishButton.setEnabled(False)
+            else:
+                self.finishText.setText(self._finish_text())
+                self.finishButton.setEnabled(True)
+        else:
+            self.finishText.setText(
+                'Instrument is currently in service mode, therefore there is '\
+                'no experiment to finish.'
+            )
+            self.finishButton.setEnabled(False)
+
+    def _finish_text(self) -> str:
+        """
+        The string returned by this method is shown next to the "Finish Button"
+        on the FinishPanel. To provide instrument-specific information, just
+        derive a custom FinishPanel and overload this method to return a
+        different string.
+        """
+        exp_name = self.client.eval('session.experiment.title', 'Service')
+        return (
+            f'Experiment "{exp_name}" is currently running. Finishing it '
+            'has the following effects:\n\n'
+            '- Switch into service mode\n'
+            '- Upload data into SciCat\n'
+            '\nIf the proposal is still valid, it is always possible to '
+            'start the experiment again.'
+        )

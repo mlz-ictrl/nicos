@@ -8,7 +8,7 @@ includes = ['base', 'sample_stage']
 excludes = ['smz_table']
 
 devices = dict(
-    stz = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+    stz = device('nicos_sinq.devices.epics.motor.SinqMotor',
                  description = 'Sample z lift (above omega and chi rotations)',
                  motorpv = pvprefix + 'stz',
                  visibility = ('devlist', 'metadata', 'namespace'),
