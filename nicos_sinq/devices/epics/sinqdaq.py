@@ -1058,6 +1058,33 @@ class SinqDetector(Detector):
     in the preset generation.
     """
 
+    def valueInfo(self):
+        """
+        Overwritten method which excludes the DAQPreset channel from the output,
+        since the DAQPreset is essentially an alias for either a time or a
+        monitor channel (which should be already included in self._channels
+        anyway if the SinqDetector device is set up properly).
+        """
+        ret = []
+        for ch in self._channels:
+            if not isinstance(ch, DAQPreset):
+                ret.extend(ch.valueInfo())
+        return tuple(ret)
+
+    def doRead(self, maxage=0):
+        """
+        Overwritten method which excludes the DAQPreset channel from the output,
+        since the DAQPreset is essentially an alias for either a time or a
+        monitor channel (which should be already included in self._channels
+        anyway if the SinqDetector device is set up properly).
+        """
+        ret = []
+        for ch in self._channels:
+            if not isinstance(ch, DAQPreset):
+                ret.extend(ch.read(maxage))
+        return ret
+
+
     def _presetiter(self):
         """Yield (name, device, type) tuples for all 'preset-able' devices."""
         for dev in self._attached_timers:
