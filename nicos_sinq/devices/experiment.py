@@ -94,12 +94,6 @@ class Experiment(CoreExperiment):
             prop = self.serviceexp
         return path.join(self.dataroot, 'data', time.strftime('%Y'), prop)
 
-    def doWriteTitle(self, title):
-        self.propinfo['title'] = title
-
-    def doWriteUsers(self, users):
-        self.propinfo['users'] = users
-
     def _newPropertiesHook(self, proposal, kwds):
         if 'proposal_title' in kwds:
             self.proposal_title = kwds['proposal_title']

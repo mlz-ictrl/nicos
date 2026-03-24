@@ -658,7 +658,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
             else:
                 experimentText = ''
             if session.mode != SIMULATION:
-                Exp.title = experimentText
+                Exp.update(title = experimentText)
 
             for _ in range(retries):
                 try:
