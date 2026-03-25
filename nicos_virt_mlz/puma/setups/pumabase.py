@@ -65,7 +65,7 @@ devices = dict(
         scanmode = 'CKF',
     ),
     mono = device('nicos.devices.generic.DeviceAlias',
-        description = 'analyser alias device',
+        description = 'Monochromator alias device',
         alias = 'mono_pg002',
         devclass = 'nicos.devices.tas.Monochromator',
     ),
