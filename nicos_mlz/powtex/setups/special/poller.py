@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'localhost'
+    cache = 'phys.powtex.frm2',
 )
 
 devices = dict(
