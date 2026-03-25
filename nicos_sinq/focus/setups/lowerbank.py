@@ -7,6 +7,13 @@ includes = [
 ]
 
 devices = dict(
+    mdif_lower = device('nicos.devices.epics.EpicsAnalogMoveable',
+        description = 'Lower Detector MDIF',
+        readpv = "SQ:FOCUS:mdiflower:DELAY_RBV",
+        writepv = "SQ:FOCUS:mdiflower:DELAY",
+        fmtstr = '%.1f',
+        monitor = True,
+    ),
     lower_histogrammer = device('nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description = "Lower bank HM Channel",
         connector = 'lower_connector'

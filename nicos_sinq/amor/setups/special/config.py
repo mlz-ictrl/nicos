@@ -9,6 +9,8 @@ NICOS_FORWARDER_TOPIC = 'amor_nicosForwarder'
 FILEWRITER_COMMAND_TOPIC = 'amor_filewriterConfig'
 FILEWRITER_STATUS_TOPIC = 'amor_filewriterStatus'
 FILEWRITER_POOL_TOPIC = 'amor_filewriterPool'
+FILEWRITER_DR_STATUS_TOPIC = 'amor-dr_filewriterStatus'
+FILEWRITER_DR_POOL_TOPIC = 'amor-dr_filewriterPool'
 
 HIST_COMMANDS_TOPIC = 'amor_histCommands'
 DETECTOR_HISTOGRAM_YZ_TOPIC = 'amor_histograms_YZ'

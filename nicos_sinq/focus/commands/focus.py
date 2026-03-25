@@ -60,13 +60,12 @@ def UpdateTimeBinning(start, step, count):
         try:
             cfg = session.getDevice(hm + '_configurator')
             cfg.updateConfig()
-
-            # only try to set the mdif if the configurator is available
-            mdif = session.getDevice('mdif_' + hm)
-            mdif.maw(dt)
         except ConfigurationError:
-            # Missing HM's are normal
-            pass
+            continue
+
+        # only try to set the mdif if the configurator is available
+        mdif = session.getDevice('mdif_' + hm)
+        mdif.maw(dt)
 
     # Now make sure that the user sees the right thing
     tof.updateTimeBins(start, step, count)

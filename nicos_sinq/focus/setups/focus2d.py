@@ -4,9 +4,14 @@ includes = [
     'focus2d_config',
 ]
 
-group = 'lowlevel'
-
 devices = dict(
+    mdif_f2d = device('nicos.devices.epics.EpicsAnalogMoveable',
+        description = '2D Detector MDIF',
+        readpv = "SQ:FOCUS:mdif2d:DELAY_RBV",
+        writepv = "SQ:FOCUS:mdif2d:DELAY",
+        fmtstr = '%.1f',
+        monitor = True,
+    ),
     f2d_histogrammer = device('nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
         description = "2D detector Channel",
         connector = 'f2d_connector'

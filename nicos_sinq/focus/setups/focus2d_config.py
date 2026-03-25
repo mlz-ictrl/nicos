@@ -4,6 +4,8 @@ includes = [
     'detector',
 ]
 
+group = 'lowlevel'
+
 devices = dict(
     f2d_connector = device('nicos_sinq.devices.sinqhm.connector.HttpConnector',
         description = "Connector for Histogram Memory Server",
@@ -48,7 +50,8 @@ devices = dict(
         active = '0x00200000',
         increment = 1,
         banks = ['f2d_bank'],
-        connector = 'f2d_connector'
+        connector = 'f2d_connector',
+        visibility = (),
     ),
     f2d_coords = device('nicos_sinq.focus.devices.detector.Focus2DData',
         description = 'Arrays to store with 2D data',
