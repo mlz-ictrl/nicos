@@ -75,6 +75,7 @@ class FakeEpicsMotor(EpicsMotor):
         'jogforward': 0,
         'jogreverse': 0,
         'position_deadband': 0,
+        'rawvelocity': 0,
     }
 
     def doPreinit(self, mode):
