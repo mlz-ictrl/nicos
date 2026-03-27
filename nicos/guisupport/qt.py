@@ -41,6 +41,7 @@ if NICOS_QT == '6':
     from PyQt6.QtGui import *
     from PyQt6.QtPrintSupport import *
     from PyQt6.QtWidgets import *
+    from PyQt6.QtSvg import *
 
     import nicos.guisupport.gui_rc_qt6
 
@@ -81,6 +82,7 @@ else:
     from PyQt5.QtGui import *
     from PyQt5.QtPrintSupport import *
     from PyQt5.QtWidgets import *
+    from PyQt5.QtSvg import *
 
     import nicos.guisupport.gui_rc_qt5
 
