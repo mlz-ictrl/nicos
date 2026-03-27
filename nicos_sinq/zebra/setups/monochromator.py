@@ -81,7 +81,7 @@ devices = dict(
         description = 'Upper monochromator curvature',
         motorpv = motb + 'MCVU',
         errormsgpv = motb + 'MCVU-MsgTxt',
-        precision = 0.5,
+        precision = 0.9, # mcvu precision in controller is 0.87
     ),
     mexz = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
         description = 'Monochromator lift',

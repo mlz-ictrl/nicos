@@ -111,6 +111,27 @@ class EpicsMotor(EssEpicsMotor):
             return False, 'Motor disabled'
         return True, ''
 
+    def doIsAtTarget(self, pos, target):
+        """
+        This function overwrites EssEpicsMotor.doIsAtTarget and removes checking
+        the MISS field of the motor record for the following reason:
+
+        At SINQ, this device is only used for legacy motors (EL734 and Phytron).
+        These motors are all hardcoded to have a precision of 0.001 in the EPICS
+        motor record. This value is often way too small, which means that the
+        motor record believes the motor missed its target position and therefore
+        sets the MISS field to 1. On the NICOS side, this results in a lot of
+        warnings. The proper fix would be to populate the SPDB
+        (position_deadband) field of each motor in the EPICS substitution files,
+        but this is a lot of work for legacy motors which are due for
+        replacement anyway. So we just ignore the MISS field here.
+        """
+        if self._sim_intercept or target is None:
+            return True
+
+        # A motor can have a deadband which is larger than the precision. Hence,
+        # the doIsAtTarget method is used in a modified form here
+        return abs(target - pos) <= max(self.precision, self.position_deadband)
 
 class AbsoluteEpicsMotor(EpicsMotor):
     """
