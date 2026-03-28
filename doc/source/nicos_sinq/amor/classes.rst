@@ -26,8 +26,5 @@ Instrument specific widgets
 .. module:: nicos_sinq.amor.gui.panels.controlpanel
 .. autoclass:: AmorControlPanel()
 
-.. module:: nicos_sinq.amor.gui.panels.newexp
-.. autoclass:: AmorNewExpPanel()
-
 .. module:: nicos_sinq.amor.gui.panels.live
 .. autoclass:: LiveDataPanel()

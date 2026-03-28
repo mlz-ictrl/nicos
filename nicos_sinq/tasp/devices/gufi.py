@@ -21,7 +21,6 @@
 #
 # *****************************************************************************
 from nicos.core import Moveable
-from nicos.core.errors import ProgrammingError
 from nicos.core.params import Attach, Param, oneof
 from nicos.devices.generic import BaseSequencer
 from nicos.devices.generic.sequence import SeqDev, SeqSleep
@@ -45,6 +44,8 @@ class GuideField(BaseSequencer):
 
     valuetype = oneof('+', '-')
 
+    hardware_access = False
+
     def _generateSequence(self, target):
         seq = []
 
@@ -56,9 +57,6 @@ class GuideField(BaseSequencer):
             seq.append(SeqDev(self._attached_magnet, -17.9))
             seq.append(SeqSleep(1.))
             seq.append(SeqDev(self._attached_magnet, self.hold_value))
-        else:
-            raise ProgrammingError('Invalid value requested')
-
         return seq
 
     def doRead(self, maxage=0):

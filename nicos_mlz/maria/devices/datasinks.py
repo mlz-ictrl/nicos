@@ -50,8 +50,8 @@ class NPGZFileSink(BaseNPGZFileSink):
                                   'to the i-th file configured using'
                                   '(i, [nametemplates]).',
                                   type=tupleof(int, list),
-                                  mandatory=True,settable = False,
-                                  prefercache = False, ext_desc=TEMPLATE_DESC),
+                                  mandatory=True, settable=False,
+                                  prefercache=False, ext_desc=TEMPLATE_DESC),
     }
 
 

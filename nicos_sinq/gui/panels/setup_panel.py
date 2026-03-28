@@ -62,6 +62,16 @@ class ExpPanel(CoreExpPanel):
         self.scriptPathButton.clicked.connect(
             self.on_script_path_button_clicked)
 
+        # Hide widgets we don't use at SINQ. Simply removing them is not so
+        # easy, because they are used in some methods of the base MlzExpPanel
+        # (e.g. nicos.clients.gui.panels.setup_panel.ExpPanel._update_proposal_info).
+        # Overloading all these methods would be tedious and error-prone.
+        self.notifEmails.setVisible(False)
+        self.notifEmailsLabel.setVisible(False)
+        self.dataEmails.setVisible(False)
+        self.dataEmailsLabel.setVisible(False)
+        self.errorAbortBox.setVisible(False)
+
     def on_client_connected(self):
         # fill proposal
         self._update_proposal_info()

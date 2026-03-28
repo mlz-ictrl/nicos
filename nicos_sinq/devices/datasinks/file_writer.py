@@ -33,15 +33,17 @@ from datetime import datetime, timedelta
 from enum import Enum
 from os import path
 from time import time as currenttime
-
+from confluent_kafka import TopicPartition
 from streaming_data_types import deserialise_answ, deserialise_pl72, \
     deserialise_wrdn, deserialise_x5f2, serialise_6s4t, serialise_pl72
+from streaming_data_types.utils import get_schema
 from streaming_data_types.fbschemas.action_response_answ.ActionOutcome import \
     ActionOutcome
 from streaming_data_types.fbschemas.action_response_answ.ActionType import \
     ActionType
 
 from nicos import session
+from nicos.protocols.daemon import BREAK_IMMEDIATE
 from nicos.core import ADMIN, MASTER, Attach, Param, ScanDataset, host, \
     listof, status
 from nicos.core.constants import INTERRUPTED, POINT, SIMULATION
@@ -489,6 +491,81 @@ class FileWriterController:
         producer = KafkaProducer.create(self.brokers)
         producer.produce(self.status_topic, message)
 
+    def stop_all_queued_jobs(self, control_sink):
+        """
+        See FileWriterControlSink.stopAll.
+        """
+
+        # Consumer for the status topic where the filewriter instances report
+        # their service ID and the job ID they are currently working on
+        consumer = KafkaConsumer.create(self.brokers)
+        tp = TopicPartition(self.status_topic, 0)
+        consumer._consumer.assign([tp])
+
+        # consumer._consumer.get_watermark_offsets can only be called after a
+        # successfull poll - this loop ensures that.
+        control_sink.log.info('Attempt to read from Kafka ...')
+
+        consumer._consumer.list_topics(timeout=5)
+
+        control_sink.log.info('Connection established')
+
+        # After the job polling did not see any new jobs for breakoff_job_count
+        # in a row, it is assumed that all jobs queued in Kafka were stopped
+        # successfully.
+        breakoff_job_count = 20
+        kafka_no_job_counter = 0
+        while kafka_no_job_counter < breakoff_job_count:
+            session.breakpoint(BREAK_IMMEDIATE)
+
+            # Get the Kafka topic offset of the last message
+            low, high = consumer._consumer.get_watermark_offsets(tp)
+            offset = high - 1
+            if offset > low:
+                # Read the last message in the topic
+                consumer._consumer.seek(TopicPartition(self.status_topic, 0, offset))
+                for data in consumer.consume(num_messages=1000, timeout=1):
+
+                    if get_schema(data) != 'x5f2':
+                        # The message was not a status message: Increase the
+                        # counter anyway so the loop is exited eventually even
+                        # if no status messages are sent at all (e.g. if no
+                        # filewriter instance is running).
+                        kafka_no_job_counter += 1
+                        continue
+
+                    payload = deserialise_x5f2(data.value())
+
+                    # Read out the service ID of the filewriter process, the
+                    # job ID of the currently running job and the name
+                    # of the file which is currently being written to.
+                    status_info = json.loads(payload.status_json)
+                    job_id = status_info['job_id']
+                    service_id = payload.service_id
+                    file_being_written = status_info['file_being_written']
+
+                    if file_being_written:
+                        # If the filewriter is currently writing a file, attempt
+                        # to stop it using the previously identified service and job
+                        # IDs
+                        control_sink.log.info(
+                            f'Attempt to stop job {job_id} (service '
+                            f'{service_id}, file {file_being_written}).')
+                        self.request_stop(job_id, None, service_id)
+
+                        # Reset the counter, since a job was encountered
+                        kafka_no_job_counter = 0
+                    else:
+                        # The filewriter is currently idle - increase the loop
+                        # exit counter so the loop is exited once no new file
+                        # writing job has been encountered for some time.
+                        kafka_no_job_counter += 1
+                        control_sink.log.info(
+                            f'Service {service_id} currently has no job, '
+                            f'no-job-counter at {kafka_no_job_counter} '
+                            f'(finished when {breakoff_job_count}).')
+        control_sink.log.info('All filewriter jobs have been successfully terminated.')
+
 
 class FileWriterControlSink(FileSink):
     """Sink for the NeXus file-writer"""
@@ -750,3 +827,30 @@ class FileWriterControlSink(FileSink):
     def doShutdown(self):
         if self._consumer:
             self._consumer.close()
+
+    def stopAll(self):
+        """
+        Detects all currently running filewriter jobs and attempts to stop them.
+
+        This command enters a loop which repeatedly queries the filewriter
+        status topic for any running jobs. If there are some jobs running, a
+        corresponding stop command is issued, finishing the job gracefully and
+        producing data files as normal. The loop is exited after all filewriter
+        instances repeatedly reported that there is no job running anymore. The
+        loop can be exited prematurely with an "immediate stop" (the "STOP"
+        button in the GUI or the corresponding "/stop" console client command).
+
+        This command exists because a file writing job is usually stopped from
+        NICOS by issuing a stop command (there is a timeout which is send as
+        part of the start command, but it is set to 10 years so the filewriter
+        does not stop prematurely when the preset is neutron / proton count).
+        One issue with this design are "orphaned jobs": jobs that never received
+        a stop command for some reason (e.g. NICOS daemon was stopped during
+        count). When this happens repeatedly, a "queue" of start command without
+        corresponding stop commands is created in Kafka, meaning that the
+        filewriter is unable to start any new jobs. Even restarting the
+        filewriter instances does not help in such a situation, because the
+        start commands queued in Kafka are still there. This command therefore
+        offers an "emergency-exit" for such a situation.
+        """
+        self._controller.stop_all_queued_jobs(self)

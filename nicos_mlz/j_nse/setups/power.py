@@ -26,13 +26,14 @@ labels = [
     'loop2z', 'loop2y', '',
 ]
 for i in range(1, 39):
-    name = 'pow%02d' % i
-    devices[name] = \
+    devices[f'pow{i:02d}'] = \
         device(
             'nicos_mlz.j_nse.devices.jnse.JNSEPowerSupply',
-            description = 'Power Supply Port %02d' % i,
+            description = f'Power Supply Port {i:02d}',
             label = labels[i - 1],
-            tangodevice = tango_base + 'supply/' + name,
+            tangodevice = tango_base + f'supply/pow{i:02d}',
             unit = 'A',
             precision = 0.002,
+            visibility = ('metadata',) if i in [5, 9, 10, 11, 12] else \
+                ('devlist', 'metadata', 'namespace'),
         )

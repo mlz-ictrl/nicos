@@ -253,9 +253,12 @@ def printToDiscord(message):
     Print the message to the discord server if it is running.
     """
     if session.mode != SIMULATION:
-        with open('/home/camea/Documents/DiscordBot/status.txt', 'a',
-                encoding='utf-8') as f:
-            f.write(message)
+        try:
+            with open('/home/camea/Documents/DiscordBot/status.txt', 'a',
+                    encoding='utf-8') as f:
+                f.write(message)
+        except Exception as e:
+            session.log.warning('error while printing to discord: %s', e)
 
 
 @usercommand
@@ -658,7 +661,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
             else:
                 experimentText = ''
             if session.mode != SIMULATION:
-                Exp.title = experimentText
+                Exp.update(title = experimentText)
 
             for _ in range(retries):
                 try:

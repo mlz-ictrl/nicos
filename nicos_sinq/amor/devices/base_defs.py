@@ -65,6 +65,8 @@ class Distances(Device):
                         userparam=True, category='instrument'),
     }
 
+    hardware_access = False
+
     def doReadNxoffset(self):
         return 0, 0, -self.sample
 
@@ -120,6 +122,8 @@ class AmorBase(Waitable):
     parameter_overrides = {
         'unit': Override(mandatory=False),
     }
+
+    hardware_access = False
 
     _wait_for = []
 

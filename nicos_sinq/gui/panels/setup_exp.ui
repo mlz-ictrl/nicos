@@ -91,7 +91,7 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="8" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="label_12">
              <property name="text">
               <string>Script path:</string>
@@ -112,13 +112,6 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="0" colspan="2">
-            <widget class="Line" name="line_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_8">
              <property name="text">
@@ -133,8 +126,8 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="Line" name="line_2">
+           <item row="6" column="0" colspan="2">
+            <widget class="Line" name="sampleNameDivider">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -143,8 +136,8 @@
            <item row="3" column="1">
             <widget class="QLineEdit" name="users"/>
            </item>
-           <item row="10" column="0">
-            <widget class="QLabel" name="label_10">
+           <item row="8" column="0">
+            <widget class="QLabel" name="notifEmailsLabel">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                <horstretch>0</horstretch>
@@ -179,8 +172,8 @@
              </property>
             </widget>
            </item>
-           <item row="11" column="0">
-            <widget class="QLabel" name="label_11">
+           <item row="9" column="0">
+            <widget class="QLabel" name="dataEmailsLabel">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                <horstretch>0</horstretch>
@@ -198,7 +191,7 @@
              </property>
             </widget>
            </item>
-           <item row="11" column="1">
+           <item row="9" column="1">
             <widget class="QPlainTextEdit" name="dataEmails">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -220,7 +213,7 @@
            <item row="4" column="1">
             <widget class="QLineEdit" name="localContacts"/>
            </item>
-           <item row="10" column="1">
+           <item row="8" column="1">
             <widget class="QPlainTextEdit" name="notifEmails">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -242,31 +235,24 @@
              </property>
             </widget>
            </item>
-           <item row="12" column="1">
+           <item row="10" column="1">
             <widget class="QCheckBox" name="errorAbortBox">
              <property name="text">
               <string>Do not continue scripts after fatal errors</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <widget class="QLineEdit" name="sampleName"/>
            </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label_3">
+           <item row="7" column="0">
+            <widget class="QLabel" name="sampleNameLabel">
              <property name="text">
               <string>Sample name:</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="0" colspan="2">
-            <widget class="Line" name="line_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="1">
+           <item row="5" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
               <widget class="QPushButton" name="scriptPathButton">
