@@ -216,6 +216,14 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
     def doReset(self):
         self.preparing = False
 
+    def doPause(self):
+        """
+        This channel cannot be paused, but that also means trying to pause it
+        cannot fail. Hence, we return True here so the doPause method of the
+        detector does not create a warning.
+        """
+        return True
+
 
 class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
     """
@@ -282,6 +290,14 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
 
     def doReset(self):
         self.preparing = False
+
+    def doPause(self):
+        """
+        This channel cannot be paused, but that also means trying to pause it
+        cannot fail. Hence, we return True here so the doPause method of the
+        detector does not create a warning.
+        """
+        return True
 
 
 class DAQPreset(DAQEpicsDevice, ActiveChannel):

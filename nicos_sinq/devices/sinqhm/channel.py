@@ -146,6 +146,14 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
     def doStatus(self, maxage=0):
         return self.connector.status(maxage)
 
+    def doPause(self):
+        """
+        This channel cannot be paused, but that also means trying to pause it
+        cannot fail. Hence, we return True here so the doPause method of the
+        detector does not create a warning.
+        """
+        return True
+
 
 class ReshapeHistogramImageChannel(HistogramImageChannel):
     """
