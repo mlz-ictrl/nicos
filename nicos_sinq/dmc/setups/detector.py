@@ -93,6 +93,7 @@ devices = dict(
         hist_topic = configdata('config.JUST_BIN_IT_HISTOGRAMS_TOPIC'),
         data_topic = configdata('config.JUST_BIN_IT_DATA_TOPIC'),
         command_topic = configdata('config.JUST_BIN_IT_COMMANDS_TOPIC'),
+        response_topic = configdata('config.JUST_BIN_IT_RESPONSES_TOPIC'),
         brokers = configdata('config.KAFKA_BROKERS'),
         unit = 'evts',
         hist_type = '2-D DET',

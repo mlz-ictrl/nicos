@@ -2,7 +2,7 @@ description = 'Detector devices in SINQ POLDI.'
 pvprefix = 'SQ:POLDI:counter'
 
 sysconfig = dict(datasinks = ['jbi_liveview'],)
- 
+
 devices = dict(
     timepreset = device('nicos_sinq.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',
@@ -78,6 +78,7 @@ devices = dict(
         hist_topic = 'POLDI_histogram1',
         data_topic = 'POLDI_detector1',
         command_topic = 'POLDI_histCommands1',
+        response_topic = 'POLDI_histResponse1',
         brokers = ['linkafka01.psi.ch:9092'],
         source = 'poldi',
         unit = 'evts',
