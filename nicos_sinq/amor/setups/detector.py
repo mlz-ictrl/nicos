@@ -54,6 +54,7 @@ devices = dict(
                   fmtstr = '%d',
 	    ),
     progress = device('nicos.devices.generic.manual.ManualMove',
+                      description = 'Measurement progress in percent',
                       default = 0,
                       unit = '%',
                       abslimits = [0, 200],
