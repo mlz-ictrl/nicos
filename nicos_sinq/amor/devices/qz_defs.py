@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from nicos.core import Attach, Override, Param, Waitable
+from nicos.core import Attach, Override, Param, Waitable, LimitError
 from nicos.core.device import Moveable
 from nicos.core.mixins import HasLimits
 
@@ -50,12 +50,11 @@ class AmorQz(Waitable):
         'det_nu': Attach('det_nu', HasLimits),
     }
 
-    # Note to Jochen:
-    # A "Waitable" by default needs a unit. For our device however, this does not make sense; hence we remove the unit requirement
     parameter_overrides = {
         'unit': Override(mandatory=False),
     }
 
+    hardware_access = False
     _wait_for = []
 
     def _startDevices(self, target):
@@ -79,10 +78,6 @@ class AmorQz(Waitable):
         kad = self._attached_kad.read(0)
         div = self._attached_div.read(0)
         mu  = self._attached_mu.read(0)
-        #nu  = self._attached_nu.read(0)
-        #offset = nu - (2*mu + kappa + kad)
-        #if abs(offset) > 0.1:
-        #    self.log.warning(f"detector angle 'nu' is off by {offset:5.2f} deg")
         return 4*np.pi * np.sin( np.deg2rad(mu + kappa + kad - 0.5*div) ) / 11.5
 
     def doReadQh(self):
@@ -90,10 +85,6 @@ class AmorQz(Waitable):
         kad = self._attached_kad.read(0)
         div = self._attached_div.read(0)
         mu  = self._attached_mu.read(0)
-        #nu  = self._attached_nu.read(0)
-        #offset = nu - (2*mu + kappa + kad)
-        #if abs(offset) > 0.1:
-        #    self.log.warning(f"detector angle 'nu' is off by {offset:5.2f} deg")
         return 4*np.pi * np.sin( np.deg2rad(mu + kappa + kad + 0.5*div) ) / 3.5
 
     def doWriteQl(self, target):
@@ -102,14 +93,16 @@ class AmorQz(Waitable):
         div = self._attached_div.read(0)
         mu = np.rad2deg(np.arcsin(target * 11.5 / (4*np.pi))) - kappa - kad + 0.5*div
         nu = 2*mu + kappa + kad
-        if nu>self._attached_det_nu.absmax:
-            self.log.warning('ql = %5.2f corresponds to nu = %5.2f, which exceeds the hardware limits', target, nu)
-        else:
-            self.log.info("moving 'mu' to %4.2f deg and 'nu' to %5.2f deg", mu, 2*mu+kappa+kad)
-            positions = {}
-            positions['mu'] = mu
-            positions['nu'] = nu
-            self._startDevices(positions)
+        allowed, msg = self._attached_det_nu.isAllowed(nu)
+        if not allowed:
+            raise LimitError(self, 'ql = %5.2f corresponds to nu = %5.2f deg, '
+                             'which exceeds the limits: %s' % (target, nu, msg))
+
+        self.log.info("moving 'mu' to %4.2f deg and 'nu' to %5.2f deg", mu, 2*mu+kappa+kad)
+        positions = {}
+        positions['mu'] = mu
+        positions['nu'] = nu
+        self._startDevices(positions)
 
     def doWriteQh(self, target):
         kappa = self._attached_kappa.read(0)
@@ -117,11 +110,13 @@ class AmorQz(Waitable):
         div = self._attached_div.read(0)
         mu = np.rad2deg(np.arcsin(target * 3.5 / (4*np.pi))) - kappa - kad - 0.5*div
         nu = 2*mu + kappa + kad
-        if nu>self._attached_det_nu.absmax:
-            self.log.warning('qh = %5.2f corresponds to nu = %5.2f, which exceeds the hardware limits', target, nu)
-        else:
-            self.log.info("moving 'mu' to %4.2f deg and 'nu' to %5.2f deg", mu, 2*mu+kappa+kad)
-            positions = {}
-            positions['mu'] = mu
-            positions['nu'] = nu
-            self._startDevices(positions)
+        allowed, msg = self._attached_det_nu.isAllowed(nu)
+        if not allowed:
+            raise LimitError(self, 'qh = %5.2f corresponds to nu = %5.2f deg, '
+                             'which exceeds the limits: %s' % (target, nu, msg))
+
+        self.log.info("moving 'mu' to %4.2f deg and 'nu' to %5.2f deg", mu, 2*mu+kappa+kad)
+        positions = {}
+        positions['mu'] = mu
+        positions['nu'] = nu
+        self._startDevices(positions)
