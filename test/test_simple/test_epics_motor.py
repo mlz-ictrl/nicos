@@ -115,7 +115,9 @@ class FakeEpicsMotor(EpicsMotor):
         return self.values[pvparam]
 
     def doReadUnit(self):
-        return 'mm'
+        unit = 'mm'
+        self._populate_velocity_move_unit(unit)
+        return unit
 
     def doReset(self):
         # This also updates the limits, therefore it needs to be set first
@@ -653,6 +655,11 @@ class DefTest:
         assert self.motor._get_pv('jogspeed') == 10
         assert self.motor._get_pv('jogforward') == 0
         assert self.motor._get_pv('jogreverse') == 1
+
+    def test_read_units(self):
+        assert self.motor.unit == 'mm'
+        assert self.motor.parameters['velocity_move'].unit  == 'mm / s'
+        assert self.jogmove.unit == 'mm / s'
 
 # This class runs the actual tests
 class TestEpicsMotor(DefTest):
