@@ -30,18 +30,18 @@ from nicos.core import status
 from nicos.core.constants import POLLER
 from nicos.core.device import Readable
 from nicos.core.params import Attach, Override, Param, floatrange, nonzero, oneof
-from nicos.devices.generic import Detector, Switcher
+from nicos.devices.generic import Switcher
 from nicos.devices.generic.manual import ManualMove
 
 from nicos_sinq.devices.datasinks.file_writer import FileWriterControlSink
-from nicos_sinq.devices.epics.sinqdaq import DAQPreset, SinqDetector
 from nicos_sinq.devices.kafka.consumer import KafkaSubscriber
+from nicos_sinq.devices.epics.sinqdaq import DAQPreset, SinqDetector
 
 MONITORPRESET = 'm'
 TIMEPRESET = 't'
 
 class PolarizationSwitchDetector(SinqDetector):
-    """Detector variant for AMOR which allows switching the polarizer during a
+    """SinqDetector variant for AMOR which allows switching the polarizer during a
     count.
 
     AMOR has a special measurement mode where the polarizer is switched
@@ -96,10 +96,10 @@ class PolarizationSwitchDetector(SinqDetector):
 
     def doInit(self, mode):
         self._setROParam('acquisition_filter', 1)
-        return Detector.doInit(self, mode)
+        return SinqDetector.doInit(self, mode)
 
     def _getWaiters(self):
-        adevs = Detector._getWaiters(self)
+        adevs = SinqDetector._getWaiters(self)
         adevs.pop('polarization', None)
         return adevs
 
@@ -128,7 +128,20 @@ class PolarizationSwitchDetector(SinqDetector):
         # Remove onefile preset
         preset.pop('onefile', None)
 
-        Detector.doSetPreset(self, **preset)
+        SinqDetector.doSetPreset(self, **preset)
+
+    def doStatus(self, maxage=0):
+        (stat, _) = SinqDetector.doStatus(self, maxage)
+        return (stat, self._interpret_detector_status(stat, maxage))
+
+    def _interpret_detector_status(self, stat, maxage=0):
+        if stat == status.OK:
+            return 'idle'
+        if stat == status.BUSY:
+            if self._attached_preset.status(maxage)[1] == 'Paused':
+                return 'paused'
+            return 'counting'
+        return 'error'
 
     def doPrepare(self):
         self._attached_progress.userlimits = self._attached_progress.abslimits
@@ -146,15 +159,15 @@ class PolarizationSwitchDetector(SinqDetector):
                 self.log.warning(
                     'The period %f should be larger than the preset %f',
                     self.period, preset)
-        return Detector.doPrepare(self)
+        return SinqDetector.doPrepare(self)
 
     def doStart(self):
         self._setROParam('acquisition_filter', 0)
-        return Detector.doStart(self)
+        return SinqDetector.doStart(self)
 
     def doResume(self):
         self._setROParam('acquisition_filter', 0)
-        return Detector.doResume(self)
+        return SinqDetector.doResume(self)
 
     def duringMeasureHook(self, elapsed):
 
@@ -187,7 +200,7 @@ class PolarizationSwitchDetector(SinqDetector):
                     pol.maw('m')
                     self._setROParam('acquisition_filter', 0)
 
-        return Detector.duringMeasureHook(self, elapsed)
+        return SinqDetector.duringMeasureHook(self, elapsed)
 
     def doPause(self):
         self._setROParam('acquisition_filter', 2)
@@ -199,19 +212,18 @@ class PolarizationSwitchDetector(SinqDetector):
 
     def doFinish(self):
         self._cleanup()
-        return Detector.doFinish(self)
+        return SinqDetector.doFinish(self)
 
     def doStop(self):
         self._cleanup()
-        return Detector.doStop(self)
+        return SinqDetector.doStop(self)
 
     def _cleanup(self):
         """
         Cleanup operations performed after the detector has finished
         or has been stopped.
         """
-        if self.polarizer_mode:
-
+        if self.polarizer_mode and self._attached_polarization.read() == 'p':
             # Move polarizer to minus - has nothing to do with the presets.
             self._attached_polarization.maw('m')
 
@@ -222,7 +234,7 @@ class PolarizationSwitchDetector(SinqDetector):
         """
         Accept custom preset keys "ratio", "pm" and "onefile"
         """
-        presetkeys = Detector.presetInfo(self)
+        presetkeys = SinqDetector.presetInfo(self)
         presetkeys.add('ratio')
         presetkeys.add('pm')
         presetkeys.add('p') # Alias for MONITORPRESET
@@ -230,6 +242,7 @@ class PolarizationSwitchDetector(SinqDetector):
         if self._attached_filewritercontrol:
             presetkeys.add('onefile')
         return presetkeys
+
 
 class DetectorRate(KafkaSubscriber, Readable):
     """
@@ -265,11 +278,11 @@ class DetectorRate(KafkaSubscriber, Readable):
             self.subscribe(self.topic)
 
     def _get_new_messages(self):
-        # The entire loop is wrapped in a try-except so it can forward any
-        # issues to the doStatus method.
-
         # Delete any leftover error messages
         self._cache.put(self._name, 'error_msg', '', time.time())
+
+        # The entire loop is wrapped in a try-except so it can forward any
+        # issues to the doStatus method.
         try:
             consumer = self._consumer._consumer
             tp = TopicPartition(self.topic, 0)
