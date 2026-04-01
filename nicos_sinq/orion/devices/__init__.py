@@ -17,21 +17,20 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Alexander Söderqvist <alexander.soederqvist@psi.ch>
 #
 # *****************************************************************************
 
-from nicos.core import Override, dictof, none_or
+from nicos.core import Override, dictof
 from nicos.devices.generic import Switcher
 
-
 class MonoSwitcher(Switcher):
-    """Switcher handling float values as keys.
-
-    The main application is the use to switch the monochromator wavelength.
+    """Mono Switcher
+    Provide a mapping from monochromator wavelength to rotation.
+    Changing the mapping is allowed, as they may realign the instrument.
     """
     parameter_overrides = {
-        'mapping': Override(type=dictof(float, float)),
+        'mapping': Override(type=dictof(float, float), mandatory=False, settable=True),
         'fallback': Override(userparam=False, default='-', type=str,
                              internal=True, mandatory=False),
     }

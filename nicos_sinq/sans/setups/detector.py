@@ -2,14 +2,14 @@ description = 'Devices for the Detector'
 
 group = 'basic'
 
-includes = ['attenuator', 'velocity_selector', 'beamstop', 'collimator_s7', 
+includes = ['attenuator', 'beamstop', 'collimator_s7',
         'sample', 'shutter', 'asyncontroller', 'detector_motors', 'hm_config']
 excludes = ['detector_old', 'detector_strobo']
 
 # TODO/WARNING removed includes hm_config, as it conflict with strobo, partition and create a basic meta group for detector without strobo 
 
 pvprefix = 'SQ:SANS:motb:'
-pvdprefix = 'SANSCNTBOX1'
+pvdprefix = 'SQ:SANS:DAQ'
 
 sysconfig = dict(
     datasinks = ['LivePNGSink', 'LivePNGSinkLog']
@@ -18,14 +18,14 @@ sysconfig = dict(
 devices = dict(
     LivePNGSinkLog = device('nicos.devices.datasinks.PNGLiveFileSink',
         description = 'Saves live image as .png every now and then',
-        filename = '/home/sans/data/html/live_log.png',
+        filename = '/home/status/live_log.png',
         log10 = True,
         interval = 15,
         detectors = ['sansdet']
     ),
     LivePNGSink = device('nicos.devices.datasinks.PNGLiveFileSink',
         description = 'Saves live image as .png every now and then',
-        filename = '/home/sans/data/html/live_lin.png',
+        filename = '/home/status/live_lin.png',
         log10 = False,
         interval = 15,
         detectors = ['sansdet'],
@@ -64,7 +64,7 @@ devices = dict(
     ),
     sans_detector = device('nicos_sinq.devices.sinqhm.channel.ReshapeHistogramImageChannel',
         description = "Image channel for area detector",
-        visibility = (),
+        visibility = ('metadata', 'namespace', 'devlist'),
         bank = 'hm_bank0',
         connector = 'hm_connector',
         dimensions = {
@@ -81,7 +81,7 @@ devices = dict(
         counters = [],
         others = ['histogrammer'],
         liveinterval = 7,
-        saveintervals = [60]
+        saveintervals = [60],
     ),
 )
 

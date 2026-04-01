@@ -4,7 +4,7 @@ description = 'Installs the Triple Axis Calculations into ORION '
 
 group = 'basic'
 
-includes = ['orion']
+includes = ['motors', 'detector']
 
 sysconfig = dict(instrument = 'ORION',)
 

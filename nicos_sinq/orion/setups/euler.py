@@ -2,7 +2,7 @@ description = 'Installs the Eulerian cradle into NICOS'
 
 group = 'basic'
 
-includes = ['orion']
+includes = ['motors', 'detector']
 
 sysconfig = dict(instrument = 'ORION',)
 

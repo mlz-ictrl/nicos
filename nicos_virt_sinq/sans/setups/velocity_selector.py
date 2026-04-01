@@ -21,7 +21,7 @@ devices = dict(
         abslimits = (-10, 10),
         unit = 'deg',
     ),
-    vs_lambda = device('nicos_sinq.devices.velocity_selector.VSLambda',
+    vs_lambda = device('nicos_sinq.sans.devices.velocity_selector.VSLambda',
         description = 'Velocity Selector Wavelength Control',
         seldev = 'vs_speed',
         tiltdev = 'vs_tilt',

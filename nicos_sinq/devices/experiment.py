@@ -70,6 +70,9 @@ class Experiment(CoreExperiment):
                             category='experiment'),
         'duo_url': Param('Duo url', type=str,
             default='https://duo.psi.ch/duo/api.php'),
+        'persistent_environment': Param(
+            'environment devices to be added if present',
+            type=list, settable=True, userparam=False, default=[])
     }
 
     def proposalpath_of(self, proposal):
@@ -102,6 +105,12 @@ class Experiment(CoreExperiment):
         if not 'proposal' in kwds:
             kwds['proposal'] = proposal
         return kwds
+
+    def _newSetupHook(self):
+        envlist = [k for k in self.persistent_environment if k in session.devices]
+        if envlist:
+            self.setEnvironment(envlist)
+            self.log.info('reset environment to %r', envlist)
 
     def newSample(self, parameters):
         # Do not try to create unwanted directories as

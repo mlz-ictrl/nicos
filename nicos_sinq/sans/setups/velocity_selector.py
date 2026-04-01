@@ -1,7 +1,5 @@
 description = 'Devices for the velocity selector'
 
-group = 'lowlevel'
-
 selprefix = 'SQ:SANS:velsel:'
 
 forbidden = [(0, 1600), (3300, 5200), (6600, 10000), (28300, 30000)]
@@ -16,14 +14,14 @@ devices = dict(
         forbidden_regions = forbidden,
         monitor = True,
     ),
-    vs_tilt = device('nicos_sinq.devices.velocity_selector.VSTiltMotor',
+    vs_tilt = device('nicos_sinq.sans.devices.velocity_selector.VSTiltMotor',
         description = 'Velocity Selector Tilt',
         motorpv = 'SQ:SANS:turboPmac1:tilt',
         errormsgpv = 'SQ:SANS:turboPmac1:tilt-MsgTxt',
         limit = 50,
         vs_rotation = 'vs_speed',
     ),
-    vs_lambda = device('nicos_sinq.devices.velocity_selector.VSLambda',
+    vs_lambda = device('nicos_sinq.sans.devices.velocity_selector.VSLambda',
         description = 'Velocity Selector Wavelength Control',
         seldev = 'vs_speed',
         tiltdev = 'vs_tilt',

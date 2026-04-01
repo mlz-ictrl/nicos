@@ -3,7 +3,7 @@ description = 'Installs normal beam geometry into ORION. This is for testing pur
 
 group = 'basic'
 
-includes = ['orion']
+includes = ['motors', 'detector']
 
 sysconfig = dict(instrument = 'ORION',)
 
