@@ -11,6 +11,7 @@ devices = dict(
                  visibility = ('devlist', 'metadata', 'namespace'),
                  fmtstr = '%5.1f',
                  unit = 'mm',
+                 valid_pos_after_reference = True,
                  ),
     d4h = device('nicos_sinq.devices.epics.motor.SinqMotor',
                  description = 'Slit 4 horizontal opening',
@@ -18,5 +19,6 @@ devices = dict(
                  visibility = ('devlist', 'metadata', 'namespace'),
                  fmtstr = '%5.1f',
                  unit = 'mm',
+                 valid_pos_after_reference = True,
                  ),
     )

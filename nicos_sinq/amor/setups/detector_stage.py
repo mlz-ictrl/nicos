@@ -10,6 +10,7 @@ devices = dict(
                     motorpv = pvprefix + 'det_nu',
                     visibility = ('metadata', 'namespace'),
                     unit='degree',
+                    epicstimeout=10, # Wait a bit longer because this is a deferred movement
                     ),
     det_zoffset = device('nicos_sinq.devices.epics.motor.SinqMotor',
                          description = 'define coz zero position - only for instrument alignment',
@@ -48,7 +49,7 @@ devices = dict(
                           requires = {'level': 'admin'},
                           visibility = ('metadata', 'namespace'),
                           ),
-    det_mount_pos_num = device('nicos_sinq.devices.epics.extensions.EpicsControlledDigitalMoveable',
+    det_mount_pos_num = device('nicos_sinq.devices.epics.extensions_pva.EpicsControlledDigitalMoveable',
                                readpv = pvprefix + 'det_nu:ChangingStateRBV_int',
                                writepv = pvprefix + 'det_nu:ChangeState',
                                targetpv = pvprefix + 'det_nu:ChangeStateRBV',

@@ -4,7 +4,9 @@ display_order = 20
 
 devices = dict(
     dvv = device('nicos_sinq.amor.devices.virtual_source.NumberSwitcher',
-                 description = 'Virtual source vertical opening',
+                 description = '''Virtual source vertical opening
+                 position  1   2   3   4   5   6   7   8
+                 opening  .5   1   2   3   4   6   8  10 mm''',
                  mapping = {
                      1: 0.,
                      2: 45.,
@@ -25,7 +27,9 @@ devices = dict(
                        visibility = (),
                        ),
     dvh = device('nicos_sinq.amor.devices.virtual_source.NumberSwitcher',
-                 description = 'Virtual source horiziontal opening',
+                 description = '''Virtual source horizontal opening
+                 position  1   2   3   4   5   6   7   8
+                 opening   2   4   6   8  10  15  20  30 mm''',
                  mapping = {
                      1: 0.,
                      2: 45.,

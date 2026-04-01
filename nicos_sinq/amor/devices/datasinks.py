@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 import copy
+from datetime import datetime, timezone
 import json
 import time
 from os import path
@@ -32,6 +33,7 @@ import numpy
 from nicos import session
 from nicos.core import FINAL, LIVE
 from nicos.core.data import DataSink, DataSinkHandler
+from nicos.core.device import DeviceParInfo
 from nicos.utils import byteBuffer, safeName
 
 from nicos_sinq.devices.datasinks.nexus_structure import NexusStructureTemplate
@@ -153,8 +155,8 @@ class AmorStructureTemplate(NexusStructureTemplate):
     def _remove_optional_components(self, template):
         # Remove from the NeXus structure the components not present
         delete_keys = []
-        if 'deflector' not in session.loaded_setups:
-            delete_keys.append('deflector:NXmirror')
+        if 'deflector_stage' not in session.loaded_setups:
+            delete_keys.append('deflector:NXcollection')
         if 'polarizer' not in session.loaded_setups:
             delete_keys.append('polarizer:NXpolariser')
         if 'diaphragm2' not in session.loaded_setups:
@@ -165,12 +167,44 @@ class AmorStructureTemplate(NexusStructureTemplate):
             delete_keys.append('diaphragm4:NXslit')
         if 'stz_table' not in session.loaded_setups:
             delete_keys.append('height_offset')
+        if 'qz' not in session.loaded_setups:
+            delete_keys.extend(['qz_low', 'qz_high'])
+        if 'smz' not in session.explicit_devices:
+            delete_keys.append('smz')
+        if 'stz' not in session.explicit_devices:
+            delete_keys.append('stz')
         self._delete_keys_from_dict(template, delete_keys)
+
+        # Deleting sample environment entries
+        delete_keys = []
+        if 'se_tt' not in session.explicit_devices:
+            delete_keys.append('temperature:NXlog')
+        if 'se_B' not in session.explicit_devices:
+            delete_keys.append('magnetic_field:NXlog')
+        if 'se_B' not in session.explicit_devices:
+            delete_keys.append('magnetic_field_cryo:NXlog')
+        if 'se_smi' not in session.explicit_devices:
+            delete_keys.append('current:NXlog')
+        if 'se_smv' not in session.explicit_devices:
+            delete_keys.append('voltage:NXlog')
+        if 'se_p' not in session.explicit_devices:
+            delete_keys.append('gas_pressure:NXlog')
+        self._delete_keys_from_dict(template['entry1:NXentry']['sample:NXsample'], delete_keys)
+
         return template
+
+    def _add_start_time(self, dataset):
+        if ('dataset', 'starttime') not in dataset.metainfo:
+            start_time = datetime.fromtimestamp(
+                dataset.started,
+                tz=timezone.utc
+            ).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            dataset.metainfo[('dataset', 'starttime')] = DeviceParInfo(start_time, start_time, '', 'general')
 
     def get_structure(self, dataset, start_time):
         template = copy.deepcopy(self._template)
         template = self._remove_optional_components(template)
+        self._add_start_time(dataset)
 
         converter = NexusTemplateConverter()
         structure = converter.convert(template, dataset.metainfo)
@@ -183,6 +217,7 @@ class AmorStructureTemplate(NexusStructureTemplate):
         # the time to improve this.
         structure['children'][0]['children'].append(
             {"module": "mdat", "config": {"items": ["start_time", "end_time"]}})
+
         return json.dumps(structure)
 
 

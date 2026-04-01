@@ -12,6 +12,7 @@ devices = dict(
                  description = 'Sample z lift (above omega and chi rotations)',
                  motorpv = pvprefix + 'stz',
                  visibility = ('devlist', 'metadata', 'namespace'),
+                 valid_pos_after_reference = True,
                  ),
     )
 
