@@ -392,8 +392,11 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
 
         # Also write the unit of the speed here so it is shown properly in the
         # ParamDevice using velocity_move.
-        self.velocity_move.unit = unit + ' / s'
+        self._populate_velocity_move_unit(unit)
         return unit
+
+    def _populate_velocity_move_unit(self, unit: str):
+        self.parameters['velocity_move'].unit = unit + ' / s'
 
     def doWriteSpeed(self, value):
         self._check_speed(value)
