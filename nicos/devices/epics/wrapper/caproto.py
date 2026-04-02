@@ -210,7 +210,8 @@ class CaprotoWrapper:
         # `ẁait = False`, otherwise `ẁait = True`.
         wait = timeout is not None
 
-        if pvname in self._choices:
+        # Accept the raw value too, not just the enum string.
+        if isinstance(value, str) and pvname in self._choices:
             value = self._choices[pvname].index(value)
         try:
             self._pvs[pvname].write(value, wait=wait, timeout=timeout)
