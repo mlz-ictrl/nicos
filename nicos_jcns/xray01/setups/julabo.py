@@ -7,7 +7,6 @@ devices = dict(
     T_julabo = device('nicos.devices.entangle.TemperatureController',
         description = 'The regulated temperature',
         tangodevice = tango_base + 'julabo/control',
-        abslimits = (5, 80),
         unit = 'degC',
         fmtstr = '%.2f',
         precision = 0.1,

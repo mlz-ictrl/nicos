@@ -9,7 +9,7 @@ devices = dict(
     I_miramagnet = device('nicos.devices.entangle.RampActuator',
         description = 'MIRA Helmholtz magnet current',
         tangodevice = tango_base + 'plc/_i',
-        abslimits = (-250, 250),
+        # abslimits = (-250, 250),
         fmtstr = '%.1f',
         unit = 'A',
     ),

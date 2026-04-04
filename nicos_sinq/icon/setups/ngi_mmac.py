@@ -26,16 +26,13 @@ devices = dict(
     samtry = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample TR y translation',
         motorpv = pvprefix + 'samtry',
-        encoder_type = None
     ),
     samtrx = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample TR x translation',
         motorpv = pvprefix + 'samtrx',
-        encoder_type = None
     ),
     samtrz = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Sample TR z translation',
         motorpv = pvprefix + 'samtrz',
-        encoder_type = None
     ),
 )

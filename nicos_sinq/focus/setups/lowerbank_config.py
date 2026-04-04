@@ -18,7 +18,6 @@ devices = dict(
         '.HistogramConfAxis',
         description = 'Detector ID',
         visibility = (),
-        length = 116,
         mapping = 'direct',
         label = 'Detector-ID',
         unit = '',

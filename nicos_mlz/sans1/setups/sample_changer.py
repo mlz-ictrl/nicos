@@ -10,7 +10,7 @@ devices = dict(
         description = 'Sample Changer Axis motor',
         tangodevice = tango_base + 'sc',
         fmtstr = '%.2f',
-        abslimits = (-0, 600),
+        # abslimits = (-0, 600),
     ),
     SampleChanger = device('nicos.devices.generic.DeviceAlias'),
 )

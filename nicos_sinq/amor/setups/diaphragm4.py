@@ -10,7 +10,6 @@ devices = dict(
                  motorpv = pvprefix + 'd4v',
                  visibility = ('devlist', 'metadata', 'namespace'),
                  fmtstr = '%5.1f',
-                 unit = 'mm',
                  valid_pos_after_reference = True,
                  ),
     d4h = device('nicos_sinq.devices.epics.motor.SinqMotor',
@@ -18,7 +17,6 @@ devices = dict(
                  motorpv = pvprefix + 'd4h',
                  visibility = ('devlist', 'metadata', 'namespace'),
                  fmtstr = '%5.1f',
-                 unit = 'mm',
                  valid_pos_after_reference = True,
                  ),
     )

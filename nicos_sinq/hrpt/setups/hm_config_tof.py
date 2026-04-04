@@ -21,7 +21,6 @@ devices = dict(
         visibility = (),
         mapping = 'calculate',
         preoffset = 0,
-        length = 100,
         divisor = 10,
         label = 'TOF',
         unit = 'arbitrary'

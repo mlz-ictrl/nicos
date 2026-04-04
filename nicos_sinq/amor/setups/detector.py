@@ -63,7 +63,6 @@ devices = dict(
     elapsedtime = device('nicos_sinq.devices.epics.sinqdaq.DAQTime',
                          daqpvprefix = pvprefix,
                          fmtstr = '%7.1f',
-                         unit = 'sec',
                          ),
     proton_monitor = device('nicos_sinq.devices.epics.sinqdaq.DAQChannel',
                             description = 'Proton counter channel',

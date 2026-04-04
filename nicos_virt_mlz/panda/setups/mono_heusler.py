@@ -73,7 +73,6 @@ devices = dict(
         description = 'horizontal focus of heusler ana',
         motor = 'afh_heusler_step',
         dragerror = 5,
-        abslimits = (-179, 179),
         precision = 1,
         fmtstr = '%.1f',
         autoref = None,  # disable autoref since there is no refswitch

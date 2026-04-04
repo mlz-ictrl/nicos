@@ -11,8 +11,6 @@ devices = dict(
                 tangodevice = tango_base + 'cp/cp',
                 precision = cp_conf['precision'],
                 visibility = cp_conf['visibility'],
-                abslimits = cp_conf['abslimits'],
-                speed = cp_conf['speed'],
                 unit = cp_conf['unit'],
                 ),
 
@@ -21,8 +19,6 @@ devices = dict(
                 tangodevice = tango_base + 'cp/cp',
                 precision = cp_conf['precision'],
                 visibility = cp_conf['visibility'],
-                abslimits = cp_conf['abslimits'],
-                speed = cp_conf['speed'],
                 unit = cp_conf['unit'],
                 ),
 )

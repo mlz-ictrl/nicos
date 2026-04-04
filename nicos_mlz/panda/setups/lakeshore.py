@@ -10,7 +10,7 @@ devices = dict(
         description = 'PANDA lakeshore controller',
         tangodevice = tango_base + 'ls340/control',
         maxage = 2,
-        abslimits = (0, 300),
+        # abslimits = (0, 300),
     ),
     T_ls340_A = device('nicos.devices.entangle.Sensor',
         description = 'PANDA lakeshore Sensor A',

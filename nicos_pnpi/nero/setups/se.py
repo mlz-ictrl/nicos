@@ -16,7 +16,6 @@ devices = dict(
     current_source = device('nicos.devices.entangle.AnalogOutput',
                             description = current_conf['description'],
                             tangodevice = tango_base + "cs",
-                            abslimits = current_conf['abslimits'],
                             visibility = current_conf['visibility'],
                             unit = current_conf['unit'],
                             ),
@@ -26,8 +25,6 @@ devices = dict(
                    tangodevice = tango_base + 'alpha',
                    precision = alpha_conf['precision'],
                    visibility = alpha_conf['visibility'],
-                   abslimits = alpha_conf['abslimits'],
-                   speed = alpha_conf['speed'],
                    unit = alpha_conf['unit'],
                    ),
 

@@ -10,7 +10,6 @@ devices = dict(
         pollinterval = 15,
         maxage = 60,
         fmtstr = '%.2f',
-        abslimits = (-0, 600),
         precision = 0.01,
         motor = 'sc_t_ymot',
     ),

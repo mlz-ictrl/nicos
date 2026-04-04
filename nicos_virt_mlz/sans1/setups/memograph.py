@@ -16,7 +16,6 @@ devices = dict(
         maxage = 60,
         fmtstr = '%.2f',
         warnlimits = (-1, 17.5),  # -1 no lower value
-        unit = 'degC',
     ),
     t_out_memograph = device('nicos.devices.generic.VirtualCoder',
         description = 'Cooling outlet temperature',
@@ -28,7 +27,6 @@ devices = dict(
         pollinterval = 30,
         maxage = 60,
         fmtstr = '%.2f',
-        unit = 'degC',
     ),
     p_in_memograph = device('nicos.devices.generic.VirtualCoder',
         description = 'Cooling inlet pressure',
@@ -66,7 +64,6 @@ devices = dict(
         maxage = 60,
         fmtstr = '%.2f',
         warnlimits = (0.2, 100),  # 100 no upper value
-        unit = 'l/min',
     ),
     flow_out_memograph = device('nicos.devices.generic.VirtualCoder',
         description = 'Cooling outlet flow',
@@ -79,7 +76,6 @@ devices = dict(
         pollinterval = 30,
         maxage = 60,
         fmtstr = '%.2f',
-        unit = 'l/min',
     ),
     leak_memograph = device('nicos.devices.generic.analog.CalculatedReadable',
         description = 'Cooling leakage',
@@ -90,7 +86,6 @@ devices = dict(
         maxage = 60,
         fmtstr = '%.2f',
         warnlimits = (-1, 1),  # -1 no lower value
-        unit = 'l/min',
     ),
     cooling_memograph = device('nicos.devices.generic.analog.CalculatedReadable',
         description = 'Cooling power',
@@ -100,6 +95,5 @@ devices = dict(
         pollinterval = 30,
         maxage = 60,
         fmtstr = '%.2f',
-        unit = 'kW',
     ),
 )

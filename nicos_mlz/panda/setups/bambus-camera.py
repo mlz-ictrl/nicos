@@ -55,7 +55,7 @@ devices = dict(
     ),
     Ef = device('nicos.devices.tas.Energy',
         description = 'outgoing energy',
-        unit = 'meV',
+        # unit = 'meV',
         base = 'ana',
         tas = 'panda',
         scanmode = 'CKF',

@@ -22,7 +22,7 @@ devices = dict(
     sel_speed = device('nicos.devices.entangle.Actuator',
         description = 'selector speed',
         tangodevice = tango_base + 's7_io/selector',
-        abslimits = (60, 300),
+        # abslimits = (60, 300),
         precision = 0.5,
         unit = 'Hz',
     ),

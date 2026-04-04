@@ -6,13 +6,11 @@ devices = dict(
         writepv = 'SQ:BOA:pico:AMP',
         readpv = 'SQ:BOA:pico:AMP_RBV',
         precision = .1,
-        abslimits = (-10, 10)
     ),
     pico_freq = device('nicos.devices.epics.EpicsAnalogMoveable',
         description = 'Spin Flipper Frequency',
         writepv = 'SQ:BOA:pico:FREQ',
         readpv = 'SQ:BOA:pico:FREQ_RBV',
-        abslimits = (0, 300000),
         precision = 1
     ),
 )

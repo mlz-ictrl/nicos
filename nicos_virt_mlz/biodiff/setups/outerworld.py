@@ -12,7 +12,7 @@ devices = dict(
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (-30, 40),
             curvalue = 20,
-            ramp = 0.1,
+            speed = 0.1 / 60,
             unit = 'degC',
         ),
     ),

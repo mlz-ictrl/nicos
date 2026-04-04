@@ -11,7 +11,7 @@ devices = {
     f'T_{setupname}': device('nicos.devices.entangle.Actuator',
         description = 'Temperature of the stove',
         tangodevice = tango_base + 'temperature',
-        abslimits = (0, 400),
+        # abslimits = (0, 400),
         unit = 'degC',
         fmtstr = '%.1f',
     ),

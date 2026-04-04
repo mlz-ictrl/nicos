@@ -8,7 +8,7 @@ devices = dict(
     gtx = device('nicos.devices.entangle.Motor',
         description = 'Focusing guides translation x',
         tangodevice = tango_base + 'copley/m08',
-        abslimits = (0, 75),
+        # abslimits = (0, 75),
         precision = 0.01,
     ),
 )

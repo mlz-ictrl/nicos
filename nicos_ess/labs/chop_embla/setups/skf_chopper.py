@@ -64,7 +64,6 @@ devices = dict(
         requires={'level': 'user'},
         readpv='{}Spd_Stat'.format(pv_root),
         writepv='{}Spd_SP'.format(pv_root),
-        abslimits=(0.0, 77),
         monitor=True,
     ),
 )

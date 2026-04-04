@@ -16,6 +16,5 @@ devices = dict(
         material = 'Ge',
         reflection = (5, 5, 1),
         fmtstr = '%.3f',
-        abslimits = (0.5, 3.0),
     ),
 )

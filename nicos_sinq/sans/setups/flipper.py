@@ -7,7 +7,6 @@ devices = dict(
         description = 'Set frequency',
         readpv = pvprefix + ':FREQ_RBV',
         writepv = pvprefix + ':FREQ',
-        abslimits = (100E-6, 15E06),
         precision = 5.,
         monitor = True
     ),
@@ -15,7 +14,6 @@ devices = dict(
         description = 'Set amplitude',
         readpv = pvprefix + ':AMP_RBV',
         writepv = pvprefix + ':AMP',
-        abslimits = (20E-3, 20.),
         precision = .01,
         monitor = True
     ),
@@ -23,7 +21,6 @@ devices = dict(
         description = 'Set offset',
         readpv = pvprefix + ':OFF_RBV',
         writepv = pvprefix + ':OFF',
-        abslimits = (-5, 5),
         precision = .1,
         monitor = True
     ),

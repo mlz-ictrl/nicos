@@ -13,7 +13,7 @@ devices = dict(
         ),
         coder = None,
         precision = 0.05,
-        abslimits = (0, 213.),
+        # abslimits = (0, 213.),
     ),
     axis2 = device('nicos.devices.generic.Axis',
         description = 'Axis 2',
@@ -26,6 +26,6 @@ devices = dict(
             unit = 'deg',
         ),
         precision = 0.05,
-        abslimits = (-360., 360.),
+        # abslimits = (-360., 360.),
     ),
 )

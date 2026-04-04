@@ -9,7 +9,7 @@ devices = dict(
         description = 'ZWO ASI camera 2',
         tangodevice = tango_base + 'camera0',
         visibility = (),
-        flip = (True, False),
+        # flip = (True, False),
     ),
     timer_zwo02 = device('nicos.devices.vendor.lima.LimaCCDTimer',
         tangodevice = tango_base + 'camera0',

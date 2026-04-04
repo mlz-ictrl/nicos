@@ -8,7 +8,7 @@ devices = dict(
     T_ls336 = device('nicos.devices.entangle.TemperatureController',
         description = 'lakeshore controller',
         tangodevice = tango_base + 'ls336/control1',
-        abslimits = (0, 300),
+        # abslimits = (0, 300),
     ),
     T_ls336_A = device('nicos.devices.entangle.Sensor',
         description = 'lakeshore Sensor A',

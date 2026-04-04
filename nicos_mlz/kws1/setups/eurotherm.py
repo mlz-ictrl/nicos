@@ -9,7 +9,7 @@ devices = dict(
     T_et = device('nicos.devices.entangle.TemperatureController',
         description = 'Eurotherm temperature controller',
         tangodevice = tango_base + 'eurotherm/control',
-        abslimits = (0, 200),
+        # abslimits = (0, 200),
         precision = 0.1,
     ),
 )

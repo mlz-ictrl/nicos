@@ -19,7 +19,7 @@ devices = dict(
     ),
     m1tt = device('nicos_mlz.devices.axes.HoveringAxis',
         description = 'monochromator two-theta angle',
-        abslimits = (-50.0, 0),
+        # abslimits = (-50.0, 0),
         motor = 'mo_m1tt',
         coder = 'co_m1tt',
         startdelay = 1,

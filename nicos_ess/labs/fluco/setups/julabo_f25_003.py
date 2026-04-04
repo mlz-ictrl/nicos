@@ -9,7 +9,6 @@ devices = dict(
         readpv='{}TEMP'.format(pv_root),
         writepv='{}TEMP:SP1'.format(pv_root),
         targetpv='{}TEMP:SP1:RBV'.format(pv_root),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_mode_003=device(
         'nicos.devices.epics.EpicsMappedMoveable',
@@ -34,7 +33,6 @@ devices = dict(
         readpv='{}INTP'.format(pv_root),
         writepv='{}INTP:SP'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_internal_I_003=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -42,7 +40,6 @@ devices = dict(
         readpv='{}INTI'.format(pv_root),
         writepv='{}INTI:SP'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_internal_D_003=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -50,7 +47,6 @@ devices = dict(
         readpv='{}INTD'.format(pv_root),
         writepv='{}INTD:SP'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_safety_003=device(
         'nicos.devices.epics.EpicsReadable',
@@ -64,7 +60,6 @@ devices = dict(
         readpv='{}MAX:COOL:RBV'.format(pv_root),
         writepv='{}MAX:COOL'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_max_heating_003=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -72,7 +67,6 @@ devices = dict(
         readpv='{}MAX:HEAT:RBV'.format(pv_root),
         writepv='{}MAX:HEAT'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_heating_power_003=device(
         'nicos.devices.epics.EpicsReadable',
@@ -92,7 +86,6 @@ devices = dict(
         readpv='{}EXTP'.format(pv_root),
         writepv='{}EXTP:SP'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_external_I_003=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -100,7 +93,6 @@ devices = dict(
         readpv='{}EXTI'.format(pv_root),
         writepv='{}EXTI:SP'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_external_D_003=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -108,7 +100,6 @@ devices = dict(
         readpv='{}EXTD'.format(pv_root),
         writepv='{}EXTD:SP'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_high_limit_003=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -116,7 +107,6 @@ devices = dict(
         readpv='{}HILIMIT'.format(pv_root),
         writepv='{}HILIMIT:SP'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_low_limit_003=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -124,7 +114,6 @@ devices = dict(
         readpv='{}LOWLIMIT'.format(pv_root),
         writepv='{}LOWLIMIT:SP'.format(pv_root),
         visibility=(),
-        abslimits=(-1e308, 1e308),
     ),
     julabo_status_003=device(
         'nicos.devices.epics.EpicsReadable',

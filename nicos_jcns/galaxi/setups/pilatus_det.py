@@ -29,7 +29,6 @@ devices = dict(
     pilatus = device('nicos_jcns.devices.dectris.PILATUS1MDetector',
         description = 'DECTRIS PILATUS2 R 1M detector at the GALAXI '
         'diffractometer.',
-        mxsettings = {'energy_range': (9.2247, 9.2517), 'wavelength': 1.341},
         detector_distance = 'detdistance',
         detector_voffset = 'detz',
         flux = 'ionichamber2',

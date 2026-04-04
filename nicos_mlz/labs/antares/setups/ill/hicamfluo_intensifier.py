@@ -11,7 +11,7 @@ devices = dict(
         tangodevice = tango_base + 'mcp_voltage',
         unit = 'V',
         fmtstr = '%.0f',
-        abslimits = (450, 910),
+        # abslimits = (450, 910),
     ),
     MCP_Current = device('nicos.devices.entangle.Sensor',
         description = 'Current across the HV of the MCP',

@@ -32,7 +32,7 @@ for n in range(1, 7):
     devices[f'T_colossus_{n}'] = device('nicos.devices.entangle.TemperatureController',
         description = f'Temperature controller for section {n}',
         tangodevice = tango_box + f'tc{n}/control',
-        abslimits = (5, 140),
+        # abslimits = (5, 140),
         unit = 'degC',
         fmtstr = '%.2f',
         precision = 0.1,

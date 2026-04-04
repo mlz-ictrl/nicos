@@ -11,7 +11,7 @@ devices = dict(
         tangodevice = tango_base + 'control',
         pollinterval = 1,
         maxage = 6,
-        abslimits = (0, 300),
+        # abslimits = (0, 300),
     ),
     T_ccr7_A = device('nicos.devices.entangle.Sensor',
         description = 'CCR7 sensor A',

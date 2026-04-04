@@ -40,6 +40,6 @@ devices = dict(
         tangodevice = tango_base + 'pi_minikappa/motor',
         unit = 'deg',
         precision = 0.01,
-        abslimits = (-390, 390),
+        # abslimits = (-390, 390),
     ),
 )

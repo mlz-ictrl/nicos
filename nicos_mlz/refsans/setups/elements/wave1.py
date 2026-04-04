@@ -11,11 +11,11 @@ devices = dict(
     hp33220a_1_freq = device('nicos.devices.entangle.AnalogOutput',
         description = 'freq of wave1',
         tangodevice = tango_base + 'freq',
-        abslimits = (0, 1e6),
+        # abslimits = (0, 1e6),
     ),
     hp33220a_1_amp = device('nicos.devices.entangle.AnalogOutput',
         description = 'amp of wave1',
         tangodevice = tango_base + 'amp',
-        abslimits = (0, 10),
+        # abslimits = (0, 10),
     ),
 )

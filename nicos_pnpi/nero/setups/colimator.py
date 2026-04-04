@@ -20,8 +20,6 @@ devices = dict(
                    tangodevice = tango_base + 'x_gap',
                    precision = x_gap_conf['precision'],
                    visibility = x_gap_conf['visibility'],
-                   abslimits = x_gap_conf['abslimits'],
-                   speed = x_gap_conf['speed'],
                    unit = x_gap_conf['unit'],
                    ),
 
@@ -30,8 +28,6 @@ devices = dict(
                   tangodevice = tango_base + 'y_gap',
                   precision = y_gap_conf['precision'],
                   visibility = y_gap_conf['visibility'],
-                  abslimits = y_gap_conf['abslimits'],
-                  speed = y_gap_conf['speed'],
                   unit = y_gap_conf['unit'],
                   ),
 
@@ -47,8 +43,6 @@ devices = dict(
                      tangodevice = tango_base + 'theta_s',
                      precision = theta_s_conf['precision'],
                      visibility = theta_s_conf['visibility'],
-                     abslimits = theta_s_conf['abslimits'],
-                     speed = theta_s_conf['speed'],
                      unit = theta_s_conf['unit'],
                      ),
 
@@ -58,8 +52,6 @@ devices = dict(
                  tangodevice = tango_base + 'x_s',
                  precision = x_s_conf['precision'],
                  visibility = x_s_conf['visibility'],
-                 abslimits = x_s_conf['abslimits'],
-                 speed = x_s_conf['speed'],
                  unit = x_s_conf['unit'],
                  ),
 
@@ -68,8 +60,6 @@ devices = dict(
                         tangodevice = tango_base + 'dia1_angle',
                         precision = dia1_angle_conf['precision'],
                         visibility = dia1_angle_conf['visibility'],
-                        abslimits = dia1_angle_conf['abslimits'],
-                        speed = dia1_angle_conf['speed'],
                         unit = dia1_angle_conf['unit'],
                         ),
 
@@ -79,8 +69,6 @@ devices = dict(
                       tangodevice = tango_base + 'dia1_pos',
                       precision = dia1_pos_conf['precision'],
                       visibility = dia1_pos_conf['visibility'],
-                      abslimits = dia1_pos_conf['abslimits'],
-                      speed = dia1_pos_conf['speed'],
                       unit = dia1_pos_conf['unit'],
                       ),
 
@@ -89,8 +77,6 @@ devices = dict(
                         tangodevice = tango_base + 'dia2_agnle',
                         precision = dia2_angle_conf['precision'],
                         visibility = dia2_angle_conf['visibility'],
-                        abslimits = dia2_angle_conf['abslimits'],
-                        speed = dia2_angle_conf['speed'],
                         unit = dia2_angle_conf['unit'],
                         ),
 
@@ -99,8 +85,6 @@ devices = dict(
                       tangodevice = tango_base + 'dia2_pos',
                       precision = dia2_pos_conf['precision'],
                       visibility = dia2_pos_conf['visibility'],
-                      abslimits = dia2_pos_conf['abslimits'],
-                      speed = dia2_pos_conf['speed'],
                       unit = dia2_pos_conf['unit'],
                       ),
 

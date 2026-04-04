@@ -24,7 +24,6 @@ devices = dict(
                          description = 'adjust sample rotation normal to beam direction',
                          motorpv = pvprefix + 'sch',
                          fmtstr = '%6.1f',
-                         unit = 'deg',
                          valid_pos_after_reference = True,
                          ),
     #sample_azimut = device('nicos_sinq.devices.epics.motor.SinqMotor',

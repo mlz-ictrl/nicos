@@ -50,7 +50,6 @@ devices = dict(
         precision = 0.1,
         backlash = 2.,
         motor = 'ss1_t_mot',
-        abslimits = (-40, 50),
     ),
     slit1 = device('nicos.devices.generic.Slit',
         description = 'sample slit 1',

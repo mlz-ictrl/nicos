@@ -30,6 +30,6 @@ devices = dict(
         material = 'Ge',
         reflection = (5, 5, 1),
         fmtstr = '%.3f',
-        abslimits = (1, 2.6),
+        # abslimits = (1, 2.6),
     ),
 )

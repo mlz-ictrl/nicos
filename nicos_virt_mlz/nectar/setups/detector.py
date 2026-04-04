@@ -41,7 +41,6 @@ devices = dict(
         pollinterval = 5,
         maxage = 12,
         fmtstr = '%.2f',
-        userlimits = (0, 900),
         precision = 0.1,
         motor = 'fov_mot',
     ),

@@ -11,7 +11,7 @@ devices = dict(
         tangodevice = tango_base + 'ls332/t_control1',
         pollinterval = 2,
         maxage = 5,
-        abslimits = (0, 300),
+        # abslimits = (0, 300),
     ),
     T_ls332_A = device('nicos.devices.entangle.Sensor',
         description = 'Sensor A',

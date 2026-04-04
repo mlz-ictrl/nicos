@@ -22,28 +22,28 @@ devices = dict(
     coil1_field=device('nicos_mlz.kompass.devices.gf_lpa.VectorCoil',
                        description='Powersupply for horizontal field 1 at sample',
                        tangodevice=tango_base + 'kepco/current5',
-                       abslimits=(-20, 20),
+                       # abslimits=(-20, 20),
                        orientation=(0.2, 0, 0),  # mT
                        calibrationcurrent=1,  # A
                        ),
     coil2_field=device('nicos_mlz.kompass.devices.gf_lpa.VectorCoil',
                        description='Powersupply for horizontal field 2 at sample',
                        tangodevice=tango_base + 'kepco/current6',
-                       abslimits=(-20, 20),
+                       # abslimits=(-20, 20),
                        orientation=(-0.1, 0.17320508, 0),  # mT
                        calibrationcurrent=1,  # A
                        ),
     coil3_field=device('nicos_mlz.kompass.devices.gf_lpa.VectorCoil',
                        description='Powersupply for horizontal field 3 at sample',
                        tangodevice=tango_base + 'kepco/current7',
-                       abslimits=(-20, 20),
+                       # abslimits=(-20, 20),
                        orientation=(-0.1, -0.17320508, 0),  # mT
                        calibrationcurrent=1,  #
                        ),
     coilz_field=device('nicos_mlz.kompass.devices.gf_lpa.VectorCoil',
                        description='Powersupply for vertical field at sample',
                        tangodevice=tango_base + 'kepco/current8',
-                       abslimits=(-20, 20),
+                       # abslimits=(-20, 20),
                        orientation=(0, 0, 0.9),  # mT
                        calibrationcurrent=1,  # A
                        ),

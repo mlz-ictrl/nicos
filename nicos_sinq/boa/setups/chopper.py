@@ -11,6 +11,5 @@ devices = dict(
         description = 'Chopper 2 Motor',
         motorpv = pvprefix + 'CH2',
         errormsgpv = pvprefix + 'CH2-MsgTxt',
-        can_disable = True,
     ),
 )

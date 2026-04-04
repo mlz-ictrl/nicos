@@ -16,6 +16,6 @@ devices = dict(
             unit = 'deg',
         ),
         precision = 0.05,
-        abslimits = (-360., 360.),
+        # abslimits = (-360., 360.),
     ),
 )

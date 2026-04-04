@@ -40,7 +40,6 @@ devices = dict(
         description = 'horizontal focusing CODER of Si monochromator',
         motor = 'mfh_si_step',
         fmtstr = '%.3f',
-        unit = 'mm',
         visibility = (),
     ),
     mfh_si = device('nicos_mlz.panda.devices.rot_axis.RefAxis',

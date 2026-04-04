@@ -4,7 +4,6 @@ prefix = "IOC"
 devices = dict(
     blade_l=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        unit='mm',
         precision=0.1,
         description='X-axis alignment',
         motorpv=f'{prefix}:m4',
@@ -13,7 +12,6 @@ devices = dict(
     ),
     blade_r=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        unit='mm',
         precision=0.1,
         description='Y-axis alignment',
         motorpv=f'{prefix}:m5',
@@ -22,7 +20,6 @@ devices = dict(
     ),
     blade_t=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        unit='mm',
         precision=0.1,
         description='Z-axis alignment',
         motorpv=f'{prefix}:m6',
@@ -31,7 +28,6 @@ devices = dict(
     ),
     blade_b=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        unit='mm',
         precision=0.1,
         description='Z-axis alignment',
         motorpv=f'{prefix}:m7',

@@ -12,7 +12,7 @@ devices = dict(
         tangodevice = tango_ls340 + "/t_control1",
         pollinterval = 2,
         maxage = 5,
-        abslimits = (0, 300),
+        # abslimits = (0, 300),
         precision = 0.01,
     ),
     ls340_heaterrange = device("nicos.devices.entangle.DigitalOutput",

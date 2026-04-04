@@ -104,7 +104,6 @@ devices = dict(
         fmtstr = '%.3f',
         maxtries = 9,
         loopdelay = 1,
-        abslimits = (-18.1, 18.1),
     ),
     sty = device('nicos.devices.generic.Axis',
         description = 'Sample translation along Y',

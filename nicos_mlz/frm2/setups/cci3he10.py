@@ -13,7 +13,7 @@ devices = {
     f'T_{setupname}_pot': device('nicos.devices.entangle.TemperatureController',
         description = 'The control device to the 3He-pot',
         tangodevice = ls_tango_base + 'control',
-        abslimits = (0, 300),
+        # abslimits = (0, 300),
         unit = 'K',
         fmtstr = '%.3f',
         pollinterval = 5,

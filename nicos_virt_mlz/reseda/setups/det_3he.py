@@ -17,7 +17,6 @@ devices = dict(
         timers = ['timer'],
         monitors = ['monitor1'],
         counters = ['counter'],
-        fmtstr = 'timer %s, monitor1 %s, ctr %s',
         maxage = 2,
         pollinterval = 0.5,
     ),

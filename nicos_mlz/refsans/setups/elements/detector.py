@@ -175,7 +175,7 @@ devices = dict(
         description = 'laser measurement of table',
         signal = 'dix_laser_signalstrength',
         value = 'dix_laser_value',
-        unit = 'mm',
+        # unit = 'mm',
         visibility = dix_visibility,
     ),
     dix_laser_value = device('nicos.devices.entangle.Sensor',

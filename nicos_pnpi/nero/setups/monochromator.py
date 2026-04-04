@@ -18,8 +18,6 @@ devices = dict(
                    tangodevice = tango_base + 'x_mon',
                    precision = x_conf['precision'],
                    visibility = x_conf['visibility'],
-                   abslimits = x_conf['abslimits'],
-                   speed = x_conf['speed'],
                    unit = x_conf['unit'],
                    ),
 
@@ -28,8 +26,6 @@ devices = dict(
                   tangodevice = tango_base + 'y_mon',
                   precision = y_conf['precision'],
                   visibility = y_conf['visibility'],
-                  abslimits = y_conf['abslimits'],
-                  speed = y_conf['speed'],
                   unit = y_conf['unit'],
                   ),
 
@@ -38,8 +34,6 @@ devices = dict(
                  tangodevice = tango_base + 'chi1',
                  precision = chi1_conf['precision'],
                  visibility = chi1_conf['visibility'],
-                 abslimits = chi1_conf['abslimits'],
-                 speed = chi1_conf['speed'],
                  unit = chi1_conf['unit'],
                  ),
 
@@ -48,8 +42,6 @@ devices = dict(
                  tangodevice = tango_base + 'chi2',
                  precision = chi2_conf['precision'],
                  visibility = chi2_conf['visibility'],
-                 abslimits = chi2_conf['abslimits'],
-                 speed = chi2_conf['speed'],
                  unit = chi2_conf['unit'],
                  ),
 
@@ -58,8 +50,6 @@ devices = dict(
                  tangodevice = tango_base + 'chi3',
                  precision = chi3_conf['precision'],
                  visibility = chi3_conf['visibility'],
-                 abslimits = chi3_conf['abslimits'],
-                 speed = chi3_conf['speed'],
                  unit = chi3_conf['unit'],
                  ),
 
@@ -68,8 +58,6 @@ devices = dict(
                  tangodevice = tango_base + 'chi4',
                  precision = chi4_conf['precision'],
                  visibility = chi4_conf['visibility'],
-                 abslimits = chi4_conf['abslimits'],
-                 speed = chi4_conf['speed'],
                  unit = chi4_conf['unit'],
                  ),
 
@@ -78,8 +66,6 @@ devices = dict(
                    tangodevice = tango_base + 'omega',
                    precision = omega_conf['precision'],
                    visibility = omega_conf['visibility'],
-                   abslimits = omega_conf['abslimits'],
-                   speed = omega_conf['speed'],
                    unit = omega_conf['unit'],
                    ),
 

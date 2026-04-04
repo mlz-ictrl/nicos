@@ -35,7 +35,7 @@ devices = {
         device('nicos.devices.entangle.AnalogOutput',
             description = 'Frequency generator amplitude',
             tangodevice = '%s/%s/fg_amplitude' % (tango_base, setupname),
-            abslimits = (0.010, 10.0),
+            # abslimits = (0.010, 10.0),
             pollinterval = 3,
         ),
     '%s_fwdp' % setupname:

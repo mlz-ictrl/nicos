@@ -10,7 +10,7 @@ devices = {
     f'T_{setupname}': device('nicos.devices.entangle.TemperatureController',
         description = 'The sample temperature',
         tangodevice = tango_base + 'eurotherm/ctrl',
-        abslimits = (0, 2000),
+        # abslimits = (0, 2000),
         precision = 0.1,
         fmtstr = '%.3f',
         unit = 'C',

@@ -51,7 +51,7 @@ devices = dict(
         l = 'L',
         d = 'pinhole',
         sdd = 'L_sd',
-        unit = 'um',
+        # unit = 'um',
         fmtstr = '%.1f',
     ),
 )

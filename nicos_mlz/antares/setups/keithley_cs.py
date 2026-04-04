@@ -7,7 +7,7 @@ devices = dict(
     cs_curr = device('nicos.devices.entangle.AnalogOutput',
         description = 'Keithley currentsource dc current',
         tangodevice = tango_base + 'curr',
-        abslimits = (0, 0.1),
+        # abslimits = (0, 0.1),
         unit = 'A',
     ),
 )

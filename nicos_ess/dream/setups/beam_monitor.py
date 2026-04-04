@@ -6,8 +6,6 @@ devices = dict(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description="Beam monitor continuous position feedback",
         motorpv=f'{prefix}:m8',
-        abslimits=(-10, 10),
-        unit='mm',
         monitor=True,
         pva=True,
     ),

@@ -18,14 +18,12 @@ devices = dict(
         description='DC amplitude (current)',
         readpv='{}CurrAmp-R'.format(pv_root),
         writepv='{}CurrValue-S'.format(pv_root),
-        abslimits=(-1e308, 1e308),
     ),
     ls155_amplitude_V=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
         description='DC amplitude (current)',
         readpv='{}VoltAmp-R'.format(pv_root),
         writepv='{}VoltValue-S'.format(pv_root),
-        abslimits=(-1e308, 1e308),
     ),
     ls155_output=device(
         'nicos.devices.epics.EpicsMappedMoveable',

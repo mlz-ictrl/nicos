@@ -12,7 +12,7 @@ devices = {
         tangodevice = tango_base + 'plc/plc_magneticfield',
         unit = 'T',
         fmtstr = '%.3f',
-        abslimits = (-2.5, 2.5),
+        # abslimits = (-2.5, 2.5),
         precision = 0.0005,
     ),
     f'B_{setupname}_readback': device('nicos.devices.entangle.AnalogInput',

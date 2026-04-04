@@ -8,7 +8,7 @@ devices = dict(
     E = device('nicos.devices.entangle.PowerSupply',
         description = 'Sample environment: electrical field',
         tangodevice = tango_base + 'hv',
-        abslimits = (0, 35000),
+        # abslimits = (0, 35000),
         unit = 'V',
     ),
     E_c = device('nicos.devices.generic.ReadonlyParamDevice',

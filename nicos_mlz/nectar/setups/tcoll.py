@@ -11,7 +11,7 @@ devices = dict(
     ),
     drum_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'box/channel7/mot',
-        abslimits = (-10, 370),
+        # abslimits = (-10, 370),
         precision = 0.05,
         unit = 'deg',
         visibility = (),

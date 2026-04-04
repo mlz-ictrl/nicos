@@ -129,7 +129,7 @@ devices = dict(
         description =
         'high voltage supply for the CASCADE detector (usually -2850 V)',
         tangodevice = tango_base + 'psdhv/voltage',
-        abslimits = (-3100, 0),
+        # abslimits = (-3100, 0),
         warnlimits = (-3000, -2945),
         pollinterval = 10,
         maxage = 20,

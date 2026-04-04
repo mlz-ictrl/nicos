@@ -29,7 +29,7 @@ devices = dict(
     detimg = device("nicos.devices.entangle.ImageChannel",
         description = "Denex detector image",
         tangodevice = tango_base + "/denex/det",
-        size = (32, 32),
+        # size = (32, 32),
         fmtstr = "%d",
         unit = "cts",
     ),

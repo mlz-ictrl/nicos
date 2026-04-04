@@ -17,7 +17,6 @@ devices = dict(
     ),
     ccmsanssc_axis = device('nicos_mlz.sans1.devices.ccmsanssc.SwordAxis',
         description = 'translation of the sword',
-        abslimits = (0, 600),
         motor = 'ccmsanssc_motor',
         startdelay = 1,
         stopdelay = 1,

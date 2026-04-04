@@ -33,6 +33,5 @@ devices = dict(
         description = 'Mini-kappa omega encoder (23 bit)',
         motor = 'omega_minikappa',
         fmtstr = '%.3f',
-        unit = 'deg',
     ),
 )

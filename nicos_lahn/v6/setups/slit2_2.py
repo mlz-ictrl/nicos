@@ -69,7 +69,6 @@ devices = dict(
                   bottom='do2',
                   opmode='4blades',
                   coordinates='opposite',
-                  fmtstr='%.2f',
                   unit='mm',
                   ),
 )

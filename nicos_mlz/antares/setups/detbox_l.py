@@ -10,7 +10,7 @@ devices = dict(
     ccdtx = device('nicos.devices.entangle.Motor',
         description = 'Camera Translation X',
         tangodevice = tango_base + 'copley/m07',
-        abslimits = (-9999, 9999),
+        # abslimits = (-9999, 9999),
         userlimits = (-0, 693),
     ),
 )

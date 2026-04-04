@@ -76,19 +76,19 @@ devices = dict(
     fg2_frequency = device('nicos_mlz.devices.wmirfgen.Frequency',
         description = 'Device the frequency and frequency modulation',
         tangodevice = tango_base + 'rfgen2/frequency',
-        abslimits = (0.1, 40000)
+        # abslimits = (0.1, 40000)
     ),
     fg2_frequency_rf1 = device('nicos.devices.entangle.AnalogOutput',
         description = 'Tango device for the first '
         'internal frequency generator '
         '(for modulation)',
         tangodevice = tango_base + 'rfgen2/mod_rf1',
-        abslimits = (0.0, 40000)
+        # abslimits = (0.0, 40000)
     ),
     fg2_power = device('nicos.devices.entangle.AnalogOutput',
         description = 'Tango device for the power level',
         tangodevice = tango_base + 'rfgen2/power',
-        abslimits = (-130, 30)
+        # abslimits = (-130, 30)
     ),
     lockin_x = device('nicos.devices.entangle.AnalogInput',
         description = 'Lockin x',

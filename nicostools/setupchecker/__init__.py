@@ -358,8 +358,16 @@ class SetupChecker:
                 if pname in config:
                     if pinfo.internal:
                         self.log_error(
-                            "%s: '%s' is configured in a setup file although "
-                            "declared as internal parameter", devname, pname,
+                            '%s: %r is configured in a setup file although '
+                            'declared as internal parameter', devname, pname,
+                            extra=self.find_deventry(devname, pname)
+                        )
+                        del config[pname]
+                        continue
+                    if pinfo.volatile:
+                        self.log_error(
+                            '%s: %r is volatile and must not be defined in '
+                            'the setup file', devname, pname,
                             extra=self.find_deventry(devname, pname)
                         )
                         del config[pname]

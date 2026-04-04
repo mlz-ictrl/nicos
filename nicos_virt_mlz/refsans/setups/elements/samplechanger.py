@@ -18,7 +18,6 @@ devices = dict(
     samplechanger_enc = device('nicos.devices.generic.VirtualCoder',
         description = 'Samplechanger axis coder',
         motor = 'samplechanger_motor',
-        unit = 'mm',
         visibility = (),
     ),
 )

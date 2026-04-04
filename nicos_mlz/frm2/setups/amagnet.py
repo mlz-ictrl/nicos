@@ -52,7 +52,7 @@ devices = dict(
         description = 'Device for the magnet power supply (current mode)',
         tangodevice = tango_base + 'lambda/curr',
         unit = 'A',
-        abslimits = (0, 200),
+        # abslimits = (0, 200),
         precision = 0.05,
         visibility = (),
     ),

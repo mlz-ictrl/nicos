@@ -16,7 +16,7 @@ devices = {
         description = 'sample rotation motor, with backlash correction',
         motor = f'sth_{setupname}',
         fmtstr = '%.3f',
-        abslimits = (-360, 360),
+        # abslimits = (-360, 360),
         precision = 0.002,
         backlash = -1.0,
     ),

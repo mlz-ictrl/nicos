@@ -10,7 +10,7 @@ devices = {
     'T_cryostream': device('nicos.devices.entangle.TemperatureController',
         description = 'Sample temperature control',
         tangodevice = tango_base + 'cryostream/cryo',
-        abslimits = (0, 300),
+        # abslimits = (0, 300),
         unit = 'K',
         fmtstr = '%.3f',
         pollinterval = 5,

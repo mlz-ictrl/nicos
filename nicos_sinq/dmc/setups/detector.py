@@ -19,7 +19,6 @@ devices = dict(
         description = 'Detector angle (s2t)',
         motorpv = 'SQ:DMC:turboPmac1:A4',
         errormsgpv = 'SQ:DMC:turboPmac1:A4-MsgTxt',
-        can_disable = True,
     ),
 
     # Detector Technical Measures

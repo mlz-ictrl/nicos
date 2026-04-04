@@ -64,7 +64,6 @@ devices = dict(
         pollinterval = 15,
         maxage = 60,
         fmtstr = '%.2f',
-        abslimits = (-500.9, 110.65),
         precision = 0.01,
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (-750, 150),

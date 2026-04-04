@@ -110,7 +110,7 @@ for ti in range(1, 3):
         description = 'detector power supply voltage',
         tangodevice = tango_base + 'gesupply/ps%d' % ti,
         unit = 'V',
-        abslimits = (0, 54),
+        # abslimits = (0, 54),
         userlimits = (0, 54),
         warnlimits = (53.9, 54.1),
         visibility = (),

@@ -17,7 +17,7 @@ devices = dict(
     T_ccr_stick = device('nicos.devices.entangle.TemperatureController',
         description = 'The control device of the sample (stick)',
         tangodevice = '%s/control' % tango_base,
-        abslimits = (0, 600),
+        # abslimits = (0, 600),
         unit = 'K',
         fmtstr = '%.3f',
     ),

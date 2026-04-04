@@ -38,7 +38,7 @@ devices = dict(
         acq = 'acqdoppler',
         precision = [0.0001, 0],
         unit = 'm/s',
-        customrange = (0.1, 4.7),
+        # customrange = (0.1, 4.7),
         mapping = {
             'Standby': (0,   25),
             0.0:       (0,   25),

@@ -7,7 +7,7 @@ devices = dict(
         visibility = (),
         abslimits = [0, 120],
         unit = 'V',
-        ramp = 1.5 * 60,
+        speed = 1.5,
         fmtstr = '%.1f',
         warnlimits = (95, 105),
     ),

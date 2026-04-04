@@ -1,1 +1,2 @@
 nicos/collimator_io/value=2
+nicos/sty_huber/abslimits=(0,400)

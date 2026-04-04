@@ -5,9 +5,9 @@ devices = dict(
     transAxis = device('nicos.devices.entangle.Motor',
         tangodevice = 'tango://treffsc:10000/treffsc/thorlabs/motor',
         description = 'translation axis',
-        abslimits = (0, 300),
+        # abslimits = (0, 300),
         userlimits = (0, 300),
-        speed = 5,
+        # speed = 5,
         unit = 'mm',
     ),
 )

@@ -19,7 +19,7 @@ devices = dict(
         description='Detector HV power supply',
         requires={'level': 'admin'},
         abslimits=(0, 1600),
-        ramp=120,
+        speed=2,
         unit='V',
     ),
     ar_flow=device(

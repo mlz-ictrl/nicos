@@ -82,7 +82,7 @@ for (epname, epicsid) in eps:
         unit = 'V',
         pollinterval = 10,
         fmtstr = '%.0f',
-        abslimits = (0, 1600),
+        # abslimits = (0, 1600),
         warnlimits = (1520, 1540),
     )
 
@@ -91,7 +91,7 @@ for ti in range(1, 3):
         description = 'detector power supply voltage',
         tangodevice = tango_base + 'gesupply/ps%d' % ti,
         unit = 'V',
-        abslimits = (0, 54),
+        # abslimits = (0, 54),
         userlimits = (0, 54),
         warnlimits = (53.9, 54.1),
         visibility = (),

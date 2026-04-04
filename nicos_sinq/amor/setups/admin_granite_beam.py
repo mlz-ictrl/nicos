@@ -9,7 +9,6 @@ devices = dict(
                                 description = 'Granite beam shift',
                                 motorpv = pvprefix + 'beam_shift',
                                 visibility = ('metadata', 'namespace'),
-                                unit='mm',
                                 requires = {'level': 'admin'},
                                 ),
     )

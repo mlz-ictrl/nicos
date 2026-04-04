@@ -71,7 +71,6 @@ devices = dict(
         opmode = '4blades',
         pollinterval = 5,
         maxage = 10,
-        fmtstr = '%.0f %.0f %.0f %.0f',
         requires = {'level': 'admin'},
     ),
 )

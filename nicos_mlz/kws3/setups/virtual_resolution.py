@@ -22,7 +22,7 @@ devices = dict(
     ),
     sel_ap1 = device('nicos.devices.generic.TwoAxisSlit',
         description = 'aperture before selector',
-        fmtstr = '%.3f %.3f',
+        # fmtstr = '%.3f %.3f',
         horizontal = 'sel_ap1_width',
         vertical = 'sel_ap1_height',
     ),

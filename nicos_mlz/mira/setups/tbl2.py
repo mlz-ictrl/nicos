@@ -8,7 +8,7 @@ devices = dict(
     tbl2 = device('nicos.devices.entangle.Motor',
         description = 'second general-use rotator table',
         tangodevice = tango_base + 'table/rot2',
-        abslimits = (-360, 360),
+        # abslimits = (-360, 360),
         precision = 0.05,
     ),
 )

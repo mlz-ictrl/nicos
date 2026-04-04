@@ -9,7 +9,7 @@ devices = dict(
         tangodevice = tango_base + 'channel4/motor',
         fmtstr = '%.2f',
         visibility = (),
-        speed = 4,
+        # speed = 4,
     ),
     addphi = device('nicos.devices.generic.Axis',
         description = 'Additional rotation table',

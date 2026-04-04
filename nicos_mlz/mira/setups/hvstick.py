@@ -6,6 +6,6 @@ devices = dict(
     HV = device('nicos.devices.entangle.PowerSupply',
         description = 'voltage on the HV stick',
         tangodevice = tango_base + 'fughv/voltage',
-        abslimits = (-5000, 5000),
+        # abslimits = (-5000, 5000),
     ),
 )

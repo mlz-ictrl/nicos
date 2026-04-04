@@ -9,7 +9,7 @@ devices = dict(
         visibility = (),
         tangodevice = tango_base + 'xmot',
         unit = 'mm',
-        abslimits = (0, 972),
+        # abslimits = (0, 972),
         userlimits = (0, 972),
     ),
     x = device('nicos.devices.generic.Axis',
