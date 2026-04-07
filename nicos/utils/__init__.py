@@ -1538,13 +1538,18 @@ class FitterRegistry:
 
 
 class KeyExprTransform(ast.NodeTransformer):
+
     def visit_BinOp(self, node):
         self.generic_visit(node)
         if isinstance(node.op, ast.Div) and \
-           isinstance(node.left, ast.Name) and \
-           isinstance(node.right, ast.Name):
-            return ast.Name(id=node.left.id + '/' + node.right.id,
-                            ctx=ast.Load())
+           isinstance(node.left, ast.Name):
+            if isinstance(node.right, ast.Name):
+                return ast.Name(id=node.left.id + '/' + node.right.id,
+                                ctx=ast.Load())
+            if isinstance(node.right, ast.Subscript):
+                return ast.Subscript(
+                    ast.Name(id=node.left.id + '/' + node.right.value.id,
+                             ctx=ast.Load()), node.right.slice, ctx=ast.Load())
         return node
 
     def visit_Attribute(self, node):
