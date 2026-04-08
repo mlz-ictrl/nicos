@@ -4,7 +4,8 @@ group = 'lowlevel'
 
 tango_base = 'tango://ictrlfs.ictrl.frm2.tum.de:10000/memograph07/REFSANS/'
 
-lowlevel = ('namespace', 'devlist', 'metadata')
+#lowlevel = ('namespace', 'devlist', 'metadata')
+lowlevel = ()
 
 devices = dict(
     t_memograph_in = device('nicos.devices.entangle.Sensor',
