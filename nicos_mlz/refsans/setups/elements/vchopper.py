@@ -2,6 +2,8 @@ description = 'Emulation of the hardware chopper'
 
 group = 'lowlevel'
 
+excludes = ['chopper']
+
 devices = dict(
     software = device('nicos.devices.generic.ManualSwitch',
         description = 'Software of chopper',
