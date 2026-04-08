@@ -9,7 +9,7 @@ pc_ctrl = instrument_values['pc_ctrl']
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'REFSANS',
+    instrument = instrument_values['instrument_name'].upper(), #'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink', 'livesink'],
     notifiers = ['email', 'smser'],
@@ -21,11 +21,12 @@ includes = ['notifiers']
 devices = dict(
     REFSANS = device('nicos.devices.instrument.Instrument',
         description = 'Container storing Instrument properties',
-        instrument = 'REFSANS',
+        instrument = instrument_values['instrument_name'].upper(), #'REFSANS',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-31',
-        responsible = 'Dr. Jean-Francois Moulin <jean-francois.moulin@hzg.de>',
+        responsible = 'Dr. Jean-Francois Moulin <jean-francois.moulin@%s>' % \
+            instrument_values['institut_url'],
         operators = ['German Engineering Materials Science Centre (GEMS)'],
-        website = 'http://www.mlz-garching.de/refsans',
+        website = 'http://www.mlz-garching.de/%s' % instrument_values['instrument_name'],
     ),
     Sample = device(code_base + 'sample.Sample',
         description = 'Container storing Sample properties',
@@ -54,6 +55,7 @@ devices = dict(
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
+        visibility = ('devlist', 'namespace'),
         minfree = 5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',

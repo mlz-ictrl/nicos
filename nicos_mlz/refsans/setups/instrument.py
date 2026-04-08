@@ -15,6 +15,7 @@ pc_ctrl = '%sctrl' % instrument_name
 
 values = {
     'instrument_name': instrument_name,
+    'institut_url': institut + '.' + tld,
     'pc_hw': pc_hw,
     'pc_hw_real1': '%sctrl02' % instrument_name,
     'pc_hw_real2': '',
