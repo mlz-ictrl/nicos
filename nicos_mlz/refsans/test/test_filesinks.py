@@ -64,4 +64,4 @@ class TestSinks:
         datafile = path.join(session.experiment.datapath, 'p1234_00000043.cfg')
         assert path.isfile(datafile)
         contents = configobj.ConfigObj(datafile)
-        assert len(contents['NOKs']) == 1
+        assert len(contents['NOKs']) == 2

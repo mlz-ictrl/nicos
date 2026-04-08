@@ -61,19 +61,6 @@ element_part = [
     'wegbox_C_2ref',
 ]
 
-chopper = [
-    'chopper2_pos',
-    'chopper',
-    'resolution',
-    'chopper/mode',
-    # 'chopper/resolution',
-    'chopper_speed',
-    'chopper/wlmin',
-    'chopper/wlmax',
-    'chopper/gap',
-    'chopper/manner',
-]
-
 EXP = [
     'localcontact',
     'proposal',
@@ -107,10 +94,6 @@ Gonio = [
     'autocollimator_phi',
     'autocollimator_theta',
     'backguard',
-    'backguard1',
-    'backguard1_motor',
-    'backguard2',
-    'backguard2_motor',
     'samplechanger',
     'Sample/length',
     'Sample/width',
@@ -127,6 +110,7 @@ NOKs_PlanB_label = ['r_motor', 's_motor', 'r_analog', 's_analog']
 aperture = [
     'primary_aperture',
     'last_aperture',
+    # last_aperture primary_aperture
 ]
 
 Slits = ['b1', 'zb0', 'zb1', 'zb2', 'zb3', 'bs1', 'b2', 'b3']
@@ -136,15 +120,14 @@ Slits_PlanB_label = ['r_motor', 's_motor', 'r_analog', 's_analog', '_analog',
 
 simple_slit = ['sc2', 'disc3', 'disc4']
 
-lateral = ['h2']
-lateral_label = ['', '_width', '_center']
-simple_lateral = ['h3']
-simple_lateral_label = ['', '_mode']
+lateral = ['h2', 'h3']
+lateral_label = ['width', 'center']
 
 det_pos = [
     'det_drift',
     'det_pivot',
-    'det_pixsize',
+    'det_pix_height',
+    'det_pix_width',
     'det_table',
     'det_table_cab_temp',
     'det_table_motor',
@@ -160,6 +143,10 @@ det_pos = [
     'beamstop_height',
     'beamstop_center',
     'beamstop_asym',
+    'hv_anode',
+    'hv_drift1',
+    'hv_drift2',
+    'hv_mon',
 ]
 
 PlanB = [
@@ -189,27 +176,23 @@ monitor = ['prim_monitor']
 monitor_label = ['_typ', '_x', '_z']
 
 Miscellaneous = [
-    'sds',
+    'safedetectorsystem',
     'shutter',
     'shutter_gamma',
     'pressure_SR',
     'pressure_SFK',
     'pressure_CB',
-    'real_flight_path',  # as bad label
     'chamber_CB',
     'chamber_SFK',
     'chamber_SR',
-    'hv_anode',
-    'hv_drift1',
-    'hv_drift2',
-    'hv_mon',
+    'NL2b',
 ]
 
 safetysystem = [
     'doors',
     'place',
     'PO_save',
-    'basis',
+    'shutter_permission',
     'service',
     'SR_save',
     'supervisor',
@@ -217,7 +200,7 @@ safetysystem = [
     'Freigabe_Taster',
     'techOK',
     'Safedetectorsystem',
-    'user',
+    'user_safetysystem_interface',
 ]
 
 VSD = [
@@ -305,66 +288,61 @@ analog_encoder = '_acc'
 attenuator = 'attenuator'
 
 environment = [
-    'julabo_ext', 'julabo_int', 'julabo_temp',
+    'julabo_ext', 'julabo_int', 'julabo_temp', 'julabo_flow', 'julabo_flow_avg',
     'active_regulator',
     'pump0_diameter', 'pump0_rate', 'pump0_run',
     'pump1_diameter', 'pump1_rate', 'pump1_run',
     'nima_area', 'nima_pressure', 'nima_speed', 'nima_z',
 ]
 
-element_part += chopper
-element_part += simple_slit
-element_part += Gonio
-element_part += VSD
-element_part += safetysystem
-element_part += det_pos
-element_part += aperture
-element_part += monitor
-element_part += Miscellaneous
-element_part += environment
-element_part += ['shutter_gamma_motor']
-
-for ll in optic:
-    for label in optic_label:
-        element_part.append(ll + label)
-
-for ll in NOKs:
-    for label in NOKs_label + NOKs_PlanB_label:
-        element_part.append(ll + label)
-
-for ll in PlanB:
-    for label in PlanB_label:
-        element_part.append(ll + label)
-
-for ll in ana4gpio:
-    for label in ana4gpio_label:
-        element_part.append(ll + label)
-
-for ll in monitor:
-    for label in monitor_label:
-        element_part.append(ll + label)
-
-for ll in lateral:
-    for label in lateral_label:
-        element_part.append(ll + label)
-
-for ll in simple_lateral:
-    for label in simple_lateral_label:
-        element_part.append(ll + label)
-
-for ll in Slits:
-    for label in Slits_label + Slits_PlanB_label:
-        element_part.append(ll + label)
-element_part.append('b3h3_frame')
-
-for i in range(cpt0[1]):
-    element_part.append('%s%d' % (cpt0[0], i))
-
-for i in range(cpt[1]):
-    element_part.append('%s%d' % (cpt[0], i))
-
-for i in range(cptoptic[1]):
-    element_part.append('%s%d' % (cptoptic[0], i + 1))
+# element_part += simple_slit
+# element_part += Gonio
+# element_part += VSD
+# element_part += safetysystem
+# element_part += det_pos
+# element_part += aperture
+# element_part += monitor
+# element_part += Miscellaneous
+# element_part += environment
+# element_part += ['shutter_gamma_motor']
+#
+# for ll in optic:
+#     for label in optic_label:
+#         element_part.append(ll + label)
+#
+# for ll in NOKs:
+#     for label in NOKs_label + NOKs_PlanB_label:
+#         element_part.append(ll + label)
+#
+# for ll in PlanB:
+#     for label in PlanB_label:
+#         element_part.append(ll + label)
+#
+# for ll in ana4gpio:
+#     for label in ana4gpio_label:
+#         element_part.append(ll + label)
+#
+# for ll in monitor:
+#     for label in monitor_label:
+#         element_part.append(ll + label)
+#
+# for ll in lateral:
+#     for label in lateral_label:
+#         element_part.append(ll + label)
+#
+# for ll in Slits:
+#     for label in Slits_label + Slits_PlanB_label:
+#         element_part.append(ll + label)
+# element_part.append('b3h3_frame')
+#
+# for i in range(cpt0[1]):
+#     element_part.append('%s%d' % (cpt0[0], i))
+#
+# for i in range(cpt[1]):
+#     element_part.append('%s%d' % (cpt[0], i))
+#
+# for i in range(cptoptic[1]):
+#     element_part.append('%s%d' % (cptoptic[0], i + 1))
 
 try:
     import configobj
@@ -396,11 +374,13 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         DataSinkHandler.__init__(self, sink, dataset, detector)
         self._template = sink.filenametemplate
         self._data = None
+        self._processed = []
 
     def prepare(self):
         if configobj:
             if self._data is None:
                 self._data = configobj.ConfigObj(encoding='utf-8')
+                self._processed = element_part.copy()
             self._number = self.manager.assignCounter(self.dataset)
             fp = self.manager.createDataFile(self.dataset, self._template[0])
             self._data.filename = fp.filepath
@@ -410,9 +390,9 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
             self._data['measurement'] = self._dict()
             self._data['Chopper'] = self._dict()
-            self._data['chopper_config'] = self._dict()
             self._data['NOKs'] = self._dict()
             self._data['NOKs_mode'] = self._dict()
+            # self._data['motor'] = self._dict()
             self._data['Absolute_Positions'] = self._dict()
             self._data['Slits'] = self._dict()
             self._data['Slits_mode'] = self._dict()
@@ -429,7 +409,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._data['cpt'] = self._dict()
             self._data['analog_encoder'] = self._dict()
             self._data['Attenuators'] = self._dict()
-            self._data['environment'] = self._dict()
+            self._data['sample environment'] = self._dict()
 
     def _write_meas_comment(self, metainfo):
         self._data['measurement'] = self._dict()
@@ -438,6 +418,8 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         self._data['measurement']['Measurement Comment'] = metainfo[
             'Exp', 'remark'][0]
         ds = self.dataset
+        self.log.debug('self.dataset: %s', type(self.dataset))
+        self.log.debug('self.dataset: %s', self.dataset)
         scaninfo = ds.info.split('-')[-1].strip()
         if self._data:
             self._data['measurement']['scaninfo'] = scaninfo
@@ -452,13 +434,24 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._data['measurement'][dev] = '%s' % metainfo['Exp', dev][0]
 
     def _write_noks(self, metainfo):
-        self._write_label_ext(metainfo, 'NOKs', NOKs, 'value', NOKs_label)
-        self._write_label_ext(metainfo, 'NOKs_mode', NOKs, 'mode', NOKs_label)
+        # self._write_label_ext(metainfo, 'NOKs', NOKs, 'value', NOKs_label)
+        self._write_label_ext(metainfo, 'NOKs', NOKs, 'value', [''], ['reactor', 'sample'])
+        # self._write_label_ext(metainfo, 'NOKs_mode', NOKs, 'mode', NOKs_label)
+        self._write_label_ext(metainfo, 'NOKs_mode', NOKs, 'mode', [''])
+
+    def _write_AbsPos(self, metainfo):
+        for dev, _key in metainfo:
+            if _key == 'value':
+                sp = dev.split('_')
+                if sp[-1] == 'motor':
+                    self._processed.append(dev)
+                    self._data['Absolute_Positions'][dev] = metainfo[dev, 'value'][0]
 
     def _write_PlanB(self, metainfo):
-        self._write_label_ext(metainfo, 'Absolute_Positions',
-                              NOKs + ['shutter_gamma'], 'value',
+        self._write_label_ext(metainfo, 'Absolute_Positions', NOKs, 'value',
                               NOKs_PlanB_label)
+        self._write_label_ext(metainfo, 'Absolute_Positions',
+                              ['shutter_gamma'], 'value', ['_motor'])
         self._write_label_ext(metainfo, 'Absolute_Positions', Slits, 'value',
                               Slits_PlanB_label)
         self._write_label_ext(metainfo, 'Absolute_Positions', PlanB, 'value',
@@ -472,42 +465,58 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
     def _write_slits(self, metainfo):
         for dev in ['b3h3_frame']:
             if (dev, 'value') in metainfo:
+                self._processed.append(dev)
                 self._data['Slits'][dev] = metainfo[dev, 'value'][0]
-        self._write_label_ext(metainfo, 'Slits', Slits, 'value', Slits_label)
+        self._write_label_ext(metainfo, 'Slits', Slits, 'value', [''], ['center', 'height'])  # Slits_label)
         self._write_label_ext(metainfo, 'Slits_mode', Slits, 'mode',
-                              Slits_label)
+                              [''])  # Slits_label)
         self._write_label_ext(metainfo, 'Slits', simple_slit, 'value', [''])
 
-    def _write_label_ext(self, metainfo, key, liste, content, ext):
-        for ele, label in zip(liste, ext):
-            if (ele, 'value') in metainfo:
-                self._data[key][ele + label] = (metainfo[ele, content][0])
+    def _write_label_ext(self, metainfo, key, liste, content, ext, tags=None):
+        for ele in liste:
+            for label in ext:
+                sub = ele + label
+                if (sub, content) in metainfo:
+                    try:
+                        if sub not in self._processed:
+                            self._processed.append(sub)
+                        vals = (metainfo[sub, content][0])
+                        if tags is None or isinstance(vals, float):
+                            self._data[key][sub] = vals
+                        else:
+                            # self._data[key][sub] = vals
+                            for tag, val in zip(tags, vals):
+                                self._data[key][sub + '_' + tag] = val
+                    except Exception:
+                        self._data[key][ele + label] = 'except: FAIL'
 
     def _write_lateral(self, metainfo):
-        self._write_label_ext(metainfo, 'Lateral', lateral, 'value',
+        self._write_label_ext(metainfo, 'Lateral', lateral, 'value', [''],
                               lateral_label)
-        self._write_label_ext(metainfo, 'Lateral', simple_lateral, 'value',
-                              simple_lateral_label)
 
     def _write_misc(self, metainfo):
         for dev in Miscellaneous:
             if (dev, 'value') in metainfo:
+                self._processed.append(dev)
                 self._data['Miscellaneous'][dev] = metainfo[dev, 'value'][0]
 
     def _write_vsd(self, metainfo):
         for dev in VSD:
             if (dev, 'value') in metainfo:
+                self._processed.append(dev)
                 self._data['vsd'][dev] = metainfo[dev, 'value'][0]
 
     def _write_safetysystem(self, metainfo):
         for dev in safetysystem:
             if (dev, 'value') in metainfo:
+                self._processed.append(dev)
                 self._data['safetysystem'][dev] = metainfo[dev, 'value'][0]
 
     def _write_environment(self, metainfo):
         for dev in environment:
             if (dev, 'value') in metainfo:
-                self._data['environment'][dev] = metainfo[dev, 'value'][0]
+                self._processed.append(dev)
+                self._data['sample environment'][dev] = metainfo[dev, 'value'][0]
 
     def _write_optic(self, metainfo):
         self._write_label_ext(metainfo, 'optic', optic, 'value', optic_label)
@@ -518,21 +527,25 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         for i in range(cpt0[1]):
             dev = '%s%d' % (cpt0[0], i)
             if (dev, 'value') in metainfo:
+                self._processed.append(dev)
                 self._data['cpt'][dev] = metainfo[dev, 'value'][0]
         for i in range(cpt[1]):
             dev = '%s%d' % (cpt[0], i)
             if (dev, 'value') in metainfo:
+                self._processed.append(dev)
                 self._data['cpt'][dev] = metainfo[dev, 'value'][0]
         for i in range(cptoptic[1]):
             dev = '%s%d' % (cptoptic[0], (i + 1))
             if (dev, 'value') in metainfo:
+                self._processed.append(dev)
                 self._data['cpt'][dev] = metainfo[dev, 'value'][0]
 
     def _write_attenuators(self, metainfo):
         keys = list(metainfo.keys())
         for tup in keys:
             if tup[1] == 'value' and attenuator in tup[0]:
-                element_part.append(tup[0])
+                # element_part.append(tup[0])
+                self._processed.append(tup[0])
                 self._data['Attenuators'][tup[0]] = metainfo[tup[0],
                                                              'value'][0]
 
@@ -540,68 +553,97 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         keys = list(metainfo.keys())
         for tup in keys:
             if tup[1] == 'value' and analog_encoder in tup[0]:
-                element_part.append(tup[0])
+                # element_part.append(tup[0])
+                self._processed.append(tup[0])
                 self._data['analog_encoder'][tup[0]] = metainfo[tup[0],
                                                                 'value'][0]
 
     def _write_detector(self, metainfo):
         for dev in det_pos:
             if (dev, 'value') in metainfo:
+                self._processed.append(dev)
                 self._data['Detector'][dev] = metainfo[dev, 'value'][0]
 
     def _write_aperture(self, metainfo):
         for dev in aperture:
+            if dev not in element_part:
+                self._processed.append(dev)
             for key in ['value', 'alias']:  # 'status' as well ?
                 if (dev, key) in metainfo:
-                    self._data['aperture']['%s_%s' % (dev, key)] = \
+                    self._data['aperture'][f'{dev}_{key}'] = \
                         metainfo[dev, key][0]
-                val = metainfo[dev, 'status'][0]
-                self._data['aperture']['%s_%s_dyn' % (dev, 'status')] = val
-                # 'b3.height' => (200,'slit=b3') 2020-04-06 06:42:08 JFM
-                val = (metainfo[dev, 'status'][0][0],
-                       'slit=' + metainfo[dev, 'alias'][0].split('.')[0])
-                self._data['aperture']['%s_%s' % (dev, 'status')] = val
+                    val = metainfo[dev, 'status'][0]
+                    self._data['aperture'][f'{dev}_status_dyn'] = val
+                    # 'b3.height' => (200,'slit=b3') 2020-04-06 06:42:08 JFM
+                    val = (metainfo[dev, 'status'][0][0],
+                           'slit=' + metainfo[dev, 'alias'][0].split('.')[0])
+                    self._data['aperture'][f'{dev}_status'] = val
+                else:
+                    self.log.warning('missing %s %s', dev, key)
 
     def _write_monitor(self, metainfo):
         self._write_label_ext(metainfo, 'Monitor', monitor, 'value',
                               monitor_label)
 
+    def dataAllocation(self, keys, name, metatag, metainfo):
+        target = self._data
+        if isinstance(keys, str):
+            if keys not in target:
+                target[keys] = self._dict()
+            target = target[keys]
+        elif len(keys) == 1:
+            if keys[0] not in target:
+                target[keys[0]] = self._dict()
+            target = target[keys[0]]
+        else:
+            for key in keys:
+                if key not in target:
+                    target[key] = {}
+                target = target[key]
+        if metatag in metainfo:
+            target[name] = metainfo[metatag][0]
+#             if metatag[0] not in element_part:
+#                 element_part.append(metatag[0])
+            if metatag[0] not in self._processed:
+                self._processed.append(metatag[0])
+            if metatag[1] == 'value':
+                target[name + '_unit'] = metainfo[metatag][2]
+        else:
+            self.log.warning('missing %s', metatag)
+            target[name] = 'missing'
+
     def _write_chopper(self, metainfo):
-        # label = 'chopper_resolution'
-        # self._data['Chopper'][label] = metainfo['chopper2_pos', 'value'][0]
-        self._data['Chopper'] = self._dict()
-        self._data['chopper_config'] = self._dict()
-        self._data['Chopper']['chopper_rpm'] = metainfo['chopper_speed',
-                                                        'value'][0]
-        for devname in chopper:
-            if (devname, 'value') in metainfo:
-                self.log.debug('1. %s %s', devname, metainfo[devname,
-                                                             'value'][0])
-                if devname == 'chopper':
-                    self.log.debug('%s', type(metainfo[devname, 'value'][0]))
-                    for key in metainfo[devname, 'value'][0].keys():
-                        self._data['chopper_config'][key] = \
-                            metainfo[devname, 'value'][0][key]
-                else:
-                    self._data['Chopper'][devname] = metainfo[devname,
-                                                              'value'][0]
-            else:
-                key = tuple(devname.split('/'))
-                if key in metainfo:
-                    self.log.debug('2. %s %s', key, metainfo[key][0])
-                    self._data['Chopper']['%s_%s' % key] = metainfo[key][0]
-                else:
-                    self.log.warning('missing %s', devname)
-        # self.log.debug('chopper_mode %s', metainfo['chopper', 'mode'][0])
+
+        for devname in [
+            (['Chopper', 'chopper_config_args'], 'wlmin', ('chopper', 'wlmin')),
+            (['Chopper', 'chopper_config_args'], 'wlmax', ('chopper', 'wlmax')),
+            (['Chopper', 'chopper_config_args'], 'D_disk1_detector_m', ('chopper', 'dist')),
+            (['Chopper', 'chopper_config_args'], 'duty_cycle', ('chopper', 'duty_cycle')),
+            (['Chopper', 'chopper_config_args'], 'disc2_pos', ('chopper', 'disc2_pos')),
+            (['Chopper', 'chopper_config_args'], 'suppress_overlap', ('chopper', 'suppress_overlap')),
+
+            (['Chopper', 'chopper_actual'], 'chopper_wlmin', ('chopper', 'chopper_wlmin')),
+            (['Chopper', 'chopper_actual'], 'chopper_wlmax', ('chopper', 'chopper_wlmax')),
+            (['Chopper', 'chopper_actual'], 'resolution_pct', ('resolution', 'value')),
+            (['Chopper', 'chopper_actual'], 'flightpath_m', ('real_flight_path', 'value')),
+            (['Chopper', 'chopper_actual'], 'disk2_mode', ('chopper', 'mode')),
+            (['Chopper', 'chopper_actual'], 'disc2_pos', ('disc2_pos', 'value')),
+            (['Chopper', 'chopper_actual'], 'chopper_rpm_setpoint', ('chopper', 'chopper_rpm_setpoint')),
+            (['Chopper', 'chopper_actual'], 'chopper_rpm', ('chopper_speed', 'value')),
+
+                       ]:
+            self.dataAllocation(devname[0], devname[1], devname[2], metainfo)
 
     def _write_sample(self, metainfo):
         sample = self._dict()
         for devname in Gonio:
             if (devname, 'value') in metainfo:
+                self._processed.append(devname)
                 sample[devname] = metainfo[devname, 'value'][0]
             else:
                 key = tuple(devname.split('/'))
                 if key in metainfo:
+                    self._processed.append(key[1])
                     sample[key[1]] = metainfo[key][0]
                 elif devname == 'height':
                     self.log.debug('missing %s', devname)
@@ -624,7 +666,8 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._write_monitor(metainfo)
             self._write_optic(metainfo)
             self._write_noks(metainfo)
-            self._write_PlanB(metainfo)
+            # self._write_motor(metainfo)
+            self._write_AbsPos(metainfo)
             self._write_aperture(metainfo)
             self._write_slits(metainfo)
             self._write_lateral(metainfo)
@@ -638,16 +681,32 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._write_environment(metainfo)
         else:
             self.log.debug('no self._data')
-        elements = []
-        for dev, _key in metainfo:
-            if dev not in elements + element_part:
-                elements.append(dev)
-        if elements:
-            self.log.debug('EXTRA %d %s', len(elements), elements)
 
-        if self._data:
-            # should be empty
-            self._write_extra(metainfo, elements)
+        # self.log.debug('metainfo: %s', type(metainfo))
+        self.log.debug('metainfo: %s', metainfo)
+        self.log.debug('metainfo: %s', list(metainfo.keys()))
+        # for key in metainfo.keys():
+        #     self.log.debug('%35s: %s', key, metainfo[key])
+
+        # elements = []
+        # for dev, _key in metainfo:
+        #     if dev not in elements + element_part:
+        #         elements.append(dev)
+        #     if elements:
+        #         self.log.debug('EXTRA ele %d %s', len(elements), elements)
+
+        self.log.debug('work on element_part self._processed')
+        extra = []
+        for dev, _key in metainfo:
+            if dev not in self._processed and dev not in extra:
+                extra.append(dev)
+        if len(extra) > 0:
+            self.log.debug('EXTRA ext %d %s', len(extra), extra)
+            self._write_extra(metainfo, extra)
+
+        # if self._data:
+        #     # should be empty
+        #     self._write_extra(metainfo, elements)
         self._dump()
 
     def putResults(self, quality, results):
