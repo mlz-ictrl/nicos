@@ -56,7 +56,7 @@ class SXTalBase(NicosSXTalBase):
                                        type=float, userparam=True,
                                        settable=True, default=3.),
         'center_counter': Param('Counter to use for centering',
-                                type=str),
+                                type=nicosdev),
         'center_maxpts': Param('Width for centering', type=int,
                                userparam=True, settable=True,
                                default=60),
