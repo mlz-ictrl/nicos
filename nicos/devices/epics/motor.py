@@ -89,7 +89,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
     mode. The setup could look like this:
 
     ```
-    motor = device('',
+    motor = device('nicos.devices.epics.motor.EpicsMotor',
         unit = 'mm',
         motorpv = 'IOC:m1',
         errormsgpv = 'IOC:m1-MsgTxt',
@@ -99,6 +99,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         description = 'Jogmove param device of motor',
         device = 'motor',
         parameter = 'velocity_move',
+        copy_status = True, # ParamDevice should reflect motor status
     )
     ```
 
