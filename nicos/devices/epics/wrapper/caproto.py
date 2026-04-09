@@ -199,7 +199,10 @@ class CaprotoWrapper:
         # If the value is a scalar, return it, otherwise return the array.
         # Explicit None check is needed here because scalar could be a zero!
         if scalar is not None:
-            return scalar
+            # Unpack the numpy type, so that the cache isn't filled with
+            # pickled objects
+            # Apparently, this is faster than using the .item() method.
+            return getattr(scalar, 'tolist', lambda: scalar)()
         return response.data
 
     def put_pv_value(self, pvname, value, timeout=None):

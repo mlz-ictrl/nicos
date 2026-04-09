@@ -29,8 +29,6 @@ This replaces the following files:
     - nicos_sinq/devices/epics/scaler_record.py
 """
 
-import numpy as np
-
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, Moveable, Override, Param, \
     Readable, Value, floatrange, intrange, none_or, nonzero, oneof, pvname, \
@@ -85,31 +83,6 @@ class DAQEpicsDevice(EpicsDevice):
         if pvparam in self._daqpvs.keys():
             return ':'.join([self.daqpvprefix, self._daqpvs[pvparam]])
         return EpicsDevice._get_pv_name(self, pvparam)
-
-    # TODO I am not sure if this is something I broke? or in general broken
-    # in the version of caproto we have?
-    # So I am temporarily overriding to fix this here
-    def _get_pv(self, pvparam, as_string=False):
-        value = EpicsDevice._get_pv(self, pvparam, as_string)
-        if isinstance(value, np.floating):
-            return float(value)
-        if isinstance(value, np.integer):
-            return int(value)
-        return value
-
-    # TODO I am overriding this due to the same problem
-    def value_change_callback(self, name, param, value, units, severity,
-                              message, **kwargs):
-        cache_key = self._get_cache_relation(param)
-        if cache_key and self._cache:
-            if isinstance(value, np.floating):
-                self._setROParam(cache_key, float(value))
-            elif isinstance(value, np.integer):
-                self._setROParam(cache_key, int(value))
-            else:
-                self._setROParam(cache_key, value)
-            if param == 'readpv':
-                self._setROParam('unit', units)
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
