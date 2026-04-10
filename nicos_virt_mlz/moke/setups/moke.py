@@ -10,17 +10,6 @@ from nicos.utils.functioncurves import Curves
 from nicos_jcns.moke.utils import generate_intvb
 
 devices = dict(
-    Sample = device('nicos.devices.sample.Sample',
-        description = 'sample object',
-    ),
-    moke = device('nicos.devices.instrument.Instrument',
-        description = 'instrument object',
-        responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
-        instrument = 'MOKE',
-        website = 'https://www.nicos-controls.org',
-        operators = ['NICOS developer team'],
-        facility = 'NICOS demo instruments',
-    ),
     PS_current = device('nicos_jcns.moke.devices.virtual.VirtualPowerSupply',
         description = 'Powersupply supplies current in magnetic coils',
         unit = 'A',
@@ -67,9 +56,3 @@ devices = dict(
         fmtstr = '%.3f',
     ),
 )
-
-startupcode = '''
-printinfo("============================================================")
-printinfo("Welcome to the NICOS MOKE demo setup.")
-printinfo("============================================================")
-'''
