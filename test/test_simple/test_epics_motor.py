@@ -157,218 +157,221 @@ class DerivedFakeEpicsMotor(FakeEpicsMotor):
 
 
 class DefTest:
-    motor = None
-    jogmove = None
-    motor_no_opt_pv = None
 
-    @pytest.fixture(autouse=True)
-    def prepare(self, session):
-        self.session = session
-        self.motor = self.session.getDevice('motor1')
-        self.motor.reset()
-        self.jogmove = self.session.getDevice('jogmove1')
-        self.motor_no_opt_pv = self.session.getDevice('motor2')
-        self.motor_no_opt_pv.reset()
+    @pytest.fixture
+    def motor(self, session):
+        m = session.getDevice('motor1')
+        m.reset()
+        yield m
+        m.reset()
 
-    def test_optional_pvs(self):
-        assert self.motor.errormsgpv
-        assert self.motor.reseterrorpv
+    @pytest.fixture
+    def jogmove(self, session):
+        return session.getDevice('jogmove1')
 
-        assert not self.motor_no_opt_pv.errormsgpv
-        assert not self.motor_no_opt_pv.reseterrorpv
+    @pytest.fixture
+    def motor_no_opt_pv(self, session):
+        m = session.getDevice('motor2')
+        m.reset()
+        yield m
+        m.reset()
 
-    def test_offset_does_not_shift_abslim(self):
+    def test_optional_pvs(self, motor, motor_no_opt_pv):
+        assert motor.errormsgpv
+        assert motor.reseterrorpv
+
+        assert not motor_no_opt_pv.errormsgpv
+        assert not motor_no_opt_pv.reseterrorpv
+
+    def test_offset_does_not_shift_abslim(self, motor):
         # Initial offset should be 0
-        assert self.motor.offset == 0
-        abslim = self.motor.abslimits
+        assert motor.offset == 0
+        abslim = motor.abslimits
 
         # Redefine current position using 'adjust'
         new_pos = 50
-        adjust(self.motor, new_pos)
+        adjust(motor, new_pos)
 
         # The absolute limits as seen from NICOS should not shift
-        assert self.motor.abslimits == abslim
+        assert motor.abslimits == abslim
 
         # Redefine current position using 'adjust'
         new_pos = 100
-        adjust(self.motor, new_pos)
+        adjust(motor, new_pos)
 
         # The absolute limits as seen from NICOS should not shift
-        assert self.motor.abslimits == abslim
+        assert motor.abslimits == abslim
 
-    def test_adjust_command_sets_offset_correctly(self):
+    def test_adjust_command_sets_offset_correctly(self, motor):
         # Initial offset should be 0
-        assert self.motor.offset == 0
+        assert motor.offset == 0
 
         # Redefine current position using 'adjust'
         new_pos = 50
-        adjust(self.motor, new_pos)
+        adjust(motor, new_pos)
 
         # Check new offset value
-        assert new_pos == -self.motor.offset
-        assert new_pos == self.motor.epics_offset
+        assert new_pos == -motor.offset
+        assert new_pos == motor.epics_offset
 
         # Redefine current position using 'adjust'
         new_pos = 2000
-        adjust(self.motor, new_pos)
+        adjust(motor, new_pos)
 
         # Check new offset value
-        assert new_pos == -self.motor.offset
-        assert new_pos == self.motor.epics_offset
+        assert new_pos == -motor.offset
+        assert new_pos == motor.epics_offset
 
-    def test_adjust_command_causes_epics_absolute_limits_to_be_updated(self):
+    def test_adjust_command_causes_epics_absolute_limits_to_be_updated(self, motor):
         # Get initial limits
-        low, high = self.motor.abslimits
-        epics_low, epics_high = self.motor.epics_abslimits
+        low, high = motor.abslimits
+        epics_low, epics_high = motor.epics_abslimits
 
         # Redefine current position using 'adjust'
         new_pos = 50
-        assert self.motor.read(0) == 0
-        adjust(self.motor, new_pos)
-        assert self.motor.read(0) == 50
+        assert motor.read(0) == 0
+        adjust(motor, new_pos)
+        assert motor.read(0) == 50
 
         # Check new limits
-        assert (low, high) == self.motor.abslimits
+        assert (low, high) == motor.abslimits
         assert (epics_low + new_pos, epics_high +
-                new_pos) == self.motor.epics_abslimits
+                new_pos) == motor.epics_abslimits
 
-    def test_adjust_command_causes_user_limits_to_be_updated(self):
+    def test_adjust_command_causes_user_limits_to_be_updated(self, motor):
         # Get initial limits
-        low, high = self.motor.userlimits
+        low, high = motor.userlimits
 
         # Redefine current position using 'adjust'
         new_pos = 50
-        adjust(self.motor, new_pos)
+        adjust(motor, new_pos)
 
         # Check new limits
-        assert (low + new_pos, high + new_pos) == self.motor.userlimits
+        assert (low + new_pos, high + new_pos) == motor.userlimits
 
         # Set offset
         new_pos = 600
-        adjust(self.motor, new_pos)
+        adjust(motor, new_pos)
 
         # Check new limits
-        assert (low, high) == self.motor.abslimits
-        assert (low + new_pos, high + new_pos) == self.motor.userlimits
+        assert (low, high) == motor.abslimits
+        assert (low + new_pos, high + new_pos) == motor.userlimits
 
-    def test_setting_offset_affects_read_offset_correctly(self):
+    def test_setting_offset_affects_read_offset_correctly(self, motor):
         # Initial offset should be 0
-        assert self.motor.offset == 0
+        assert motor.offset == 0
 
         # Set offset
         new_offset = 50
-        self.motor.offset = new_offset
+        motor.offset = new_offset
 
         # Check new offset value
-        assert new_offset == self.motor.offset
+        assert new_offset == motor.offset
 
         # Set offset
         new_offset = 2000
-        self.motor.offset = new_offset
+        motor.offset = new_offset
 
         # Check new offset value
-        assert new_offset == self.motor.offset
+        assert new_offset == motor.offset
 
-    def test_setting_offset_causes_epics_absolute_limits_to_be_updated(self):
+    def test_setting_offset_causes_epics_absolute_limits_to_be_updated(self, motor):
         # Get initial limits
-        low, high = self.motor.abslimits
-        epics_low, epics_high = self.motor.epics_abslimits
+        low, high = motor.abslimits
+        epics_low, epics_high = motor.epics_abslimits
 
         # Set offset
         new_offset = 50
-        self.motor.offset = new_offset
+        motor.offset = new_offset
 
         # Check new limits
-        assert (low, high) == self.motor.abslimits
+        assert (low, high) == motor.abslimits
         assert (epics_low - new_offset, epics_high -
-                new_offset) == self.motor.epics_abslimits
+                new_offset) == motor.epics_abslimits
 
         # Set offset
         new_offset = 2000
-        self.motor.offset = new_offset
+        motor.offset = new_offset
 
         # Check new limits
-        assert (low, high) == self.motor.abslimits
+        assert (low, high) == motor.abslimits
         assert (epics_low - new_offset, epics_high -
-                new_offset) == self.motor.epics_abslimits
+                new_offset) == motor.epics_abslimits
 
-    def test_setting_offset_causes_user_limits_to_be_updated(self):
+    def test_setting_offset_causes_user_limits_to_be_updated(self, motor):
         # Get initial limits
-        low, high = self.motor.userlimits
+        low, high = motor.userlimits
 
         # Set offset
         new_offset = 50
-        self.motor.offset = new_offset
+        motor.offset = new_offset
 
         # Check new limits
         assert (low - new_offset,
-                high - new_offset) == self.motor.userlimits
+                high - new_offset) == motor.userlimits
 
         # Set new custom userlimits
         delta = 10
-        self.motor.userlimits = (low - new_offset + delta,
-                                 high - new_offset - delta)
+        motor.userlimits = (low - new_offset + delta,
+                            high - new_offset - delta)
         assert (low - new_offset + delta,
-                high - new_offset - delta) == self.motor.userlimits
+                high - new_offset - delta) == motor.userlimits
 
         # Now, the offset is changed again
         new_offset = 2000
-        self.motor.offset = new_offset
+        motor.offset = new_offset
 
         # Check new limits
-        assert (-2100, -1900) == self.motor.userlimits
+        assert (-2100, -1900) == motor.userlimits
 
-    def test_set_speed_limits(self):
+    def test_set_speed_limits(self, motor):
+        assert motor.speedlimits == (2, 10)
 
-        assert self.motor.speedlimits == (2, 10)
-
-        self.motor.speed = 9
-        assert self.motor.speed == 9
-
-        with pytest.raises(LimitError):
-            self.motor.speed = 1
+        motor.speed = 9
+        assert motor.speed == 9
 
         with pytest.raises(LimitError):
-            self.motor.speed = 12
+            motor.speed = 1
 
-    def test_read_speed_limits(self):
+        with pytest.raises(LimitError):
+            motor.speed = 12
 
+    def test_read_speed_limits(self, motor):
         # EPICS denotes "no speed limit" as 0
-        self.motor.values['maxspeed'] = 0
-        assert self.motor.speedlimits == (2, np.inf)
+        motor.values['maxspeed'] = 0
+        assert motor.speedlimits == (2, np.inf)
 
-        self.motor.speed = 1e308
-        assert self.motor.speed == 1e308
+        motor.speed = 1e308
+        assert motor.speed == 1e308
 
-    def test_move(self):
-
+    def test_move(self, motor):
         # Move motor to defined position. This "movement" happens instantly
-        self.motor.maw(10)
-        assert self.motor.read() == 10
-        assert self.motor.isAtTarget()
+        motor.maw(10)
+        assert motor.read() == 10
+        assert motor.isAtTarget()
 
         # Set user limits and then try to move outside it
-        (minlim, maxlim) = self.motor.userlimits
+        (minlim, maxlim) = motor.userlimits
         with pytest.raises(LimitError):
-            self.motor.maw(minlim - 1)
+            motor.maw(minlim - 1)
 
         with pytest.raises(LimitError):
-            self.motor.maw(maxlim + 1)
+            motor.maw(maxlim + 1)
 
         # Let the motor miss its target (detected via EPICS flag)
-        self.motor.maw(5)
-        self.motor.values['miss'] = 1
-        assert not self.motor.isAtTarget()
-        self.motor.values['miss'] = 0
+        motor.maw(5)
+        motor.values['miss'] = 1
+        assert not motor.isAtTarget()
+        motor.values['miss'] = 0
 
         # Let the motor miss its target (detected by difference between target
         # and actual position)
-        self.motor.maw(15)
-        self.motor.values['readpv'] = 12
-        assert not self.motor.isAtTarget()
+        motor.maw(15)
+        motor.values['readpv'] = 12
+        assert not motor.isAtTarget()
 
     @pytest.mark.timeout(5)
-    def test_reference_done_for_some_time(self):
+    def test_reference_done_for_some_time(self, motor):
 
         def reference_run(motor, runtime):
             def simulate_hardware(motor, runtime):
@@ -390,14 +393,14 @@ class DefTest:
         runtime = 0.2
 
         # Start the reference run
-        thread = threading.Thread(target=reference_run, args=(self.motor, runtime))
+        thread = threading.Thread(target=reference_run, args=(motor, runtime))
         thread.start()
 
         # Wait until the simulated reference run has started
         time.sleep(0.5*runtime)
 
         # Motor is now doing a reference run
-        stat = self.motor.status()
+        stat = motor.status()
         assert stat[0] == status.BUSY
         assert stat[1] == MSG_REFERENCE
 
@@ -411,12 +414,12 @@ class DefTest:
             pytest.fail('Simulated reference run did not finish in expected time')
 
         # Motor has finished after the reference method returns
-        stat = self.motor.status()
+        stat = motor.status()
         assert stat[0] == status.OK
         assert stat[1] == ''
 
     @pytest.mark.timeout(5)
-    def test_reference_done_at_home(self):
+    def test_reference_done_at_home(self, motor):
 
         def reference_run(motor, runtime):
             def simulate_hardware(motor, runtime):
@@ -436,14 +439,14 @@ class DefTest:
         runtime = 0.2
 
         # Start the reference run
-        thread = threading.Thread(target=reference_run, args=(self.motor, runtime))
+        thread = threading.Thread(target=reference_run, args=(motor, runtime))
         thread.start()
 
         # Wait until the simulated reference run has started
         time.sleep(0.5*runtime)
 
         # Motor is now doing a reference run
-        stat = self.motor.status()
+        stat = motor.status()
         assert stat[0] == status.BUSY
         assert stat[1] == MSG_REFERENCE
 
@@ -456,225 +459,233 @@ class DefTest:
             pytest.fail('Simulated reference run did not finish in expected time')
 
         # Motor has finished after the reference method returns
-        stat = self.motor.status()
+        stat = motor.status()
         assert stat[0] == status.OK
         assert stat[1] == 'homed'
 
-    def test_at_home(self):
-        stat = self.motor.status()
+    def test_at_home(self, motor):
+        stat = motor.status()
         assert stat[0] == status.OK
         assert stat[1] == ''
 
         # Set to "at home"
-        self.motor.values['status'] = int('0000000010000000', 2)
-        stat = self.motor.status()
+        motor.values['status'] = int('0000000010000000', 2)
+        stat = motor.status()
         assert stat[0] == status.OK
         assert stat[1] == 'homed'
 
-
-    def test_status_with_errormsgpv(self):
-        stat = self.motor.status()
+    def test_status_with_errormsgpv(self, motor):
+        stat = motor.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set the motor in moving state
-        self.motor.values['moving'] = 1
-        stat = self.motor.status()
+        motor.values['moving'] = 1
+        stat = motor.status()
         assert stat[0] == status.BUSY
         assert stat[1]
 
         # Stop the motor
-        self.motor.values['moving'] = 0
-        stat = self.motor.status()
+        motor.values['moving'] = 0
+        stat = motor.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set an error
         errormsg = 'Something went wrong'
-        self.motor.values['errormsgpv'] = errormsg
-        self.motor.values['alarm_severity'] = 2
-        stat = self.motor.status()
+        motor.values['errormsgpv'] = errormsg
+        motor.values['alarm_severity'] = 2
+        stat = motor.status()
         assert stat[0] == status.ERROR
         assert errormsg in stat[1]
 
         # Reset the error
-        self.motor.values['errormsgpv'] = ''
-        self.motor.values['alarm_severity'] = 0
-        stat = self.motor.status()
+        motor.values['errormsgpv'] = ''
+        motor.values['alarm_severity'] = 0
+        stat = motor.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set an error while moving
-        self.motor.values['moving'] = 1
+        motor.values['moving'] = 1
         errormsg = 'Something went wrong'
-        self.motor.values['errormsgpv'] = errormsg
-        self.motor.values['alarm_severity'] = 2
-        stat = self.motor.status()
+        motor.values['errormsgpv'] = errormsg
+        motor.values['alarm_severity'] = 2
+        stat = motor.status()
         assert stat[0] == status.ERROR
         assert errormsg in stat[1]
 
         # Reset the error
-        self.motor.values['moving'] = 0
-        self.motor.values['errormsgpv']  = ''
-        self.motor.values['alarm_severity'] = 0
-        stat = self.motor.status()
+        motor.values['moving'] = 0
+        motor.values['errormsgpv'] = ''
+        motor.values['alarm_severity'] = 0
+        stat = motor.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set a high limit switch warning
-        self.motor.values['highlimitswitch'] = 1
-        stat = self.motor.status()
+        motor.values['highlimitswitch'] = 1
+        stat = motor.status()
         assert stat[0] == status.WARN
         assert stat[1]
 
         # Reset the warning
-        self.motor.values['highlimitswitch'] = 0
-        stat = self.motor.status()
+        motor.values['highlimitswitch'] = 0
+        stat = motor.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set a low limit switch warning
-        self.motor.values['lowlimitswitch'] = 1
-        stat = self.motor.status()
+        motor.values['lowlimitswitch'] = 1
+        stat = motor.status()
         assert stat[0] == status.WARN
         assert stat[1]
 
         # Reset the warning
-        self.motor.values['lowlimitswitch'] = 0
-        stat = self.motor.status()
+        motor.values['lowlimitswitch'] = 0
+        stat = motor.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set a soft limit violation
-        self.motor.values['softlimit'] = 1
-        stat = self.motor.status()
+        motor.values['softlimit'] = 1
+        stat = motor.status()
         assert stat[0] == status.WARN
         assert stat[1]
 
-    def test_status_without_errormsgpv(self):
-
-        stat = self.motor_no_opt_pv.status()
+    def test_status_without_errormsgpv(self, motor, motor_no_opt_pv):
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set the motor in moving state
-        self.motor_no_opt_pv.values['moving'] = 1
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['moving'] = 1
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.BUSY
         assert stat[1]
 
         # Stop the motor
-        self.motor_no_opt_pv.values['moving'] = 0
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['moving'] = 0
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set an error
-        self.motor_no_opt_pv.values['alarm_severity'] = 2
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['alarm_severity'] = 2
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.ERROR
-        assert self.motor._default_errormsg in stat[1]
+        assert motor._default_errormsg in stat[1]
 
         # Reset the error
-        self.motor_no_opt_pv.values['alarm_severity'] = 0
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['alarm_severity'] = 0
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set an error while moving
-        self.motor_no_opt_pv.values['moving'] = 1
-        self.motor_no_opt_pv.values['alarm_severity'] = 2
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['moving'] = 1
+        motor_no_opt_pv.values['alarm_severity'] = 2
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.ERROR
-        assert self.motor._default_errormsg in stat[1]
+        assert motor._default_errormsg in stat[1]
 
         # Reset the error
-        self.motor_no_opt_pv.values['moving'] = 0
-        self.motor_no_opt_pv.values['alarm_severity'] = 0
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['moving'] = 0
+        motor_no_opt_pv.values['alarm_severity'] = 0
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set a high limit switch warning
-        self.motor_no_opt_pv.values['highlimitswitch'] = 1
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['highlimitswitch'] = 1
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.WARN
         assert stat[1]
 
         # Reset the warning
-        self.motor_no_opt_pv.values['highlimitswitch'] = 0
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['highlimitswitch'] = 0
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set a low limit switch warning
-        self.motor_no_opt_pv.values['lowlimitswitch'] = 1
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['lowlimitswitch'] = 1
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.WARN
         assert stat[1]
 
         # Reset the warning
-        self.motor_no_opt_pv.values['lowlimitswitch'] = 0
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['lowlimitswitch'] = 0
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.OK
         assert not stat[1]
 
         # Set a soft limit violation
-        self.motor_no_opt_pv.values['softlimit'] = 1
-        stat = self.motor_no_opt_pv.status()
+        motor_no_opt_pv.values['softlimit'] = 1
+        stat = motor_no_opt_pv.status()
         assert stat[0] == status.WARN
         assert stat[1]
 
-    def test_jogmode(self):
-
+    def test_jogmode(self, motor, jogmove):
         # Motor is idle
-        stat = self.motor.status()
+        stat = motor.status()
         assert stat[0] == status.OK
 
         # Jogmove forward
-        self.jogmove.start(10)
-        stat = self.motor.status()
+        jogmove.start(10)
+        stat = motor.status()
         assert stat[0] == status.BUSY
         assert stat[1] == MSG_VELOCITY
-        assert self.motor._get_pv('jogspeed') == 10
-        assert self.motor._get_pv('jogforward') == 1
-        assert self.motor._get_pv('jogreverse') == 0
+        assert motor._get_pv('jogspeed') == 10
+        assert motor._get_pv('jogforward') == 1
+        assert motor._get_pv('jogreverse') == 0
 
         # Stop
-        self.motor.stop()
-        stat = self.motor.status()
+        motor.stop()
+        stat = motor.status()
         assert stat[0] == status.OK
         assert stat[1] == ''
-        assert self.motor._get_pv('jogforward') == 0
-        assert self.motor._get_pv('jogreverse') == 0
+        assert motor._get_pv('jogforward') == 0
+        assert motor._get_pv('jogreverse') == 0
 
         # Jogmove reverse
-        self.jogmove.move(-10)
-        stat = self.motor.status()
+        jogmove.move(-10)
+        stat = motor.status()
         assert stat[0] == status.BUSY
         assert stat[1] == MSG_VELOCITY
-        assert self.motor._get_pv('jogspeed') == 10
-        assert self.motor._get_pv('jogforward') == 0
-        assert self.motor._get_pv('jogreverse') == 1
+        assert motor._get_pv('jogspeed') == 10
+        assert motor._get_pv('jogforward') == 0
+        assert motor._get_pv('jogreverse') == 1
 
-    def test_read_units(self):
-        assert self.motor.unit == 'mm'
-        assert self.motor.parameters['velocity_move'].unit  == 'mm / s'
-        assert self.jogmove.unit == 'mm / s'
+    def test_read_units(self, motor, jogmove):
+        assert motor.unit == 'mm'
+        assert motor.parameters['velocity_move'].unit == 'mm / s'
+        assert jogmove.unit == 'mm / s'
+
 
 # This class runs the actual tests
 class TestEpicsMotor(DefTest):
     pass
 
-class TestDerivedFakeEpicsMotor:
-    @pytest.fixture(autouse=True)
-    def prepare(self, session):
-        self.session = session
-        self.motor = self.session.getDevice('motor1')
-        self.motor_no_opt_pv = self.session.getDevice('motor2')
 
-    def test_record_fields(self):
-        motor_fields = self.motor._record_fields
-        motor_no_opt_pv_fields = self.motor_no_opt_pv._record_fields
+class TestDerivedFakeEpicsMotor:
+
+    @pytest.fixture(autouse=True)
+    def motor(self, session):
+        m = session.getDevice('motor1')
+        m.reset()
+        yield m
+        m.reset()
+
+    @pytest.fixture(autouse=True)
+    def motor_no_opt_pv(self, session):
+        m = session.getDevice('motor2')
+        m.reset()
+        yield m
+        m.reset()
+
+    def test_record_fields(self, motor, motor_no_opt_pv):
+        motor_fields = motor._record_fields
+        motor_no_opt_pv_fields = motor_no_opt_pv._record_fields
         difference = set(motor_no_opt_pv_fields) ^ set(motor_fields)
         assert difference

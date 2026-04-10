@@ -24,11 +24,9 @@
 """
 This module contains the interface to the Sinq Shutter Control.
 """
-from time import time as currenttime
-
 from nicos.core import SIMULATION, Moveable, Override, Param, oneof, pvname, \
     status
-from nicos.devices.epics.pyepics import EpicsDevice
+from nicos.devices.epics import EpicsDevice
 
 
 class Shutter(EpicsDevice, Moveable):
@@ -37,7 +35,7 @@ class Shutter(EpicsDevice, Moveable):
     """
 
     parameters = {
-        'shutterpvprefix':
+        'pvprefix':
             Param('Prefix for Shutter PV Interface',
                   type=pvname,
                   mandatory=True,
@@ -48,101 +46,128 @@ class Shutter(EpicsDevice, Moveable):
                   userparam=False,
                   internal=False,
                 ),
+        'preparing':
+            Param('Internal: set when shutter movement triggered',
+                  type=bool,
+                  default=False,
+                  mandatory=False,
+                  settable=True,
+                  volatile=False,
+                  unit='',
+                  fmtstr='%s',
+                  userparam=False,
+                  internal=True,
+                  ),
     }
 
     parameter_overrides = {
         'fmtstr': Override(default='%s'),
         'unit': Override(default='', internal=True, settable=False,
                          userparam=False, mandatory=False),
+        'monitor': Override(default=True, prefercache=False),
     }
 
-    _pv_mapping = {
+    _shutterpvs = {
         'readpv': 'OPEN',
         'writepv': 'SHUTTER',
         'statuspv': 'STATUS',
         'statusmsgpv': 'STATUS-Msg.SVAL',
+        'resetpv': 'RESET',
     }
 
+    _cache_relations = {
+        'readpv': 'value',
+    }
+
+    _STATUS_CODES = {0: status.OK, 1: status.BUSY, 2: status.WARN, 3: status.ERROR}
+
     def _get_pv_parameters(self):
-        return self._pv_mapping.keys()
+        return self._shutterpvs.keys()
+
+    def _get_status_parameters(self):
+        return {'readpv', 'statuspv', 'statusmsgpv'}
+
+    def _subscribe(self, change_callback, pvname, pvparam):
+        return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
+                                             self.connection_change_callback,
+                                             as_string=True)
 
     def _get_pv_name(self, pvparam):
-        return ':'.join([
-            self.shutterpvprefix,
-            self._pv_mapping[pvparam]
-        ])
-
-    def _register_pv_callbacks(self):
-        def update_read_value(**kw):
-            value = self._inv_mapping[bool(kw['value'])]
-            self._cache.put(self._name, 'value', value, currenttime())
-
-        self._pvs['readpv'].add_callback(update_read_value)
-
-        def update_status_value(**kw):
-            self._cache.put(self._name, 'status', self.doStatus(), currenttime())
-
-        self._pvs['statuspv'].add_callback(update_status_value)
-        self._pvs['statusmsgpv'].add_callback(update_status_value)
+        if pvparam in self._shutterpvs.keys():
+            return f'{self.pvprefix}:{self._shutterpvs[pvparam]}'
+        return EpicsDevice._get_pv_name(self, pvparam)
 
     def doInit(self, mode):
         if mode == SIMULATION:
-            self.valuetype = oneof('open', 'closed')
+            self.valuetype = oneof('Open', 'Closed')
             return
 
-        # Get the meaning of False and True if specified in Epics Database
-        self._mapping = dict(zip(
-            self._get_pvctrl('readpv', 'enum_strs', ('False', 'True')),
-            [False, True]
-        ))
+        EpicsDevice.doInit(self, mode)
 
-        self._inv_mapping = {
-            v: k
-            for k, v in self._mapping.items()
-        }
+        # Get the meaning of False and True if specified in Epics Database
+        choices = self._epics_wrapper.get_value_choices(self._get_pv_name('readpv'))
+        self._mapping = dict(zip(
+            choices, range(len(choices))
+        ))
 
         self.valuetype = oneof(*self._mapping)
 
+        # Sets the target to the current shutter readback state during
+        # initialisation, instead of using what was in the Cache, so that Nicos
+        # doesn't potentially think that the shutter is moving.
+        self._setROParam(
+            'target',
+            self._get_pv('readpv', as_string=True)
+        )
+
     def doRead(self, maxage=0):
-        return self._inv_mapping[bool(self._get_pv('readpv'))]
+        return self._get_pv('readpv', as_string=True)
+
+    def doStart(self, value):
+        if value != self.read(0):
+            self.preparing = True
+            self.status(0)
+            self._put_pv('writepv', value)
+
+    def doStop(self):
+        # We are unable to stop a change when it is already in motion, so we
+        # don't even try
+        self.log.warning("Shutter can't be stopped once a movement is started!")
+
+    def doReset(self):
+        self.preparing = False
+        # I have seen, that sometimes the SPS doesn't actually execute the
+        # command and then we end up in a slightly weird state. The user should
+        # have an escape hatch.
+        self._put_pv('resetpv', 1)
+
+    def doStatus(self, maxage=0):
+        try:
+
+            status_code = self._get_pv('statuspv')
+            status_msg = self._get_pv('statusmsgpv', as_string=True)
+
+            if self.preparing and status_code != 0:
+                self._setROParam('preparing', False)
+
+            if self.preparing and status_code == 0:
+                return status.BUSY, 'Movement requested'
+            else:
+                return self._STATUS_CODES.get(status_code, status.UNKNOWN), status_msg
+
+        except TimeoutError:
+            return status.ERROR, 'timeout reading shutter status'
 
     def doIsAllowed(self, pos):
-        (status_code, msg) = self.doStatus(0)
+        (status_code, msg) = self.status(0)
         if status_code != status.OK:
             if msg:
                 return (False, msg)
             elif status_code == status.BUSY:
                 return (False, 'Shutter is already moving')
             else:
-                return (False, 'Changing the shutter state is not possible')
+                return (False, 'Open/Closing the shutter is not possible')
         return (True, '')
-
-    def doStart(self, target):
-        # The shutter works in a "toggle" operation - regardless of the target
-        # which is sent to the driver, the driver always sends the same command
-        # to the shutter which then simply toggles the status. This means that
-        # e.g. trying to "open" the shutter while it is already open will
-        # actually close it! Hence we only forward the command if the shutter
-        # is idle and in the other state.
-        if target != self.doRead(0):
-            self._put_pv('writepv', int(self._mapping[target]))
-
-    def doStatus(self, maxage=0):
-        status_code = self._get_pv('statuspv')
-        status_msg = self._get_pv('statusmsgpv')
-
-        if status_code == 0:
-            status_code = status.OK
-        elif status_code == 1:
-            status_code = status.BUSY
-        elif status_code == 2:
-            status_code = status.WARN
-        elif status_code == 3:
-            status_code = status.ERROR
-        else:
-            status_code = status.UNKNOWN
-
-        return status_code, status_msg
 
     # Disable Poller
     def doReadPollinterval(self):

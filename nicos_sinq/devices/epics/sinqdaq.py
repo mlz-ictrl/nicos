@@ -90,6 +90,14 @@ class DAQEpicsDevice(EpicsDevice):
     def doReadUnit(self):
         return self._epics_wrapper.get_units(self._param_to_pv['readpv'])
 
+    def _sev_status_map(self, pvname):
+        severity, msg = self.get_alarm_status(pvname)
+        if severity == status.UNKNOWN and msg == "LINK":
+            return severity, "No Connection to Detector Hardware"
+        if severity in [status.ERROR, status.WARN, status.UNKNOWN]:
+            return severity, msg
+        return status.OK, ''
+
 
 class DAQChannelEpicsDevice(DAQEpicsDevice):
     """
@@ -176,6 +184,10 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
 
     def doStatus(self, maxage=0):
         try:
+            severity, msg = self._sev_status_map('readpv')
+            if severity != status.OK:
+                return severity, msg
+
             if self._get_pv('statuspv') or self.preparing:
                 return status.BUSY, ''
 
@@ -254,6 +266,10 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
 
     def doStatus(self, maxage=0):
         try:
+            severity, msg = self._sev_status_map('readpv')
+            if severity != status.OK:
+                return severity, msg
+
             if self._get_pv('statuspv') or self.preparing:
                 return status.BUSY, ''
             return status.OK, ''
@@ -565,6 +581,10 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def doStatus(self, maxage=0):
         try:
+            severity, msg = self._sev_status_map('statuspv')
+            if severity != status.OK:
+                return severity, msg
+
             st_code = self._get_pv('statuspv')
 
             started_count = self.started_count
@@ -750,6 +770,10 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
 
     def doStatus(self, maxage=0):
         try:
+            severity, msg = self._sev_status_map('readpv')
+            if severity != status.OK:
+                return severity, msg
+
             if self.isEnabled():
                 if self.target != self.read():
                     return status.BUSY, ''
@@ -857,6 +881,10 @@ class DAQMinThreshold(DAQEpicsDevice, HasLimits, Moveable):
 
     def doStatus(self, maxage=0):
         try:
+            severity, msg = self._sev_status_map('readpv')
+            if severity != status.OK:
+                return severity, msg
+
             if self._attached_min_rate_channel.isEnabled():
                 channel_status, _ = self._attached_min_rate_channel.status()
                 if channel_status == status.BUSY or self.target != self.read():
@@ -924,6 +952,10 @@ class DAQGate(DAQChannelEpicsDevice, Moveable):
 
     def doStatus(self, maxage=0):
         try:
+            severity, msg = self._sev_status_map('readpv')
+            if severity != status.OK:
+                return severity, msg
+
             if self.read() != self.target:
                 return status.BUSY, ''
             return status.OK, ''
