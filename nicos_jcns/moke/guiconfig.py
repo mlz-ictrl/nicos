@@ -35,13 +35,13 @@ main_window = tabbed(
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
     ('MOKE',
         vsplit(
-            panel('nicos_jcns.moke01.gui.moke.MokePanel'),
+            panel('nicos_jcns.moke.gui.moke.MokePanel'),
             setups='moke',
         ),
     ),
     ('Measurement history',
         vsplit(
-            panel('nicos_jcns.moke01.gui.moke.MokeHistory'),
+            panel('nicos_jcns.moke.gui.moke.MokeHistory'),
             setups='moke',
         ),
     ),

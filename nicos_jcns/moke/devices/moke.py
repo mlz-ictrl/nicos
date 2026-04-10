@@ -38,7 +38,7 @@ from nicos.devices.generic.magnet import MagnetWithCalibrationCurves
 from nicos.utils import createThread
 from nicos.utils.functioncurves import Curve2D
 
-from nicos_jcns.moke01.utils import fix_filename, generate_output
+from nicos_jcns.moke.utils import fix_filename, generate_output
 
 
 class MokeMagnet(MagnetWithCalibrationCurves):

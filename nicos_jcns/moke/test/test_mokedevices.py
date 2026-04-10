@@ -27,7 +27,7 @@ import pytest
 
 pytest.importorskip('uncertainties', reason='Uncertainties module is missing')
 
-from nicos_jcns.moke01.utils import calculate, generate_intvb
+from nicos_jcns.moke.utils import calculate, generate_intvb
 
 try:
     import tango
@@ -37,7 +37,7 @@ except ModuleNotFoundError:
 from nicos.utils.functioncurves import AffineScalarFunc, Curve2D, \
     CurvePoint2D, Curves
 
-session_setup = 'moke01'
+session_setup = 'moke'
 
 
 @pytest.mark.skipif(tango is None, reason='pytango module is missing')

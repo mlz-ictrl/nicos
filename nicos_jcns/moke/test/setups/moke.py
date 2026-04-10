@@ -21,13 +21,13 @@
 #
 # *****************************************************************************
 
-name = 'test_moke01 setup'
+name = 'test_moke setup'
 
 from nicos.utils.functioncurves import Curves
-from nicos_jcns.moke01.utils import generate_intvb
+from nicos_jcns.moke.utils import generate_intvb
 
 devices = {
-    'MagB': device('nicos_jcns.moke01.devices.virtual.VirtualMokeMagnet',
+    'MagB': device('nicos_jcns.moke.devices.virtual.VirtualMokeMagnet',
         unit = 'mT',
         intensity = 'Intensity',
         magsensor = 'Mag_sensor',
@@ -46,14 +46,14 @@ devices = {
         pollinterval = 0.5,
         fmtstr = '%.3f',
     ),
-    'Intensity': device('nicos_jcns.moke01.devices.virtual.VirtualMokeSensor',
+    'Intensity': device('nicos_jcns.moke.devices.virtual.VirtualMokeSensor',
         mappeddevice = 'Mag_sensor',
         unit = 'V',
         valuemap = generate_intvb(-1000, 1000),
         error = 0.02,
         pollinterval = 0.5,
     ),
-    'Mag_sensor': device('nicos_jcns.moke01.devices.virtual.VirtualMokeSensor',
+    'Mag_sensor': device('nicos_jcns.moke.devices.virtual.VirtualMokeSensor',
         mappeddevice = 'PS_current',
         unit = 'mT',
         valuemap = Curves([[(-1000, -1000), (-250, -750), (300, 750), (1000, 1000)],
@@ -61,7 +61,7 @@ devices = {
         error = 0.01,
         pollinterval = 0.5,
     ),
-    'PS_current': device('nicos_jcns.moke01.devices.virtual.VirtualPowerSupply',
+    'PS_current': device('nicos_jcns.moke.devices.virtual.VirtualPowerSupply',
         unit = 'A',
         abslimits = (-1000, 1000),
         ramp = 1e4,
