@@ -29,7 +29,7 @@ commands while the currently in position beamstop is being changed by the SPS.
 from nicos.core import SIMULATION, Attach, Device, IsController, Moveable, \
     Override, Param, multiStatus, oneof, pvname, status
 from nicos.devices.epics import EpicsDevice
-
+from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 
 class Beamstop(EpicsDevice, Moveable):
     """
@@ -146,7 +146,7 @@ class Beamstop(EpicsDevice, Moveable):
             status_msg = self._get_pv('statusmsgpv', as_string=True)
 
         except TimeoutError:
-            return status.ERROR, 'timeout reading beamstop status'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
         else:
             if self.preparing and status_code > 0:

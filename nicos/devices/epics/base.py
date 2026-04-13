@@ -35,6 +35,7 @@ from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, HasPrecision, Moveable, Override, Param, \
     Readable, anytype, dictof, floatrange, none_or, pvname, status
 from nicos.devices.abstract import MappedMoveable, MappedReadable
+from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 from nicos.utils import HardwareStub
 
 __all__ = [
@@ -144,6 +145,8 @@ class EpicsDevice(DeviceMixinBase):
             self.log.debug('%s connected!', name)
         else:
             self.log.warning('%s disconnected!', name)
+        current_status = self.doStatus()
+        self._cache.put(self._name, 'status', current_status, time.time())
 
     def _get_cache_relation(self, param):
         # Returns the cache key associated with the parameter.
@@ -171,7 +174,7 @@ class EpicsDevice(DeviceMixinBase):
         try:
             return self.get_alarm_status('readpv')
         except TimeoutError:
-            return status.ERROR, 'timeout reading status'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
     def _setMode(self, mode):
         # remove the PVs on entering simulation mode, to prevent
@@ -478,7 +481,7 @@ class EpicsAnalogMoveable(HasLimits, HasPrecision, EpicsMoveable):
     def doStatus(self, maxage=0):
         severity, msg = EpicsMoveable.doStatus(self, maxage)
 
-        if severity in [status.ERROR, status.WARN]:
+        if severity != status.OK:
             return severity, msg
 
         at_target = HasPrecision.doIsAtTarget(self, self.doRead(),
@@ -541,6 +544,9 @@ class EpicsMappedReadable(MappedReadable, EpicsReadable):
         return self._get_pv('readpv', as_string=True)
 
     def doStatus(self, maxage=0):
+        stat, msg = EpicsDevice.doStatus(self, maxage)
+        if stat != status.OK:
+            return stat, msg
         stat, msg = MappedReadable.doStatus(self, maxage)
         return stat, '' if stat == status.OK else msg
 
@@ -603,6 +609,9 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
             EpicsMoveable.doStop(self)
 
     def doStatus(self, maxage=0):
+        stat, msg = EpicsDevice.doStatus(self, maxage)
+        if stat != status.OK:
+            return stat, msg
         stat, msg = MappedMoveable.doStatus(self, maxage)
         return stat, '' if stat == status.OK else msg
 

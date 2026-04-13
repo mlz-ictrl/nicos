@@ -34,7 +34,7 @@ from nicos.core.mixins import CanDisable, HasOffset
 from nicos.core.params import anytype, limits
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics import EpicsAnalogMoveable
-from nicos.devices.epics.status import SEVERITY_TO_STATUS
+from nicos.devices.epics.status import SEVERITY_TO_STATUS, EPICS_TIMEOUT_MSG
 
 # Type of the last issued move command known to NICOS - used in doStatus to
 # return the correct status message in case the motor is moving
@@ -543,7 +543,12 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         return stat, msg_txt
 
     def doStatus(self, maxage=0):
-        moving = self._get_pv('moving')
+        # Detect timeout similar to the base EpicsDevice
+        try:
+            moving = self._get_pv('moving')
+        except TimeoutError:
+            return status.ERROR, EPICS_TIMEOUT_MSG
+
         startup_failed = False
 
         # Is the motor currently starting a movement?

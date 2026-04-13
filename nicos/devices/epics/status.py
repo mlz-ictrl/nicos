@@ -35,3 +35,8 @@ STAT_TO_STATUS = {
     9: status.ERROR,  # Communication error
     17: status.UNKNOWN,  # Invalid/unknown IOC state
 }
+
+# A timeout is an ERROR, but since there are more errors than timeout errors
+# we use a string consistently to be able to differentiate a timeout error
+# from other errors.
+EPICS_TIMEOUT_MSG = 'timeout reading status'
