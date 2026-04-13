@@ -2,7 +2,7 @@ description = 'Neutron Grating Interferometer'
 
 group = 'optional'
 
-excludes = ['ngi', 'ngi_ill', 'neutrosense', 'ngi_icon', 'ngi_ill_g1']
+excludes = ['ngi', 'ngi_ill', 'neutrosense', 'ngi_icon', 'ngi_ill_g1', 'sample_stage']
 
 tango_host = 'phytron2.antareslab'
 
