@@ -52,8 +52,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>582</width>
-        <height>1150</height>
+        <width>593</width>
+        <height>1117</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -144,7 +144,7 @@
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_8">
                   <property name="text">
-                   <string>Sample Rate</string>
+                   <string>Sample Rate (Hz)</string>
                   </property>
                  </widget>
                 </item>
@@ -157,14 +157,14 @@
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_9">
                   <property name="text">
-                   <string>V_min</string>
+                   <string>V_min (V)</string>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="0">
                  <widget class="QLabel" name="label_10">
                   <property name="text">
-                   <string>V_max</string>
+                   <string>V_max (V)</string>
                   </property>
                  </widget>
                 </item>
@@ -179,7 +179,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label">
               <property name="text">
-               <string>Amplitude</string>
+               <string>Amplitude (V)</string>
               </property>
              </widget>
             </item>
@@ -192,14 +192,14 @@
             <item row="1" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
-               <string>Frequency Center</string>
+               <string>Frequency Center (Hz)</string>
               </property>
              </widget>
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label_6">
               <property name="text">
-               <string>Mute Time</string>
+               <string>Mute Time (s)</string>
               </property>
              </widget>
             </item>
@@ -217,7 +217,7 @@
             <item row="1" column="0">
              <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>Frequency Delta</string>
+               <string>Frequency Delta (Hz)</string>
               </property>
              </widget>
             </item>
@@ -230,7 +230,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>Duration</string>
+               <string>Duration (s)</string>
               </property>
              </widget>
             </item>
@@ -283,7 +283,7 @@
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_28">
                   <property name="text">
-                   <string>Sample Rate</string>
+                   <string>Sample Rate (Hz)</string>
                   </property>
                  </widget>
                 </item>
@@ -340,7 +340,7 @@
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_29">
                   <property name="text">
-                   <string>V_min</string>
+                   <string>V_min (V)</string>
                   </property>
                  </widget>
                 </item>
@@ -354,7 +354,7 @@
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_27">
                   <property name="text">
-                   <string>Sample Rate</string>
+                   <string>Sample Rate (Hz)</string>
                   </property>
                  </widget>
                 </item>
@@ -370,7 +370,7 @@
                 <item row="3" column="0">
                  <widget class="QLabel" name="label_30">
                   <property name="text">
-                   <string>V_max</string>
+                   <string>V_max (V)</string>
                   </property>
                  </widget>
                 </item>
@@ -400,7 +400,7 @@
                <item row="0" column="0">
                 <widget class="QLabel" name="label_15">
                  <property name="text">
-                  <string>Duration</string>
+                  <string>Duration (s)</string>
                  </property>
                 </widget>
                </item>
@@ -424,7 +424,7 @@
                <item row="0" column="0">
                 <widget class="QLabel" name="label_14">
                  <property name="text">
-                  <string>Amplitude</string>
+                  <string>Amplitude (V)</string>
                  </property>
                 </widget>
                </item>
@@ -434,7 +434,7 @@
                <item row="1" column="0">
                 <widget class="QLabel" name="label_16">
                  <property name="text">
-                  <string>Frequency Center</string>
+                  <string>Frequency Center (Hz)</string>
                  </property>
                 </widget>
                </item>
@@ -460,7 +460,7 @@
                <item row="0" column="0">
                 <widget class="QLabel" name="label_18">
                  <property name="text">
-                  <string>Measurement Time</string>
+                  <string>Measurement Time (s)</string>
                  </property>
                 </widget>
                </item>
@@ -477,7 +477,7 @@
                <item row="0" column="0">
                 <widget class="QLabel" name="label_17">
                  <property name="text">
-                  <string>Ringdown</string>
+                  <string>Ringdown (s)</string>
                  </property>
                 </widget>
                </item>
@@ -500,7 +500,7 @@
                <item row="0" column="0">
                 <widget class="QLabel" name="label_21">
                  <property name="text">
-                  <string>Lowpass</string>
+                  <string>Lowpass (Hz)</string>
                  </property>
                 </widget>
                </item>
@@ -510,7 +510,7 @@
                <item row="1" column="0">
                 <widget class="QLabel" name="label_19">
                  <property name="text">
-                  <string>Mixdown Frequency</string>
+                  <string>Mixdown Frequency (Hz)</string>
                  </property>
                 </widget>
                </item>
@@ -524,7 +524,7 @@
                <item row="1" column="0">
                 <widget class="QLabel" name="label_22">
                  <property name="text">
-                  <string>Mixdown Offset</string>
+                  <string>Mixdown Offset (Hz)</string>
                  </property>
                 </widget>
                </item>
@@ -560,7 +560,7 @@
                <item row="0" column="0">
                 <widget class="QLabel" name="label_13">
                  <property name="text">
-                  <string>Background Interval</string>
+                  <string>Background Interval (s)</string>
                  </property>
                 </widget>
                </item>
