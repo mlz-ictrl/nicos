@@ -106,6 +106,9 @@ class Beamstop(EpicsDevice, Moveable):
 
         self.valuetype = oneof(*range(absmin, absmax + 1))
 
+        # Sets the target to the current beamstop readback state during
+        # initialisation, instead of using what was in the Cache, so that Nicos
+        # doesn't potentially think that the beamstop is being changed.
         self._setROParam(
             'target',
             int(self._get_pv('readpv', as_string=False))
@@ -153,9 +156,7 @@ class Beamstop(EpicsDevice, Moveable):
                 return status.BUSY, 'Change requested'
             elif status_code == 0:
                 return status.OK, ''
-            else:
-                return self._STATUS_CODES.get(status_code, status.UNKNOWN), status_msg
-
+            return self._STATUS_CODES.get(status_code, status.UNKNOWN), status_msg
 
     def doIsAllowed(self, pos):
         (status_code, msg) = self.status(0)
