@@ -58,6 +58,8 @@ class Experiment(CoreExperiment):
         'sendmail': Override(default=False),
         'zipdata': Override(default=False),
         'elog': Override(default=False),
+        'title': Override(settable=True),
+        'users': Override(settable=True),
     }
 
     parameters = {
@@ -96,6 +98,12 @@ class Experiment(CoreExperiment):
         else:
             prop = self.serviceexp
         return path.join(self.dataroot, 'data', time.strftime('%Y'), prop)
+
+    def doWriteTitle(self, title):
+        self.update(title=title)
+
+    def doWriteUsers(self, users):
+        self.update(users=users)
 
     def _newPropertiesHook(self, proposal, kwds):
         if 'proposal_title' in kwds:

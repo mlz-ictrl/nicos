@@ -202,7 +202,7 @@ class CaprotoWrapper:
             # Unpack the numpy type, so that the cache isn't filled with
             # pickled objects
             # Apparently, this is faster than using the .item() method.
-            return getattr(scalar, 'tolist', lambda: scalar)()
+            return tolist() if (tolist := getattr(scalar, 'tolist', None)) else scalar
         return response.data
 
     def put_pv_value(self, pvname, value, timeout=None):

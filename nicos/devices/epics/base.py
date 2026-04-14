@@ -169,12 +169,9 @@ class EpicsDevice(DeviceMixinBase):
     def doStatus(self, maxage=0):
         # For most devices we only care about the status of the read PV
         try:
-            severity, msg = self.get_alarm_status('readpv')
+            return self.get_alarm_status('readpv')
         except TimeoutError:
             return status.ERROR, 'timeout reading status'
-        if severity in [status.ERROR, status.WARN]:
-            return severity, msg
-        return status.OK, msg
 
     def _setMode(self, mode):
         # remove the PVs on entering simulation mode, to prevent
