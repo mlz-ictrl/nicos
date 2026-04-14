@@ -150,7 +150,7 @@ class SimulationSession(Session):
         pass
 
     @classmethod
-    def run(cls, sock, uuid, setups, user, code, quiet=False, debug=False):
+    def run(cls, sock, uuid, setups, user, code, quiet=False, debug=False, cache=None):
         session.__class__ = cls
         session._is_sandboxed = sock.startswith('ipc://')
         session._debug_log = debug
@@ -190,11 +190,14 @@ class SimulationSession(Session):
             # Initialize the session in simulation mode.
             session._mode = SIMULATION
 
-            # Load the setups from the original system, this should give the
-            # information about the cache address.
-            session.log.info('loading simulation mode setups: %s',
-                             ', '.join(setups))
-            session.loadSetup(setups, allow_startupcode=False)
+            if cache is None:
+                # Load the setups from the original system, this should give the
+                # information about the cache address.
+                session.log.info('loading simulation mode setups: %s',
+                                 ', '.join(setups))
+                session.loadSetup(setups, allow_startupcode=False)
+            else:
+                session.current_sysconfig['cache'] = cache
 
             # Synchronize setups and cache values.
             session.log.info('synchronizing to master session')
@@ -262,16 +265,16 @@ class SimulationSupervisor(Thread):
     """
 
     def __init__(self, sandbox, uuid, code, setups, user, emitter,
-                 more_args=None, quiet=False):
+                 more_args=None, quiet=False, cache=None):
         self.results = []
         Thread.__init__(self, target=self._run,
                         name='SimulationSupervisor',
                         args=(sandbox, uuid, code, setups, user, emitter,
-                              more_args or [], quiet))
+                              more_args or [], quiet, cache))
         # "daemonize this thread" attribute, not referring to the NICOS daemon.
         self.daemon = True
 
-    def _run(self, sandbox, uuid, code, setups, user, emitter, args, quiet):
+    def _run(self, sandbox, uuid, code, setups, user, emitter, args, quiet, cache=None):
         socket = nicos_zmq_ctx.socket(zmq.DEALER)
         poller = zmq.Poller()
         poller.register(socket, zmq.POLLIN)
@@ -291,14 +294,18 @@ class SimulationSupervisor(Thread):
             prefixargs = []
         scriptname = path.join(config.nicos_root, 'bin', 'nicos-simulate')
         userstr = '%s,%d' % (user.name, user.level)
+        options = []
         if quiet:
-            args.append('--quiet')
+            options.append('--quiet')
         if config.sandbox_simulation_debug:
-            args.append('--debug')
-        proc = createSubprocess(prefixargs +
-                                [sys.executable, scriptname, sockname, uuid,
-                                 ','.join(setups), userstr] + args,
-                                stdin=subprocess.PIPE)
+            options.append('--debug')
+        if cache:
+            options.append(f'--cache={cache}')
+
+        proc = createSubprocess(prefixargs + [sys.executable, scriptname] +
+                                options + [
+                                    sockname, uuid, ','.join(setups), userstr]
+                                + args, stdin=subprocess.PIPE)
         proc.stdin.write(code.encode())
         proc.stdin.close()
         if sandbox:

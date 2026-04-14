@@ -37,14 +37,17 @@ and results to a supervisor session.
 
 Code is read from standard input until EOF.
 """)
-parser.add_argument('sock', type=str, help='0MQ communication address')
-parser.add_argument('uuid', type=str, help='the uuid of the code')
-parser.add_argument('setups', help='comma separated list of setup files')
-parser.add_argument('user', type=str, help='user name,user Level')
 parser.add_argument('--quiet', help='send only results', action='store_true',
                     default=False)
 parser.add_argument('--debug', help='send log messages to stderr',
                     action='store_true', default=False)
+parser.add_argument('--cache', '-c', dest='cache', action='store',
+                    help='CACHE server:port, defaults to localhost:14869',
+                    default='localhost')
+parser.add_argument('sock', type=str, help='0MQ communication address')
+parser.add_argument('uuid', type=str, help='the uuid of the code')
+parser.add_argument('setups', help='comma separated list of setup files')
+parser.add_argument('user', type=str, help='user name,user Level')
 
 opts = parser.parse_args()
 
@@ -55,4 +58,5 @@ if hasattr(signal, 'alarm'):
     signal.alarm(600)
 
 sys.exit(SimulationSession.run(opts.sock, opts.uuid, opts.setups.split(','),
-                               opts.user, code, opts.quiet, opts.debug))
+                               opts.user, code, opts.quiet, opts.debug,
+                               opts.cache))
