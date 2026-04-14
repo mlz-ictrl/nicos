@@ -60,6 +60,7 @@ devices = dict(
             'taco6.ictrl.frm2.tum.de': 8.9e+05,
             configdata('config_data.host'): 1.12e5,
         },
+        visibility = (),
     ),
     image = device('nicos_virt_mlz.toftof.devices.detector.Image',
         description = 'Image data device',

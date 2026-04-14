@@ -31,6 +31,7 @@ devices = dict(
         wavelength = 'selector_lambda',
         omega = 'omega_sampletable',
         intensityfactor = 1e20,
+        visibility = (),
     ),
     imgplate = device('nicos_virt_mlz.biodiff.devices.detector.McStasImage',
         mcstas = 'mcstas',

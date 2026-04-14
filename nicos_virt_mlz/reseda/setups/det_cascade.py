@@ -68,6 +68,7 @@ devices = dict(
             'taco6.ictrl.frm2.tum.de': 4e4,
             'ictrl23': 5.15e4,
         },
+        visibility = (),
     ),
     psd_timer = device('nicos.devices.mcstas.McStasTimer',
         description = 'Cascade timer',

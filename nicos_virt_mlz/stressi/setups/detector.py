@@ -56,6 +56,7 @@ devices = dict(
             'stressictrl02.stressi.frm2.tum.de': 2.7e6,
             'localhost': 3.6e6,
         },
+        visibility = (),
     ),
     image = device('nicos_virt_mlz.stressi.devices.detector.Image',
         description = 'Image data device',

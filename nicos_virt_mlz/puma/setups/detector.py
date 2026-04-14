@@ -16,6 +16,7 @@ devices = dict(
             'ictrl23': 2.55e6,
             configdata('config_data.host'): 1.3e6,
         },
+        visibility = (),
     ),
     timer = device('nicos.devices.mcstas.McStasTimer',
         mcstas = 'mcstas',

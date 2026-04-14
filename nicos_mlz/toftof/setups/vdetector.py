@@ -79,6 +79,7 @@ devices = dict(
             (100000, 124020.1),
         ),
         repeat_scale = 2 / 3,
+        visibility = (),
     ),
     image = device('nicos_virt_mlz.toftof.devices.detector.Image',
         description = 'Image data device',

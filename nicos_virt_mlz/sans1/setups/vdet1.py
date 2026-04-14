@@ -38,6 +38,7 @@ devices = dict(
             'taco6.ictrl.frm2.tum.de': 8.9e+05,
             # configdata('config_data.host'): 1.12e5,
         },
+        visibility = (),
     ),
     det1_mon1 = device('nicos.devices.generic.VirtualCounter',
         description = 'QMesyDAQ Counter0',

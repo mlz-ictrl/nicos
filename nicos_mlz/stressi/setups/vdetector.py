@@ -51,6 +51,7 @@ devices = dict(
         omega = 'omgs',
         theta2 = 'tths',
         force = 'teload',
+        visibility = (),
     ),
     image = device('nicos_virt_mlz.stressi.devices.detector.Image',
         description = 'Image data device',
