@@ -51,7 +51,11 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
     using a thread.
     """
 
-    hardware_access = False
+    # Even if this devices doesn't access to real hardware it should be
+    # considered as it would. In the doStart method a thread will be started
+    # with the selected speed and this can take a long time, what is unwanted
+    # during the "dry run"
+    hardware_access = True
 
     parameters = {
         'speed':     Param('Virtual speed of the device', settable=True,
@@ -228,7 +232,8 @@ class VirtualCoder(HasOffset, Coder):
 class VirtualChannel(ActiveChannel):
     """A virtual detector channel."""
 
-    hardware_access = False
+    # See comment in Virtualmotor class
+    hardware_access = True
 
     parameters = {
         'curvalue':  Param('Current value', settable=True, unit='main'),
@@ -491,7 +496,8 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     of a sample in a cryostat, with a PID-controlled heater.
     """
 
-    hardware_access = False
+    # See comment in VirtualMotor class
+    hardware_access = True
 
     parameters = {
         'jitter':    Param('Jitter of the read-out value', default=0,
@@ -778,7 +784,8 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     four peaks of scattering intensity.
     """
 
-    hardware_access = False
+    # See comment in VirtualMotor class
+    hardware_access = True
 
     parameters = {
         'size': Param('Detector size in pixels (x, y)',
