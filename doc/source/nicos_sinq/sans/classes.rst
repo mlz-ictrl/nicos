@@ -9,3 +9,6 @@
 
 .. automodule:: nicos_sinq.sans.devices.sansnexussink
 
+.. module:: nicos_sinq.sans.devices.velocity_selector
+.. autoclass:: VSTiltMotor
+.. autoclass:: VSLambda
