@@ -68,12 +68,16 @@ class Axis(CanReference, AbstractAxis):
 
     hardware_access = False
 
+    _hascoder = True
+
     errorstates = {}
 
     def doInit(self, mode):
         if self._attached_coder is None:
             self.log.debug('using the motor as coder too as no coder was '
                            'specified in the setup file')
+            self._attached_coder = self._attached_motor
+            self._hascoder = False
         # Check that motor and coder have the same unit
         elif self._attached_coder.unit != self._attached_motor.unit:
             raise ConfigurationError(self, 'different units for motor and '
@@ -95,12 +99,9 @@ class Axis(CanReference, AbstractAxis):
             self.log.warning('motor has a nonzero offset; this will cause '
                              'general confusion and problems with userlimits')
 
-        self._hascoder = self._attached_coder is not None and \
-            self._attached_motor != self._attached_coder
         self._errorstate = None
         self._posthread = None
         self._stoprequest = 0
-        self._maxdiff = self.dragerror if self._hascoder else 0.0
 
         if mode == MASTER:
             if self._hascoder:
@@ -312,12 +313,9 @@ class Axis(CanReference, AbstractAxis):
     def doWriteDragerror(self, value):
         if not self._hascoder:
             if value != 0:
-                self.log.warning('setting a non-zero value for drag error only '
-                                 'works if a coder was specified in the setup, '
-                                 'which is different from the motor')
-            return 0.0
-        else:
-            self._maxdiff = value
+                self.log.warning('setting a non-zero value for drag error may '
+                                 'not work as expected if coder and motor '
+                                 'are the same')
 
     def doWriteSpeed(self, value):
         self._attached_motor.speed = value
@@ -369,21 +367,22 @@ class Axis(CanReference, AbstractAxis):
         This method sets the error state and returns False if a drag error
         occurs, and returns True otherwise.
         """
-        if self._maxdiff <= 0:
+        if self.dragerror <= 0:
             return True
-        diff = abs(self._attached_motor.read() - self._attached_coder.read())
-        self.log.debug('motor/coder diff: %s', diff)
-        if diff > self._maxdiff:
-            self._errorstate = MoveError(self, 'drag error (primary coder): '
-                                         'difference %.4g, maximum %.4g' %
-                                         (diff, self._maxdiff))
-            return False
+        if self._hascoder:
+            diff = abs(self._attached_motor.read() - self._attached_coder.read())
+            self.log.debug('motor/coder diff: %s', diff)
+            if diff > self.dragerror:
+                self._errorstate = MoveError(self, 'drag error (primary coder): '
+                                             'difference %.4g, maximum %.4g' %
+                                             (diff, self.dragerror))
+                return False
         for obs in self._attached_obs:
             diff = abs(self._attached_motor.read() - obs.read())
-            if diff > self._maxdiff:
+            if diff > self.dragerror:
                 self._errorstate = PositionError(
                     self, 'drag error (%s): difference %.4g, maximum %.4g' %
-                    (obs.name, diff, self._maxdiff))
+                    (obs.name, diff, self.dragerror))
                 return False
         return True
 
