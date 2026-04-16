@@ -91,7 +91,8 @@ from nicos.guisupport.widget import NicosWidget  # isort:skip
 # imported for side effects
 # pylint: disable=unused-import
 from nicos.guisupport import (button, containers, display, led,  # isort:skip
-                              plots, squeezedlbl, tas, trees, typedvalue)
+                              plots, squeezedlbl, tas, trees, typedvalue,
+                              valuewidgets)
 
 # import other modules to make their widgets known to __subclasses__()
 for addmod in os.environ.get('NICOSDESIGNER_MODULES', '').split(':'):
