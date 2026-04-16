@@ -17,26 +17,22 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Alexander Söderqvist <alexander.soederqvist@psi.ch>
 #
 # *****************************************************************************
 
-from nicos.core import status
+""""Manual" moveable devices, to keep track of manual instrument changes."""
 
-SEVERITY_TO_STATUS = {
-    0: status.OK,  # NO_ALARM
-    1: status.WARN,  # MINOR
-    2: status.ERROR,  # MAJOR
-    3: status.UNKNOWN,  # INVALID
-}
+from nicos.core import Override
+from nicos.devices.generic.manual import ManualSwitch
 
-STAT_TO_STATUS = {
-    0: status.OK,  # OK
-    9: status.ERROR,  # Communication error
-    17: status.UNKNOWN,  # Invalid/unknown IOC state
-}
+class ManualSettableSwitch(ManualSwitch):
+    """A settable version of the Manual switch.
 
-# A timeout is an ERROR, but since there are more errors than timeout errors
-# we use a string consistently to be able to differentiate a timeout error
-# from other errors.
-EPICS_TIMEOUT_MSG = 'timeout reading status'
+    Can be used to let the user add custom string meta data.
+    The `states` parameter must be a list of allowed values.
+    """
+
+    parameter_overrides = {
+        'states': Override(settable=True),
+    }

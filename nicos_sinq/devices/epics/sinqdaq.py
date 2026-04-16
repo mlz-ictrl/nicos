@@ -38,6 +38,7 @@ from nicos.core.errors import ConfigurationError, UsageError
 from nicos.core.mixins import CanDisable, HasLimits
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, Detector, PassiveChannel, TimerChannelMixin
 
@@ -196,7 +197,7 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
             return status.OK, f'Rate: {rate:.2f} {rate_units}'
 
         except TimeoutError:
-            return status.ERROR, 'timeout reading rate'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
     def doReset(self):
         self.preparing = False
@@ -275,7 +276,7 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
             return status.OK, ''
 
         except TimeoutError:
-            return status.ERROR, 'timeout reading elapsed time'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
     def doReset(self):
         self.preparing = False
@@ -636,7 +637,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
                 return status.ERROR, 'DAQ Error: %s' % self._get_pv('errormsgpv')
 
         except TimeoutError:
-            return status.ERROR, 'timeout getting DAQ Hardware status'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
     def doReset(self):
         self.started_count = False
@@ -780,7 +781,7 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
                 return status.OK, ''
             return status.DISABLED, ''
         except TimeoutError:
-            return status.ERROR, 'timeout reading configured channel'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
     def _get_status_parameters(self):
         # Otherwise takes a while to update
@@ -893,7 +894,7 @@ class DAQMinThreshold(DAQEpicsDevice, HasLimits, Moveable):
             else:
                 return status.DISABLED, ''
         except TimeoutError:
-            return status.ERROR, 'timeout reading configured threshold'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
     def _get_status_parameters(self):
         # Otherwise takes a while to update
@@ -960,7 +961,7 @@ class DAQGate(DAQChannelEpicsDevice, Moveable):
                 return status.BUSY, ''
             return status.OK, ''
         except TimeoutError:
-            return status.ERROR, 'timeout reading configured gate settings'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
     def _get_status_parameters(self):
         # Otherwise takes a while to update

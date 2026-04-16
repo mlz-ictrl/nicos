@@ -29,7 +29,7 @@ commands while the currently in position beamstop is being changed by the SPS.
 from nicos.core import SIMULATION, Attach, Device, IsController, Moveable, \
     Override, Param, multiStatus, oneof, pvname, status
 from nicos.devices.epics import EpicsDevice
-
+from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 
 class Beamstop(EpicsDevice, Moveable):
     """
@@ -106,6 +106,9 @@ class Beamstop(EpicsDevice, Moveable):
 
         self.valuetype = oneof(*range(absmin, absmax + 1))
 
+        # Sets the target to the current beamstop readback state during
+        # initialisation, instead of using what was in the Cache, so that Nicos
+        # doesn't potentially think that the beamstop is being changed.
         self._setROParam(
             'target',
             int(self._get_pv('readpv', as_string=False))
@@ -143,7 +146,7 @@ class Beamstop(EpicsDevice, Moveable):
             status_msg = self._get_pv('statusmsgpv', as_string=True)
 
         except TimeoutError:
-            return status.ERROR, 'timeout reading beamstop status'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
         else:
             if self.preparing and status_code > 0:
@@ -153,9 +156,7 @@ class Beamstop(EpicsDevice, Moveable):
                 return status.BUSY, 'Change requested'
             elif status_code == 0:
                 return status.OK, ''
-            else:
-                return self._STATUS_CODES.get(status_code, status.UNKNOWN), status_msg
-
+            return self._STATUS_CODES.get(status_code, status.UNKNOWN), status_msg
 
     def doIsAllowed(self, pos):
         (status_code, msg) = self.status(0)

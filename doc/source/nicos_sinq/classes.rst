@@ -69,7 +69,6 @@ SINQ classes
 .. autoclass:: EpicsScalerRecord
 
 .. module:: nicos_sinq.devices.experiment
-.. autoclass:: SinqDataManager
 .. autoclass:: SinqExperiment
 .. autoclass:: TomoSinqExperiment
 
@@ -137,8 +136,6 @@ SINQ classes
 
 .. module:: nicos_sinq.devices.velocity_selector
 .. autoclass:: VSForbiddenMoveable
-.. autoclass:: VSTiltMotor
-.. autoclass:: VSLambda
 
 .. module:: nicos_sinq.devices.wall_time
 .. autoclass:: WallTime

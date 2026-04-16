@@ -28,6 +28,7 @@ from nicos.core import Param, status
 from nicos.core.errors import UsageError
 from nicos.core.params import Override, none_or, oneof, pvname
 from nicos.devices.epics.motor import EpicsMotor as CoreEpicsMotor
+from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 from nicos_sinq.devices.dynamic_userlimits import DynamicUserlimits
 
 class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
@@ -98,6 +99,11 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
 
     def doStatus(self, maxage=0):
         (stat, msg) = CoreEpicsMotor.doStatus(self, maxage)
+
+        # This is not ideal, but timeout is an Error that needs to be
+        # taken into account earlier than other errors.
+        if msg == EPICS_TIMEOUT_MSG:
+            return stat, msg
 
         # Ignore errors if the motor is disconnected
         if not self.connected:

@@ -27,7 +27,7 @@ This module contains the interface to the Sinq Shutter Control.
 from nicos.core import SIMULATION, Moveable, Override, Param, oneof, pvname, \
     status
 from nicos.devices.epics import EpicsDevice
-
+from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 
 class Shutter(EpicsDevice, Moveable):
     """
@@ -156,7 +156,7 @@ class Shutter(EpicsDevice, Moveable):
                 return self._STATUS_CODES.get(status_code, status.UNKNOWN), status_msg
 
         except TimeoutError:
-            return status.ERROR, 'timeout reading shutter status'
+            return status.ERROR, EPICS_TIMEOUT_MSG
 
     def doIsAllowed(self, pos):
         (status_code, msg) = self.status(0)
