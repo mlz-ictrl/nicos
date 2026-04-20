@@ -1,15 +1,17 @@
 description = 'Sample position 2 motorization'
 
+group = 'lowlevel'
+
 display_order = 30
 
 pvprefix = 'SQ:NEUTRA:turboPmacSample:'
 devices = dict(
-    focus_maxi = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+    focus_maxi = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'Camera box translation',
         motorpv = pvprefix + 'camera',
         precision = 0.001,
     ),
-    xray_tx = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
+    xray_tx = device('nicos_sinq.devices.epics.motor.SinqMotor',
         description = 'X-ray, Translation X',
         motorpv = pvprefix + 'xray_tx',
     ),
