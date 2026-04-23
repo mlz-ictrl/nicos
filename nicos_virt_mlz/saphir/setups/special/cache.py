@@ -3,7 +3,7 @@ group = 'special'
 
 devices = dict(
     DB = device('nicos.services.cache.database.FlatfileCacheDatabase',
-        storepath = '/data/cache',
+        storepath = 'data/cache',
         loglevel = 'info',
     ),
     Server = device('nicos.services.cache.server.CacheServer',

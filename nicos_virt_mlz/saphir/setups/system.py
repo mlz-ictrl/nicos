@@ -9,11 +9,10 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    # Adapt this name to your instrument's name (also below).
-    instrument = 'saphir',
+    instrument = 'vsaphir',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
-    notifiers = ['email'],
+    # notifiers = ['email'],
 )
 
 modules = ['nicos.commands.standard']
@@ -23,7 +22,7 @@ includes = [
 ]
 
 devices = dict(
-    saphir = device('nicos.devices.instrument.Instrument',
+    vsaphir = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
         instrument = 'SAPHiR',
         responsible = 'Nicolas Walte <nicolas.walte@frm2.tum.de>',
@@ -37,7 +36,7 @@ devices = dict(
     ),
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
-        dataroot = '/data',
+        dataroot = 'data',
         sendmail = True,
         sample = 'Sample',
     ),
@@ -47,13 +46,12 @@ devices = dict(
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = '/data',
         warnlimits = (5., None),
         minfree = 5,
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Space on log drive',
-        path = '/control/log',
+        path = 'log',
         warnlimits = (.5, None),
         minfree = 0.5,
         visibility = (),
