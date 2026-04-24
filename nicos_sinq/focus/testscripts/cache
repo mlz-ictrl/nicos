@@ -1,0 +1,2 @@
+nicos/mtt/abslimits=(-100, 100)
+nicos/mth/abslimits=(-100, 100)
