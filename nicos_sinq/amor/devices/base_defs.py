@@ -24,7 +24,7 @@
 import numpy as np
 
 from nicos.core import Attach, Device, Override, Param, Waitable, tupleof
-from nicos.core.device import Moveable
+from nicos.core.device import Moveable, Readable
 
 
 class Distances(Device):
@@ -70,6 +70,55 @@ class Distances(Device):
     def doReadNxoffset(self):
         return 0, 0, -self.sample
 
+
+class AmorMonitor(Readable):
+
+    parameters = {
+        'alphai': Param('mean incident angle on sample surface',
+                        type=float, userparam=True, settable=True, volatile=True),
+        'alphaf': Param('mean final angle (detector position)',
+                        type=float, userparam=True, settable=True, volatile=True),
+        'qzl': Param('low limit of q_z range',
+                     type=float, userparam=True, settable=True, volatile=True),
+        'qzh': Param('high limit of q_z range',
+                     type=float, userparam=True, settable=True, volatile=True),
+        }
+
+    attached_devices = {
+        'kappa': Attach('incoming beam inclination', Readable),
+        'kad': Attach('incoming beam inclination offset', Readable),
+        'mu': Attach('sample inclination', Readable),
+        'nu': Attach('detector inclination', Readable),
+        'pol': Attach('beam polarization label', Readable),
+        'div': Attach('beam divergence', Readable),
+        }
+
+    # A "Readable" by default needs a unit. Here this does not make sense.
+    parameter_overrides = {
+        'unit': Override(mandatory=False),
+        }
+
+    def doReadAlphai(self, maxage=0):
+        return self._attached_mu.read(0) + self._attached_kappa.read(0) + self._attached_kad.read(0)
+
+    def doReadAlphaf(self, maxage=0):
+        return self._attached_nu.read(0) - self._attached_mu.read(0)
+
+    def doReadQzl(self, maxage=0):
+        if self._attached_pol == 1:
+            lambda_max = 12.5
+        else:
+            lambda_max = 10.5
+        return 4*np.pi * np.sin(np.deg2rad(self.alphai - self._attached_div.read(0)/2)) / lambda_max
+
+    def doReadQzh(self, maxage=0):
+        lambda_min = 3.0
+        return 4*np.pi * np.sin(np.deg2rad(self.alphai + self._attached_div.read(0)/2)) / lambda_min
+
+    def doRead(self, maxage=0):
+        return 0
+
+
 class AmorBase(Waitable):
     """
     AMOR is operated through a number of logical devices.
@@ -91,10 +140,6 @@ class AmorBase(Waitable):
                     type=float, userparam=True, settable=True, volatile=True),
         'nu': Param('Detector: Angle horizon to sample-detector',
                     type=float, userparam=True, settable=True, volatile=True),
-        'alphai': Param('mean incident angle on sample surface',
-                        type=float, userparam=True, settable=True, volatile=True),
-        'alphaf': Param('mean final angle (detector position)',
-                        type=float, userparam=True, settable=True, volatile=True),
     }
 
     attached_devices = {
@@ -168,12 +213,6 @@ class AmorBase(Waitable):
             self._startDevices(positions)
         else:
             self.log.warning("divergence exceeds diaphragm limits. (div + 2|kad| < %f)", limit)
-
-    def doReadAlphai(self, maxage=0):
-        return self.mu + self._attached_kappa.read(0) + self.kad
-
-    def doReadAlphaf(self, maxage=0):
-        return self.nu - self.mu
 
     def doReadKad(self, maxage = 0):
         d1t = self._attached_d1t.read(0)
@@ -249,18 +288,6 @@ class AmorBase(Waitable):
         self._startDevices(positions)
 
     def doReadNu(self, maxage=0):
-        #if self._attached_d3z.connected:
-            #sx = self._attached_distances.sample
-            #d3x = self._attached_distances.diaphragm3
-            #fzoffset = self.fzoffset
-            #angle = self._attached_det_nu.read(maxage)
-            #d3z_pos = fzoffset + (d3x-sx) * np.tan(np.deg2rad(angle))
-            #offset = d3z_pos - self._attached_d3z.read(maxage)
-            #if abs( offset ) > 0.1:
-            #    self.log.warning(f'diaphragm D3 is off position by {offset:5.2f} mm')
-        #return det_nu
-        # TODO: is nud still necessary?
-        # return self._attached_det_nu.read(maxage) - self.nud
         return self._attached_det_nu.read(maxage)
 
     def doWriteNu(self, target):
@@ -280,6 +307,6 @@ class AmorBase(Waitable):
                 positions['d3t'] = np.tan(np.deg2rad(div/2 + d3offset)) * \
                     (d3x-sx) + np.tan(np.deg2rad(np.abs(target) + div/2)) * 15.
             if self._attached_d3b.enabled:
-                positions['d3t'] = np.tan(np.deg2rad(div/2 + d3offset)) * \
+                positions['d3b'] = np.tan(np.deg2rad(div/2 + d3offset)) * \
                     (d3x-sx) + np.tan(np.deg2rad(np.abs(target) + div/2)) * 15.
         self._startDevices(positions)

@@ -23,6 +23,8 @@
 
 from logging import WARNING
 
+from nicos.guisupport.qt import QTabWidget
+
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
@@ -86,7 +88,9 @@ class SelenePanel(Panel):
         self.toParkButton.clicked.connect(self.on_to_parking_position)
         self.offFocusButton.clicked.connect(self.on_move_off_focus)
 
+        client.connected.connect(self.on_client_connected)
         self._client.message.connect(self.on_client_message)
+        self._client.setup.connect(self.on_setup_changed)
 
     def on_client_message(self, message):
         if message[2] < WARNING:
@@ -115,3 +119,33 @@ class SelenePanel(Panel):
 
     def on_move_off_focus(self):
         self._client.run('selene.move_off_focus()')
+
+    def on_client_connected(self):
+        setups = self._client.eval('session.loaded_setups')
+        self.toggle_selene_visibility(setups)
+
+    def on_setup_changed(self, a):
+        setups = self._client.eval('session.loaded_setups')
+        self.toggle_selene_visibility(setups)
+
+    def toggle_selene_visibility(self, setups):
+        visible = 'admin_selene_pitches' in setups
+        (tab_widget, index) = self._tabparent_and_index()
+        tab_widget.setTabVisible(index, visible)
+        self.setVisible(visible)
+
+    def _tabparent_and_index(self):
+        parent = self.parentWidget()
+        visited = []
+        while parent:
+            if isinstance(parent, QTabWidget):
+                for vis in visited:
+                    idx = parent.indexOf(vis)
+                    if idx != -1:
+                        return (parent, idx)
+                return (parent, -1)
+
+            visited.append(parent)
+            parent = parent.parentWidget()
+
+        return None

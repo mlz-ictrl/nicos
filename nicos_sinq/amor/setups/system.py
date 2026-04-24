@@ -8,7 +8,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'Amor',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'syncdaqsink'],
+    datasinks = ['conssink', 'dmnsink', 'syncdaqsink', 'scansink'],
     )
 
 modules = [
@@ -30,9 +30,10 @@ devices = dict(
     Sample = device('nicos_sinq.amor.devices.sample.AmorSample',
                     description = 'The currently used sample',
                     ),
-    Exp = device('nicos_sinq.devices.experiment.Experiment',
+    Exp = device('nicos_sinq.amor.devices.experiment.AmorExperiment',
                  description = 'experiment object',
                  dataroot = configdata('config.DATA_PATH'),
+                 scriptroot = configdata('config.SCRIPT_ROOT'),
                  sample = 'Sample',
                  ),
     Space = device('nicos.devices.generic.FreeSpace',
@@ -42,6 +43,7 @@ devices = dict(
                    visibility = (),
                    ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
+    scansink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     syncdaqsink = device('nicos_sinq.amor.devices.datasinks.SyncDaqSink',
                          description = 'Sink for synchronizing the DAQ PC and the ring modules at the start of each measurement'

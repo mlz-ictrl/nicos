@@ -29,14 +29,13 @@ from nicos.core import Override, Param, absolute_path
 from nicos.core.data import DataManager
 from nicos.core.errors import InvalidValueError
 from nicos.core.params import none_or
-from nicos_sinq.devices.experiment import Experiment
+from nicos_sinq.devices.experiment import SinqExperiment
 
-class AmorExperiment(Experiment):
+class AmorExperiment(SinqExperiment):
     """Additional experiment parameters for AMOR"""
 
     parameter_overrides = {
         'elog': Override(default=False),
-        'counterfile': Override(type=absolute_path),
     }
 
     parameters = {
@@ -56,7 +55,7 @@ class AmorExperiment(Experiment):
     datamanager_class = DataManager
 
     def _newCheckHook(self, proptype, proposal):
-        Experiment._newCheckHook(self, proptype, proposal)
+        SinqExperiment._newCheckHook(self, proptype, proposal)
         try:
             duoinfo = self._requestDuoProposal(proposal)
         except InvalidValueError:
@@ -98,7 +97,7 @@ class AmorExperiment(Experiment):
         if proposalstr.startswith(year):
             return 'user'
 
-        return Experiment.getProposalType(self, proposal)
+        return SinqExperiment.getProposalType(self, proposal)
 
     def doWriteScriptpath(self, scriptpath):
         """
@@ -117,6 +116,6 @@ class AmorExperiment(Experiment):
             self.log.error('Creating user paths failed: %s', result.stderr)
 
     def doFinish(self):
-        Experiment.doFinish(self)
+        SinqExperiment.doFinish(self)
         self._setROParam('datadir_amordr', '/home/sinquser/service/raw')
         self._setROParam('scriptpath', '/home/sinquser/service/scripts')

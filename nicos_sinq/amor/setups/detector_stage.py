@@ -10,6 +10,7 @@ devices = dict(
                     motorpv = pvprefix + 'det_nu',
                     visibility = ('metadata', 'namespace'),
                     unit='degree',
+                    epicstimeout=10, # Wait a bit longer because this is a deferred movement
                     ),
     det_zoffset = device('nicos_sinq.devices.epics.motor.SinqMotor',
                          description = 'define coz zero position - only for instrument alignment',

@@ -138,7 +138,8 @@ class ListEntryLabel(ValueLabel):
         self._values = self._client.getDeviceParam('selene',
                                                   self.props['key'].split('/')[
                                                       1])
-        self.value = self._values[self.value_index]
+        if self._values:
+            self.value = self._values[self.value_index]
 
     def registerKeys(self):
         ValueLabel.registerKeys(self)

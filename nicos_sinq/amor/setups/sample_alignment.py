@@ -9,8 +9,8 @@ includes = ['base', 'sample_stage']
 devices = dict(
     sample_height = device('nicos.core.device.DeviceAlias',
                            description = 'adjust sample z-position',
-                           alias = 'szoffset',
                            devclass = 'nicos.core.device.Moveable',
+                           alias = 's_zoffset',
                            ),
     sample_tilt = device('nicos.devices.generic.ParamDevice',
                          description = 'adjust sample rotation in beam direction',
@@ -25,6 +25,7 @@ devices = dict(
                          motorpv = pvprefix + 'sch',
                          fmtstr = '%6.1f',
                          unit = 'deg',
+                         valid_pos_after_reference = True,
                          ),
     #sample_azimut = device('nicos_sinq.devices.epics.motor.SinqMotor',
     #                       description = 'Sample phi rotation',
@@ -34,25 +35,22 @@ devices = dict(
     sah = device('nicos.core.device.DeviceAlias',
                  description = 'adjust sample z-position',
                  devclass = 'nicos.core.device.Moveable',
-                 alias = 'szoffset',
                  visibility = ('metadata', 'namespace'),
+                 alias = 's_zoffset',
                  ),
     sat = device('nicos.core.device.DeviceAlias',
                  description = 'adjust sample rotation in beam direction',
                  devclass = 'nicos.core.device.Moveable',
-                 alias = 'sample_tilt',
                  visibility = ('metadata', 'namespace'),
                  ),
     sar = device('nicos.core.device.DeviceAlias',
                  description = 'adjust sample rotation normal to beam direction',
                  devclass = 'nicos.core.device.Moveable',
-                 alias = 'sample_roll',
                  visibility = ('metadata', 'namespace'),
                  ),
 )
 
 alias_config = {
-    #'sah': {'sample_height': 90},
-    'sat': {'sample_tilt': 10},
-    #'sar': {'sample_roll': 10},
-}
+        'sat': {'sample_tilt': 10},
+        'sar': {'sample_roll': 10},
+    }

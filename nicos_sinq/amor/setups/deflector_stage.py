@@ -14,13 +14,19 @@ devices = dict(
                  motorpv = pvprefix + 'ltz',
                  unit = 'mm',
                  visibility = ('devlist', 'metadata', 'namespace'),
-                ),
+                 valid_pos_after_reference = True,
+                 ),
     lom = device('nicos_sinq.devices.epics.motor.SinqMotor',
                  description = 'Tilt (pitch) of deflector & flight tube',
                  motorpv = pvprefix + 'lom',
                  unit = 'deg',
                  visibility = ('devlist', 'metadata', 'namespace'),
-                ),
+                 valid_pos_after_reference = True,
+                 ),
+    distances = device('nicos_sinq.amor.devices.base_defs.Distances',
+                       description = 'Parameter class for distances',
+                       visibility = ('metadata', 'namespace'),
+                       ),
     kap = device('nicos_sinq.amor.devices.deflector_defs.AmorDeflector',
                  description = 'Beam inclination and deflector devices',
                  distances = 'distances',
@@ -41,4 +47,4 @@ devices = dict(
 
 alias_config = {
     'kappa': {'kap': 100},
-}
+    }

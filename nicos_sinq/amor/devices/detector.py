@@ -46,12 +46,12 @@ class PolarizationSwitchDetector(SinqDetector):
 
     AMOR has a special measurement mode where the polarizer is switched
     periodically during a count. This mode is enabled if the arguments
-    `ratio` and `period` are given. Both values must be positive.
-    If the count preset is set to `p`, the `period` is interpreted as a
-    proton count value. If it is set to `t`, the `period` is interpreted
+    `ratio` and `pm` (= period) are given. Both values must be positive.
+    If the count preset is set to `p`, `pm` is interpreted as a
+    proton count value. If it is set to `t`, it is interpreted
     as a time value in seconds.
 
-    For the first part of the period (`period / (1 + ratio)`), the
+    For the first part of the period (`pm / (1 + ratio)`), the
     polarization is set to `p`lus. For the rest of the period, the
     polarization is set to `m`inus. This cycle is repeated until the total
     time or monitor preset has been reached.
@@ -61,7 +61,7 @@ class PolarizationSwitchDetector(SinqDetector):
     Count for 600 seconds, period of 100 seconds, for 25 seconds polarization
     set to plus, then for 75 seconds polarization set to minus.
 
-    >>> count(t=600, period=100, ratio=3)
+    >>> count(t=600, pm=100, ratio=3)
 
     Additionally, there is also a preset key `one_file` allowed. If set to True,
     the parameter `one_file_per_scan` of an attached `filewriter` device will be

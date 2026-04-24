@@ -51,10 +51,8 @@ def synchronize_daq():
     )
 
     if result.returncode != 0:
-        session.log.error("Synchronizing the DAQ time failed.\n"
-                          "Error: %s", result.stderr)
-    else:
-        session.log.info("Synchronization successful.")
+        session.log.error('Synchronizing the DAQ time failed')
+        session.log.error('Error: %s', result.stderr)
 
 
 @usercommand

@@ -11,6 +11,7 @@ devices = dict(
                  description = 'Sample lift with magnet installed',
                  motorpv = pvprefix + 'smz',
                  visibility = ('devlist', 'metadata', 'namespace'),
+                 valid_pos_after_reference = True,
                  ),
     )
 
