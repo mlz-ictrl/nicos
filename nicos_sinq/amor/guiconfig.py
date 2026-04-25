@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-'''NICOS GUI default configuration.'''
+'''NICOS GUI configuration for AMOR.'''
 
 main_window = docked(
     tabbed(
@@ -99,6 +99,8 @@ main_window = docked(
                    param_display={'Exp': ['lastpoint', 'lastscan'],},
                    filters=[('Detector', 'det'), ('Temperatures', '^T'),],),
          ),),
+        ('Sample',
+         panel('nicos_sinq.amor.gui.panels.sample.SamplePanel')),
         ('Detector Image',
          panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
         ('History',

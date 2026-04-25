@@ -34,7 +34,7 @@ from nicos.core.mixins import CanDisable, HasOffset
 from nicos.core.params import anytype, limits
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics import EpicsAnalogMoveable
-from nicos.devices.epics.status import SEVERITY_TO_STATUS, EPICS_TIMEOUT_MSG
+from nicos.devices.epics.status import SEVERITY_TO_STATUS
 
 # Type of the last issued move command known to NICOS - used in doStatus to
 # return the correct status message in case the motor is moving
@@ -248,9 +248,6 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         'abslimits': Override(volatile=True),
         'precision': Override(settable=False, mandatory=False, volatile=True),
     }
-
-    # Holds the time at which the last movement command was given.
-    _start_time = None
 
     # Maximum time the doReset function waits until it assumes the reset command
     # has been processed
@@ -476,13 +473,25 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         return self._get_pv('readpv')
 
     def doStart(self, value):
-        self._start_time = time.time()
+
         # Needs to be checked because self.doReadTarget is called immediately
         # afterwards when doing a move-and-wait.
         self._put_pv_readback_checked('writepv', value,
                                         timeout=self.epicstimeout,
                                         abstol=self.precision)
         self.last_move_command = POSITION
+
+        start_time = time.time()
+        while time.time() < start_time + self.startdelay:
+            if self._get_pv('moving') == 1:
+                return
+            session.delay(self._base_loop_delay)
+
+        if not self.isAtTarget(target=value):
+            # If self is an attached device, the startup routine of the parent
+            # device should be interrupted as well in case starting self fails.
+            raise TimeoutError(f'received start command at {start_time}, did '
+                               'not start in {self.startdelay} seconds')
 
     def doReadTarget(self):
         return self._get_pv('writepv')
@@ -543,33 +552,12 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         return stat, msg_txt
 
     def doStatus(self, maxage=0):
-        # Detect timeout similar to the base EpicsDevice
-        try:
-            moving = self._get_pv('moving')
-        except TimeoutError:
-            return status.ERROR, EPICS_TIMEOUT_MSG
-
-        startup_failed = False
-
-        # Is the motor currently starting a movement?
-        if self._start_time and not moving:
-            if time.time() < self._start_time + self.startdelay:
-                # We're still in the startup procedure
-                return status.BUSY, 'starting'
-            elif not self.isAtTarget():
-                # Startup waiting timed out, but motor is not at its target.
-                # Check for errors and force-write them to the logs.
-                startup_failed = True
-            self._start_time = None
-
         # General error check
-        stat, message = self._get_status_message(startup_failed)
+        stat, message = self._get_status_message()
         if stat in (status.ERROR, status.WARN):
             return stat, message or 'Unknown problem'
-        elif startup_failed:
-            return status.ERROR, 'starting %s failed' %self
 
-        if self._get_pv('donemoving') == 0 or moving != 0:
+        if self._get_pv('donemoving') == 0 or self._get_pv('moving') != 0:
             if not message:
                 if self.last_move_command == POSITION:
                     message = MSG_POSITION
