@@ -46,10 +46,10 @@ class TestTypedvalue:
 
     @pytest.mark.parametrize(
         ('typ', 'initvalue', 'inputs', 'minmax', 'result'), [
-        (str, 'value', ['text'], None, 'text'),
-        (int, 0, [42, 'text'], [0, 100], 42),
-        (float, 0, [4.2, 'txt'], None, 4.2),
-    ])
+            (str, 'value', ['text'], None, 'text'),
+            (int, 0, [42, 'text'], [0, 100], 42),
+            (float, 0, [4.2, 'txt'], None, 4.2),
+        ])
     def test_EditWidget(self, qtbot, typ, initvalue, inputs, minmax, result):
         widget = EditWidget(
             None, typ, initvalue, minmax=minmax, allow_enter=True)
@@ -87,7 +87,7 @@ class TestTypedvalue:
 
         for i in range(widget.layout().count()):
             w = widget.layout().itemAt(i).widget()
-            qtbot.mouseClick(w, Qt.LeftButton)
+            qtbot.mouseClick(w, Qt.MouseButton.LeftButton)
 
         assert widget.getValue() == Ellipsis
 
@@ -152,7 +152,7 @@ class TestTypedvalue:
         assert widget.getValue() == res
 
         for i, (k, v) in enumerate((('point', 1), ('slit', 2), ('gisans', 3))):
-            qtbot.mouseClick(widget.addBtn, Qt.LeftButton)
+            qtbot.mouseClick(widget.addBtn, Qt.MouseButton.LeftButton)
             assert widget.getValue() == {**res, **{'': 0.0}}
 
             widget.items[i + 1]._widgets[0].setText(k)
@@ -166,7 +166,7 @@ class TestTypedvalue:
         # Remove all entries
         for w in widget.frame.children():
             if pb := w.findChildren(QPushButton):
-                qtbot.mouseClick(pb[-1], Qt.LeftButton)
+                qtbot.mouseClick(pb[-1], Qt.MouseButton.LeftButton)
         assert not widget.items
 
     def test_ListOfWidget(self, qtbot):
@@ -187,33 +187,38 @@ class TestTypedvalue:
 
         # Last entry move up
         qtbot.mouseClick(
-            widget.items[2].layout().itemAt(arrow_up).widget(), Qt.LeftButton)
+            widget.items[2].layout().itemAt(arrow_up).widget(),
+            Qt.MouseButton.LeftButton)
         assert widget.getValue() == ['one', 'three', 'two']
 
         # Second entry move down
         qtbot.mouseClick(
-            widget.items[1].layout().itemAt(arrow_down).widget(), Qt.LeftButton)
+            widget.items[1].layout().itemAt(arrow_down).widget(),
+            Qt.MouseButton.LeftButton)
         assert widget.getValue() == ['one', 'two', 'three']
 
         # Remove last entry
         qtbot.mouseClick(
-            widget.items[2].layout().itemAt(delete).widget(), Qt.LeftButton)
+            widget.items[2].layout().itemAt(delete).widget(),
+            Qt.MouseButton.LeftButton)
         assert widget.getValue() == ['one', 'two']
 
         # Move last entry down
         qtbot.mouseClick(
-            widget.items[1].layout().itemAt(arrow_down).widget(), Qt.LeftButton)
+            widget.items[1].layout().itemAt(arrow_down).widget(),
+            Qt.MouseButton.LeftButton)
         assert widget.getValue() == ['one', 'two']
 
         # Move first entry up
         qtbot.mouseClick(
-            widget.items[0].layout().itemAt(arrow_up).widget(), Qt.LeftButton)
+            widget.items[0].layout().itemAt(arrow_up).widget(),
+            Qt.MouseButton.LeftButton)
         assert widget.getValue() == ['one', 'two']
 
         # Remove all entries
         for w in widget.frame.children():
             if pb := w.findChildren(QPushButton):
-                qtbot.mouseClick(pb[-1], Qt.LeftButton)
+                qtbot.mouseClick(pb[-1], Qt.MouseButton.LeftButton)
         assert not widget.items
 
     def test_MultiWidget(self, qtbot):
