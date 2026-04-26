@@ -56,7 +56,7 @@ class TestCenterPeak(CmdletTester):
         assert widget.generate() == \
             "centerpeak(gax, steps=15, step=0.1, rounds=5, fit='gauss', t=1.0)"
 
-        widget.contBox.setChecked(Qt.Checked)
+        widget.contBox.setCheckState(Qt.CheckState.Checked)
         assert widget.isValid()
         assert widget.generate() == \
             "centerpeak(gax, steps=15, step=0.1, rounds=5, fit='gauss', t=1.0, cont=True)"

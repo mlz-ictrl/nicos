@@ -98,7 +98,7 @@ mpm=80000
 scan([det_rot, sample_rot], [-20.0, 100.0], [0, 0], 1, mon1=1.0*mpm)
 maw(expshutter, 'closed')"""
 
-        widget.XSF.setChecked(Qt.Checked)
+        widget.XSF.setCheckState(Qt.CheckState.Checked)
         assert widget.isValid()
         assert widget.generate() == \
 """maw(expshutter, 'open')
@@ -106,13 +106,13 @@ mpm=80000
 scan([det_rot, sample_rot], [-20.0, 100.0], [0, 0], 1, field=['x20_sf'], mon1=1.0*mpm)
 maw(expshutter, 'closed')"""
 
-        widget.off.setChecked(Qt.Checked)
+        widget.off.setCheckState(Qt.CheckState.Checked)
         assert widget.isValid()
 
         widget.deselect.click()
         assert widget.isValid()
 
-        widget.RB_min_per_mon.setChecked(Qt.Checked)
+        widget.RB_min_per_mon.setChecked(True)
         assert widget.isValid()
 
         widget.XYZ.click()

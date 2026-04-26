@@ -263,7 +263,7 @@ class ValueData(QStackedWidget):
         self.setValue(initState)
 
         self.timeWidget.returnPressed.connect(self.on_returnPressed)
-        self.counts.valueChanged[str].connect(self.on_cts_changed)
+        self.counts.valueChanged[int].connect(self.on_cts_changed)
         self.setMinimumWidth(90)
 
     def setWidget(self, widget_desc):

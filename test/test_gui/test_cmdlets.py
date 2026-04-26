@@ -218,7 +218,7 @@ class TestMove(CmdletTester):
         assert widget.getValues() == {'dev': 'gax', 'moveto': 0.0}
 
     def test_maw(self, widget):
-        widget.waitBox.setCheckState(Qt.Unchecked)
+        widget.waitBox.setCheckState(Qt.CheckState.Unchecked)
         assert widget.generate() == 'move(gax, 0.0)'
 
     def test_change_dev(self, widget):
