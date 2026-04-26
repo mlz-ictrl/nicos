@@ -53,4 +53,4 @@ class TelegramNotifier(Notifier):
         try:
             _ = requests.get(url_req, timeout=3)
         except Exception as e:
-            self.log.warn(f'TelegramNotifier:send got error ({str(e)}).')
+            self.log.warning('TelegramNotifier:send got error (%s).', e)
