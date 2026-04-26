@@ -47,11 +47,13 @@ class SelectorTilt(HasLimits, BaseSequencer):
         if self._attached_selector.read(0) > self.maxtiltspeed:
             seq.append(SeqDev(self._attached_selector, self.maxtiltspeed,
                               stoppable=True))
-        seq.append(SeqMethod(self, '_check_speed'))
-        seq.append(SeqMethod(self._attached_motor, 'release'))
-        seq.append(SeqDev(self._attached_motor, target, stoppable=True))
-        seq.append(SeqMethod(self._attached_motor, 'fix',
-                             'only move this using %s' % self))
+        seq.extend([
+            SeqMethod(self, '_check_speed'),
+            SeqMethod(self._attached_motor, 'release'),
+            SeqDev(self._attached_motor, target, stoppable=True),
+            SeqMethod(self._attached_motor, 'fix',
+                      'only move this using %s' % self),
+        ])
         return seq
 
     def _check_speed(self):
