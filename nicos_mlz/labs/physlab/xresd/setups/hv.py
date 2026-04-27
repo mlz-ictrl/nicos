@@ -16,7 +16,7 @@ devices = dict(
         description = 'Current generator',
         tangodevice = tango_base + 'gen_current',
         fmtstr = '%.0f',
-        ramp = 10,
+        # ramp = 10,
         requires = {'level': 'guest'},
         visibility = {'metadata',},
     ),
