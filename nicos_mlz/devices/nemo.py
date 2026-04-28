@@ -29,6 +29,7 @@ from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from nemoapi.connector import NemoConnector
+from requests.exceptions import HTTPError
 
 from nicos import session
 from nicos.core import USER, Param, User, dictof, nonemptystring
@@ -47,24 +48,25 @@ def NemoAliasEntry(val=None):
            currently: GUEST, USER, ADMIN
         * localcontactstatus: bool
     """
-    if val is not None and (not isinstance(val, tuple) or  len(val) not in [2, 3]):
+    if val is not None and (not isinstance(val, tuple) or len(val) not in [2, 3]):
         raise ValueError('NemoAliasEntry entry needs to be a 2/3-tuple '
                          '(name, accesslevel, isLocalContact(optional))')
     # pylint: disable=unbalanced-tuple-unpacking
     localcontactstatus = bool(val[2]) if len(val) == 3 else False
     user, _p, level = UserPassLevelAuthEntry((val[0], '', val[1]))
-    return tuple((user, level, localcontactstatus))
+    return (user, level, localcontactstatus)
 
 
 class NemoWrapper(NemoConnector):
     """Wraps the NEMO REST client to provide the queries we need for NICOS."""
 
-    is_local_contact = False
+    _is_local_contact = False
+    _userdata = {}
 
     def __init__(self, nemourl, log, is_lc=False):
         NemoConnector.__init__(self, base_url=nemourl, token=None)
         self.log = log
-        self.is_local_contact = is_lc
+        self._is_local_contact = is_lc
 
     def login(self, instr, username, password, strict):
         """Log in to NEMO with the given account (email address).
@@ -83,22 +85,24 @@ class NemoWrapper(NemoConnector):
             })
             if not res:
                 error = 'NEMO: Authentication failed:%r' % res
+        except HTTPError as err:
+            error = 'NEMO: ' + str(err)
         except Exception as err:
             # this avoids leaking authentication details via tracebacks
             error = 'NEMO: ' + str(err)
         if error:
             raise AuthenticationError('login failed: %s' % error)
 
+        # get user's real name for display in daemon
+        self._userdata = self.getUserData(username)
         # TODO: check local contact status
-        # self.is_local_contact = ????
-        self.log.debug('user is local contact? %s', self.is_local_contact)
+        # self._is_local_contact = ????
+        self.log.debug('user is local contact? %s', self._is_local_contact)
         # we are a normal user => if configured, check that a proposal
         # is scheduled for us today
-        if not self.is_local_contact and strict:
+        if not self._is_local_contact and strict:
             self.strictUserCheck(username)
-        # get user's real name for display in daemon
-        userdata = self.getUserData(username)
-        return userdata['firstname'] + ' ' + userdata['lastname']
+        return self._userdata['firstname'] + ' ' + self._userdata['lastname']
 
     def getUserData(self, username):
 
@@ -116,6 +120,7 @@ class NemoWrapper(NemoConnector):
             'lastname': data['last_name'],
             'username': data['username'],
             'email': data['email'],
+            'id': data['id'],
         }
         return userdata
 
@@ -128,9 +133,9 @@ class NemoWrapper(NemoConnector):
 
         Raises AuthenticationError if access denied.
         """
-        sessions = self.getTodaysSessions()
+        sessions = self.getTodaysSessions(self._userdata['id'])
         if session.experiment.proptype == 'user':
-            if not any(ses['id'] == session.experiment.proposal
+            if not any(str(ses['id']) == session.experiment.proposal
                        for ses in sessions):
                 raise AuthenticationError(
                     'user is neither local contact nor member of current proposal'
@@ -148,9 +153,9 @@ class NemoWrapper(NemoConnector):
 
     def isLocalContact(self):
         """Check if current user is local contact."""
-        return self.is_local_contact
+        return self._is_local_contact
 
-    def getTodaysSessions(self):
+    def getTodaysSessions(self, uid):
         tz = ZoneInfo(
             'Europe/Berlin')  # make it configurable if used outside MLZ
         today = datetime.combine(date.today(), time.min, tz)
@@ -162,15 +167,17 @@ class NemoWrapper(NemoConnector):
         sessions = self.get_reservations(tool_id=self.nemo_instrument,
                                          dt_start_before=today + delta,
                                          dt_end_after=today)
-        return sessions
+        return [p for p in sessions
+                if (isinstance(p['user'], int) and p['user'] == uid) or
+                   (isinstance(p['user'], dict) and p['user']['id'] == uid)]
 
     def canStartProposal(self, proposal):
         """Check if current user may start this proposal."""
-        if self.is_local_contact:
+        if self._is_local_contact:
             return True
         try:
-            return any(ses['id'] == proposal
-                       for ses in self.getTodaysSessions())
+            return any(str(ses['id']) == proposal
+                       for ses in self.getTodaysSessions(self._userdata['id']))
         except Exception:
             session.log.warning('error querying proposals', exc=1)
             return False
@@ -187,9 +194,9 @@ class NemoWrapper(NemoConnector):
         result = []
         sessions = []
         try:
-            sessions = self.getTodaysSessions()
+            sessions = self.getTodaysSessions(self._userdata['id'])
         except Exception:
-            if not self.is_local_contact:
+            if not self._is_local_contact:
                 session.log.warning(
                     "error querying today's sessions from NEMO", exc=1)
                 return []
@@ -212,8 +219,8 @@ class NemoWrapper(NemoConnector):
         NICOS needs for the propinfo dict.
         """
         if sessions is None:
-            sessions = self.getTodaysSessions()
-        sessinfo = [s for s in self.getTodaysSessions()
+            sessions = self.getTodaysSessions(self._userdata['id'])
+        sessinfo = [s for s in sessions
                     if s['id'] == sessid][0]
         self.log.info('session data: %r', sessinfo)
 
@@ -260,24 +267,23 @@ class Authenticator(BaseAuthenticator):
     """
 
     parameters = {
-        'nemourl':
-        Param(
+        'nemourl': Param(
             'URL of NEMO system to authenticate against',
             type=nonemptystring,
             mandatory=True,
         ),
-        'instrument':
-        Param('ID of the instrument in  NEMO', type=int),
-        'checkexp':
-        Param(
+        'instrument': Param(
+            'ID of the instrument in  NEMO',
+            type=int,
+        ),
+        'checkexp': Param(
             'If true, check that users are either affiliated '
             'with the current experiment, or registered '
             'local contacts for the instrument',
             type=bool,
             default=True,
         ),
-        'aliases':
-        Param(
+        'aliases': Param(
             'Map of short user names to NEMO usernames'
             ' and their desired user level and local contact status',
             type=dictof(nonemptystring, NemoAliasEntry),
