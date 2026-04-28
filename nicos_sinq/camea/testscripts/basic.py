@@ -12,3 +12,5 @@ status()
 maw(a4, 2)
 maw(mono, 3)
 timescan(1, t=1)
+assert omm.precision == 0.1
+assert m2t.precision == 0.05
