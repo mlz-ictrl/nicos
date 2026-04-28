@@ -496,7 +496,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
 
     def doPoll(self, n, maxage):
         self.pollParams('speed', 'speedlimits', 'offset', 'abslimits',
-                        'reference_direction')
+                        'reference_direction', 'precision')
 
 
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):

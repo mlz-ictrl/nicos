@@ -172,9 +172,6 @@ class SinqMotor(CoreEpicsMotor):
             return False, 'Motor disabled'
         return True, ''
 
-    def doReadPrecision(self):
-        return self._get_pv('resolution')
-
     def doReference(self):
         if self.encoder_type == 'absolute':
             self.log.warning(

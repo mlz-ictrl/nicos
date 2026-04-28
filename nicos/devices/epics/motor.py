@@ -714,7 +714,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
 
     def doPoll(self, n, maxage):
         self.pollParams('speed', 'speedlimits', 'offset', 'abslimits',
-                        'reference_direction')
+                        'reference_direction', 'precision')
 
     def _at_home(self):
         """
