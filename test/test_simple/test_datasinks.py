@@ -35,6 +35,7 @@ from nicos import config
 from nicos.commands.measure import ListDatasinks
 from nicos.commands.scan import scan
 from nicos.core import ScanDataset
+from nicos.devices.datasinks.raw import RawImageFileReader
 from nicos.devices.datasinks.scan import AsciiScanfileReader
 from nicos.utils import readFile, updateFileCounter
 
@@ -177,6 +178,8 @@ class TestSinks:
         assert path.isfile(rawfile)
         assert path.getsize(rawfile) == 128 * 128 * 4  # 128x128 px, 32bit ints
 
+        RawImageFileReader.fromfile(rawfile)
+
         headerfile = path.join(session.experiment.datapath, 'p1234_1.header')
         assert path.isfile(headerfile)
         contents = readFile(headerfile)
@@ -204,6 +207,8 @@ class TestSinks:
         rawfile = path.join(session.experiment.datapath, 'single', '43_172.raw')
         assert path.isfile(rawfile)
         assert path.getsize(rawfile) > 128 * 128 * 4  # data plus header
+
+        RawImageFileReader.fromfile(rawfile)
 
         if hasattr(os, 'link'):
             # this entry in filenametemplate is absolute, which means relative to
