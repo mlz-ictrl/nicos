@@ -19,7 +19,7 @@ Devices
 
 In NICOS, devices are simply names.  Each name usually corresponds to a
 physical device, like motors, coders, switches, sensors (for temperatures,
-pressures, humidity, ...) and so on.
+pressures, humidity etc.) and so on.
 
 It's possible to define more complex, higher level devices [#fdev1]_, where a
 set of physical devices work together in a certain way to read/write a physical
@@ -29,9 +29,9 @@ the outgoing beam define the used wavelength.
 
 NICOS doesn't differentiate between these types of devices, it instead divides
 devices by their functionality.  Some devices can only read a value, some other
-can be moved to a certain position, either to any value in range `[min, max]`
-or only to a limited number of values (e.g. a switch with `'on'`, `'off'` or
-`1`, `0` values).
+can be moved to a certain position, either to any value in range ``[min, max]``
+or only to a limited number of values (e.g. a switch with ``'on'``, ``'off'``
+or ``1``, ``0`` values).
 Detector devices are another fundamental group of devices, which can be
 instructed to prepare counting (different type of presets are possible), start
 and stop counting, and read out the counter values.
@@ -41,18 +41,20 @@ have a set of methods, which can be accessed via the syntax::
 
    dev.method(list of parameters)
 
-   Examples:
+\
+
+   Examples::
 
       coder.read()
       motor.move(10)
       motor.stop()
 
 and a set of (configuration) parameters, which can be read and set (if allowed)
-at runtime. A parameter value can be read via::
+at runtime.  A parameter value can be read via ::
 
    dev.parameter
 
-and set by::
+and set by ::
 
    dev.parameter = new_value
 
@@ -74,9 +76,12 @@ Python control structures and builtin functions
 
 Additionally to the NICOS defined commands and devices the Python
 `control structures <https://docs.python.org/3.9/tutorial/controlflow.html>`_
-(such as e.g. `if`) and
+(such as e.g. ``if``) and
 `builtin functions <https://docs.python.org/3.9/library/functions.html>`_
-(e.g. `abs`) are available and can be used.
+(e.g. ``abs``) are available and can be used.
+
+Commonly used NumPy functions like ``exp`` and ``sin`` are also automatically
+imported.
 
 
 .. _nicos_variables:
@@ -85,7 +90,7 @@ Variables
 ---------
 
 As in regular Python, a variable name can be of any length and has to consist
-of ASCII letters (A-Z, and a-z ), digits (0-9), and the underscore character
+of ASCII letters (A-Z, and a-z), digits (0-9), and the underscore character
 (_), but it's not allowed to start with a digit.
 
 The variables may be set in interactive mode and in scripts.
@@ -95,6 +100,7 @@ The variables may be set in interactive mode and in scripts.
    NICOS defined names are not allowed to be overriden.  When trying to
    override them, NICOS generates an error message.
 
+
 .. [#fdev1] Sometimes such devices are also known as "virtual motors".
-.. [#cmd1] Internally the commands are Python functions and have therefor the
-           same syntax.
+.. [#cmd1] Internally the commands are Python functions and therefore have
+           the same syntax.
