@@ -34,6 +34,7 @@ from nicos.core import INFO_CATEGORIES, ConfigurationError, DataSink, \
     DataSinkHandler, Override, Param, Value
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data.dataset import PointDataset, ScanData, ScanDataset
+from nicos.core.device import DeviceParInfo
 from nicos.devices.datasinks import FileSink
 from nicos.utils import LOCALE_ENCODING, tabulated
 
@@ -247,18 +248,18 @@ class AsciiScanfileReader:
     def getMetainfoKey(self, line):
         return line.rsplit('_', 1)
 
-    def getMetainfoValue(self, line):
+    def getMetainfoValue(self, line, entry):
         session.log.debug(line)
         if line:
             res = self.re_number_unit.match(line)
             if res:
                 v = res.group(1)
-                return (v, v, res.group(2))
+                return DeviceParInfo(v, v, res.group(2), entry)
             res = self.re_collection_unit.match(line)
             if res:
                 v = res.group(1)
-                return (v, v, res.group(5) or '')
-        return (line, line, '')
+                return DeviceParInfo(v, v, res.group(5) or '', entry)
+        return DeviceParInfo(line, line, '', entry)
 
     @property
     def scandata(self):
@@ -340,7 +341,7 @@ class AsciiScanfileReader:
                         key, value = self.getKeyValue(lin)
                         devname, devkey = self.getMetainfoKey(key)
                         self.metainfo[devname, devkey] = self.getMetainfoValue(
-                            value) + (entry,)
+                            value, entry)
                         session.log.debug('%s: %s=%s', entry, key, value)
                         session.log.debug('    %s %s', devname, devkey)
                 else:
