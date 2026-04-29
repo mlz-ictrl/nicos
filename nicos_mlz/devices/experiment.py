@@ -36,8 +36,6 @@ from nicos.devices.experiment import Experiment as BaseExperiment, \
     ImagingExperiment as BaseImagingExperiment
 from nicos.utils import expandTemplate, safeName
 
-PROPOSAL_RE = re.compile(r'P\d+-\d+$')
-
 
 class Experiment(BaseExperiment):
     """Typical experiment at the FRM II facility.
@@ -46,6 +44,8 @@ class Experiment(BaseExperiment):
     logged into NICOS using its credentials -- to query proposal details.
     Also controls access to proposals based on this.
     """
+
+    PROPOSAL_RE = re.compile(r'^P\d+-\d+$')
 
     parameters = {
         'reporttemplate': Param('File name of experimental report template '
@@ -70,7 +70,7 @@ class Experiment(BaseExperiment):
         if proposal in ('template', 'current'):
             raise UsageError(self, 'The proposal names "template" and "current"'
                              ' are reserved and cannot be used')
-        if PROPOSAL_RE.match(proposal):
+        if self.PROPOSAL_RE.match(proposal):
             return 'user'
         if proposal == self.serviceexp:
             return 'service'
