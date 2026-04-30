@@ -21,31 +21,28 @@
 #
 # *****************************************************************************
 
-import sys
-import re
-import yaml
-import textwrap
 import os
+import re
+import sys
+import textwrap
+
+import yaml
 
 try:
     import orsopy
-
     # pylint: disable=import-error
-    from orsopy.fileio import ComplexValue, Value
-    from orsopy.fileio import model_language as ml
+    from orsopy.fileio import ComplexValue, Value, model_language as ml
 
 except ModuleNotFoundError:
     orsopy = None
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.utils import findResource
-
-from nicos.guisupport.qt import QObject, QEvent, QPlainTextEdit, QDialog, \
-    QFileDialog, Qt, QVBoxLayout, QPushButton, QSyntaxHighlighter, \
-    QTextCharFormat, QColor, QFont, QTextBrowser, QTextEdit, QByteArray, \
-    QSvgWidget, pyqtSlot, pyqtSignal, QThread, QSizePolicy, QSize, QSplitter
-from nicos.utils import LOCALE_ENCODING
+from nicos.guisupport.qt import QByteArray, QColor, QDialog, QEvent, \
+    QFileDialog, QFont, QObject, QPlainTextEdit, QPushButton, QSize, \
+    QSizePolicy, QSplitter, QSvgWidget, QSyntaxHighlighter, Qt, QTextBrowser, \
+    QTextCharFormat, QTextEdit, QThread, QVBoxLayout, pyqtSignal, pyqtSlot
+from nicos.utils import LOCALE_ENCODING, findResource
 
 DEFAULT_SHAPE = 'None'
 DEFAULT_MODEL = 'stack:'

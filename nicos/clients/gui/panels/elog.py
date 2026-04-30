@@ -31,8 +31,8 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.guisupport.qt import QActionGroup, QDesktopServices, QDialog, \
     QFontDatabase, QInputDialog, QLineEdit, QMainWindow, QMenu, QPrintDialog, \
-    QPrinter, QPushButton, QTextDocument, QTextEdit, QTimer, QToolBar, \
-    QUrl, QWebEngineView, pyqtSlot
+    QPrinter, QPushButton, QTextDocument, QTextEdit, QTimer, QToolBar, QUrl, \
+    QWebEngineView, pyqtSlot
 
 if QWebEngineView is None:
     raise ImportError('Qt webview component is not available')

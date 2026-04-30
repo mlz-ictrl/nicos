@@ -37,7 +37,7 @@ from nicos.clients.gui.utils import DlgUtils, enumerateWithProgress, loadUi, \
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
     ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
     PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, TcFitter, ViewPlot
-from nicos.core import Param, listof, ConfigurationError
+from nicos.core import ConfigurationError, Param, listof
 from nicos.devices.cacheclient import CacheClient
 from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QCursor, QDateTime, \
