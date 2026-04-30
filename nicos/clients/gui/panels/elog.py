@@ -216,7 +216,7 @@ class ELogPanel(Panel):
         dlg.helpFrame.setVisible(False)
         if hasattr(dlg.viewer, 'setMarkdown'):
             dlg.editor.textChanged.connect(
-                lambda : dlg.viewer.setMarkdown(dlg.editor.toPlainText()))
+                lambda: dlg.viewer.setMarkdown(dlg.editor.toPlainText()))
         else:
             dlg.viewer.hide()
         dlg.mdLabel.linkActivated.connect(

@@ -387,7 +387,7 @@ class MainWindow(DlgUtils, QMainWindow):
         # if there are presets defined in the gui config add them and override
         # existing ones
         for key, connection in self.gui_conf.options.get(
-            'connection_presets', {}).items():
+           'connection_presets', {}).items():
             parsed = parseConnectionString(connection, DEFAULT_PORT)
             if parsed:
                 parsed['viewonly'] = True
