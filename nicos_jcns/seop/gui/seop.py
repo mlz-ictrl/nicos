@@ -41,6 +41,7 @@ from nicos.guisupport.qt import QLayout, QMainWindow, QSizePolicy, \
 from nicos.guisupport.qtgr import InteractiveGRWidget, MouseEvent
 from nicos.guisupport.timeseries import buildTickDistAndSubTicks
 from nicos.guisupport.utils import DoubleValidator
+from nicos.guisupport.widget import NicosWidget
 from nicos.utils import findResource
 
 
@@ -51,10 +52,8 @@ class SeopPlot(LiveWidget1D):
         self.layout().removeWidget(self.gr)
         self.gr.deleteLater()
         self.gr = InteractiveGRWidget(self)
-        self.plot = Plot(viewport=(0.1, 0.95, 0.1, 0.95))
-        self.axes = Axes(self, viewport=self.plot.viewport,
-                         xdual=kwds.get('xscale', 'binary') == 'binary',
-                         ydual=kwds.get('yscale', 'binary') == 'binary')
+        self.plot = Plot(viewport=(0.1, 0.95, 0.20, 0.95))
+        self.axes = Axes(self, viewport=self.plot.viewport, xdual=False, ydual=False)
         self.plot.addAxes(self.axes)
         self.gr.addPlot(self.plot)
         self.layout().addWidget(self.gr)
@@ -328,3 +327,35 @@ class SeopControlButtons(QMainWindow, SeopControl):
                findResource('nicos_jcns/seop/gui/seopcontrol_mainwindow.ui'))
         self.client = client
         self.log = parent.log.getChild('seop')
+
+
+class SpectrometerPanel(NicosWidget, Panel):
+    panelName = 'HR4000'
+
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
+        loadUi(self, findResource('nicos_jcns/seop/gui/oceanspectrometer.ui'))
+        self.plot = SeopPlot('Wavelength, nm', 'Intensity, cts', None, False, self)
+        self.lytPlot.addWidget(self.plot)
+        self._x = []
+        self._enabled = False
+        self.client.run(f'hr4000.doEnable({self._enabled})')
+
+        NicosWidget.__init__(self)
+        self.setClient(self.client)
+
+    def registerKeys(self):
+        for k in ('hr4000/value', 'hr4000/xticks'):
+            self.registerKey(k)
+
+    def on_keyChange(self, key, value, time, expired):
+        if key == 'hr4000/value':
+            if len(value) == len(self._x):
+                self.plot.setPlotData(self._x, value)
+        elif key == 'hr4000/xticks':
+            self._x = value
+
+    @pyqtSlot()
+    def on_btnStartStop_clicked(self):
+        self._enabled = not self._enabled
+        self.client.run(f'hr4000.doEnable({self._enabled})')
