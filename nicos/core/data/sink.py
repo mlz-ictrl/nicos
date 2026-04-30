@@ -255,8 +255,9 @@ class NicosMetaWriterMixin:
         # to ease interpreting the data...
         # note: arraydesc exists only for ImageSinks
         if hasattr(self, '_arraydesc'):
-            wrapper.write('\n%r' % self._arraydesc)
-        wrapper.write('\n')
+            wrapper.write('\nArrayDesc(%r, %r, %r, %r)\n' % (
+                self._arraydesc.name, self._arraydesc.shape,
+                self._arraydesc.dtype, self._arraydesc.dimnames))
         wrapper.detach()
 
 

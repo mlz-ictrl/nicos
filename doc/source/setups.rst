@@ -73,7 +73,8 @@ except the :ref:`description <setup-description>` entry:
      This is the default.
    * ``plugplay`` means an optional setup that is automatically detected by
      NICOS when the corresponding hardware (usually sample environment) is
-     present.
+     present. (For technical information how to setup this
+     :doc:`have a look here <howtos/plugplay>`)
    * ``lowlevel`` means a low-level setup, which will be included by others,
      but should not be presented to users.
 
