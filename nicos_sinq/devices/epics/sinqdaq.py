@@ -29,10 +29,12 @@ This replaces the following files:
     - nicos_sinq/devices/epics/scaler_record.py
 """
 
+import math
+
 from nicos import session
-from nicos.core import POLLER, SIMULATION, Attach, Moveable, Override, Param, \
-    Readable, Value, floatrange, intrange, none_or, nonzero, oneof, pvname, \
-    status
+from nicos.core import POLLER, SIMULATION, Attach, HasPrecision, Moveable, \
+    Override, Param, Readable, Value, floatrange, intrange, none_or, nonzero, \
+    oneof, pvname, status
 from nicos.core.constants import MASTER
 from nicos.core.errors import ConfigurationError, UsageError
 from nicos.core.mixins import CanDisable, HasLimits
@@ -211,7 +213,7 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
         return True
 
 
-class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
+class DAQTime(DAQEpicsDevice, TimerChannelMixin, HasPrecision, PassiveChannel):
     """
     Retrieves the elapsed time from the configured `channel` of the
     configured SINQ DAQ System.
@@ -234,12 +236,14 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
     parameter_overrides = {
         'maxage': Override(userparam=False),
         'pollinterval': Override(userparam=False),
-        'fmtstr': Override(default='%.3f'),
+        'fmtstr': Override(default='%.2f'),
         'description': Override(mandatory=False, internal=True, prefercache=False,
                                 default=('The Elapsed Time measured during the '
                                          'current/most recent count')),
         'presetaliases': Override(mandatory=False, internal=False,
                                   settable=True, userparam=True),
+        'precision': Override(mandatory=False, internal=True,
+                              settable=False, userparam=True),
     }
 
     _daqpvs = {
@@ -288,6 +292,15 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, PassiveChannel):
         detector does not create a warning.
         """
         return True
+
+    def doReadPrecision(self):
+        # In hardware, we have 2 decimal places of precision.
+        return math.nextafter(0.01, -math.inf)
+
+    def presetReached(self, name, value, maxage):
+        if name in self._presetmap:
+            return self.doIsAtTarget(value, self.read(maxage)[self._presetmap[name]])
+        return False
 
 
 class DAQPreset(DAQEpicsDevice, ActiveChannel):
@@ -498,7 +511,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def valueInfo(self):
         if self.isTimePreset:
-            return (Value(self._attached_time_channel.name, unit=self.unit, fmtstr='%.3f'), )
+            return (Value(self._attached_time_channel.name, unit=self.unit, fmtstr=self._attached_time_channel.fmtstr), )
         return (Value(self.monitor_channel, unit=self.unit, fmtstr='%d'), )
 
     def doReadUnit(self):
@@ -556,7 +569,10 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
             self.hardware_count = value
 
         self.unit = 'sec' if self.isTimePreset else 'cts'
-        self.fmtstr = '%.3f' if self.isTimePreset else '%d'
+        self.fmtstr = self._attached_time_channel.fmtstr if self.isTimePreset else '%d'
+
+        # Changing the preset changes the status string, so force an update
+        self.status(0)
 
     def doStop(self):
         self.started_count = False
