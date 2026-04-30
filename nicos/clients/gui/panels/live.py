@@ -1031,7 +1031,7 @@ class LiveDataPanel(PlotPanel):
         errors = []
 
         def _cacheFile(fn, filetype):
-            uid = uuid4()
+            uid = str(uuid4())
             # setDataFromFile may raise an `NicosException`, e.g.
             # if the file cannot be opened.
             try:
