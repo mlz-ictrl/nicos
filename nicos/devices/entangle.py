@@ -831,6 +831,19 @@ class VectorInput(AnalogInput):
         return list(self._dev.value)
 
 
+class SpectrumInput(VectorInput):
+
+    parameters = {
+        'xticks': Param(
+            'X axis values for corresponding value data.',
+            type=listof(float), unit='', category='general',
+        ),
+    }
+
+    def doReadXticks(self):
+        return list(self._dev.xTicks)
+
+
 class VectorInputElement(AnalogInput):
     """Returns a single component of a VectorInput."""
 
