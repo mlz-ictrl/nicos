@@ -28,11 +28,7 @@
 import subprocess
 
 from nicos import session
-from nicos.commands import helparglist, usercommand
-from nicos.commands.scan import ADDSCANHELP0, ADDSCANHELP2, _handleScanArgs, \
-    _infostr
-from nicos_sinq.amor.scan import WallTimeScan
-from nicos_sinq.devices.detector import SinqDetector
+from nicos.commands import usercommand
 
 @usercommand
 def synchronize_daq():
@@ -45,7 +41,9 @@ def synchronize_daq():
     """
 
     result = subprocess.run(
-        ["ssh", "essdaq@det-efu02", "sh /home/essdaq/update_rmm_time.sh"],
+        ["ssh",
+         "essdaq@amor-efu",
+         "/home/essdaq/amor_tools/slow_control_driver/DetAndBM/correctTime.py"],
         capture_output=True,
         text=True
     )
@@ -53,77 +51,3 @@ def synchronize_daq():
     if result.returncode != 0:
         session.log.error('Synchronizing the DAQ time failed')
         session.log.error('Error: %s', result.stderr)
-
-
-@usercommand
-@helparglist('numpoints, walltime, ...')
-def walltimecount(numpoints, walltime, *args, **kwargs):
-    """Count a number of times for the given amount of time on wall.
-
-    "numpoints" can be -1 to scan for unlimited points (break using Ctrl-C or
-    the GUI to quit).
-
-    "walltime" provides the time in seconds
-
-    Example:
-
-    >>> walltimecount(500, 10)  # counts 500 times, every count for 10 seconds
-
-    A special "delay" argument is supported to allow time delays between two
-    points:
-
-    >>> walltimecount(500, 2, delay=5)
-    """
-    scanstr = _infostr('walltimecount', (numpoints, walltime, ) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(args, kwargs, scanstr)
-
-    # Get AMOR detector
-    if not detlist:
-        detlist = session.experiment.detectors
-
-    detector = None
-    for det in detlist:
-        if isinstance(det, SinqDetector):
-            detector = det
-
-    if not detector:
-        session.log.error('Detector not found in the detector list')
-
-    # Set the beam threshold to 0
-    oldthreshold = detector.threshold
-
-    # Complete the scan
-    scan = WallTimeScan([], [], numpoints, walltime, move, multistep, detlist,
-                        envlist, preset, scaninfo)
-    scan.run()
-
-    # Reset the beam threshold to oldvalue
-    detector.threshold = oldthreshold
-
-
-walltimecount.__doc__ += \
-    (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ', 'walltimecount(5, ')
-
-
-@usercommand
-@helparglist('state')
-def spin(state):
-    """Change the spin state to p (plus) or m (minus).
-
-    Example:
-
-    Following command brings spin state to +
-
-    >>> spin('p')
-    """
-    if state not in ('p', 'm'):
-        session.log.error('Expected only p/m as the state for spin')
-        return
-
-    flipper = session.getDevice('SpinFlipper')
-
-    if state == 'p':
-        flipper.maw('SPIN UP')
-    elif state == 'm':
-        flipper.maw('SPIN DOWN')
