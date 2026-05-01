@@ -29,16 +29,6 @@ import pytest
 
 from nicos.commands.scan import contscan, scan, timescan
 
-try:
-    import quickyaml
-except ImportError:
-    quickyaml = None
-
-try:
-    import yaml
-except ImportError:
-    yaml = None
-
 session_setup = 'stressi'
 exp_dataroot = 'stressidata'
 
@@ -80,18 +70,6 @@ class TestSinks:
 
     def test_caress_sink(self, datapath):
         assert Path.is_file(datapath.with_suffix('.dat'))
-
-    @pytest.mark.skipif(not (quickyaml or yaml),
-                        reason='QuickYAML/PyYAML libraries missing')
-    def test_yaml_file_exist(self, datapath):
-        assert Path.is_file(datapath.with_suffix('.yaml'))
-
-    @pytest.mark.skipif(not yaml, reason='PyYAML library missing')
-    def test_yaml_file_content(self, datapath):
-
-        with open(datapath.with_suffix('.yaml'), encoding='utf-8') as df:
-            contents = yaml.safe_load(df)
-        assert contents['experiment']
 
     def test_nexus_sink(self, datapath):
         assert Path.is_file(datapath.with_suffix('.nxs'))

@@ -6,7 +6,6 @@ Data formats
 
 .. module:: nicos_mlz.stressi.datasinks
 .. autoclass:: CaressScanfileSink()
-.. autoclass:: YamlDatafileSink()
 
 Wave length
 -----------

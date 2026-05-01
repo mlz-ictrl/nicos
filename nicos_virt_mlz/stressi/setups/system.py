@@ -83,9 +83,6 @@ devices = dict(
         filenametemplate = ['m2%(scancounter)08d.dat'],
         detectors = ['adet'],
     ),
-    yamlsink = device('nicos_mlz.stressi.datasinks.YamlDatafileSink',
-        filenametemplate = ['m2%(scancounter)08d.yaml'],
-    ),
     nxsink = device('nicos.nexus.NexusSink',
         templateclass='nicos_mlz.stressi.nexus.StressiTemplateProvider',
         device_mapping = {

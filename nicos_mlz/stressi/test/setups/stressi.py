@@ -27,15 +27,6 @@ includes = ['stdsystem']
 
 stressi_sinklist = ['csink']
 
-try:
-    import quickyaml  # pylint: disable=unused-import
-    stressi_sinklist.append('ysink')
-except Exception:
-    try:
-        import yaml  # pylint: disable=unused-import
-        stressi_sinklist.append('ysink')
-    except Exception:
-        pass
 
 try:
     import h5py  # pylint: disable=unused-import
@@ -162,10 +153,6 @@ devices = dict(
         images = ['strimage'],
         maxage = 3,
         pollinterval = 0.5,
-    ),
-    ysink = device('nicos_mlz.stressi.datasinks.YamlDatafileSink',
-        filenametemplate = ['m2%(scancounter)08d.yaml'],
-        detectors = ['adet'],
     ),
     csink = device('nicos_mlz.stressi.datasinks.CaressScanfileSink',
         filenametemplate = ['m2%(scancounter)08d.dat'],
