@@ -44,7 +44,7 @@ from nicos.protocols.daemon import BREAK_AFTER_STEP, BREAK_NOW
 from nicos.utils import findResource
 from nicos.utils.functioncurves import Curve2D, Curves
 
-from nicos_jcns.moke01.utils import calculate, fix_filename, generate_output
+from nicos_jcns.moke.utils import calculate, fix_filename, generate_output
 
 
 class MokePlotCurve(NicosPlotCurve):
@@ -384,7 +384,7 @@ class MokePanel(NicosWidget, MokeBase):
 
     def __init__(self, parent, client, options):
         MokeBase.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_jcns/moke01/gui/mokepanel.ui'))
+        loadUi(self, findResource('nicos_jcns/moke/gui/mokepanel.ui'))
         self.tabWidget.setCurrentIndex(0)
         self.calibration = {}
         self.plot_calibration = MokePlot('PS_current, A', 'MagB, mT', self)
@@ -640,7 +640,7 @@ class MokeHistory(MokeBase):
 
     def __init__(self, parent, client, options):
         MokeBase.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_jcns/moke01/gui/mokehistory.ui'))
+        loadUi(self, findResource('nicos_jcns/moke/gui/mokehistory.ui'))
         self.lyt_plot_IntvB.addWidget(self.plot_IntvB)
         self.lyt_plot_EvB.addWidget(self.plot_EvB)
         self._model = QStandardItemModel()

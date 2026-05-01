@@ -1535,7 +1535,8 @@ class Session:
                   self._setup_info[setup]['extended'].get('dynamic_loaded')]
         user = self.getExecutingUser()
         supervisor = SimulationSupervisor(self._sandbox_helper, uuid, code,
-                                          setups, user, emitter, quiet=quiet)
+                                          setups, user, emitter, quiet=quiet,
+                                          cache=self.current_sysconfig.get('cache'))
         supervisor.start()
         if wait:
             supervisor.join()

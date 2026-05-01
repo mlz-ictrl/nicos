@@ -63,7 +63,7 @@ def NewSample(name, **parameters):
 
     see also: `SetSample`, `SelectSample`, `ClearSamples`, `ListSamples`
 
-    .. note::
+    .. warning::
 
         It clears the list of existing samples!
 

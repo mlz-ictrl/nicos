@@ -25,7 +25,7 @@ from nicos.core import Attach, Override, Param, Readable, SLAVE, status
 from nicos.devices.abstract import TransformedReadable
 from nicos.devices.generic import VirtualMotor
 from nicos.utils.functioncurves import Curves
-from nicos_jcns.moke01.devices.moke import MokeMagnet
+from nicos_jcns.moke.devices.moke import MokeMagnet
 
 
 class VirtualMokeMagnet(MokeMagnet):

@@ -4,15 +4,18 @@
 # It is adapted from bin/nicos-simulate to run correctly in the test
 # environment.
 
-import os
+import argparse
 import sys
+from os import path
 from shutil import which
+
+sys.path.insert(0, path.dirname(path.dirname(path.dirname(path.realpath(__file__)))))
 
 from nicos import config
 from nicos.core.sessions.simulation import SimulationSession
 from nicos.protocols.cache import cache_load
 
-from test.utils import runtime_root, selfDestructAfter
+from test.utils import cache_addr, runtime_root, selfDestructAfter
 
 try:
     import coverage
@@ -75,22 +78,33 @@ class TestSimulationSession(SimulationSession):
         self.simulation_db = self._db
 
 
-args = sys.argv[1:]
-if len(args) < 4:
-    raise SystemExit('Usage: nicos-simulate sock uuid setups user '
-                     '[setup_subdirs [sync_cache_file]]')
-sock = args[0]
-uuid = args[1]
-setups = args[2].split(',')
-user = args[3]
+parser = argparse.ArgumentParser(description='')
 
-if len(args) > 4:
-    setup_subdirs = args[4].split(',')
-else:
-    setup_subdirs = ['../test']
+# The options 'cache', 'quiet', and 'debug' are added for compatibility with
+# the 'nicos-simulate' script
+parser.add_argument('--quiet', help='send only results', action='store_true',
+                    default=False)
+parser.add_argument('--debug', help='send log messages to stderr',
+                    action='store_true', default=False)
+parser.add_argument('--cache', '-c', dest='cache', action='store',
+                    help=f'CACHE server:port, defaults to {cache_addr}',
+                    default=cache_addr)
+parser.add_argument('sock', type=str, help='0MQ communication address')
+parser.add_argument('uuid', type=str, help='the uuid of the code')
+parser.add_argument('setups', type=str, help='comma separated list of setup files')
+parser.add_argument('user', type=str, help='user name,user Level')
+parser.add_argument('setup_subdirs', type=str, nargs='?', default='../test',
+                    help='comma separated list of search paths for the setups')
+parser.add_argument('sync_cache_file', type=str, nargs='?',
+                    help='Name of the cache file with values applied to device configs')
 
-if len(args) > 5 and os.path.isfile(args[5]):
-    sync_cache_file = args[5]
+opts = parser.parse_args()
+
+setups = opts.setups.split(',')
+
+setup_subdirs = opts.setup_subdirs.split(',')
+
+sync_cache_file = opts.sync_cache_file
 
 code = sys.stdin.read()
 
@@ -102,4 +116,4 @@ config.setup_subdirs = setup_subdirs
 config.sandbox_simulation = bool(which('nicos-sandbox-helper'))
 
 selfDestructAfter(30)
-TestSimulationSession.run(sock, uuid, setups, user, code)
+TestSimulationSession.run(opts.sock, opts.uuid, setups, opts.user, code)

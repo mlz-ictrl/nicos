@@ -1,7 +1,9 @@
 nicos/s2t/userlimits=(-45, 2)
 nicos/m2t/userlimits=(0, 180)
 nicos/m2t/value=45
+nicos/m2t/precision=0.05
 nicos/omm/userlimits=(0, 100)
+nicos/omm/precision=0.1
 nicos/mcv/userlimits=(0, 180)
 nicos/mch/userlimits=(0, 270)
 nicos/mst/userlimits=(0, 20)

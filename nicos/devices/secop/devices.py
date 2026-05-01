@@ -327,7 +327,6 @@ class SecNodeDevice(Readable):
 
     def get_setup_info(self):
         if self._mode == SIMULATION:
-            session.simulationSync()
             return session.simulation_db.get('%s/setup_info' % self.name.lower())
         return self.setup_info
 
