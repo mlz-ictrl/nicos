@@ -42,6 +42,7 @@ class TestLShapeSlit:
         s.opmode = 'centered'
         s.maw((0, 0))
         s._setROParam('min_opening', 0)
+        s._setROParam('angle', 45)
 
     def test_centered(self, slit):
 
@@ -95,3 +96,15 @@ class TestLShapeSlit:
                                 pytest.approx(5), pytest.approx(5)]
 
         pytest.raises(InvalidValueError, slit._getPositions, [1, 2, 4])
+
+    def test_angles(self, slit):
+        slit.opmode = 'offcentered'
+        slit.maw((1, 1, 5, 5))
+
+        slit._setROParam('angle', 30)
+        assert slit.read(0) == [pytest.approx(1.224745), pytest.approx(0.707107),
+                                pytest.approx(6.123724), pytest.approx(3.535534)]
+
+        slit._setROParam('angle', 60)
+        assert slit.read(0) == [pytest.approx(0.707107), pytest.approx(1.224745),
+                                pytest.approx(3.535534), pytest.approx(6.123724)]
