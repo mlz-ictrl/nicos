@@ -1,0 +1,15 @@
+devices = dict(
+    s1 = device('nicos_mlz.saphir.devices.slits.LSlit',
+        description = 'Slit 1',
+        m1 = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (-2, 50),
+            speed = 0,
+            unit = 'mm',
+        ),
+        m2 = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (-2, 50),
+            speed = 0,
+            unit = 'mm',
+        ),
+    ),
+)
