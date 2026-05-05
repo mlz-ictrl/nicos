@@ -2,6 +2,8 @@ description = 'Slits'
 
 group = 'lowlevel'
 
+s3_offset = 0
+
 devices = dict(
     s3 = device('nicos.devices.generic.Switcher',
         description = 'Slit 3',
@@ -11,13 +13,10 @@ devices = dict(
             unit = 'mm',
         ),
         mapping = {
-            1: 10,
-            2: 40,
-            3: 71,
-            4: 102,
-            5: 130,
-            6: 200,
-            9: 300,
+            2: 39 + s3_offset,
+            4: 31 + s3_offset,
+            6: 21 + s3_offset,
+            10: 8 + s3_offset,
         },
         precision = 0.01,
         unit = 'mm',
