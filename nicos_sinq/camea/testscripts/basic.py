@@ -14,3 +14,7 @@ maw(mono, 3)
 timescan(1, t=1)
 assert omm.precision == 0.1
 assert m2t.precision == 0.05
+
+# Test dry-run with number which is known to cause rounding-problem errors if
+# the motor precision is 0.
+maw(ei, 7)
