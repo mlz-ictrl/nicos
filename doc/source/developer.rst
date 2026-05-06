@@ -11,6 +11,7 @@ development environment and coding guidelines.
    :maxdepth: 1
 
    overview
+   core_concepts
    components
    deviceapi
    dataapi/index

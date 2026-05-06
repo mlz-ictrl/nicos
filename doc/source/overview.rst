@@ -48,5 +48,5 @@ In parallel, there is usually a process called *poller* that starts a session
 for each setup and queries its devices periodically for value and status.  These
 state updates are forwarded to other NICOS sessions via the cache.
 
-The components of the NICOS system are described in more detail on
-:ref:`the following page <components>`.
+The components of the NICOS system are described in more detail
+:ref:`on this page <components>`.

@@ -10,6 +10,7 @@ of entities to control the instrument/experiment:
 - :ref:`Commands <nicos_commands>`
 - :ref:`Python control structures and builtin functions <python_controls>`
 - :ref:`Variables <nicos_variables>`
+- :ref:`Device and script control <dev_script_control>`
 
 
 .. _nicos_devices:
@@ -100,6 +101,48 @@ The variables may be set in interactive mode and in scripts.
    NICOS defined names are not allowed to be overriden.  When trying to
    override them, NICOS generates an error message.
 
+.. _dev_script_control:
+
+Device control and script control
+---------------------------------
+
+NICOS differentiates conceptually between:
+
+- **Device control**:
+
+  Devices are usually controlled via:
+
+  * "normal" Python function calls (e.g. `maw(dev, 1)`)
+  * method calls (e.g. `dev.maw(1)`)
+  * parameter read calls (e.g.  `dev.parameter`)
+  * parameter write calls (e.g. `dev.parameter = 1.3`)
+
+  All device control is done by user interaction (use of command line, GUI
+  use, or writing this in user scripts and execute them)
+
+- **Script control**:
+
+  A script can be *run*, which means queuing all Python statements within it
+  and then executing them sequentially in the NICOS daemon. The script/queue
+  can be *paused* and *resumed* or *aborted* entirely.
+
+  The execution of :doc:`user scripts <userscripts>` is controlled via GUI
+  buttons or special commands. Some
+  :ref:`script control functionality <script_commands>` also affects device
+  control.
+
+These differentation sometimes leads to confusion in the use of the
+:ref:`stop <stop_command>` command.  A more detailed description can be found
+:doc:`here <stopping>`
+
+..  A :class:`Moveable <nicos.core.device.Moveable>` can *start* a "movement" in
+    order to change its value. Similarily, a
+    :class:`Measurable <nicos.core.device.Measurable>` can *start* its data
+    acquisition. A :class:`Measurable <nicos.core.device.Measurable>` can also
+    be *paused* and then eventually *resume* acquiring data. Both
+    :class:`Moveables <nicos.core.device.Moveable>`
+    and :class:`Measurables <nicos.core.device.Measurable>` can be *stopped*, which
+    means that the device changes to its idle state at fast as possible.
 
 .. [#fdev1] Sometimes such devices are also known as "virtual motors".
 .. [#cmd1] Internally the commands are Python functions and therefore have
