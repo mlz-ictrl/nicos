@@ -546,3 +546,5 @@ def test_two_axis_slit(session):
 
     pytest.raises(UsageError, slit.centerx.move, 1)
     pytest.raises(UsageError, slit.centery.move, 1)
+
+    assert len(slit.valueInfo()) == 2
