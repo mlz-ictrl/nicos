@@ -66,7 +66,7 @@ devices = dict(
         fmtstr = '%.2f',
         precision = 0.01,
         motor = device('nicos.devices.generic.VirtualMotor',
-            abslimits = (-750, 150),
+            abslimits = (-500.9, 110.65),
             unit = 'mm',
         ),
     ),
