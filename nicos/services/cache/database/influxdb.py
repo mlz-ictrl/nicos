@@ -208,13 +208,12 @@ class InfluxDB2Wrapper:
         point = Point(measurement).time(ts).field(f'{field}', value)\
             .tag('expired', expired)
         value_float = self._convert_to_float(value)
-        if value_float is not None:
-            point_float = Point(measurement).time(ts)\
-                .field(f'{field}_float', value_float)\
-                .tag('expired', expired)
         with self._update_lock:
             self._update_queue.append(point)
-            if value_float:
+            if value_float is not None:
+                point_float = Point(measurement).time(ts)\
+                    .field(f'{field}_float', value_float)\
+                    .tag('expired', expired)
                 self._update_queue.append(point_float)
         if len(self._update_queue) > 100 or self._unbuffered:
             self._update()
