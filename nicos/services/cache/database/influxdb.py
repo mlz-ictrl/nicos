@@ -25,7 +25,7 @@ import ast
 import asyncio
 import csv
 import threading
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from influxdb_client import BucketRetentionRules, InfluxDBClient, Point
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
@@ -51,6 +51,7 @@ class InfluxDB2Wrapper:
         self._org = org
         self._bucket = bucket
         self._bucket_latest = bucket_latest
+        self._retentions = {}  # maps bucket names to their retention time
         self._client = InfluxDBClient(url=self._url, token=self._token,
                                       org=self._org, timeout=30_000)
         self._write_api = self._client.write_api(write_options=write_option)
@@ -65,6 +66,7 @@ class InfluxDB2Wrapper:
         buckets = self._client.buckets_api().find_buckets().buckets
         for bucket in buckets:
             bucket_names.append(bucket.name)
+            self._retentions[bucket.name] = bucket.retention_rules[0].every_seconds
         return bucket_names
 
     def addNewBucket(self, bucket_name):
@@ -142,7 +144,6 @@ class InfluxDB2Wrapper:
         module is installed.
         """
 
-        self._update()
         result = []
         # query bucket with the latest values if exists and check if is complete
         last_dt, n_records = datetime.min.replace(tzinfo=timezone.utc), 0
@@ -245,6 +246,10 @@ class InfluxDB2Wrapper:
                     .time(datetime.now(tz=timezone.utc)).field('N_records', len(points)))
 
     def _write(self, bucket, points):
+        if (r := self._retentions.get(bucket, 0)) != 0:  # if retention is not infinite
+            cutoff = (datetime.now(tz=timezone.utc)
+                      - timedelta(seconds=r - min(max(int(r * 0.01), 5), 60)))
+            points = [p for p in points if p._time > cutoff]
         self._write_api.write(bucket=bucket, record=points)
 
     def _convert_to_float(self, value):
@@ -297,7 +302,7 @@ class InfluxDB2CacheDatabase(CacheDatabase):
             type=str, default='nicos-cache', mandatory=False
         ),
         'bucket_latest': Param(
-            'Name of the bucket where data should be stored',
+            'Name of the bucket where the latest values should be stored.',
             type=str, default='nicos-cache-latest-values', mandatory=False
         ),
         'unbuffered': Param(
