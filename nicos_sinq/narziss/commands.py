@@ -29,7 +29,7 @@ from nicos.commands.device import adjust, maw
 from nicos.commands.sample import NewSample
 from nicos.commands.scan import cscan, scan
 from nicos.core.errors import ConfigurationError, UsageError
-from nicos.devices.epics.pyepics.motor import EpicsMotor
+from nicos_sinq.devices.epics.motor_deprecated import EpicsMotor
 
 from nicos_sinq.devices.lin2ang import Lin2Ang
 
