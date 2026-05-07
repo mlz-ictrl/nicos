@@ -29,7 +29,7 @@ from nicos.core import Attach, CanDisable, HasPrecision, IsController, \
 from nicos.core.params import anytype, dictof, limits as unpack_limits
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import Motor
-from nicos.devices.epics.pyepics import EpicsDevice, EpicsDigitalMoveable, \
+from nicos.devices.epics.base import EpicsDevice, EpicsDigitalMoveable, \
     EpicsReadable
 from nicos_sinq.devices.epics.motor import SinqMotor
 
@@ -211,9 +211,9 @@ class RangeSelector(EpicsDigitalMoveable):
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
 
-    def doStart(self, target):
-        self._range = target
-        if self.doRead() != target:
+    def doStart(self, value):
+        self._range = value
+        if self.doRead() != value:
             self._put_pv_blocking('writepv', 1)
             self._put_pv_blocking('writepv', 0)
 
