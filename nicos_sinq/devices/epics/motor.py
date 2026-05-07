@@ -201,6 +201,11 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         return self._get_pv('resolution')
 
     def doReference(self):
+        # Don't allow referencing while disabled
+        if not self.enabled:
+            raise UsageError('Referencing the motor while disabled is not '
+                             'possible, please enable before referencing.')
+
         if self.encoder_type == 'absolute':
             self.log.warning(
                 'This motor does not require homing - command ignored')
