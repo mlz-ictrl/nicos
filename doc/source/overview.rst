@@ -8,8 +8,33 @@ Q-omega space.  The devices in a session form a hierarchy: more high-level
 devices can depend on more low-level devices, which are *attached* to each
 other.
 
-Most devices fall into three basic classes: readable, moveable and measurable
-devices.  Basic functionality of hardware devices such as "read the value" and
+Most of these devices fall into a few basic classes:
+
+* :class:`Readable <nicos.core.device.Readable>`: A device which periodically
+  reads a value from somewhere (e.g. a temperature sensor).
+
+* :class:`Waitable <nicos.core.device.Waitable>`: A :class:`Readable
+  <nicos.core.device.Readable>` which can execute some action and wait for its
+  completion.  It is usually used as a "controller" device for other devices,
+  for example multiple motors which move together.  The controller device can
+  initiate the combined movement via a custom command and then be waited upon
+  until all "attached" devices have completed their individual movements.
+
+* :class:`Moveable <nicos.core.device.Moveable>`: A :class:`Waitable
+  <nicos.core.device.Waitable>` which can start a "movement" in order to change
+  a particular value.  A typical example would be a motor or a temperature
+  controller.
+
+* :class:`Measurable <nicos.core.device.Measurable>`: A :class:`Waitable
+  <nicos.core.device.Waitable>` for acquiring data.  The data acquisition is
+  "started" via the :func:`count <nicos.commands.measure.count>` or by one of
+  the :ref:`scan commands <scanning_commands>`.  A typical example would be a
+  detector.
+
+These core devices are located in :mod:`nicos.core.device`. See their respective
+documentation for more.
+
+Basic functionality of hardware devices such as "read the value" and
 "read the status", or "move to a new value" and "reset" is contained in these
 three classes.
 
