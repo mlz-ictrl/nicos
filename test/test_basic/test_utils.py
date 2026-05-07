@@ -367,10 +367,38 @@ def test_check_setup_spec():
 
 def test_parse_key_expression():
     assert parseKeyExpression('dev.key')[0] == 'dev/key'
+    assert parseKeyExpression('dev/key')[0] == 'dev/key'
     assert parseKeyExpression('dev.key', normalize=lambda s: s)[0] == \
         'dev.key/value'
     assert parseKeyExpression('dev.key', False, normalize=lambda s: s)[0] == \
         'dev.key'
+
+    key, expr, _ =  parseKeyExpression('dev.key[0]')
+    assert key == 'dev/key'
+    assert eval(expr, {}, {'x': [0]}) == 0
+
+    key, expr, _ =  parseKeyExpression('dev.key[1]')
+    assert key == 'dev/key'
+    assert eval(expr, {}, {'x': [0, 1]}) == 1
+
+    key, expr, _ = parseKeyExpression('dev/key[0]')
+    assert key == 'dev/key'
+    assert eval(expr, {}, {'x': [0]}) == 0
+
+    key, expr, _ = parseKeyExpression('dev/key[1]')
+    assert key == 'dev/key'
+    assert eval(expr, {}, {'x': [0, 1]}) == 1
+
+    key, expr, _ = parseKeyExpression('dev/key[c]')
+    assert key == 'dev/key'
+    assert eval(expr, {}, {'c': 0, 'x': [0, 1, 2]}) == 0
+    assert eval(expr, {}, {'c': 1, 'x': [0, 1, 2]}) == 1
+    assert eval(expr, {}, {'c': 2, 'x': [0, 1, 2]}) == 2
+
+    key, expr, _ = parseKeyExpression('a/5[1]')
+    assert key == 'a/value'
+    key, expr, _ = parseKeyExpression('a/(b+c)[1]')
+    assert key == 'a/value'
 
     key, expr, _ = parseKeyExpression('dev + 1')
     assert key == 'dev/value'
