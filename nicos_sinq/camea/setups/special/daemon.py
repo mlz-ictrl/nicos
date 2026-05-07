@@ -16,7 +16,3 @@ devices = dict(
         loglevel = 'debug',
     ),
 )
-
-startupcode = '''
-import nicos.devices.epics.pyepics
-'''
