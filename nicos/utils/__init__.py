@@ -1547,9 +1547,10 @@ class KeyExprTransform(ast.NodeTransformer):
                 return ast.Name(id=node.left.id + '/' + node.right.id,
                                 ctx=ast.Load())
             if isinstance(node.right, ast.Subscript):
-                return ast.Subscript(
-                    ast.Name(id=node.left.id + '/' + node.right.value.id,
-                             ctx=ast.Load()), node.right.slice, ctx=ast.Load())
+                if isinstance(node.right.value, ast.Name):
+                    return ast.Subscript(
+                        ast.Name(id=node.left.id + '/' + node.right.value.id,
+                                 ctx=ast.Load()), node.right.slice, ctx=ast.Load())
         return node
 
     def visit_Attribute(self, node):

@@ -395,6 +395,11 @@ def test_parse_key_expression():
     assert eval(expr, {}, {'c': 1, 'x': [0, 1, 2]}) == 1
     assert eval(expr, {}, {'c': 2, 'x': [0, 1, 2]}) == 2
 
+    key, expr, _ = parseKeyExpression('a/5[1]')
+    assert key == 'a/value'
+    key, expr, _ = parseKeyExpression('a/(b+c)[1]')
+    assert key == 'a/value'
+
     key, expr, _ = parseKeyExpression('dev + 1')
     assert key == 'dev/value'
     assert eval(expr, {}, {'x': 42}) == 43
