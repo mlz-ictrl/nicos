@@ -78,7 +78,7 @@ _befilterblock = Block('Be filter', [
 _slit1block = Block('Slit1', [
     BlockRow(
         Field(widget='nicos.guisupport.led.StatusLed', dev='slit_1'),
-        Field(name='(centerx, centery)Widht x Height', dev='slit_1'),
+        Field(name='(centerx, centery)Width x Height', dev='slit_1'),
     ),
 ],
     setups='slit1_1 or slit1_2',
@@ -87,7 +87,7 @@ _slit1block = Block('Slit1', [
 _slit2block = Block('Slit2', [
     BlockRow(
         Field(widget='nicos.guisupport.led.StatusLed', dev='slit_2'),
-        Field(name='(centerx, centery)Widht x Height', dev='slit_2'),
+        Field(name='(centerx, centery)Width x Height', dev='slit_2'),
     ),
 ],
     setups='slit2_1 or slit2_2',
@@ -96,7 +96,7 @@ _slit2block = Block('Slit2', [
 _slit3block = Block('Slit3', [
     BlockRow(
         Field(widget='nicos.guisupport.led.StatusLed', dev='slit_3', name='status'),
-        Field(name='(centerx, centery)Widht x Height', dev='slit_3'),
+        Field(name='(centerx, centery)Width x Height', dev='slit_3'),
     ),
 ],
     setups='slit3_1 or slit3_2',

@@ -67,4 +67,4 @@ class TwoAxisSlit(BaseTwoAxisSlit):
 
 
 class VerticalGap(BaseVerticalGap, Gap):
-    """Refsans special implementattion of a vertical gap."""
+    """Refsans special implementation of a vertical gap."""

@@ -1,4 +1,4 @@
-description = 'Off Specular Analysator setup'
+description = 'Off Specular Analyzer setup'
 
 group = 'lowlevel'
 

@@ -100,7 +100,7 @@ class ChopperMaster(CanReference, BaseSequencer):
         'dist': Param('flight path (distance chopper disc 1 to detector)',
                       type=floatrange(0), settable=True, userparam=True,
                       unit='m', category='status'),
-        'duty_cycle': Param('duty_cycle for puls ... ',
+        'duty_cycle': Param('duty_cycle for pulse ... ',
                             type=floatrange(0, 1), settable=True,
                             userparam=True, unit='', category='status'),
         'chopper_rpm_setpoint': Param('Chopper1 speed setpoint',
@@ -215,7 +215,7 @@ class ChopperMaster(CanReference, BaseSequencer):
                               stoppable=True))
         for line in seq:
             self.log.info('%s', line)
-        self.log.warning('BLOCKED Debug MP only, NO HW acces yet! disc2_pos def 2026-02-27')
+        self.log.warning('BLOCKED Debug MP only, NO HW access yet! disc2_pos def 2026-02-27')
         seq = []
         return seq
 

@@ -225,7 +225,7 @@ class TestChopper:
         # assert chopper.read(0) == {'D': 22.8, 'disc2_pos': 6, 'duty_cycle': 0.0,
         #                            'wlmax': 21.0, 'wlmin': 0.0,
         #                            'suppress_overlap': True}
-        # TODO: Check if this value is expectd
+        # TODO: Check if this value is expected
         # assert pytest.approx(chopper2.phase) == 302.415
         assert pytest.approx(chopper2.phase) == 0
         # TODO: Reactivate
