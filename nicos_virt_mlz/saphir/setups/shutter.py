@@ -19,7 +19,7 @@ devices = dict(
         ],
         mapping = {
             'closed': [-10, -10],
-            'open': [-10, -10],
+            'open': [10, 10],
         },
         unit = '',
         precision = [0.1, 0.1],
