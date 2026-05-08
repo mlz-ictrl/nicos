@@ -19,7 +19,6 @@ devices = dict(
         copies = [
             ('michael.hofmann@frm2.tum.de', 'all'),
             ('weimin.gan@hzg.de', 'all'),
-            ('karl.zeitelhack@frm2.tum.de', 'important'),
             ('ilario.defendi@frm2.tum.de', 'important'),
             ('joana.kornmeier@frm2.tum.de', 'important'),
         ],
