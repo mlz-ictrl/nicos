@@ -311,7 +311,7 @@ def timeadscan(numpoints, header, parnames, parlist, sth, stt, mono, cad, t):
     Count a number of times without moving devices, except the 'sth', 'stt',
     'mono', and 'cad' before counting the first time.
 
-    * numpoints - number of repititions can be -1 to scan for unlimited points
+    * numpoints - number of repetitions can be -1 to scan for unlimited points
                   (break using Ctrl-C or the GUI to quit).
     * header - additional header (maybe stored in data file)
     * parnames - additional parameters (stored in data file)

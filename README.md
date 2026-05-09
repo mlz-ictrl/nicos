@@ -11,7 +11,7 @@ Documentation:
 
 There is a documentation of the
 [current release](https://forge.frm2.tum.de/nicos/doc/nicos-stable/documentation)
-and the [devlopment branch](https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/) available.
+and the [development branch](https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/) available.
 
 Repository
 ----------

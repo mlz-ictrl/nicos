@@ -346,7 +346,7 @@ rp = pos2hkl
 def pos(*args, **kwds):
     """Move the instrument to a given Q, or the last `calpos()` position.
 
-    Without arguments, moves to the last position sucessfully calculated with
+    Without arguments, moves to the last position successfully calculated with
     `calpos()`.  Examples:
 
     >>> pos()                       # last calpos() position

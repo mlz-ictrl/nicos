@@ -1,10 +1,10 @@
 # This script will loop through all defined geometries
 # and loop at each geometry through all defined samples
 
-# --- start initital setup ---
+# --- start initial setup ---
 run('sc.py')
 s = sc_script()
-# --- end initital setup ---
+# --- end initial setup ---
 
 # --- start defining standard values ---
 # sizes of diaphragms

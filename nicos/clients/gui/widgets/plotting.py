@@ -1241,7 +1241,7 @@ def synthesizeSingleCurveData(curvedata, fmtno, window=0.1):
     """Generate a single matrix with value Y1...Yn for a single time column
     from a list of separate (X, Y) curves
 
-    Y values of curves that don't have data for inbetween points is not
+    Y values of curves that don't have data for intermediate points is not
     interpolated, but the last value is repeated.
     """
     ncurves = len(curvedata)

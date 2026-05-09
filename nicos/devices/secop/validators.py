@@ -71,7 +71,7 @@ class Secop_enum(oneofdict):
     def __init__(self, members, **kwds):
         # Do not use oneof here, as in general numbers are relevant for the
         # specs. Unfortunately, ComboBox will sort items by name, and not by
-        # values, which IMO would be preferrable.
+        # values, which IMO would be preferable.
         # Eventually nicos.guisupport.typedvalue.ComboWidget should be changed
         # to keep the given order instead or sorting by name, at least when
         # vals is an OrderedDict ...

@@ -204,13 +204,13 @@ class EchoTime(Moveable):
     def getTable(self, measurement_mode, wavelength):
         """Get a specific tunewave table.
 
-        Avoid transfering all tables for each access.
+        Avoid transferring all tables for each access.
         """
         return self._validate_table(
             self.tables.get(measurement_mode, {}).get(wavelength, {}))
 
     def setTable(self, measurement_mode, wavelength, table):
-        """Set a specific tunewave table. Avoid transfering all tables for each
+        """Set a specific tunewave table. Avoid transferring all tables for each
         access."""
 
         # validate table structure and device values
@@ -227,7 +227,7 @@ class EchoTime(Moveable):
         self.tables = tables
 
     def deleteTable(self, measurement_mode, wavelength):
-        """Delete a specific tunewave table. Avoid transfering all tables for
+        """Delete a specific tunewave table. Avoid transferring all tables for
         each access."""
 
         # use ordinary dicts instead of readonlydicts to be able to change them

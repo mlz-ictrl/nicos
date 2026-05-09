@@ -418,7 +418,7 @@ class CacheServer(Device):
             res = select.select(selectlist, [], [], CYCLETIME * 3)
             if not res[0]:
                 continue  # nothing to read -> continue loop
-            # lock aginst code in self.quit
+            # lock against code in self.quit
             with self._connectionLock:
                 if self._stoprequest:
                     break

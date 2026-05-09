@@ -61,7 +61,7 @@ class BlahDevice(BlahMixin, Device):
 
 
 class BlahDevice2(BlahDevice):
-    """Device inheriting device inheriting mixin with paramter override."""
+    """Device inheriting device inheriting mixin with parameter override."""
 
 
 class BlubbDevice(BlubbMixin, Device):

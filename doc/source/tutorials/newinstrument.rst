@@ -74,7 +74,7 @@ This starts NICOS and the NICOS GUI should look like:
 .. figure:: images/nicos-step1.png
 
 The ``-O`` option allows ``nicos-demo`` to run the instrument selected by the
-environent variable ``INSTRUMENT``, which has been set to
+environment variable ``INSTRUMENT``, which has been set to
 ``nicos_<facility>.<instrument>`` (here ``nicos_hynes.woni``).
 
 Before you leave the system by pressing the ``Exit`` button (the window will

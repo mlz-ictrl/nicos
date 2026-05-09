@@ -186,6 +186,6 @@ def img():
 
 @usercommand
 def tof():
-    "Settting the Cascade Detector to tof mode"
+    "Setting the Cascade Detector to tof mode"
 
     session.getDevice('psd_channel').mode = 'tof'

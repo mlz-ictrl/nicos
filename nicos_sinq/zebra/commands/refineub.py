@@ -470,7 +470,7 @@ def residuals(  # pylint: disable=too-many-positional-arguments
             con = lim-2
             param[i] = param[con]
 
-    # Set cell paramters to calculate UB matrix correctly
+    # Set cell parameters to calculate UB matrix correctly
     sample.a = param[0]
     sample.b = param[1]
     sample.c = param[2]
@@ -672,7 +672,7 @@ def refinement(  # pylint: disable=too-many-positional-arguments
     Should nearly always converge
     args;
         verbose     - (0/1/2) How much should the function print
-        replace     - (0/1) Should the function replace the cell paramters
+        replace     - (0/1) Should the function replace the cell parameters
                             and UB matrix
         max_nfev    - Amount of cycles (5)
         eps         - Magnitude of finit increase (0.001)
@@ -711,7 +711,7 @@ def refinement(  # pylint: disable=too-many-positional-arguments
             session.log.info('')
             session.log.info('Cycle %d', i)
 
-        # Calculated reflections and cost for initial paramters
+        # Calculated reflections and cost for initial parameters
         calc0, c0 = residuals(
             p0,
             sample,
@@ -800,7 +800,7 @@ def refinement(  # pylint: disable=too-many-positional-arguments
             session.log.info('Converged with respect to parameters')
             break
 
-    # Log Final cycle, costs and return the new values, vairances and
+    # Log Final cycle, costs and return the new values, variances and
     # correlations
     session.log.info('')
     session.log.info('')
@@ -839,7 +839,7 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
     Function to define the initial guess for the least squares method as well
     as the boundaries within which the method has to keep the parameters. When
     running, input can be a list of any type containing the parameters that
-    should be varied. If variables should be dependant on other, then the shape
+    should be varied. If variables should be dependent on others, then the shape
     of the list should be as follows ``(a,[b,c])``, where ``b`` and ``c`` now
     are forced to be the same value as ``a``.
 
@@ -1114,7 +1114,7 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
         init_UB = sample.ubmatrix
 
     # Rafin optimization model, which uses the residuals function to calculate
-    # the optimal paramters, with initial guess p0. Uses inverse matrix
+    # the optimal parameters, with initial guess p0. Uses inverse matrix
     # calculations and small steps to figure out which direction to move the
     # parameters in
     session.log.info('')
@@ -1156,7 +1156,7 @@ def RefineUB(*args, orienting_refs=None, ignore_refs=None, verbose=1,
                                                       sample.ubmatrix[i*3+2]))
         session.log.info('')
 
-    # Replace parametes (or don't)
+    # Replace parameters (or don't)
     if replace:
         for i in range(len(p0)):
             for mot in motors:

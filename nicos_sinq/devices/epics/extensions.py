@@ -151,7 +151,7 @@ class EpicsCommandReply(EpicsDevice, Device):
 class EpicsControlledAnalogMoveable(EpicsAnalogMoveable):
     '''
     Extends `EpicsAnalogMoveable` with additional PV's to check device
-    readyness and to stop it.
+    readiness and to stop it.
 
     This class extends `EpicsAnalogMoveable` with additional functionality
     via two optional PVs. If none of these PVs are given in the setup file, this

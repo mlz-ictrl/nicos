@@ -49,13 +49,13 @@ while(b)
     if strcmp('### Scan data',linDat)
         linDat = fgetl(fid);
         linDat = linDat(3:end);
-        % Generate list of vairables
+        % Generate list of variables
         [lspec, linspec] = strtok(linDat,char(9));
         while ~isempty(linspec)
             [s, linspec] = strtok(linspec,char(9));
             lspec = str2mat(lspec,s);
         end
-        % Find the location of the needed vairables in the variable list
+        % Find the location of the needed variables in the variable list
         xpos = [];    ypos = [];    mpos = [];
         for j = 1:length(lspec(:,1))
             if strcmp(deblank(lspec(j,:)),xname)

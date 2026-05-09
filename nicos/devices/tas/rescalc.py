@@ -745,7 +745,7 @@ Resolution Info:
         """Calculates transformation matrix self.S, which transforms from the
         coordinate frame given in h, k, l (r.l.u.) and E(meV) to cartesian
         crystallographic axis in units of Angstrom^{-1} and meV (Matrix
-        self.Q2c; s neutrons.crystal.unitcell modul).
+        self.Q2c; s neutrons.crystal.unitcell module).
 
         Then a second transformation into the coordinate frame defined by V1,V2
         and V3 is performed (Matrix U). V1 and V2 are the vector defining the

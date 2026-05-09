@@ -148,7 +148,7 @@ class CaprotoWrapper:
         try:
             # response is a ReadResponse objects with the fields:
             # - data: a scalar or an array depending on the record type
-            # - metada: Control metdata such as limits, units, etc.
+            # - metada: Control metadata such as limits, units, etc.
             # - status: Record status
             # - severity: Error severity
             # - timestamp: Read timestamp

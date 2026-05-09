@@ -42,7 +42,7 @@ def test_params(session, osci):
     limits = axis.userlimits
     # min/max parameters got from moveable device
     assert osci.range == limits
-    # stoppable paramter check
+    # stoppable parameter check
     assert osci.stoppable is False
 
     osci.range = (0, 10)

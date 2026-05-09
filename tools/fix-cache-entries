@@ -82,7 +82,7 @@ def fix_pollinterval_and_maxage(pollinterval=float, maxage=float):
     return res
 
 
-# Framwork
+# Framework
 
 class CClient:
     """Very crude and basic cache client"""

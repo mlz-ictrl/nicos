@@ -69,7 +69,7 @@ def test_mean():
     assert mean(x).s / mean(x, dx1).s == pytest.approx(10.0)
     assert mean(x, dx2).n == pytest.approx(1.35, rel=0.01)
     assert mean(x, dx2).s == pytest.approx(0.09, rel=0.1)
-    # test Curve.mean() erturns values
+    # test Curve.mean() return values
     x = list(range(1, 10))
     v = randint(1, 100)
     y1 = [v + (randint(1, 200) - 100) / 100 for _ in x]

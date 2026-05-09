@@ -392,7 +392,7 @@ class CARESSDevice(HasCommunication):
         if not self._initialized or not self._caressObject:
             CARESSDevice.doInit(self, self._mode)
 
-#       self._com_lock.aquire()
+#       self._com_lock.acquire()
         try:
             return function(*args)
         except (CORBA.COMM_FAILURE, CORBA.TRANSIENT) as err:

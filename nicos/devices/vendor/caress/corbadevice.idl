@@ -299,7 +299,7 @@ module CARESS
     // - if you have to implement this as blocking call: set module_status
     //   to DONE with this call
     //
-    //   kind ................. 0 = normal drive (start move to target positon)
+    //   kind ................. 0 = normal drive (start move to target position)
     //                          1 = special drive to
     //                              Max       (target position==1),
     //                              Min       (target position==2),

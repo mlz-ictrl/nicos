@@ -374,7 +374,7 @@ class CellArray(NexusElementBase):
 class DevStat(NexusElementBase):
     """
     This class stores data from a DevStatistics environment
-    contribution. This is allways optional and will only be
+    contribution. This is always optional and will only be
     written when it exists.
     """
     def __init__(self, statname, **attr):

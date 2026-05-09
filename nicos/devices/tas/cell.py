@@ -519,12 +519,12 @@ class CellBase:
             'DIFF': powder sample
 
             unimplemented:
-             6: constant Ki, absolut Q
-             7: constant Kf, absolut Q
+             6: constant Ki, absolute Q
+             7: constant Kf, absolute Q
              8: without analyser
 
         psi0:  angle between orientation reflection r1 and zero of sample rotation axis
-        Y:     angle between orientation refection r1, Q
+        Y:     angle between orientation reflection r1, Q
         alpha: angle between ki and Q
         """
         try:

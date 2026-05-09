@@ -221,7 +221,7 @@ class VoltageDev(HasWindowTimeout, BaseK2182, Waitable):
         return self.window
 
     def doReset(self):
-        # start measuring continuesly
+        # start measuring continuously
         self.commVoltage(':INIT:CONT 1')
 
 

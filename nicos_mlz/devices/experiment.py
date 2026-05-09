@@ -166,7 +166,7 @@ class Experiment(BaseExperiment):
                             '"{{title:The title of your proposed experiment}}"')
         data = data.replace('<proposal No.>', 'Proposal {{proposal:0815}}')
         data = data.replace('<your name> ', '{{users:A. Guy, A. N. Otherone}}')
-        data = data.replace('<coauthor, same affilation> ', 'and coworkers')
+        data = data.replace('<coauthor, same affiliation> ', 'and coworkers')
         data = data.replace('<other coauthor> ', 'S. T. Ranger')
         data = data.replace('<your affiliation>, }',
                             '{{affiliation:affiliation of main proposer and '

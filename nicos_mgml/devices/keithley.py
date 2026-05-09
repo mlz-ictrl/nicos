@@ -219,7 +219,7 @@ class Deltameter(Measurable):
             while True:
                 er = self.commCurrent('STAT:QUE?', response=True)
                 if er[:4] == '-213':
-                    # cant init, rearm
+                    # can't init, rearm
                     self.log.info('Delta blocked, rearming...')
                     time.sleep(1)
                     self.commCurrent(':SOUR:SWE:ABOR')

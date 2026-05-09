@@ -85,7 +85,7 @@ class DynamicUserlimits(HasLimits):
     but read directly from the hardware.
 
     `userlim_follow_abslim = True`:
-    User limits maintain a constant distance / delta to the absolut limits. The
+    User limits maintain a constant distance / delta to the absolute limits. The
     delta is calculated anew for each manual input of the user limit.
 
     ```

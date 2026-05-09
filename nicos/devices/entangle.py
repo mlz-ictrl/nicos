@@ -88,7 +88,7 @@ class AnalogOutput(PyTangoDevice, HasLimits, CanDisable, Moveable):
     The AnalogOutput handles all devices which set an analogue value.
 
     The main application field is the output of any signal which may be
-    considered as continously in a range. The values may have nearly any
+    considered as continuously in a range. The values may have nearly any
     value between the limits. The compactness is limited by the resolution of
     the hardware.
 

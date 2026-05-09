@@ -105,7 +105,7 @@ class KFlipper(BaseFlipper):
 
     def doStart(self, target):
         if target == ON:
-            # query current momentum and calculate polinomial
+            # query current momentum and calculate polynomial
             k = self._attached_kvalue.read(0)
             flip_current = sum(v * (k ** i) for i, v in enumerate(self.flipcurrent))
             self._attached_flip.start(flip_current)

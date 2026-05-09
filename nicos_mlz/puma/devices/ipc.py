@@ -359,11 +359,11 @@ class ReferenceMotor(CanReference, Motor1):
                 if self._stoprequest == 1:
                     raise NicosError(self, 'reference stopped by user')
         except NicosTimeoutError as e:
-            self.log.error('%s occured during referencing', e)
+            self.log.error('%s occurred during referencing', e)
         except NicosError as e:
-            self.log.error('%s: occured during referencing', e)
+            self.log.error('%s: occurred during referencing', e)
         except Exception as e:
-            self.log.error('%s: occured during referencing', e)
+            self.log.error('%s: occurred during referencing', e)
         finally:
             self.log.debug('stoprequest: %d', self._stoprequest)
             self.speed = motspeed

@@ -269,13 +269,13 @@ class ADLumaCam(EpicsDetector):
     attached_devices = {
         'status': Attach('Status via EPICS', LumaCamStatus),
         'prepare_status': Attach('Status of filename prepare', LumaCamFileSinkStatus),
-        'pointcounter': Attach('Current acquition point counter. '
+        'pointcounter': Attach('Current acquisition point counter. '
                                'Used to set the raw file name.', Moveable),
         'empir_path_to_add': Attach('Send next path to Empir.', Moveable),
     }
 
     parameters = {
-        'pvprefix': Param('Base PV name withouth :,',
+        'pvprefix': Param('Base PV name without :,',
                           type=pvname, mandatory=True, userparam=False),
 
         'base_raw_file_path': Param('Base file path for the raw tpx3 files on '
@@ -290,7 +290,7 @@ class ADLumaCam(EpicsDetector):
         #                            type=str, mandatory=True, settable=True,
         #                            userparam=False),
         # 'num_images': Param('Temporary until TimerChannel is implemented. '
-        #                     'Set to ridiculous value and stop acquistion '
+        #                     'Set to ridiculous value and stop acquisition '
         #                     'manually. After how many images (each 2s) '
         #                     'tpx3cam will stop acquisition.',
         #                     type=str, mandatory=True, settable=True,
@@ -302,7 +302,7 @@ class ADLumaCam(EpicsDetector):
                             'file on the serval PC.',
                             type=str, settable=True, volatile=True),
         # Maybe add option to load the parameter set for startup from a JSON file?
-        # For now all data is in the default values fo the "Serval XXXX" parameters.
+        # For now all data is in the default values for the "Serval XXXX" parameters.
         # 'serval_config': Param('Filepath on the nicos PC containing the parameters '
         #                        'the luma cam autodevices are set to on init.',
         #                        type=str, mandatory=True, settable=True,
@@ -406,7 +406,7 @@ class ADLumaCam(EpicsDetector):
     # set_XXXXX is for PVs that can't be read (??) just "activated" (??)
     _record_fields = {
         # Override from EpicsDetector
-        # This should be overriden in an EpicsAreaDetector (I think the name is
+        # This should be overridden in an EpicsAreaDetector (I think the name is
         # standardized there to be Acquire and Acquire_RBV?)
         # nicos_sinq....EpicsAreaDetector does weird other stuff. basepv vs pvprefix,
         #               other PVs that need to be explicitly specified.

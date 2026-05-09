@@ -298,7 +298,7 @@ class MessageView(QTextBrowser):
     def scrollContentsBy(self, x, y):
         QTextBrowser.scrollContentsBy(self, x, y)
         if self._background_image:
-            # repaint viewport on scoll to preserve the background image.
+            # repaint viewport on scroll to preserve the background image.
             # Using 'update' to let qt optimize the process (speed/flickering)
             self.viewport().update()
 

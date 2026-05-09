@@ -40,7 +40,7 @@ class HistogramConfElement(Readable):
     }
 
     def getXml(self):
-        raise NotImplementedError('Method needs to te implemented')
+        raise NotImplementedError('Method needs to be implemented')
 
     def getXmlString(self, **config):
         return etree.tostring(self.getXml(), **config)

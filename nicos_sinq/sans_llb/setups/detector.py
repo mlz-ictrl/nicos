@@ -85,7 +85,7 @@ devices = dict(
         brokers = configdata('config.KAFKA_BROKERS'),
         unit = 'cts',
         hist_type = '2-D SANSLLB',
-        det_width = 182, # this configures the actual binnin along the wire axes from continous values #det_width = 512,
+        det_width = 182,  # this configures the actual binning along the wire axes from continuous values #det_width = 512,
         det_height = 160,
         det_range = (0, 160 * 182), # (0, 160 * 512),
         visibility={'metadata', 'namespace'},

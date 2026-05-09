@@ -163,7 +163,7 @@ class MokeMagnet(MagnetWithCalibrationCurves):
                                      (IBmax, IBmin, mrmnt['ramp'], mrmnt['cycles']))
                 else:
                     raise errors.NicosError(self, 'Power supply is busy.')
-                # measures magnetic field and intensity vallues
+                # measures magnetic field and intensity values
                 self._Bvt, self._Intvt, self._IntvB = Curve2D(), Curve2D(), Curve2D()
                 _cycle = self.cycle
                 while self._cycling:

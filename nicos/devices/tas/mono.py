@@ -245,7 +245,7 @@ class Monochromator(HasLimits, HasPrecision, BaseMonochromator):
 
     def doReadPrecision(self):
         if not hasattr(self, 'scatteringsense'):
-            # object not yet intialized
+            # object not yet initialized
             return 0
         # the precision depends on the angular precision of theta and twotheta
         val = self.read()

@@ -143,7 +143,7 @@ class GLWidget(QGLWidget):
             glPopMatrix()
 
     def paintCuboid(self, width, thickness, height, rotate=0.):
-        verticies = np.array([
+        vertices = np.array([
             (1., -1., -1.),
             (1., 1., -1.),
             (-1., 1., -1.),
@@ -177,7 +177,7 @@ class GLWidget(QGLWidget):
         glBegin(GL_LINES)
         for edge in edges:
             for vertex in edge:
-                glVertex3fv(verticies[vertex] * scale)
+                glVertex3fv(vertices[vertex] * scale)
         glEnd()
         glPopMatrix()
 

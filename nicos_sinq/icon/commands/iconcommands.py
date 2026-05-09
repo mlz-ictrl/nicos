@@ -45,9 +45,9 @@ def tomo_scanpos(nproj, nimg, ifirst=1):
 def tomo_setup(device, nproj, nimg=1):
     """Set up a new tomography run.
 
-    This commands does not actually start the tomography
+    This command does not actually start the tomography
     (use "tomo_run()" for this), it only memorizes the
-    chosen parameters. If a tomography was previoulsy started
+    chosen parameters. If a tomography was previously started
     and did not finish, it needs either to be aborted with
     "tomo_abort()" or finished with "tomo_resume()" before another
     tomography can be set up. When several tomographies with the

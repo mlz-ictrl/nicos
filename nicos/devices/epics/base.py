@@ -225,7 +225,7 @@ class EpicsDevice(DeviceMixinBase):
         a timeout there, the EPICS callback mechanism (see
         https://epics.anl.gov/base/R3-14/12-docs/CAref.html#ca_put) is used to
         verify whether an input has been processed within the given timeout.
-        In constrast, this function does not rely on the callback mechanism.
+        In contrast, this function does not rely on the callback mechanism.
 
         This is useful for example in the case of the motor record, where
         many fields such as `.VELO` do not use the callback mechanism (using

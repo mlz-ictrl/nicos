@@ -51,7 +51,7 @@ def timedistancediagram(speed, angles, disk2_pos, D, SC2_full_open=240.,
         SC2_full_open :     maximum possible aperture of SC2 pair,
                             in degrees (float)
         n_per :             number of periods (frames) which should be
-                            diaplayed in the time/distance diagram (int)
+                            displayed in the time/distance diagram (int)
         disk2_mode :        flag to specify the working mode of the chopper
                             system (str). It can be set to:
                             - 'normal_mode',          for the normal operations

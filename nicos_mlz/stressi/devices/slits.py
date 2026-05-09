@@ -137,7 +137,7 @@ class OffCenteredTwoAxisSlit(TwoAxisSlit):
 class SingleAxisGap(Gap):
     """A special gap driven by a single motor.
 
-    The motor drives both blades simulataneously away or towards the center (0)
+    The motor drives both blades simultaneously away or towards the center (0)
 
     All instances have attributes controlling single dimensions that can be
     used as devices, for example in scans.  These attributes are:

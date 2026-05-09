@@ -127,7 +127,7 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
                 img = Image.fromarray(img.astype(np.uint8))
             img.thumbnail((self.sink.size, self.sink.size), PIL.Image.LANCZOS)
             # PIL's Image.save() by itself doesn't take umask into account
-            # Explictly call open so that umask is taken into account.
+            # Explicitly call open so that umask is taken into account.
             with open(self.sink.filename, 'wb') as file:
                 img.save(file, format='png')
         except Exception:

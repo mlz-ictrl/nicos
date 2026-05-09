@@ -264,15 +264,15 @@ class EulerianCradle(Moveable):
         self.log.debug('sipsi1 = %s, sipsi2 = %s', ec_sipsi1, ec_sipsi2)
 
         #
-        #   THE SIGNES OF OM AND CHI CAN BE CHOOSEN ARBITRARILY
+        #   THE SIGNS OF OM AND CHI CAN BE CHOSEN ARBITRARILY
         #   CALCULATE THE 4 DIFFERENT SETS OF ANGLES CORRESPONDING
-        #   TO THE COMBINATIONS OF THESE SIGNES
+        #   TO THE COMBINATIONS OF THESE SIGNS
         #
         #   SELECT THE MOST APPROPRIATE SET OF ANGLES
         #
         #   FIRST CRITERION: SCATTERING VECTOR Q AND REFERENCE VECTOR A1
         #             ARE ORIENTED IN A WAY THAT THE ANGLE BETWEEN
-        #             Q AND A1 IS POSITIV
+        #             Q AND A1 IS POSITIVE
         #
         #   SECOND CRITERION:  CHI MUST BE WITHIN THE ALLOWED RANGE
         #             GIVEN BY SOFT LIMITS

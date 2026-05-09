@@ -191,7 +191,7 @@ class Experiment(Device):
         self.data.reset()
 
     #
-    # hooks: may be overriden in derived classes to enhance functionality
+    # hooks: may be overridden in derived classes to enhance functionality
     #
 
     def proposalpath_of(self, proposal):

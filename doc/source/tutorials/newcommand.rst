@@ -40,7 +40,7 @@ at the top of the module you should have ::
 In order to make user commands available in the NICOS namespace, they must be in
 a module that is mentioned by a :ref:`modules list <setup-modules>` in a loaded
 setup (see :ref:`setups`).  If the ``mycommand`` is defined in the module
-``path.to.mycommands`` it will be accessable via::
+``path.to.mycommands`` it will be accessible via::
 
    modules = ['path.to.mycommands', ... ]
 

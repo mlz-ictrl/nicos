@@ -124,7 +124,7 @@ class TreeWidget(TreeWidgetContextMenu):
 
     def dropEvent(self, event):
         """
-        To satisfy Qt, a call to TreeWidgetContextMenu.dropEvent is neccessary.
+        To satisfy Qt, a call to TreeWidgetContextMenu.dropEvent is necessary.
 
         Else, the animation would look really gross and suggest the object
         might actually not have been copied.
@@ -216,7 +216,7 @@ class TreeWidget(TreeWidgetContextMenu):
             menu.popup(pos)
 
     def removeDevice(self):
-        # It's neccessary to connect this signal in mainwindow,
+        # It's necessary to connect this signal in mainwindow,
         # because if the user currently views this device's widget,
         # mainwindow has to switch to a different widget.
         deviceItem = self.currentItem()

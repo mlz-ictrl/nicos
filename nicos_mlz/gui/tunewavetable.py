@@ -71,7 +71,7 @@ class TimelineWidget(QGraphicsView):
         self._selection_item = None
 
         # start with at least one time point (current time) to be able
-        # to reuse size calculation methods for the inital size
+        # to reuse size calculation methods for the initial size
         self.setTimePoints([datetime.now()])
 
     @property
@@ -99,7 +99,7 @@ class TimelineWidget(QGraphicsView):
             return None
 
     def resizeEvent(self, event):
-        """Clear and readd all items on resize. Avoids complex scaling."""
+        """Clear and re-add all items on resize. Avoids complex scaling."""
         self.scene().clear()
         self.setTimePoints(self._time_points)
 
@@ -223,7 +223,7 @@ class TimelineWidget(QGraphicsView):
         x = center_x - (self.TIMEPOINT_DIAMETER / 2)
         y = center_y - (self.TIMEPOINT_DIAMETER / 2)
 
-        # Create the acutal time point item
+        # Create the actual time point item
         time_point_item = QGraphicsEllipseItem(0, 0, self.TIMEPOINT_DIAMETER,
                                                self.TIMEPOINT_DIAMETER)
 
@@ -577,7 +577,7 @@ class TunewaveTablePanel(Panel):
             self._delete_row(row)
 
     def on_tableWidget_currentCellChanged(self):
-        """Stop the editting when the user changed the cell."""
+        """Stop the editing when the user changed the cell."""
         self._stop_edit()
 
     def _add_row(self, row, row_data=None):
@@ -603,7 +603,7 @@ class TunewaveTablePanel(Panel):
         self.tableWidget.removeRow(index)
 
     def _edit_cell(self, row, column):
-        """Start editting of the cell by showing a DeviceValueEdit for it
+        """Start editing of the cell by showing a DeviceValueEdit for it
         (using the current cell value if any)."""
         self._stop_edit()
 
@@ -663,7 +663,7 @@ class TunewaveTablePanel(Panel):
             for entry in same_value_items:
                 if self.tableWidget.column(entry) == 0 \
                         and entry != self.tableWidget.item(row, column):
-                    self.showError('Echotime already existant, please edit the'
+                    self.showError('Echotime already exists, please edit the'
                                    ' particular row or choose another echotime'
                                    ' (typo?).')
                     widget.setFocus()
@@ -759,7 +759,7 @@ class TunewaveTablePanel(Panel):
             self._add_row(row, cols)
             row += 1
 
-        # Reenable table sorting
+        # Re-enable table sorting
         self.tableWidget.horizontalHeader()\
             .setSortIndicator(0, Qt.SortOrder.AscendingOrder)
         self.tableWidget.setSortingEnabled(True)
@@ -805,7 +805,7 @@ class TunewaveTablePanel(Panel):
             self.measurement_mode, [0.0])))
         self.wavelengthComboBox.addItems(values)
 
-        # Reenable signals for table selection
+        # Re-enable signals for table selection
         self.wavelengthComboBox.blockSignals(False)
 
         # restore previously shown tunewave table if possible

@@ -30,7 +30,7 @@ from nicos.core.constants import FINAL, POINT
 from nicos.devices.datasinks import FileSink
 from nicos.utils import AutoDefaultODict
 
-# if these labels apear as part of a key, they are "known"
+# if these labels appear as part of a key, they are "known"
 element_part = [
     'cooling_memograph',
     'FAK40_Cap',

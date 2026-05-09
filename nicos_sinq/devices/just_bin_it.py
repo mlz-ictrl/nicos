@@ -185,7 +185,7 @@ class Hist2dSANSLLB:
 
 class Hist2dTOFSINQ:
     """
-    This is for contigous one dimensional detectors,
+    This is for contiguous one dimensional detectors,
     that may have detector IDs not starting with 0.
 
     The det_range is pythonic, meaning it doesn't include the last value.
@@ -319,7 +319,7 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
         '_status': Param('Histogram internal status',
                           type=tupleof(int, str), default=(status.OK, ''), internal=True,
                           settable=True),
-        '_last_msg_time': Param('Last time that a message was recieved from the histogrammer',
+        '_last_msg_time': Param('Last time that a message was received from the histogrammer',
                           type=float, default=time.time(), internal=True,
                           settable=True),
     }

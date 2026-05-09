@@ -586,7 +586,7 @@ class CacheClient(BaseCacheClient):
             if cbs and function and function in cbs:
                 cbs.remove(function)
                 if not cbs:
-                    # emty list: remove!
+                    # empty list: remove!
                     self._callbacks.pop(f'{dev}/{key}'.lower(), None)
 
     def get(self, dev, key, default=None, mintime=None):

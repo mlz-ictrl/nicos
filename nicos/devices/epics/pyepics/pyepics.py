@@ -360,7 +360,7 @@ class EpicsMoveable(EpicsDevice, Moveable):
 
     def _get_pv_parameters(self):
         """
-        Overriden from EpicsDevice. If the targetpv parameter is specified,
+        Overridden from EpicsDevice. If the targetpv parameter is specified,
         the PV-object should be created accordingly. Otherwise, just return
         the mandatory pv_parameters.
         """

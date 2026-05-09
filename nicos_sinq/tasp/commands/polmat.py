@@ -46,7 +46,7 @@ __all__ = [
 def normalize(data):
     """normalize counts and calculate sigma ** 2
 
-    :param data: dict[i, j] of (counts, monitor) wih i in XYZ and j in ALL
+    :param data: dict[i, j] of (counts, monitor) with i in XYZ and j in ALL
     :return: dict[i, j] of (signal, sigma ** 2) with the same keys as data
     """"""
     """

@@ -87,7 +87,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
             # use only ascii characters and escapes if necessary.
             value = toAscii(str(value))
 
-            # Determine maximum possible value length (key dependend).
+            # Determine maximum possible value length (key dependent).
             maxValLen = 63 - len(key)
 
             # Split the dataset into several header entries if necessary

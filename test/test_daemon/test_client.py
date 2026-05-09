@@ -227,7 +227,7 @@ def test_parameter_queries(client):
         'devclass', 'ignore_general_stop'])
     params = client.getDeviceParams('dm1')
     # parameters 'status' and 'value' not in all test cases available
-    # their occurances depends on the previous test history
+    # their occurrences depends on the previous test history
     assert set(params.keys()).issubset({
         'abslimits', 'classes', 'curstatus', 'curvalue', 'description', 'fixed',
         'fixedby', 'fmtstr', 'jitter', 'loglevel', 'maxage', 'name', 'offset',

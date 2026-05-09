@@ -9,7 +9,7 @@ The startup integration manages all the NICOS services configured in
 For Unix systems, NICOS provides a ``init.d`` script in ``etc/nicos-system``
 which is by default linked into ``/etc/init.d``.
 
-For modern Linux sytems, systemd services are provided instead.
+For modern Linux systems, systemd services are provided instead.
 
 Both startup systems determine the instrument from the first of these sources:
 

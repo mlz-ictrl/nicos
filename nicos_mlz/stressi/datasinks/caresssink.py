@@ -198,7 +198,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             elif isinstance(v, str) and (v in self.sink.mapping):
                 self.log.debug('%s = %r -> %r', k, v, self.sink.mapping[v])
                 self._write_float(self.sink.mapping[v])
-            else:  # some values are not convertable into a number: lists, ...
+            else:  # some values are not convertible into a number: lists, ...
                 self.log.debug('%s = %r', k, v)
                 self._write_float(0)
 

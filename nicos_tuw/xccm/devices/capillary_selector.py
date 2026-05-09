@@ -31,7 +31,7 @@ class CapillarySelector(MultiSwitcher):
     """
     XCCM: Select one of three capillaries
 
-    Three rough positions the user can switch inbetween. Two translation
+    Three rough positions the user can switch in between. Two translation
     stages are used to change the position, leave precision in the setup file
     a bit higher to allow the user to do some alignment fine-tuning.
     """

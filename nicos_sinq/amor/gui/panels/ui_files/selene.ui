@@ -566,7 +566,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Informations</string>
+         <string>Information</string>
         </property>
         <layout class="QFormLayout" name="formLayout">
          <item row="2" column="0">

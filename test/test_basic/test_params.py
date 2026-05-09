@@ -353,7 +353,7 @@ def test_mailaddress():
     pytest.raises(ValueError, mailaddress, 'my@domain')
     pytest.raises(ValueError, mailaddress, 'my@domain.123')
     pytest.raises(ValueError, mailaddress, 'my@domain@dummy.my')
-    pytest.raises(ValueError, mailaddress, 'my@nonsens@dömain.my')
+    pytest.raises(ValueError, mailaddress, 'my@nonsense@dömain.my')
     pytest.raises(ValueError, mailaddress, 'M. Address <my.address@domain.my>,')
 
 

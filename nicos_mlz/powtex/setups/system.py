@@ -41,7 +41,7 @@ devices = dict(
         description = 'Device storing console output.',
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
-        description = 'Device storing deamon output.',
+        description = 'Device storing daemon output.',
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

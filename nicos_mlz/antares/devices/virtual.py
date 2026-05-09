@@ -28,7 +28,7 @@ from nicos.devices.generic import Pulse, VirtualTimer
 
 
 class TriggerTimer(VirtualTimer):
-    """Virtual timer starting an exernal device via a pulse."""
+    """Virtual timer starting an external device via a pulse."""
 
     attached_devices = {
         'trigger': Attach('Pulser device', Pulse),

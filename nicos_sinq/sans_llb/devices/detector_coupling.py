@@ -83,7 +83,7 @@ class SansLlbCoupledDetectors(BaseSequencer):
     """
     A device used to make a coupled motion of the low- and high-angle detectors.
     Keeps the ratio between both detector distances constant and moves the high-angle
-    horizontal position to correspond to keept it in line with the outer edge of the low-anlge detector
+    horizontal position to keep it in line with the outer edge of the low-angle detector
     """
     parameters = {
         'low_angle_frame_x': Param('Position of the low-angle detector left edge from beam center [mm]',
@@ -136,8 +136,8 @@ class SansLlbCoupledDetectors(BaseSequencer):
 
     def _generateSequence(self, target):
         """
-        Move the low-angle and heigh-angle to keep the user-defined ratio.
-        Move in parallel but avoid colision by waiting for other detector to be away from destination position.
+        Move the low-angle and high-angle to keep the user-defined ratio.
+        Move in parallel but avoid collision by waiting for other detector to be away from destination position.
         """
 
         curr_stz = self._attached_sample_offset_z.read()

@@ -38,7 +38,7 @@ class TangoSerial(PyTangoMixin, Device):
 
 
 class MCC2core(Device):
-    """Class for comunication with MCC"""
+    """Class for communication with MCC"""
     attached_devices = {
         'bus': Attach('The Serial connection to the phytron Box', TangoSerial),
     }
@@ -304,7 +304,7 @@ class MCC2Motor(MCC2core, NicosMotor):
         self.comm('XC')       # Reset Axis (handbook is vague...)
         self.comm('XP02S1')   # unit = steps
         self.comm('XP03S1')   # unity slope
-        self.comm('XP04S20')  # lowest frequency which is Ok whithout ramp
+        self.comm('XP04S20')  # lowest frequency which is Ok without ramp
         self.comm('XP17S2')   # ramping uses boostcurrent
         # no backlash correction, this is done in the axis code
         self.comm('XP25S0')

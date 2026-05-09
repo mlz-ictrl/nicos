@@ -220,7 +220,7 @@ class HelpDialog(QDialog):
         relative_density: #
         </pre>
 
-        <h2>Composits</h2>
+        <h2>Composites</h2>
 
         <pre>
         stack: vacuum | C3O3H8 12 | water
@@ -587,7 +587,7 @@ class SamplePanel(Panel):
         self.modelHistory.clear()
         self.modelHistory.addItems(self.modelHistoryDict.keys())
 
-        # Reenable the button, since the history has been updated
+        # Re-enable the button, since the history has been updated
         self.updateHistory.setEnabled(True)
 
         self._historyThread = None

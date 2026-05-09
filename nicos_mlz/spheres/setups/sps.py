@@ -44,7 +44,7 @@ analogs = dict(
     argon_volume1 = dict(desc='RV1 input volume', unit='m3', vis=()),
     argon_flow2 = dict(desc='RV2 flow', unit='m3/h', vis=()),
     argon_volume2 = dict(desc='RV2 input volume', unit='m3', vis=()),
-    argon_step = dict(desc='argon controll status', unit='', vis=()),
+    argon_step = dict(desc='argon control status', unit='', vis=()),
     housing_tmp = dict(desc='housing temperature', unit='deg C', vis=()),
     hall_air_P = dict(desc='hall air pressure', unit='mbar', vis=()),
     seal_hatch_P = dict(desc='hatch seal pressure', unit='bar', vis=()),

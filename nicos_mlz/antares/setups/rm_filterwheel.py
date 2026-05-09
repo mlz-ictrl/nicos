@@ -40,7 +40,7 @@ devices = dict(
         visibility = (),
     ),
     filterwheel = device('nicos.devices.generic.MultiSwitcher',
-        description = 'Filterwheel, moves automatical into the beam, if needed',
+        description = 'Filterwheel, moves automatically into the beam, if needed',
         moveables = ['filterwheel_mot', 'filterwheel_inout'],
         mapping = dict(
             bi_mono = [1, 'in'],

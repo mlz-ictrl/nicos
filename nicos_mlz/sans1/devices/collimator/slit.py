@@ -31,7 +31,7 @@ from nicos.devices.generic import Switcher
 class Slit(Switcher):
     """class for slit mounted onto something moving
 
-    and thus beeing only effective if the underlying
+    and thus being only effective if the underlying
     device is in a certain position.
     """
     attached_devices = {

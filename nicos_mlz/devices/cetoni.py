@@ -282,7 +282,7 @@ class CetoniSyringe(Motor):
     def debubble(self, volume, number):
         """Method to release the bubbles from the syringe.
         Bubbles are supposed to be released by pumping the solution the Cetoni
-        syringe is connected to in specifyed amount of *volume* a *number*
+        syringe is connected to in specified amount of *volume* a *number*
         of times.
 
         Example:
