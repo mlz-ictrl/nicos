@@ -48,7 +48,7 @@ class NPGZFileSink(BaseNPGZFileSink):
     parameters = {
         'linknametemplate': Param('Template for the data file name hard-linked'
                                   'to the i-th file configured using'
-                                  '(i, [nametemplates]).',
+                                  '(i, [nametemplates])',
                                   type=tupleof(int, list),
                                   mandatory=True,settable = False,
                                   prefercache = False, ext_desc=TEMPLATE_DESC),

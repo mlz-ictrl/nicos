@@ -36,7 +36,7 @@ class FastComtecChannel(ImageChannelMixin, EpicsDevice, PassiveChannel):
     to actually transfer data.
     """
     parameters = {
-        'pvprefix': Param('Prefix of the record PV.', type=pvname,
+        'pvprefix': Param('Prefix of the record PV', type=pvname,
                           mandatory=True, settable=False, userparam=False),
     }
 

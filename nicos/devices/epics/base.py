@@ -364,7 +364,7 @@ class EpicsMoveable(EpicsDevice, Moveable):
                         type=pvname, mandatory=True, userparam=False),
         'writepv': Param('PV for writing device target',
                          type=pvname, mandatory=True, userparam=False),
-        'targetpv': Param('Optional target readback PV.',
+        'targetpv': Param('Optional target readback PV',
                           type=none_or(pvname), mandatory=False,
                           userparam=False)
     }

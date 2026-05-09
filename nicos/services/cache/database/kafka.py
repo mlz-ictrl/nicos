@@ -72,7 +72,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         'currenttopic': Param(
             'Kafka topic where the current values of cache are streamed',
             type=str, mandatory=True),
-        'brokers': Param('List of Kafka bootstrap servers.',
+        'brokers': Param('List of Kafka bootstrap servers',
                          type=listof(host(defaultport=9092)),
                          default=['localhost']),
     }

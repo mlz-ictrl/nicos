@@ -58,7 +58,7 @@ class McStasSimulation(BaseSimulation):
                                ),
         'repeat_curve': Param('Repeat alignment curve to calculate the McStas '
                               '"repeat" factor. Given as list of '
-                              '(repeat, runtime) tuples.',
+                              '(repeat, runtime) tuples',
                               type=listof(tupleof(float, float)),
                               ),
     }

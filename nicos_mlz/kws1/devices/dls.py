@@ -84,9 +84,9 @@ class DLSDetector(Measurable):
     }
 
     parameters = {
-        'duration':  Param('Duration of a single DLS measurement.', default=10,
+        'duration':  Param('Duration of a single DLS measurement', default=10,
                            unit='s', settable=True),
-        'intensity': Param('Intensity to aim for when adjusting filter wheels.',
+        'intensity': Param('Intensity to aim for when adjusting filter wheels',
                            default=100, unit='kHz', settable=True),
         'wavelengthmap': Param('Laser wavelength depending on selector',
                                unit='nm', type=dictof(str, float)),

@@ -57,7 +57,7 @@ class Gap(HasAutoDevices, CanReference, Moveable):
         ),
         'fmtstr_map': Param(
             'A dictionary mapping operation modes to format strings (used for '
-            'internal management).',
+            'internal management)',
             type=dictof(str, str),
             settable=False,
             mandatory=False,
@@ -67,7 +67,7 @@ class Gap(HasAutoDevices, CanReference, Moveable):
         ),
         'parallel_ref': Param(
             "Set to True if the blades' reference drive can be done in "
-            'parallel.',
+            'parallel',
             type=bool,
             default=False,
         ),

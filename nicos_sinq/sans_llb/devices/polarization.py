@@ -32,7 +32,7 @@ class PolarizationSwitcher(HasMapping, Moveable):
     """
 
     parameters = {
-        'fallback': Param('The position which is used if no matching collimation exists.',
+        'fallback': Param('The position which is used if no matching collimation exists',
                           type=str, settable=True, default=''),
     }
 

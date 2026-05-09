@@ -214,7 +214,7 @@ class LiveViewSink(ImageSink):
     """
 
     parameters = {
-        'datasets': Param('Amount of datasets in each liveimage.',
+        'datasets': Param('Amount of datasets in each liveimage',
                           type=listof(int), default=[1])
     }
 

@@ -56,7 +56,7 @@ class EigerLimaCCD(GenericLimaCCD):
                                unit='eV', volatile=True, category='general'),
         'threshold_energy': Param('Camera detection threshold. This should be '
                                   'set between 50 to 60 % of the incoming '
-                                  'beam energy.',
+                                  'beam energy',
                                   type=floatrange(fr=0, to=10e6),
                                   settable=True, unit='eV', volatile=True,
                                   category='general'),

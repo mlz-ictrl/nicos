@@ -61,7 +61,7 @@ class SEController(entangle.TemperatureController):
     }
 
     parameters = {
-        'tubeoffset':  Param('Keep tube this many degrees below the setpoint.',
+        'tubeoffset':  Param('Keep tube this many degrees below the setpoint',
                              volatile=True, settable=True),
         'samplestick': Param('Sample stick currently in use',
                              type=oneof('lt', 'ht'),

@@ -128,7 +128,7 @@ class CBoxResonanceFrequency(BaseSequencer):
                                               'higher then the threshold',
                                               type=float, default=1e6),
         'transformer_threshold_frequencies': Param('Threshold frequencies for '
-                                                   'transformer usage.',
+                                                   'transformer usage',
                                                    type=tupleof(float, float),
                                                    default=(0.4e6, 2e6)),
     }

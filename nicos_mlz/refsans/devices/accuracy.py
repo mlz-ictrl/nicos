@@ -32,7 +32,7 @@ from nicos.devices.generic.analog import CalculatedReadable
 class Accuracy(CalculatedReadable):
 
     parameters = {
-        'absolute': Param('Value is absolute or signed.',
+        'absolute': Param('Value is absolute or signed',
                           type=bool, settable=False, default=True),
     }
 

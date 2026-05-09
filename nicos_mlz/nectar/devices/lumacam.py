@@ -279,14 +279,14 @@ class ADLumaCam(EpicsDetector):
                           type=pvname, mandatory=True, userparam=False),
 
         'base_raw_file_path': Param('Base file path for the raw tpx3 files on '
-                                    'the machine running serval.',
+                                    'the machine running serval',
                                     type=str, settable=True, mandatory=True),
         'empir_path_prefix': Param('What to remove from the base_raw_file_path '
                                    'before sending to empir',
                                    type=str, settable=True, mandatory=True),
 
         # 'raw_file_template': Param('File name template for prefix of the raw '
-        #                            'tpx3 file names on the machine running serval.',
+        #                            'tpx3 file names on the machine running serval',
         #                            type=str, mandatory=True, settable=True,
         #                            userparam=False),
         # 'num_images': Param('Temporary until TimerChannel is implemented. '
@@ -296,20 +296,20 @@ class ADLumaCam(EpicsDetector):
         #                     type=str, mandatory=True, settable=True,
         #                     userparam=False),
         'bad_pixel_config': Param('Filepath to the bad pixel mask config file '
-                                  'on the serval PC.',
+                                  'on the serval PC',
                                   type=str, settable=True, volatile=True),
         'dac_config': Param('Filepath to the digital to analog converter config '
-                            'file on the serval PC.',
+                            'file on the serval PC',
                             type=str, settable=True, volatile=True),
         # Maybe add option to load the parameter set for startup from a JSON file?
         # For now all data is in the default values for the "Serval XXXX" parameters.
         # 'serval_config': Param('Filepath on the nicos PC containing the parameters '
-        #                        'the luma cam autodevices are set to on init.',
+        #                        'the luma cam autodevices are set to on init',
         #                        type=str, mandatory=True, settable=True,
         #                        userparam=False),
 
         'tpx3writeraw': Param('Serval WriteRaw, needs to be one so serval '
-                              'writes tpx files.',
+                              'writes tpx files',
                               type=int, default=1, settable=True,
                               volatile=True),
         'tpx3loglevel': Param('Serval LogLevel',
@@ -356,15 +356,15 @@ class ADLumaCam(EpicsDetector):
         'tpx3rawfilepath': Param('Directory for the raw .tpx files on the serval '
                                  'PC. This is communicated to serval/tpx3 and '
                                  'data reduction (empir) via the attached device '
-                                 'empir_path_to_add.',
+                                 'empir_path_to_add',
                                  type=str, settable=True, volatile=True),
         'tpx3rawfiletemplate': Param('File name template for the raw .tpx files '
-                                     'on the serval PC.',
+                                     'on the serval PC',
                                      type=str, settable=True, volatile=True),
         'tpx3numimages': Param('Number of "images" to take. That is, how many '
                                '.tpx files each filled with events of <exposuretime> '
                                'seconds. Usually a very large number and control '
-                               'the acquisition time with Acquire 0/1.',
+                               'the acquisition time with Acquire 0/1',
                                type=int, default=99999999, settable=True,
                                volatile=True),
     }
@@ -756,15 +756,15 @@ class Empir(EpicsDevice, Device):
         'ph2ev_dspace': Param('ph2ev_dspace', float, settable=True, unit=''),
         'ph2ev_dtime': Param('ph2ev_dtime', float, settable=True, unit=''),
         'ph2ev_durmax': Param('ph2ev_durmax', float, settable=True, unit=''),
-        'evfilt_phmin': Param('Minimum number of photons for accepting an event.', int, settable=True, unit=''),
-        'evfilt_psdmin': Param('Pulse Shape Discrimination value threshold for accepting an event.', float, settable=True, unit=''),
+        'evfilt_phmin': Param('Minimum number of photons for accepting an event', int, settable=True, unit=''),
+        'evfilt_psdmin': Param('Pulse Shape Discrimination value threshold for accepting an event', float, settable=True, unit=''),
         'ev2img_sizex': Param('ev2img_sizex', int, settable=True, volatile='px'),
         'ev2img_sizey': Param('ev2img_sizey', int, settable=True, volatile='px'),
         # TODO add oneof()
         'ph2ev_alg': Param('ph2ev_alg', str, settable=True),
         'ev2img_texttrig': Param('ev2img_texttrig', oneof('ignore', 'reference', 'frameSync'), settable=True, unit=''),
-        'ev2img_tres': Param('ev2img_tres, empty means ignore other wise str(float in seconds).', str, settable=True, unit='s'),
-        'ev2img_tlim': Param('ev2img_tlim, empty means ignore other wise str(int in seconds).', str, settable=True, unit='s'),
+        'ev2img_tres': Param('ev2img_tres, empty means ignore other wise str(float in seconds)', str, settable=True, unit='s'),
+        'ev2img_tlim': Param('ev2img_tlim, empty means ignore other wise str(int in seconds)', str, settable=True, unit='s'),
     }
     _record_fields = {
         'read_px2ph_dspace': 'px2ph:dSpace',

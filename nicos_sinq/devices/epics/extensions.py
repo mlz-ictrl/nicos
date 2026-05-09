@@ -166,10 +166,10 @@ class EpicsControlledAnalogMoveable(EpicsAnalogMoveable):
     `readypv == 0`)
     '''
     parameters = {
-        'readypv': Param('Optional PV which should be 0 if the device is not ' \
-                         'ready to move and 1 otherwise.',
+        'readypv': Param('Optional PV which should be 0 if the device is not '
+                         'ready to move and 1 otherwise',
                          type=none_or(pvname), mandatory=False, userparam=False),
-        'stoppv': Param('Optional PV which is set to 1 when the device is stopped.',
+        'stoppv': Param('Optional PV which is set to 1 when the device is stopped',
                          type=none_or(pvname), mandatory=False, userparam=False),
     }
 

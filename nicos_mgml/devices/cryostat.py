@@ -51,7 +51,7 @@ class Cryostat(Readable):
                                 type=listof(tupleof(float, float)),
                                 settable=False),
         'fillstart':      Param('When the filling of cryo started (sec since '
-                                'epoch), none if not filling.',
+                                'epoch), none if not filling',
                                 type=none_or(float), userparam=False,
                                 internal=True, default=None),
     }
