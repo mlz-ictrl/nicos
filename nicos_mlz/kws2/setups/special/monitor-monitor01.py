@@ -26,10 +26,10 @@ def make_blocks(name, setup, rows, setups=None):
 _selector = make_blocks('Selector', 'selector', [
     BlockRow(Field(name='Preset', dev='selector', istext=True, width=10)),
     BlockRow(Field(name='Lambda', dev='selector_lambda'),
-             Field(name='Speed', dev='selector_speed')),
-    BlockRow(Field(name='Vac', dev='selector_vacuum'),
-             Field(name='Rotor', dev='selector_rtemp')),
-    BlockRow(Field(name='Flow', dev='selector_wflow'),
+             Field(name='Speed', dev='selector_speed'),
+             Field(name='Vac', dev='selector_vacuum')),
+    BlockRow(Field(name='Rotor', dev='selector_rtemp'),
+             Field(name='Flow', dev='selector_wflow'),
              Field(name='Vibr', dev='selector_vibrt')),
 ])
 
@@ -191,7 +191,7 @@ devices = dict(
         cache = 'phys.kws2.frm2',
         font = 'Open Sans',
         valuefont = 'Mononoki',
-        fontsize = 14,
+        fontsize = 13,
         padding = 3,
         layout = _layout,
     ),
