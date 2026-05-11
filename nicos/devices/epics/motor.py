@@ -674,10 +674,10 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         # Move the motor slightly back into the userlimits after a reference run
         if self.valid_pos_after_reference:
             pos = self.read(0)
-            if pos < self.absmin:
-                self.maw(self.absmin + self.position_deadband)
-            elif pos > self.absmax:
-                self.maw(self.absmax - self.position_deadband)
+            if pos < self.absmin - self.offset:
+                self.maw(self.absmin - self.offset + self.position_deadband)
+            elif pos > self.absmax - self.offset:
+                self.maw(self.absmax - self.offset - self.position_deadband)
 
     def doReset(self):
         if self.reseterrorpv:
