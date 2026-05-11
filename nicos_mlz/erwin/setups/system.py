@@ -57,7 +57,12 @@ devices = dict(
     ),
     nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass='nicos_mlz.nexus.templates.PowderTemplateProvider',
-        device_mapping = {'instrument': 'erwin'},
+        device_mapping = {
+            'instrument': 'erwin',
+            'detector': 'image',
+            'monitor': 'mon1',
+            'timer': 'timer',
+        },
         settypes = {'point',},
         filenametemplate = ['%(pointcounter)08d.nxs'],
     ),
