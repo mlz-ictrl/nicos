@@ -15,7 +15,7 @@ devices = dict(
         description = 'QMesyDAQ Image type Detector1',
         timers = ['det1_timer'],
         monitors = ['det1_mon1', 'det1_mon2'],
-        images = ['det1_image'],
+        images = ['det1_img'],
         liveinterval = 30.0,
     ),
 )

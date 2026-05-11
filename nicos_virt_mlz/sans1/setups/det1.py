@@ -31,13 +31,13 @@ devices = dict(
     ),
     # Histogram = device('nicos_mlz.devices.datasinks.qmesydaq.HistogramSink',
     #     description = 'Histogram data written via QMesyDAQ',
-    #     image = 'det1_image',
+    #     image = 'det1_img',
     #     subdir = 'mtxt',
     #     filenametemplate = ['%(pointcounter)07d.mtxt'],
     # ),
     # Listmode = device('nicos_mlz.devices.datasinks.qmesydaq.ListmodeSink',
     #     description = 'Listmode data written via QMesyDAQ',
-    #     image = 'det1_image',
+    #     image = 'det1_img',
     #     subdir = 'list',
     #     filenametemplate = ['%(pointcounter)07d.mdat'],
     # ),
@@ -74,11 +74,13 @@ devices = dict(
     det1_timer = device('nicos.devices.generic.VirtualTimer',
         description = 'QMesyDAQ Timer',
     ),
-    det1_image = device('nicos.devices.generic.VirtualImage',
+    det1_img = device('nicos.devices.generic.VirtualImage',
         description = 'QMesyDAQ Image',
         # flipaxes = [0],  # flip image up-down
+        distance = 'det1_z',
+        collimation = 'col',
+        size = (128, 128),
     ),
-    # the combined detector device is in sans1.py or tisane.py
 )
 
 startupcode = '''

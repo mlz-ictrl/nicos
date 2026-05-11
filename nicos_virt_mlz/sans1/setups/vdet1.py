@@ -59,7 +59,7 @@ devices = dict(
     det1_timer = device('nicos.devices.generic.VirtualTimer',
         description = 'QMesyDAQ Timer',
     ),
-    det1_image = device('nicos_virt_mlz.toftof.devices.detector.Image',
+    det1_img = device('nicos_virt_mlz.toftof.devices.detector.Image',
         description = 'Image data device',
         mcstas = 'mcstas',
         mcstasfile = 'detector_output.dat',
