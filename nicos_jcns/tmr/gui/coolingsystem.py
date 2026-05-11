@@ -117,7 +117,7 @@ class Widget(NicosWidget, QWidget):
 
     def mouseMoveEvent(self, event):
         devs = self._get_devices_under_mouse(event.localPos())
-        self.setCursor(Qt.PointingHandCursor if devs else Qt.ArrowCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor if devs else Qt.CursorShape.ArrowCursor)
         self.setToolTip(''.join(f'<p><b>{d}</b>: {self.devinfo[d].description}'
                                 f'</p>' for d in devs))
 
@@ -205,7 +205,7 @@ class Widget(NicosWidget, QWidget):
             if level_string == requires.get('level', default):
                 return level_code
 
-    def _get_value_colour(self, dev, default=Qt.black):
+    def _get_value_colour(self, dev, default=Qt.GlobalColor.black):
         """Determine value colour of ``dev` to visualise expired or fixed
         values.
 
@@ -248,7 +248,7 @@ class Widget(NicosWidget, QWidget):
         size_icon = 0.045 * min(height_max, width_max)
         size_line = 0.15 * size_icon
         pen_basic = QPen(QColorConstants.Svg.lightskyblue, size_line,
-                         cap=Qt.RoundCap)
+                         cap=Qt.PenCapStyle.RoundCap)
         qp.setFont(self.props['valueFont'])
         qp.setPen(pen_basic)
 
@@ -261,10 +261,10 @@ class Widget(NicosWidget, QWidget):
             x_target = x_min
             y_target = y_min + 0.5 * height_lower - 0.5 * size_target
             x, y = self._draw_rect(qp, x_target, y_target, width=size_target,
-                                   height=size_target, brush=Qt.cyan)
+                                   height=size_target, brush=Qt.GlobalColor.cyan)
             for i in range(8):
                 self._draw_line(qp, x + i / 7 * size_target, y, dy=size_target,
-                                pen=QPen(Qt.black, 0.25 * size_line))
+                                pen=QPen(Qt.GlobalColor.black, 0.25 * size_line))
 
             # horizontal path below target
             x, y = self._draw_line(qp, x, y, dx=0.1 * x_max)
@@ -339,7 +339,7 @@ class Widget(NicosWidget, QWidget):
                                    y, dy=dy)
             self._draw_sensor(qp, x, y, size=size_icon, dev='p03')
             qp.setBrush(QColorConstants.Svg.whitesmoke)
-            qp.setPen(QPen(Qt.black, 0.5 * size_line))
+            qp.setPen(QPen(Qt.GlobalColor.black, 0.5 * size_line))
             x += 0.025 * width_max - 0.5 * size_line
             y -= dy
             size_filter = 1.5 * size_icon
@@ -349,8 +349,8 @@ class Widget(NicosWidget, QWidget):
                            QPointF(x + size_filter, y),
                            QPointF(x + 0.5 * size_filter,
                                    y - 0.5 * size_filter))
-            pen = QPen(Qt.black, 0.5 * size_line, Qt.CustomDashLine,
-                       Qt.FlatCap)
+            pen = QPen(Qt.GlobalColor.black, 0.5 * size_line, Qt.PenStyle.CustomDashLine,
+                       Qt.PenCapStyle.FlatCap)
             pen.setDashPattern((0.5 * size_line, 0.25 * size_line))
             self._draw_line(qp, x + 0.5 * size_filter, y - 0.5 * size_filter,
                             dy=size_filter, pen=pen)
@@ -419,10 +419,10 @@ class Widget(NicosWidget, QWidget):
                 pos = self.devinfo[dev].position
                 self._draw_rect(qp, pos.x, pos.y, width=pos.width,
                                 height=pos.height,
-                                pen=QPen(Qt.black, 1, Qt.DashLine))
+                                pen=QPen(Qt.GlobalColor.black, 1, Qt.PenStyle.DashLine))
         except Exception as err:
             # paint over all the drawings so far
-            qp.setPen(Qt.NoPen)
+            qp.setPen(Qt.PenStyle.NoPen)
             qp.setBrush(QColorConstants.Svg.silver)
             qp.drawRect(0, 0, qp.window().width() - 1,
                         qp.window().height() - 1)
@@ -433,19 +433,20 @@ class Widget(NicosWidget, QWidget):
             font = qp.font()
             font.setPointSize(1.5 * font.pointSize())
             qp.setFont(font)
-            pen_rect = QPen(Qt.darkRed, 0.5 * font.pointSize())
+            pen_rect = QPen(Qt.GlobalColor.darkRed, 0.5 * font.pointSize())
             self._draw_text(qp, 0.5 * x_max - 3 * size_error,
                             0.5 * y_max + 0.75 * size_error,
                             width=6 * size_error, height=2 * size_error,
                             rounded=size_line, text='Exception during '
                             f'drawing of TMR cooling system:\n{err!r}',
-                            align=Qt.AlignCenter | Qt.AlignHCenter, bold=True,
-                            wrap=QTextOption.WordWrap, brush=Qt.red,
-                            pen_rect=pen_rect, pen_text=Qt.white)
+                            align=Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignHCenter,
+                            bold=True, wrap=QTextOption.WrapMode.WordWrap,
+                            brush=Qt.GlobalColor.red, pen_rect=pen_rect,
+                            pen_text=Qt.GlobalColor.white)
         qp.end()
 
     # helper methods to draw qt elements
-    def _draw_line(self, qp, x, y, dx=0, dy=0, pen=Qt.NoPen):
+    def _draw_line(self, qp, x, y, dx=0, dy=0, pen=Qt.PenStyle.NoPen):
         """Draw line and return end coordinates. Per default the currently
         configured pen of ``qp`` will be used.
 
@@ -495,11 +496,11 @@ class Widget(NicosWidget, QWidget):
                 y_top = y_max
                 y_bottom = y_max - 2 * size
         width -= size
-        x, y = self._draw_line(qp, x, y, dx=size, pen=Qt.black)
+        x, y = self._draw_line(qp, x, y, dx=size, pen=Qt.GlobalColor.black)
         # triangle
         qp.save()
-        qp.setBrush(Qt.black)
-        qp.setPen(Qt.NoPen)
+        qp.setBrush(Qt.GlobalColor.black)
+        qp.setPen(Qt.PenStyle.NoPen)
         qp.drawPolygon(QPointF(x, y),
                        QPointF(x + size, y_top),
                        QPointF(x + size, y_bottom))
@@ -507,8 +508,8 @@ class Widget(NicosWidget, QWidget):
         self._draw_text(qp, x + size, y_top,
                         width=width - size, height=2 * size,
                         text='{value:.1f} {unit}'.format(**self.devinfo[dev]),
-                        align=Qt.AlignCenter, brush=Qt.black,
-                        pen_text=self._get_value_colour(dev, default=Qt.white))
+                        align=Qt.AlignmentFlag.AlignCenter, brush=Qt.GlobalColor.black,
+                        pen_text=self._get_value_colour(dev, default=Qt.GlobalColor.white))
         qp.restore()
 
     def _draw_pixmap(self, qp, pixmap, x, y, size):
@@ -526,11 +527,11 @@ class Widget(NicosWidget, QWidget):
                       QPixmap(path.join(path.dirname(__file__), 'icons',
                                         f'{pixmap}.svg')).scaled(
                           round(size), round(size),
-                          transformMode=Qt.SmoothTransformation))
+                          transformMode=Qt.TransformationMode.SmoothTransformation))
         qp.restore()
 
     def _draw_rect(self, qp, x, y, width, height, rounded=False,
-                   brush=Qt.NoBrush, pen=Qt.NoPen):
+                   brush=Qt.BrushStyle.NoBrush, pen=Qt.PenStyle.NoPen):
         """Draw a rectangle with given parameters.
 
         :param QPainter qp: Qt painter object to use
@@ -560,8 +561,10 @@ class Widget(NicosWidget, QWidget):
         return x, y
 
     def _draw_text(self, qp, x, y, width, height, text, rounded=False,
-                   align=Qt.AlignLeft, bold=False, wrap=QTextOption.NoWrap,
-                   brush=Qt.NoBrush, pen_rect=Qt.NoPen, pen_text=Qt.black):
+                   align=Qt.AlignmentFlag.AlignLeft, bold=False,
+                   wrap=QTextOption.WrapMode.NoWrap,
+                   brush=Qt.BrushStyle.NoBrush,
+                   pen_rect=Qt.PenStyle.NoPen, pen_text=Qt.GlobalColor.black):
         """Draw a rectangle with given text inside.
 
         :param QPainter qp: Qt painter object to use
@@ -626,10 +629,10 @@ class Widget(NicosWidget, QWidget):
         x -= 0.25 * width
         y += 0.15 * height
         brush = QLinearGradient(QPointF(x, y), QPointF(x, y + 0.5 * height))
-        brush.setColorAt(0, Qt.red)
-        brush.setColorAt(1, Qt.yellow)
+        brush.setColorAt(0, Qt.GlobalColor.red)
+        brush.setColorAt(1, Qt.GlobalColor.yellow)
         self._draw_rect(qp, x, y, width=width, height=0.5 * height,
-                        pen=Qt.darkGray, brush=brush)
+                        pen=Qt.GlobalColor.darkGray, brush=brush)
 
         margin_wire = 0.15
         x += margin_wire * width
@@ -642,15 +645,15 @@ class Widget(NicosWidget, QWidget):
         self._draw_line(qp, x + (1 - 2 * margin_wire) * width,
                         y_connectors, dx=-dx_connectors)
         # heat exchanger wire
-        pen = QPen(Qt.darkGray, min(0.1 * width, 0.15 * height),
-                   cap=Qt.FlatCap)
+        pen = QPen(Qt.GlobalColor.darkGray, min(0.1 * width, 0.15 * height),
+                   cap=Qt.PenCapStyle.FlatCap)
         self._draw_line(qp, x, y, dy=dy_outerwire, pen=pen)
-        pen.setCapStyle(Qt.RoundCap)
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
         dx = 0.25 * width * (1 - 2 * margin_wire)
         dy = 0.25 * height * (1 - 2 * margin_wire)
         for i in range(4):
             x, y = self._draw_line(qp, x, y, dx=dx, dy=(-1)**i * dy, pen=pen)
-        pen.setCapStyle(Qt.FlatCap)
+        pen.setCapStyle(Qt.PenCapStyle.FlatCap)
         self._draw_line(qp, x, y, dy=dy_outerwire, pen=pen)
         qp.restore()
         return ret
@@ -671,19 +674,19 @@ class Widget(NicosWidget, QWidget):
                                     width=1.1 * size, height=1.5 * size)
         margin = 0.25
         size_pen = 0.025 * size
-        qp.setPen(Qt.NoPen)
+        qp.setPen(Qt.PenStyle.NoPen)
         qp.setBrush(self.statusBrush[devinfo.status[0]])
         # outer circle with status colour
         qp.drawEllipse(QRectF(x, y - 0.5 * size, size, size))
         # pump symbol
         self._draw_pixmap(qp, 'pump', x, y - 0.5 * size, size=size)
-        qp.setPen(QPen(Qt.black, size_pen))
-        qp.setBrush(Qt.lightGray)
+        qp.setPen(QPen(Qt.GlobalColor.black, size_pen))
+        qp.setBrush(Qt.GlobalColor.lightGray)
         x += 0.5 * margin * size
         size -= margin * size
         # inner circle with coloured on/off switch
         qp.drawEllipse(QRectF(x, y - 0.5 * size, size, size))
-        colour = Qt.green if devinfo.value.lower() == 'on' else Qt.red
+        colour = Qt.GlobalColor.green if devinfo.value.lower() == 'on' else Qt.GlobalColor.red
         qp.setPen(QPen(colour, size_pen))
         size_icon = (1 - 2 * margin) * size
         x_icon = x + margin * size
@@ -693,11 +696,12 @@ class Widget(NicosWidget, QWidget):
         self._draw_line(qp, x_icon + 0.5 * size_icon,
                         y_icon + 0.65 * size_icon, dy=0.35 * size_icon)
         self._draw_text(qp, x, y_icon, width=size, height=0.5 * size_icon,
-                        text=devinfo.value.lower(), align=Qt.AlignCenter,
+                        text=devinfo.value.lower(),
+                        align=Qt.AlignmentFlag.AlignCenter,
                         pen_text=self._get_value_colour(dev, default=colour))
         self._draw_text(qp, x, y + (1 + 0.5 * margin) * size,
                         width=size, height=0.4 * size, text=dev.upper(),
-                        align=Qt.AlignCenter, bold=True)
+                        align=Qt.AlignmentFlag.AlignCenter, bold=True)
         # warning/error icon
         if devinfo.status[0] in (WARN, ERROR):
             qp.setOpacity(0.25)
@@ -721,7 +725,7 @@ class Widget(NicosWidget, QWidget):
         stype, snum = dev[:-2], int(dev[-2:]) - 1
         dev = self.props[f'{stype.lower()}_sensors'][snum]
         x, y = self._draw_line(qp, x, y, dy=0.25 * size,
-                               pen=QPen(Qt.black, 0.075 * size))
+                               pen=QPen(Qt.GlobalColor.black, 0.075 * size))
         devinfo = self.devinfo[dev]
         devinfo.position = AttrDict(x=x - 1.4 * size, y=y - 0.5 * size,
                                     width=2.8 * size, height=3 * size)
@@ -741,17 +745,18 @@ class Widget(NicosWidget, QWidget):
         self._draw_text(qp, x + 0.5 * size, y + 0.35 * size,
                         width=size, height=0.5 * size,
                         text=stype.upper(),
-                        bold=True, pen_rect=Qt.black)
+                        bold=True, pen_rect=Qt.GlobalColor.black)
         # sensor name
         self._draw_text(qp, x - 1.25 * size, y + 1.6 * size,
                         width=2.5 * size, height=0.5 * size, text=dev.upper(),
-                        align=Qt.AlignCenter, bold=True, pen_rect=Qt.black)
+                        align=Qt.AlignmentFlag.AlignCenter, bold=True,
+                        pen_rect=Qt.GlobalColor.black)
         # sensor status and value in outlined/coloured rect
         self._draw_text(qp, x - 1.4 * size, y + 2.4 * size,
                         width=2.8 * size, height=0.75 * size,
-                        text=value, align=Qt.AlignCenter,
+                        text=value, align=Qt.AlignmentFlag.AlignCenter,
                         brush=self.statusBrush[devinfo.status[0]],
-                        pen_rect=Qt.black,
+                        pen_rect=Qt.GlobalColor.black,
                         pen_text=self._get_value_colour(dev))
         qp.restore()
 
@@ -771,10 +776,10 @@ class Widget(NicosWidget, QWidget):
         size_icon = 0.75 * size
         size_line_border = 0.06 * size
         size_line_shutter = 0.1 * size_icon
-        pen_connector = QPen(Qt.black, 0.5 * size_line_shutter)
-        pen_shutter = QPen(Qt.black, size_line_shutter)
+        pen_connector = QPen(Qt.GlobalColor.black, 0.5 * size_line_shutter)
+        pen_shutter = QPen(Qt.GlobalColor.black, size_line_shutter)
         width_valve_min, width_valve_max = 0.1 * size, 0.25 * size
-        qp.setPen(QPen(Qt.darkGray, size_line_border))
+        qp.setPen(QPen(Qt.GlobalColor.darkGray, size_line_border))
 
         if dev is None:  # horizontal manual valve
             ret = x + 0.5 * size, y
@@ -846,7 +851,7 @@ class Widget(NicosWidget, QWidget):
                                    width=size_icon, height=size_icon,
                                    rounded=True,
                                    brush=self.statusBrush[devinfo.status[0]],
-                                   pen=Qt.black)
+                                   pen=Qt.GlobalColor.black)
             # inner rect with warning/error icons if applicable
             size_inner = 0.75 * size_icon
             translation_inner = 0.125 * size_icon
@@ -854,8 +859,8 @@ class Widget(NicosWidget, QWidget):
                                                y + translation_inner,
                                                width=size_inner,
                                                height=size_inner, rounded=True,
-                                               brush=Qt.lightGray,
-                                               pen=Qt.black)
+                                               brush=Qt.GlobalColor.lightGray,
+                                               pen=Qt.GlobalColor.black)
             if devinfo.status[0] in (WARN, ERROR):
                 self._draw_pixmap(qp, statuses[devinfo.status[0]],
                                   x_inner, y_inner, size=size_inner)
@@ -863,9 +868,10 @@ class Widget(NicosWidget, QWidget):
                 # mark valve icon as disabled (grey overlay + dark X)
                 qp.setOpacity(0.5)
                 self._draw_rect(qp, x, y, width=size_icon, height=size_icon,
-                                rounded=True, brush=Qt.darkGray)
+                                rounded=True, brush=Qt.GlobalColor.darkGray)
                 qp.setOpacity(1)
-                pen = QPen(Qt.darkGray, size_line_shutter, cap=Qt.RoundCap)
+                pen = QPen(Qt.GlobalColor.darkGray, size_line_shutter,
+                           cap=Qt.PenCapStyle.RoundCap)
                 self._draw_line(qp, x_inner, y_inner, dx=size_inner,
                                 dy=size_inner, pen=pen)
                 self._draw_line(qp, x_inner + size_inner, y_inner,
@@ -873,15 +879,16 @@ class Widget(NicosWidget, QWidget):
             # valve name (above icon)
             self._draw_text(qp, x - 2 * size_icon, y + 1.75 * size_icon,
                             width=3 * size_icon, height=0.5 * size,
-                            text=dev.upper(), align=Qt.AlignRight, bold=True)
+                            text=dev.upper(), align=Qt.AlignmentFlag.AlignRight,
+                            bold=True)
 
             # valve value (below icon)
             self._draw_text(qp, x - 0.5 * size_icon, y - 0.25 * size_icon,
                             width=size + 0.5 * size_connector,
                             height=0.5 * size, text=f'{int(value)} %',
-                            align=Qt.AlignCenter,
+                            align=Qt.AlignmentFlag.AlignCenter,
                             brush=self.statusBrush[devinfo.status[0]],
-                            pen_rect=Qt.black,
+                            pen_rect=Qt.GlobalColor.black,
                             pen_text=self._get_value_colour(dev))
         qp.restore()
         return ret
@@ -915,7 +922,8 @@ class Widget(NicosWidget, QWidget):
                         brush=QColorConstants.Svg.whitesmoke)
         self._draw_text(qp, x, y + (1 - 0.75 * margin) * height_bg,
                         width=width_bg, height=2 * margin * height,
-                        text=dev.upper(), align=Qt.AlignCenter, bold=True)
+                        text=dev.upper(), align=Qt.AlignmentFlag.AlignCenter,
+                        bold=True)
 
         # save coordinates of conductance and pH sensors
         x_conduct_ph = x
@@ -930,11 +938,11 @@ class Widget(NicosWidget, QWidget):
 
         # set brush for 3D effect
         brush = QLinearGradient(x, y, x + width, y)
-        brush.setColorAt(0, Qt.gray)
+        brush.setColorAt(0, Qt.GlobalColor.gray)
         brush.setColorAt(0.5, QColorConstants.Svg.whitesmoke)
-        brush.setColorAt(1, Qt.gray)
+        brush.setColorAt(1, Qt.GlobalColor.gray)
         qp.setBrush(brush)
-        qp.setPen(Qt.black)
+        qp.setPen(Qt.GlobalColor.black)
 
         # arcs above and below water level sensor rectangle
         qp.drawChord(QRectF(x, y, width, 2 * margin * height), 0, 180 * 16)
@@ -943,17 +951,18 @@ class Widget(NicosWidget, QWidget):
 
         # outer rectangle between arcs
         x, y = self._draw_rect(qp, x, y + margin * height, width=width,
-                               height=height, brush=brush, pen=Qt.black)
+                               height=height, brush=brush,
+                               pen=Qt.GlobalColor.black)
 
         # inner rectangle consisting of two differently coloured triangles
         x += 0.5 * margin * width
         y += 0.5 * margin * height
         width -= margin * width
         height -= margin * height
-        qp.setBrush(Qt.gray)
+        qp.setBrush(Qt.GlobalColor.gray)
         qp.drawPolygon(QPointF(x, y), QPointF(x, y + height),
                        QPointF(x + width, y + height))
-        qp.setBrush(Qt.lightGray)
+        qp.setBrush(Qt.GlobalColor.lightGray)
         qp.drawPolygon(QPointF(x, y), QPointF(x + width, y),
                        QPointF(x + width, y + height))
 
@@ -973,9 +982,9 @@ class Widget(NicosWidget, QWidget):
             brush = QLinearGradient(x, y, x, y + height)
             brush.setColorAt(0, QColorConstants.Svg.steelblue)
             brush.setColorAt(0.999 * percentage, QColorConstants.Svg.steelblue)
-            brush.setColorAt(percentage, Qt.white)
+            brush.setColorAt(percentage, Qt.GlobalColor.white)
         self._draw_rect(qp, x, y, width=width, height=height, brush=brush,
-                        pen=Qt.black)
+                        pen=Qt.GlobalColor.black)
         # coloured status overlay
         if devinfo.status[0] != OK:
             qp.setOpacity(0.5)
@@ -1017,11 +1026,11 @@ class Widget(NicosWidget, QWidget):
                 percentage = 0
             brush = QLinearGradient(x, y, x, y + height)
             brush.setColorAt(0, QColorConstants.Svg.paleturquoise)
-            brush.setColorAt(1, Qt.white)
+            brush.setColorAt(1, Qt.GlobalColor.white)
             # conductance/pH level
             self._draw_rect(qp, x, y, width=width_dev, height=height,
                             rounded=2, brush=brush,
-                            pen=QPen(Qt.gray, size_pen))
+                            pen=QPen(Qt.GlobalColor.gray, size_pen))
             x_inner = x + 0.5 * size_pen
             height_marker = 1.5 * qp.font().pointSizeF()
             y_inner = y + 0.5 * height_marker + 2 * size_pen
@@ -1032,8 +1041,8 @@ class Widget(NicosWidget, QWidget):
             brush.setColorAt(0, QColorConstants.Svg.paleturquoise)
             brush.setColorAt(0.999 * percentage,
                              QColorConstants.Svg.paleturquoise)
-            brush.setColorAt(percentage, Qt.white)
-            brush.setColorAt(1, Qt.white)
+            brush.setColorAt(percentage, Qt.GlobalColor.white)
+            brush.setColorAt(1, Qt.GlobalColor.white)
             self._draw_rect(qp, x_inner, y_inner, width=width_inner,
                             height=height_inner, brush=brush)
             # coloured status overlay
@@ -1056,10 +1065,10 @@ class Widget(NicosWidget, QWidget):
                 self._draw_text(qp, x_inner, y_marker,
                                 width=0.5 * width_inner, height=height_marker,
                                 text=f'{i * value_range / (steps - 1):.1f}',
-                                align=Qt.AlignVCenter | Qt.AlignRight)
+                                align=Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight)
                 self._draw_line(qp, x_inner + 0.65 * width_inner,
                                 y_marker - 0.5 * height_marker,
-                                dx=0.2 * width_inner, pen=Qt.black)
+                                dx=0.2 * width_inner, pen=Qt.GlobalColor.black)
             # marker visualising current value
             self._draw_marker(qp, x_inner, y_inner, width=width_inner,
                               height=height_inner, dev=dev,
@@ -1067,6 +1076,7 @@ class Widget(NicosWidget, QWidget):
             # device name above sensors
             self._draw_text(qp, x, y + (1 + 0.75 * margin) * height,
                             width=width_dev, height=height_text,
-                            text=dev.upper(), align=Qt.AlignCenter, bold=True)
+                            text=dev.upper(), align=Qt.AlignmentFlag.AlignCenter,
+                            bold=True)
             x += width_dev + 0.5 * margin * width
         qp.restore()

@@ -34,10 +34,10 @@ class ConnectionDialog(ParentConDiag):
         ParentConDiag.__init__(self, parent, connpresets, lastpreset, lastdata,
                                tunnel=tunnel)
         self.setWindowFlags(
-            Qt.Window
-            | Qt.CustomizeWindowHint
-            | Qt.FramelessWindowHint
-            | Qt.Tool)
+            Qt.WindowType.Window
+            | Qt.WindowType.CustomizeWindowHint
+            | Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.Tool)
         # the positions of the spacers are taken from the UI file
         # verticalSpacerTop
         self.layout().itemAtPosition(0, 1).changeSize(

@@ -46,7 +46,7 @@ class ImagePanel(Panel):
             l = QLabel(self)
             l.setText(image)
             # insert above scrollArea
-            self.vBoxLayout.insertWidget(0, l, alignment=Qt.AlignHCenter)
+            self.vBoxLayout.insertWidget(0, l, alignment=Qt.AlignmentFlag.AlignHCenter)
             p = QPixmap()
             if p.load(findResource(image)):
                 l.setPixmap(p)
