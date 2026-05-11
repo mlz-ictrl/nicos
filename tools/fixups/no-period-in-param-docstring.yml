@@ -1,0 +1,19 @@
+id: no-period-in-param-docstring
+severity: warning
+language: Python
+rule:
+  kind: string_content
+  regex: "[^.]\\.$"
+  pattern: $STR
+  inside: {pattern: "Param($$$)", stopBy: end}
+  any:
+  - inside: {kind: argument_list > string:nth-child(1)}
+  - inside:
+      kind: string
+      nthChild:
+        position: 1
+        reverse: true
+      inside: {kind: argument_list > concatenated_string:nth-child(1)}
+transform:
+  NEW_STR: replace($STR, replace="\\.$", by="")
+fix: $NEW_STR

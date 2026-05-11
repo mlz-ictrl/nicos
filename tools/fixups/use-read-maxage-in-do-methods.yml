@@ -1,0 +1,11 @@
+id: use-read-maxage-in-do-methods
+severity: warning
+language: Python
+rule:
+  pattern: $DEV.$METH()
+  kind: call
+  inside: {pattern: "def $PARENT(self, maxage=0): $$$", stopBy: end}
+constraints:
+  METH: {regex: "^(read|status)$"}
+fix:
+  $DEV.$METH(maxage)
