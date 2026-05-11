@@ -116,9 +116,6 @@ class SANSTemplateProvider(MLZTemplateProvider):
                 'type': NXLink(f'{monitor_link}/type'),
             })
 
-    def updateData(self):
-        pass
-
     def completeTemplate(self):
         MLZTemplateProvider.completeTemplate(self)
         self._entry.update({
