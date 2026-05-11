@@ -197,6 +197,8 @@ class Mchanger(Moveable):
         self._step('lift', 'top2')
         self._step('mlock', 'closed')
         self._step('lift', 'top1')
+        if self._attached_holdstat.read(0) != 'None':
+            raise PositionError(self, 'Monochromator not close enough to lock!')
         self._step('grip', 'open')
         self._step('lift', 'ref')
         self._step('grip', 'closed')
