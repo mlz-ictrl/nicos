@@ -1,7 +1,6 @@
-description = 'Sample environment alias for magnetic field'
+description = 'Sample environment alias for temperature'
 
 group = 'lowlevel'
-includes = []
 
 devices = dict(
     T = device('nicos.devices.generic.DeviceAlias'),
