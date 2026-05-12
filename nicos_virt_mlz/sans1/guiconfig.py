@@ -66,6 +66,8 @@ windows = [
                panel('nicos.clients.gui.panels.editor.EditorPanel'),
                ),
     ),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('Watches', 'leds/blue_on',
            panel('nicos.clients.gui.panels.watch.WatchPanel')),
     window('Scans', 'plotter',
