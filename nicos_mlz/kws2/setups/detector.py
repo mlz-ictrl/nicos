@@ -102,4 +102,5 @@ devices = dict(
 
 extended = dict(
     representative = 'detector',
+    poller_cache_reader = ['gedet_HV'],
 )
