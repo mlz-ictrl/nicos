@@ -1,0 +1,40 @@
+description = 'plug-and-play magnet sample environment'
+group = 'optional'
+
+includes = ['alias_B']
+
+devices = dict(
+    B_virt = device('nicos.devices.generic.VirtualMotor',
+        description = 'virtual "magnetic field"',
+        abslimits = (-10, 10),
+        unit = 'T'
+    ),
+    magnet_current = device('nicos.devices.generic.VirtualMotor',
+        description = 'current source for magnet test',
+        abslimits = (-250, 250),
+        unit = 'A',
+        speed = 1,
+        visibility = (),
+    ),
+    B_magnet = device('nicos.devices.generic.CalibratedMagnet',
+        description = 'magnetic field device, handling '
+        'polarity switching and stuff',
+        currentsource = 'magnet_current',
+        unit = 'T',
+        calibration = (0.000872603, -0.0242964, 0.0148907, 0.0437158,
+                       0.0157436),
+    ),
+)
+
+alias_config = {
+    'B': {'B_magnet': 100, 'B_virt': 0},
+}
+
+watch_conditions = [
+    dict(condition = 'b_virt_value < 0.01',
+         type = 'critical',
+         precondition = 'b_virt_value > 0.01 and b_virt_status[0] == OK',
+         precondtime = 10,
+         message = 'Magnet quenched',
+         gracetime = 0),
+]
