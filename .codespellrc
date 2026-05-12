@@ -1,0 +1,3 @@
+[codespell]
+skip = *.rtf,gui_rc_qt*.py,./debian,./htmlcov,*.scn,*.svg,./doc/build,*.patch,./test/root,./log,./nicos.egg-info,*.json,ruff.toml
+ignore-words-list = umit,ot,ist,elemente,alle,livetime,stati,lamda,doubleclick,inout,parm,tbe,pres,ststr,classe,bu,te,ser,rmove,hart,mot,ans,clen,upto,propt,nd,som,fom,slect,datas,clos,fo,ibrary,oder,als,sie,tey,sxl,ths,valu,arised,trough,indention,esponsible,renable,lockin,poin,brin,vor,strin,aroun,rin,shs,slite,aas
