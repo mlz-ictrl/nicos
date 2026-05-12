@@ -80,7 +80,8 @@ windows = [
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Camera', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                 instrument='poli')),
+                 instrument='poli'),
+           setups='camera'),
 ]
 
 tools = [
