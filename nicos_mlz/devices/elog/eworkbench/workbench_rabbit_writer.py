@@ -24,14 +24,12 @@ import csv
 import io
 from datetime import datetime
 from html import escape
-from logging import getLevelName
 
 from PIL import Image
 
 from nicos.core import Param
 from nicos.core.params import dictof, none_or, oneof, secret
 from nicos.services.elog.handler import Handler as BaseHandler
-from nicos.services.elog.utils import formatMessage
 
 from .rabbit_producer import RabbitProducer
 
@@ -292,7 +290,6 @@ class Handler(BaseHandler):
                     headers={'proposal': self._proposal,
                              'subject': f'{description} {name}',
                              'note': 0,
-                             'loglevel': None,
                              'attachment': 0,
                              'file': 1,
                              'line_count': 0,
@@ -341,7 +338,6 @@ class Handler(BaseHandler):
                             'proposal': self._proposal,
                             'subject': f'{description} {name}',
                             'note': 0,
-                            'loglevel': None,
                             'attachment': 1,
                             'file': 0,
                             'line_count': 0,
@@ -353,20 +349,6 @@ class Handler(BaseHandler):
                             'grouping': self.group_mapping.get('image'),
                             'timestamp': wb_timestring_1(time)
                         }, png_stream=finalimg)
-
-    def handle_message(self, time, message):
-        formatted = formatMessage(message)
-        if not formatted:
-            return
-        self.log.info('workbench_writer: message')
-
-        headers = self._make_headers(subject=f'{getLevelName(message[2])}',
-                                     line_count=1,
-                                     loglevel=getLevelName(message[2]),
-                                     timestamp=time)
-
-        self._rabbit_producer.produce(headers=headers,
-                                      message=formatted)
 
     def handle_scanbegin(self, time, dataset):
         self.log.info('workbench_writer: handle scanbegin')
@@ -464,7 +446,6 @@ class Handler(BaseHandler):
                 headers={'proposal': self._proposal,
                          'subject': f'SCAN_{scannumber}.csv',
                          'note': 0,
-                         'loglevel': None,
                          'attachment': 0,
                          'file': 1,
                          'line_count': 0,
@@ -482,7 +463,6 @@ class Handler(BaseHandler):
                       line_count,
                       timestamp,
                       grouping=None,
-                      loglevel=None,
                       eln_enabled=None):
         return rb_headers_note(
             proposal=self._proposal,
@@ -494,8 +474,7 @@ class Handler(BaseHandler):
             subject=subject,
             line_count=line_count,
             timestamp=wb_timestring_1(timestamp),
-            grouping=grouping,
-            loglevel=loglevel
+            grouping=grouping
         )
 
 
@@ -530,13 +509,11 @@ def rb_headers_note(proposal, subject, line_count, title,
                     users, localcontact,
                     timestamp,
                     eln_enabled=True,
-                    grouping=None,
-                    loglevel=None):
+                    grouping=None):
     return {
         'proposal': proposal,
         'subject': subject,
         'note': 1,
-        'loglevel': loglevel,
         'attachment': 0,
         'file': 0,
         'line_count': line_count,
