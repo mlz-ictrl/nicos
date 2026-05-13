@@ -29,8 +29,7 @@ from nicos_mlz.kompass.devices.gf_lpa import GF_Kompass, GF_Panda
 
 
 class VectorCoil(VirtualMotor):
-    """VectorCoil is a device to control a coil which creates a field at the
-    sample position.
+    """Control a virtual coil which "creates" a field at the sample position.
 
     Basically it is a powersupply device, working in Amps and having two
     additional parameters for calibration the vectorfield, for which these
@@ -58,6 +57,7 @@ class VectorCoil(VirtualMotor):
 
 
 class Guidefield4(GF_Kompass):
+    """Control the Kompass style like guidefield with virtual coils."""
     attached_devices = {
         'coils': Attach('List of 4 devices used for the vector field',
                         VectorCoil, multiple=4),
@@ -65,6 +65,7 @@ class Guidefield4(GF_Kompass):
 
 
 class Guidefield3(GF_Panda):
+    """Control the Panda style like guidefield with virtual coils."""
     attached_devices = {
         'coils': Attach('List of 3 devices used for the vector field',
                         VectorCoil, multiple=3),
