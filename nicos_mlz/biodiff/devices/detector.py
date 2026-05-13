@@ -288,7 +288,7 @@ class BiodiffDetector(Detector):
     }
 
     # guard against multiple prepare calls here:
-    # * `RScan.preparePoint` has been extended to call `prepare` in oder to
+    # * `RScan.preparePoint` has been extended to call `prepare` in order to
     #   prepare detectors for exposure before moving any devices.
     # * `nicos.core.acquire.acquire` internally calls `prepare` again which
     #   must be ignored.

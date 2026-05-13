@@ -55,7 +55,7 @@ def avg_read(Elemente, anz, pause, style='val', param=None, verbose=True):
                 line += " dif: {0:.4f}".format(res[ii][-1] - res[ii][-2])
         if verbose:
             printinfo("{0:d}/{1:d}".format(i, anz) + line)
-        sleep(pause)   # kein tread
+        sleep(pause)   # kein thread
     if verbose:
         printinfo(f'avg_read from #nicos {anz:d}x{pause:.4f}sec={anz * pause:.4f}sec {len(Elemente):.4f}Elemente style {style:s}')
     printinfo(f'in {time.time() - tt:.2f} sec')
@@ -89,7 +89,7 @@ class cl_zweig(threading.Thread):
         self.__readonly = readonly
         threading.Thread.__init__(self)
         self.id = cl_zweig.id
-        # Each new instument gets a name and is connected to a data source
+        # Each new instrument gets a name and is connected to a data source
         cl_zweig.id += 1
         if name == 'thread':
             method = 'all'
@@ -174,7 +174,7 @@ class cl_D4A():
             self.loop(li_readers, arg)
 
     def execute(self, parts=None, Order='Oinit', method='Minit', argument='Ainit'):
-        """runns the threads"""
+        """runs the threads"""
         Debug = self.__Debug  # and False
         readonly = self.__readonly
         running_source_threads = []

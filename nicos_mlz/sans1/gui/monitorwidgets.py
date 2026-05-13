@@ -254,7 +254,7 @@ class CollimatorTable(NicosWidget, QWidget):
 
     Options are displayed as vertical stack of named elements drawn on top
     of a centered blue line ('the beam').
-    If the device value is in 'options', the correspondig element is drawn
+    If the device value is in 'options', the corresponding element is drawn
     on top of 'the beam' by moving the whole stack vertically.
     If the device value is in 'disabled_options', the whole
     stack of options is vertically shifted 'out of beam'.

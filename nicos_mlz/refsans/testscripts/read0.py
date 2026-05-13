@@ -74,7 +74,7 @@ def D4A_nicos(name):
 
 
 def _ibs_val(res, Debug=False):
-    anaylse = {
+    analyse = {
         'fails': [],
         'nok': [],
         }
@@ -132,7 +132,7 @@ def _ibs_val(res, Debug=False):
         'hv_anode': [3099, 3101],
         'hv_drift2': [-4799, -4801],
         }
-    toleranz = [-2, 2]
+    tolerance = [-2, 2]
     sorted = list(res.keys())
     sorted.sort()
     if Debug:
@@ -194,7 +194,7 @@ def _ibs_val(res, Debug=False):
                 nok = True
                 info += 'fixed'
             if numeric:
-                check_val = toleranz
+                check_val = tolerance
                 for skey in sub_element.keys():
                     if skey in key:
                         check_val = sub_element[skey]
@@ -211,17 +211,17 @@ def _ibs_val(res, Debug=False):
                         info += str(valt)
         if nok:
             line = '{0:25s} {4:s} {1:s} {2:s} {3:s} '.format(key, info, str(ss), str(val), ff)
-            anaylse['nok'].append(line)
+            analyse['nok'].append(line)
     for tag in [
             'fails',
             'nok',
        ]:
-        anaylse[tag].sort()
-        printinfo(tag, len(anaylse[tag]))
-        for line in anaylse[tag]:
+        analyse[tag].sort()
+        printinfo(tag, len(analyse[tag]))
+        for line in analyse[tag]:
             printinfo(line)
     printinfo('borstig', bekannt)
-    printinfo('toleranz', toleranz)
+    printinfo('toleranz', tolerance)
 
 
 def read0(

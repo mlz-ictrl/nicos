@@ -9,7 +9,7 @@ group = 'special'
 # 'gracetime' -- time in sec allowed for the condition to be true without
 #    emitting a warning (default 5 sec)
 # 'precondition'
-#   If present, this condition must be fullfiled for at least ``precondtime``,
+#   If present, this condition must be fulfilled for at least ``precondtime``,
 #   before condition will trigger. Default is no precondition.
 # 'precondtime'
 #   The time a precondition must be fulfilled. Default is 5 seconds.
@@ -24,15 +24,15 @@ group = 'special'
 
 watchlist = [
     dict(condition = 'magnet_lhl_value < 6',
-         precondtion = 'magnet_lhl_value > 30',
+         precondition = 'magnet_lhl_value > 30',
          precondtime = 600,
          gracetime = 60,
-         message = 'Helium level too low (ramp down magnet immediatelly)',
+         message = 'Helium level too low (ramp down magnet immediately)',
          type = 'default',
         # action = 'maw(T, 290)',
      ),
      dict(condition = 'magnet_lhl_value < 6 and B_main_value > 0.1',
-         precondtion = 'magnet_lhl_value > 30',
+         precondition = 'magnet_lhl_value > 30',
          precondtime = 600,
          gracetime = 300,
          message = 'No helium and field in magnet, ramping automatically down!',

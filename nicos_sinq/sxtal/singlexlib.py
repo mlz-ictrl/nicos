@@ -264,7 +264,7 @@ def z1ToNormalBeam(wavelength, z1):
 
 def biToNormalBeam(stt, omega, chi, phi):
     """
-    Calculate teh normal beam angles gamm, omega, nu
+    Calculate the normal beam angles gamm, omega, nu
     from the bisecting positions stt, om, chi, phi
     @param stt two theta
     @param omega
@@ -376,7 +376,7 @@ def reflectionToHC(reflection, B):
 
 def directToReciprocalLattice(cell):
     """
-    caclulate the reciprocal lattice from the
+    calculate the reciprocal lattice from the
     direct one
     """
     reciprocal = Cell()
@@ -503,7 +503,7 @@ def calcNBUBFromCellAndReflections(cell, r1, r2):
     """
     Calculate a B&L UB matrix from cell constants and two
     reflections. Normal beam geometry is assumed. Reflections come as
-    dictionaries containing h, k, l, gammo, om, bu
+    dictionaries containing h, k, l, gamma, om, nu
     @param cell A dictionary containing a, b, c, alpha, beta, gamma
     @param r1 First reflection
     @param r2 Second reflection

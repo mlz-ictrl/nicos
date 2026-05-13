@@ -28,9 +28,12 @@ from nicos.devices.abstract import MappedMoveable, MappedReadable
 
 
 class SampleSwitcher(MappedMoveable):
-    """Similar to Switcher for specific sample positions using a set of pre-defined sample holders. In addition to the axis
-        that changes the sample there is a perpendicular axis whos value is stored during adjustment.
-        Positions are always integers starting at 0::
+    """Similar to Switcher for specific sample positions using a set of pre-defined sample holders.
+
+    In addition to the axis that changes the sample there is a perpendicular
+    axis whose value is stored during adjustment.
+
+    Positions are always integers starting at 0::
 
         move(changer_switch, 1)
         move(changer_switch, 15)
@@ -58,7 +61,7 @@ class SampleSwitcher(MappedMoveable):
                               settable=True, userparam=False),
     }
 
-    # Basic configuration for existin sample holders:
+    # Basic configuration for existing sample holders:
     # number of samples on holder, spacing of samples in mm
     # First sample holder is on the +x side movement, so translation to higher numbers is negative
     holder_dict = {

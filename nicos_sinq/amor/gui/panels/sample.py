@@ -217,7 +217,7 @@ class HelpDialog(QDialog):
         relative_density: #
         </pre>
 
-        <h2>Composits</h2>
+        <h2>Composites</h2>
 
         <pre>
         stack: vacuum | C3O3H8 12 | water
@@ -244,7 +244,7 @@ class HelpDialog(QDialog):
 
 class TabFilter(QObject):
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key.Key_Tab:
             parent = obj.parent()
 
             if isinstance(obj, (QTextEdit, QPlainTextEdit)) or \
@@ -399,7 +399,8 @@ class SamplePanel(Panel):
         self.modelEditor.setPlainText('stack:')
         self.modelEditor.installEventFilter(self.filter)
         self.modelEditor.textChanged.connect(self.on_text_changed)
-        self.modelEditor.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.modelEditor.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                       QSizePolicy.Policy.Expanding)
 
         # At the start, no thread is running
         self._historyThread = None
@@ -409,13 +410,15 @@ class SamplePanel(Panel):
 
         # If orsopy is available, add the model
         if orsopy:
-            splitter = QSplitter(Qt.Horizontal)
+            splitter = QSplitter(Qt.Orientation.Horizontal)
             splitter.addWidget(self.modelEditor)
-            splitter.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            splitter.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                   QSizePolicy.Policy.Expanding)
 
             viewer = SampleViewer()
             viewer.setObjectName("modelViewer")
-            viewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            viewer.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                 QSizePolicy.Policy.Expanding)
             viewer.setMinimumSize(100, 100)
             self.modelViewer = viewer
             splitter.addWidget(viewer)
@@ -581,7 +584,7 @@ class SamplePanel(Panel):
         self.modelHistory.clear()
         self.modelHistory.addItems(self.modelHistoryDict.keys())
 
-        # Reenable the button, since the history has been updated
+        # Re-enable the button, since the history has been updated
         self.updateHistory.setEnabled(True)
 
         self._historyThread = None

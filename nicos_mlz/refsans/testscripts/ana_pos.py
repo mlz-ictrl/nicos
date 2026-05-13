@@ -187,8 +187,8 @@ class cl_ana_pos():
             if tag in self.akt_dic.keys():
                 line += "'%s': %7.2f, " % (tag, self.akt_dic[tag])
             else:
-                for sufix in ['r', 's']:
-                    line += "'%s': %7.2f, " % (tag + sufix, self.akt_dic[tag + sufix])
+                for suffix in ['r', 's']:
+                    line += "'%s': %7.2f, " % (tag + suffix, self.akt_dic[tag + suffix])
         line += "}, ###" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         return line
 
@@ -240,8 +240,8 @@ class cl_ana_pos():
             if tag in self.akt_dic.keys():
                 line += "'%s': %7.2f, " % (tag, self.akt_dic[tag])
             else:
-                for sufix in ['r', 's']:
-                    line += "'%s': %7.2f, " % (tag + sufix, self.akt_dic[tag + sufix])
+                for suffix in ['r', 's']:
+                    line += "'%s': %7.2f, " % (tag + suffix, self.akt_dic[tag + suffix])
         line += "}, ###" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         printinfo(line)
         self.lines.append(line)
@@ -319,8 +319,8 @@ class cl_ana_pos():
             if tag in self.akt_dic.keys():
                 line += "'%s': %7.2f, " % (tag, self.akt_dic[tag])
             else:
-                for sufix in ['r', 's']:
-                    line += "'%s': %7.2f, " % (tag + sufix, self.akt_dic[tag + sufix])
+                for suffix in ['r', 's']:
+                    line += "'%s': %7.2f, " % (tag + suffix, self.akt_dic[tag + suffix])
         line += "}, ###" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         printinfo(line)
         self.lines.append(line)

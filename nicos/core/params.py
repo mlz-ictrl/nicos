@@ -717,7 +717,7 @@ class nonzero:
     def __init__(self, conv, default=None):
         self.__doc__ = 'Nonzero value of %s' % convdoc(conv)
         self.conv = fixup_conv(conv)
-        # inital check for default value
+        # initial check for default value
         try:
             default_ = (default or conv()) or 1
             self.default = conv(default_)

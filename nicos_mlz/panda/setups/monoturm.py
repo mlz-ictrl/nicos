@@ -183,7 +183,7 @@ devices = dict(
     ),
 
     #
-    # MTH is fith device and has 1 stepper, 0 poti, 1 coder
+    # MTH is fifth device and has 1 stepper, 0 poti, 1 coder
     mth_step = device('nicos.devices.vendor.ipc.Motor',
         bus = 'bus5',
         addr = MOTOR(5),
@@ -267,7 +267,7 @@ devices = dict(
     ),
 
     #
-    # MFV is eigth device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
+    # MFV is eighth device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
     # mfv_step = device('nicos.devices.vendor.ipc.Motor',
     #     bus = 'bus5',
     #     addr = MOTOR(8),

@@ -247,7 +247,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         It will first move both motors to the lowest value of
         (target + backlash, current_position) and then
         to the final target.
-        So, inbetween, the NOK should be parallel to the beam.
+        So, in between, the NOK should be parallel to the beam.
         """
         if self._seq_is_running():
             raise MoveError(self, 'Cannot start device, it is still moving!')

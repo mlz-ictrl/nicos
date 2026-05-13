@@ -10,12 +10,12 @@
 //
 // Remarks:
 //	1. out for unbound sequence does not work, we use inout
-//	2. if block data parameter is not the last paramter then
+//	2. if block data parameter is not the last parameter then
 //	   much time is consumed (why?), we use it as last parameter
 //	3. number of array elements is limited to 4096 (why?)
 //	4. number of sequence elements is limited to 8192 (why?)
 //	5. sequence<any> is too slow for bulk data, we use dedicated
-//	   sequence types and methodes
+//	   sequence types and methods
 //
 //-----------------------------------------------------------------
 

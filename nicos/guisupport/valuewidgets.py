@@ -115,7 +115,8 @@ class ValueProgressBar(AlternativeValueBase, QWidget):
         vbox.addWidget(self.label)
         self.pbar = QProgressBar(self)
         vbox.addWidget(self.pbar)
-        self.pbar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.pbar.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                QSizePolicy.Policy.Expanding)
         self.pbar.setMinimumSize(2, 2)
 
         self.setNameLabel(self.name)
@@ -173,13 +174,14 @@ class ValueGauge(AlternativeValueBase, QGraphicsView):
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
         self.scene.setSceneRect(-100, -100, 200, 200)
-        self.setRenderHint(QPainter.Antialiasing)
+        self.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         self._draw_background()
         self._draw_arrow()
         self._draw_LED()
-        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        self.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
+        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
+                           QSizePolicy.Policy.MinimumExpanding)
+        self.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
 
     def getShadow(self):
         shadow = QGraphicsDropShadowEffect()
@@ -315,7 +317,7 @@ class ValueGauge(AlternativeValueBase, QGraphicsView):
 
         self.arrow.setRotation(angle)
         self.setToolTip(self.dev+' = '+f'{self._lastvalue:.3f}')
-        self.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
+        self.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
 
     def on_devStatusChange(self, dev, code, status, expired):
         if not self.status_led:

@@ -178,7 +178,7 @@ class TimeSeries:
                 lvalue = value
                 continue
             if delta > maxdelta and lvalue is not None:
-                # synthesize one or two points inbetween
+                # synthesize one or two points in between
                 if vtime - self.interval > ltime + self.interval:
                     data[i] = ltime + self.interval, lvalue
                     i += 1

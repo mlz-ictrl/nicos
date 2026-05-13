@@ -239,7 +239,7 @@ class MainWindow(QMainWindow):
             self.pushButtonSaveUser.setEnabled(True)
 
     def removeAllPasswords(self):
-        # called when hashing changes: It's neccessary to enter all passwords
+        # called when hashing changes: It's necessary to enter all passwords
         # again, so they can be hashed in the new way.
         for _, value in self.users.items():
             value.password = ''

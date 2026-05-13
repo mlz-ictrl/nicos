@@ -113,7 +113,7 @@ def test_Cell_CellFromUBMatrix():
     latticeCostants = 20*np.random.rand(3)+1.0
     angles = 90*np.random.rand(3)
 
-    # To ensure possitive volumen
+    # To ensure positive volume
     a = Cosd(angles[0])
     b = Cosd(angles[1])
 

@@ -23,7 +23,7 @@ devices = dict(
         maxage = 2,
     ),
     Bfake = device('nicos.devices.entangle.AnalogOutput',
-        description = 'Manual device for transfering any device to MultiVu',
+        description = 'Manual device for transferring any device to MultiVu',
         tangodevice = tango_base + 'ips/bfake',
         pollinterval = 0.7,
         maxage = 2,

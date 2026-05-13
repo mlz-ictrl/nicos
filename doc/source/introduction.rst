@@ -98,7 +98,7 @@ The variables may be set in interactive mode and in scripts.
 
 .. warning::
 
-   NICOS defined names are not allowed to be overriden.  When trying to
+   NICOS defined names are not allowed to be overridden.  When trying to
    override them, NICOS generates an error message.
 
 .. _dev_script_control:
@@ -136,7 +136,7 @@ These differentation sometimes leads to confusion in the use of the
 :doc:`here <stopping>`
 
 ..  A :class:`Moveable <nicos.core.device.Moveable>` can *start* a "movement" in
-    order to change its value. Similarily, a
+    order to change its value. Similarly, a
     :class:`Measurable <nicos.core.device.Measurable>` can *start* its data
     acquisition. A :class:`Measurable <nicos.core.device.Measurable>` can also
     be *paused* and then eventually *resume* acquiring data. Both

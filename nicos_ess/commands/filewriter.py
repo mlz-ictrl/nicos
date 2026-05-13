@@ -62,7 +62,7 @@ def nexusfile_open(experiment_title=None):
     the end of the indented code block the data recording will stop.
 
     It is possible to make a nested call of the command, but it is
-    not adviced. It will still only create one file which
+    not advised. It will still only create one file which
     is the one that was started with the first command call.
     """
     nested_call = False

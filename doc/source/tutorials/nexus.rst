@@ -105,7 +105,7 @@ The classes :class:`~nicos.nexus.elements.DeviceDataset` and
    from nicos.nexus.elements import ConstDataset, DeviceDataset
 
 The parameters *wavelength*, *mtt*, and *mono* are configured NICOS devices.
-*dvalue* is a parameter of the *mono* device definining the distance between
+*dvalue* is a parameter of the *mono* device defining the distance between
 the crystal layers of the monochromator crystal.  The wavelength entry also
 provides an example of how a data attribute is added to a data field.  In the
 example this is the ``units`` attribute.  The syntax is::

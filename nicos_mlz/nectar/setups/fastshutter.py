@@ -18,5 +18,5 @@ devices = dict(
     ),
 )
 
-# XXX: use shutter in detecter (should be a GatedDetector) as gate
+# XXX: use shutter in detector (should be a GatedDetector) as gate
 

@@ -503,7 +503,7 @@ class FileWriterController:
         consumer._consumer.assign([tp])
 
         # consumer._consumer.get_watermark_offsets can only be called after a
-        # successfull poll - this loop ensures that.
+        # successful poll - this loop ensures that.
         control_sink.log.info('Attempt to read from Kafka ...')
 
         consumer._consumer.list_topics(timeout=5)

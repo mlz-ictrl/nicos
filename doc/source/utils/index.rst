@@ -7,7 +7,7 @@ Generic Utilities
 .. warning::
    When adding new functions or classes to :mod:`nicos.utils`, be aware that this
    module shall be kept independent from the  rest of nicos to allow early importing.
-   This specifcally means that you can not use NICS exceptions( :mod:`nicos.core.exceptions`),
+   This specifically means that you can not use NICOS exceptions (:mod:`nicos.core.exceptions`),
    the NICOS session (`nicos.session`) or NICOS logging functions. If you require such
    functionality :mod:`nicos.core.utils` is the appropriate place.
 

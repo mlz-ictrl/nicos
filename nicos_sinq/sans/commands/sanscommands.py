@@ -354,7 +354,7 @@ def DoIt(n, NICOScommand):
 
 @usercommand
 def detcalib():
-    """during detector electronic comissioning calibrated thresholds for each
+    """during detector electronic commissioning calibrated thresholds for each
     wire have been determined, which needs to be transferred to the electronics
     after each restart.
        The values are stored in /nicos/nicos_sinq/sans/detector.calib
@@ -374,7 +374,7 @@ def detcalib():
 
 @usercommand
 def tofel():
-    """switch detector electronics to stroboscopic mode for data aquisition
+    """switch detector electronics to stroboscopic mode for data acquisition
     """
     NewSetup('detector_strobo')
     dev = session.getDevice('port14')
@@ -391,7 +391,7 @@ def tofel():
 
 @usercommand
 def antitofel():
-    """switch detector electronics to static mode for data aquisition
+    """switch detector electronics to static mode for data acquisition
     """
     NewSetup('detector')
     dev = session.getDevice('port14')
@@ -720,7 +720,7 @@ def count2(totsum, tmax=3600, poll=1):
                         totalsum / totsum)) + ': ' + str(totalsum) + ' of ' +
                         str(totsum) + ' counts detected.')
                     count2progress[iprog] = 1
-                    t1 = time.time()  # get progess time
+                    t1 = time.time()  # get progress time
                     if (totalsum > 0):
                         tf = t0 + (t1 - t0) / float(totalsum / totsum)
                         dt_obj = datetime.datetime.fromtimestamp(tf)

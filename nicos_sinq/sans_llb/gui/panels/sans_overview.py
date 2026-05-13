@@ -677,7 +677,8 @@ class SANSInstrumentSketch(Panel):
                                   cache_dump(value)))
 
     def resizeEvent(self, value=None):
-        self._view.fitInView(self.scene.sceneRect(), mode=Qt.KeepAspectRatio)
+        self._view.fitInView(self.scene.sceneRect(),
+                             mode=Qt.AspectRatioMode.KeepAspectRatio)
 
     def childSelected(self, name):
         self._currentSelection = name

@@ -573,7 +573,7 @@ class SetupsPanel(Panel):
             else:
                 self.showInfo('Current setups reloaded.')
                 # Close the window only in case of use in a dialog, not in a
-                # tabbed window or similiar
+                # tabbed window or similar
                 if isinstance(self.parent(), QDialog):
                     self.closeWindow()
 

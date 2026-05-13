@@ -187,7 +187,7 @@ the key.  So far only one flag is defined:
 FLAG_NO_STORE (``'#'``)
   Avoids storing the update in an on-disk-database.  The flag is removed by the
   cache server before any updates are handled, i.e. no client will ever see it.
-  Its use is intented for particular noisy actions which don't need to be
+  Its use is intended for particular noisy actions which don't need to be
   stored on disk.  Only the updates with this flag will not be stored, so a
   client can select this feature for each request.
 

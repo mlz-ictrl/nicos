@@ -84,7 +84,7 @@ factor can reduce the number of repetitions ("repeat") in the McStas call.
 
     # lambda:      [AA]     observation wavelength
     # speed:       [rpm]    chopper speed (60 * frequency)
-    # ratio:       [1]      every [1] puls will pass the 5 frame overlap
+    # ratio:       [1]      every [1] pulse will pass the 5 frame overlap
     #                       chopper (FO)
     # chST:        [1]      0 for wide chopper slits,
     #                       1 for small chopper slits,
@@ -123,7 +123,7 @@ factor can reduce the number of repetitions ("repeat") in the McStas call.
             # chopper definitions
             'ratio=%s' % self._dev_value(self._attached_ratio),  # 2
             'chST=%s' % self._dev_value(self._attached_st),  # 0
-            'focused_beam=%d' % 0,  # focussed beam
+            'focused_beam=%d' % 0,  # focused beam
             # slits in mm
             'slits_hor=%s' % self._dev_value(self._attached_slit.width),
             'slits_vert=%s' % self._dev_value(self._attached_slit.height),

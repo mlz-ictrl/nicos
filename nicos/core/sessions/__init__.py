@@ -932,7 +932,7 @@ class Session:
             if setup not in ('startup', ['startup']) or not self.cache:
                 return
             # If we became master, the user didn't select a specific startup
-            # setup and a previous master setup was configured, re-use that.
+            # setup and a previous master setup was configured, reuse that.
             setups = self.cache.get(self, 'mastersetupexplicit')
             if not setups or setups == ['startup']:
                 return

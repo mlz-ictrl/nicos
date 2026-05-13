@@ -9,7 +9,7 @@ bg = 0.00 # backguard
 
 # ANGLES
 theta_val = [0.50, 2.50]
-th_offset = 0.00 #will be substracted
+th_offset = 0.00  # will be subtracted
 
 # APERTURES
 zb3_val = [0.92, 0.92, 4.60]

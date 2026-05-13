@@ -8,7 +8,7 @@ from nicos import session
 from nicos.core import status as ncstatus
 
 # userinterface ++
-tus = 'group'       # alle auf ein mal schneller
+tus = 'group'        # alle auf ein mal schneller
 # tus = 'seriell'    # einen nach dem anderen, Diagnose!
 # tus = False        # nichts tun Funktionen auffrischen!
 home =      False  # bleibt nach letzer reffahrt stehen
@@ -62,7 +62,7 @@ if len(run_it) > 0:
 ipcsms_single = []  # single
 ipcsms_double = []  # linked second
 liste_beckhoff = []
-ipcsms_two = []     # independend second
+ipcsms_two = []     # independent second
 ipcsms_single.append('shutter_gamma')
 ipcsms_double.append('nok2')
 ipcsms_double.append('nok3')

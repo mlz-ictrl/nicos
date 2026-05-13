@@ -101,7 +101,7 @@ Now the commands:
 lists a reflection list.
 
     ClearRef(reflist=None)
-removes all entries from a relfection list
+removes all entries from a reflection list
 
     LoadRef(filename, reflist=None)
 
@@ -162,7 +162,7 @@ can work.
 
 Driving in reciprocal space
 -----------------------------
-Once a UB matrix or at leat cell constants have been defined, it is possible
+Once a UB matrix or at least cell constants have been defined, it is possible
 to drive the goniometer directly in reciprocal space.
 
 The reciprocal indices h, k, l can be driven like any other device:

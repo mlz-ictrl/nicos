@@ -69,8 +69,8 @@ If the user calls the :func:`~count` command in NICOS the following happens:
    Interaction of count command, data manager, and data sink
 
 
-Scan commmand
-~~~~~~~~~~~~~
+Scan command
+~~~~~~~~~~~~
 
 .. module:: nicos.commands.scan
    :noindex:

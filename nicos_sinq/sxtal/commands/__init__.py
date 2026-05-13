@@ -213,7 +213,7 @@ def SetRefAng(idx, reflist=None):
     the instruments current position.
     :param idx: index of the reflection in the reflection list
     :param reflist: optional reflection list parameter when not operating
-    on the deault list
+    on the default list
     :return:
     """
     sample, inst = getSampleInst()
@@ -513,7 +513,7 @@ def inner_center(r, **preset):
     for dev, step in zip(motors, steps):
         if not Max(dev, step, **preset):
             return False, tuple(startang)
-    # This needs to be in ther instrument specific motor order even
+    # This needs to be in the instrument specific motor order even
     # if we centered in a different order
     newang = [m.read(0) for m in inst.get_motors()]
     return True, tuple(newang)

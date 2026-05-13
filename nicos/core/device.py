@@ -2285,7 +2285,7 @@ class Measurable(Waitable):
         the array result(s) of the last measurement.
 
         The array results will be read first calling `readArrays` because
-        there migth be side effects on the scalar result of `read`, e.g.
+        there might be side effects on the scalar result of `read`, e.g.
         `ImageChannelMixin`'s standard implementation of `doRead` returns
         `self.readresult` which will probably be altered in `doReadArrays`.
         """

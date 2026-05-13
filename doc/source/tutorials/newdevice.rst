@@ -12,7 +12,7 @@ classes <../classes/index>`. See if one of them would fulfill your requirements.
 Please bear in mind that most of the devices have a number of parameters which can
 be configured in a setup file.
 
-Sometimes there exists a device class which is very similiar to your requests,
+Sometimes there exists a device class which is very similar to your requests,
 but not fully.  In this case you can derive your device class from the existing
 one, implementing the missing parts or overriding one or more of the base class
 methods.  It might also be reasonable to make the existing class more generic,
@@ -96,7 +96,7 @@ In case the new device class should represent a more high level device, like a
 slit with for blades or device that has to control two motors, it is needed to
 use other configured devices.  This can be defined in the ``attached_devices``
 dictionary.  It contains an internal device name (accessible via
-``self._attached_name`` where ``name`` has to be replaced by the choosen name
+``self._attached_name`` where ``name`` has to be replaced by the chosen name
 and an object of the :class:`~nicos.core.params.Attach` helper.
 
 .. code::

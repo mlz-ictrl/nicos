@@ -132,7 +132,7 @@ devices = dict(
     # SGX is third device and has 1 stepper, 0 poti, 1 coder
     sgx_step = device('nicos.devices.vendor.ipc.Motor',
         bus = 'bus2',
-        addr = MOTOR(3),  # original tripple card
+        addr = MOTOR(3),  # original triple card
         # addr = MOTOR(8),
         slope = -3200,
         unit = 'deg',
@@ -168,7 +168,7 @@ devices = dict(
     # SGY is fourth device and has 1 stepper, 0 poti, 1 coder
     sgy_step = device('nicos.devices.vendor.ipc.Motor',
         bus = 'bus2',
-        addr = MOTOR(4),  # original tripple card on bus2
+        addr = MOTOR(4),  # original triple card on bus2
         # addr = MOTOR(8),
         slope = 3200,
         unit = 'deg',
@@ -219,7 +219,7 @@ devices = dict(
         unit = 'deg',
     ),
 
-    # STX is fith device and has 1 stepper, 1 poti, 0 coder
+    # STX is fifth device and has 1 stepper, 1 poti, 0 coder
     stx_step = device('nicos.devices.vendor.ipc.Motor',
         bus = 'bus2',
         addr = MOTOR(5),
@@ -305,7 +305,7 @@ devices = dict(
         fmtstr = '%.3f',
     ),
 
-    # eigth device is not used yet...
+    # eighth device is not used yet...
 )
 
 alias_config = {

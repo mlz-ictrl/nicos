@@ -60,7 +60,7 @@ class Motor(_Motor):
     def reallyReset(self):
         """Reset the device without any additional condition check.
 
-        In comparision to the .`reset` method the motor will be reset without
+        In comparison to the .`reset` method the motor will be reset without
         any condition.
         """
         _Motor.reset(self)

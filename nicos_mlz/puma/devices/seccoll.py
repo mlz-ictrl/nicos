@@ -208,7 +208,7 @@ class SecCollLift(HasTimeout, BlockingSequencer):
                 seq.append(SeqDev(self._attached_tt, -60., stoppable=True))
                 seq.append(SeqDev(self._attached_st, self.stpos,
                                   stoppable=True))
-            # the configured positions are with offet = 0 !
+            # the configured positions are with offset = 0 !
             # if the user changes the offset the change positions will not
             # change!
             tt_pos = self.angle - self._attached_tt.offset

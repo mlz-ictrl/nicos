@@ -623,7 +623,7 @@ class QueueSource(QObject):
         self._client.tell('unqueue', scriptID)
 
     def on_newsequence(self, requests):
-        """Call back when script orderd changed or scripts are updated."""
+        """Call back when script ordered changed or scripts are updated."""
         # goal : when 2 items exchanged. exchange func from active table should
         # only be executed once
 

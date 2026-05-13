@@ -156,7 +156,7 @@ class Experiment(CoreExperiment):
 
     def _requestDuoProposal(self, proposal=None):
         """ Request proposal from duo.
-        Returns a dictionary with duoinfo if succesful.
+        Returns a dictionary with duoinfo if successful.
         If response is 404 it raises an exception.
         Anything else returns None.
         """
@@ -298,7 +298,7 @@ class Experiment(CoreExperiment):
         return
 
     def _queryProposals(self, proposal=None, kwds=None):
-        # The instrument name at SINQ is usally given as "SINQ <INST>". Hence,
+        # The instrument name at SINQ is usually given as "SINQ <INST>". Hence,
         # the string is split and only the last part is taken.
         self.log.debug('Query proposal %s \n %s', proposal, kwds)
 

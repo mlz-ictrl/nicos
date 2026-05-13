@@ -486,7 +486,7 @@ class PearsonVIIFit(PredefinedFit):
 
 
 class TcFit(PredefinedFit):
-    """Fits a power law critcal temperature."""
+    """Fits a power law critical temperature."""
 
     names = ['tc', 'tcfit']
     fit_title = 'Tc fit'

@@ -243,9 +243,6 @@ class TrendPlot(NicosWidget, QWidget):
     widgetInfo = pyqtSignal(str)
     timeSeriesUpdate = pyqtSignal(object)
 
-    # colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan,
-    #           Qt.darkGray]
-
     devices = PropDef('devices', 'QStringList', [], """
 List of devices or cache keys that the plot should display.
 

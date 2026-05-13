@@ -41,7 +41,7 @@ class HexapodSpecial(PyTangoMixin, Device):
 
     def doInit(self, mode):
         if any(idx < 10 or idx > 19 for idx, _ in self.workspaces):
-            raise ConfigurationError('Workspace ids muste be in 10..19 '
+            raise ConfigurationError('Workspace ids must be in 10..19 '
                                      '(Jülich workspace range)')
         if mode != SIMULATION:
             workspaces = self._dev.workspaces  # Tango get workspaces

@@ -27,8 +27,8 @@ from nicos_sinq.devices.epics.sinqmotor_deprecated import SinqMotor
 
 def NVSSANS1(tilt):
     """
-    calculates the coefficiens A and B for getting wvalengs as a function of rotation speed,
-    which is calculated as wavlength=A+B/rotationspeed
+    calculates the coefficients A and B for getting wavelength as a function of rotation speed,
+    which is calculated as wavelength=A+B/rotationspeed
     """
     xi = -tilt
     tsq = xi*xi

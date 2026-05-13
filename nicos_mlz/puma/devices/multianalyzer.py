@@ -121,7 +121,7 @@ class MultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
         return True, ''
 
     def _check_translation(self, tindex, target):
-        cdelta = [13, 13]  # current delta between device and neighour devices
+        cdelta = [13, 13]  # current delta between device and neighbour devices
         tdelta = [13, 13]  # delta between devices and neighbours at target
 
         rot = [None, self._rotation[tindex].read(0), None]

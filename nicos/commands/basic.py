@@ -516,7 +516,7 @@ def SetMode(mode):
 
       'simulation' does a non-physical emulation by running all the instrument
       specific code with virtualized devices.  Any problems which would appear
-      runnig the same commands in 'master' mode (with ideal hardware) can be
+      running the same commands in 'master' mode (with ideal hardware) can be
       spotted by the user, such as devices moving out of limits, failing
       calculations, or invalid parameters.
 
@@ -794,7 +794,7 @@ def sim(what, *devices, **kwargs):
 
     Dry run mode does a non-physical emulation by running all the instrument
     specific code with virtualized devices.  Any problems which would appear
-    runnig the same commands in 'master' mode (with ideal hardware) can be
+    running the same commands in 'master' mode (with ideal hardware) can be
     spotted by the user, such as devices moving out of limits, failing
     calculations, or invalid parameters.
 

@@ -136,7 +136,7 @@ _column3 = Column(
 )
 
 _subcoils = Column(
-    Block('Field substraction coils', [
+    Block('Field subtraction coils', [
         BlockRow(
             Field(name='NSE 0', dev='nse0'),
             Field(name='NSE 1', dev='nse1'),

@@ -38,7 +38,7 @@ class PA:
     kf = 2.662  # wavevector of scattered neutrons / A-1
     da = 3.354  # netplane distance of analyser / A
     alpha0 = 0.5  # divergency of incident collimator / deg
-    eta = 0.4  # mosaicity of anaylser crystals / deg
+    eta = 0.4  # mosaicity of analyser crystals / deg
     lsa = 100.  # distance sample-analyzer axes / cm
     lsd1 = 20.  # sample-deflector 1 / cm
     lsd2 = 25.  # distance sample-deflector 2 / cm

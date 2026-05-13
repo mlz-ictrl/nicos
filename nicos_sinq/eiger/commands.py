@@ -67,7 +67,7 @@ def adjust_lattice_parameter(peak, step=0.01, np=21, mn=1000):
 
     # calculate relative change in the lattice parameter
     rl_ch = abs(new_par-old_par)/old_par*100
-    # check if the change is above treshold of 5 percent
+    # check if the change is above threshold of 5 percent
     if rl_ch > 5:
         session.log.info('The change in lattice parameter is' +
                          ' %.3f percent', rl_ch)

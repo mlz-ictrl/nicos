@@ -307,7 +307,7 @@ class MttAxis(Axis):
                 session.delay(self.loopdelay)
                 t -= self.loopdelay
                 if t < 0:
-                    msg = 'timeout occured during wait for mobile block change'
+                    msg = 'timeout occurred during wait for mobile block change'
                     # self._setErrorState(MoveError, msg)
                     # self._stoprequest = 2
                     # self.log.debug('Error state = %s', self._errorstate)

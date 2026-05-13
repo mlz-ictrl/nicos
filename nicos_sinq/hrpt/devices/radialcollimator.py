@@ -120,5 +120,5 @@ class RadialCollimator(EpicsDevice, MappedMoveable):
         if not self.automatic:
             return
         if self.read() == 'off':
-            session.log.warning('Radial collimator stoppped during '
+            session.log.warning('Radial collimator stopped during '
                                 'measurement')

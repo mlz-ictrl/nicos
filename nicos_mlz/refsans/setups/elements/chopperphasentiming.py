@@ -34,7 +34,7 @@ devices = dict(
         valuekey = 'chopper_act',
         timeout = 3.0,
         channel = 4,
-        offset = 0.0, #as absolut
+        offset = 0.0, # as absolute
         unit = 'deg',
         phasesign = phasesign_val,
     ),

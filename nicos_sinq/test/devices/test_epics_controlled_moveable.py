@@ -172,7 +172,7 @@ class Test:
 
     def test_stop_moveable(self):
 
-        # If the device has a stoppv, use this PV everytime
+        # If the device has a stoppv, use this PV every time
         assert self.moveable._stopval == 0
         assert not self.moveable._starting
         self.moveable.stop()
@@ -181,7 +181,7 @@ class Test:
 
     def test_stop_moveable_no_opt(self):
         # If neither readypv nor stoppv are given, `EpicsControlledAnalogMoveable` should
-        # behave like `EpicsAnalogMoveable` (attempt to move to current postion)
+        # behave like `EpicsAnalogMoveable` (attempt to move to current position)
         assert not self.moveable_no_opt._starting
         self.moveable_no_opt.stop()
         assert self.moveable_no_opt._starting

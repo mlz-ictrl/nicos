@@ -590,7 +590,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         # The stop field resets itself immediately after it has been written to
         self._put_pv('stop', 1)
 
-        # Block the session until either the stop has been successfull
+        # Block the session until either the stop has been successful
         # (motor is not moving anymore) or the check loop ran longer than
         # self._stop_delay.
         reset_time = time.time()
@@ -687,7 +687,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
             self._put_pv_readback_checked('reseterrorpv', 1,
                                             timeout=self.epicstimeout)
 
-            # Block the session until either the reset has been successfull
+            # Block the session until either the reset has been successful
             # (error state has been resolved) or the check loop ran longer than
             # self._reset_delay.
             reset_time = time.time()

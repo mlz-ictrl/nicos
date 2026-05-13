@@ -254,7 +254,7 @@ class NexusSinkHandler(DataSinkHandler):
                 self.append(self.template, h5obj, subset)
             except BlockingIOError:
                 session.log.warning('Other process is accessing NeXus file '
-                                    'while updating, possibly loosing '
+                                    'while updating, possibly losing '
                                     'scan point')
 
     def find_scan_link(self, h5obj, template):

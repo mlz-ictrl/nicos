@@ -31,7 +31,7 @@ _chconfigcol = Column(
                   width=14, format='%.1f', unit='(\u212b)'),
             Field(name='\u03bb\u2098\u2090\u2093', key='chopper/wlmax',
                   width=14, format='%.1f', unit='(\u212b)'),
-            # it is not the resolution by itsself. It is the disk 2 position
+            # it is not the resolution by itself. It is the disk 2 position
             # set in chopper_config
             Field(name='disk 2 position', key='chopper/resolution',
                   width=14, unit='(1 - 6)'),

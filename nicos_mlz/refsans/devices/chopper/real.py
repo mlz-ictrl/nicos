@@ -378,7 +378,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
         res = int(self._read_controller('m410%s'))
         if res == 99999:
             return 0
-        # The Chopper understands "negative hundreths degrees"
+        # The Chopper understands "negative hundredths degrees"
         # res /= 100.
         res /= -100.  # SB
         # since we changed the sign above, change sign of reference
@@ -405,7 +405,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
             set_to -= 360. / self.gear
         while set_to < (-180. / self.gear):
             set_to += 360. / self.gear
-        # The Chopper understands "negative hundreths degrees"
+        # The Chopper understands "negative hundredths degrees"
         set_to = int(round(set_to * -100))  # SB
         self.log.debug('Disk %d Phase %d gear %d', self.chopper, set_to,
                        self.gear)

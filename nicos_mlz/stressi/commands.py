@@ -153,7 +153,7 @@ def pole_figure(numrows, speed, timedelta, sampleinfo):
     chis = session.getDevice('chis')
     phis = session.getDevice('phis')
     dchi = round(90.0 / numrows, 2) / 2.0
-    # creating a list beginnig from 180 + dchi downsteps to 90 + dchi
+    # creating a list beginning from 180 + dchi downsteps to 90 + dchi
     positions = np.arange(90 + dchi, 180, 2 * dchi)[::-1]
     maw(phis, 0)
     for i, chipos in enumerate(positions):

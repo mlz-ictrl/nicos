@@ -105,7 +105,7 @@ class PVMonitor(DeviceMixinBase):
 
         def update_callback(pvparam=None, value=None, char_value=None, **kws):
             """
-            Define a callback that reacts to PV's value change. the defaul
+            Define a callback that reacts to PV's value change. the default
             behaviour is to update value stored in the NICOS cache.
             :param pv_name: the PV name
             :param value: the new PV value

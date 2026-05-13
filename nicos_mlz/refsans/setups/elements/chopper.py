@@ -29,7 +29,7 @@ devices = dict(
         comm = 'chopper_io',
     ),
     chopper_speed = device(code_base_chopper + 'ChopperDisc',
-        description = 'chopper speed; reguler 100rpm/min Nothalt 400rpm/min',
+        description = 'chopper speed; regular 100rpm/min emergency stop 400rpm/min',
         comm = 'chopper_io',
         fmtstr = '%d',
         unit = 'rpm',

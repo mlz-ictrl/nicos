@@ -63,7 +63,7 @@ class Controller(_Controller):
 
     Stopping works by throwing an exception from the trace function into the
     frame executing code, where it should be allowed to propagate to the
-    toplevel and exit excecution.  The exception (ControlStop) inherits from
+    toplevel and exit execution.  The exception (ControlStop) inherits from
     BaseException.  This works nicely together with "finally:" clauses, but
     requires that bare "except:" clauses are replaced by "except Exception:".
 
@@ -105,7 +105,7 @@ class Controller(_Controller):
     - set_break(arg): request a break, the breakfunc will be called at the
       next trace function run, the arg is given to the breakfunc; a not-None
       arg is supposed to mean "stop"
-    - set_stop(arg): request a stop, the arg will be used as an intializer
+    - set_stop(arg): request a stop, the arg will be used as an initializer
       argument to the ControlStop exception
     - set_observer(observer): attach an observer to the instance
 

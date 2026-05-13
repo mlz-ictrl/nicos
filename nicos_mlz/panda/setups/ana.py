@@ -158,7 +158,7 @@ devices = dict(
 
     # fourth device is unused
 
-    # fith device is unused
+    # fifth device is unused
 
     # aty is sixth device and has 1 stepper, 0 poti, 1 coder
     aty_step = device('nicos.devices.vendor.ipc.Motor',
@@ -193,7 +193,7 @@ devices = dict(
         fmtstr = '%.1f',
     ),
 
-    # eigth device is unused
+    # eighth device is unused
 
     # afh is seventh device and has 1 stepper, 0 poti, 0 coder
     afh_step = device('nicos.devices.vendor.ipc.Motor',

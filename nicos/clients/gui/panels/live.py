@@ -210,7 +210,7 @@ class LiveDataPanel(PlotPanel):
         self.menuROI = QMenu(self)
         self.actionROI = self.menuROI.menuAction()
         self.actionROI.setText('&Region Of Interest')
-        self.actionROI.setToolTip('Open region of interest in seperate window')
+        self.actionROI.setToolTip('Open region of interest in separate window')
         self.actionROI.triggered.connect(self.on_actionROI_triggered)
 
         self.menuColormap = QMenu(self)

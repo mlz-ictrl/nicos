@@ -166,7 +166,7 @@ class Press(HasPrecision, HasLimits, MoveName):
 
     def doWritePrecision(self, value):
         self._command('set:precision:%f' % value)
-        self.log.debug('write precison %f. unsaved', value)
+        self.log.debug('write precision %f. unsaved', value)
 
     def doReadPrecision(self):
         value = float(self._command('get:precision'))

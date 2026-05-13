@@ -30,7 +30,7 @@ from nicos.utils import printTable
 
 
 class StoredPositions(Moveable):
-    """A more generalized, dynamically configureable, mapped moveable.
+    """A more generalized, dynamically configurable, mapped moveable.
 
     It can store arbitrary device positions. Also, the mappings are editable at
     runtime.

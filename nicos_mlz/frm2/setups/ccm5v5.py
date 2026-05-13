@@ -27,7 +27,7 @@ devices = {
     ),
 }
 
-# Maximum temeratures for field operation above 80A taken from the manual
+# Maximum temperatures for field operation above 80A taken from the manual
 maxtemps = [None, 4.3, 4.3, 5.1, 4.7, None, None, None, 4.3]
 
 for i in range(1, 9):

@@ -28,7 +28,7 @@ from nicos_sinq.devices.just_bin_it import JustBinItImage
 
 class CutROI(RectROIChannel):
     """
-    A class which cuts a ROI out of another image for a single counter, roi is user changable.
+    A class which cuts a ROI out of another image for a single counter, roi is user changeable.
     """
 
     attached_devices = {

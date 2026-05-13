@@ -90,7 +90,7 @@ def test_seqparam(session):
 
 
 def test_seqmethod(session):
-    # method calling, use fix/relase here
+    # method calling, use fix/release here
     sm1 = session.getDevice('sm1')
     sm = SeqMethod(sm1, 'fix', 'blubb')
     assert repr(sm) == 'sm1 fix'

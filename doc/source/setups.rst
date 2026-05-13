@@ -57,7 +57,7 @@ except the :ref:`description <setup-description>` entry:
 
 .. note::
 
-   It's a good pratice to add the description to every setup file and device.
+   It's a good practice to add the description to every setup file and device.
 
 .. _setup-group:
 
