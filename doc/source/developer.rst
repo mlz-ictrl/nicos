@@ -23,3 +23,4 @@ development environment and coding guidelines.
    protocols/index
    utils/index
    gui/index
+   elog/index

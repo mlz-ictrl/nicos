@@ -300,6 +300,8 @@ class HtmlWriter:
 
 
 class Handler(BaseHandler):
+    """Create HTML output into local files."""
+
     parameters = {
         'plotformat': Param('Format for scan plots', type=oneof('svg', 'png')),
     }

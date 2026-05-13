@@ -30,6 +30,7 @@ from nicos.services.elog.utils import create_or_open, formatMessagePlain
 
 
 class Handler(BaseHandler):
+    """Create a local text file, where events will be written line by line."""
     def doInit(self, mode):
         BaseHandler.doInit(self, mode)
         self._fd = None

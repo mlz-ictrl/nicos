@@ -42,13 +42,16 @@ class Handler(Device):
             fun(timestamp, data)  # pylint: disable=not-callable
 
     def handle_hidden(self, time, data):
-        """Handle the 'hidden' event."""
+        """Handle the 'hidden' event.
+
+            data = bool
+        """
         self._hidden = data
 
     def handle_directory(self, time, data):
         """Handle the 'directory' event.
 
-           data = [directory, instrument, proposal]
+            data = [directory, instrument, proposal]
         """
         self._dir, self._instr, self._proposal = data
         self._logdir = path.join(self._dir, 'logbook')
@@ -61,28 +64,52 @@ class Handler(Device):
         self._proposal, self._title = data
 
     def handle_setup(self, time, setupnames):
-        """Handle the 'setup' event."""
+        """Handle the 'setup' event.
+
+            setupnames = ['setupname1', ...]
+        """
 
     def handle_entry(self, time, data):
-        """Handle the 'entry' event."""
+        """Handle the 'entry' event.
+
+            data = text to write into log
+        """
 
     def handle_remark(self, time, remark):
-        """Handle the 'remark' event."""
+        """Handle the 'remark' event.
+
+            remark = content of the experiment.remark
+        """
 
     def handle_scriptbegin(self, time, script):
-        """Handle the 'scriptbegin' event."""
+        """Handle the 'scriptbegin' event.
+
+            script = script or file name
+        """
 
     def handle_scriptend(self, time, script):
-        """Handle the 'scriptend' event."""
+        """Handle the 'scriptend' event.
+
+            script = script or file name
+        """
 
     def handle_sample(self, time, sample):
-        """Handle the 'sample' event."""
+        """Handle the 'sample' event.
+
+            sample = sample name
+        """
 
     def handle_detectors(self, time, dlist):
-        """Handle the 'detectors' event."""
+        """Handle the 'detectors' event.
+
+            dlist = ['detectorname1', ...]
+        """
 
     def handle_environment(self, time, elist):
-        """Handle the 'environment' event."""
+        """Handle the 'environment' event.
+
+            elist = ['environmentdevicename1', ...]
+        """
 
     def handle_offset(self, time, data):
         """Handle the 'offset' event.
@@ -103,13 +130,26 @@ class Handler(Device):
         """
 
     def handle_message(self, time, message):
-        """Handle the 'message' event."""
+        """Handle the 'message' event.
+
+            message = [name, created, levelno, message, exc_text, reqid]
+        """
 
     def handle_scanbegin(self, time, dataset):
-        """Handle the 'scanbegin' event."""
+        """Handle the 'scanbegin' event.
+
+            dataset = ScanData
+
+            `nicos.core.data.dataset.ScanData`
+        """
 
     def handle_scanend(self, time, dataset):
-        """Handle the 'scanend' event."""
+        """Handle the 'scanend' event.
+
+            dataset = ScanData
+
+            `nicos.core.data.dataset.ScanData`
+        """
 
 
 # more ideas:
