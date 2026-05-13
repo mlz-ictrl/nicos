@@ -139,9 +139,10 @@ class Handler(BaseHandler):
             self._instr = 'NICOS'
 
         wb_text = wb_format(
-            f'Opened new output files in:   {self._logdir}') + wb_format(
-            f'Instrument:   {self._instr}') + wb_format(
-            f'Proposal:   {self._proposal}')
+            f'Opened new output files in:   {self._logdir}',
+            f'Instrument:   {self._instr}',
+            f'Proposal:     {self._proposal}'
+        )
 
         headers = self._make_headers(subject='Directory',
                                      line_count=3,
@@ -163,8 +164,8 @@ class Handler(BaseHandler):
 
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(
-                                          f'New Experiment: {self._title} <br>'
-                                          f'Users: {self._users} <br>'
+                                          f'New Experiment: {self._title} ',
+                                          f'Users: {self._users} ',
                                           f'Localcontact: '
                                           f'{self._localcontact}'))
 
@@ -186,11 +187,9 @@ class Handler(BaseHandler):
         self.log.info('workbench_writer: handle entry')
 
         headers = self._make_headers(subject='Entry',
-                                     line_count=1 + escape(data).count('\n')
-                                                + data.count('<br>'),
+                                     line_count=1 + escape(data).count('\n'),
                                      timestamp=time)
 
-        data = data.replace('\n', '<br>')
         self._rabbit_producer.produce(headers=headers,
                                       message=wb_format(f'{data}'))
 
@@ -484,8 +483,8 @@ def wb_val_format(wb_val):
     return f'{wb_val}'
 
 
-def wb_format(wb_line):
-    return f'<pre style="margin: 0px !important;">{wb_line}</pre>'
+def wb_format(*lines):
+    return '\n'.join(lines) + '\n'
 
 
 def wb_timestring_1(time):
