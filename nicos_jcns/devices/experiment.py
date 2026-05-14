@@ -36,13 +36,13 @@ class Experiment(BaseExperiment):
 
     parameters = {
         'sampledb_botname': Param(
-            'Name of the IFF sample database bot user used in the keystore.',
+            'Name of the IFF sample database bot user used in the keystore',
             type=str,
             default='nicos',
             internal=True,
         ),
         'sampledb_url': Param(
-            'URL of the IFF sample database.',
+            'URL of the IFF sample database',
             type=str,
             # TODO: default='https://iffsamples.fz-juelich.de/api/v1/'
             default='https://docker.iff.kfa-juelich.de/dev-sampledb/api/v1/',

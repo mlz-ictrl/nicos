@@ -178,15 +178,15 @@ class AreaDetector(KafkaSubscriber, EpicsDevice, ImageChannelMixin, Measurable):
             settable=True, default=True
         ),
         'image_topic': Param(
-            'Topic where the image is.', type=str, mandatory=True,
+            'Topic where the image is', type=str, mandatory=True,
             settable=True, default=False
         ),
         'brokers': Param(
-            'Kafka broker for the images.', type=listof(host(defaultport=9092)),
+            'Kafka broker for the images', type=listof(host(defaultport=9092)),
             mandatory=True, settable=True, default=False
         ),
         'imagemode': Param(
-            'Mode to acquire images.',
+            'Mode to acquire images',
             type=oneof('single', 'multiple', 'continuous'), settable=True,
             default='continuous', volatile=True
         ),
@@ -196,26 +196,26 @@ class AreaDetector(KafkaSubscriber, EpicsDevice, ImageChannelMixin, Measurable):
             default='1x1', volatile=True
         ),
         'subarraymode': Param(
-            'Subarray of whole image active.',
+            'Subarray of whole image active',
             type=bool, settable=True,
             default=False, volatile=True
         ),
-        'sizex': Param('Image X size.', settable=True, volatile=True),
-        'sizey': Param('Image Y size.', settable=True, volatile=True),
-        'startx': Param('Image X start index.', settable=True, volatile=True),
-        'starty': Param('Image Y start index.', settable=True, volatile=True),
+        'sizex': Param('Image X size', settable=True, volatile=True),
+        'sizey': Param('Image Y size', settable=True, volatile=True),
+        'startx': Param('Image X start index', settable=True, volatile=True),
+        'starty': Param('Image Y start index', settable=True, volatile=True),
         'binx': Param('Binning factor X', settable=True, volatile=True),
         'biny': Param('Binning factor Y', settable=True, volatile=True),
-        'acquiretime': Param('Exposure time ', settable=True, volatile=True),
+        'acquiretime': Param('Exposure time', settable=True, volatile=True),
         'acquireperiod': Param(
-            'Time between exposure starts.', settable=True, volatile=True
+            'Time between exposure starts', settable=True, volatile=True
         ),
         'numimages': Param(
-            'Number of images to take (only in imageMode=multiple).',
+            'Number of images to take (only in imageMode=multiple)',
             settable=True, volatile=True
         ),
         'numexposures': Param(
-            'Number of exposures per image.', settable=True, volatile=True
+            'Number of exposures per image', settable=True, volatile=True
         ),
     }
 

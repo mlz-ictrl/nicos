@@ -54,13 +54,13 @@ class StickMotorVelo(EpicsDevice, Moveable):
 
     parameters = {
         'motorpv':
-            Param('Name of the motor record PV.',
+            Param('Name of the motor record PV',
                   type=pvname,
                   mandatory=True,
                   settable=False,
                   userparam=False),
         'enabled':
-            Param('Whether or not this device is currently enabled.',
+            Param('Whether or not this device is currently enabled',
                   type=bool,
                   mandatory=False,
                   settable=True,
@@ -170,7 +170,7 @@ class StickMotor(SinqMotor):
 
     parameters = {
         'enabled':
-            Param('Whether or not this device is currently enabled.',
+            Param('Whether or not this device is currently enabled',
                   type=bool,
                   mandatory=False,
                   settable=True,

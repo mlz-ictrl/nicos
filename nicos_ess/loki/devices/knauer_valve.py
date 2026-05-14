@@ -31,7 +31,7 @@ class KnauerValve(EpicsDevice, CanReference, Moveable):
 
     parameters = {
         'pvroot':
-            Param('The root of the PV.',
+            Param('The root of the PV',
                   type=pvname,
                   mandatory=True,
                   settable=False,

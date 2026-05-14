@@ -26,9 +26,9 @@ from nicos.core import Attach, Override, Param, Readable, anytype, dictof
 
 class MantidDevice(Readable):
     parameters = {
-        'args': Param('Additional arguments to MoveInstrumentComponent.',
+        'args': Param('Additional arguments to MoveInstrumentComponent',
                       type=dictof(str, anytype)),
-        'algorithm': Param('Mantid algorithm name.',
+        'algorithm': Param('Mantid algorithm name',
                            type=str, settable=False, userparam=False,
                            mandatory=True),
     }

@@ -49,7 +49,7 @@ class CascadeDetector(VirtualImage):
         'tofchannels': Param('Total number of TOF channels to use',
                              type=intrange(1, 1024), default=128,
                              settable=True, category='presets'),
-        'foilsorder': Param('Usable foils, ordered by number.',
+        'foilsorder': Param('Usable foils, ordered by number',
                             type=listof(intrange(0, 31)), settable=False,
                             default=[0, 1, 2, 3, 4, 5, 6, 7],
                             category='instrument'),

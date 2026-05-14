@@ -18,4 +18,5 @@ distribution.
    secop
    vendor/index
    debug
+   facility_classes
    devindex

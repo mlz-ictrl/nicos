@@ -35,7 +35,7 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
 
     parameters = {
         'can_disable': Param('Whether the motor can be enabled/disabled using '
-                             'a PV or not.', type=bool, mandatory=False,
+                             'a PV or not', type=bool, mandatory=False,
                              settable=False, userparam=False, volatile=True),
         'encoder_type': Param('Encoder type', default=None, settable=False,
                               type=none_or(oneof('absolute', 'incremental')),

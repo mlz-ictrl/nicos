@@ -36,7 +36,7 @@ class LMD400(EpicsDevice, Device):
     """
 
     parameters = {
-        'basepv': Param('Base name of the PVs with delimiter.', type=pvname,
+        'basepv': Param('Base name of the PVs with delimiter', type=pvname,
                         mandatory=True, settable=False, userparam=False),
         'alarm': Param('Alarm status of the LMD400', type=str, mandatory=False,
                        volatile=True, default='Nothing read',

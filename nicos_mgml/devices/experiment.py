@@ -60,7 +60,7 @@ class Experiment(BaseExperiment):
             userparam=True,
         ),
         'started': Param(
-            'Time when experiment started (sec since epoch), none if not started.',
+            'Time when experiment started (sec since epoch), none if not started',
             type=none_or(float),
             userparam=False,
             internal=True,

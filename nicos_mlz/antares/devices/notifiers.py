@@ -31,9 +31,9 @@ class TelegramNotifier(Notifier):
     """Notifier sending messages to the Telegram messenger service."""
 
     parameters = {
-        'chatid': Param('Chat ID the bot should send the messages to.',
+        'chatid': Param('Chat ID the bot should send the messages to',
                         type=str, mandatory=True),
-        'bottoken': Param('Bot API access token.',
+        'bottoken': Param('Bot API access token',
                           type=str, mandatory=True),
     }
 

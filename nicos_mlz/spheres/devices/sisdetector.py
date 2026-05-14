@@ -93,14 +93,14 @@ class SISChannel(ImageChannel):
                                    type=listof(int),
                                    settable=True, volatile=True),
         'detamount':         Param('Amount of detectors for the reshaping '
-                                   'of the read data.',
+                                   'of the read data',
                                    type=int,
                                    default=16),
         'backgroundmode':    Param('Mode of the background chopper',
                                    type=float,
                                    volatile=True),
         'backgroundoffset':  Param('Count offset in relation to the first PST '
-                                   'zero after each background zero.',
+                                   'zero after each background zero',
                                    type=float,
                                    settable=True,
                                    volatile=True),

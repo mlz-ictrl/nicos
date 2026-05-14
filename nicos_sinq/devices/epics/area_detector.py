@@ -109,7 +109,7 @@ class EpicsAreaDetector(HasAutoDevices, EpicsDetector):
     parameters = {
         'statepv': Param('PV to monitor the acquisition state', type=pvname,
                          mandatory=True, userparam=False),
-        'errormsgpv': Param('Optional PV with error message.',
+        'errormsgpv': Param('Optional PV with error message',
                             type=pvname or None, mandatory=False,
                             settable=False, userparam=False, default=None),
         'basepv': Param('PV to use as base for parameter PVs',
@@ -391,7 +391,7 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
     Detector channel for delivering images from Epics AreaDetector.
     """
     parameters = {
-        'pvprefix': Param('Prefix of the record PV.', type=pvname,
+        'pvprefix': Param('Prefix of the record PV', type=pvname,
                           mandatory=True, settable=False, userparam=False),
     }
 

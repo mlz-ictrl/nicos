@@ -311,7 +311,7 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffBase, BaseSequencer):
         'refpos': Param('Reference position',
                         type=float, settable=False, userparam=False,
                         volatile=True,),
-        'vmax': Param('Maximum speed.',
+        'vmax': Param('Maximum speed',
                       type=floatrange(0), settable=False, userparam=False,
                       volatile=True,),
         'motortemp': Param('Motor temperature',

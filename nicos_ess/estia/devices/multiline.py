@@ -40,7 +40,7 @@ class PilotLaser(HasDisablePv, EpicsReadable):
         'uncertainty_variable':
             Param('Uncertainty that depends on L', type=float, settable=False),
         'pvprefix':
-            Param('Name of the record PV.',
+            Param('Name of the record PV',
                   type=pvname,
                   mandatory=True,
                   settable=False,
@@ -99,34 +99,34 @@ class MultilineChannel(EpicsReadable):
 
     parameters = {
         'channel':
-            Param('Channel number.',
+            Param('Channel number',
                   type=int,
                   settable=False,
                   userparam=False,
                   internal=True),
         'i_limits':
-            Param('Minimum intensity as raw value.',
+            Param('Minimum intensity as raw value',
                   type=limits,
                   settable=False,
                   internal=True),
         'gain':
-            Param('Gain for the channel.',
+            Param('Gain for the channel',
                   type=float,
                   settable=False,
                   internal=True),
         'gain_pv':
-            Param('PV for the gain.',
+            Param('PV for the gain',
                   type=pvname,
                   settable=False,
                   mandatory=True,
                   userparam=False),
         'latest_valid':
-            Param('Latest data of a valid measurement.',
+            Param('Latest data of a valid measurement',
                   type=float,
                   settable=False,
                   internal=True),
         'latest_valid_pv':
-            Param('PV of latest data of a valid measurement.',
+            Param('PV of latest data of a valid measurement',
                   type=pvname,
                   settable=False,
                   mandatory=True,
@@ -200,33 +200,33 @@ class MultilineController(EpicsReadable):
 
     parameters = {
         'pvprefix':
-            Param('Name of the record PV.',
+            Param('Name of the record PV',
                   type=pvname,
                   mandatory=True,
                   settable=False,
                   userparam=False),
         'front_end_splitter':
-            Param('Turn front end splitter on/off.',
+            Param('Turn front end splitter on/off',
                   type=str,
                   settable=True,
                   internal=True),
         'fes_option':
-            Param('Turn the shutter on or off when not measuring.',
+            Param('Turn the shutter on or off when not measuring',
                   type=str,
                   settable=True,
                   internal=True),
         'single_measurement':
-            Param('Start of a single measurement.',
+            Param('Start of a single measurement',
                   type=str,
                   settable=True,
                   internal=True),
         'continuous_measurement':
-            Param('Start of a continuous measurement.',
+            Param('Start of a continuous measurement',
                   type=str,
                   settable=True,
                   internal=True),
         'alignment_process':
-            Param('Start/stop the process to align the channels.',
+            Param('Start/stop the process to align the channels',
                   type=str,
                   settable=True,
                   internal=True),

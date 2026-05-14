@@ -72,7 +72,7 @@ class Authenticator(BaseAuthenticator):
                              type=listof(ldapuri), mandatory=True),
         'bindmethod':  Param('LDAP port', type=oneof(*BIND_METHODS),
                              default='no_tls'),
-        'userbasedn':  Param('Base dn to query users.',
+        'userbasedn':  Param('Base dn to query users',
                              type=str,
                              mandatory=True),
         'userfilter':  Param('Filter for querying users. Must contain '

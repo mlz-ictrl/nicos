@@ -39,7 +39,7 @@ from nicos.devices.epics.pyepics.motor import EpicsMotor as EssEpicsMotor
 class EpicsMotor(EssEpicsMotor):
     parameters = {
         'can_disable': Param('Whether the motor can be enabled/disabled using '
-                             'a PV or not.', type=bool, mandatory=False,
+                             'a PV or not', type=bool, mandatory=False,
                              settable=False, userparam=False),
         'auto_enable': Param('Automatically enable the motor when the setup is'
                              ' loaded', type=bool, default=False,

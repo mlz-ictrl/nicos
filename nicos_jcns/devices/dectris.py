@@ -69,7 +69,7 @@ class HasEnergy(DeviceMixinBase):
 
     parameters = {
         'energy': Param(
-            'Photon and threshold energy in kilo electron volt.',
+            'Photon and threshold energy in kilo electron volt',
             type=dictwith(**dict((p, float) for p in ENERGY_PARAMS)),
             settable=True,
             volatile=True,
@@ -162,7 +162,7 @@ class Detector2D(Detector):
 
     parameters = {
         'diskspace': Param(
-            'Available space on the detector computer in gibibytes.',
+            'Available space on the detector computer in gibibytes',
             type=float,
             unit='GiB',
             fmtstr='%.3f',
@@ -170,13 +170,13 @@ class Detector2D(Detector):
         ),
         'filename': Param(
             'Name of currently being created (during exposures) or last '
-            'created image file.',
+            'created image file',
             type=str,
             unit='',
             volatile=True,
         ),
         'humidity': Param(
-            'Relative humidity inside the detector module compartment.',
+            'Relative humidity inside the detector module compartment',
             type=float,
             unit='%',
             fmtstr='%.3f',
@@ -184,20 +184,20 @@ class Detector2D(Detector):
         ),
         'imagedir': Param(
             'Current target directory on the detector computer where the next '
-            'detector image will be stored at.',
+            'detector image will be stored at',
             type=str,
             unit='',
             volatile=True,
         ),
         'nextimagepath': Param(
-            'Path of the next created image file.',
+            'Path of the next created image file',
             type=str,
             settable=True,
             unit='',
             internal=True,
         ),
         'temperature': Param(
-            'Detector temperature in degree Celsius.',
+            'Detector temperature in degree Celsius',
             type=float,
             unit='degC',
             fmtstr='%.3f',
@@ -394,7 +394,7 @@ class PILATUS300KDetector(Detector2D):
 
     parameters = {
         'mxsettings': Param(
-            'Crystallographic parameters reported in the image header.',
+            'Crystallographic parameters reported in the image header',
             type=dictof(oneof(*MX_PARAMETERS), anytype),
             settable=True,
             volatile=True,

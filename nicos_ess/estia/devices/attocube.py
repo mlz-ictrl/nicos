@@ -169,7 +169,7 @@ class IDS3010Control(EpicsMoveable):
                   chatty=True,
                   unit='%'),
         'pvprefix':
-            Param('Name of the record PV.',
+            Param('Name of the record PV',
                   type=pvname,
                   mandatory=True,
                   settable=False,
