@@ -152,6 +152,7 @@ devices = dict(
         daqpvprefix = cterprefix,
         channels = channels,
         time_channel = 'elapsedtime',
+        visibility = {'metadata', 'namespace'},
     ),
     ThresholdChannel = device(
         'nicos_sinq.devices.epics.sinqdaq.DAQMinThresholdChannel',
