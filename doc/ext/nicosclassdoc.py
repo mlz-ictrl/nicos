@@ -219,6 +219,8 @@ class NicosClassDocumenter(ClassDocumenter):
 
         myclsname = self.object.__module__ + '.' + self.object.__name__
         for param, info in sorted(self.object.parameters.items()):
+            if param == 'classes' or info.internal:
+                continue
             if info.classname is not None and info.classname != myclsname:
                 baseparaminfo.append((param, info))
                 info.derived = True
