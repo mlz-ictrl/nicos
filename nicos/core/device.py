@@ -302,11 +302,11 @@ class Device(metaclass=DeviceMeta):
     # Param objects.
     parameters = {
         'name':        Param('The name of the device',
-                             type=str, settable=False, userparam=False),
+                             type=nicosdev, settable=False, internal=True),
         'classes':     Param('Names of device class and all its base classes',
-                             type=listof(str), settable=False, userparam=False),
-        'description': Param('A description of the device', type=str,
-                             settable=False),
+                             type=listof(str), settable=False, internal=True),
+        'description': Param('A description of the device',
+                             type=str, settable=False),
         'visibility':  Param('Selects in which context the device should be '
                              'shown/included',
                              type=setof('metadata', 'namespace', 'devlist'),
