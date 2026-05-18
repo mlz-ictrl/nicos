@@ -61,7 +61,7 @@ class McStasSimulation(BaseSimulation):
                               '(repeat, runtime) tuples',
                               type=listof(tupleof(float, float)),
                               ),
-        'repeat_scale': Param('Rescale factor of the "repeat" value.',
+        'repeat_scale': Param('Rescale factor of the "repeat" value',
                               type=floatrange(0, 1), default=1,
                               settable=False, userparam=False),
     }
