@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+import math
+
 import numpy
 from scipy.odr import ODR, Data, Model
 from scipy.optimize import curve_fit
@@ -45,7 +47,7 @@ def mean(x, dx=None):
         mn = x[0]
         er = dx[0] if dx.any() else 0
     if n > 1:
-        if dx.any() and 0 not in dx:
+        if dx.any() and not numpy.any(numpy.isnan(dx)):
             mn = numpy.sum(x / dx ** 2) / numpy.sum(1 / dx ** 2)
             er = (1 / numpy.sum(1 / dx ** 2)) ** 0.5
         else:
@@ -114,15 +116,15 @@ def lsm(x, y, dx=None, dy=None):
     dy = numpy.array(dy)
 
     if len(x) == 1:
-        return ufloat(0, 0), ufloat(y, dy if dy.any() else 0)
+        return ufloat(0, 0), ufloat(y, dy if dy.any() else math.nan)
     if len(x) == 2:
-        dx0, dx1 = (dx[0], dx[1]) if dx.any() else (0, 0)
-        dy0, dy1 = (dy[0], dy[1]) if dy.any() else (0, 0)
+        dx0, dx1 = (dx[0], dx[1]) if dx.any() else (math.nan, math.nan)
+        dy0, dy1 = (dy[0], dy[1]) if dy.any() else (math.nan, math.nan)
         x0, x1, y0, y1 = x[0], x[1], y[0], y[1]
         k = (ufloat(y1, dy1) - ufloat(y0, dy0)) / (ufloat(x1, dx1) - ufloat(x0, dx0))
         return k, y1 - k * x1
-    if not dx.any() and not dy.any():
+    if all([math.isnan(dx[0]), math.isnan(dy[0])]):
         return _lsm(x, y)
-    elif not dx.any():
+    elif math.isnan(dx[0]):
         return _lsm_dy(x, y, dy)
     return _lsm_dx_dy(x, y, dx, dy)
