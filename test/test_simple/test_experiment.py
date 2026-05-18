@@ -172,6 +172,42 @@ def test_experiment(session, cleanup, exp):
     exp.new('service', localcontact=exp.localcontact)
 
 
+def test_experiment_add_user(session, exp):
+    # Try writing random stuff to the user parameter
+    exp.addUser('Jon', 'jon@doe.com', 'myfacility')
+    with pytest.raises(ValueError,
+                       match='name must be a non-empty string!'):
+        exp.addUser(37)
+    with pytest.raises(ValueError,
+                       match=r"'\[\]' is not a valid email address"):
+        exp.addUser('James', [])
+    with pytest.raises(ValueError,
+                       match='affiliation must be a non-empty string!'):
+        exp.addUser('Jane', 'jane@doe.com', {})
+
+    # Check if reading the users parameter still works
+    assert exp.users == 'Jon <jon@doe.com> (myfacility)'
+
+
+def test_experiment_update_user(session, exp):
+    # Update the users parameter with valid data
+    exp.update(users=[
+        {'name': 'Jon', 'affiliation': 'myfacility'},
+        {'name': 'Jane', 'affiliation': 'myfacility'},
+    ])
+    assert exp.users == 'Jon (myfacility); Jane (myfacility)'
+
+    # Update the users parameter with invalid data
+    for users in [12, {}, '']:
+        with pytest.raises(ValueError, match='users must be a non-empty string!'):
+            exp.update(users=users)
+    exp.update(users='BadInput')
+    assert exp.users == 'BadInput'
+
+    exp.update(users='Jon (myfacility); Jane (myfacility)')
+    assert exp.users == 'Jon (myfacility); Jane (myfacility)'
+
+
 def test_expanduser_dataroot(session, exp):
     dataroot = '~/data'
     exp._setROParam('dataroot', dataroot)
