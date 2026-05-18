@@ -30,6 +30,8 @@ import pickle
 import pytest
 from random import randint
 
+import numpy
+
 from .utils import compare_lists
 
 from nicos.utils.functioncurves import Curve2D, ufloat
@@ -110,8 +112,18 @@ def test_interpolation():
 
 
 def test_lsm():
-    k, b = randint(0, 100) / 1000, randint(0, 100)
-    curve = Curve2D([(i, i * k + b) for i in range(10)])
-    lsm = curve.lsm()
-    assert lsm[0].n == pytest.approx(k)
-    assert lsm[1].n == pytest.approx(b)
+    k, b = randint(1, 100) / 1000, randint(1, 100)
+    x = numpy.array(range(1, 10))
+    y = k * x + b
+    dx = randint(1, 100) / 1000 * x
+    dy = randint(1, 100) / 1000 * y
+    curve = Curve2D.from_x_y(x, y)
+    curvedy = Curve2D([(ix, ufloat(iy, idy)) for ix, iy, idy in zip(x, y, dy)])
+    curvedxdy = Curve2D([(ufloat(ix, idx), ufloat(iy, idy))
+                         for ix, idx, iy, idy in zip(x, dx, y, dy)])
+    assert pytest.approx(curve.lsm()[0].n) == \
+           pytest.approx(curvedy.lsm()[0].n) == \
+           pytest.approx(curvedxdy.lsm()[0].n) == pytest.approx(k)
+    assert pytest.approx(curve.lsm()[1].n) == \
+           pytest.approx(curvedy.lsm()[1].n) == \
+           pytest.approx(curvedxdy.lsm()[1].n) == pytest.approx(b)

@@ -24,7 +24,6 @@
 import math
 
 import numpy
-from scipy.odr import ODR, Data, Model
 from scipy.optimize import curve_fit
 
 from .imports import AffineScalarFunc, ufloat
@@ -87,17 +86,34 @@ def _lsm_dy(x, y, dy):
 
 
 def _lsm_dx_dy(x, y, dx, dy):
-    def linear_model(p, x):
-        k, b = p
-        return k * x + b
-
-    model = Model(linear_model)
-    data = Data(x, y, wd=1.0 / dx ** 2, we=1.0 / dy ** 2)
-    odr = ODR(data, model, beta0=[1.0, 0.0])
-    odr_result = odr.run()
-    k, b = odr_result.beta
-    SE_k, SE_b = odr_result.sd_beta
-    return ufloat(k, SE_k), ufloat(b, SE_b)
+    """Weighted total least-squares via York et al., Am. J. Phys. 72 (2004) 367.
+    """
+    if numpy.any(dx <= 0) or numpy.any(dy <= 0):
+        raise ValueError("All uncertainties must be positive")
+    wx = 1.0 / dx ** 2
+    wy = 1.0 / dy ** 2
+    k = numpy.polyfit(x, y, 1)[0]
+    w = numpy.zeros_like(x)
+    beta = numpy.zeros_like(x)
+    x_bar = y_bar = 0.0
+    for _ in range(200):
+        w = wx * wy / (k ** 2 * wy + wx)
+        x_bar = numpy.sum(w * x) / numpy.sum(w)
+        y_bar = numpy.sum(w * y) / numpy.sum(w)
+        ui = x - x_bar
+        vi = y - y_bar
+        beta = w * (ui / wy + k * vi / wx)
+        k_new = numpy.sum(w * beta * vi) / numpy.sum(w * beta * ui)
+        if numpy.abs(k_new - k) < 1e-15 * numpy.abs(k_new):
+            k = k_new
+            break
+        k = k_new
+    b = y_bar - k * x_bar
+    x_adj_bar = numpy.sum(w * (x_bar + beta)) / numpy.sum(w)
+    u = (x_bar + beta) - x_adj_bar
+    se_k = numpy.sqrt(1.0 / numpy.sum(w * u ** 2))
+    se_b = numpy.sqrt(1.0 / numpy.sum(w) + x_adj_bar ** 2 * se_k ** 2)
+    return ufloat(k, se_k), ufloat(b, se_b)
 
 
 def lsm(x, y, dx=None, dy=None):
