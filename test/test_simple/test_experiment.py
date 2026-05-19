@@ -53,14 +53,18 @@ def cleanup(session):
     session.experiment._setROParam('managerights', None)
 
 
+@pytest.fixture
+def exp(session):
+
+    return session.experiment
+
+
 def datapath(*parts, **kwds):
     extra = kwds.get('extra', 'data')
     return path.join(runtime_root, extra, year, *parts)
 
 
-def test_experiment(session, cleanup):
-    exp = session.experiment
-
+def test_experiment(session, cleanup, exp):
     # setup test scenario
     exp._setROParam('dataroot', path.join(runtime_root, 'data'))
     exp._setROParam('proposal', 'service')
@@ -149,13 +153,17 @@ def test_experiment(session, cleanup):
 
     assert exp.users == 'A User'
     exp.addUser('Another User', 'another.user@experiment.com')
-    assert exp.users == 'A User, Another User'
+    assert exp.users == 'A User; Another User <another.user@experiment.com>'
     exp.addUser('Athird User', 'athird.user@experiment.com',
                 'An Institute, Anywhere street, 12345 Anywhere')
-    assert exp.users == 'A User, Another User, Athird User '\
+    assert exp.users == 'A User; Another User <another.user@experiment.com>; ' \
+        'Athird User <athird.user@experiment.com> ' \
         '(An Institute, Anywhere street, 12345 Anywhere)'
 
     exp.update(users=[{'name': 'Jülich'}])
+    assert exp.users == 'Jülich'
+    exp.update(users='A. Name')
+    assert exp.users == 'A. Name'
 
     exp.scripts = ['Test ümlauts']
     assert exp.scripts == ['Test ümlauts']
@@ -164,15 +172,41 @@ def test_experiment(session, cleanup):
     exp.new('service', localcontact=exp.localcontact)
 
 
-def test_expanduser_dataroot(session):
-    exp = session.experiment
+def test_expanduser_dataroot(session, exp):
     dataroot = '~/data'
     exp._setROParam('dataroot', dataroot)
     assert exp.dataroot == path.expanduser(dataroot)
 
 
-def test_expandenv_dataroot(session):
-    exp = session.experiment
+def test_update_title(session, exp):
+    assert exp.title == 'Unknown'
+    exp.update(title='blah blubb')
+    assert exp.title == 'blah blubb'
+
+    for title in ([], {}, '', ()):
+        with pytest.raises(ValueError,
+                           match='title must be a non-empty string!'):
+            exp.update(title=title)
+
+
+def test_update_localcontact(session, exp):
+    assert exp.localcontact == 'R. Esponsible <r.esponsible@frm2.tum.de>'
+    name = 'R. Esponsible'
+    for lc in (name, [{'name': name}], [{'name': name, 'email': None}]):
+        exp.update(localcontacts=lc)
+        assert exp.localcontact == name
+
+    email = 'r.esponsible@frm2.tum.de'
+    for lc in (f'{name} <{email}>', [{'name': name, 'email': email}]):
+        exp.update(localcontacts=lc)
+        assert exp.localcontact == f'{name} <{email}>'
+    for lc in ([], {}, '', ()):
+        with pytest.raises(ValueError,
+                           match='localcontacts must be a non-empty string!'):
+            exp.update(localcontacts=lc)
+
+
+def test_expandenv_dataroot(session, exp):
     os.environ['TESTVAR'] = path.join(runtime_root, 'xxx')
     dataroot2 = '$TESTVAR' if sys.platform != 'win32' else '%TESTVAR%'
     exp._setROParam('dataroot', dataroot2)
@@ -182,8 +216,7 @@ def test_expandenv_dataroot(session):
     assert os.access(datapath('p888', extra='xxx'), os.X_OK)
 
 
-def test_envlist(session):
-    exp = session.experiment
+def test_envlist(session, exp):
     motor = session.getDevice('motor')
     coder = session.getDevice('coder')
 
