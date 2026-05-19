@@ -27,10 +27,11 @@ from os import path
 from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
-    SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
+    SetupsPanel as DefaultSetupsPanel
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSlot
+from nicos.utils.user import combineUsers, splitUsers
 
 
 class ExpPanel(DefaultExpPanel):

@@ -27,11 +27,11 @@
 from nicos.clients.gui.panels import PanelDialog
 from nicos.clients.gui.panels.expinfo import \
     ExpInfoPanel as DefaultExpInfoPanel
-from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
-    splitUsers
+from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import QMessageBox, pyqtSlot
 from nicos.utils import decodeAny, findResource
+from nicos.utils.user import splitUsers
 
 from nicos_mgml.gui import uipath
 

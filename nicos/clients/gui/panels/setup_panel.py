@@ -28,13 +28,14 @@ from os import path
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core import ConfigurationError
-from nicos.core.params import mailaddress, vec3
+from nicos.core.params import vec3
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 from nicos.guisupport import typedvalue
 from nicos.guisupport.qt import QComboBox, QDialog, QDialogButtonBox, QFrame, \
     QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, QSizeF, \
     QStyle, QStyledItemDelegate, Qt, QTextDocument, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
+from nicos.utils.user import combineUsers, splitUsers
 
 
 def iterChecked(listwidget):
@@ -43,37 +44,6 @@ def iterChecked(listwidget):
         item = listwidget.item(i)
         if item.checkState() == Qt.CheckState.Checked:
             yield item
-
-
-def combineUsers(users):
-    """Combine user info into a string with known format."""
-    res = []
-    for user in users:
-        userstr = user['name']
-        if user.get('email'):
-            userstr += ' <%s>' % user['email']
-        if user.get('affiliation'):
-            userstr += ' (%s)' % user['affiliation']
-        res.append(userstr)
-    return '; '.join(res)
-
-
-def splitUsers(users_str):
-    """Split string from the combineUsers() format."""
-    users = []
-    for userstr in users_str.split(';'):
-        user = {}
-        userstr = userstr.strip()
-        if '(' in userstr and userstr.endswith(')'):
-            userstr, _, affiliation = userstr[:-1].partition('(')
-            user['affiliation'] = affiliation.strip()
-            userstr = userstr.strip()
-        if '<' in userstr and userstr.endswith('>'):
-            userstr, _, email = userstr[:-1].partition('<')
-            user['email'] = mailaddress(email)
-        user['name'] = userstr.strip()
-        users.append(user)
-    return users
 
 
 class ProposalDelegate(QStyledItemDelegate):

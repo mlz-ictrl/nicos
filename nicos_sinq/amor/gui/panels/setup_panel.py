@@ -24,8 +24,8 @@
 from datetime import date
 from os import path
 
-from nicos.clients.gui.panels.setup_panel import splitUsers
 from nicos.guisupport.qt import pyqtSlot
+from nicos.utils.user import splitUsers
 
 from nicos_sinq.gui.panels.setup_panel import ExpPanel
 
