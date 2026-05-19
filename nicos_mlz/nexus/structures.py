@@ -26,6 +26,7 @@
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceDataset, NXAttribute
+from nicos.utils.user import splitUsers
 
 seconds = NXAttribute('s', 'string')
 counts = NXAttribute('counts', 'string')
@@ -45,21 +46,23 @@ mass_density = NXAttribute('g/cm^3', 'string')
 
 def LocalContact():
     """Create local contact structure."""
+    user = splitUsers(session.experiment.localcontact)[0]
     return {
         'role': ConstDataset('local_contact', 'string'),
-        # TODO: split name from email address
-        'name': DeviceDataset(session.experiment, 'localcontact'),
-        'email': DeviceDataset(session.experiment, 'localcontact'),
+        'name': ConstDataset(user.get('name', ''), 'string'),
+        'email': ConstDataset(user.get('email', ''), 'string'),
+        'affiliation': ConstDataset(user.get('affliation', ''), 'string')
     }
 
 
 def User():
     """Create a NXuser structure."""
+    user = splitUsers(session.experiment.users)[0]
     return {
         'role': ConstDataset('principal_investigator', 'string'),
-        # TODO: split name from email address
-        'name': DeviceDataset(session.experiment, 'users'),
-        'email': DeviceDataset(session.experiment, 'users')
+        'name': ConstDataset(user.get('name', ''), 'string'),
+        'email': ConstDataset(user.get('email', ''), 'string'),
+        'affiliation': ConstDataset(user.get('affliation', ''), 'string')
     }
 
 
