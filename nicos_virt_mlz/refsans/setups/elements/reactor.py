@@ -4,17 +4,18 @@ group = 'lowlevel'
 
 devices = dict(
     ReactorPower = device('nicos.devices.generic.VirtualCoder',
-        description = 'Reactor power',
+        description = 'FRM II reactor power',
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (0, 20),
             warnlimits = (19, 21),
             pollinterval = 60,
-            maxage = 61,
             unit = 'MW',
             jitter = 0.1,
-            curvalue = 19.8,
+            curvalue = 19.9,
             speed = 0.05,
+            maxage = 3600,
         ),
+        fmtstr = '%.1f',
     ),
 )
 
