@@ -27,6 +27,7 @@ from nicos.core.device import Moveable
 from nicos.core.errors import InvalidValueError
 from nicos.core.params import Attach, Override, Param, floatrange, limits, \
     nonzero, oneof
+from nicos.devices.abstract import Motor as NicosMotor
 from nicos.devices.entangle import Motor
 
 
@@ -35,7 +36,7 @@ class RadialCollimator(Moveable):
     valuetype = oneof('on', 'off')
 
     attached_devices = {
-        'motor': Attach('Motor driving the radial collimator', Motor)
+        'motor': Attach('Motor driving the radial collimator', NicosMotor)
     }
 
     parameter_overrides = {
@@ -62,8 +63,10 @@ class RadialCollimator(Moveable):
             else 'off'
 
     def doReadFrequency_Limits(self):
-        return (float(self._attached_motor._getProperty('minspeed')) / 360,
-                float(self._attached_motor._getProperty('maxspeed')) / 360)
+        if isinstance(self._attached_motor, Motor):
+            return (float(self._attached_motor._getProperty('minspeed')) / 360,
+                    float(self._attached_motor._getProperty('maxspeed')) / 360)
+        return (0.000278, 0.1666667)
 
     def doStart(self, target):
         if target == 'off':
@@ -75,7 +78,11 @@ class RadialCollimator(Moveable):
                 raise InvalidValueError(
                     self, '%r is an invalid value for parameter %s: %s' % (
                         self.frequency, 'frequency', err)) from err
-            self._attached_motor._dev.MoveCont(360 * self.frequency)
+            if isinstance(self._attached_motor, Motor):
+                self._attached_motor._dev.MoveCont(360 * self.frequency)
+            else:
+                self._attached_motor.speed = 360 * self.frequency
+                self._attached_motor.move(self._attached_motor.absmax)
 
     def doReadUnit(self):
         return ''
