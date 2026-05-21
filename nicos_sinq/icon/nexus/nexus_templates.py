@@ -20,13 +20,12 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-from copy import deepcopy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DeviceAttribute, \
     DeviceDataset, NamedImageDataset, NexusSampleEnv, NXAttribute, NXLink, \
     NXScanLink, NXTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.nexus.specialelements import AbsoluteTime
 
@@ -157,9 +156,9 @@ class ICONTemplateProvider(NexusTemplateProvider):
 
     def getTemplate(self):
         self._detectors = set()
-        full = deepcopy(icon_default)
+        full = copy_nexus_template(icon_default)
         entry = full['entry:NXentry']
-        entry['sample:NXsample'] = deepcopy(sample_common)
+        entry['sample:NXsample'] = copy_nexus_template(sample_common)
         # Find the rotation angle
         rot_link = self._find_rotation_angle()
         if rot_link:
@@ -178,6 +177,6 @@ class ICONTemplateProvider(NexusTemplateProvider):
                     NXLink(rot_link)
         if not self._detectors:
             session.log.error('Configuration error: no detectors found')
-        entry['icon:NXinstrument'] = deepcopy(instrument)
+        entry['icon:NXinstrument'] = copy_nexus_template(instrument)
         entry['icon:NXinstrument'][name] = NXLink('/entry/' + name)
         return full

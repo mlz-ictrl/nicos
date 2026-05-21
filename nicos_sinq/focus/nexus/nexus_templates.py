@@ -20,13 +20,12 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-from copy import deepcopy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, NamedImageDataset, NXAttribute, NXLink, \
     NXTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.focus.nexus.focus import FocusCoordinates, ScaledImage, \
     SliceTofImage, SumImage
@@ -290,37 +289,37 @@ sample_slit = {
 
 class FOCUSTemplateProvider(NexusTemplateProvider):
     def getTemplate(self):
-        full = deepcopy(focus_default)
+        full = copy_nexus_template(focus_default)
         entry = full['entry1:NXentry']
         focus = entry['FOCUS:NXinstrument']
         exp = session.getDevice('Exp')
         numor = exp.sicscounter - 1
         entry['run_number'] = ConstDataset(numor, 'int32')
-        focus['counter:NXmonitor'] = deepcopy(focus_counter)
-        entry['monitor:NXmonitor'] = deepcopy(tof_monitor)
-        focus['disk_chopper:NXchopper'] = deepcopy(disk_chopper)
-        focus['fermi_chopper:NXchopper'] = deepcopy(fermi_chopper)
-        focus['flight_path:NXfilter'] = deepcopy(flight_path)
-        focus['be_filter:NXfilter'] = deepcopy(be_filter)
-        focus['sample_slit:NXslit'] = deepcopy(sample_slit)
-        focus['monochromator:NXmonochromator'] = deepcopy(monochromator)
+        focus['counter:NXmonitor'] = copy_nexus_template(focus_counter)
+        entry['monitor:NXmonitor'] = copy_nexus_template(tof_monitor)
+        focus['disk_chopper:NXchopper'] = copy_nexus_template(disk_chopper)
+        focus['fermi_chopper:NXchopper'] = copy_nexus_template(fermi_chopper)
+        focus['flight_path:NXfilter'] = copy_nexus_template(flight_path)
+        focus['be_filter:NXfilter'] = copy_nexus_template(be_filter)
+        focus['sample_slit:NXslit'] = copy_nexus_template(sample_slit)
+        focus['monochromator:NXmonochromator'] = copy_nexus_template(monochromator)
         bankcount = 0
         if 'middlebank' in session.loaded_setups:
             middledict = {**middlebank, **det_common}
-            focus['bank1:NXdetector'] = deepcopy(middledict)
-            entry['bank1:NXdata'] = deepcopy(middle_data)
+            focus['bank1:NXdetector'] = copy_nexus_template(middledict)
+            entry['bank1:NXdata'] = copy_nexus_template(middle_data)
             bankcount += 1
         else:
             # Even if the middlebank is MIA, this contains the TOF link
             # targets
-            focus['bank1:NXdetector'] = deepcopy(det_common)
+            focus['bank1:NXdetector'] = copy_nexus_template(det_common)
         if 'upperbank' in session.loaded_setups:
-            focus['upperbank:NXdetector'] = deepcopy(upperbank)
-            entry['upperbank:NXdata'] = deepcopy(upper_data)
+            focus['upperbank:NXdetector'] = copy_nexus_template(upperbank)
+            entry['upperbank:NXdata'] = copy_nexus_template(upper_data)
             bankcount += 1
         if 'lowerbank' in session.loaded_setups:
-            focus['lowerbank:NXdetector'] = deepcopy(lowerbank)
-            entry['lowerbank:NXdata'] = deepcopy(lower_data)
+            focus['lowerbank:NXdetector'] = copy_nexus_template(lowerbank)
+            entry['lowerbank:NXdata'] = copy_nexus_template(lower_data)
             focus['tof_monitor'] = SliceTofImage('lower_image',
                                                  'hm_tof_array',
                                                  115, 116,
@@ -332,9 +331,9 @@ class FOCUSTemplateProvider(NexusTemplateProvider):
                 NXLink('/entry1/FOCUS/tof_monitor')
             bankcount += 1
         if bankcount == 3:  # Enough banks: store merged data
-            focus['merged:NXdetector'] = deepcopy(mergedbank)
-            entry['merged:NXdata'] = deepcopy(merged_data)
+            focus['merged:NXdetector'] = copy_nexus_template(mergedbank)
+            entry['merged:NXdata'] = copy_nexus_template(merged_data)
         if 'focus2d' in session.loaded_setups:
-            focus['focus2d:NXdetector'] = deepcopy(f2d_bank)
-            entry['focus2d:NXdata'] = deepcopy(f2d_data)
+            focus['focus2d:NXdetector'] = copy_nexus_template(f2d_bank)
+            entry['focus2d:NXdata'] = copy_nexus_template(f2d_data)
         return full

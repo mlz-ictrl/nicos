@@ -20,7 +20,6 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-import copy
 
 import h5py
 
@@ -28,7 +27,7 @@ from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, ImageDataset, NexusElementBase, \
     NexusSampleEnv, NXAttribute, NXLink, NXScanLink, NXTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.nexus.specialelements import AbsoluteTime, TimeBinConfArray
 
@@ -177,7 +176,7 @@ class BOATemplateProvider(NexusTemplateProvider):
         return content
 
     def getTemplate(self):
-        boa_template = copy.deepcopy(self._boa_default)
+        boa_template = copy_nexus_template(self._boa_default)
         entry = boa_template['entry:NXentry']
         for tbl in self._tables:
             tblcontent = self.makeTable(tbl)
