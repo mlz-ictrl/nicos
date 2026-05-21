@@ -35,3 +35,7 @@ The following exceptions can be used when writing custom devices:
 .. autoexception:: HardwareError()
 
 .. autoexception:: CacheLockError()
+
+.. autoexception:: CacheError()
+
+.. autoexception:: ComputationError()
