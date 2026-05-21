@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = configdata('config_data.cache_host'),
     instrument = 'firepod',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
