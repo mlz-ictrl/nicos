@@ -74,6 +74,6 @@ devices = dict(
         description = 'Free space on the log drive',
         path = '/control/log',
         visibility = (),
-        warnlimits = (0.5, None),
+        warnlimits = (1.5, None),
     ),
 )
