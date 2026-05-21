@@ -42,7 +42,7 @@ class Mchanger(Moveable):
         'focush': Attach('Horizontal focusing', Moveable),
         'focusv': Attach('Vertical focusing', Moveable),
         'mono_stat': Attach('Read status of monochromators on the monotable',
-                            Moveable),
+                            Readable),
     }
 
     parameters = {
