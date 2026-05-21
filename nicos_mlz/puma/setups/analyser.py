@@ -39,7 +39,9 @@ devices = dict(
     co_ath = device('nicos_mlz.puma.devices.Coder',
         bus = 'motorbus6',
         addr = 90,
-        poly = [-476397/2912.7111, 1./2912.7111],
+        # poly = [-476397/2912.7111, 1./2912.7111],
+        # poly = [-476397/93206.7556, 1./93206.7556], # test trial for new 25 bit encoder
+        poly = [-14158659/93206.7556, 1./93206.7556], # zero step update to match the current angle reported by motor
         unit = 'deg',
         visibility = (),
     ),
