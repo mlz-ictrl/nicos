@@ -38,6 +38,7 @@ devices = dict(
             abslimits = (0, 300),
             speed = 5,
             unit = 'mm',
+            curvalue = 8 + s3_offset,
         ),
         mapping = {
             2: 39 + s3_offset,

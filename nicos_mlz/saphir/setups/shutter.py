@@ -10,11 +10,13 @@ devices = dict(
                 abslimits = (-10, 10),
                 speed = 1,
                 unit = 'mm',
+                curvalue = -10,
             ),
             device('nicos.devices.generic.VirtualMotor',
                 abslimits = (-10, 10),
                 speed = 1,
                 unit = 'mm',
+                curvalue = -10,
             ),
         ],
         mapping = {
