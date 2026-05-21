@@ -58,12 +58,22 @@ devices = dict(
         readables = 'sw_lift',
         # distance between upper and lower limit switch is 498.2 !!
         mapping = dict(
-            top2 = (358.1, 1),
-            top1 = (355.3, 0),
+            top2 = (358.1, 0),
+            # top1 = (355.3, 0),
+            top1bye = (356.1, 0),
+            top1hug = (355.1, 0),
             ref = (0, 4),
-            bottom = (-139.35, 2),
+            bottom = (-137.5, 0),
+            # top2 and bottom mappings updated, position values depend only
+            # on motor step counting.
+            # top2 and bottom do not take limit switches into account anymore,
+            # assuming that the lift's step-based positioning is reliable
+            # enough.
+            # top1 is devided into two to achieve smooth change operation:
+            # top1bye -> when leaving monochromator in magazine
+            # top1hug -> when getting monochromator from magazine
         ),
-        precision = [0.5, 0],
+        precision = [0.2, 0],
         blockingmove = True,
         fallback ='<unknown>',
         timeout = 300,
@@ -80,14 +90,14 @@ devices = dict(
         visibility = (),
         confbyte = 44,
     ),
-    # co_mag = device('nicos.devices.vendor.ipc.Coder',
-    #     bus = 'motorbus1',
-    #     addr = 123,
-    #     slope = 181.97,
-    #     zerosteps = 2681.64,
-    #     unit = 'deg',
-    #     visibility = (),
-    # ),
+    co_mag = device('nicos.devices.vendor.ipc.Coder',
+        bus = 'motorbus1',
+        addr = 123,
+        slope = 181.97,
+        zerosteps = 2681.64,
+        unit = 'deg',
+        visibility = (),
+    ),
     mag = device('nicos.devices.generic.Axis',
         description = 'monochromator magazine moving axis',
         motor = 'st_mag',
@@ -250,7 +260,9 @@ devices = dict(
             mtt = -36.5027,
             # nominal position is 16.14, but w/o coder we use a slightly
             # different value.
-            mty = 17.08,
+            # the mty value updated from 17.08 to 17.8, depends only on
+            # motor step counting.
+            mty = 17.8,
             mgx = 0,
             mgy = 0,
         ),
