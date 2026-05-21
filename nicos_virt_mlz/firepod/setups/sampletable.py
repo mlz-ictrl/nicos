@@ -2,8 +2,6 @@ description = 'sample table rotations'
 
 group = 'lowlevel'
 
-tango_base = 'tango://motorbox01.firepod.frm2.tum.de:10000/box/'
-
 devices = dict(
     tths = device('nicos.devices.generic.Axis',
         description = 'Detector position (2Theta)',

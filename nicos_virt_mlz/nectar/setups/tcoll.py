@@ -2,8 +2,6 @@ description = 'Thermal collimator'
 
 group = 'optional'
 
-tango_base = 'tango://phytron02.nectar.frm2.tum.de:10000/'
-
 devices = dict(
     drum_m = device('nicos.devices.generic.VirtualReferenceMotor',
         abslimits = (-10, 370),

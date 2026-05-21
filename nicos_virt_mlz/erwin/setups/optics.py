@@ -2,9 +2,6 @@ description = 'Secondary collimator devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://motorbox01.erwin.frm2.tum.de:10000/box/'
-# tango_base = ''
-
 devices = dict(
     zo = device('nicos.devices.generic.Axis',
         description = 'Secondary collimator lift',

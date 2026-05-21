@@ -2,8 +2,6 @@ description = 'Sample table devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://motorbox02.erwin.frm2.tum.de:10000/box/'
-
 devices = dict(
     xs = device('nicos.devices.generic.Axis',
         description = 'X translation',
