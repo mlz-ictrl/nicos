@@ -70,7 +70,7 @@ class Beamstop(EpicsDevice, Moveable):
     }
 
     _beamstoppvs = {
-        'readpv': 'BEAMSTOP_RBV',
+        'readpv': 'LOADED',
         'writepv': 'BEAMSTOP',
         'statuspv': 'STATUS',
         'statusmsgpv': 'STATUS-Msg.SVAL',
