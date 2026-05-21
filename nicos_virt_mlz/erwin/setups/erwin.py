@@ -8,4 +8,5 @@ includes = [
     'charmbox02',
     'nguide',
     'rc',
+    'reactor',
 ]

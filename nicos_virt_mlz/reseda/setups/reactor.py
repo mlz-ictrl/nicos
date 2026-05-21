@@ -1,14 +1,17 @@
 description = 'Neutron source'
+
 group = 'lowlevel'
 
 devices = dict(
     ReactorPower = device('nicos.devices.generic.VirtualMotor',
-        description = 'Reactor power',
+        description = 'FRM II reactor power',
         abslimits = (0, 20),
-        pollinterval = 10,
-        maxage = 61,
-        unit = 'MW',
+        warnlimits = (19, 21),
+        fmtstr = '%.1f',
         jitter = 0.1,
-        curvalue = 19.8,
+        pollinterval = 60,
+        maxage = 3600,
+        unit = 'MW',
+        curvalue = 19.9,
     ),
 )

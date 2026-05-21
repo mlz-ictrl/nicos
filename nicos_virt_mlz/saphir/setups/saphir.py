@@ -7,4 +7,5 @@ includes = [
     'slits',
     'collimators',
     'detector',
+    'reactor',
 ]

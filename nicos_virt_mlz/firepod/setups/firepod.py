@@ -8,6 +8,7 @@ includes = [
     'rc',
     'detector',
     'beamstop',
+    'reactor',
 ]
 
 startupcode = """
