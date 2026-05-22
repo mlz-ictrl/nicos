@@ -20,7 +20,7 @@
 #   Artur Glavic <artur.glavic@psi.ch>
 #
 # *****************************************************************************
-
+from nicos import session
 from nicos.core import Moveable, Override, Param, PositionError,  dictof, listof, status, usermethod
 from nicos.core.constants import SLAVE
 from nicos.core.params import Attach, oneof
@@ -58,8 +58,10 @@ class SampleSwitcher(MappedMoveable):
         'adjusted_positions': Param(description='Mapping of sample ID to move location, updated when adjusted',
                                        type=dictof(str, listof(float)), settable=True, userparam=False),
         'sample_names': Param('List of sample names to be configured', internal=True, type=listof(str),
-                              settable=True, userparam=False),
-    }
+                              settable=True, userparam=False, default=['' for i in range(100)]),
+        'sample_data': Param('List of sample parameter data to be configured', internal=True, type=listof(dict),
+                              settable=True, userparam=False, default=[{} for i in range(100)]),
+        }
 
     # Basic configuration for existing sample holders:
     # number of samples on holder, spacing of samples in mm
@@ -73,11 +75,12 @@ class SampleSwitcher(MappedMoveable):
         'olaf': [10, -39]
     }
 
-
+    # The valuetype is not set correctly in dry-run as doWriteMapping is never called,
+    # this default works for all holders.
+    valuetype = oneof(*range(100))
     hardware_access = False
 
     def doInit(self, mode):
-        self._update_mapping(self.current_holder)
         MappedReadable.doInit(self, mode)
 
     def _startRaw(self, target):
@@ -86,16 +89,11 @@ class SampleSwitcher(MappedMoveable):
         self._attached_switch_axis.start(target)
 
         tgidx = self._mapReadValue(target)
-        if self.sample_names[tgidx]:
+        if self.sample_names[tgidx] and self._cache:
             # if configured, update sample name to new one
-            if self._cache:
-                self._cache.put('sample', 'value', self.sample_names[tgidx])
-                self._cache.put('sample', 'samplename', self.sample_names[tgidx])
-                samples = dict(self._cache.get('sample', 'samples'))
-                sample0 = dict(samples[0])
-                sample0['name']= self.sample_names[tgidx]
-                samples[0] = sample0
-                self._cache.put('sample', 'samples', samples)
+            params = self.sample_data[tgidx].copy()
+            params['name'] = self.sample_names[tgidx]
+            session.experiment.sample.new(params)
 
     def _readRaw(self, maxage=0):
         """Return raw position value of the moveable."""
@@ -189,24 +187,34 @@ class SampleSwitcher(MappedMoveable):
         self.mapping = new_mapping
         self._inverse_mapping = inverse_mapping
 
-    def doWriteMapping(self, mapping):
+    def doUpdateMapping(self, mapping):
         # update the valuetype options when mapping changes
         self.valuetype = oneof(*mapping)
 
-    def doWriteCurrent_Holder(self, value):
+    def doUpdateCurrent_Holder(self, value):
         if value in self.holder_dict:
             # change of the sample holder
             self._update_mapping(value)
             self.sample_names = ['' for i in range(self.holder_dict[value][0])]
+            self.sample_data = [{} for i in range(self.holder_dict[value][0])]
             return value
         else:
             raise ValueError("current_holder needs to be one of %s"%list(self.holder_dict.keys()))
 
     def __getitem__(self, item):
-        return self.sample_names[item]
+        return self.sample_names[item], self.sample_data[item]
 
     def __setitem__(self, index, value):
-        # update one sample name
+        # update one sample name and data
+        if isinstance(value, str):
+            sname = value
+            sdata = {}
+        else:
+            sname = value[0]
+            sdata = value[1]
         lst = list(self.sample_names)
-        lst[index] = value
+        lst[index] = sname
         self.sample_names = lst
+        lst = list(self.sample_data)
+        lst[index] = sdata
+        self.sample_data = lst

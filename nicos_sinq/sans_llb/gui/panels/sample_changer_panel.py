@@ -24,8 +24,10 @@
 '''
 A panel to enter sample names for every position of the SampleSwitcher device.
 '''
+from PyQt5.QtWidgets import QDoubleSpinBox
+
 from nicos.clients.gui.panels import Panel
-from nicos.guisupport.qt import QWidget, QVBoxLayout,  QLabel,  QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QScrollArea
+from nicos.guisupport.qt import QWidget, QVBoxLayout,  QLabel,  QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QScrollArea, Qt
 from nicos.protocols.cache import cache_load, OP_TELL, cache_dump
 
 
@@ -66,11 +68,13 @@ class SampleChangerPanel(Panel):
 
     def apply_names(self):
         names = []
-        for entry in self._sample_entries:
+        data = []
+        for i,entry in enumerate(self._sample_entries):
             names.append(str(entry.text()))
-        self.client.tell('exec', f'schanger.sample_names = {names!r};schanger(schanger.read())')
+            data.append({'thickness': self._sample_thicknesses[i].value()})
+        self.client.tell('exec', f'schanger.sample_names = {names!r};schanger.sample_data = {data!r};schanger(schanger.read())')
 
-    def build_sample_lines(self, name_list):
+    def build_sample_lines(self, length):
         self.layout().removeWidget(self.sample_lines)
         self.sample_lines.deleteLater()
         self.sample_lines = QScrollArea(self)
@@ -84,20 +88,37 @@ class SampleChangerPanel(Panel):
         vbox = QVBoxLayout()
         sw.setLayout(vbox)
         self._sample_entries=[]
-        for i,name in enumerate(name_list):
+        self._sample_thicknesses=[]
+        for i in range(length):
             hbox = QHBoxLayout()
             btn = QPushButton('Move to ')
             btn.pressed.connect(lambda idx=i: self.move_to_sample(idx))
             hbox.addWidget(btn, stretch=0)
             hbox.addWidget(QLabel(f'{i}:'))
             entry = QLineEdit()
-            entry.setText(name)
             entry.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             self._sample_entries.append(entry)
             hbox.addWidget(entry)
+            # thickness input
+            hbox.addWidget(QLabel('thickness:'))
+            thickness = QDoubleSpinBox()
+            thickness.setDecimals(1)
+            thickness.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self._sample_thicknesses.append(thickness)
+            hbox.addWidget(thickness)
+            hbox.addWidget(QLabel('mm'))
+
             vbox.addLayout(hbox, stretch=0)
         vbox.addStretch(1)
         self.active_sample()
+
+    def set_sample_names(self, name_list):
+        for i,name in enumerate(name_list):
+            self._sample_entries[i].setText(name)
+
+    def set_sample_data(self, data_list):
+        for i,data in enumerate(data_list):
+            self._sample_thicknesses[i].setValue(data.get('thickness', 0.))
 
     def move_to_sample(self, index):
         self.client.tell('exec', f'schanger({index})')
@@ -106,11 +127,15 @@ class SampleChangerPanel(Panel):
     def active_sample(self):
         for entry in self._sample_entries:
             entry.setStyleSheet("QLineEdit{background: white;}")
+        for entry in self._sample_thicknesses:
+            entry.setStyleSheet("background: white;")
         if self._active_sample>=0 and len(self._sample_entries)>0:
             self._sample_entries[self._active_sample].setStyleSheet("QLineEdit{background: lightgreen;}")
+            self._sample_thicknesses[self._active_sample].setStyleSheet("background: lightgreen;")
             self._target = -1
         elif self._target>=0:
             self._sample_entries[self._target].setStyleSheet("QLineEdit{background: lightyellow;}")
+            self._sample_thicknesses[self._target].setStyleSheet("background: lightyellow;")
 
     def on_client_cache(self, data):
         (_time, key, _op, value) = data
@@ -127,7 +152,14 @@ class SampleChangerPanel(Panel):
                 self.active_sample()
             elif subkey == 'sample_names':
                 value = cache_load(value)
-                self.build_sample_lines(value)
+                if len(value)!=len(self._sample_entries):
+                    self.build_sample_lines(len(value))
+                self.set_sample_names(value)
+            elif subkey=='sample_data':
+                value = cache_load(value)
+                if len(value)!=len(self._sample_entries):
+                    self.build_sample_lines(len(value))
+                self.set_sample_data(value)
             elif subkey == 'current_holder':
                 value = cache_load(value)
                 self._installed_devices.setText(value)

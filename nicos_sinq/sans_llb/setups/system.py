@@ -23,7 +23,7 @@ devices = dict(
         facility = 'SINQ, PSI',
         website = 'https://www.psi.ch/sinq/sans-llb/',
     ),
-    Sample = device('nicos.devices.experiment.Sample',
+    Sample = device('nicos_sinq.sans_llb.devices.sans_sample.SANSSample',
         description = 'The currently used sample',
     ),
     Exp = device('nicos_sinq.devices.experiment.SinqExperiment',

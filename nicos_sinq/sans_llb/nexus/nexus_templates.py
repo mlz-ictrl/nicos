@@ -322,6 +322,7 @@ bottom_detector = {
 
 sample_common = {
     'name': DeviceDataset('Sample', 'samplename'),
+    'thickness': DeviceDataset('Sample', 'thickness', defaultval=0.0),
     'x': DeviceDataset('stx'),
     'x_set': DeviceDataset('stx', parameter='target'),
     'y': DeviceDataset('sty'),
