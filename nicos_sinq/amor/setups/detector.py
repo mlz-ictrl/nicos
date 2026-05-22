@@ -113,9 +113,9 @@ devices = dict(
                                 ),
     proton_current = device('nicos.devices.epics.EpicsReadable',
                             description = 'Proton current',
-                            #readpv = 'MHC6:IST:2', # To be compared with current readpv in hot commissioning 2026
                             readpv = pvprefix + ':R1',
                             fmtstr = '%4.f',
+                            monitor = True,
                             ),
     detector_rate = device('nicos_sinq.amor.devices.detector.DetectorRate',
                            description = 'integral detector count rate',
