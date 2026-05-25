@@ -115,7 +115,7 @@ def gam_rem_adp_log(img, thr3=25, thr5=100, thr7=400, sig_log=0.8):
     imgm5 = cv2.medianBlur(img, 5)
     # opencv medianBlur only support 8-bit images for kernels > 5
     # https://docs.opencv.org/4.5.2/d4/d86/group__imgproc__filter.html#ga564869aa33e58769b4469101aac458f9
-    imgm7 = (256 * cv2.medianBlur((img / 256).astype(np.uint8), 7)).astype(np.int16)
+    imgm7 = 256 * cv2.medianBlur((img / 256).astype(np.uint8), 7).astype(np.int16)
 
     thr3list = np.nonzero(imgthr3)
     img_adp[thr3list] = imgm3[thr3list]
