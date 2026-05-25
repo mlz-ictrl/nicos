@@ -29,6 +29,7 @@ from pathlib import Path
 import pytest
 
 from nicos.commands.measure import SetDetectors, count
+from nicos.utils import readFileCounter
 
 from test.nexus.utils import nxs_ds_as_str
 
@@ -54,7 +55,10 @@ class TestTemplates:
         count(0.1)
 
     def test_mlz_template(self, session):
-        datapath = Path(session.experiment.datapath) / '0000001'
+        exp = session.experiment
+        counter = Path(exp.dataroot) / exp.counterfile
+        point = readFileCounter(counter, 'point')
+        datapath = Path(exp.datapath) / f'{point:07d}'
         assert datapath.with_suffix('.nxs').is_file()
 
         with h5py.File(datapath.with_suffix('.nxs')) as h5:
