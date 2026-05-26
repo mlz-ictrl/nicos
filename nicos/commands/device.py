@@ -115,7 +115,7 @@ def _rmove_poshook(dev, delta):
     curpos = dev.read(0)
     # if the target is reached (within precision), use it as the base for
     # the relative movement to avoid accumulating small errors
-    curpos = dev.target if dev.isAtTarget(curpos) else curpos
+    curpos = dev.target if dev.target is not None and dev.isAtTarget(curpos) else curpos
     if isinstance(curpos, str):
         raise UsageError('Device %s cannot be used with relative movement' %
                          dev)
