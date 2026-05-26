@@ -33,6 +33,8 @@ from nicos.devices.entangle import Motor
 
 class RadialCollimator(Moveable):
 
+    hardware_access = False
+
     valuetype = oneof('on', 'off')
 
     attached_devices = {
