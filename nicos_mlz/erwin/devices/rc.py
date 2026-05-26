@@ -86,3 +86,6 @@ class RadialCollimator(Moveable):
 
     def doReadUnit(self):
         return ''
+
+    def doReset(self):
+        self._attached_motor.reset()
