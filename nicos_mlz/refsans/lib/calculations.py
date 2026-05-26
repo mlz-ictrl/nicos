@@ -501,7 +501,7 @@ def chopper_parasitic(res, wl_start=25.0, wl_stop=95.0, wl_step=0.1,
     # Array containing the phases from disk2 to disk6, in deg
     phase_arr = res['angles'][1:6]
 
-    # Brings all the phases inside the range [0, 360[
+    # Brings all the phases inside the range [0, 360]
     if (phase_arr[3] is None) and (phase_arr[4] is None):
         phase_arr[0:3] = np.mod(phase_arr[0:3], 360.0)
     else:
@@ -1037,9 +1037,8 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
     # inconvenience, since, when the 'default' needs a SC2 opening larger than
     # the maximum value, practical_SC2 replaces it with the 'default_full_open'
 
-    if ((SC2_mode == 'default_full_open') or (SC2_mode == 'default')):
-        if (overlap > 0.0):
-            return None, 6 * [None], None, None, None, None
+    if SC2_mode in {'default_full_open', 'default'} and overlap > 0.0:
+        return None, 6 * [None], None, None, None, None
 
     # Before to continue, set the flag for virtual6_mode
     virtual6_mode = (disk2_pos == 6)
@@ -1217,15 +1216,14 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
                wl_stop=wl_stop):
                 return None, 6 * [None], None, None, None, None
 
-        else:
+        elif disk2_pos == 6:
             # parasitic wavelengths have not been found. If this happens for
             # disk2_Pos = 6, this means that virtual_6 may be achieved for
             # every disk2_pos value
 
-            if (disk2_pos == 6):
-                # Sets back the old values for disk2_pos and its phase
-                res['disk2_Pos'] = 6
-                res['angles'][1] = 0.0
+            # Sets back the old values for disk2_pos and its phase
+            res['disk2_Pos'] = 6
+            res['angles'][1] = 0.0
 
     # Brings the angles in the range [0, 360[
     if (SC2_mode is not None):
