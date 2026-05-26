@@ -871,7 +871,7 @@ def adjust_parasitic_SC1(res, wl_start=25.0, wl_stop=95.0, wl_step=0.1,
 def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
                    gap=0.1, delay=0.0, SC2_mode='default',
                    SC2_full_open=240.0, suppress_parasitic=True,
-                   wl_stop=95.0, interface=True):
+                   wl_stop=95.0):
     """Calculate the full chopper configuration.
 
     Input:
@@ -939,11 +939,6 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
                             for parasitic neutrons, in AA. This value has
                             effect only if suppress_parasitic = True
                             (float)
-        interface:          THIS PARAMETER IS NO LONGER USED BUT IS KEPT
-                            HERE JUST IN CASE. Originally it was used to
-                            force the subroutine to return a dictionary
-                            which is consistent with other subroutines
-                            existing in NICOS
 
     Output:
 
@@ -1020,8 +1015,6 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
 
     angles = [0.0, 0.0, angle_SCc, angle_SCo, angle_SC2[0], angle_SC2[1]]
 
-    # The proper dictionary (cut if interface is True) is managed at the end of
-    # this routine
     res = {'freq':           freq,
            'rpm':            rpm,
            'angles':         angles,
@@ -1036,8 +1029,6 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
            'D':              D,
            'SC2_mode':       SC2_mode,
            }
-    if SC2_mode is not None:
-        res['SC2_open_angle'] = angles[4] - angles[5]
 
     # The routine checks if the configuration found produces frame overlap.
     # This is in particular critical if 'default_full_open' is chosen, since
@@ -1235,15 +1226,6 @@ def chopper_config(wl_min=2.2, wl_max=21.0, D=22.8, disk2_pos=3,
                 # Sets back the old values for disk2_pos and its phase
                 res['disk2_Pos'] = 6
                 res['angles'][1] = 0.0
-
-    if interface:  # Removes the keys originally not expected from Jens
-        res.pop('freq', None)
-        res.pop('delay_time', None)
-        res.pop('delay_angle', None)
-        res.pop('SC1_open_angle', None)
-        res.pop('SC1_phase', None)
-        res.pop('SC2_phase', None)
-        res.pop('SC2_mode', None)
 
     # Brings the angles in the range [0, 360[
     if (SC2_mode is not None):
