@@ -43,17 +43,19 @@ class ZebraWavelength(Monochromator):
     }
 
     _wl_map = {
-        1.178: [('mexz', 547.445), ('pg', 'Out'), ('moml', -99.906),
+        1.178: [('mexz', 547.445), ('pg', 'Out'), ('moml', -99.955),
                 ('mcvl', 2.2)],
-        2.305: [('mexz', .5), ('pg', 'In'), ('momu', -13.18),
+        2.305: [('mexz', .5), ('pg', 'In'), ('momu', -13.17),
                 ('mcvu', 220)],
-        1.383: [('pg', 'Out'), ('mexz', 547.445), ('moml', -35.02),
+        1.383: [('pg', 'Out'), ('mexz', 547.445), ('moml', -34.965),
                 ('mcvl', 6.2)],
         0.778: [('pg', 'Out'), ('mcvl', 2.2), ('mexz', 547.445),
                 ('moml', -89.937)]
     }
 
     _wait_dev = []
+
+    valuetype = oneof(*_wl_map)
 
     def doRead(self, maxage=0):
         excluded = ['mcvl', 'mcvu']

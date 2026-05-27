@@ -32,7 +32,7 @@ devices = dict(
         'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Monitor for proton current',
         daqpvprefix = pvprefix,
-        channel = 4,
+        channel = 3,
         type = 'monitor',
     ),
     hardware_preset = device(
@@ -74,7 +74,7 @@ devices = dict(
         ],
         others = ['histogrammer'],
         liveinterval = 20,
-        saveintervals = [60]
+        saveintervals = [2]
     ),
     nxsink = device('nicos.nexus.NexusSink',
         description = "Sink for NeXus file writer",
