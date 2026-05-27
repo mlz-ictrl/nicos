@@ -27,6 +27,7 @@
 from nicos import session
 from nicos.core import Attach, Moveable, Override, Readable, oneofdict, status
 from nicos.devices.entangle import DigitalInput, DigitalOutput
+from nicos.utils import printTable
 
 from nicos_mlz.toftof.lib.safety_desc import bit_description
 
@@ -55,9 +56,9 @@ class SafetyInputs(Readable):
 
     def doRead(self, maxage=0):
         state = self._readHWState(maxage)
-        self.log.debug('val description')
-        for i, bit in enumerate(bin(state)[2:][::-1]):
-            self.log.debug('%s   %s', bit, bit_description[i])
+        data = [(f'{i + 1}', bit, bit_description[i])
+                for i, bit in enumerate(bin(state)[2:][::-1])]
+        printTable(['bit', 'value', 'description'], data, self.log.debug)
         return state
 
     def doStatus(self, maxage=0):
