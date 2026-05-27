@@ -20,6 +20,11 @@ watch_conditions = [
         setup = 'nl2a',
     ),
     dict(
+        condition = 't_in_chopper_value > 25',
+        message = 'Chiller cooling water is greater than 25 C',
+        setup = 'chiller',
+    ),
+    dict(
         condition = 'ch_value < 140',
         message = 'Choppers are down! DO SOMETHING!',
         setup = 'chopper',
