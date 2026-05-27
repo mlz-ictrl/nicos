@@ -83,7 +83,7 @@ class RNPPanel(Panel):
             (0, 0, self.width_slit2_value.text(),
              self.height_slit2_value.text()),
             'move(high_s, %r, y, %r, z, %r)' %
-            (self.high_S_value.text(), self.y_value.text(),
+            (self.high_s_value.text(), self.y_value.text(),
              self.z_value.text()),
             'move(beam_d, %r)' % self.beam_d_value.text(),
             'maw(slit_3, [%r, %r, %r, %r])' %
