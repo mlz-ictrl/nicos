@@ -7,7 +7,6 @@ devices = dict(
         description = 'Notifier service to send emails',
         sender = 'toftof@frm2.tum.de',
         copies = [
-            ('christopher.garvey@frm2.tum.de', 'all'),
             ('marcell.wolf@frm2.tum.de', 'all'),
         ],
         subject = 'TOFTOF',
