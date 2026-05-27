@@ -87,7 +87,7 @@ class Lockinmeter(Measurable):
         self._writeParams()
         self._values = [0] * len(self.channels)
         self._currentChannel = 0
-        self._laststatus = (status.BUSY, 'measuring')
+        self._lastStatus = (status.BUSY, 'measuring')
         self._measureNext()
 
     def _writeParams(self):

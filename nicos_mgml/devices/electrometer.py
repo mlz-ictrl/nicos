@@ -66,7 +66,7 @@ class K6517(Measurable):
     def doStart(self):
         self.log.debug('asked doStart')
         self._lastValue = 0
-        self._laststatus = (status.BUSY, 'measuring')
+        self._lastStatus = (status.BUSY, 'measuring')
         self._measure()
 
     def _measure(self):
