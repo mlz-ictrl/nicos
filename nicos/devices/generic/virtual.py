@@ -112,6 +112,7 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
         if self.speed != 0 and \
            self._thread is not None and self._thread.is_alive():
             self._stop = True
+            self._thread.join()
         else:
             self._setROParam('curstatus', (status.OK, 'idle'))
 
