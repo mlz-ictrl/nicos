@@ -54,7 +54,7 @@ class EpicsMotor(EssEpicsMotor):
     }
 
     def doReadPrecision(self):
-        pass
+        return self._params['precision']
 
     def _get_pv_name(self, pvparam):
         if pvparam == 'enable' and self.can_disable:
