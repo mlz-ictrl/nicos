@@ -34,7 +34,7 @@ from streaming_data_types import deserialise_hs00, deserialise_hs01
 from streaming_data_types.utils import get_schema
 
 from nicos import session
-from nicos.core import SIMULATION, ArrayDesc, Override, Param, Value, host, \
+from nicos.core import MASTER, ArrayDesc, Override, Param, Value, host, \
     intrange, listof, oneof, status, tupleof
 from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
@@ -195,13 +195,13 @@ class Hist2dTOFSINQ:
     @classmethod
     def get_array_description(cls, name, det_range, num_bins, **ignored):
         ndet = det_range[1] - det_range[0]
-        return ArrayDesc(name, shape=(ndet, num_bins), dtype=np.float64)
+        return ArrayDesc(name, shape=(ndet, num_bins), dtype=np.uint32)
 
     @classmethod
     def get_zeroes(cls, det_range, num_bins, **ignored):
         ndet =  det_range[1] - det_range[0]
         return cls.transform_data(
-            np.zeros(shape=(ndet, num_bins), dtype=np.float64))
+            np.zeros(shape=(ndet, num_bins), dtype=np.uint32))
 
     @classmethod
     def transform_data(cls, data, rotation=None):
@@ -319,9 +319,6 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
         '_status': Param('Histogram internal status',
                           type=tupleof(int, str), default=(status.OK, ''), internal=True,
                           settable=True),
-        '_last_msg_time': Param('Last time that a message was received from the histogrammer',
-                          type=float, default=time.time(), internal=True,
-                          settable=True),
     }
 
     parameter_overrides = {
@@ -331,12 +328,18 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
                                  settable=False),
     }
 
+    # Skip call to doStop if stop was already sent to Kafka
+    _sent_stop = False
+
+    # Last time that a message was received from the histogrammer
+    _last_msg_time = time.time()
+
     # Disable Poller
     def doReadPollinterval(self):
         return None
 
     def doPreinit(self, mode):
-        if mode == SIMULATION:
+        if mode != MASTER:
             return
 
         self._command_producer = create_kafka_producer(self.brokers[0])
@@ -346,38 +349,55 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
             self._response_consumer = create_kafka_consumer(self.brokers[0])
 
     def doInit(self, mode):
-        self._zero_data()
-        if mode == SIMULATION:
+        if mode != MASTER:
             return
 
+        self._zero_data()
+
+        self._status = status.OK, ''
+
         self._histograms_consumer.subscribe([self.hist_topic])
+        # Forces the partition to be created and sets the stream offset
+        self._histograms_consumer.consume(timeout=0.01)
 
         if self.response_topic:
             self._response_consumer.subscribe([self.response_topic])
+            # Forces the partition to be created and sets the stream offset
+            self._response_consumer.consume(timeout=0.01)
 
         self._processor = createThread('message_processor',
                                        self._get_new_messages)
+
+        # As long as we use Nicos for writing data files, it doesn't
+        # make sense to allow a histogram process to outlive Nicos,
+        # and as long as it is only used by nicos, there is no
+        # reason to allow multiple instances to run simultaneously,
+        # so ensure all histogram processes are stopped at startup
+        self.reset()
 
     def doReadArray(self, quality):
         return self._hist_data
 
     def doStart(self):
         self._zero_data()
-        self._status = status.BUSY, 'Starting'
         self._hist_id = f'hist-{uuid.uuid4()}'
+        self._sent_stop = False
         config = self._create_config(None, f'nicos-{uuid.uuid4()}')
         self._send_command(self.command_topic, json.dumps(config).encode())
+        self._status = status.BUSY, 'Starting'
 
     def doFinish(self):
         self.doStop()
 
     def doStop(self):
-        if not self._hist_id:
+        # Within the acquire loop, the finish method, and consequently this
+        # method is called repeatedly.
+        if self._sent_stop:
             return
 
-        self._status = status.BUSY, 'Stopping'
+        self._sent_stop = True
         self._stop_histogramming()
-        self._hist_id = None
+        self._status = status.BUSY, 'Stopping'
         self.wait()
 
     def doInfo(self):
@@ -445,6 +465,7 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
                 self._last_msg_time = time.time()
 
                 if contents.get("msg_id", '') == "all" and contents.get("response", '') == "FIN":
+                    self._hist_id = None
                     self._status = status.OK, ''
 
                 if contents.get("response", '') == "ERR":
@@ -456,6 +477,13 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
                         self.log.warning('Wrong type of message: %s not in %s',
                                          get_schema(msg.value()),
                                          deserialiser_by_schema.keys())
+                        continue
+
+                    for header in msg.headers():
+                        if header[0] == 'hist_id':
+                            if header[1].decode('utf-8') == self._hist_id:
+                                break
+                    else:
                         continue
 
                     deserialiser = deserialiser_by_schema.get(
@@ -479,6 +507,7 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
                         self._status = status.BUSY, 'Counting'
 
                     if info['state'] == 'FINISHED':
+                        self._hist_id = None
                         self._status = status.OK, ''
 
                     self._hist_data = hist_type_by_name[self.hist_type].transform_data(
@@ -494,6 +523,7 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
     def _zero_data(self):
         self._hist_data = hist_type_by_name[self.hist_type].get_zeroes(
             **self._params)
+        self.readresult = [0]
 
     def _stop_histogramming(self):
         message = json.dumps({
@@ -521,13 +551,13 @@ class JustBinItImage(ImageChannelMixin, PassiveChannel):
         return config_base
 
     def _send_command(self, topic, message):
-        self._last_msg_time = time.time()
         self._command_producer.produce(topic, message)
+        self._last_msg_time = time.time()
 
     def doStatus(self, maxage=0):
         return self._status
 
     def doReset(self):
         self._hist_id = 'all'
+        self._sent_stop = False
         self.doStop()
-        self._status = status.OK, ''
