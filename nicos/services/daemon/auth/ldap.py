@@ -56,8 +56,9 @@ class Authenticator(BaseAuthenticator):
     """Authenticates against the configured LDAP server.
 
     Basically it tries to bind on the server with the given userdn.
-    Per default, all ldap users are rejected when there is no user level
-    definition inside the 'roles' dictionary.
+
+    Per default, all LDAP users are rejected if there is **no** user level
+    definition inside the `userroles` or `grouproles` dictionary.
     """
 
     BIND_METHODS = {
