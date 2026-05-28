@@ -5,7 +5,7 @@ group = 'basic'
 display_order = 50
 
 sysconfig = dict(
-    datasinks = ['nxsink'],
+    datasinks = ['nxsink','LivePNGSink','LivePNGSinkLog'],
 )
 
 includes = ['mono_slit', 'cameabasic', 'hm_config'] # The real thing
@@ -54,6 +54,12 @@ devices = dict(
         daqpvprefix = countprefix,
         channel = 2,
     ),
+    proton_current = device('nicos.devices.epics.EpicsReadable',
+                            description = 'Proton current',
+                            readpv = 'MHC6:IST:2',
+                            fmtstr = '%4.f',
+                            monitor = True,
+                            ),
     protoncount = device(
         'nicos_sinq.devices.epics.sinqdaq.DAQChannel',
         description = 'Monitor for proton current',
@@ -75,6 +81,20 @@ devices = dict(
         },
         connector = 'hm_connector',
     ),
+    LivePNGSink = device('nicos.devices.datasinks.PNGLiveFileSink',
+        description = 'Saves live image as .png every now and then',
+        filename = '/home/status/live_lin.png',
+        log10 = False,
+        interval = 9,
+        detectors = ['cameadet'],
+    ),
+    LivePNGSinkLog = device('nicos.devices.datasinks.PNGLiveFileSink',
+        description = 'Saves live image as .png every now and then',
+        filename = '/home/status/live_log.png',
+        log10 = True,
+        interval = 9,
+        detectors = ['cameadet']
+    ),
     counts = device('nicos.devices.generic.detector.RectROIChannel',
         description = 'Counts as ROI on camea detector',
         roi = (1, 2, 50, 60)
@@ -92,7 +112,7 @@ devices = dict(
             ('counts', 'camea_detector'),
         ],
         others = ['histogrammer'],
-        liveinterval = 20,
+        liveinterval = 10,
         saveintervals = [900]
     ),
 )
