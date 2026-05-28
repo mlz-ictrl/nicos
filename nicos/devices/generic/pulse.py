@@ -60,12 +60,14 @@ class Pulse(BaseSequencer):
     hardware_access = False
 
     def doInit(self, mode):
-        if not self._attached_moveable.isAllowed(self.onvalue)[0]:
+        allowed, msg = self._attached_moveable.isAllowed(self.onvalue)
+        if not allowed:
             raise ConfigurationError(self, "'onvalue' is not allowed for the "
-                                     "'%s' device" % self._attached_moveable)
-        if not self._attached_moveable.isAllowed(self.offvalue)[0]:
+                                     "'%s' device (%s)" % (self._attached_moveable, msg))
+        allowed, msg = self._attached_moveable.isAllowed(self.offvalue)
+        if not allowed:
             raise ConfigurationError(self, "'offvalue' is not allowed for the "
-                                     "'%s' device" % self._attached_moveable)
+                                     "'%s' device (%s)" % (self._attached_moveable, msg))
         self.valuetype = oneof(self.offvalue, self.onvalue)
 
     def doStart(self, target):
