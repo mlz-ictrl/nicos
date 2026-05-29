@@ -491,7 +491,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
             # If self is an attached device, the startup routine of the parent
             # device should be interrupted as well in case starting self fails.
             raise TimeoutError(f'received start command at {start_time}, did '
-                               'not start in {self.startdelay} seconds')
+                               f'not start in {self.startdelay} seconds')
 
     def doReadTarget(self):
         return self._get_pv('writepv')
@@ -661,9 +661,6 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
                 # reflect that (this points to a bug in the EPICS driver).
                 if movement_done_start:
                     if time.monotonic() > movement_done_start + movement_done_period:
-                        if not self._at_home():
-                            self.log.warning('finished moving, but not homed yet')
-
                         # Update the status of the motor so it shows idle
                         self.status(0)
                         break

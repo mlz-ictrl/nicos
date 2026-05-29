@@ -31,7 +31,7 @@ import time
 import numpy
 
 from nicos import session
-from nicos.core import POLLER, SIMULATION, ConfigurationError, \
+from nicos.core import POLLER, SIMULATION, ConfigurationError, MAIN, \
     DeviceMixinBase, HasLimits, HasPrecision, Moveable, Override, Param, \
     Readable, anytype, dictof, floatrange, none_or, pvname, status
 from nicos.devices.abstract import MappedMoveable, MappedReadable
@@ -57,6 +57,8 @@ class EpicsDevice(DeviceMixinBase):
         'monitor': Param('Use a PV monitor', type=bool, default=False),
         'pva': Param('Use pva', type=bool,
                      default=DEFAULT_EPICS_PROTOCOL == 'pva'),
+        'cbs_in_daemon': Param('Use callbacks in daemon, default is poller',
+                     type=bool, default=False),
     }
 
     hardware_access = True
@@ -102,10 +104,19 @@ class EpicsDevice(DeviceMixinBase):
         self._epics_subscriptions = []
         value_pvs = list(self._cache_relations.keys())
         status_pvs = self._get_status_parameters()
-        if session.sessiontype == POLLER:
+
+        # The first paranthesis covers normal cases where epics devices are
+        # declared in the setup file directly, this creates callbacks in the
+        # poller.
+        # The second case after 'or' is the case of dynamic epics devices where
+        # we need to create the callbacks in the daemon.
+        # These cases could be condensed with xor:
+        # session.sessiontype == POLLER ^ self.cbs_in_daemon,
+        # but that may be unintuitive.
+        if (session.sessiontype == POLLER and not self.cbs_in_daemon) \
+                or (session.sessiontype == MAIN and self.cbs_in_daemon):
             self._subscribe_params(value_pvs, self.value_change_callback)
-        else:
-            self._subscribe_params(status_pvs or value_pvs,
+            self._subscribe_params(status_pvs,
                                    self.status_change_callback)
 
     def _subscribe_params(self, pvparams, change_callback):
@@ -154,7 +165,7 @@ class EpicsDevice(DeviceMixinBase):
 
     def _get_status_parameters(self):
         # Returns the parameters which indicate "status".
-        return set()
+        return set(self._cache_relations.keys())
 
     def doShutdown(self):
         for sub in self._epics_subscriptions:
