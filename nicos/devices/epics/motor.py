@@ -31,7 +31,7 @@ from nicos.core import Override, Param, UsageError, oneof, pvname, \
 from nicos.core.constants import MASTER
 from nicos.core.errors import LimitError
 from nicos.core.mixins import CanDisable, HasOffset
-from nicos.core.params import anytype, limits
+from nicos.core.params import anytype, floatrange, limits
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics import EpicsAnalogMoveable
 from nicos.devices.epics.status import SEVERITY_TO_STATUS
@@ -195,7 +195,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         'position_deadband':
             Param('Only move if the distance between target and current ' \
                   'position is larger than this value',
-                  type=float,
+                  type=floatrange(0),
                   category='precisions',
                   settable=False,
                   mandatory=False,
@@ -204,7 +204,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         'startdelay':
             Param('Maximum time in seconds before starting a movement is ' \
                   'considered as failed',
-                  type=float,
+                  type=floatrange(0),
                   category='general',
                   settable=False,
                   mandatory=False,
