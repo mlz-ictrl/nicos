@@ -105,7 +105,7 @@ class EpicsDevice(DeviceMixinBase):
         value_pvs = list(self._cache_relations.keys())
         status_pvs = self._get_status_parameters()
 
-        # The first paranthesis covers normal cases where epics devices are
+        # The first parenthesis covers normal cases where epics devices are
         # declared in the setup file directly, this creates callbacks in the
         # poller.
         # The second case after 'or' is the case of dynamic epics devices where

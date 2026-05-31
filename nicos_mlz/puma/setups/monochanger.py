@@ -69,7 +69,7 @@ devices = dict(
             # top2 and bottom do not take limit switches into account anymore,
             # assuming that the lift's step-based positioning is reliable
             # enough.
-            # top1 is devided into two to achieve smooth change operation:
+            # top1 is divided into two to achieve smooth change operation:
             # top1bye -> when leaving monochromator in magazine
             # top1hug -> when getting monochromator from magazine
         ),

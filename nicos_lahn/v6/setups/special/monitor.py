@@ -25,8 +25,8 @@ _monochromatorblock1 = Block('Monochromator', [
         Field(name='Rocking angle', dev='omega_m'),
     ),
     BlockRow(
-        Field(widget='nicos.guisupport.led.StatusLed', dev='wavelenght', name='status'),
-        Field(name='Wavelenght', dev='wavelength'),
+        Field(widget='nicos.guisupport.led.StatusLed', dev='wavelength', name='status'),
+        Field(name='Wavelength', dev='wavelength'),
     ),
 ],
     setups='monochromator_1',
@@ -50,8 +50,8 @@ _monochromatorblock2 = Block('Monochromator', [
         Field(name='Vertical movement', dev='high_m'),
     ),
     BlockRow(
-        Field(widget='nicos.guisupport.led.StatusLed', dev='wavelenght', name='status'),
-        Field(name='Wavelenght', dev='wavelength'),
+        Field(widget='nicos.guisupport.led.StatusLed', dev='wavelength', name='status'),
+        Field(name='Wavelength', dev='wavelength'),
     ),
 ],
     setups='monochromator_2',
