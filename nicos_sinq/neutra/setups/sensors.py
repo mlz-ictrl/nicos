@@ -2,15 +2,23 @@ description = 'Beam line environmental sensors'
 
 display_order = 95
 
-pvprefix = 'SQ:NEUTRA:'
+pvprefix = 'SQ:NEUTRA:EPLUSE:'
 
 devices = dict(
-    temperature = device('nicos.devices.epics.base.EpicsReadable',
-        description = 'Beam line temperature',
-        readpv = pvprefix + 'TEMP',
-    ),
-    humidity = device('nicos.devices.epics.base.EpicsReadable',
-        description = 'Beam line relative humidity',
-        readpv = pvprefix + 'RELHUM',
-    ),
+    dynamic_sensors_device = \
+            device('nicos_sinq.devices.epics.dynamic.AsynDevice',
+                    monitor = True,
+                    readpv = pvprefix + 'ASYN',
+                    devicesconfig = {
+                        ('temperature', 'nicos.devices.epics.base.EpicsReadable') : {
+                            'description': 'Beam line temperature',
+                            'readpv': pvprefix + 'TEMP',
+                        },
+                        ('humidity', 'nicos.devices.epics.base.EpicsReadable') : {
+                            'description': 'Beam line relative humidity',
+                            'readpv': pvprefix + 'RELHUM',
+                        }
+                    },
+                    visibility = {'metadata', 'namespace'},
+            ),
 )

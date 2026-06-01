@@ -12,4 +12,9 @@ devices = dict(
         description = 'Sample Position 3, Translation Y',
         motorpv = pvprefix + 'sp3_ty',
     ),
+    sp3_mm = device('nicos_sinq.devices.epics.dynamic.MasterMacsNode',
+                    pvprefix = 'NEUTRA:MMSP3',
+                    pvsuffixes = configdata('config.dynamic_motor_suffixes'),
+                    visibility = {'metadata', 'namespace'},
+    )
 )
