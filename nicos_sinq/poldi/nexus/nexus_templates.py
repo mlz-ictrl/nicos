@@ -20,12 +20,11 @@
 #   Alexander Söderqvist <alexander.soederqvist@psi.ch>
 #
 # *****************************************************************************
-import copy
 
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, EndTime, NamedImageDataset, NXAttribute, \
     StartTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.nexus.specialelements import SaveSampleEnv
 
@@ -141,7 +140,7 @@ class POLDITemplateProvider(NexusTemplateProvider):
     """
 
     def getTemplate(self):
-        poldi_template = copy.deepcopy(poldi_base)
+        poldi_template = copy_nexus_template(poldi_base)
         poldi_template['entry1:NXentry']['sample:NXsample'] = \
-            copy.deepcopy(poldi_sample)
+            copy_nexus_template(poldi_sample)
         return poldi_template

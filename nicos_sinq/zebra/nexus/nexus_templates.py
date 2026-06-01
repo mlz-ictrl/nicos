@@ -20,13 +20,12 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-import copy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
     NXScanLink, NXTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.nexus.specialelements import ArrayParam, CellArray, \
     FixedArray, SaveSampleEnv
@@ -168,12 +167,12 @@ class ZEBRATemplateProvider(NexusTemplateProvider):
     }
 
     def getTemplate(self):
-        zebra_template = copy.deepcopy(self._zebra_default)
+        zebra_template = copy_nexus_template(self._zebra_default)
         zebra_template['entry1:NXentry']['ZEBRA:NXinstrument'] = \
-            copy.deepcopy(self._zebra_instrument)
+            copy_nexus_template(self._zebra_instrument)
         if isinstance(session.instrument, EulerSXTal)\
                 and session.instrument.use_psi:
             self._zebra_sample['psi'] = DeviceDataset('psi')
         zebra_template['entry1:NXentry']['sample:NXsample'] = \
-            copy.deepcopy(self._zebra_sample)
+            copy_nexus_template(self._zebra_sample)
         return zebra_template

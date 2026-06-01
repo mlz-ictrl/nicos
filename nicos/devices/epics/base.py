@@ -220,8 +220,6 @@ class EpicsDevice(DeviceMixinBase):
         fields, hence the operation will always time out. In such a case,
         consider using `_put_pv_readback_checked` instead.
         """
-        # If wait = True then will block until finished or timeout.
-        # It cannot be interrupted
         self._epics_wrapper.put_pv_value(self._param_to_pv[pvparam], value,
                                          timeout=timeout)
 
