@@ -20,13 +20,12 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-import copy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, EndTime, ImageDataset, NXAttribute, \
     NXLink, StartTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.nexus import EventStream, NXDataset
 from nicos_sinq.nexus.specialelements import AbsoluteTime, CellArray, \
@@ -426,7 +425,7 @@ class DMCTemplateProvider(NexusTemplateProvider):
     """
 
     def getTemplate(self):
-        dmc_template = copy.deepcopy(dmc_base)
+        dmc_template = copy_nexus_template(dmc_base)
         instrument = dmc_template['entry:NXentry']['DMC:NXinstrument']
 
         name, content = makeDetector()

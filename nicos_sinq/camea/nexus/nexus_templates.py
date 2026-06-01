@@ -21,13 +21,12 @@
 #
 # *****************************************************************************
 
-import copy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
     NXTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.camea.nexus.camea_elements import BoundaryArrayParam, \
     CameaAzimuthalAngle
@@ -261,9 +260,9 @@ class CameaTemplateProvider(NexusTemplateProvider):
         return result
 
     def getTemplate(self):
-        template = copy.deepcopy(self._default)
+        template = copy_nexus_template(self._default)
         template['entry:NXentry']['sample:NXsample'] =\
-            copy.deepcopy(self._camea_sample)
+            copy_nexus_template(self._camea_sample)
 
         # Write orienting reflections
         sa_temp = template['entry:NXentry']['sample:NXsample']
@@ -279,7 +278,7 @@ class CameaTemplateProvider(NexusTemplateProvider):
                 if len(reflist) > oris[1]:
                     sa_temp['plane_vector_2'] = Reflection(oris[1], reflist_name)
 
-        inst = copy.deepcopy(self._camea_inst)
+        inst = copy_nexus_template(self._camea_inst)
         inst['calib1:NXcollection'] = self._make_calib('calib1')
         inst['calib3:NXcollection'] = self._make_calib('calib3')
         inst['calib5:NXcollection'] = self._make_calib('calib5')
@@ -287,7 +286,7 @@ class CameaTemplateProvider(NexusTemplateProvider):
         template['entry:NXentry']['CAMEA:NXinstrument'] = inst
 
         # Links need to be inserted AFTER self._camea_inst
-        template['entry:NXentry']['data:NXdata'] = copy.deepcopy(self._links)
+        template['entry:NXentry']['data:NXdata'] = copy_nexus_template(self._links)
         return template
 
 
@@ -397,10 +396,10 @@ class CameaCCDTemplateProvider(CameaTemplateProvider):
     }
 
     def getTemplate(self):
-        template = copy.deepcopy(self._default)
-        template['entry:NXentry']['sample:NXsample'] = copy.deepcopy(
+        template = copy_nexus_template(self._default)
+        template['entry:NXentry']['sample:NXsample'] = copy_nexus_template(
             self._camea_sample)
-        template['entry:NXentry']['CAMEA:NXinstrument'] = copy.deepcopy(
+        template['entry:NXentry']['CAMEA:NXinstrument'] = copy_nexus_template(
             self._camea_inst
         )
         return template

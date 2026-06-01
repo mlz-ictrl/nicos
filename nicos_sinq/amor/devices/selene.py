@@ -290,11 +290,11 @@ class SeleneEpicsMotor(SinqMotor):
 
         low, high = unpack_limits(limits)
 
-        self._put_pv_checked('lowlimit', -10)
-        self._put_pv_checked('highlimit', 10)
+        self._put_pv('lowlimit', -10, self.epicstimeout)
+        self._put_pv('highlimit', 10, self.epicstimeout)
         self.userlimits = limits
-        self._put_pv_checked('lowlimit', low)
-        self._put_pv_checked('highlimit', high)
+        self._put_pv('lowlimit', low, self.epicstimeout)
+        self._put_pv('highlimit', high, self.epicstimeout)
 
     def isAtEndswitch(self):
         return self._get_pv('lowlimitswitch') or \

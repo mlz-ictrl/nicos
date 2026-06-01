@@ -22,16 +22,16 @@
 #
 # *****************************************************************************
 
-from copy import deepcopy
 import numpy as np
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
-    DeviceAttribute, DeviceDataset, NamedImageDataset, NexusElementBase, NXAttribute, NXLink, \
-    NXScanLink, StartTime, EndTime
-from nicos.nexus.nexussink import NexusTemplateProvider
+    DeviceAttribute, DeviceDataset, EndTime, NamedImageDataset, \
+    NexusElementBase, NXAttribute, NXLink, NXScanLink, StartTime
+from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.nexus.specialelements import SaveSampleEnv
+
 
 class DetectorAxesCalculator(NexusElementBase):
     """Placeholder for calculating axes geometry parameters for an NXdata group.
@@ -366,7 +366,7 @@ class SANSLLBTemplateProvider(NexusTemplateProvider):
         return result
 
     def makeInstrument(self):
-        result = deepcopy(inst_default)
+        result = copy_nexus_template(inst_default)
         coll = result['collimator:NXcollimator']
         # VLB: start from 1, since the guide 0 is now called pol
         for i in range(0, 6):
@@ -374,9 +374,9 @@ class SANSLLBTemplateProvider(NexusTemplateProvider):
             coll['slit%d:NXslit' % i] = self.makeSlit(i)
         coll['slit6:NXslit'] = self.makeSlit(6)
         coll['slit6:NXslit']['distance'] = DeviceDataset('sl6_distance', defaultval=1500.)
-        result['central_detector:NXdetector'] = deepcopy(central_detector)
-        result['left_detector:NXdetector'] = deepcopy(left_detector)
-        result['bottom_detector:NXdetector'] = deepcopy(bottom_detector)
+        result['central_detector:NXdetector'] = copy_nexus_template(central_detector)
+        result['left_detector:NXdetector'] = copy_nexus_template(left_detector)
+        result['bottom_detector:NXdetector'] = copy_nexus_template(bottom_detector)
         # Integrated counts also as scan dataset
         counters = ['roi1', 'roi2', 'det_main', 'det_lower', 'det_side']
         # TODO: the x-key is overwritten by ScanLink device name, should be fixed.
@@ -392,8 +392,8 @@ class SANSLLBTemplateProvider(NexusTemplateProvider):
         return result
 
     def getTemplate(self):
-        full = deepcopy(sansllb_default)
+        full = copy_nexus_template(sansllb_default)
         entry = full['entry0:NXentry']
         entry['SANS-LLB:NXinstrument'] = self.makeInstrument()
-        entry['sample:NXsample'] = deepcopy(sample_common)
+        entry['sample:NXsample'] = copy_nexus_template(sample_common)
         return full
