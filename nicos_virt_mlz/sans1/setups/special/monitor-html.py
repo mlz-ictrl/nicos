@@ -47,16 +47,16 @@ _pressurecolumn = Column(
 _table = Column(
     Block('Sample Table', [
         BlockRow(
-                 Field(name='st1_phi', dev='st1_phi', width=13),
-                 Field(name='st1_y', dev='st1_y', width=13),
+                 Field(name='st_phi', dev='st_phi', width=13),
+                 Field(name='st_y', dev='st_y', width=13),
                  ),
         BlockRow(
-                 Field(name='st1_chi', dev='st1_chi', width=13),
-                  Field(name='st1_z', dev='st1_z', width=13),
+                 Field(name='st_chi', dev='st_chi', width=13),
+                  Field(name='st_z', dev='st_z', width=13),
                 ),
         BlockRow(
-                 Field(name='st1_omg', dev='st1_omg', width=13),
-                 Field(name='st1_x', dev='st1_x', width=13),
+                 Field(name='st_omg', dev='st_omg', width=13),
+                 Field(name='st_x', dev='st_x', width=13),
                 ),
         ],
         setups='sample_table',
