@@ -2,7 +2,7 @@ description = 'setup for the HTML status monitor'
 group = 'special'
 
 
-_nvscolumn = Row(
+_nvscolumn = Column(
     Block(
         'Selector', [
             BlockRow(

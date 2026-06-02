@@ -1,7 +1,7 @@
 description = 'setup for the HTML status monitor'
 group = 'special'
 
-_collcolumn = Row(
+_collcolumn = Column(
     Block(
         'Collimator', [
             BlockRow(
@@ -20,7 +20,7 @@ _collcolumn = Row(
     ),
 )
 
-_flipcolumn = Row(
+_flipcolumn = Column(
     Block(
         'Flipper', [
             BlockRow(
@@ -36,7 +36,7 @@ _flipcolumn = Row(
     ),
 )
 
-_attcolumn = Row(
+_attcolumn = Column(
     Block(
         'Attenuator', [
             BlockRow(

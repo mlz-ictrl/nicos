@@ -1,17 +1,17 @@
 description = 'setup for the HTML status monitor sample page'
 group = 'special'
 
-_monocolumn = Row(
+_monocolumn = Column(
     Block(
         'Sample table', [
             BlockRow(
                 Field(name = 'mono (2theta)', dev = 'mtt', width = 20),
             ),
         ],
-    ),   
+    ),
 )
 
-_tempcolumn = Row(
+_tempcolumn = Column(
     Block(
         'Temperature', [
             BlockRow(
@@ -22,13 +22,13 @@ _tempcolumn = Row(
                 Field(key='Ts/target', plot='temperature', plotwindow = 28800, width = 50, height = 30),
             ),
         ],
-    ),   
+    ),
 )
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
         title = '',
-        filename = '/home/status/sample.html', 
+        filename = '/home/status/sample.html',
         interval = 10,
         loglevel = 'info',
         cache = 'localhost',

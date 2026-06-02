@@ -1,7 +1,7 @@
 description = 'setup for the HTML status monitor status page'
 group = 'special'
 
-_focus = Row(
+_focus = Column(
     Block(
         'FOCUS Status', [
             BlockRow(

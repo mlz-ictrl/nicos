@@ -1,7 +1,7 @@
 description = 'setup for the HTML status monitor'
 group = 'special'
 
-_cameacolumn = Row(
+_cameacolumn = Column(
     Block(
         'Experiment', [
             BlockRow(
@@ -37,7 +37,7 @@ _cameacolumn = Row(
     ),
 )
 
-_mono = Row(
+_mono = Column(
     Block(
         'mono slit', [
             BlockRow(
@@ -50,7 +50,7 @@ _mono = Row(
     ),
 )
 
-_gonio = Row(
+_gonio = Column(
     Block(
         'gonio', [
             BlockRow(
@@ -63,7 +63,7 @@ _gonio = Row(
     ),
 )
 
-_econf = Row(
+_econf = Column(
     Block(
         'E config', [
             BlockRow(

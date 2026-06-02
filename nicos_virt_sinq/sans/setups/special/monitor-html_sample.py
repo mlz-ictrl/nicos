@@ -1,7 +1,7 @@
 description = 'setup for the HTML status monitor'
 group = 'special'
 
-_st1column = Row(
+_st1column = Column(
     Block(
         'Sample table', [
             BlockRow(
@@ -17,7 +17,7 @@ _st1column = Row(
     ),
 )
 
-_st2column = Row(
+_st2column = Column(
     Block(
         'Sample table', [
             BlockRow(
@@ -37,7 +37,7 @@ _st2column = Row(
 )
 
 
-_tempcolumn = Row(
+_tempcolumn = Column(
     Block(
         'Temperature', [
             BlockRow(
@@ -52,7 +52,7 @@ _tempcolumn = Row(
     ),
 )
 
-_Bfieldcolumn = Row(
+_Bfieldcolumn = Column(
     Block(
         'magnetic field', [
             BlockRow(

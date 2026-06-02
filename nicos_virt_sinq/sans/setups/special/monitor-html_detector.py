@@ -1,7 +1,7 @@
 description = 'setup for the HTML status monitor'
 group = 'special'
 
-_detcolumn = Row(
+_detcolumn = Column(
     Block(
         'detector trolley', [
             BlockRow(
@@ -17,7 +17,7 @@ _detcolumn = Row(
     ),
 )
 
-_bscolumn = Row(
+_bscolumn = Column(
     Block(
         'beam stop', [
             BlockRow(

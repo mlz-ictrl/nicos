@@ -1,7 +1,7 @@
 description = 'setup for the HTML status monitor'
 group = 'special'
 
-_sans1column = Row(
+_sans1column = Column(
     Block(
         'Instrument Status', [
             BlockRow(
