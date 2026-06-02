@@ -437,7 +437,7 @@ _refcolumn = Column(
     ),
     Block('rates', [
         BlockRow(
-            Field(dev='sds', name='sds'),
+            Field(dev='safedetectorsystem', name='sds'),
         ),
         BlockRow(
             Field(dev='rate', name='rate'),

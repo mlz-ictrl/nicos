@@ -148,7 +148,7 @@ _detector = Column(
         BlockRow(
             Field(name='counting rate', dev='rate', width=10, format='%.1f', unit='(Hz)'),
             Field(name='integral counts', dev='image', format='%.0f', width=10),
-            Field(name='safe detector system', dev='sds', width=10, format='%.1f', unit='(Hz)'),
+            Field(name='safe detector system', dev='safedetectorsystem', width=10, format='%.1f', unit='(Hz)'),
         ),
         ],
     ),
