@@ -105,7 +105,7 @@ _measurement = Column(
             Field(dev='ssw'),
         ),
         ],
-        setups = 'radial',
+        setups = 'secradial',
     ),
     Block('Tensile machine', [
         BlockRow(
