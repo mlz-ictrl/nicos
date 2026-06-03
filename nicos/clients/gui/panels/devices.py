@@ -596,13 +596,15 @@ class DevicesPanel(Panel):
                 return
             devinfo.fmtstr = cache_load(value)
             devitem.setText(1, devinfo.fmtValUnit())
-            devitem.setText(2, devinfo.fmtTargetUnit())
+            if 'nicos.core.device.Moveable' in devinfo.classes:
+                devitem.setText(2, devinfo.fmtTargetUnit())
         elif subkey == 'unit':
             if not value:
                 value = "''"
             devinfo.unit = cache_load(value)
             devitem.setText(1, devinfo.fmtValUnit())
-            devitem.setText(2, devinfo.fmtTargetUnit())
+            if 'nicos.core.device.Moveable' in devinfo.classes:
+                devitem.setText(2, devinfo.fmtTargetUnit())
         elif subkey == 'fixed':
             if not value:
                 value = "''"
