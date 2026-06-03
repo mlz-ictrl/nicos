@@ -318,6 +318,22 @@ class TestDevice:
         pytest.raises(UsageError, rmove, axis, '7')
         pytest.raises(UsageError, rmove, axis, None)
 
+        # ensure that list/tuple type delta values are working
+        slit = session.getDevice('slit3')
+        slit.opmode = 'centered'
+        slit.maw((0, 0))
+        assert slit.read(0) == [0, 0]
+        rmaw(slit, (0.1, 0.2))
+        assert slit.read(0) == [0.1, 0.2]
+        rmaw(slit, [0.5, 1.0])
+        assert slit.read(0) == [0.6, 1.2]
+
+        # ensure that "strange" deltas result in UsageError
+        pytest.raises(UsageError, rmove, slit, 1)
+        pytest.raises(UsageError, rmove, slit, [1])
+        pytest.raises(UsageError, rmove, slit, None)
+        pytest.raises(UsageError, rmove, slit, [1, 2, 3])
+
     def test_maw(self, session, log):
         """Check maw() command."""
         motor = session.getDevice('motor')

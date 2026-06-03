@@ -115,15 +115,22 @@ def _rmove_poshook(dev, delta):
     curpos = dev.read(0)
     # if the target is reached (within precision), use it as the base for
     # the relative movement to avoid accumulating small errors
-    curpos = dev.target if dev.isAtTarget(curpos) else curpos
+    curpos = dev.target if dev.target is not None and dev.isAtTarget(curpos) else curpos
     if isinstance(curpos, str):
         raise UsageError('Device %s cannot be used with relative movement' %
                          dev)
     try:
+        dev.valuetype(delta)
+    except (ValueError, TypeError) as e:
+        raise UsageError('Device %s: wrong delta type: %r (%s)' %
+                         (dev, delta, e)) from e
+    try:
+        if isinstance(delta, (list, tuple)):
+            return dev.valuetype(list(sum(x) for x in zip(curpos, delta)))
         return curpos + delta
-    except Exception:
+    except Exception as e:
         raise UsageError('Device %s cannot be used with relative movement or '
-                         'wrong delta type %r' % (dev, delta)) from None
+                         'wrong delta type %r (%s)' % (dev, delta, e)) from e
 
 
 @usercommand

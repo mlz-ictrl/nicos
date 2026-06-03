@@ -1,4 +1,4 @@
 
 name = 'test commands'
 
-includes = ['axis', 'scanning', 'generic']
+includes = ['axis', 'scanning', 'generic', 'slit']
