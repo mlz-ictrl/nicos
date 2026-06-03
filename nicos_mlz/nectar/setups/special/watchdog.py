@@ -31,7 +31,7 @@ watch_conditions = [
          gracetime = 300,
     ),
     dict(condition = 'Space_value < 1',
-         message = 'The root directory of antareshw is running out of space. Only 1GB left!',
+         message = 'The root directory of nectarhw is running out of space. Only 1GB left!',
          type = 'default',
          setup = 'system',
          gracetime = 300,

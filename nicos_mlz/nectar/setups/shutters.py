@@ -1,4 +1,4 @@
-description = 'ANTARES shutter devices'
+description = 'NECTAR shutter devices'
 group = 'optional'
 
 excludes = ['fastshutter']
