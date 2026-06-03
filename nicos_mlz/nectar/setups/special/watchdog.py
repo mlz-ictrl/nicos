@@ -24,7 +24,7 @@ watch_conditions = [
          setup = 'system',
          gracetime = 300,
     ),
-    dict(condition = 'DataSpace_value < 50',
+    dict(condition = 'DataSpace_value < 1',
          message = '/data is running out of space. Only 1TB left!',
          type = 'default',
          setup = 'system',
