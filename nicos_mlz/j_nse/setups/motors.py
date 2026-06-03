@@ -39,4 +39,10 @@ devices = dict(
         unit = '',
         visibility = ('metadata',)
     ),
+    mo_wall = device(
+        'nicos.devices.entangle.Motor',
+        description = 'Rotates lead wall in front of the sample stage',
+        tangodevice = tango_base + 's7_motor/Bleiabschirmung',
+        unit = 'deg'
+    ),
 )

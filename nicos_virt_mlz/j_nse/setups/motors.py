@@ -56,4 +56,13 @@ devices = dict(
         unit = '',
         visibility = ('metadata', 'namespace')
     ),
+    mo_wall = device(
+        'nicos.devices.generic.virtual.VirtualMotor',
+        description = 'Rotates lead wall in front of the sample stage',
+        userlimits = (0, 360),
+        abslimits = (0, 360),
+        speed = 60.,
+        unit = 'deg',
+        pollinterval = 0.5,
+    ),
 )
