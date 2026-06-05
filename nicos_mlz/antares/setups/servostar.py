@@ -3,6 +3,8 @@ group = 'optional'
 
 tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares'
 
+includes = ['alias_sample_table']
+
 devices = dict(
     stx_servostar = device('nicos.devices.entangle.Motor',
         description = 'Sample Translation X',
@@ -32,6 +34,12 @@ devices = dict(
         userlimits = (-9999, 9999),
     ),
 )
+
+alias_config = {
+    'sry': {'sry_servostar': 100},
+    'stx': {'stx_servostar': 100},
+    'sty': {'sty_servostar': 100},
+}
 
 monitor_blocks = dict(
     default = Block('Servostar Large Sample Manipulator',

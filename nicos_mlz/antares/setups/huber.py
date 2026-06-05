@@ -4,6 +4,8 @@ group = 'optional'
 
 tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
 
+includes = ['alias_sample_table']
+
 devices = dict(
     stx_huber = device('nicos.devices.entangle.Motor',
         description = 'Sample Translation X',
@@ -46,6 +48,12 @@ devices = dict(
         maxage = 12,
     ),
 )
+
+alias_config = {
+    'sry': {'sry_huber': 100},
+    'stx': {'stx_huber': 100},
+    'sty': {'sty_huber': 100},
+}
 
 monitor_blocks = dict(
    default = Block('HUBER Small Sample Manipulator',
