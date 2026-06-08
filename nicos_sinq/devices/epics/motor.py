@@ -107,6 +107,12 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
                 return (stat, 'Motor is disabled - ' + msg)
             return status.DISABLED, 'Motor is disabled'
 
+        # If there is no error, but the motor is not referenced, inform the user
+        # that the motor needs to be referenced and the reported position value
+        # cannot be trusted.
+        if self.encoder_type == 'incremental' and stat == status.OK and self._has_been_homed() == 0:
+            msg = 'Motor needs to be referenced.'
+
         return (stat, msg)
 
     # Overloaded from CoreEpicsMotor to add a hint if the motor is disabled

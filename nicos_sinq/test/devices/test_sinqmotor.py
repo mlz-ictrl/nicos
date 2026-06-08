@@ -72,6 +72,10 @@ class DefTestSinqMotor(DefTest):
     def test_status_without_errormsgpv(self):
         pass
 
+    def test_has_been_homed(self, motor):
+        # Motor is homed by default
+        assert motor._has_been_homed()
+
     def test_defaultpvs(self, motor):
         assert motor._get_pv_name('errormsgpv') == motor.motorpv + \
                SinqMotor._extension_records['errormsgpv']
@@ -149,6 +153,17 @@ class DefTestSinqMotor(DefTest):
         stat = motor.status()
         assert stat[0] == status.OK
         assert not stat[1]
+
+    def test_reference_message(self, motor):
+        motor.values['status'] = int('0000000000000000', 2) # Motor is not referenced
+        assert motor._get_pv('status') == 0
+        assert motor._has_been_homed() == 0
+        assert motor.status(0) == (status.OK, 'Motor needs to be referenced.')
+
+        motor.values['status'] = int('0100000010000000', 2) # Motor is not referenced
+        assert motor._get_pv('status') == 16512
+        assert motor._has_been_homed() == 1
+        assert motor.status(0) == (status.OK, 'at reference position')
 
 
 class TestSinqmotor1(DefTestSinqMotor):

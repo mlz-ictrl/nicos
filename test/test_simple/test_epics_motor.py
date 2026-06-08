@@ -70,7 +70,7 @@ class FakeEpicsMotor(EpicsMotor):
         'moving': 0,
         'homeforward': 0,
         'homereverse': 0,
-        'status': 0,
+        'status': int('0100000000000010', 2), # Motor is referenced
         'jogspeed': 0,
         'jogforward': 0,
         'jogreverse': 0,
@@ -141,7 +141,7 @@ class FakeEpicsMotor(EpicsMotor):
         self.values['jogspeed'] = 0
         self.values['jogforward'] = 0
         self.values['jogreverse'] = 0
-        self.values['status'] = int('0000000000000000', 2)
+        self.values['status'] = int('0100000000000010', 2) # Motor is referenced
         self.userlimits = (self.values['lowlimit'], self.values['highlimit'])
         if hasattr(self, '_new_offset'):
             del self._new_offset
@@ -379,6 +379,7 @@ class DefTest:
                 motor.values['homeforward'] = 0
                 motor.values['homereverse'] = 0
                 motor.values['readpv'] = -100
+                motor.values['status'] = int('0100000010000010', 2)
 
             # Hardware simulation
             thread = threading.Thread(target=simulate_hardware, args=(motor, runtime))
@@ -387,6 +388,9 @@ class DefTest:
 
             # Reset parameter anyway
             motor.values['donemoving'] = 1
+
+        # Motor is not referenced
+        motor.values['status'] = int('0000000000000010', 2)
 
         # Time the motor needs for its reference run in seconds
         runtime = 0.2
@@ -415,7 +419,7 @@ class DefTest:
         # Motor has finished after the reference method returns
         stat = motor.status()
         assert stat[0] == status.OK
-        assert stat[1] == ''
+        assert stat[1] == 'at reference position'
 
     @pytest.mark.timeout(5)
     def test_reference_done_at_home(self, motor):
@@ -427,12 +431,15 @@ class DefTest:
                 motor.values['homeforward'] = 0
                 motor.values['homereverse'] = 0
                 motor.values['readpv'] = -100
-                motor.values['status'] = int('0000000010000000', 2)
+                motor.values['status'] = int('0100000010000010', 2)
 
             # Hardware simulation
             thread = threading.Thread(target=simulate_hardware, args=(motor, runtime))
             thread.start()
             motor.reference()
+
+        # Motor is not referenced
+        motor.values['status'] = int('0000000000000010', 2)
 
         # Time the motor needs for its reference run in seconds
         runtime = 0.2
@@ -460,7 +467,7 @@ class DefTest:
         # Motor has finished after the reference method returns
         stat = motor.status()
         assert stat[0] == status.OK
-        assert stat[1] == 'homed'
+        assert stat[1] == 'at reference position'
 
     def test_at_home(self, motor):
         stat = motor.status()
@@ -468,10 +475,10 @@ class DefTest:
         assert stat[1] == ''
 
         # Set to "at home"
-        motor.values['status'] = int('0000000010000000', 2)
+        motor.values['status'] = int('0100000010000001', 2)
         stat = motor.status()
         assert stat[0] == status.OK
-        assert stat[1] == 'homed'
+        assert stat[1] == 'at reference position'
 
     def test_status_with_errormsgpv(self, motor):
         stat = motor.status()

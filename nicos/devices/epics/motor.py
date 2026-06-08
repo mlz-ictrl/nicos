@@ -582,7 +582,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         # If there is nothing more important to be reported, check if the motor
         # is currently homed.
         if not message and self._at_home():
-            return status.OK, 'homed'
+            return status.OK, 'at reference position'
 
         return status.OK, message
 
@@ -715,11 +715,23 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
 
     def _at_home(self):
         """
-        Status bit 8 of the motor record informs whether the motor is currently
-        at its "home" position.
+        Status bit 7 of the motor record informs whether the motor is currently
+        at its "home" position. In the EPICS motor record documentation, the bit
+        count starts with 1, so bit 7 corresponds to the 8th item in the list of
+        the MSTA status bits. See:
+        https://bcda.xray.aps.anl.gov/synApps/motor/motorRecord.html#Fields_status
         """
-        status_bits = format(int(self._get_pv('status')), '016b')
-        return int(status_bits[8])
+        return (self._get_pv('status') >> 7) & 1
+
+    def _has_been_homed(self):
+        """
+        Status bit 14 of the motor record informs whether the motor has been
+        homed at some point since the IOC started. In the EPICS motor record
+        documentation, the bit count starts with 1, so bit 14 corresponds to the
+        15th item in the list of the MSTA status bits. See:
+        https://bcda.xray.aps.anl.gov/synApps/motor/motorRecord.html#Fields_status
+        """
+        return (self._get_pv('status') >> 14) & 1
 
     def _check_speed(self, speed):
         """Assert that the given speed is within limits. Raises a LimitError if
