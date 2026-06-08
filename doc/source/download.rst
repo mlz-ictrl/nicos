@@ -8,7 +8,7 @@ Source file
 """""""""""
 
 The source distribution of NICOS can be downloaded from our
-`download site <https://forge.frm2.tum.de/redmine/projects/nicos/files>`_.
+`download site <https://nicos-controls.org/download/>`_.
 
 Pip
 """
