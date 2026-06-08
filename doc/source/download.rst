@@ -31,8 +31,7 @@ The current development code can be obtained from our Git repository::
 
     git clone https://forge.frm2.tum.de/review/frm2/nicos/nicos
 
-For non-users of `Git`_ the sources of the latest development version can
-be obtained here: |sourcelink|.
+.. Non-users of `Git`_ can obtain the sources of the `latest development version`_.
 
 .. _Git: https://git-scm.com
 
