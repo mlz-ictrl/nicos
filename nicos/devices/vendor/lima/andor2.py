@@ -132,6 +132,8 @@ class Andor2TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
     This device provides access to the cooling feature of Andor2 cameras.
     """
 
+    valuetype = int
+
     def doRead(self, maxage=0):
         return self._dev.temperature
 
