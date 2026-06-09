@@ -18,3 +18,4 @@ facilities.
    nicos_sinq
    nicos_tuw
    nicos_virt_mlz
+   nicos_virt_sinq

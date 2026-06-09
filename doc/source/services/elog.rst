@@ -69,3 +69,15 @@ Server class
 .. module:: nicos.services.elog
 
 .. autoclass:: Logbook()
+
+
+Handler classes
+---------------
+
+.. module:: nicos.services.elog.handler.text
+
+.. autoclass:: Handler
+
+.. module:: nicos.services.elog.handler.html
+
+.. autoclass:: Handler
