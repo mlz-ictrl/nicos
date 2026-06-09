@@ -5,7 +5,7 @@ sysconfig = dict(
     cache = 'antareshw.antares.frm2.tum.de',
     instrument = 'ANTARES',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
     notifiers = ['email', 'smser'],
 )
 
@@ -52,6 +52,7 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
         description = 'Data handling inside the daemon',
     ),
+    livesink = device('nicos.devices.datasinks.LiveViewSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'Free Space in the RootDir of AntaresHW',
         path = '/',
