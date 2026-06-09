@@ -254,11 +254,12 @@ class RabbitSink(DataSink):
     handlerclass = RabbitSinkHandler
     _connection = None
     _channel = None
+    _instrname = None
 
     def doInit(self, mode):
         if mode == MASTER:
+            self._instrname = session.instrument.instrument
             self._connect()
-            self._prepareExchange()
             self._prepareQueue()
 
     def doShutdown(self):
@@ -271,27 +272,16 @@ class RabbitSink(DataSink):
         self._connection = pika.BlockingConnection(parameters=parameters)
         self._channel = self._connection.channel()
 
-    def _prepareExchange(self):
-        """Declares the Exchange on the RabbitMQ instance"""
-        self._exchange = f'{session.instrument.instrument}'
-        self._channel.exchange_declare(
-            self._exchange,
-            # exchange_type=ExchangeType.direct,
-            durable=True,
-            auto_delete=False)
-
     def _prepareQueue(self):
-        """Declares the Queue and its bindings on the RabbitMQ instance"""
-        self._queue = self._channel.queue_declare(
-            f'{session.instrument.instrument}',
-            exclusive=False,
-            durable=True,
-            auto_delete=False).method.queue
-
-        self._channel.queue_bind(
-            exchange=self._exchange,
-            queue=self._queue,
-            routing_key=session.instrument.instrument)
+        """Binds to a preexisting Queue on the RabbitMQ instance"""
+        try:
+            self._channel.queue_bind(
+                exchange=self._instrname,
+                queue=self._instrname,
+                routing_key=self._instrname)
+        except pika.exceptions.ChannelClosedByBroker as e:
+            error = e.reply_text.removeprefix("NOT_FOUND - ")
+            raise RuntimeError(f'Error connecting to RabbitMQ: {error}') from e
 
     def _sendMessage(self, msg):
         for retry in range(3):
@@ -299,8 +289,8 @@ class RabbitSink(DataSink):
                 if retry > 0:  # reconnect
                     self._connect()
                 self._channel.basic_publish(
-                    exchange=self._exchange,
-                    routing_key=session.instrument.instrument,
+                    exchange=self._instrname,
+                    routing_key=self._instrname,
                     body=str(msg),
                     properties=pika.BasicProperties(
                         content_type='application/json'))
