@@ -126,6 +126,15 @@ class DefTestSinqMotor(DefTest):
         motor.values['errormsgpv'] = ''
         motor.values['alarm_severity'] = 0
 
+        # If there is no error message, the motor should not report an error
+        motor.values['connected_rbv'] = 1
+        motor.values['enable_rbv'] = 1
+        motor.values['errormsgpv'] = ''
+        motor.values['alarm_severity'] = 2
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert not stat[1]
+
     def test_enable(self, motor):
 
         # Try to disable a motor which is moving
@@ -164,7 +173,6 @@ class DefTestSinqMotor(DefTest):
         assert motor._get_pv('status') == 16512
         assert motor._has_been_homed() == 1
         assert motor.status(0) == (status.OK, 'at reference position')
-
 
 class TestSinqmotor1(DefTestSinqMotor):
 
