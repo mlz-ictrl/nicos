@@ -62,7 +62,7 @@ class JnseInstrument(Instrument):
     parameters = {
         'devices': Param(
             'List of settable devices for J-NSE experiment',
-            type=list, settable=True, internal=True,
+            type=dict, settable=True, internal=True, category='instrument',
         ),
         'table': Param(
             'J-NSE experiment settings table',
@@ -79,18 +79,21 @@ class JnseInstrument(Instrument):
             self.devices, self.table = self._read_table()
 
     def _read_table(self):
-        """Reads NIST_table.csv and returns list of devices and the device map.
+        """Reads NIST_table.csv and returns device map and table.
         """
         with open(self.table_filename, newline='', encoding='utf-8') as f:
             rows = list(csv.reader(f, delimiter=',', skipinitialspace=True))
-            keys = [key.split('/')[0].split(':')[0].strip() for key in rows[1]]
+            # In table, 1st line has extra dev info, 2nd -- dev names
+            info = [key.split('/')[0].split(':')[0].strip() for key in rows[0]]
+            devs = [key.split('/')[0].split(':')[0].strip() for key in rows[1]]
+            devmap = dict(zip(devs, info))
             table = {}
             for row in rows[2:]:
-                lv = float(row[keys.index('Lambda')])
-                qv = float(row[keys.index('Q')])
-                tv = float(row[keys.index('t_nom')])
+                lv = float(row[devs.index('Lambda')])
+                qv = float(row[devs.index('Q')])
+                tv = float(row[devs.index('t_nom')])
                 for k, it in template.items():
-                    i = keys.index(k)
+                    i = devs.index(k)
                     if isinstance(it, dict):
                         if k not in table:
                             table[k] = {}
@@ -99,7 +102,7 @@ class JnseInstrument(Instrument):
                     else:
                         table[k] = float(row[i])
                 for k, it in lambdas.items():
-                    i = keys.index(k)
+                    i = devs.index(k)
                     if isinstance(it, dict):
                         if k not in table['Lambda'][lv]:
                             table['Lambda'][lv][k] = {}
@@ -108,7 +111,7 @@ class JnseInstrument(Instrument):
                     else:
                         table['Lambda'][lv][k] = float(row[i])
                 for k, it in qs.items():
-                    i = keys.index(k)
+                    i = devs.index(k)
                     if isinstance(it, dict):
                         if k not in table['Lambda'][lv]['Q'][qv]:
                             table['Lambda'][lv]['Q'][qv][k] = {}
@@ -117,6 +120,6 @@ class JnseInstrument(Instrument):
                     else:
                         table['Lambda'][lv]['Q'][qv][k] = float(row[i])
                 for k in t_noms:
-                    i = keys.index(k)
+                    i = devs.index(k)
                     table['Lambda'][lv]['Q'][qv]['t_nom'][tv][k] = float(row[i])
-            return keys, table
+            return devmap, table
