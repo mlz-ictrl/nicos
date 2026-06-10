@@ -168,6 +168,8 @@ they return a converter.
 
       Param(..., type=host(defaultport=14869))
 
+.. autofunction:: secret(externalkey='', default=None)
+
 
 The following are simple converters: they are not customizable and can be used
 as-is as a parameter type.  Example::
@@ -189,6 +191,15 @@ as-is as a parameter type.  Example::
 
    Converter that accepts only valid email addresses, but without a check for
    the existence of the mailaddress itself.
+
+.. function:: boolean
+
+   Converter that accepts only the python ``True``, ``False``, or ``1``/``0``
+   values.
+
+.. function:: string
+
+   Converter that accepts only strings or bytes.
 
 .. function:: nonemptystring
 
