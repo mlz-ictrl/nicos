@@ -68,6 +68,10 @@ class DefTestSinqMotor(DefTest):
     def test_status_without_errormsgpv(self):
         pass
 
+    def test_has_been_homed(self, motor):
+        # Motor is homed by default
+        assert motor._has_been_homed()
+
     def test_defaultpvs(self, motor):
         assert motor._get_pv_name('errormsgpv') == motor.motorpv + \
                SinqMotor._extension_records['errormsgpv']
@@ -148,27 +152,38 @@ class DefTestSinqMotor(DefTest):
 
     def test_not_homed(self, motor):
         # Motor is not homed
-        motor.values['status'] = int('0000000000000000', 2)
+        motor.values['status'] = int('0000000000000010', 2)
         assert not motor.homed
 
         # Motor is not homed, but also not fixed if it hasn't been homed
         motor.values['fixifnothomed'] = 0
         stat = motor.status()
         assert stat[0] == status.OK
-        assert not stat[1]
+        assert stat[1] == 'Motor needs to be referenced.'
 
         # Now motor is fixed within the EPICS driver if it hasn't been homed yet
         motor.values['fixifnothomed'] = 1
         stat = motor.status()
-        assert stat[0] == status.WARN
-        assert stat[1] == 'Motor needs to be referenced'
+        assert stat[0] == status.OK
+        assert stat[1] == 'Motor needs to be referenced.'
 
         # Set the "homed" bit in the status PV - warning disappears
-        motor.values['status'] = int('0100000000000000', 2)
+        motor.values['status'] = int('0100000000000010', 2)
         assert motor.homed
         stat = motor.status()
         assert stat[0] == status.OK
         assert not stat[1]
+
+    def test_reference_message(self, motor):
+        motor.values['status'] = int('0000000000000010', 2) # Motor is not referenced
+        assert motor._get_pv('status') == 2
+        assert motor._has_been_homed() == 0
+        assert motor.status(0) == (status.OK, 'Motor needs to be referenced.')
+
+        motor.values['status'] = int('0100000010000010', 2) # Motor is not referenced
+        assert motor._get_pv('status') == 16514
+        assert motor._has_been_homed() == 1
+        assert motor.status(0) == (status.OK, 'at reference position')
 
 
 class TestSinqmotor1(DefTestSinqMotor):

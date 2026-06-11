@@ -17,22 +17,22 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Konstantin Kholostov <k.kholostov@fz-juelich.de>
+#   Alexander Steffens <a.steffens@fz-juelich.de>
 #
 # *****************************************************************************
 
-from nicos.core import Param
-from nicos.core.mixins import DeviceMixinBase
-from nicos.devices.entangle import PowerSupply
+"""JCNS instrument specific NICOS GUI experiment setup panels."""
 
 
-class HasLabel(DeviceMixinBase):
-    """For devices that store additional label parameter."""
-
-    parameters = {
-        'label': Param('Device label from NIST table', type=str,),
-    }
+from nicos.clients.gui.panels.setup_panel import GenericSamplePanel
+from nicos.utils import findResource
 
 
-class JNSEPowerSupply(HasLabel, PowerSupply):
-    """PowerSupply that stores additional label."""
+class JNSESamplePanel(GenericSamplePanel):
+    """Provides the sample ID required for the IFF sample database."""
+
+    panelName = 'JNSE sample setup'
+    uiName = findResource('nicos_mlz/j_nse/gui/setup_jnsesample.ui')
+
+    def getEditBoxes(self):
+        return [self.samplenameEdit, self.sampledescriptionEdit]

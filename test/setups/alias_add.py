@@ -17,22 +17,16 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Konstantin Kholostov <k.kholostov@fz-juelich.de>
+#   Georg Brandl <g.brandl@fz-juelich.de>
 #
 # *****************************************************************************
 
-from nicos.core import Param
-from nicos.core.mixins import DeviceMixinBase
-from nicos.devices.entangle import PowerSupply
+# This setup is loaded only within test_simple.test_alias.test_alias_from_cache
 
+name = 'test_alias auxiliary setup'
 
-class HasLabel(DeviceMixinBase):
-    """For devices that store additional label parameter."""
-
-    parameters = {
-        'label': Param('Device label from NIST table', type=str,),
-    }
-
-
-class JNSEPowerSupply(HasLabel, PowerSupply):
-    """PowerSupply that stores additional label."""
+devices = dict(
+    aliasDevAdd = device('nicos.devices.generic.DeviceAlias',
+        alias = 'axis',
+    ),
+)

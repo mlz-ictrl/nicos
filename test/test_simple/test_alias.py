@@ -114,6 +114,7 @@ def test_alias_valueinfo(session):
     assert 'aliasDev4' in vistr
     assert alias.valueInfo()[0].name == 'aliasDev4'
 
+
 def test_alias_to_alias(session):
     """
     Setting an alias to another alias is prohibited.
@@ -136,3 +137,15 @@ def test_alias_to_alias(session):
 
     assert 'cannot set alias to another alias' in str(e_info)
     assert f'consider setting alias to {alias2.alias}' in str(e_info)
+
+
+def test_alias_from_cache(session):
+    """
+    Creating an alias with 'alias' in the setup file should still prefer the
+    previous alias from the cache.
+    """
+    session.cache.put('aliasDevAdd', 'alias', 'axis_motor')
+    session.loadSetup('alias_add')
+    dev = session.getDevice('aliasDevAdd')
+    assert dev.alias == 'axis_motor'
+    assert dev._obj is session.getDevice('axis_motor')

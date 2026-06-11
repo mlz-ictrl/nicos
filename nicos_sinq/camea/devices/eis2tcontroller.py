@@ -24,7 +24,6 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 from nicos.core import ConfigurationError, Device, IsController
-from nicos.core.constants import SIMULATION
 from nicos.core.device import Moveable
 from nicos.core.params import Attach, Param, listof
 
@@ -40,12 +39,13 @@ class EIS2TController(IsController, Device):
     }
 
     parameters = {
-        'ei_values': Param('List of EI values', type=listof(float), settable=True),
+        'ei_values': Param('List of EI values', type=listof(float),
+                           settable=True, mandatory=False),
         's2t_values': Param('S2T limit for each ei in ei_Values',
-                            type=listof(float), settable=True),
+                            type=listof(float), settable=True, mandatory=False),
         'file': Param('Location of the limit file', type=str, settable=True),
-        'padding': Param('Padding to allow s2t to go to limit value', default=0.1,
-                         type=float, settable=True)
+        'padding': Param('Padding to allow s2t to go to limit value',
+                         default=0.1, type=float, settable=True)
     }
 
     hardware_access = False
@@ -56,29 +56,28 @@ class EIS2TController(IsController, Device):
         padding into account. The energy limits are read from the path given
         in the 'file' parameter.
         """
-        if mode != SIMULATION:
-            try:
-                values = np.loadtxt(self.file, delimiter=',')
-                self.ei_values = values[0]
-                self.s2t_values = values[1]
-            except (FileNotFoundError, OSError) as exc:
-                raise ConfigurationError(self, 'Limits file %s not found!', self.file) from exc
-        self._interp()
+        try:
+            values = np.loadtxt(self.file, delimiter=',')
+            self.ei_values = values[0]
+            self.s2t_values = values[1]
+        except (FileNotFoundError, OSError) as exc:
+            raise ConfigurationError(self, 'Limits file %s not found!', self.file) from exc
+        self._interp_obj = interp1d(self.ei_values, np.asarray(self.s2t_values)-abs(self.padding))
 
-    def _interp(self):
-        self._interpolate_s2t = interp1d(self.ei_values, np.asarray(self.s2t_values)-abs(self.padding))
+    def interpolate_s2t(self, ei):
+        return self._interp_obj(ei)-self._attached_s2t.offset
 
     def isAdevTargetAllowed(self, adev, adevtarget):
         if adev == self._attached_ei:
-            s2t_limit = self._interpolate_s2t(adevtarget)
+            s2t_limit = self.interpolate_s2t(adevtarget)
             if self._attached_s2t.read(0) <= s2t_limit:
-                return False, 'You are running the detector into the wall. The limit is {:.3f}'.format(s2t_limit+abs(self.padding))
+                return False, f'You are running the detector into the wall. The limit is {s2t_limit+abs(self.padding):.3f}.'
         else:
-            s2t_limit = self._interpolate_s2t(self._attached_ei.read(0))
+            s2t_limit = self.interpolate_s2t(self._attached_ei.read(0))
             if adevtarget <= s2t_limit:
-                return False, 'You are running the detector into the wall. The limit is {:.3f}'.format(s2t_limit+abs(self.padding))
+                return False, f'You are running the detector into the wall. The limit is {s2t_limit+abs(self.padding):.3f}.'
         return True, ''
 
     def twoThetaLimitInterp(self, ei):
-        "calculate and return interpolated value"
-        return self._interpolate_s2t(ei)
+        "calculate and return interpolated value taking the current s2t offset into account"
+        return self.interpolate_s2t(ei)

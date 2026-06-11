@@ -31,6 +31,7 @@ from nicos.devices.epics.motor import EpicsMotor as CoreEpicsMotor
 from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 from nicos_sinq.devices.dynamic_userlimits import DynamicUserlimits
 
+
 class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
 
     parameters = {
@@ -116,16 +117,11 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
                 return (stat, 'Motor is disabled - ' + msg)
             return status.DISABLED, 'Motor is disabled'
 
-        # Check if the motor:
-        # - Has an incremental encoder
-        # - Is set to be fixed if it hasn't been homed before
-        # - Actually hasn't been homed yet
-        # - There is no other status to report
-        # If all of this is true, then inform the user that the motor needs to
-        # be referenced.
-        if (self.encoder_type == 'incremental' and self._get_pv('fixifnothomed')
-            and not self.homed and stat == status.OK):
-            return status.WARN, 'Motor needs to be referenced'
+        # If there is no error, but the motor is not referenced, inform the user
+        # that the motor needs to be referenced and the reported position value
+        # cannot be trusted.
+        if self.encoder_type == 'incremental' and stat == status.OK and self._has_been_homed() == 0:
+            msg = 'Motor needs to be referenced.'
 
         return (stat, msg)
 

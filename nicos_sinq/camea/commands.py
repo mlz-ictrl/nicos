@@ -31,36 +31,17 @@ from time import time
 import numpy as np
 
 from nicos import session
-from nicos.commands import parallel_safe, usercommand
+from nicos.commands import helparglist, parallel_safe, usercommand
+from nicos.commands.analyze import _getData
 from nicos.commands.basic import FinishExperiment
 from nicos.commands.scan import scan
 from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError, InvalidValueError, \
-    MoveError, PositionError
+    MoveError, NicosError, PositionError
 from nicos.utils import findResource
 
 from nicos_sinq.sxtal.commands import AddAuxRef, AddRef, CalcUB, getSampleInst
 
-# two theta limits
-# DO NOT CHANGE!
-# incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.4, 6.6, 6.8, 6.9, 7.0, 8.0, 8.2, 8.45,
-#              8.6, 8.7, 9.5,  9.8, 9.9, 10.5, 11.4, 11.7, 12.0, 12.2, 12.9,
-#              13.5, 13.8, 14, 15, 16, 17]
-# twoTheta = [-79.5, -79.5, -79.5, -79, -79,  -79, -79, -78, -78, -76.5, -73.0,
-#             -71, -70, -66, -64, -64, -62, -60, -54, -54, -52, -51, -51, 48,
-#             -47, -46.5, -46.5, -44, -41.5, -39.5]
-#
-# incomingE = [2, 3.6, 3.8, 5.0, 5.5, 6.45, 6.5, 6.6, 6.65, 6.8, 6.9,
-#              7.0, 7.5, 7.7, 8.0, 8.5, 8.6, 8.8, 9, 9.2, 9.4, 9.6, 9.8, 10,
-#              10.5, 11, 11.5, 12.0, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16,
-#              16.5, 17]
-#
-# twoTheta = [-79.5, -79.5, -79.5, -79, -79, -79, -79, -78.0, -78.0, -78.0, -77,
-#             -77, -77, -73.5, -72.5, -72, -70, -66, -64, -64, -64, -63, -62,
-#             -60, -57, -56, -54, -52, -50, -47, -47, -46, -44, -43, -42, -41,
-#             -40.5, -39.5]
-#
-# twoThetaLimitInterp = interp1d(incomingE, twoTheta)
 
 
 logbookTitles = ['File No.', 'Ei', 's2t', 'a3 start', 'a3 stop',
@@ -212,7 +193,7 @@ def moveDevice(device, value, retries=3):
 @usercommand
 def changeEi(energy, retries=3, retryMC=3):
     """Change incoming energy with a retry three times"""
-    e = None
+    error = None
     mch = session.getDevice('mch')
     mcv = session.getDevice('mcv')
     ei = session.getDevice('ei')
@@ -226,6 +207,7 @@ def changeEi(energy, retries=3, retryMC=3):
             break
         except (PositionError, MoveError, InvalidValueError) as e:
             session.log.info('Got error "%s"', str(e))
+            error = e
             success = False
             MCtries = 0
             while ((mch.enabled is False or mcv.enabled is False)
@@ -237,14 +219,32 @@ def changeEi(energy, retries=3, retryMC=3):
     if not success:
         session.log.error(
             'Could not move %s to %.3f within %d tries', ei, energy, retries)
-        if e is not None:
-            raise e
+        if error is not None:
+            raise error
     else:
         devName = ei.name
         devUnit = ei.unit
         session.log.info('Wanted %s = %s %s, actual %s = %s %s',
                          devName, energy, devUnit, devName, str(ei()),
                          devUnit)
+
+
+@usercommand
+@helparglist('[[xcol, ]ycol]')
+def moveToPeak(*columns):
+    """
+    Move the moveable (usually a motor) used in the last scan to the peak of
+    that scan. If no moveable was used in the scan or if there is no scan data
+    available, this function raises an exception.
+    """
+    xs, ys, _, names = _getData(columns)[:4]
+    try:
+        mot_name = names[0]
+    except IndexError as exc:
+        raise NicosError('Did not find any motor in scan data set') from exc
+    cm = (xs * ys).sum() / ys.sum()
+    motor = session.getDevice(mot_name)
+    motor.maw(cm)
 
 
 @usercommand
@@ -260,10 +260,25 @@ def printToDiscord(message):
         except Exception as e:
             session.log.warning('error while printing to discord: %s', e)
 
+@usercommand
+def changeSettingInDiscord(message):
+    """
+    Change a setting of the server
+    """
+    if session.mode != SIMULATION:
+        try:
+            with open('/home/camea/Documents/DiscordBot/status.txt', 'a',
+                    encoding='utf-8') as f:
+                f.write('UPDATE '+message)
+        except FileNotFoundError as e:
+            session.log.warning('did not find file: %s', e)
+        except OSError as e:
+            session.log.warning('error when editing file: %s', e)
 
 @usercommand
 def writeToLogbook(logbook, values):
-
+    if session.mode == SIMULATION:
+        return
     with open(logbook, 'a+', encoding='utf-8') as f:
         if f.tell() == 0:  # empty file
             f.write(','.join([fmt.format(v) for fmt, v in zip(
@@ -469,7 +484,7 @@ def moveCAMEA(ei=None, s2t=None):
     if stt is None:
         stt = s2t()
 
-    wantedEnergyS2tLimt = ctrl.twoThetaLimitInterp(Ei)+s2t.offset
+    wantedEnergyS2tLimt = ctrl.twoThetaLimitInterp(Ei)
 
     # if no energy is changed, simply move s2t
     if (np.isclose(Ei, ei(), atol=ei.precision)
@@ -641,8 +656,7 @@ def CAMEAscan(energies, s2ts, a3Start, a3Stepsize, a3Steps,
             scanNumMod = scanNumber-skipScans+1
             fileNumber = Exp.lastscan+1
 
-            if session.mode != SIMULATION:
-                moveCAMEA(ei=eiValue, s2t=s2tValue)
+            moveCAMEA(ei=eiValue, s2t=s2tValue)
             discordString = discordTemplate.substitute(eiTarget=eiValue,
                                                        eiActual=ei(),
                                                        s2tTarget=s2tValue,

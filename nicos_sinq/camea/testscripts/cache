@@ -16,3 +16,4 @@ nicos/sample/c=6.28
 nicos/sample/alpha=90
 nicos/sample/beta=90
 nicos/sample/gamma=90
+nicos/eis2tcontroller/filename=nicos_sinq/camea/s2tlimits.txt
