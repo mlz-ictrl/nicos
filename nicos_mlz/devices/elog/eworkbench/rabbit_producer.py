@@ -60,7 +60,6 @@ class RabbitProducer:
             self._channel = self._conn.channel()
 
     def _produce(self, headers, message):
-        self._channel.queue_declare(queue=self.queue, durable=True)
         self._channel.basic_publish(exchange='',
                                     routing_key=self.queue,
                                     body=message,
