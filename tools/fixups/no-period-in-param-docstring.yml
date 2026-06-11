@@ -17,3 +17,4 @@ rule:
 transform:
   NEW_STR: replace($STR, replace="\\.$", by="")
 fix: $NEW_STR
+message: No '.' at the end of parameter description
