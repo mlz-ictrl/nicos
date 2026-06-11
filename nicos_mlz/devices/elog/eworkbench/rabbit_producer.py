@@ -58,11 +58,13 @@ class RabbitProducer:
         if not self._conn or self._conn.is_closed:
             self._conn = pika.BlockingConnection(self._params)
             self._channel = self._conn.channel()
+            self._channel.confirm_delivery()
 
     def _produce(self, headers, message):
         self._channel.basic_publish(exchange='',
                                     routing_key=self.queue,
                                     body=message,
+                                    mandatory=True,
                                     properties=pika.BasicProperties(
                                         headers=headers,
                                         delivery_mode=
