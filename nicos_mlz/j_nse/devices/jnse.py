@@ -40,8 +40,16 @@ class HasLabel(DeviceMixinBase):
     """For devices that store additional label parameter."""
 
     parameters = {
-        'label': Param('Device label from NIST table', type=str,),
+        'label': Param('Device label from NIST table',
+                       type=str, default='', internal=True,),
     }
+
+    def doReadLabel(self):
+        try:
+            label = session.instrument.devices.get(self.name, '')
+        except AttributeError:
+            label = ''
+        return label
 
 
 class JNSEPowerSupply(HasLabel, PowerSupply):
