@@ -358,9 +358,9 @@ class ExpPanel(Panel):
             if title:
                 args['title'] = title
             if local:
-                args['localcontact'] = local
+                args['localcontact'] = combineUsers(local)
             if users:
-                args['user'] = users
+                args['user'] = combineUsers(users)
             code = 'NewExperiment(%s)' % ', '.join('%s=%r' % i
                                                    for i in args.items())
             if self.client.run(code, noqueue=True) is None:
