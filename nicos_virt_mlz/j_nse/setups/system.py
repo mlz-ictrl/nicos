@@ -11,12 +11,13 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    NSE = device('nicos.devices.instrument.Instrument',
+    NSE = device('nicos_mlz.j_nse.devices.instrument.JnseInstrument',
         description = 'instrument object',
         instrument = 'VJNSE',
         responsible = 'O. Holderer <o.holderer@fz-juelich.de>',
         operators = ['Jülich Centre for Neutron Science (JCNS)'],
         website = 'http://www.mlz-garching.de/j-nse',
+        table_filename = 'nicos_mlz/j_nse/NIST_table.csv',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',

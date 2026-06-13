@@ -9,3 +9,4 @@ constraints:
   METH: {regex: "^(read|status)$"}
 fix:
   $DEV.$METH(maxage)
+message: Use the 'maxage' parameter in 'do...' methods for 'status' and 'read' calls

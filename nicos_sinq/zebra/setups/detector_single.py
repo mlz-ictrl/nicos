@@ -71,7 +71,7 @@ devices = dict(
         images = [],
         others = [],
         liveinterval = 7,
-        saveintervals = [60]
+        saveintervals = [2]
     ),
     asciisink = device('nicos_sinq.sxtal.datasink.SxtalScanSink',
         description = 'Sink for writing SINQ ASCII files',

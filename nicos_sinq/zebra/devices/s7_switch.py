@@ -24,10 +24,9 @@
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import Attach, Override, Param, none_or, oneof, pvname, status
+from nicos.core import Attach, Override, Param, oneof, pvname, status
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics.pyepics import EpicsDevice
-from nicos.devices.generic import Pulse
+from nicos.devices.epics.base import EpicsDevice, EpicsDigitalMoveable
 
 
 class S7Switch(EpicsDevice, MappedMoveable):
@@ -38,8 +37,8 @@ class S7Switch(EpicsDevice, MappedMoveable):
     """
 
     attached_devices = {
-        'button': Attach('Pulse device to cause toggling the state',
-                         Pulse),
+        'button': Attach('Epics Record for Toggling State',
+                         EpicsDigitalMoveable),
     }
 
     parameters = {
@@ -54,11 +53,12 @@ class S7Switch(EpicsDevice, MappedMoveable):
                          userparam=False),
     }
 
+    _record_fields = {
+        'readpv': '',
+    }
+
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)
-
-    def _get_pv_parameters(self):
-        return {'readpv'}
 
     def _readRaw(self, maxage=0):
         return self._get_pv('readpv')
@@ -92,8 +92,7 @@ class S7Shutter(S7Switch):
         'closedpv': Param('PV to read if the shutter is closed', type=pvname,
                           mandatory=True, settable=False, userparam=False),
         'errorpv': Param('PV to read if there is a shutter error',
-                         type=none_or(pvname), mandatory=False, settable=False,
-                         userparam=False),
+                         type=pvname, settable=False, userparam=False),
     }
 
     parameter_overrides = {
@@ -105,11 +104,19 @@ class S7Shutter(S7Switch):
 
     valuetype = oneof('open', 'closed')
 
-    def _get_pv_parameters(self):
-        par = {'readpv', 'readypv', 'closedpv'}
-        if self.errorpv:
-            par.add('errorpv')
-        return par
+    _record_fields = {
+        'readpv': '',
+        'readypv': '',
+        'closedpv': '',
+        'errorpv': '',
+    }
+
+    _cache_relations = {
+        'readpv': 'value',
+        'readypv': 'status',
+        'closedpv': 'status',
+        'errorpv': 'status',
+    }
 
     def _readRaw(self, maxage=0):
         if self._get_pv('readpv'):

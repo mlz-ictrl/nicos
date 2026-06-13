@@ -1,68 +1,83 @@
-description = "Denex detector setup"
-group = "basic"
+description = 'Denex detector setup'
+group = 'basic'
 
 includes = [
-    "counter",
+    'counter',
+    'physics',
 ]
 
 sysconfig = dict(
-    datasinks = ["LiveViewSink", "NPGZFileSink"],
+    datasinks = ['LiveViewSink', 'NPGZFileSink'],
 )
 
-tango_base = "tango://phys.j-nse.frm2:10000/j-nse"
+tango_base = 'tango://phys.j-nse.frm2:10000/j-nse'
 
-basename = "%(proposal)s_"
-scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
-countbasename = basename + "%(pointpropcounter)010d"
+basename = '%(proposal)s_'
+scanbasename = basename + '%(scancounter)08d_%(pointnumber)08d'
+countbasename = basename + '%(pointpropcounter)010d'
 
 devices = dict(
-    LiveViewSink = device("nicos.devices.datasinks.LiveViewSink",
-        description = "Sends image data to LiveViewWidget",
+    LiveViewSink = device(
+        'nicos.devices.datasinks.LiveViewSink',
+        description = 'Sends image data to LiveViewWidget',
     ),
-    NPGZFileSink = device("nicos.devices.datasinks.text.NPGZFileSink",
-        description = "Saves image data in compressed numpy text format",
+    NPGZFileSink = device(
+        'nicos.devices.datasinks.text.NPGZFileSink',
+        description = 'Saves image data in compressed numpy text format',
         filenametemplate = [
-            scanbasename + ".gz",
-            countbasename + ".gz",
+            scanbasename + '.gz',
+            countbasename + '.gz',
         ],
     ),
-    detimg = device("nicos.devices.entangle.ImageChannel",
-        description = "Denex detector image",
-        tangodevice = tango_base + "/denex/det",
+    detimg = device('nicos.devices.entangle.ImageChannel',
+        description = 'Denex detector image',
+        tangodevice = tango_base + '/denex/det',
         # size = (32, 32),
-        fmtstr = "%d",
-        unit = "cts",
+        fmtstr = '%d',
+        unit = 'cts',
     ),
-    roi1 = device("nicos.devices.generic.RectROIChannel",
-        description = "ROI 1",
+    roi1 = device('nicos.devices.generic.RectROIChannel',
+        description = 'ROI 1',
         roi = (10, 10, 10, 10),
     ),
-    roi2 = device("nicos.devices.generic.RectROIChannel",
-        description = "ROI 2",
+    roi2 = device('nicos.devices.generic.RectROIChannel',
+        description = 'ROI 2',
         roi = (10, 10, 10, 10),
     ),
-    roi3 = device("nicos.devices.generic.RectROIChannel",
-        description = "ROI 3",
+    roi3 = device('nicos.devices.generic.RectROIChannel',
+        description = 'ROI 3',
         roi = (10, 10, 10, 10),
     ),
-    roi4 = device("nicos.devices.generic.RectROIChannel",
-        description = "ROI 4",
+    roi4 = device('nicos.devices.generic.RectROIChannel',
+        description = 'ROI 4',
         roi = (10, 10, 10, 10),
     ),
-    det = device("nicos.devices.generic.detector.Detector",
-        description = "Denex detector",
-        timers = ["timer"],
-        monitors = ["monbgr", "mon1"],
-        images = ["detimg"],
-        counters = ["roi1", "roi2", "roi3", "roi4"],
+    det = device(
+        'nicos.devices.generic.detector.Detector',
+        description = 'Denex detector',
+        timers = ['timer'],
+        monitors = ['monbgr', 'mon1'],
+        images = ['detimg'],
+        counters = ['roi1', 'roi2', 'roi3', 'roi4'],
         postprocess = [
-            ("roi1", "detimg"),
-            ("roi2", "detimg"),
-            ("roi3", "detimg"),
-            ("roi4", "detimg"),
+            ('roi1', 'detimg'),
+            ('roi2', 'detimg'),
+            ('roi3', 'detimg'),
+            ('roi4', 'detimg'),
         ],
         liveinterval = 1,
     ),
+    nsedet = device(
+        'nicos_mlz.j_nse.devices.jnse.ScanningDetector',
+        description = 'High-level JNSE detector',
+        detector = 'det',
+        lmbda = 'Lambda',
+        tau = 't_nom',
+        pha1 = 'pow20',
+        pi = 'pow03',
+        pi21 = 'pow02',
+        pi22 = 'pow04',
+    ),
 )
 
-startupcode = "SetDetectors(det)"
+startupcode = 'SetDetectors(det)'

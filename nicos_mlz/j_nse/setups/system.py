@@ -3,7 +3,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = None,
+    instrument = 'NSE',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = ['email', 'smser'],
@@ -21,12 +21,13 @@ includes = [
 ]
 
 devices = dict(
-    NSE = device('nicos.devices.instrument.Instrument',
+    NSE = device('nicos_mlz.j_nse.devices.instrument.JnseInstrument',
         description = 'instrument object',
-        instrument = 'J-NSE',
+        instrument = 'JNSE',
         responsible = 'O. Holderer <o.holderer@fz-juelich.de>',
         operators = ['Jülich Centre for Neutron Science (JCNS)'],
         website = 'http://www.mlz-garching.de/j-nse',
+        table_filename = '/control/nicos_mlz/j_nse/NIST_table.csv',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
