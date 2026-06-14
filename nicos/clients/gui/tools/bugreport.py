@@ -113,7 +113,7 @@ class BugreportTool(DlgUtils, QDialog):
         layout.addWidget(userBox)
         layout.addWidget(QLabel('Password:', dlg))
         passwdBox = QLineEdit(dlg)
-        passwdBox.setEchoMode(QLineEdit.Password)
+        passwdBox.setEchoMode(QLineEdit.EchoMode.Password)
         layout.addWidget(passwdBox)
         buttonbox = QDialogButtonBox(dlg)
         buttonbox.addButton(QDialogButtonBox.StandardButton.Ok)

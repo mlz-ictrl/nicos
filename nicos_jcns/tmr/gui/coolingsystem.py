@@ -226,11 +226,10 @@ class Widget(NicosWidget, QWidget):
         # configure painter
         qp = QPainter()
         qp.begin(self)
-        qp.setRenderHint(QPainter.Antialiasing)
-        qp.setRenderHint(QPainter.HighQualityAntialiasing)
-        qp.setRenderHint(QPainter.LosslessImageRendering)
-        qp.setRenderHint(QPainter.SmoothPixmapTransform)
-        qp.setRenderHint(QPainter.TextAntialiasing)
+        qp.setRenderHints(QPainter.RenderHint.Antialiasing |
+                          QPainter.RenderHint.LosslessImageRendering |
+                          QPainter.RenderHint.SmoothPixmapTransform |
+                          QPainter.RenderHint.TextAntialiasing)
 
         # get window size and translate painter to bottom left
         width_window = qp.window().width() - 1

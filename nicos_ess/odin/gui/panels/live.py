@@ -287,7 +287,7 @@ class ADControl(QWidget):
 
     def _get_file_path(self, dialog_type, title):
         options = QFileDialog.Options()
-        options |= QFileDialog.ReadOnly
+        options |= QFileDialog.Option.ReadOnly
 
         if dialog_type == 'save':
             file_path, _ = QFileDialog.getSaveFileName(

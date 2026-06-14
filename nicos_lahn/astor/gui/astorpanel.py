@@ -69,8 +69,8 @@ class ASTORPanel(Panel):
         if self.current_status != 'idle':
             qwindow = ScriptExecQuestion()
             result = qwindow.exec()
-            if result == QMessageBox.Cancel:
+            if result == QMessageBox.StandardButton.Cancel:
                 return
-            if result == QMessageBox.Apply:
+            if result == QMessageBox.StandardButton.Apply:
                 action = 'execute'
         self.client.tell(script, action)

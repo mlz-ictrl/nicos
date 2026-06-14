@@ -59,10 +59,10 @@ class ElogPanel(Panel):
         options.get('categories', ['Other'])
 
         # The table with the list of messages is READ ONLY
-        self.messagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.messagesTable.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.messagesTable.setHorizontalHeaderLabels(['Id', 'Date', 'Subject'])
 
-        self.loginPassword.setEchoMode(QLineEdit.Password)
+        self.loginPassword.setEchoMode(QLineEdit.EchoMode.Password)
         self.logbook = None
 
         client.message.connect(self.on_client_message)

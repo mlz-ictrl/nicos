@@ -53,7 +53,7 @@ class Sample_Environment(Panel):
         # Node
         node_name = items[0][0]
         self.node_label.setText(node_name)
-        self.node_label.setAlignment(Qt.AlignCenter)
+        self.node_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         font = self.node_label.font()
         font.setBold(True)
         font.setUnderline(True)
@@ -86,7 +86,7 @@ class Sample_Environment(Panel):
 
     def DeviceHasSlider(self, name, limits, target, unit):
         mod_value_label = QLabel()
-        mod_slider = QSlider(Qt.Horizontal)
+        mod_slider = QSlider(Qt.Orientation.Horizontal)
         mod_slider.setRange(int(100 * limits[0]), int(100 * limits[1]))
         last_value = getattr(self, f"{name}_last_position", None)
         if last_value is not None:
@@ -213,9 +213,9 @@ class Sample_Environment(Panel):
         if self.current_status != 'idle':
             qwindow = ScriptExecQuestion()
             result = qwindow.exec()
-            if result == QMessageBox.Cancel:
+            if result == QMessageBox.StandardButton.Cancel:
                 return
-            elif result == QMessageBox.Apply:
+            elif result == QMessageBox.StandardButton.Apply:
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)

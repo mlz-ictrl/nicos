@@ -80,8 +80,7 @@ class SampleChangerPanel(Panel):
         self.sample_lines = QScrollArea(self)
         sw = QWidget()
         self.sample_lines.setWidget(sw)
-        # self.sample_lines.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.sample_lines.setWidgetResizable(True)
+        # self.sample_lines.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.sample_lines.setWidgetResizable(True)
         self.layout().insertWidget(2, self.sample_lines, stretch=1)
 
