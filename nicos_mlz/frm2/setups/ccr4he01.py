@@ -218,7 +218,7 @@ monitor_blocks = dict(
                   plotwindow=300, width=25, height=25,
                   devices=[f'T_{setupname}/setpoint',
                            f'T_{setupname}_coldhead',
-                           f'T_{setupname}_still',
+                           # f'T_{setupname}_still',
                            f'T_{setupname}_tube'],
                   names=['Setpoint', 'Coldhead', 'Regulation', 'Sample'],
                   ),
