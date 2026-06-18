@@ -83,6 +83,7 @@ devices = dict(
         dvalue = 3.355,
         scatteringsense = -1,
         crystalside = -1,
+        visibility = (),
     ),
     mono_cu220 = device('nicos.devices.tas.Monochromator',
         description = 'Cu-220 monochromator',
@@ -102,6 +103,7 @@ devices = dict(
         dvalue = 1.278,           # :FIXTHIS:
         scatteringsense = -1,
         crystalside = -1,
+        visibility = (),
     ),
     mono_cu111 = device('nicos.devices.tas.Monochromator',
         description = 'Cu-111 monochromator',
@@ -121,6 +123,7 @@ devices = dict(
         dvalue = 2.08717,           # :FIXTHIS:
         scatteringsense = -1,
         crystalside = -1,
+        visibility = (),
     ),
     mono_ge311 = device('nicos.devices.tas.Monochromator',
         description = 'Ge-311 monochromator',
@@ -139,6 +142,7 @@ devices = dict(
         dvalue = 1.706,
         scatteringsense = -1,
         crystalside = -1,
+        visibility = (),
     ),
     ana_pg002 = device('nicos.devices.tas.Monochromator',
         description = 'PG-002 analyzer',
@@ -155,6 +159,7 @@ devices = dict(
         dvalue = 3.355,
         scatteringsense = -1,
         crystalside = -1,
+        visibility = (),
     ),
     ana_ge311 = device('nicos.devices.tas.Monochromator',
         description = 'Ge-311 analyzer',
@@ -172,6 +177,7 @@ devices = dict(
         dvalue = 1.706,
         scatteringsense = -1,
         crystalside = -1,
+        visibility = (),
     ),
 )
 
