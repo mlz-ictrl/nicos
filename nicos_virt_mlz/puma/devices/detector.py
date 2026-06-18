@@ -84,7 +84,7 @@ class McStasSimulation(BaseSimulation):
                 self._attached_ei if self._attached_tas.scanmode == 'CKI' else
                 self._attached_ef),
             # 1000 is default for open, can be 20, 40 or 60 otherwise
-            'primary_collimation=%s' % ('1000' if pc == 'closed' else pc),
+            'primary_collimation=%s' % ('1000' if pc == 'open' else pc),
             'qx=%s' % q[0],
             'qy=%s' % q[1],
             'qz=%s' % q[2],
