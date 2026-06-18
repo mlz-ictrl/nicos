@@ -143,7 +143,7 @@ def test_intensity_measurement(session):
 
 
 def test_kerr_calc():
-    # IntvB curve can be modelled as two error function curves,
+    # IntvB curve can be modeled as two error function curves,
     # the input for the curves is randomized
     temp = generate_intvb(-1000, 1000)
     IntvB = Curve2D(temp[0])

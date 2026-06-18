@@ -25,8 +25,12 @@
 Tests for the functioncurve Curve2D class
 """
 
+import math
 import pickle
+import pytest
 from random import randint
+
+import numpy
 
 from .utils import compare_lists
 
@@ -41,10 +45,10 @@ def test_basic():
     assert curve1.y == list(range(n))
     assert curve1.x == curve2.x
     assert curve1.y == curve2.y
-    assert curve1.xmin == 0
-    assert curve1.xmax == n - 1
-    assert curve1.ymin == 0
-    assert curve1.ymax == n - 1
+    assert curve1.xmin.n == 0
+    assert curve1.xmax.n == n - 1
+    assert curve1.ymin.n == 0
+    assert curve1.ymax.n == n - 1
 
 
 def test_append():
@@ -67,13 +71,13 @@ def test_pickle():
 def test_from_temporal():
     n = randint(10, 20)
     xoff, k = randint(-10, 10) / 10, randint(-10, 10)
-    xvt = Curve2D([(i, ufloat(i, 0)) for i in range(n)])
-    yvt = Curve2D([(i + xoff, ufloat((i + xoff) * k, 0)) for i in range(n)])
+    xvt = Curve2D([(i, ufloat(i, math.nan)) for i in range(n)])
+    yvt = Curve2D([(i + xoff, ufloat((i + xoff) * k, math.nan)) for i in range(n)])
     curve = Curve2D.from_two_temporal(xvt, yvt)
     assert compare_lists(curve.x, xvt.y)
-    assert compare_lists(curve.y, [ufloat(i * k, 0) for i in range(n)])
+    assert compare_lists(curve.y, [ufloat(i * k, math.nan) for i in range(n)])
     curve = Curve2D.from_two_temporal(xvt, yvt, pick_yvt_points=True)
-    assert compare_lists(curve.x, [ufloat(i + xoff, 0) for i in range(n)])
+    assert compare_lists(curve.x, [ufloat(i + xoff, math.nan) for i in range(n)])
     assert compare_lists(curve.y, yvt.y)
 
 
@@ -103,11 +107,23 @@ def test_multiplication():
 
 def test_interpolation():
     curve = Curve2D([(1, 2), (9, 18)])
-    assert curve.xvy(11).x == 5.5
-    assert curve.yvx(4.25).y == 8.5
+    assert curve.xvy(11).x.n == 5.5
+    assert curve.yvx(4.25).y.n == 8.5
 
 
 def test_lsm():
-    k, b = randint(0, 100), randint(0, 100)
-    curve = Curve2D([(i, i * k + b) for i in range(10)])
-    assert curve.lsm() == (k, b)
+    k, b = randint(1, 100) / 1000, randint(1, 100)
+    x = numpy.array(range(1, 10))
+    y = k * x + b
+    dx = randint(1, 100) / 1000 * x
+    dy = randint(1, 100) / 1000 * y
+    curve = Curve2D.from_x_y(x, y)
+    curvedy = Curve2D([(ix, ufloat(iy, idy)) for ix, iy, idy in zip(x, y, dy)])
+    curvedxdy = Curve2D([(ufloat(ix, idx), ufloat(iy, idy))
+                         for ix, idx, iy, idy in zip(x, dx, y, dy)])
+    assert pytest.approx(curve.lsm()[0].n) == \
+           pytest.approx(curvedy.lsm()[0].n) == \
+           pytest.approx(curvedxdy.lsm()[0].n) == pytest.approx(k)
+    assert pytest.approx(curve.lsm()[1].n) == \
+           pytest.approx(curvedy.lsm()[1].n) == \
+           pytest.approx(curvedxdy.lsm()[1].n) == pytest.approx(b)

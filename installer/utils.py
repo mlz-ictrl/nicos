@@ -23,8 +23,8 @@
 
 import glob
 import os
-import subprocess
 import sys
+
 from os import path
 
 import gr
@@ -36,8 +36,6 @@ guidirs = [path.join('nicos', 'clients', 'gui'),
 
 # Make sure to generate the version file.
 os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + path.pathsep + rootdir
-version = subprocess.check_output([sys.executable,
-                                   path.join(rootdir, 'nicos', '_vendor', 'gitversion.py')])
 
 
 # Include all modules/files for the facility directories.
@@ -70,16 +68,10 @@ def find_uis():
 
 # Include the GR runtime.
 def find_gr():
-    grrtdir = path.join(path.dirname(gr.__file__), 'bin')
+    libdir = 'bin' if sys.platform == 'win32' else 'lib'
+    grrtdir = path.join(path.dirname(gr.__file__), libdir)
     return [
-        (path.join(grrtdir, '*.*'), path.join('gr', 'bin')),
-        (path.join(grrtdir, '..', 'fonts', '*.*'), path.join('gr', 'fonts')),
-    ]
-
-def find_gr_osx():
-    grrtdir = path.join(path.dirname(gr.__file__), 'lib')
-    return [
-        (path.join(grrtdir, '*.*'), path.join('gr', 'lib')),
+        (path.join(grrtdir, '*.*'), path.join('gr', libdir)),
         (path.join(grrtdir, '..', 'fonts', '*.*'), path.join('gr', 'fonts')),
     ]
 
@@ -107,7 +99,3 @@ def find_uncertainties():
         (path.join(dirname, '*.*'), 'uncertainties'),
         (path.join(dirname, 'unumpy', '*.*'), path.join('uncertainties', 'unumpy'))
     ]
-
-
-def nicos_version():
-    return '.'.join(version.decode('utf-8').split('.')[:3])

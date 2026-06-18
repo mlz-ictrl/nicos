@@ -22,11 +22,36 @@
 # *****************************************************************************
 
 
+import math
+
 from .calcs import lsm, mean
-from .imports import AffineScalarFunc
+from .imports import AffineScalarFunc, ufloat
 from .points import CurvePoint2D
 
 _compatible_types = (int, float, AffineScalarFunc)
+
+
+class ArrayOfPoints2D(list):
+    """List of AffineScalarFunc values returned by Curve2D.x and Curve2D.y.
+
+    Overrides equality to compare by nominal value (.n), avoiding the
+    uncertainties library's NaN-sensitive equality check.
+    """
+
+    def __eq__(self, value):
+        """Returns True if all nominal values match those in value.
+        """
+        if isinstance(value, list):
+            if len(self) == len(value):
+                if isinstance(value[0], AffineScalarFunc):
+                    return all(v0.n == v1.n for v0, v1 in zip(self, value))
+                return all(v0.n == v1 for v0, v1 in zip(self, value))
+        return False
+
+    def __ne__(self, value):
+        """Returns True if the lists differ in any nominal value.
+        """
+        return not self.__eq__(value)
 
 
 class Curve2D:
@@ -111,19 +136,19 @@ class Curve2D:
     def x(self):
         """Returns list of all X values.
         """
-        return [p.x for p in self] if self else None
+        return ArrayOfPoints2D([p.x for p in self] if self else [])
 
     @property
     def xmin(self):
         """Returns min X value
         """
-        return min(self.x) if self else None
+        return min(self.x, key=lambda x: x.n) if self else ufloat(math.nan, math.nan)
 
     @property
     def xmax(self):
         """Returns max X value
         """
-        return max(self.x) if self else None
+        return max(self.x, key=lambda x: x.n) if self else ufloat(math.nan, math.nan)
 
     def xvy(self, y):
         """Linearly interpolates X(Y) on the curve.
@@ -131,35 +156,36 @@ class Curve2D:
         the curve's Y range.
         y: Y component of expected CurvePoint2D
         """
+        yn = y.n if isinstance(y, AffineScalarFunc) else y
         if len(self):
-            if y < self.ymin and len(self) > 1:
+            if yn < self.ymin.n and len(self) > 1:
                 return CurvePoint2D.interpolate(self[0], self[1], y=y)
-            if y > self.ymax and len(self) > 1:
+            if yn > self.ymax.n and len(self) > 1:
                 return CurvePoint2D.interpolate(self[-1], self[-2], y=y)
             for i, p in enumerate(self):
                 if p.eq_y(y):
                     return p
                 if i:
-                    if self[i - 1].y < y < self[i].y or self[i - 1].y > y > self[i].y:
+                    if self[i - 1].y.n < yn < self[i].y.n or self[i - 1].y.n > yn > self[i].y.n:
                         return CurvePoint2D.interpolate(self[i - 1], self[i], y=y)
 
     @property
     def y(self):
         """Returns list of all Y values.
         """
-        return [p.y for p in self] if self else None
+        return ArrayOfPoints2D([p.y for p in self] if self else [])
 
     @property
     def ymin(self):
         """Returns min Y value
         """
-        return min(self.y) if self else None
+        return min(self.y, key=lambda y: y.n) if self else ufloat(math.nan, math.nan)
 
     @property
     def ymax(self):
         """Returns max Y value
         """
-        return max(self.y) if self else None
+        return max(self.y, key=lambda y: y.n) if self else ufloat(math.nan, math.nan)
 
     def yvx(self, x):
         """Linearly interpolates Y(X) on the curve.
@@ -167,28 +193,32 @@ class Curve2D:
         the curve's X range.
         x: X component of expected CurvePoint2D
         """
+        xn = x.n if isinstance(x, AffineScalarFunc) else x
         if len(self) > 1:
-            if self[0].x < self[-1].x:
-                if x < self[0].x:
+            if self[0].x.n < self[-1].x.n:
+                if xn < self[0].x.n:
                     return CurvePoint2D.interpolate(self[0], self[1], x=x)
-                if x > self[-1].x:
+                if xn > self[-1].x.n:
                     return CurvePoint2D.interpolate(self[-2], self[-1], x=x)
-            if self[0].x > self[-1].x:
-                if x > self[0].x:
+            if self[0].x.n > self[-1].x.n:
+                if xn > self[0].x.n:
                     return CurvePoint2D.interpolate(self[0], self[1], x=x)
-                if x < self[-1].x:
+                if xn < self[-1].x.n:
                     return CurvePoint2D.interpolate(self[-2], self[-1], x=x)
             for i, p in enumerate(self):
                 if p.eq_x(x):
                     return CurvePoint2D(*self[i])
                 if i:
-                    if self[i - 1].x < x < self[i].x or self[i - 1].x > x > self[i].x:
+                    if self[i - 1].x.n < xn < self[i].x.n or self[i - 1].x.n > xn > self[i].x.n:
                         return CurvePoint2D.interpolate(self[i], self[i - 1], x=x)
         else:
             return CurvePoint2D(x, self[0].y) if self else None
 
     def lsm(self):
         return lsm(self.x, self.y) if self else None
+
+    def __iter__(self):
+        return iter(self._xy)
 
     def __getitem__(self, index):
         result = self._xy[index]
@@ -214,14 +244,14 @@ class Curve2D:
         if not value:
             return self
         elif isinstance(value, Curve2D):
-            start = max(self.xmin, value.xmin)
-            end = min(self.xmax, value.xmax)
+            start = max(self.xmin.n, value.xmin.n)
+            end = min(self.xmax.n, value.xmax.n)
             if start > end:
                 return None
             res = Curve2D()
             (c1, c2) = (self, value) if direct else (value, self)
             for p in c1:
-                if p.x < start or p.x > end:
+                if p.x.n < start or p.x.n > end:
                     continue
                 res.append(func(p, c2.yvx(p.x)))
             return res
@@ -334,6 +364,9 @@ class Curves:
             return Curves(result)
         return result
 
+    def __iter__(self):
+        return iter(self._curves)
+
     def __repr__(self):
         return repr(self._curves)
 
@@ -351,10 +384,10 @@ class Curves:
         curves = []
         for curve in self:
             if by_y:
-                if curve[-1].y > curve[0].y:
+                if curve[-1].y.n > curve[0].y.n:
                     curves.append(curve)
             else:
-                if curve[-1].x > curve[0].x:
+                if curve[-1].x.n > curve[0].x.n:
                     curves.append(curve)
         return Curves(curves)
 
@@ -366,10 +399,10 @@ class Curves:
         curves = []
         for curve in self:
             if by_y:
-                if curve[-1].y < curve[0].y:
+                if curve[-1].y.n < curve[0].y.n:
                     curves.append(curve)
             else:
-                if curve[-1].x < curve[0].x:
+                if curve[-1].x.n < curve[0].x.n:
                     curves.append(curve)
         return Curves(curves)
 
@@ -383,7 +416,7 @@ class Curves:
             for p in self[0]:
                 ys = [p.y]
                 for curve in self[1:]:
-                    if curve.xmin <= p.x <= curve.xmax:
+                    if curve.xmin.n <= p.x.n <= curve.xmax.n:
                         ys.append(curve.yvx(p.x).y)
                 res.append((p.x, mean(ys)))
         return res

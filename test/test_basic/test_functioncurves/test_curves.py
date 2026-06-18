@@ -30,7 +30,7 @@ from random import randint
 
 import pytest
 
-from nicos.utils.functioncurves import Curve2D, Curves
+from nicos.utils.functioncurves import Curve2D, CurvePoint2D, Curves, ufloat
 from nicos.utils.functioncurves.calcs import mean
 
 
@@ -45,7 +45,8 @@ def test_basic():
 
 
 def test_pickle():
-    curve0 = Curves([Curve2D([(i, i) for i in range(10)])])
+    curve0 = Curves([Curve2D([CurvePoint2D(ufloat(i, 0.1 * i), ufloat(i, 0.1 * i))
+                              for i in range(1, 10)])])
     temp = pickle.dumps(curve0)
     curve1 = pickle.loads(temp)
     assert curve1[0].x == curve0[0].x and curve1[0].y == curve0[0].y
