@@ -35,6 +35,7 @@ devices = dict(
         energytransferunit = 'meV',
         axiscoupling = True,
         autodevice_visibility = {'metadata', 'namespace',},
+        scanmode = 'CKI',
     ),
     ki = device('nicos.devices.tas.Wavevector',
         description = 'initial wavevector',
