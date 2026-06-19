@@ -26,7 +26,7 @@
 from math import asin, pi, sin
 
 from nicos.core import SIMULATION, Attach, HasLimits, HasPrecision, Moveable, \
-    Override, Param, status
+    Override, Param, floatrange, nonzero, status
 from nicos.core.errors import ConfigurationError, PositionError
 from nicos.devices.abstract import \
     TransformedMoveable as BaseTransformedMoveable
@@ -53,6 +53,9 @@ class Wavelength(HasLimits, Moveable):
         'plane': Param('Used scattering plane of the crystal', type=str,
                        unit='', mandatory=True, settable=True,
                        category='instrument'),
+        'd': Param('Space between crystal planes of the reflection',
+                   type=nonzero(floatrange(0)), unit='AA', settable=False,
+                   volatile=True, category='instrument'),
     }
 
     parameter_overrides = {
@@ -85,11 +88,10 @@ class Wavelength(HasLimits, Moveable):
     def _crystal(self):
         return self._lut[self.crystal] if self.crystal in self._lut else None
 
-    def _d(self, maxage=0):
+    def doReadD(self):
         crystal = self._crystal()
         if crystal:
-            p = crystal.get(self.plane, None)
-            if p:
+            if p := crystal.get(self.plane, None):
                 return p[0]
             raise ConfigurationError('No plane of the crystal set.')
         raise ConfigurationError('No crystal set.')
@@ -109,15 +111,15 @@ class Wavelength(HasLimits, Moveable):
             if ok != status.OK:
                 return ok, '%s: %s' % (dev, why)
         try:
-            self._d(maxage)
-            return status.OK, 'idle'
+            if self.d:
+                return status.OK, 'idle'
         except ConfigurationError as e:
             return status.ERROR, str(e)
 
     def doRead(self, maxage=0):
         try:
             mono = self._attached_base.read(maxage)
-            return 2 * self._d(maxage) * sin(mono * pi / (2 * 180.))
+            return 2 * self.d * sin(mono * pi / (2 * 180.))
         except ConfigurationError:
             return None
 
@@ -128,7 +130,7 @@ class Wavelength(HasLimits, Moveable):
         plane = crystal.get(self.plane, None)
         if not plane:
             raise ConfigurationError(self, 'No valid mono configuration')
-        tthm = asin(target / (2 * self._d())) / pi * 360.
+        tthm = asin(target / (2 * self.d)) / pi * 360.
         omgm = tthm / 2.0 + plane[1] + plane[2]
         self.log.debug('%s will be moved to %.3f', self._attached_base, tthm)
         self.log.debug('%s will be moved to %.3f', self._attached_omgm, omgm)
