@@ -138,30 +138,34 @@ class MLZTemplateProvider(NexusTemplateProvider):
     def updateEntry(self):
         pass
 
+    def _checkEnvironmentList(self, envlist):
+        devlist = set(session.experiment.envlist) & set(session.devices.keys())
+        return any(e in devlist for e in envlist)
+
     def updateSample(self):
         """Update the sample section.
 
         Sample section is available via ``self._sample``
         """
-        if any(e in session.devices for e in self.temp_env):
+        if self._checkEnvironmentList(self.temp_env):
             self._sample.update({
                 'temperature_env:NXenvironment': {
                     'value_log:NXlog': SampleEnv(self.temp_env),
                 },
             })
-        if any(e in session.devices for e in self.magnet_env):
+        if self._checkEnvironmentList(self.magnet_env):
             self._sample.update({
                 'magnetic_field_env:NXenvironment': {
                     'value_log:NXlog': SampleEnv(self.magnet_env),
                 },
             })
-        if any(e in session.devices for e in self.stress_env):
+        if self._checkEnvironmentList(self.stress_env):
             self._sample.update({
                 'stress_field_env:NXenvironment': {
                     'value_log:NXlog': SampleEnv(self.stress_env, 1),
                 },
             })
-        if any(e in session.devices for e in self.efield_env):
+        if self._checkEnvironmentList(self.efield_env):
             self._sample.update({
                 'electric_field_env:NXenvironment': {
                     'value_log:NXlog': SampleEnv(self.efield_env),
