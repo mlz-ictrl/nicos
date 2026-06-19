@@ -118,6 +118,15 @@ class Image(McStasImage):
 
 class McStasCounter(BaseCounter):
 
+    parameters = {
+        'preselection': Param('Preset value for this channel', type=int,
+                              settable=True),
+    }
+
+    def setChannelPreset(self, name, value):
+        BaseCounter.setChannelPreset(self, name, value)
+        self.preselection = value
+
     def doRead(self, maxage=0):
         if self._mode == MASTER:
             try:
