@@ -107,7 +107,7 @@ devices = dict(
         fmtstr = '%.1f',
         abslimits = (1100, 20000),
         userlimits = (1111, 20000),
-        curvalue = 1111,
+        curvalue = 3000,
         visibility = (),
         unit = 'mm',
     ),

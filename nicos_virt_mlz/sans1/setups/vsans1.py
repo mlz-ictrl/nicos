@@ -8,5 +8,5 @@ includes = ['collimation', 'detector', 'sample_table', 'vdet1',
             'pressure_filter', 'instrument_shutter',
             'slit', 'selector_tower', 'chopper_phase',
             'nl4a',
-            'sans1_det', 'attenuator',
+            'sans1_det', 'attenuator', 'ccmsanssc',
             ]
