@@ -109,6 +109,8 @@ class MLZTemplateProvider(NexusTemplateProvider):
                 f'{self.sample}:NXsample': {
                     'name': DeviceDataset(
                         session.experiment.sample.name, 'samplename'),
+                    'description': DeviceDataset(
+                        session.experiment.sample.name, 'sampledescription'),
                 },
             },
         }

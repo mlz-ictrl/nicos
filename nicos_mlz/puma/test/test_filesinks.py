@@ -218,6 +218,7 @@ class TestSinks:
                 'entry/proposal_user/name',
                 'entry/proposal_user/role',
                 'entry/sample',
+                'entry/sample/description',
                 'entry/sample/magnetic_field_env',
                 'entry/sample/magnetic_field_env/B',
                 'entry/sample/magnetic_field_env/B/value_log',

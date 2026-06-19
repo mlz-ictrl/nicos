@@ -93,6 +93,7 @@ class TestTemplates:
                 'entry/proposal_user/affiliation',
                 'entry/sample',
                 'entry/sample/name',
+                'entry/sample/description',
                 'entry/start_time',
                 'entry/title',
             }
