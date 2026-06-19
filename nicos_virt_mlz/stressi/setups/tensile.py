@@ -10,22 +10,24 @@ devices = dict(
         fmtstr = '%.2f',
         jitter = 5,
     ),
-    # tepos = device('nicos.devices.generic.VirtualMotor',
-    #     description = 'position value of the tensile machine',
-    #     abslimits = (0, 70),
-    #     # SPODI limits
-    #     # abslimits = (-10, 55),
-    #     unit = 'mm',
-    #     fmtstr = '%.3f',
-    # ),
-    # teext = device('nicos.devices.generic.VirtualMotor',
-    #     description = 'extension value of the tensile machine',
-    #     abslimits = (-3000, 3000),
-    #     unit = 'um',
-    #     fmtstr = '%.3f',
-    # ),
+    tepos = device('nicos.devices.generic.VirtualMotor',
+        description = 'position value of the tensile machine',
+        abslimits = (0, 70),
+        # SPODI limits
+        # abslimits = (-10, 55),
+        unit = 'mm',
+        fmtstr = '%.3f',
+        visibility = {'metadata'}
+    ),
+    teext = device('nicos.devices.generic.VirtualMotor',
+        description = 'extension value of the tensile machine',
+        abslimits = (-3000, 3000),
+        unit = 'um',
+        fmtstr = '%.3f',
+        visibility = {'metadata'}
+    ),
 )
 
 startupcode = """
-AddEnvironment(teload)
+AddEnvironment(teload, 'tepos', 'teext')
 """
