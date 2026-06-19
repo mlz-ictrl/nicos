@@ -28,7 +28,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core.device import DeviceParInfo, Readable
-from nicos.core.errors import NicosError
+from nicos.core.errors import NicosError, ProgrammingError
 
 
 class NexusElementBase:
@@ -227,13 +227,15 @@ class DeviceDataset(NexusElementBase):
                 #     self.value = DeviceParInfo(dev.status(), '', '', '')
                 else:
                     pinfo = dev.parameters.get(self.parameter)
+                    if pinfo is None:
+                        raise ProgrammingError('No parameter info found.')
                     defaultval = self.defaultval if self.defaultval is not None else pinfo.default
                     pval = getattr(dev, self.parameter, defaultval)
                     self.value = DeviceParInfo(pval, '', pinfo.unit, pinfo.category)
                 self.determineType()
             except Exception as e:
                 session.log.warning(
-                    'NeXus: failed to locate data for %s %s in NICOS (%s)',
+                    "NeXus: failed to locate data for '%s.%s' in NICOS (%s)",
                     self.device, self.parameter, e)
                 return
         if self.mapping is not None:
