@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+import re
+
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset
 
@@ -52,10 +54,23 @@ class StressiTemplateProvider(PowderTemplateProvider):
         self.chis = kwargs.get('chis', 'chis')
         self.phis = kwargs.get('phis', 'phis')
         self.omgs = kwargs.get('omgs', 'omgs')
+        self.omgm = kwargs.get('omgm', 'omgm')
+        self.tthm = kwargs.get('tthm', 'tthm')
 
     def updateInstrument(self):
         PowderTemplateProvider.updateInstrument(self)
         self._inst.update({
+            'mono:NXcrystal': {
+                'wavelength': DeviceDataset(self.wav),
+                'type': DeviceDataset(self.wav, 'crystal'),
+                'd_spacing': DeviceDataset(self.wav, 'd'),
+                'bragg_angle': DeviceDataset(self.omgm),
+                'polar_angle': DeviceDataset(self.tthm),
+                'reflection': ConstDataset(
+                    [int(x) for x in
+                     re.findall(r'-?\d', session.getDevice(self.wav).plane)],
+                    dtype='int32'),
+            },
             'beam_intensity_profile:NXbeam': {
                 # 'beam_evaluation': ,
                 # 'primary_vertical_type': ,
