@@ -49,7 +49,6 @@ devices = dict(
     ),
     a3 = device('nicos.core.device.DeviceAlias',
         description = 'Alias for a3',
-        alias = 'a3_st',
         devclass = 'nicos.core.device.Moveable'
     ),
     a4 = device('nicos_sinq.devices.epics.motor_deprecated.EpicsMotor',
@@ -241,6 +240,10 @@ devices = dict(
         alias = 'ana',
     ),
 )
+
+alias_config = {
+    'a3': {'a3_st': 100},
+}
 
 startupcode = """
 SetDetectors(taspdet)

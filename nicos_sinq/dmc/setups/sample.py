@@ -11,7 +11,10 @@ devices = dict(
     ),
     a3 = device('nicos.core.device.DeviceAlias',
         description = 'Alias for sample rotation',
-        alias = 'a3s',
         devclass = 'nicos.core.device.Moveable'
     ),
 )
+
+alias_config = {
+    'a3': {'a3s': 100},
+}

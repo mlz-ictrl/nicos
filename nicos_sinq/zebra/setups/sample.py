@@ -29,6 +29,11 @@ devices = dict(
         motorpv = pvpref + 'STT',
     ),
 )
+
+alias_config = {
+    'om': {'om_raw': 100},
+}
+
 """
     # Not available most of the time
     sgl = device('nicos_sinq.devices.epics.sinqmotor_deprecated.SinqMotor',
