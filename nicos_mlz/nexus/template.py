@@ -69,7 +69,7 @@ class MLZTemplateProvider(NexusTemplateProvider):
         self.temp_env = kwargs.get('temp_env', ['T', 'Ts'])
         self.magnet_env = kwargs.get('magnet_env', ['B'])
         self.stress_env = kwargs.get('stress_env', ['teload', 'tepos', 'teext'])
-        self.efield_env = kwargs.get('efield_env', [])
+        self.efield_env = kwargs.get('efield_env', ['E'])
         self.detector = kwargs.get('detector', 'detector')
 
     def _getBase(self):
