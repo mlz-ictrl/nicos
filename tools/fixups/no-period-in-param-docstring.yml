@@ -8,12 +8,7 @@ rule:
   inside: {pattern: "Param($$$)", stopBy: end}
   any:
   - inside: {kind: argument_list > string:nth-child(1)}
-  - inside:
-      kind: string
-      nthChild:
-        position: 1
-        reverse: true
-      inside: {kind: argument_list > concatenated_string:nth-child(1)}
+  - inside: {kind: argument_list > concatenated_string:nth-child(1) > string:nth-last-child(1) }
 transform:
   NEW_STR: replace($STR, replace="\\.$", by="")
 fix: $NEW_STR
