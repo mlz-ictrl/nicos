@@ -47,8 +47,8 @@ from nicos_sinq.sxtal.commands import AddAuxRef, AddRef, CalcUB, getSampleInst
 logbookTitles = ['File No.', 'Ei', 's2t', 'a3 start', 'a3 stop',
                  'a3 steps', 'a3 step', 'Monitor', 'Temp', 'Mag field']
 logbookTitlesFormats = ['{:>10}']*len(logbookTitles)
-valueFormats = ['{:10d}', '{:10.3f}', '{:10.3f}', '{:10.3f}',
-                '{:10.3f}', '{:10d}', '{:10.3f}', '{:10d}', '{:10.3f}',
+valueFormats = ['{:10.0f}', '{:10.3f}', '{:10.3f}', '{:10.3f}',
+                '{:10.3f}', '{:10.0f}', '{:10.3f}', '{:10.0f}', '{:10.3f}',
                 '{:10.3f}']
 
 __all__ = ['loadcalibration', 'SelectDetectorAnalyser',
