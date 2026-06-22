@@ -69,7 +69,7 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         except ghostapi.errors.GhostApiException:
             # no access means: we are not local contact
             pass
-        self.log.debug('user is local contact? %s', self.is_local_contact)
+        session.log.debug('user is local contact? %s', self.is_local_contact)
         # we are a normal user => if configured, check that a proposal
         # is scheduled for us today
         if not self.is_local_contact and strict:
