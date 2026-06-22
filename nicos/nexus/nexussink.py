@@ -96,6 +96,11 @@ class NexusSinkHandler(DataSinkHandler):
         self.filepath = None
         self.h5file = None
         self.template = {}
+
+        # Same approach as in nicos_mlz.toftof.datasinks.nexussink.NexusSinkHandler:
+        # Only allow updating values from cache once the HDF structure has been
+        # created.
+        self._inited = False
         DataSinkHandler.__init__(self, sink, dataset, detector)
 
     def prepare(self):
@@ -138,6 +143,7 @@ class NexusSinkHandler(DataSinkHandler):
             self.log.warning('Failed to create hdf5 structure, no valid file.')
             return
         self.create(self.template, h5obj)
+        self._inited = True
 
     def create(self, dictdata, h5obj):
         for key, val in dictdata.items():
@@ -163,7 +169,7 @@ class NexusSinkHandler(DataSinkHandler):
                 self.log.warning('Cannot write %r of type %r', key, type(val))
 
     def updateValues(self, dictdata, h5obj, values):
-        if self.dataset.settype == POINT:
+        if self._inited and self.dataset.settype == POINT:
             for key, val in dictdata.items():
                 if isinstance(val, dict):
                     nxname = key.split(':')[0]
@@ -315,6 +321,7 @@ class NexusSinkHandler(DataSinkHandler):
             self._filename = None
             self.sink.end()
             self.startdataset = None
+            self._inited = False
         else:
             self.dataset = self.manager._current
         self.log.debug('%s: # datasets %d', self, len(self.manager._stack))
