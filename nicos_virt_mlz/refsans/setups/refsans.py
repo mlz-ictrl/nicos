@@ -56,5 +56,7 @@ devices = dict(
 )
 
 startupcode = """
+if not Sample.samplename:
+    SelectSample(1)
 alphai.userlimits = (0, 3.5)
 """

@@ -33,10 +33,10 @@ devices = dict(
         chopper = 2,
         gear = 1,
         edge = 'close',
-        translation = 'chopper2_pos',
+        translation = 'disc2_pos',
         phase = 0,
     ),
-    chopper2_pos = device('nicos_mlz.refsans.devices.chopper.virtual.ChopperDiscTranslation',
+    disc2_pos = device('nicos_mlz.refsans.devices.chopper.virtual.ChopperDiscTranslation',
         description = 'position of chopper disc 2',
         # Normally the chopper1 device of chopper should be used, but this
         # creates cyclic dependencies, which couldn't solved during the

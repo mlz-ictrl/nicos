@@ -5,7 +5,7 @@ d_last_slit_sample.alias = 'sample_x_manual'
 last_aperture.alias = 'b3.opening'
 primary_aperture.alias = 'zb3.opening'
 
-move(chopper, {'wlmin': 2.0, 'wlmax': 21.0, 'gap': 0.1, 'chopper2_pos': 5, 'D': 15.6496, 'manner': 'normal'})
+move(chopper, {'wlmin': 2.0, 'wlmax': 21.0, 'gap': 0.1, 'disc2_pos': 5, 'D': 15.6496, 'manner': 'normal'})
 det_table.move(2500.0)
 det_yoke.move(0.0)
 #det_pivot.move(9)

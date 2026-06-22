@@ -69,7 +69,7 @@ devices = dict(
     ),
     h3 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
         description = 'h3 together with b3',
-        fmtstr = 'open: %.3f, xpos: %.3f',
+        # fmtstr = 'open: %.3f, xpos: %.3f',
         maxheight = 80,
         unit = 'mm',
         slit_r = 'h3r',
