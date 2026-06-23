@@ -70,6 +70,16 @@ class Reflection(NexusElementBase):
         self.createAttributes(dset, sinkhandler)
 
 
+class ExperimentDescription(NexusElementBase):
+    """Placeholder for the experiment description."""
+
+    def create(self, name, h5parent, sinkhandler):
+        value = sinkhandler.dataset.info.encode('utf-8')
+        dtype = 'S%d' % (len(value) + 1)
+        dset = h5parent.create_dataset(name, (1,), dtype)
+        dset[0] = np.array(value, dtype=dtype)
+
+
 class SampleEnv(NexusElementBase):
     """Placeholder for storing sample environment data.
 

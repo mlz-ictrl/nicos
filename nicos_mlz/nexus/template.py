@@ -29,8 +29,8 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
 from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 from nicos.nexus.specialelements import NicosProgramDataset
 
-from nicos_mlz.nexus import LocalContact, ReactorSource, SampleEnv, User, \
-    counts, signal
+from nicos_mlz.nexus import ExperimentDescription, LocalContact, \
+    ReactorSource, SampleEnv, User, counts, signal
 
 NeXus_version = NXAttribute('4.4.3', 'string')
 NXDL_version = NXAttribute('v2024.02', 'string')
@@ -90,8 +90,7 @@ class MLZTemplateProvider(NexusTemplateProvider):
                 'definition': ConstDataset(
                     self.definition, 'string', version=NXDL_version,
                     URL=NXAttribute(definition_url, 'string')),
-                'experiment_description': DeviceDataset(
-                    session.experiment.name, 'title'),
+                'experiment_description': ExperimentDescription(),
                 'experiment_identifier': DeviceDataset(
                     session.experiment.name, 'proposal'),
                 # 'collection_identifier': ,
