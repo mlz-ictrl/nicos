@@ -70,7 +70,7 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         except ghostapi.errors.GhostApiException:
             # no access means: we are not local contact
             pass
-        session.log.debug('user is local contact? %s', self.isLocalContact())
+        self.log.debug('user is local contact? %s', self.isLocalContact())
         # we are a normal user => if configured, check that a proposal
         # is scheduled for us today
         if not self.isLocalContact() and strict:
@@ -121,7 +121,7 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
             return any(ses['proposal_number'] == proposal
                        for ses in self.getTodaysSessions())
         except Exception:
-            session.log.warning('error querying proposals', exc=1)
+            self.log.warning('error querying proposals', exc=1)
             return False
 
     def queryProposals(self, proposal=None):
@@ -139,30 +139,30 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
             sessions = self.getTodaysSessions()
         except Exception:
             if not self.isLocalContact():
-                session.log.warning(
+                self.log.warning(
                     "error querying today's sessions from GhOST", exc=1)
                 return []
         if proposal is not None:
             sessions = [ses for ses in sessions
                         if ses['proposal_number'] == proposal]
         if not sessions and proposal and self.isLocalcontact():
-            session.log.debug('querying all exps for proposal %r', proposal)
+            self.log.debug('querying all exps for proposal %r', proposal)
             try:
                 sessions = self.getExperimentsForProposal(proposal)
             except Exception:
-                session.log.warning('error querying sessions for proposal '
-                                    'from GhOST', exc=1)
+                self.log.warning(
+                    'error querying sessions for proposal from GhOST', exc=1)
                 return []
         for ses in sessions:
-            session.log.debug('candidate session: %r', ses)
+            self.log.debug('candidate session: %r', ses)
             if ses['number'] is None:
                 # experiment is not scheduled/permitted
                 continue
             try:
                 res = self.queryExperiment(ses['number'])
             except Exception:
-                session.log.warning('error querying session %s', ses['number'],
-                                    exc=1)
+                self.log.warning(
+                    'error querying session %s', ses['number'], exc=1)
             else:
                 result.append(res)
 
@@ -174,8 +174,8 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         """
         sessinfo = self.getExperiment(sessid, details=True)
         samples = self.getSessionSamples(sessid)
-        session.log.debug('session data: %r', sessinfo)
-        session.log.debug('sample data: %r', samples)
+        self.log.debug('session data: %r', sessinfo)
+        self.log.debug('sample data: %r', samples)
 
         info = {
             'proposal': sessinfo['proposal'],
