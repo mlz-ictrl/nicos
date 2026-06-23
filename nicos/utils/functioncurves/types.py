@@ -21,14 +21,16 @@
 #
 # *****************************************************************************
 
+from math import nan
+
 
 class FloatWithStdError(float):
     """Class to replace AffineScalarFunc when uncertainties module is not
     available only to handle nominal value `.n` and standard error `.s` calls.
     """
 
-    def __new__(cls, nominal_value, std_error=0):
-        obj = super().__new__(cls, nominal_value)
+    def __new__(cls, nominal_value, std_error=nan):
+        obj = super().__new__(cls, nominal_value)  # type: ignore[arg-type]
         obj._s = std_error
         return obj
 

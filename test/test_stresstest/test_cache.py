@@ -217,10 +217,10 @@ def test_history_value_for_empty_interval(session, setup):
     n = 49
     for i in range(n):
         cc.put('test_value', 'value', i, time0 - (n - i) * 0.01)
-    sleep(2)
+    sleep(0.1)
     cc.put('test_value', 'value', 42, time())
-    sleep(1)
-    history = cc.history('test_value', 'value', time0 + 1, time0 + 2)
+    sleep(0.1)
+    history = cc.history('test_value', 'value', time0, time0 + 0.1)
     killSubprocess(cache)
     assert len(history) == 1
     assert history[0][1] == n - 1

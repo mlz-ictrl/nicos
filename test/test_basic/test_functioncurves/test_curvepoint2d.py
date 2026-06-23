@@ -25,6 +25,7 @@
 Tests for the functioncurve CurvePoint2D class
 """
 
+import math
 import pickle
 
 from nicos.utils.functioncurves import CurvePoint2D, ufloat
@@ -35,9 +36,9 @@ def test_init():
     p1 = CurvePoint2D(x, y)
     p2 = CurvePoint2D(ufloat(x, dx), ufloat(y, dy))
     assert p1.x.n == x
-    assert p1.x.s == 0
+    assert math.isnan(p1.x.s)
     assert p1.y.n == y
-    assert p1.y.s == 0
+    assert math.isnan(p1.y.s)
     assert p2.x.n == x
     assert p2.x.s == dx
     assert p2.y.n == y

@@ -25,7 +25,7 @@ import ast
 import asyncio
 import csv
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from influxdb_client import BucketRetentionRules, InfluxDBClient, Point
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
@@ -51,6 +51,7 @@ class InfluxDB2Wrapper:
         self._org = org
         self._bucket = bucket
         self._bucket_latest = bucket_latest
+        self._retentions = {}  # maps bucket names to their retention time
         self._client = InfluxDBClient(url=self._url, token=self._token,
                                       org=self._org, timeout=30_000)
         self._write_api = self._client.write_api(write_options=write_option)
@@ -65,6 +66,7 @@ class InfluxDB2Wrapper:
         buckets = self._client.buckets_api().find_buckets().buckets
         for bucket in buckets:
             bucket_names.append(bucket.name)
+            self._retentions[bucket.name] = bucket.retention_rules[0].every_seconds
         return bucket_names
 
     def addNewBucket(self, bucket_name):
@@ -142,10 +144,9 @@ class InfluxDB2Wrapper:
         module is installed.
         """
 
-        self._update()
         result = []
         # query bucket with the latest values if exists and check if is complete
-        last_ts, n_records = 0, 0
+        last_dt, n_records = datetime.min.replace(tzinfo=timezone.utc), 0
         if self._bucket_latest in self.getBucketNames():
             msg = f"""from(bucket:"{self._bucket_latest}")
                 |> range(start: 2007-01-01T00:00:00Z, stop: now())
@@ -155,16 +156,15 @@ class InfluxDB2Wrapper:
                     if record['_measurement'] == 'signing':
                         n_records = record['_value']
                         continue
-                    last_ts = max(last_ts, record['_time'].timestamp())
+                    last_dt = max(last_dt, record['_time'])
                     result.append(record)
         if n_records != len(result):
             result = []
 
         # query the cache bucket for any newer values
-        if last_ts and result:
-            t1 = datetime.utcfromtimestamp(last_ts).strftime('%Y-%m-%dT%H:%M:%SZ')
+        if last_dt and result:
             msg = f"""from(bucket:"{self._bucket}")
-                |> range(start: {t1}, stop: now())
+                |> range(start: {last_dt.isoformat()}, stop: now())
                 |> last(column: "_time")
                 |> drop(columns: ["_start", "_stop"])"""
             for table in self._client.query_api().query(msg):
@@ -181,9 +181,9 @@ class InfluxDB2Wrapper:
 
     def queryLastValue(self, measurement, field, totime):
         self._update()
-        t = datetime.utcfromtimestamp(totime).strftime('%Y-%m-%dT%H:%M:%SZ')
+        t = int(totime * 1e9)
         msg = f"""from(bucket:"{self._bucket}")
-                |> range(start: 2007-01-01T00:00:00Z, stop: {t})
+                |> range(start: 2007-01-01T00:00:00Z, stop: time(v: {t}))
                 |> filter(fn:(r) => r._measurement == "{measurement}")
                 |> filter(fn:(r) => r._field == "{field}")
                 |> last(column: "_time")
@@ -194,10 +194,10 @@ class InfluxDB2Wrapper:
         """Queries history from InfluxDB2.
         """
         self._update()
-        t1 = datetime.utcfromtimestamp(fromtime).strftime('%Y-%m-%dT%H:%M:%SZ')
-        t2 = datetime.utcfromtimestamp(totime).strftime('%Y-%m-%dT%H:%M:%SZ')
+        t1 = int(fromtime * 1e9)
+        t2 = int(totime * 1e9)
         msg = f"""from(bucket:"{self._bucket}")
-                |> range(start: {t1}, stop: {t2})
+                |> range(start: time(v: {t1}), stop: time(v: {t2}))
                 |> filter(fn:(r) => r._measurement == "{measurement}")
                 |> filter(fn:(r) => r._field == "{field}")
                 {f'|> aggregateWindow(every: {interval}s, fn: last, createEmpty: false)' if interval else ''}
@@ -234,7 +234,7 @@ class InfluxDB2Wrapper:
             for field, entry in db.items():
                 points.append(
                     Point(measurement)
-                    .time(datetime.utcfromtimestamp(entry.time))
+                    .time(datetime.fromtimestamp(entry.time, tz=timezone.utc))
                     .field(field, entry.value)
                     .tag('expired', entry.expired)
                 )
@@ -243,9 +243,13 @@ class InfluxDB2Wrapper:
         self._write(self._bucket_latest, points)
         # signing
         self._write(self._bucket_latest, Point('signing')
-                    .time(datetime.utcnow()).field('N_records', len(points)))
+                    .time(datetime.now(tz=timezone.utc)).field('N_records', len(points)))
 
     def _write(self, bucket, points):
+        if (r := self._retentions.get(bucket, 0)) != 0:  # if retention is not infinite
+            cutoff = (datetime.now(tz=timezone.utc)
+                      - timedelta(seconds=r - min(max(int(r * 0.01), 5), 60)))
+            points = [p for p in points if p._time > cutoff]
         self._write_api.write(bucket=bucket, record=points)
 
     def _convert_to_float(self, value):
@@ -298,7 +302,7 @@ class InfluxDB2CacheDatabase(CacheDatabase):
             type=str, default='nicos-cache', mandatory=False
         ),
         'bucket_latest': Param(
-            'Name of the bucket where data should be stored',
+            'Name of the bucket where the latest values should be stored.',
             type=str, default='nicos-cache-latest-values', mandatory=False
         ),
         'unbuffered': Param(
@@ -314,7 +318,7 @@ class InfluxDB2CacheDatabase(CacheDatabase):
         token = self.apitoken.lookup('InfluxDB2 API token missing in keyring')
         self._client = InfluxDB2Wrapper(self.url, token, self.org, self.bucket,
                                        self.bucket_latest, self.unbuffered)
-        self._time = datetime.now().timestamp()
+        self._time = datetime.now(tz=timezone.utc).timestamp()
 
     def initDatabase(self):
         records = self._client.init_query()
@@ -377,7 +381,7 @@ class InfluxDB2CacheDatabase(CacheDatabase):
                 if update:
                     db[subkey] = entry
                     if not no_store:
-                        time = datetime.utcfromtimestamp(entry.time)
+                        time = datetime.fromtimestamp(entry.time, tz=timezone.utc)
                         self._client.update(cat, time, subkey, entry.value,
                                             entry.expired)
         return real_update

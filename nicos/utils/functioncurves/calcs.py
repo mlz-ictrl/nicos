@@ -21,8 +21,9 @@
 #
 # *****************************************************************************
 
+import math
+
 import numpy
-from scipy.odr import ODR, Data, Model
 from scipy.optimize import curve_fit
 
 from .imports import AffineScalarFunc, ufloat
@@ -45,7 +46,7 @@ def mean(x, dx=None):
         mn = x[0]
         er = dx[0] if dx.any() else 0
     if n > 1:
-        if dx.any() and 0 not in dx:
+        if dx.any() and not numpy.any(numpy.isnan(dx)):
             mn = numpy.sum(x / dx ** 2) / numpy.sum(1 / dx ** 2)
             er = (1 / numpy.sum(1 / dx ** 2)) ** 0.5
         else:
@@ -85,17 +86,34 @@ def _lsm_dy(x, y, dy):
 
 
 def _lsm_dx_dy(x, y, dx, dy):
-    def linear_model(p, x):
-        k, b = p
-        return k * x + b
-
-    model = Model(linear_model)
-    data = Data(x, y, wd=1.0 / dx ** 2, we=1.0 / dy ** 2)
-    odr = ODR(data, model, beta0=[1.0, 0.0])
-    odr_result = odr.run()
-    k, b = odr_result.beta
-    SE_k, SE_b = odr_result.sd_beta
-    return ufloat(k, SE_k), ufloat(b, SE_b)
+    """Weighted total least-squares via York et al., Am. J. Phys. 72 (2004) 367.
+    """
+    if numpy.any(dx <= 0) or numpy.any(dy <= 0):
+        raise ValueError("All uncertainties must be positive")
+    wx = 1.0 / dx ** 2
+    wy = 1.0 / dy ** 2
+    k = numpy.polyfit(x, y, 1)[0]
+    w = numpy.zeros_like(x)
+    beta = numpy.zeros_like(x)
+    x_bar = y_bar = 0.0
+    for _ in range(200):
+        w = wx * wy / (k ** 2 * wy + wx)
+        x_bar = numpy.sum(w * x) / numpy.sum(w)
+        y_bar = numpy.sum(w * y) / numpy.sum(w)
+        ui = x - x_bar
+        vi = y - y_bar
+        beta = w * (ui / wy + k * vi / wx)
+        k_new = numpy.sum(w * beta * vi) / numpy.sum(w * beta * ui)
+        if numpy.abs(k_new - k) < 1e-15 * numpy.abs(k_new):
+            k = k_new
+            break
+        k = k_new
+    b = y_bar - k * x_bar
+    x_adj_bar = numpy.sum(w * (x_bar + beta)) / numpy.sum(w)
+    u = (x_bar + beta) - x_adj_bar
+    se_k = numpy.sqrt(1.0 / numpy.sum(w * u ** 2))
+    se_b = numpy.sqrt(1.0 / numpy.sum(w) + x_adj_bar ** 2 * se_k ** 2)
+    return ufloat(k, se_k), ufloat(b, se_b)
 
 
 def lsm(x, y, dx=None, dy=None):
@@ -114,15 +132,15 @@ def lsm(x, y, dx=None, dy=None):
     dy = numpy.array(dy)
 
     if len(x) == 1:
-        return ufloat(0, 0), ufloat(y, dy if dy.any() else 0)
+        return ufloat(0, 0), ufloat(y, dy if dy.any() else math.nan)
     if len(x) == 2:
-        dx0, dx1 = (dx[0], dx[1]) if dx.any() else (0, 0)
-        dy0, dy1 = (dy[0], dy[1]) if dy.any() else (0, 0)
+        dx0, dx1 = (dx[0], dx[1]) if dx.any() else (math.nan, math.nan)
+        dy0, dy1 = (dy[0], dy[1]) if dy.any() else (math.nan, math.nan)
         x0, x1, y0, y1 = x[0], x[1], y[0], y[1]
         k = (ufloat(y1, dy1) - ufloat(y0, dy0)) / (ufloat(x1, dx1) - ufloat(x0, dx0))
         return k, y1 - k * x1
-    if not dx.any() and not dy.any():
+    if all([math.isnan(dx[0]), math.isnan(dy[0])]):
         return _lsm(x, y)
-    elif not dx.any():
+    elif math.isnan(dx[0]):
         return _lsm_dy(x, y, dy)
     return _lsm_dx_dy(x, y, dx, dy)

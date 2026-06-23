@@ -22,9 +22,11 @@
 # *****************************************************************************
 
 
+import math
+
 from .imports import AffineScalarFunc, ufloat
 
-_compatible_types = (int, float, AffineScalarFunc)
+_compatible_types = (int, float)
 
 
 class CurvePoint2D(tuple):
@@ -35,10 +37,10 @@ class CurvePoint2D(tuple):
 
     def __new__(cls, x, y):
         if not isinstance(x, AffineScalarFunc):
-            x = ufloat(x, 0)
+            x = ufloat(x, math.nan)
         if not isinstance(y, AffineScalarFunc):
-            y = ufloat(y, 0)
-        return super(CurvePoint2D, cls).__new__(cls, (x, y))
+            y = ufloat(y, math.nan)
+        return super().__new__(cls, (x, y))  # type: ignore[arg-type]
 
     def __getnewargs__(self):
         # Otherwise doesn't unpickle properly

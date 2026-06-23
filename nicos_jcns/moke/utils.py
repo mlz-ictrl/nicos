@@ -44,8 +44,12 @@ def fit_curve(curve, fittype):
     if fittype not in fittypes:
         return None
     m = Curves.from_series(curve).mean().yvx(0)
-    curve_max = Curve2D([p for p in curve if p.y.n - p.y.s > m.y.n + m.y.s])
-    curve_min = Curve2D([p for p in curve if p.y.n + p.y.s < m.y.n - m.y.s])
+    curve_max = \
+        Curve2D([p for p in curve
+                 if numpy.nansum([p.y.n, -p.y.s]) > numpy.nansum([m.y.n, m.y.s])])
+    curve_min = \
+        Curve2D([p for p in curve
+                 if numpy.nansum([p.y.n, p.y.s]) < numpy.nansum([m.y.n, -m.y.s])])
     c = curve_min if fittype == 'min' else curve_max
     e = mean(c.y)
     _filter = (lambda y: y < e) if fittype == 'min' else (lambda y: y > e)
