@@ -1,6 +1,48 @@
 Changelog
 =========
 
+
+Release 3.13.2
+--------------
+
+* Core:
+
+  - Allow syntax for 'dev/key[0]' in key definition
+
+  - Improve synchronisation with cache in "Dry-Run"
+
+* GUI:
+
+  - Increase selectivity in "More" section of device commands
+
+  - No target display for nonmovables
+
+* DOC:
+
+  - Add missing parameter types, widgets, exceptions, facility specific classes,
+    overview of class types, introduction to the user doc, chapter about,
+    stopping / aborting devices and scripts, and remarks to to sample handling
+
+* Devices
+
+  - EPICS: poll 'precision' parameters, add velocity/jog mode support to Motor,
+    add status detection for 'homed' to Motor, fix reference, fix time-outs,
+    add 'epics_get' and 'epics_put' tool methods, Unpacks values returned from
+    Caproto into normal python types
+
+* Tests
+
+  - Improve EPICS motor tests
+
+  - Extend NeXus tests
+
+* Nexus
+
+  - Fixes automatic 'units' detection, exception in case no file has been opened
+
+* Installer
+
+
 Release 3.13.0
 --------------
 

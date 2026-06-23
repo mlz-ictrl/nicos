@@ -190,7 +190,6 @@ devices = dict(
     ),
     a3 = device('nicos.core.device.DeviceAlias',
         description = 'Alias sample rotation',
-        alias = 'som',
     ),
     a4 = device('nicos_sinq.camea.devices.a4motor.CameaA4Motor',
         description = 'Real A4 with special offset',
@@ -243,4 +242,5 @@ devices = dict(
 alias_config = {
     'sgl': {'gl_sim': 100},
     'sgu': {'gu_sim': 100},
+    'a3': {'som': 100},
 }
