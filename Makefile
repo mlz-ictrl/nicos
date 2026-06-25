@@ -95,6 +95,12 @@ release:
 	cd doc; rm -rf build/html; ${MAKE} html
 	$(PYTHON) setup.py sdist
 
+codespell:
+	codespell .
+
+fixups:
+	sg scan -c tools/fixups/config
+
 help:
 	@echo "Important targets:"
 	@echo "  install         - install to $(DESTDIR)$(PREFIX)"
