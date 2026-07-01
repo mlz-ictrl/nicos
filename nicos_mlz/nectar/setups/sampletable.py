@@ -1,0 +1,55 @@
+description = 'Sample manipulation stage'
+
+group = 'optional'
+
+excludes = ['servostar']
+
+tango_base = 'tango://phytron02.nectar.frm2.tum.de:10000/box/'
+
+devices = dict(
+    stx = device('nicos.devices.generic.Axis',
+        description = 'Sample Translation X',
+        motor = device('nicos.devices.entangle.Motor',
+            tangodevice = tango_base + 'stx/mot',
+            comtries = 5,
+        ),
+        coder = device('nicos.devices.entangle.Sensor',
+            tangodevice = tango_base + 'stx/enc',
+            comtries = 5,
+        ),
+        pollinterval = 5,
+        maxage = 12,
+        # userlimits = (0, 1010),
+        precision = 0.1,
+    ),
+    sty = device('nicos.devices.generic.Axis',
+        description = 'Sample Translation Y',
+        motor = device('nicos.devices.entangle.Motor',
+            tangodevice = tango_base + 'sty/mot',
+            comtries = 5,
+        ),
+        coder = device('nicos.devices.entangle.Sensor',
+            tangodevice = tango_base + 'sty/enc',
+            comtries = 5,
+        ),
+        pollinterval = 5,
+        maxage = 12,
+        # userlimits = (0, 580),
+        precision = 0.1,
+    ),
+    sry = device('nicos.devices.generic.Axis',
+        description = 'Sample Rotation around Y',
+        motor = device('nicos.devices.entangle.Motor',
+            tangodevice = tango_base + 'sry/mot',
+            comtries = 5,
+        ),
+        coder = device('nicos.devices.entangle.Sensor',
+            tangodevice = tango_base + 'sry/enc',
+            comtries = 5,
+        ),
+        pollinterval = 5,
+        maxage = 12,
+        # userlimits = (0, 360),
+        precision = 0.1,
+    ),
+)
