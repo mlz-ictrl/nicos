@@ -28,6 +28,8 @@ main_window = docked(
                'lv5': ['temperature'],
                'lv6': ['temperature'],
                'lv7': ['temperature'],
+               'hv0': ['current'],
+               'hv1': ['current'],
            },
            ),
     ),
