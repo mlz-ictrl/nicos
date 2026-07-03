@@ -234,6 +234,7 @@ class TestSinks:
                 'entry/sample/rotation_angle',
                 'entry/sample/sgl',
                 'entry/sample/sgu',
+                'entry/sample/space_group',
                 'entry/sample/unit_cell',
                 'entry/start_time',
                 'entry/tim1',

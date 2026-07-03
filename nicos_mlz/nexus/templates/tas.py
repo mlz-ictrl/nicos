@@ -134,6 +134,7 @@ class TasTemplateProvider(MLZTemplateProvider):
             'en': ScanDeviceDataset('E', axis=axis1),
             'sgx': NXLink('sgu'),
             'sgy': NXLink('sgl'),
+            'space_group': DeviceDataset('Sample', 'spacegroup'),
         })
         MLZTemplateProvider.updateSample(self)
 
