@@ -28,7 +28,8 @@ from pathlib import Path
 
 import pytest
 
-from nicos.commands.measure import SetDetectors, count
+from nicos.commands.measure import AddEnvironment, SetDetectors, \
+    SetEnvironment, count
 from nicos.utils import readFileCounter
 
 from test.nexus.utils import nxs_ds_as_str
@@ -52,12 +53,16 @@ class TestTemplates:
 
         SetDetectors('det')
 
-        count(0.1)
+        yield
+
+        SetEnvironment()
 
     def test_mlz_template(self, session):
+        count(0.1)
+
         exp = session.experiment
-        counter = Path(exp.dataroot) / exp.counterfile
-        point = readFileCounter(counter, 'point')
+
+        point = readFileCounter(Path(exp.dataroot) / exp.counterfile, 'point')
         datapath = Path(exp.datapath) / f'{point:07d}'
         assert datapath.with_suffix('.nxs').is_file()
 
@@ -118,3 +123,46 @@ class TestTemplates:
             assert h5['entry/data/data'][0] == 0
             assert h5['entry/data/data'].attrs['units'] == b'counts'
             assert h5['entry/data/data'].attrs['signal'] == 1
+
+    def test_mlz_template_environment(self, session):
+        T = session.getDevice('T')
+        Ts = session.getDevice('Ts')
+        AddEnvironment(T, Ts)
+
+        count(0.1)
+
+        SetEnvironment()
+
+        exp = session.experiment
+        point = readFileCounter(Path(exp.dataroot) / exp.counterfile, 'point')
+        datapath = Path(exp.datapath) / f'{point:07d}'
+        assert datapath.with_suffix('.nxs').is_file()
+
+        with h5py.File(datapath.with_suffix('.nxs')) as h5:
+            nxs_keys = set()
+            h5.visit(nxs_keys.add)
+
+            assert {
+                'entry/sample/temperature_env',
+                'entry/sample/temperature_env/Ts',
+                'entry/sample/temperature_env/Ts/value_log',
+                'entry/sample/temperature_env/Ts/value_log/average_value',
+                'entry/sample/temperature_env/Ts/value_log/average_value_errors',
+                'entry/sample/temperature_env/Ts/value_log/maximum_value',
+                'entry/sample/temperature_env/Ts/value_log/minimum_value',
+                'entry/sample/temperature_env/Ts/value_log/time',
+                'entry/sample/temperature_env/Ts/value_log/value',
+                'entry/sample/temperature_env/T',
+                'entry/sample/temperature_env/T/value_log',
+                'entry/sample/temperature_env/T/value_log/average_value_errors',
+                'entry/sample/temperature_env/T/value_log/average_value',
+                'entry/sample/temperature_env/T/value_log/maximum_value',
+                'entry/sample/temperature_env/T/value_log/minimum_value',
+                'entry/sample/temperature_env/T/value_log/time',
+                'entry/sample/temperature_env/T/value_log/value',
+            } <= nxs_keys
+
+            assert len(h5['entry/sample/temperature_env/T/value_log/time'])
+            assert h5['entry/sample/temperature_env/T/value_log/time'].attrs['units'] == 's'
+            assert len(h5['entry/sample/temperature_env/T/value_log/value'])
+            assert h5['entry/sample/temperature_env/T/value_log/value'].attrs['units'] == 'K'

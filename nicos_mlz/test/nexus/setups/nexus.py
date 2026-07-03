@@ -1,5 +1,5 @@
 
-includes = ['detector', 'reactor',]
+includes = ['detector', 'reactor', 'cryo']
 
 sysconfig = dict(
     datasinks = ['nxsink', ],

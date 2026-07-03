@@ -88,7 +88,7 @@ class SampleEnv(NexusElementBase):
         self._last_update = {}
         self._devices = devices or []
 
-    def createNXlog(self, h5parent, devname, value):
+    def createNXlog(self, h5parent, devname, value, unit):
         sensorname = devname
         sensorgroup = h5parent.create_group(sensorname)
         sensorgroup.attrs['NX_class'] = np.bytes_('NXsensor')
@@ -96,11 +96,14 @@ class SampleEnv(NexusElementBase):
         loggroup.attrs['NX_class'] = np.bytes_('NXlog')
         dset = loggroup.create_dataset('time', (1,), maxshape=(None,),
                                        dtype='float32')
-        dset[0] = .0
         dset.attrs['start'] = datetime.fromtimestamp(self.starttime).isoformat(
             sep=' ', timespec='milliseconds')
+        dset.attrs['units'] = 's'
+        dset[0] = .0
+
         dset = loggroup.create_dataset('value', (1,), maxshape=(None,),
                                        dtype='float32')
+        dset.attrs['units'] = unit
         dset[0] = value
 
         self._last_update[sensorname] = time.time()
@@ -108,6 +111,7 @@ class SampleEnv(NexusElementBase):
         for name in self.statistics_entries:
             dset = loggroup.create_dataset(name, (1,), maxshape=(None,),
                                            dtype='float')
+            dset.attrs['units'] = unit
             dset[0] = 0
 
     def create(self, name, h5parent, sinkhandler):
@@ -119,7 +123,9 @@ class SampleEnv(NexusElementBase):
             # There can be DeviceStatistics in the environment.
             # We do not know how to write those
             if isinstance(dev, Readable):
-                self.createNXlog(h5parent, dev.name, value)
+                dinfo = sinkhandler.dataset.metainfo.get((dev.name, 'value'))
+                self.createNXlog(
+                    h5parent, dev.name, value, dinfo.unit if dinfo else '')
 
     def updatelog(self, h5parent, dataset):
         current_time = time.time()
