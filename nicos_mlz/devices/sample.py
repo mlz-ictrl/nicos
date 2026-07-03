@@ -37,6 +37,8 @@ class HasSampleId(DeviceMixinBase):
         'sampleid': Param('Sample ID from the sample tracker',
                           type=none_or(int), settable=True,
                           category='sample'),
+        'formula': Param('Chemical formula',
+                         type=str, settable=True, category='sample'),
     }
 
     def clear(self):

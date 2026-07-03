@@ -146,6 +146,10 @@ class MLZTemplateProvider(NexusTemplateProvider):
 
         Sample section is available via ``self._sample``
         """
+        self._sample.update({
+            'chemical_formula': DeviceDataset('Sample', 'formula',
+                                              dtype='string'),
+        })
         if self._checkEnvironmentList(self.temp_env):
             self._sample.update({
                 'temperature_env:NXenvironment': {
