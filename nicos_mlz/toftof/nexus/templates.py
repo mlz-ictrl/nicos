@@ -133,7 +133,7 @@ class TofTofTemplate(MLZTemplateProvider):
             'tof_monitor_input': DeviceDataset('det', 'monitorchannel'),
             'hv_power_supplies:NXcollection': {
                 f'hv{i}': DeviceDataset(f'hv{i}', dtype='float32')
-                for i in range(3)
+                for i in range(2)  # there are only 2 HV powersupplies in use
             },
             'lv_power_supplies:NXcollection': {
                 f'lv{i}': DeviceDataset(f'lv{i}', dtype='string')
