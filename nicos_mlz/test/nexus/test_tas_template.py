@@ -92,6 +92,7 @@ class TestTemplates:
                 'entry/mon1/mode',
                 'entry/mon1/preset',
                 'entry/mon1/type',
+                'entry/sample/orientation_matrix',
                 'entry/sample/sgl',
                 'entry/sample/sgu',
                 'entry/sample/space_group',
@@ -104,3 +105,9 @@ class TestTemplates:
             assert h5['entry/sample/space_group'][0] == 1
             assert np.array(h5['entry/sample/unit_cell']).tolist() == [
                 5, 4, 4, 90.0, 90.0, 90.0]
+            assert np.array(h5['entry/sample/orientation_matrix']).shape == (3, 3)
+            assert np.array(h5['entry/sample/orientation_matrix']).tolist() == [
+                [1.2566370614359172, 0.0, 0.0],
+                [0.0, 1.5707963267948966, 0.0],
+                [0.0, 0.0, 1.5707963267948966],
+            ]

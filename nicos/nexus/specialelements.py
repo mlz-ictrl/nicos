@@ -82,14 +82,14 @@ class UBMatrix(NexusElementBase):
     def create(self, name, h5parent, sinkhandler):
         sample = session.experiment.sample
         if isinstance(sample, Cell):
-            data = sample.matrix_crystal2lab().flatten()
+            data = sample.matrix_crystal2lab()
         elif isinstance(sample, SXTalSample):
-            data = numpy.array(sample.ubmatrix, dtype='float64').flatten()
+            data = numpy.array(sample.ubmatrix, dtype='float64')
         else:
             session.log.error('Your sample is no Cell and no SXTalSample')
             return
         self.attrs['units'] = NXAttribute('', 'string')
-        ds = h5parent.create_dataset(name, (9,), maxshape=(None,),
+        ds = h5parent.create_dataset(name, (3, 3), maxshape=(None, None),
                                      dtype='float64')
         ds[...] = data
         self.createAttributes(ds, sinkhandler)
