@@ -258,7 +258,7 @@ class Detector(GenericDetector):
                 )
 
         inds = np.array(theta).argsort()
-        self._detectormap = np.array(dmap)[inds].tolist()
+        self._detectormap = (np.array(dmap)[inds] - 1).tolist()
         self._detinfolength = len(dinfo)
         self._detinfo_parsed = dinfo
         self.log.debug('%s', self._detinfo_parsed)
