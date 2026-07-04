@@ -27,7 +27,7 @@ import yaml
 
 from nicos import session
 from nicos.utils import printTable
-from nicos.core.device import Param
+from nicos.core.device import DeviceMetaInfo, DeviceParInfo, Param
 from nicos.core.params import anytype, dictof
 from nicos.devices.sample import Sample
 
@@ -38,25 +38,26 @@ def to_mutable(obj):
         return obj.__class__(to_mutable(v) for v in obj)
     return obj
 
+def to_yaml(obj):
+    return yaml.dump(to_mutable(obj), sort_keys=False, default_flow_style=False).rstrip()
+
 class AmorSample(Sample):
-    """AMOR sample with the additional parameters `model` and `geometry`
+    """AMOR sample with the additional parameters `orsomodel` and `geometry`
 
-    The `model` can be
+    Conceptually, an orso (open reflectometry standards organisation) model is
+    the description of a sample consisting of one or more layers of materials
+    with a specified thickness. See <https://www.reflectometry.org/> for more.
 
-    - a one-line description of the sample's layer stack
-      e.g. `air | 5 ( Ni 4 | Ti 5 ) | Al2O3`
-    - a multiline, yaml formatted sample description according to the orso model
-      description language.
-
-    A yaml file can be loaded from the `scriptpath` via `Sample.model('<name.yml>')`
-
-    The `geometry` is a dictionary of the form
+    This sample class contains parameters for describing both the `orsomodel` as
+    well as the general `geometry` of an example. The former can be conveniently
+    populated from different input formats via the `model` method, see its
+    docstring for more. The `geometry` is a dictionary of the form
       geometry = {
-          "shape": oneof("rectangle", "disc", "wedge", "strange", None),
+          "shape": oneof("rectangle", "disc", "wedge", "potato", None),
           "radius": None,
           "size": (None, None)
           }
-    with unit = mm.
+    with unit = mm and "size" being the (x, y)-extents tuple.
     """
     parameters = {
         'orsomodel': Param('multi-line sample description following ORSO standard',
@@ -66,19 +67,29 @@ class AmorSample(Sample):
         'stack': Param('Stack line of the orsomodel',
                        type=str, volatile=True
                        ),
+        # Must not be categorized as 'sample' to avoid being included twice by the info method.
         'orsomodel_yaml': Param('YAML representation of the orsomodel parameter',
                                 volatile=True, settable=False, type=str,
-                                category='sample'
                                 ),
         'geometry': Param('Dictionary describing the sample shape and size',
                            type=dictof(str, anytype), settable=True,
                            userparam=True, category='sample', default=dict(),
                            ),
+        # Must not be categorized as 'sample' to avoid being included twice by the info method.
         'geometry_yaml': Param('YAML representation of the geometry parameter',
                                volatile=True, settable=False, type=str,
-                               category='sample'
                                ),
         }
+
+    def doInfo(self):
+        ret = []
+
+        o = self.orsomodel_yaml
+        ret.append(DeviceMetaInfo('orsomodel_yaml', DeviceParInfo(o, o, '', 'sample')))
+
+        g = self.geometry_yaml
+        ret.append(DeviceMetaInfo('geometry_yaml', DeviceParInfo(g, g, '', 'sample')))
+        return ret
 
     def clear(self):
         Sample.clear(self)
@@ -93,10 +104,32 @@ class AmorSample(Sample):
         return self.orsomodel.get('stack','')
 
     def doReadOrsomodel_Yaml(self):
-        return yaml.dump(to_mutable(self.orsomodel), sort_keys=False,
-                         default_flow_style=False).rstrip()
+        return to_yaml(self.orsomodel)
+
+    def doReadGeometry_Yaml(self):
+        return to_yaml(self.geometry)
 
     def model(self, mdl=None):
+        """
+        Print the current `orsomodel` or replace it from a supported input.
+
+        Parameters
+        ----------
+        mdl : str or None, optional
+            Source of the model description.
+
+            - If `None` (default), the current `self.orsomodel` is printed as a
+            YAML-formatted string.
+            - If `mdl` is a string containing at least one `"|"` character, it
+            is interpreted as a single-line orso model description (for example,
+            ``air | 5 ( Ni 4 | Ti 5 ) | Al2O3``). The string is parsed and the
+            resulting model is assigned to `self.orsomodel`.
+            - Otherwise, `mdl` is interpreted as the relative path to a YAML
+            file rooted at `Exp.scriptpath`. The file must contain an orso model
+            description, which is parsed and assigned to `self.orsomodel`. See
+            <https://www.reflectometry.org/advanced_and_expert_level/file_format/simple_model>
+            for some examples of valid orso models.
+        """
         if mdl is None:
             if self.stack == '':
                 self.log.info('there is no model defined')
@@ -116,7 +149,3 @@ class AmorSample(Sample):
         max_line_len = max(len(line[0]) for line in lines)
         prefixed_spaces = (max_line_len - len(header)) // 2
         printTable([' ' * prefixed_spaces +'orso sample model',], lines, self.log.info)
-
-    def doReadGeometry_Yaml(self):
-        return yaml.dump(to_mutable(self.geometry), sort_keys=False,
-                         default_flow_style=False).rstrip()

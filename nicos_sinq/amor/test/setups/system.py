@@ -3,13 +3,13 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_sinq.amor.devices.sample.AmorSample',
         description = 'The currently used sample',
     ),
-    Exp = device('nicos.devices.experiment.Experiment',
-        description = 'experiment object',
-        dataroot = 'data',
-        sendmail = True,
-        sample = 'Sample',
+    Exp = device('nicos_sinq.amor.devices.experiment.AmorExperiment',
+                 description = 'experiment object',
+                 dataroot = 'dummy',
+                 scriptroot = '/dummy',
+                 sample = 'Sample',
     ),
 )
