@@ -22,7 +22,7 @@ devices = dict(
     ),
     sc_t = device('nicos.devices.generic.MultiSwitcher',
         description = 'Sample Changer 2 Huber device',
-        moveables = ['sc_t_y', 'st1_z'],
+        moveables = ['sc_t_y', 'st_z'],
         mapping = {
             11: [592.50, -3.6],
             10: [533.50, -3.0],
