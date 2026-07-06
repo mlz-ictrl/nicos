@@ -400,7 +400,7 @@ class resmat:
         # Test if scattering triangle is closed
 
         cos_2theta = (ki**2 + kf**2 - q0**2) / (2 * ki * kf)
-        # print cos_2theta
+        # print(cos_2theta)
         if (cos_2theta > 1 or cos_2theta < -1):
             self.ERROR = 'scattering triangle not closed'
             return
@@ -781,13 +781,13 @@ Resolution Info:
 
     def calcSigma(self):
         # calculates sigmas in system h,k,l (r.l.u) en (meV)
-        # print self.M
+        # print(self.M)
         [E, V] = eig(self.M)
 
-        # print 'Eigenvalues'
-        # print E
-        # print 'eigenvecs'
-        # print V
+        # print('Eigenvalues')
+        # print(E)
+        # print('eigenvecs')
+        # print(V)
 
         E = matrix(real(diag(E)))
         sigma = zeros((1, 4))[0]
@@ -797,8 +797,8 @@ Resolution Info:
         sigma[3] = real(1. / sqrt(E[3, 3]))
         self.b_mat = reshape(inv(V.transpose().transpose()), (1, 16))
         # self.b_mat=reshape(inv((V.transpose())),(1,16))
-        # print 'b_mat'
-        # print self.b_mat
+        # print('b_mat')
+        # print(self.b_mat)
         return sigma
 
     def calcResEllipsoid(self, h, k, l, en):
@@ -902,7 +902,7 @@ Resolution Info:
         # the xy-plane)
         R0 = self.R0
         _R0P, MP = GaussInt(2, R0, B)
-        # print R0P, MP
+        # print(R0P, MP)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
         xy_x, xy_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 

@@ -106,7 +106,7 @@ def _register(cls):
             widget_class = cls
         Plugin.__name__ = cls.__name__ + 'Plugin'
         globals()[Plugin.__name__] = Plugin
-        # print 'Registered', Plugin.__name__
+        # print('Registered', Plugin.__name__)
     for subcls in cls.__subclasses__():
         _register(subcls)
 
