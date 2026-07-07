@@ -80,7 +80,7 @@ class ExpInfoPanel(Panel):
             lambda value, strvalue: ', '.join(sorted(value)))
 
         self._sample_panel = options.get('sample_panel', GenericSamplePanel)
-        self._new_exp_panel = options.get('new_exp_panel')
+        self._new_exp_panel = options.get('new_exp_panel', ExpPanel)
         self._finish_exp_panel = options.get('finish_exp_panel')
         self._timeout = options.get('popup_proposal_after', 0)
         if self._timeout:
@@ -134,8 +134,7 @@ class ExpInfoPanel(Panel):
 
     @pyqtSlot()
     def on_proposalBtn_clicked(self):
-        dlg = PanelDialog(self, self.client, ExpPanel, 'Proposal info',
-                          new_exp_panel=self._new_exp_panel,
+        dlg = PanelDialog(self, self.client, self._new_exp_panel, 'Proposal info',
                           finish_exp_panel=self._finish_exp_panel)
         dlg.exec()
 
