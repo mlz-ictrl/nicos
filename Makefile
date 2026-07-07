@@ -66,7 +66,7 @@ check:
 	$(PYTHON) tools/check-setups $(CHECK_DIRS)
 
 setupcheck:
-	@$(PYTHON) tools/check-setups -s $(shell find . -mindepth 3 -type d -name setups | grep -v '\/test/') $(shell find . -name guiconfig.py)
+	@$(PYTHON) tools/check-setups -s $(shell find . -mindepth 3 -type d -name setups | grep -v /test/) $(shell find . -name guiconfig.py)
 
 T =
 
