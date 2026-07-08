@@ -61,4 +61,5 @@ def get_custom_version():
 # Use legacy print behavior, two things are relevant here:
 # - keep space in front of positive numbers where the negative sign would be
 # - don't add the numpy type information, Numpy 2 default is "np.float64(0.0)"
-numpy.set_printoptions(legacy='1.13')
+np_legacy_print_option = '1.13'
+numpy.set_printoptions(legacy=np_legacy_print_option)

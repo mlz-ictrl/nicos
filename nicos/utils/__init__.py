@@ -53,7 +53,8 @@ import numpy
 
 # do **not** import nicos.session here
 # session dependent nicos utilities should be implemented in nicos.core.utils
-from nicos import config, get_custom_version, nicos_version
+from nicos import config, get_custom_version, nicos_version, \
+    np_legacy_print_option
 
 try:
     import grp
@@ -487,7 +488,13 @@ def bitDescription(bits, *descriptions):
 
 def createThread(name, target, args=(), kwargs=None, daemon=True, start=True):
     """Create, start and return a Python thread."""
-    thread = threading.Thread(target=target, name=name, args=args, kwargs=kwargs)
+    def inner(*args, **kwds):
+        # Since Numpy 2.2, printoptions are thread-local so we need to set them
+        # in every thread to the default set in nicos/__init__.py.
+        numpy.set_printoptions(legacy=np_legacy_print_option)
+        return target(*args, **kwds)
+
+    thread = threading.Thread(target=inner, name=name, args=args, kwargs=kwargs)
     thread.daemon = daemon
     if start:
         thread.start()
