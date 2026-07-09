@@ -40,6 +40,7 @@ class ScanDeviceDataset(DeviceDataset):
 
     def testAppend(self, sinkhandler):
         NexusElementBase.testAppend(self, sinkhandler)
+        self.doAppend = True
 
 
 class Reflection(NexusElementBase):
