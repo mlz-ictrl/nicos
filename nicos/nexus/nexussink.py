@@ -26,7 +26,7 @@ from h5py import File as H5File
 from h5py.version import hdf5_version
 
 from nicos import session
-from nicos.core.constants import LIVE, POINT, SCAN, INTERMEDIATE
+from nicos.core.constants import INTERMEDIATE, LIVE, POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.data.sink import DataFileBase
 from nicos.core.errors import NicosError
