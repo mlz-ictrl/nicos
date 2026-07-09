@@ -77,7 +77,7 @@ class Monochromator(HasLimits, Moveable):
 
     @lazy_property
     def devices(self):
-        return [self._adevs[i] for i in 'inout phi1 phi2 translation'.split()]
+        return [self._adevs[i] for i in ['inout', 'phi1', 'phi2', 'translation']]
 
     def _from_lambda(self, lam):
         """Return 3 values used for phi1, phi2 and translation."""
