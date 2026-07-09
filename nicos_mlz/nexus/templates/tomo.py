@@ -23,9 +23,36 @@
 
 """Nexus data template for tomography applications."""
 
-from nicos.nexus.elements import DeviceDataset, ImageDataset, NXLink
+from nicos.nexus.elements import DeviceDataset, ImageDataset, \
+    NexusElementBase, NXAttribute, NXLink
 
-from nicos_mlz.nexus import MLZTemplateProvider, axis1, signal
+from nicos_mlz.nexus import MLZTemplateProvider, axis0, axis1, axis2, signal
+
+
+class TomoImageDataset(ImageDataset):
+
+    def testAppend(self, sinkhandler):
+        self.doAppend = True
+
+
+class DetectorSize(NexusElementBase):
+
+    def __init__(self, detectorIDX, imageIDX, ax, **attrs):
+        NexusElementBase.__init__(self)
+        self.detectorIDX = detectorIDX
+        self.imageIDX = imageIDX
+        self.attrs = attrs
+        self.doAppend = False
+        self._axis = ax
+
+    def create(self, name, h5parent, sinkhandler):
+        det = sinkhandler.dataset.detectors[self.detectorIDX]
+        arinfo = det.arrayInfo()
+        myDesc = arinfo[self.imageIDX]
+        rawshape = myDesc.shape[self._axis]
+        dset = h5parent.create_dataset(name, (rawshape,), dtype=int)
+        dset[:] = list(range(rawshape))
+        self.createAttributes(dset, sinkhandler)
 
 
 class TomoTemplateProvider(MLZTemplateProvider):
@@ -40,13 +67,15 @@ class TomoTemplateProvider(MLZTemplateProvider):
 
     def updateDetector(self):
         self._det.update({
-            'data': ImageDataset(0, 0, dtype=int, signal=signal),
-            'image_key': DeviceDataset('image_key'),
+            'data': TomoImageDataset(0, 0, signal=signal, units='counts'),
+            'image_key': DeviceDataset('image_key', defaultval=0),
+            'x': DetectorSize(0, 0, 0, axis=axis1),
+            'y': DetectorSize(0, 0, 1, axis=axis2),
         })
 
     def updateSample(self):
         self._sample.update({
-            'rotation_angle': DeviceDataset(self.sry, axis=axis1),
+            'rotation_angle': DeviceDataset(self.sry, axis=axis0),
             'x_translation': DeviceDataset(self.stx),
             'y_translation': DeviceDataset(self.sty),
         })
@@ -56,6 +85,12 @@ class TomoTemplateProvider(MLZTemplateProvider):
         MLZTemplateProvider.updateData(self)
         self._entry['data:NXdata'].update({
             'rotation_angle': NXLink(f'/{self.entry}/sample/rotation_angle'),
+            'x': NXLink(f'/{self.entry}/{self.instrument}/{self.detector}/x'),
+            'y': NXLink(f'/{self.entry}/{self.instrument}/{self.detector}/y'),
             'image_key': NXLink(
                 f'/{self.entry}/{self.instrument}/{self.detector}/image_key'),
+            'axes': NXAttribute(['rotation_angle', 'y', 'x'], dtype='string'),
+            'rotation_angle_indices': axis0,
+            'y_indices': axis1,
+            'x_indices': axis2,
         })
