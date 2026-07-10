@@ -49,3 +49,7 @@ devices = dict(
         speed = 10,
     ),
 )
+
+alias_config = {
+    'sry': {'sry_huber': 100},
+}
