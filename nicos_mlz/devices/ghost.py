@@ -25,6 +25,7 @@
 using the new GhOST proposal database.
 """
 
+import copy
 from datetime import date, datetime, time, timedelta
 
 import ghostapi.errors
@@ -139,7 +140,7 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         except Exception:
             if not self.is_local_contact:
                 session.log.warning("error querying today's sessions from GhOST",
-                                exc=1)
+                                    exc=1)
                 return []
         if proposal is not None:
             sessions = [ses for ses in sessions
@@ -176,29 +177,39 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         session.log.debug('session data: %r', sessinfo)
         session.log.debug('sample data: %r', samples)
 
-        info = {}
-        info['proposal'] = sessinfo['proposal']
-        info['session'] = sessinfo['number']
-        info['title'] = sessinfo['title']
-        info['cycle'] = sessinfo['reactorcycle']
-        info['instrument'] = sessinfo['instrument']
-        info['startdate'] = datetime.strptime(sessinfo['start'], DTFORMAT)
-        info['enddate'] = datetime.strptime(sessinfo['end'], DTFORMAT)
-        if samples['basesamples']:
-            info['default_sample'] = samples['basesamples'][0]['substance']
-        info['users'] = []
+        info = {
+            'proposal': sessinfo['proposal'],
+            'session': sessinfo['number'],
+            'title': sessinfo['title'],
+            'cycle': sessinfo['reactorcycle'],
+            'instrument': sessinfo['instrument'],
+            'startdate': datetime.strptime(sessinfo['start'], DTFORMAT),
+            'enddate': datetime.strptime(sessinfo['end'], DTFORMAT),
+            'mainproposer': sessinfo['userdetails']['mainproposer'],
+            'samples': [],
+            'localcontacts': [{
+                'name': sessinfo['localcontact'],
+                'email': sessinfo['localcontact_email'],
+            }],
+            'users': [],
+            'substances': samples['basesamples']
+        }
+        for s in samples['registeredsamples']:
+            for b in info['substances']:
+                # At the moment the chemical formula is the only
+                # parameter to combine information from Ghost and
+                # SampleTracker systems
+                if s['formula'] == b['formula']:
+                    s1 = copy.copy(b)
+                    s1.update(s)
+                    info['samples'].append(s1)
+        info['default_sample'] = info.get('samples', [{'name': ''}])[0]['name']
         for user in sessinfo['userdetails']['sessionteam']:
             info['users'].append({
                 'name': user['name'],
                 'email': user['email'],
                 'affiliation': user['affiliation'],
             })
-        info['localcontacts'] = [{
-            'name': sessinfo['localcontact'],
-            'email': sessinfo['localcontact_email'],
-        }]
-        info['mainproposer'] = sessinfo['userdetails']['mainproposer']
-        info['samples'] = samples['registeredsamples']
         info['data_emails'] = [user['email'] for user in info['users']]
         info['notif_emails'] = [user['email'] for user in info['users']] + \
             [c['email'] for c in info['localcontacts']]
