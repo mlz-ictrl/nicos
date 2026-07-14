@@ -44,7 +44,11 @@ main_window = tabbed(
     ('Protocol', panel('nicos_mlz.kws1.gui.protocol.ProtocolPanel')),
 )
 
-windows = []
+windows = [
+    window('Live data', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+    window('Watchdog config', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
+]
 
 tools = [
     cmdtool('Detector live view', 'KWSlive'),

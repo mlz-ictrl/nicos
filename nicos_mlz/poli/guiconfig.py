@@ -42,6 +42,8 @@ windows = [
            panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('PLC', 'table',
            panel('nicos_mlz.gui.plcpanel.PlcDeviceControlPanel')),
+    window('Watchdog config', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [
