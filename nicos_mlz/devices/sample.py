@@ -48,6 +48,7 @@ class HasSampleId(DeviceMixinBase):
     def _applyParams(self, number, parameters):
         """Apply sample tracker id."""
         self.sampleid = parameters.get('id')
+        self.formula = parameters.get('formula', '')
 
 
 class Sample(HasSampleId, NicosSample):
