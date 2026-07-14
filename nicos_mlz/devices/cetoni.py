@@ -110,7 +110,7 @@ class CetoniSyringe(Motor):
     def doStatus(self, maxage=0):
         if self._mode == MASTER and self.pid_mode:
             self.indicator = TextProgressIndicator.next()
-        msg = f'PID {self.indicator}' if self.pid_mode else self._dev.status()
+        msg = f'PID {self.indicator}' if self.pid_mode else self._dev.Status()
         if self.pid_ready:
             msg += ' Ok'
         return self.tango_status_mapping.get(self._dev.state()), msg

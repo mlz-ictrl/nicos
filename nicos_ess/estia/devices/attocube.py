@@ -309,11 +309,11 @@ class MirrorDistance(Measurable):
         self._pause_time = 0
 
     def doRead(self, maxage=0):
-        value = self.axis.doRead(maxage=maxage)
+        value = self.axis.read(maxage)
         return value * 0.5 * cos(self.angle / 360. * pi) + self.offset
 
     def doStatus(self, maxage=0):
-        return self.axis.status()
+        return self.axis.status(maxage)
 
     def doReset(self):
         self.axis.reset()

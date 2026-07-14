@@ -210,8 +210,8 @@ class Collimator(Moveable):
         for idx, seg in enumerate(self._attached_segments):
             pos = seg.read(maxage)
             if pos == 'ble':
-                if all(seg.read() == 'ble' for seg in
-                        self._attached_segments[idx:]):
+                if all(seg.read(maxage) == 'ble' for seg in
+                       self._attached_segments[idx:]):
                     return self._steps[idx]
                 return 'unknown position'
             if pos == 'transit':

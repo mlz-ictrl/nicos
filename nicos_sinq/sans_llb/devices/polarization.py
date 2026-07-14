@@ -47,7 +47,7 @@ class PolarizationSwitcher(HasMapping, Moveable):
     def doStatus(self, maxage=0):
         cur_map = self._attached_coll.mapping
         if cur_map in self.mapping.values():
-            state = self._attached_coll.status()[0]
+            state = self._attached_coll.status(maxage)[0]
             return (state, '')
         return (status.UNKNOWN, 'mapping of coll does not match')
 

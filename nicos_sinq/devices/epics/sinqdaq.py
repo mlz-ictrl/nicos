@@ -792,7 +792,7 @@ class DAQMinThresholdChannel(CanDisable, DAQEpicsDevice, MappedMoveable):
                 return severity, msg
 
             if self.isEnabled():
-                if self.target != self.read():
+                if self.target != self.read(maxage):
                     return status.BUSY, ''
                 return status.OK, ''
             return status.DISABLED, ''
@@ -903,8 +903,8 @@ class DAQMinThreshold(DAQEpicsDevice, HasLimits, Moveable):
                 return severity, msg
 
             if self._attached_min_rate_channel.isEnabled():
-                channel_status, _ = self._attached_min_rate_channel.status()
-                if channel_status == status.BUSY or self.target != self.read():
+                channel_status, _ = self._attached_min_rate_channel.status(maxage)
+                if channel_status == status.BUSY or self.target != self.read(maxage):
                     return status.BUSY, ''
                 return status.OK, ''
             else:
@@ -973,7 +973,7 @@ class DAQGate(DAQChannelEpicsDevice, Moveable):
             if severity != status.OK:
                 return severity, msg
 
-            if self.read() != self.target:
+            if self.read(maxage) != self.target:
                 return status.BUSY, ''
             return status.OK, ''
         except TimeoutError:

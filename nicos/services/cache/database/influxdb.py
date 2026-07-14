@@ -302,7 +302,7 @@ class InfluxDB2CacheDatabase(CacheDatabase):
             type=str, default='nicos-cache', mandatory=False
         ),
         'bucket_latest': Param(
-            'Name of the bucket where the latest values should be stored.',
+            'Name of the bucket where the latest values should be stored',
             type=str, default='nicos-cache-latest-values', mandatory=False
         ),
         'unbuffered': Param(

@@ -178,13 +178,13 @@ class SansLlbCoupledDetectors(BaseSequencer):
         # check if any detector was moved separately from expected targets
         target_x, target_y, target_z = self._calc_destinations()
         text = f'L/H: {self.low_high_ratio}'
-        if abs(self._attached_high_angle_x.read()-target_x)>1.0:
+        if abs(self._attached_high_angle_x.read(maxage)-target_x)>1.0:
             status = NOTREACHED
             text += ' | x off trgt'
-        if abs(self._attached_high_angle_y.read()-target_y)>1.0:
+        if abs(self._attached_high_angle_y.read(maxage)-target_y)>1.0:
             status = NOTREACHED
             text += ' | y off trgt'
-        if abs(self._attached_high_angle_z.read()-target_z)>1.0:
+        if abs(self._attached_high_angle_z.read(maxage)-target_z)>1.0:
             status = NOTREACHED
             text += ' | z off trgt'
         return status, text

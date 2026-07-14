@@ -97,7 +97,7 @@ class InterfaceLogicalMotorHandler(Moveable):
         # Check for error and warning in the dependent devices
         devs = self._getWaiters()
         st_devs = multiStatus(devs, 0)
-        devs = [n for n, d in devs.items() if d.status()[0] == st_devs[0]]
+        devs = [n for n, d in devs.items() if d.status(maxage)[0] == st_devs[0]]
 
         if st_devs[0] in self.status_to_msg:
             msg = self.status_to_msg[st_devs[0]]

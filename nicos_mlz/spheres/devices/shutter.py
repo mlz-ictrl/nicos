@@ -89,24 +89,24 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
         # 'constant' for comparison if all the shutters are open
         self._allUpstreamOpen = 2**len(self._attached_upstream)-1
 
-    def getCurrentShutterState(self):
+    def getCurrentShutterState(self, maxage=0):
         upstreamstate = 0
         for i, shutter in enumerate(self._attached_upstream):
-            upstreamstate += self.attachedmapping[shutter.read()] << i
+            upstreamstate += self.attachedmapping[shutter.read(maxage)] << i
 
         instrumentstate = self._dev.value
 
         return upstreamstate, instrumentstate
 
-    def getCurrentChainState(self):
+    def getCurrentChainState(self, maxage=0):
         chainstate = 0
         for i, chain in enumerate(self._attached_chains):
-            chainstate += self.attachedmapping[chain.read()] << i
+            chainstate += self.attachedmapping[chain.read(maxage)] << i
 
         return chainstate
 
     def doRead(self, maxage=0):
-        upstream, instrument = self.getCurrentShutterState()
+        upstream, instrument = self.getCurrentShutterState(maxage)
 
         if not instrument:
             # upstream state doesn't matter if the instrument shutter is closed
@@ -117,14 +117,14 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
         return 'open'
 
     def doStatus(self, maxage=0):
-        upstream, instrument = self.getCurrentShutterState()
-        chains = self.getCurrentChainState()
+        upstream, instrument = self.getCurrentShutterState(maxage)
+        chains = self.getCurrentChainState(maxage)
 
         if instrument:
             if upstream == self._allUpstreamOpen:
                 return status.OK, ''
         else:
-            if self._attached_door.read() != 'yes':
+            if self._attached_door.read(maxage) != 'yes':
                 return status.WARN, 'door open'
             elif not chains:
                 return status.OK, 'shutter closed'

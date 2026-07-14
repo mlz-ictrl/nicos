@@ -60,11 +60,11 @@ class SatBox(HasTimeout, Moveable):
 
     def _readOutputs(self, maxage=0):
         # just read back the OUTPUT values
-        return bits(self._attached_output.read(), len(self.blades))
+        return bits(self._attached_output.read(maxage), len(self.blades))
 
-    def _readSwitches(self):
+    def _readSwitches(self, maxage=0):
         # deduce blade state from switches
-        state = bits(self._attached_input.read(), len(self.blades)*2)
+        state = bits(self._attached_input.read(maxage), len(self.blades)*2)
         realstate = []
         for i in range(0, len(state), 2):
             bladestate = state[i:i+2]
@@ -77,8 +77,8 @@ class SatBox(HasTimeout, Moveable):
         return tuple(realstate)
 
     def doRead(self, maxage=0):
-        bladestate = self._readSwitches() if self.readout == 'switches' else \
-            self._readOutputs()
+        bladestate = self._readSwitches(maxage) if self.readout == 'switches' else \
+            self._readOutputs(maxage)
         # only sum up blades which are used for sure (0/None->ignore)
         return sum(b * r for b, r in zip(self.blades, bladestate) if r)
 

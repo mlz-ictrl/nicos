@@ -250,7 +250,7 @@ class EpicsAstriumChopper(HasPrecision, Readable):
 
         # Check for errors
         for ch in self._attached_choppers:
-            st = ch.status()
+            st = ch.status(maxage)
             if st[0] == status.ERROR:
                 errors.append('ERROR on %s: %s' % (ch.name, st[1]))
 
@@ -260,7 +260,7 @@ class EpicsAstriumChopper(HasPrecision, Readable):
         # Check if phase for any slaves is being set
         busy = []
         for ch in self._attached_choppers:
-            st = ch.status()
+            st = ch.status(maxage)
             if ch is self._master:
                 if st[0] == status.BUSY:
                     # If the master slave is busy, that means the speed

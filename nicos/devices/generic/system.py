@@ -85,7 +85,7 @@ class FreeSpace(Readable):
                 self, 'could not determine free space: %s' % err) from err
 
     def doStatus(self, maxage=0):
-        free = self.read()
+        free = self.read(maxage)
         munit = self.parameters['minfree'].unit
         mfactor = units.get(munit, (1024 ** 3))
         if free * self._factor < self.minfree * mfactor:

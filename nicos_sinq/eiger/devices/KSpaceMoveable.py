@@ -63,7 +63,7 @@ class KSpaceMoveable(HasLimits, TransformedMoveable):
         return (self._mapReadValue(min_val), self._mapReadValue(max_val))
 
     def doStatus(self, maxage=0):
-        return self._attached_raw_motor.status()
+        return self._attached_raw_motor.status(maxage)
 
     def doReadUnit(self):
         return 'A-1'

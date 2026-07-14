@@ -140,7 +140,7 @@ class EssChopperController(MappedMoveable):
     valuetype = str
 
     def doRead(self, maxage=0):
-        return self._attached_state.read()
+        return self._attached_state.read(maxage)
 
     def doStart(self, target):
         if target.lower() == 'stop':
@@ -161,7 +161,7 @@ class EssChopperController(MappedMoveable):
             stat, msg = self._attached_alarms.status(maxage)
             if stat != status.OK:
                 return stat, msg
-        if self._attached_chic_conn.read() != 'Connected':
+        if self._attached_chic_conn.read(maxage) != 'Connected':
             return status.ERROR, 'no connection to the CHIC'
         stat, msg = Waitable.doStatus(self, maxage)
         if stat != status.OK:

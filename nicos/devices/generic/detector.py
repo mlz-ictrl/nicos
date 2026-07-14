@@ -628,10 +628,8 @@ class Detector(Measurable):
             follower.stop()
 
     def doRead(self, maxage=0):
-        ret = []
-        for ch in self._channels:
-            ret.extend(ch.read())
-        return ret
+        return [v for res in [ch.read(maxage) for ch in self._channels]
+                for v in res]
 
     def doReadArrays(self, quality):
         arrays = [img.readArray(quality) for img in self._attached_images]

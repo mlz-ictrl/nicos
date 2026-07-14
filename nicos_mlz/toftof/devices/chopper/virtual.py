@@ -167,7 +167,7 @@ class Controller(BaseChopperController):
                 r2 = -1.0
             else:
                 r2 = 1.0
-            speed = self._attached_discs[ch - 1].read() * r2
+            speed = self._attached_discs[ch - 1].read(maxage) * r2
             rat = 1.0
             if ch == 5:
                 if self.ratio > 1 and self.ratio <= 8:
