@@ -1,0 +1,5 @@
+SetSample(1, 'Water', sampledescription='Frozen water', lattice=(4.518, 4.518, 7.356), angles=(90.0, 90.0, 120.0), orient1=(1.0, 0.0, 0.0), orient2=(0.0, 1.0, 0.0), psi0=0.0, spacegroup='P6_3/mmc', mosaic=0.5, formula='H2O')
+SetSample(2, 'NaCl', sampledescription='Sodium chloride block', lattice=(5.64, 5.64, 5.64), angles=(90.0, 90.0, 90.0), orient1=(1.0, 0.0, 0.0), orient2=(0.0, 1.0, 0.0), psi0=0.0, spacegroup='Fm-3m', mosaic=0.5, formula='NaCl')
+SetSample(3, 'LiCl', sampledescription='Lithium chloride', lattice=(5.14, 5.14, 5.14), angles=(90.0, 90.0, 90.0), orient1=(1.0, 0.0, 0.0), orient2=(0.0, 1.0, 0.0), psi0=0.0, spacegroup='Fm-3m', mosaic=0.5, formula='LiCl')
+SetSample(4, 'MgO', sampledescription='Magnesium oxide plate', lattice=(4.21, 4.21, 4.21), angles=(90.0, 90.0, 90.0), orient1=(1.0, 0.0, 0.0), orient2=(0.0, 1.0, 0.0), psi0=0.0, spacegroup='Fm-3m', mosaic=0.5, formula='MgO')
+SetSample(5, 'BeO', sampledescription='Beryllium oxide cube', lattice=(2.698, 2.698, 4.733), angles=(90.0, 90.0, 120.0), orient1=(1.0, 0.0, 0.0), orient2=(0.0, 1.0, 0.0), psi0=0.0, spacegroup='P6_3mc', mosaic=0.5, formula='BeO')
