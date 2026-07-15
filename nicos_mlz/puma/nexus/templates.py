@@ -24,7 +24,7 @@
 from math import atan, degrees
 
 from nicos import session
-from nicos.core.errors import NicosError
+from nicos.core.errors import ConfigurationError, NicosError
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceDataset, NXAttribute, NXLink
 
@@ -35,11 +35,23 @@ from nicos_mlz.nexus.templates import TasTemplateProvider
 
 class PumaTemplateProvider(TasTemplateProvider):
 
-    detectors = ['det1', 'det2', 'det3', 'det4', 'det5']
+    detectors = []
 
     def init(self, **kwargs):
         TasTemplateProvider.init(self, **kwargs)
         self.lad = kwargs.get('lad', 'lad')
+        try:
+            self.detectors = [
+                c.name for c in session.getDevice(self.detector).valueInfo()
+                if c.type == 'counter']
+            if not self.detectors:
+                raise ConfigurationError('No counters in detector device')
+        except AttributeError as e:
+            session.log.error('%s, there will be no detector data in file', e)
+        except ConfigurationError as e:
+            session.log.error('%s, there will be no detector data in file', e)
+        except NicosError as e:
+            session.log.error('%s, there will be no detector data in file', e)
 
     def updateData(self):
         for det in self.detectors:
@@ -54,9 +66,10 @@ class PumaTemplateProvider(TasTemplateProvider):
                     'ql': NXLink(f'/{self.entry}/{self.sample}/ql'),
                 }
             })
-        self._entry.update({
-            'default': NXAttribute(f'{self.detectors[0]}_data', 'string'),
-        })
+        if self.detectors:
+            self._entry.update({
+                'default': NXAttribute(f'{self.detectors[0]}_data', 'string'),
+            })
 
     def updateInstrument(self):
         TasTemplateProvider.updateInstrument(self)
@@ -78,12 +91,17 @@ class PumaTemplateProvider(TasTemplateProvider):
 
     def updateDetector(self):
         inch = 25.4
+        lad = 762
         TasTemplateProvider.updateDetector(self)
         self._inst.pop(f'{self.detector}:NXdetector', None)
         try:
             lad = session.getDevice(self.lad).read(0)
-        except NicosError:
-            lad = 762
+        except AttributeError as e:
+            session.log.error('%s, use default lad value', e)
+        except ConfigurationError as e:
+            session.log.error('%s, use default lad value', e)
+        except NicosError as e:
+            session.log.error('%s, use default lad value', e)
 
         for i, det in enumerate(self.detectors, 1):
             if i > 3:
