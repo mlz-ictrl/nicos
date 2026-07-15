@@ -61,7 +61,6 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         'encoder_type': ':EncoderType',
         'reseterrorpv': ':Reset',
         'errormsgpv': ':ErrorMessage',
-        'fixifnothomed': ':FixIfNotHomed',
     }
 
     # Maximum allowed delay for enabling / disabling a motor before an error
