@@ -31,6 +31,8 @@ windows = [
     window('Errors', 'errors', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Camera', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('Pandora', 'editor', panel('nicos_mlz.panda.gui.mtt_manual.MTTManualPanel')),
+    window('Watchdog config', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [

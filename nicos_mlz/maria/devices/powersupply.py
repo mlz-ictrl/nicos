@@ -53,5 +53,5 @@ class ReadOnlyPowerSupply(AnalogInput):
 
     def doPoll(self, n, maxage):
         if n % 5 == 0:
-            self._pollParam('voltage', 1)
-            self._pollParam('current', 1)
+            self._pollParam('voltage', 5)
+            self._pollParam('current', 5)

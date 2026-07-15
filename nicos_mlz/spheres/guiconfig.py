@@ -52,7 +52,10 @@ main_window = tabbed(
      panel('nicos.clients.gui.panels.elog.ELogPanel')),
 )
 
-windows = []
+windows = [
+    window('Watchdog config', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
+]
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',

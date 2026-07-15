@@ -32,7 +32,10 @@ main_window = tabbed(
     ('Live data', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
 )
 
-windows = []
+windows = [
+    window('Watchdog config', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
+]
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',

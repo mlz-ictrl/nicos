@@ -5,7 +5,8 @@ main_window = tabbed(
         vsplit(
             hsplit(
                 vsplit(
-                    panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+                    panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+                          modules=['nicos_mlz.dns.gui.cmdlets']),
                     panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
                 ),
             ),
@@ -29,10 +30,19 @@ main_window = tabbed(
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
     ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
-    ('Live data', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+    ('Live display', panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                           detectors=['det'],
+                           filetypes=['dns'],)),
+    ('Live display (PSD)', panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                           detectors=['qm_det'],
+                           filetypes=['dns'],)),
 )
 
-windows = []
+windows = [
+    window('Live data', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+    window('Watchdog config', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
+]
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
@@ -50,5 +60,6 @@ tools = [
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
-         runatstartup=True),
+         runatstartup=False),
+    cmdtool('Server control (Marche)', 'marche-gui'),
 ]
