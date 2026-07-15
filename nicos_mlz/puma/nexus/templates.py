@@ -21,7 +21,10 @@
 #
 # *****************************************************************************
 
+from math import atan, degrees
+
 from nicos import session
+from nicos.core.errors import NicosError
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceDataset, NXAttribute, NXLink
 
@@ -32,7 +35,11 @@ from nicos_mlz.nexus.templates import TasTemplateProvider
 
 class PumaTemplateProvider(TasTemplateProvider):
 
-    detectors = ['det1', 'det2', 'det3']
+    detectors = ['det1', 'det2', 'det3', 'det4', 'det5']
+
+    def init(self, **kwargs):
+        TasTemplateProvider.init(self, **kwargs)
+        self.lad = kwargs.get('lad', 'lad')
 
     def updateData(self):
         for det in self.detectors:
@@ -70,17 +77,39 @@ class PumaTemplateProvider(TasTemplateProvider):
         })
 
     def updateDetector(self):
+        inch = 25.4
         TasTemplateProvider.updateDetector(self)
         self._inst.pop(f'{self.detector}:NXdetector', None)
-        for det in self.detectors:
+        try:
+            lad = session.getDevice(self.lad).read(0)
+        except NicosError:
+            lad = 762
+
+        for i, det in enumerate(self.detectors, 1):
+            if i > 3:
+                d = lambda x: x + inch
+                ofs = degrees(atan(inch / 2 / (lad + inch)))
+                if i == 4:
+                    a = lambda x, offset=ofs: x + offset
+                else:
+                    a = lambda x, offset=ofs: x - offset
+            else:
+                d = lambda x: x
+                ofs = degrees(atan(inch / lad))
+                if i == 1:
+                    a = lambda x, offset=ofs: x + offset
+                elif i == 3:
+                    a = lambda x, offset=ofs: x - offset
+                else:
+                    a = lambda x: x
             self._inst[f'{det}:NXdetector'] = {
                 'acquisition_mode': ConstDataset('pulse counting', 'string'),
                 'data': DetectorDataset(det, dtype='int', units=counts,
                                         signal=signal),
-                'diameter': ConstDataset(25.4, 'float', units=mm),
-                'distance': DeviceDataset('lad'),
+                'diameter': ConstDataset(inch, 'float', units=mm),
+                'distance': DeviceDataset('lad', mapping=d),
                 'layout': ConstDataset('point', 'string'),
-                'polar_angle': ScanDeviceDataset(self.att),
+                'polar_angle': ScanDeviceDataset(self.att, mapping=a),
                 'signal': NXAttribute('data', 'string'),
                 'type': ConstDataset('He3 Gas cylinder', 'string'),
             }
