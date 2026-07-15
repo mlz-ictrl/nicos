@@ -20,7 +20,6 @@
 #   Josef Baudisch <josef.baudisch@frm2.tum.de>
 #
 # *****************************************************************************
-import csv
 import io
 from datetime import datetime
 from html import escape
@@ -367,83 +366,11 @@ class Handler(BaseHandler):
     def handle_scanend(self, time, dataset):
         self.log.info('workbench_writer: handle scanend')
 
-        scannumber = dataset.counter or -1
-        scan_end_results = ''
-
-        scan_end_results += wb_format(
-            f'Finished at:   {wb_timestring_2(time)}')
-        for file_name in dataset.filepaths:
-            scan_end_results += wb_format(f'Filename:   {file_name}')
-
-        # empty lines
-        scan_end_results += '<br><br>'
-
-        npoints = len(dataset.xresults)
-        dataset_names = []
-        dateset_range_vals = []
-        csv_data = ''
-
-        if dataset.xresults:
-            for i in range(len(dataset.xnames)):
-                if i < len(dataset.xnames) - dataset.envvalues:
-                    first = dataset.xresults[0][i]
-                    last = dataset.xresults[-1][i]
-                else:
-                    first = min(
-                        (dataset.xresults[j][i] for j in range(npoints)),
-                        key=lambda x: x or 0)
-                    last = max(
-                        (dataset.xresults[j][i] for j in range(npoints)),
-                        key=lambda x: x or 0)
-                dataset_names.append(
-                    dataset.xnames[i] + '(' + dataset.xunits[i] + ')')
-                if first == last:
-                    dateset_range_vals.append(f'{wb_val_format(first)}')
-                else:
-                    dateset_range_vals.append(
-                        f'{wb_val_format(first)} - <br>{wb_val_format(last)}')
-
-            cell_width = '%s' % (round(100 / (len(dataset_names) + 2), 3))
-            scan_end_results += '<table style="border-collapse: collapse; ' \
-                                'width: 90%; height: 100px;" border="1"> <tbody>'
-            scan_end_results += '<tr>'
-            scan_end_results += f'<td style="width: {cell_width} ;">' \
-                                f'{wb_format("SCAN")}</td>'
-            scan_end_results += f'<td style="width: {cell_width} ;">' \
-                                f'{wb_format("POINTS")}</td></td>'
-            for i in range(len(dataset_names)):
-                scan_end_results += f'<td style="width: {cell_width} ;">' \
-                                    f'{wb_format(dataset_names[i])}</td>'
-            scan_end_results += '</tr>'
-            scan_end_results += '<tr>'
-            scan_end_results += f'<td style="width: {cell_width} ;">' \
-                                f'{wb_format(scannumber)}</td>'
-            scan_end_results += f'<td style="width: {cell_width} ;">' \
-                                f'{wb_format(npoints)}</td>'
-
-            for i in range(len(dateset_range_vals)):
-                scan_end_results += f'<td style="width: {cell_width} ;">' \
-                                    f'{wb_format(dateset_range_vals[i])}</td>'
-
-            scan_end_results += '</tr>'
-            scan_end_results += '</tbody></table>'
-
-            csv_data = eln_csv_data(x_names=dataset.xnames,
-                                    x_results=dataset.xresults)
-
-        headers = self._make_headers(subject=f'Scanresults {scannumber}',
-                                     line_count=15,
-                                     timestamp=time,
-                                     grouping=self.group_mapping.get(
-                                         'scanend'))
-
-        self._rabbit_producer.produce(headers=headers,
-                                      message=scan_end_results)
-
-        if csv_data:
+        if dataset is not None:
+            eln_data = dataset.to_json()
             self._rabbit_producer.handle_file(
                 headers={'proposal': self._proposal,
-                         'subject': f'SCAN_{scannumber}.csv',
+                         'subject': 'SCAN',
                          'note': 0,
                          'attachment': 0,
                          'file': 1,
@@ -455,7 +382,7 @@ class Handler(BaseHandler):
                          'localcontact': self._localcontact,
                          'grouping': None,
                          'timestamp': wb_timestring_1(time)},
-                file_stream=csv_data.encode('utf-8'))
+                file_stream=eln_data.encode('utf-8'))
 
     def _make_headers(self,
                       subject,
@@ -477,31 +404,12 @@ class Handler(BaseHandler):
         )
 
 
-def wb_val_format(wb_val):
-    if isinstance(wb_val, (int, float, complex)):
-        return f'{wb_val:.3f}'
-    return f'{wb_val}'
-
-
 def wb_format(*lines):
     return '\n'.join(lines) + '\n'
 
 
 def wb_timestring_1(time):
     return datetime.fromtimestamp(time).strftime('%b %d %Y %H:%M:%S')
-
-
-def wb_timestring_2(time):
-    return datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-
-
-def eln_csv_data(x_names, x_results):
-    si = io.StringIO()
-    cw = csv.writer(si)
-    cw.writerow(x_names)
-    for point in x_results:
-        cw.writerow(point)
-    return si.getvalue()
 
 
 def rb_headers_note(proposal, subject, line_count, title,
