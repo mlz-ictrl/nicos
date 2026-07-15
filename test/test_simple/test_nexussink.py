@@ -111,6 +111,8 @@ class TestNexusSink:
                 'lowint': DeviceAttribute('Exp', 'low_int', defaultval=(2,)),
                 'sry': DeviceDataset('sry',
                                      units=NXAttribute('deg', 'string')),
+                'sry_shifted': DeviceDataset('sry', mapping=lambda x: x + 1,
+                                             units=NXAttribute('deg', 'string')),
                 'sry_target': DeviceDataset('sry', parameter='target'),
             },
         }
@@ -148,6 +150,10 @@ class TestNexusSink:
             assert ds[0] == 23.7
             assert ds.attrs['units'] == b'deg'
 
+            ds = fin['entry/sry_shifted']
+            assert ds[0] == 24.7
+            assert ds.attrs['units'] == b'deg'
+
     def test_Attributes(self, session):
         template = {
             'entry:NXentry': {
@@ -182,6 +188,7 @@ class TestNexusSink:
                 'counts': ImageDataset(0, 0,
                                        signal=NXAttribute(1, 'int32')),
                 'sry': DeviceDataset('sry'),
+                'sry_shifted': DeviceDataset('sry', mapping=lambda x: x + 1),
                 'sry_target': DeviceDataset('sry', parameter='target'),
             },
             'data:NXdata': {'None': NXScanLink(), }
@@ -210,11 +217,12 @@ class TestNexusSink:
 
             ds = fin['data/sry']
             assert len(ds) == 5
-            assert ds[0] == 0
-            assert ds[1] == 1
-            assert ds[2] == 2
-            assert ds[3] == 3
+            assert ds[:].tolist() == [0, 1, 2, 3, 4]
             assert ds.attrs['target'] == b'/entry/sry'
+
+            ds = fin['data/sry_shifted']
+            assert len(ds) == 5
+            assert ds[:].tolist() == [1, 2, 3, 4, 5]
 
             ds = fin['entry/sry_target']
             assert ds[0] == 0

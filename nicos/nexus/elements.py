@@ -211,6 +211,17 @@ class DeviceDataset(NexusElementBase):
                 sinkhandler.startdataset.envvalueinfo)):
             self.doAppend = False
 
+    def _apply_mapping(self):
+        if self.mapping is not None:
+            try:
+                self.value = self.value._replace(value=self.mapping(self.value.value))
+            except Exception as e:
+                session.log.warning(
+                    'NeXus: failed to apply mapping %s for %s %s in NICOS (%s)',
+                    self.mapping, self.device, self.parameter, e)
+                return False
+        return True
+
     def create(self, name, h5parent, sinkhandler):
         self.value = sinkhandler.dataset.metainfo.get(
             (self.device, self.parameter),
@@ -239,14 +250,8 @@ class DeviceDataset(NexusElementBase):
                     "NeXus: failed to locate data for '%s.%s' in NICOS (%s)",
                     self.device, self.parameter, e)
                 return
-        if self.mapping is not None:
-            try:
-                self.value.value = self.mapping(self.value.value)
-            except Exception as e:
-                session.log.warning(
-                    'NeXus: failed to apply mapping %s for %s %s in NICOS (%s)',
-                    str(self.mapping), self.device, self.parameter, e)
-                return
+        if not self._apply_mapping():
+            return
         if self.parameter == 'value':
             self.testAppend(sinkhandler)
         if self.dtype == 'string':
@@ -288,7 +293,8 @@ class DeviceDataset(NexusElementBase):
             dset = h5parent[name]
             if self.dtype != 'string':
                 self.resize_dataset(dset)
-                dset[self.np] = self.value[0]
+                if self._apply_mapping():
+                    dset[self.np] = self.value.value
         else:
             # This data missing is normal
             pass
@@ -308,7 +314,7 @@ class DeviceDataset(NexusElementBase):
         for dev, val in zip(devinfo, values):
             if dev.name == self.device:
                 self.resize_dataset(dset)
-                dset[self.np] = val
+                dset[self.np] = self.mapping(val) if self.mapping else val
 
     def scanlink(self, name, sinkhandler, h5parent, linkroot):
         for dev in sinkhandler.dataset.devices:
