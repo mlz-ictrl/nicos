@@ -671,7 +671,8 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
 
             session.delay(self._base_loop_delay)
 
-        # Move the motor slightly back into the userlimits after a reference run
+        # Move the motor slightly back into the absolute limits after a
+        # reference run
         if self.valid_pos_after_reference:
             pos = self.read(0)
             if pos < self.absmin - self.offset:
