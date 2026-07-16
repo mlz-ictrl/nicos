@@ -362,6 +362,29 @@ class MultiWidget(QWidget):
 class LimitsWidget(MultiWidget):
 
     def __init__(self, parent, curvalue, client, allow_enter=False):
+        # MultiWidget.__init__ calls create() for the two float values. Since no
+        # fmtstr is passed, the default '%.4g' will be used for both.
+        # This can lead to the unintuitive behaviour that the values proposed by
+        # the "Adjust Limits" dialog are outside the actual limits, and trying
+        # to apply them with "OK" leads to an error. Therefore, we round the
+        # limits manually before passing (lower limit gets rounded up to
+        # NUMBER_SHOWN_DIGITS digits, upper limit gets rounded down to
+        # NUMBER_SHOWN_DIGITS digits).
+
+        # Determine the order of magnitude for the current values
+        order_min = 0
+        if curvalue[0] != 0: # log10 is not defined for 0
+            order_min = np.ceil(np.log10(abs(curvalue[0])))
+
+        order_max = 0
+        if curvalue[1] != 0: # log10 is not defined for 0
+            order_max = np.ceil(np.log10(abs(curvalue[1])))
+
+        corr_min = 10**(NUMBER_SHOWN_DIGITS - order_min)
+        corr_max = 10**(NUMBER_SHOWN_DIGITS - order_max)
+        curvalue = (np.ceil(curvalue[0] * corr_min) / corr_min,
+                    np.floor(curvalue[1] * corr_max) / corr_max)
+
         MultiWidget.__init__(self, parent, (float, float), curvalue, client,
                              allow_enter=allow_enter)
         self._layout.addWidget(QLabel('from', self), 0, 0)
