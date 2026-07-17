@@ -106,6 +106,7 @@ class TestNexusSink:
                 'title': DeviceDataset('Exp', 'title2',
                                        defaultval='Default title'),
                 'definition': ConstDataset('NXmonopd', 'string'),
+                'power': ConstDataset(19, 'float', units='MW'),
                 'sry': DeviceDataset('sry',
                                      units=NXAttribute('deg', 'string')),
             },
@@ -131,6 +132,10 @@ class TestNexusSink:
             ds = fin['entry/sry']
             assert ds[0] == 23.7
             assert ds.attrs['units'] == b'deg'
+
+            ds = fin['entry/power']
+            assert ds[0] == 19
+            assert ds.attrs['units'] == b'MW'
 
     def test_Attributes(self, session):
         template = {
@@ -162,7 +167,7 @@ class TestNexusSink:
         template = {
             'entry:NXentry': {
                 'time': DetectorDataset('timer', 'float32'),
-                'mon': DetectorDataset('mon1', 'uint32'),
+                'mon': DetectorDataset('mon1', 'uint32', description='First in beam'),
                 'counts': ImageDataset(0, 0,
                                        signal=NXAttribute(1, 'int32')),
                 'sry': DeviceDataset('sry'),
@@ -186,6 +191,7 @@ class TestNexusSink:
             assert len(ds) == 5
             ds = fin['entry/mon']
             assert len(ds) == 5
+            assert ds.attrs['description'] == b'First in beam'
 
             ds = fin['entry/counts']
             assert len(ds) == 5
