@@ -373,7 +373,7 @@ class DetectorDataset(NexusElementBase):
                 mode = 'timer'
             else:
                 mode = 'monitor'
-                dset[0] = np.bytes_(mode)
+            dset[0] = np.bytes_(mode)
         elif self.nicosname == 'preset':
             mp = sinkhandler.startdataset.preset.values()
             dset[0] = list(mp)[0]
