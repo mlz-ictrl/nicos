@@ -111,6 +111,7 @@ class TestNexusSink:
                 'lowint': DeviceAttribute('Exp', 'low_int', defaultval=(2,)),
                 'sry': DeviceDataset('sry',
                                      units=NXAttribute('deg', 'string')),
+                'sry_target': DeviceDataset('sry', parameter='target'),
             },
         }
         session.experiment.update(title='GurkenTitle')
@@ -142,6 +143,10 @@ class TestNexusSink:
             ds = fin['entry']
             assert ds.attrs['highint'] == [2**34]
             assert ds.attrs['lowint'] == [2]
+
+            ds = fin['entry/sry_target']
+            assert ds[0] == 23.7
+            assert ds.attrs['units'] == b'deg'
 
     def test_Attributes(self, session):
         template = {
@@ -177,6 +182,7 @@ class TestNexusSink:
                 'counts': ImageDataset(0, 0,
                                        signal=NXAttribute(1, 'int32')),
                 'sry': DeviceDataset('sry'),
+                'sry_target': DeviceDataset('sry', parameter='target'),
             },
             'data:NXdata': {'None': NXScanLink(), }
         }
@@ -209,6 +215,10 @@ class TestNexusSink:
             assert ds[2] == 2
             assert ds[3] == 3
             assert ds.attrs['target'] == b'/entry/sry'
+
+            ds = fin['entry/sry_target']
+            assert ds[0] == 0
+            assert ds.attrs['units'] == b'deg'
 
     def test_Detector(self, session):
         template = {

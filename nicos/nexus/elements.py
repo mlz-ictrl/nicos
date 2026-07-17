@@ -28,7 +28,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core.device import DeviceParInfo, Readable
-from nicos.core.errors import NicosError, ProgrammingError
+from nicos.core.errors import ProgrammingError
 
 
 class NexusElementBase:
@@ -261,13 +261,15 @@ class DeviceDataset(NexusElementBase):
             dset[0] = self.value.value
             if 'units' not in self.attrs:
                 if self.parameter in ['target']:
-                    try:
-                        inf = session.getDevice(self.device).info()
-                        self.attrs['units'] = NXAttribute(inf[0][3], 'string')
-                    except NicosError:
-                        pass
-                elif len(self.value) > 2:
-                    dset.attrs['units'] = np.bytes_(self.value.unit)
+                    if self.value.unit != 'main':
+                        self.attrs['units'] = self.value.unit
+                    else:
+                        for inf in session.getDevice(self.device).info():
+                            if inf.key == 'value':
+                                self.attrs['units'] = inf.info.unit
+                                break
+                else:
+                    self.attrs['units'] = self.value.unit
         self.createAttributes(dset, sinkhandler)
 
     def update(self, name, h5parent, sinkhandler, values):
