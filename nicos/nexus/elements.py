@@ -79,7 +79,7 @@ class NexusElementBase:
 
     def determineType(self):
         if self.dtype is None:
-            if isinstance(self.value, tuple):
+            if isinstance(self.value, (tuple, list)):
                 if isinstance(self.value[0], int):
                     if self.value[0] < 2**32:
                         self.dtype = 'int32'

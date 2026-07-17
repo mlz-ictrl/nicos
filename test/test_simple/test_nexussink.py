@@ -107,6 +107,8 @@ class TestNexusSink:
                                        defaultval='Default title'),
                 'definition': ConstDataset('NXmonopd', 'string'),
                 'power': ConstDataset(19, 'float', units='MW'),
+                'highint': DeviceAttribute('Exp', 'high_int', defaultval=[2**34]),
+                'lowint': DeviceAttribute('Exp', 'low_int', defaultval=(2,)),
                 'sry': DeviceDataset('sry',
                                      units=NXAttribute('deg', 'string')),
             },
@@ -136,6 +138,10 @@ class TestNexusSink:
             ds = fin['entry/power']
             assert ds[0] == 19
             assert ds.attrs['units'] == b'MW'
+
+            ds = fin['entry']
+            assert ds.attrs['highint'] == [2**34]
+            assert ds.attrs['lowint'] == [2]
 
     def test_Attributes(self, session):
         template = {
