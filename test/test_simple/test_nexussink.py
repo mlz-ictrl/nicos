@@ -138,6 +138,7 @@ class TestNexusSink:
                 'title': DeviceAttribute('Exp', 'title'),
                 'title2': DeviceAttribute('Exp', 'title2',
                                           defaultval='Default title'),
+                'title3': DeviceAttribute('Exp', 'title', mapping=lambda x: x[:5]),
                 'units': NXAttribute('mm', 'string'),
             }
         }
@@ -154,6 +155,7 @@ class TestNexusSink:
             g = fin['entry']
             assert g.attrs['title'] == b'GurkenTitle'
             assert g.attrs['title2'] == b'Default title'
+            assert g.attrs['title3'] == b'Gurke'
             assert g.attrs['units'] == b'mm'
 
     def test_Scan(self, session):

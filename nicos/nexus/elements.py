@@ -165,14 +165,14 @@ class DeviceAttribute(NXAttribute):
         self.parameter = parameter
         self.dtype = dtype
         self.defaultval = defaultval
-        self.mapping = None
+        self.mapping = mapping
         self.np = 0
         self.doAppend = False
 
     def create(self, name, h5parent, sinkhandler):
         if (self.device, self.parameter) in sinkhandler.dataset.metainfo:
             self.value = \
-                sinkhandler.dataset.metainfo[(self.device, self.parameter)][0]
+                sinkhandler.dataset.metainfo[(self.device, self.parameter)].value
         else:
             self.value = self.defaultval
         if self.mapping is not None:
