@@ -344,8 +344,7 @@ class DetectorDataset(NexusElementBase):
     def update(self, name, h5parent, sinkhandler, values):
         dset = h5parent[name]
         if self.nicosname == 'mode':
-            m = list(sinkhandler.startdataset.preset.keys())[0]
-            if m == 't':
+            if list(sinkhandler.startdataset.preset.keys())[0] == 't':
                 mode = 'timer'
             else:
                 mode = 'monitor'
@@ -368,8 +367,7 @@ class DetectorDataset(NexusElementBase):
     def results(self, name, h5parent, sinkhandler, results):
         dset = h5parent[name]
         if self.nicosname == 'mode':
-            m = list(sinkhandler.startdataset.preset.keys())[0]
-            if m == 't':
+            if list(sinkhandler.startdataset.preset.keys())[0] == 't':
                 mode = 'timer'
             else:
                 mode = 'monitor'
