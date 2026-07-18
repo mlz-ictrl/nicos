@@ -84,7 +84,7 @@ _tasblock = Block('Triple-axis', [
 
 _multiblock = Block('', [
         BlockRow(
-            Field(widget='nicos_mlz.puma.gui.multiwidget.MultiAnalyzerWidget',
+            Field(widget='nicos_mlz.puma.gui.panels.multiviewpanel.MultiAnalyzerWidget',
                   width=40, height=30),
         ),
     ],
