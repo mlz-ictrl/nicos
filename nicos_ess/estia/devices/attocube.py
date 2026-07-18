@@ -114,8 +114,8 @@ class IDS3010Axis(EpicsReadable):
     def doReset(self):
         self._put_pv('reset', 1)
 
-    def doPoll(self, n, maxage=0):
-        self._pollParam('absolute')
+    def doPoll(self, n, maxage):
+        self.pollParams('absolute')
 
 
 class IDS3010Control(EpicsMoveable):
@@ -258,7 +258,7 @@ class IDS3010Control(EpicsMoveable):
     def doReadContrast3(self):
         return self._get_pv('read_contrast3')
 
-    def doPoll(self, n, maxage=0):
+    def doPoll(self, n, maxage):
         # poll contrast values when in alignment mode
         if self.align == 'on':
             self._pollParam('contrast1')

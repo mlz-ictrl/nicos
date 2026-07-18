@@ -132,7 +132,7 @@ class Oscillator(Moveable):
                 self.curstatus = (status.OK, 'idle')
         return self.curstatus
 
-    def doPoll(self, n=0, maxage=0):
+    def doPoll(self, n, maxage):
         self.pollParams('curvalue', 'curstatus')
 
     def doReset(self):

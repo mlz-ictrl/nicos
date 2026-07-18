@@ -186,7 +186,7 @@ class MultilineChannel(EpicsReadable):
         raw = self._get_pv('latest_valid_pv')
         return raw[1]
 
-    def doPoll(self, n, maxage=0):
+    def doPoll(self, n, maxage):
         self._pollParam('i_limits')
         self._pollParam('gain')
         self._pollParam('latest_valid')
@@ -307,7 +307,7 @@ class MultilineController(EpicsReadable):
     def doReadNum_Channels(self):
         return self._get_pv('num_channels')
 
-    def doPoll(self, n, maxage=0):
+    def doPoll(self, n, maxage):
         self._pollParam('front_end_splitter')
         self._pollParam('fes_option')
         self._pollParam('single_measurement')

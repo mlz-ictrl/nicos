@@ -205,7 +205,7 @@ class Detector2D(Detector):
         ),
     }
 
-    def doPoll(self, _n, _maxage):
+    def doPoll(self, n, maxage):
         self._pollParam('filename')
         self._pollParam('imagedir')
 
