@@ -22,7 +22,8 @@
 # *****************************************************************************
 
 """Dataset classes."""
-
+import json
+import time
 from collections import namedtuple
 from math import sqrt
 from threading import Lock
@@ -440,3 +441,33 @@ class ScanData:
     @lazy_property
     def yunits(self):
         return [v.unit for v in self.yvalueinfo]
+
+    def to_json(self):
+        return json.dumps({
+            'uid': self.uid,
+            'started': time.strftime("%Y-%m-%dT%H:%M:%S%z", self.started),
+            'scaninfo': self.scaninfo,
+            'counter': self.counter,
+            'filepaths': self.filepaths,
+            'xindex': self.xindex,
+            'envvalues': self.envvalues,
+            'chain': self.chain,
+
+            'xvalueinfo': [
+                {'name': v.name, 'unit': v.unit}
+                for v in self.xvalueinfo
+            ],
+            'yvalueinfo': [
+                {'name': v.name, 'unit': v.unit}
+                for v in self.yvalueinfo
+            ],
+
+            'headerinfo': self.headerinfo,
+            'xresults': self.xresults,
+            'yresults': self.yresults,
+
+            'xnames': self.xnames,
+            'xunits': self.xunits,
+            'ynames': self.ynames,
+            'yunits': self.yunits,
+        })
