@@ -29,7 +29,8 @@ import pytest
 
 from nicos.commands.basic import ListCommands
 from nicos.commands.device import adjust, read
-from nicos.core import ConfigurationError, NicosError, NoDevice, UsageError
+from nicos.core import ConfigurationError, Device, NicosError, NoDevice, \
+    UsageError
 
 from test.utils import ErrorLogged
 
@@ -37,7 +38,7 @@ session_setup = 'alias'
 
 
 def test_alias_nodev(session, log):
-    alias = session.getDevice('aliasNoDev', object)
+    alias = session.getDevice('aliasNoDev', Device)
     # first, proxy without target
     assert isinstance(alias._obj, NoDevice)
     assert alias.alias == ''  # pylint: disable=compare-to-empty-string
@@ -55,7 +56,7 @@ def test_alias_nodev(session, log):
 
 
 def test_alias_dev(session, log):
-    alias = session.getDevice('aliasDev', object)
+    alias = session.getDevice('aliasDev', Device)
     # now set the alias to some object
     v1 = session.getDevice('v1')
     # "alias" is a chatty property, so it should emit something when changed
@@ -78,17 +79,22 @@ def test_alias_dev(session, log):
     slit = session.getDevice('slit')
     pytest.raises(UsageError, setattr, alias, 'alias', slit)
 
+    # check forbidden assignments of DeviceAlias to another DeviceAlias
+    alias2 = session.getDevice('aliasDev2', Device)
+    pytest.raises(NicosError, setattr, alias, 'alias', 'aliasDev2')
+    pytest.raises(NicosError, setattr, alias, 'alias', alias2)
+
 
 def test_alias_valueinfo2(session):
     # check with multiple values, check setting from config
-    alias = session.getDevice('aliasDev2', object)
+    alias = session.getDevice('aliasDev2', Device)
     # check the value info replacement
     vistr = str(alias.valueInfo())
     assert 'aliasDev2.' in vistr
 
 
 def test_adjust_alias(session, log):
-    alias = session.getDevice('aliasDev3', object)
+    alias = session.getDevice('aliasDev3', Device)
     # now set the alias to some object
     axis = session.getDevice('axis')
     # "alias" is a chatty property, so it should emit something when changed
@@ -107,7 +113,7 @@ def test_adjust_alias(session, log):
 
 def test_alias_valueinfo(session):
     # check the value info replacement
-    alias = session.getDevice('aliasDev4', object)
+    alias = session.getDevice('aliasDev4', Device)
     v1 = session.getDevice('v1')
     alias.alias = v1
     vistr = str(alias.valueInfo())
