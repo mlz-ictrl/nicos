@@ -38,6 +38,13 @@ from nicos.guisupport.utils import DoubleValidator
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.protocols.cache import cache_dump, cache_load
 
+# Number of digits which are shown if there was no explicit formatting string
+# given (for example, if this value is 4, a number of 651.12042 will be shown as
+# 651.1, a number of 1.23876 will be shown as 1.238
+NUMBER_SHOWN_DIGITS = 4
+
+# Formatting string generated from NUMBER_SHOWN_DIGITS
+FMTSTR = f'%.{NUMBER_SHOWN_DIGITS}g'
 
 class DeviceValueEdit(NicosWidget, QWidget):
 
@@ -241,18 +248,18 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif typ == params.limits:
         return LimitsWidget(parent, curvalue, client, allow_enter=allow_enter)
     elif isinstance(typ, params.floatrange):
-        edw = EditWidget(parent, float, curvalue, fmtstr or '%.4g',
+        edw = EditWidget(parent, float, curvalue, fmtstr or FMTSTR,
                          minmax=(typ.fr, typ.to), allow_enter=allow_enter)
-        annotation = '(range: %.5g to %.5g)' % (typ.fr, typ.to) \
-            if typ.to is not None else '(must be >= %.5g)' % typ.fr
+        annotation = f'(range: {FMTSTR} to {FMTSTR})' % (typ.fr, typ.to) \
+            if typ.to is not None else f'(must be >= {FMTSTR})' % typ.fr
         return AnnotatedWidget(parent, edw, annotation)
     elif isinstance(typ, params.intrange):
         edw = SpinBoxWidget(parent, curvalue, (typ.fr, typ.to),
-                            fmtstr=fmtstr or '%.4g', allow_enter=allow_enter)
+                            fmtstr=fmtstr or FMTSTR, allow_enter=allow_enter)
         return AnnotatedWidget(parent, edw, '(range: %d to %d)' %
                                (typ.fr, typ.to))
     elif typ in (int, float, str, params.string):
-        return EditWidget(parent, typ, curvalue, fmtstr or '%.4g',
+        return EditWidget(parent, typ, curvalue, fmtstr or FMTSTR,
                           allow_enter=allow_enter)
     elif typ in (bool, params.boolean):
         if allow_buttons:
@@ -286,7 +293,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return DictOfWidget(parent, typ.keyconv, typ.valconv, curvalue,
                             client, allow_enter=allow_enter)
     elif typ == SXTalCellType:
-        return TableWidget(parent, float, curvalue.rmat.T.round(10), '%.4g',
+        return TableWidget(parent, float, curvalue.rmat.T.round(10), FMTSTR,
                            client, allow_enter=allow_enter)
     elif typ == list:
         if curvalue:
@@ -477,7 +484,7 @@ class EditWidget(QLineEdit):
     valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
-    def __init__(self, parent, typ, curvalue, fmtstr='%.4g', minmax=None,
+    def __init__(self, parent, typ, curvalue, fmtstr=FMTSTR, minmax=None,
                  allow_enter=False):
         QLineEdit.__init__(self, parent)
         self._typ = typ
@@ -512,7 +519,7 @@ class SpinBoxWidget(QSpinBox):
     valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
-    def __init__(self, parent, curvalue, minmax, fmtstr='%.4g',
+    def __init__(self, parent, curvalue, minmax, fmtstr=FMTSTR,
                  allow_enter=False):
         QSpinBox.__init__(self, parent)
         self.setRange(minmax[0], minmax[1])
