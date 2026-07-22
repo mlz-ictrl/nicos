@@ -23,7 +23,8 @@
 
 """Nexus data template for monochromatic powder diffraction application."""
 
-from nicos.nexus.elements import DeviceDataset, ImageDataset, NXLink
+from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
+    NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, \
     TimerMonitor, axis1, signal
@@ -65,6 +66,7 @@ class PowderTemplateProvider(MLZTemplateProvider):
     def updateSample(self):
         self._sample.update({
             'rotation_angle': DeviceDataset(self.omgs, dtype='float'),
+            'physical_form': ConstDataset('powder', dtype='string'),
         })
         MLZTemplateProvider.updateSample(self)
 

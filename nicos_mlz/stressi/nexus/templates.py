@@ -26,7 +26,7 @@ import re
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset
 
-from nicos_mlz.nexus import Slit, mm, signal
+from nicos_mlz.nexus import Slit, grams, mass_density, mm, signal
 # from nicos_mlz.nexus.structures import SollerCollimator
 from nicos_mlz.nexus.templates import PowderTemplateProvider
 from nicos_mlz.stressi.devices import PreciseManualSwitch
@@ -198,5 +198,11 @@ class StressiTemplateProvider(PowderTemplateProvider):
                 # 'y': ,
                 # 'z': ,
             },
-            # 'chemical_formula': ,
+            'space_group': DeviceDataset('Sample', 'spacegroup'),
+            'mass': DeviceDataset('Sample', 'mass', dtype='float64',
+                                  units=grams),
+            'density': DeviceDataset('Sample', 'density', dtype='float64',
+                                     units=mass_density),
+            'unit_cell_abc': DeviceDataset('Sample', 'lattice'),
+            'unit_cell_alphabetagamma': DeviceDataset('Sample', 'angles'),
         })

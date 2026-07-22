@@ -28,6 +28,6 @@ from nicos_mlz.nexus.elements import ExperimentDescription, Reflection, \
 from nicos_mlz.nexus.sink import Sink as NexusSink
 from nicos_mlz.nexus.structures import CounterMonitor, Filter, Flipper, \
     LocalContact, Polarizer, ReactorSource, Selector, Slit, SollerCollimator, \
-    TimerMonitor, User, aa, axis0, axis1, axis2, axis3, counts, deg, \
+    TimerMonitor, User, aa, axis0, axis1, axis2, axis3, counts, deg, grams, \
     mass_density, mm, nounit, seconds, signal
 from nicos_mlz.nexus.template import MLZTemplateProvider

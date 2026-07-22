@@ -42,6 +42,7 @@ axis2 = NXAttribute(2, 'int')
 axis3 = NXAttribute(3, 'int')
 
 mass_density = NXAttribute('g/cm^3', 'string')
+grams = NXAttribute('g', 'string')
 
 
 def LocalContact():
