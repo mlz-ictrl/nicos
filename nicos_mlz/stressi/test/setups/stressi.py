@@ -39,6 +39,7 @@ sysconfig = dict(
 )
 
 devices = dict(
+    Sample = device('nicos_mlz.stressi.devices.sample.Sample'),
     tths = device('nicos.devices.generic.VirtualMotor',
         abslimits = (-180, 180),
         unit = 'deg',
