@@ -29,6 +29,7 @@ import numpy as np
 from nicos import session
 from nicos.core.device import DeviceParInfo, Readable
 from nicos.core.errors import ProgrammingError
+from nicos.utils import number_types
 
 
 class NexusElementBase:
@@ -256,9 +257,14 @@ class DeviceDataset(NexusElementBase):
             if self.doAppend:
                 dset = h5parent.create_dataset(name, (1,), maxshape=(None,),
                                                dtype=self.dtype)
+            elif self.parameter != 'value' and not isinstance(
+               self.value.value, number_types):
+                s = len(self.value.value)
+                dset = h5parent.create_dataset(name, (s,), maxshape=(s,),
+                                               dtype=self.dtype)
             else:
                 dset = h5parent.create_dataset(name, (1,), dtype=self.dtype)
-            dset[0] = self.value.value
+            dset[...] = self.value.value
             if 'units' not in self.attrs:
                 if self.parameter in ['target']:
                     if self.value.unit != 'main':
