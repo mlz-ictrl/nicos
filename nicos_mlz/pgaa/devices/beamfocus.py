@@ -59,11 +59,12 @@ class BeamFocus(Moveable):
                 d.maw(p)
             self._hw_wait()
 
-    def isAtTarget(self, pos=None, target=None):
+    # TODO: Check if this method can be removed or replace by 'doIsAtTarget'
+    def isAtTarget(self, pos=None, target=None, maxage=0):
         if target is None:
             target = self.target
         if pos is None:
-            pos = self.doRead(0)
+            pos = self.doRead(maxage)
         return pos == target
 
     def doRead(self, maxage=0):

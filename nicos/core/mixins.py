@@ -643,11 +643,11 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         res.append(('', res[-1][1] + self.window))
         return res
 
-    def isAtTarget(self, pos=None, target=None):
+    def isAtTarget(self, pos=None, target=None, maxage=0):
         if target is None:
             target = self.target
         if pos is None:
-            pos = self.read(0)
+            pos = self.read(maxage)
 
         ct = currenttime()
         self._cacheCB('value', pos, ct)

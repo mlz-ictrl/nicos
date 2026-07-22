@@ -106,13 +106,13 @@ class SEController(entangle.TemperatureController):
             return None
         return self._dev.target
 
-    def isAtTarget(self, pos=None, target=None):
+    def isAtTarget(self, pos=None, target=None, maxage=0):
         if target is None:
             if self.devtarget is None:
                 return True
             target = self.devtarget
 
-        return TemperatureController.isAtTarget(self, target=target)
+        return TemperatureController.isAtTarget(self, pos, target, maxage)
 
 
 class PressureController(entangle.TemperatureController):

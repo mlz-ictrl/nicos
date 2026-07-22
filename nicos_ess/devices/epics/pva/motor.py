@@ -395,7 +395,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         self._put_pv('set', 0)
         self._put_pv('foff', 0)
 
-    def isAtTarget(self, pos=None, target=None):
+    def isAtTarget(self, pos=None, target=None, maxage=0):
         return self._get_pv('miss') == 0
 
     def doReadUnit(self):

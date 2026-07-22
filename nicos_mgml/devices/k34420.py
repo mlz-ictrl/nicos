@@ -118,7 +118,7 @@ class VoltageDev(HasWindowTimeout, BaseK34420, Waitable):
         self.resetTimeout(None)
         self.isAtTarget()
 
-    def isAtTarget(self, pos=None, target=None):
+    def isAtTarget(self, pos=None, target=None, maxage=0):
         ct = currenttime()
         self._cacheCB('value', pos, ct)
 

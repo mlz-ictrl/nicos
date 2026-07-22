@@ -1792,7 +1792,7 @@ class Moveable(Waitable):
                              self.format(self.target, unit=True),
                              self.format(pos, unit=True))
 
-    def isAtTarget(self, pos=None, target=None):
+    def isAtTarget(self, pos=None, target=None, maxage=0):
         """Check if the device has arrived at the given target.
         If target is omitted it defaults to the device's currently set target.
         If pos is omitted the device checks against its current read value.
@@ -1819,7 +1819,7 @@ class Moveable(Waitable):
         if target is None:
             target = self.target
         if pos is None:
-            pos = self.read(0)
+            pos = self.read(maxage)
 
         if hasattr(self, 'doIsAtTarget'):
             return self.doIsAtTarget(pos, target)

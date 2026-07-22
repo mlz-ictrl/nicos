@@ -93,11 +93,11 @@ class Dev2(HasLimits, HasOffset, CanDisable, Moveable):
     def doFinish(self):
         methods_called.add('doFinish')
 
-    def isAtTarget(self, pos=None, target=None):
+    def isAtTarget(self, pos=None, target=None, maxage=0):
         if target is None:
             target = self.target
         if pos is None:
-            pos = self.read(0)
+            pos = self.read(maxage)
         methods_called.add('isAtTarget')
         return target == pos
 
