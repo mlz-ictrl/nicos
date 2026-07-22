@@ -30,7 +30,7 @@ devices = dict(
             'German Engineering Materials Science Centre (GEMS)'
         ],
     ),
-    Sample = device('nicos_mlz.devices.sample.Sample',
+    Sample = device('nicos_mlz.stressi.devices.sample.Sample',
         description = 'The currently used sample',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',

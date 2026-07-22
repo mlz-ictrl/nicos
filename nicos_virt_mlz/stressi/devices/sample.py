@@ -25,9 +25,10 @@
 
 from nicos.core import Override, Param, intrange
 from nicos.devices.sample import Sample as BaseSample
+from nicos_mlz.stressi.devices.sample import PowderSampleMixin
 
 
-class Sample(BaseSample):
+class Sample(PowderSampleMixin, BaseSample):
 
     parameters = {
         'sampletype': Param('Sample type: '
@@ -37,6 +38,8 @@ class Sample(BaseSample):
                             '4 - fully flexible sample',
                             type=intrange(1, 4), userparam=True,
                             settable=True),
+        'formula': Param('Chemical formula',
+                         type=str, settable=True, category='sample'),
     }
 
     parameter_overrides = {
@@ -46,5 +49,6 @@ class Sample(BaseSample):
     def _applyParams(self, number, parameters):
         BaseSample._applyParams(self, number, parameters)
         for key, value in parameters.items():
-            if key in ['sampletype', ]:
+            if key in ['sampletype', 'lattice', 'angles', 'spacegroup', 'mass',
+                       'density', 'formula']:
                 setattr(self, key, value)
