@@ -125,7 +125,7 @@ class DSPecSpectrum(VirtualImage):
             return y
 
         def sample(g):
-            """Sampling the ideal curve with counts."""
+            """Overload the ideal curve with random noise."""
             x = np.linspace(10, 170, self.size[0])
             y = g(x)              # probability density function, pdf
             cdf_y = np.cumsum(y)  # cumulative distribution function, cdf
