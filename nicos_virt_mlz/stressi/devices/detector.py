@@ -23,11 +23,9 @@
 
 """VStressi detector image based on McSTAS simulation."""
 
-import numpy as np
-
 from nicos.core import Attach, Override, Param, Readable, floatrange, \
-    nonzero, oneof, tupleof
-from nicos.core.constants import FINAL, LIVE, MASTER
+    nonzero, tupleof
+from nicos.core.constants import MASTER
 from nicos.devices.mcstas import MIN_RUNTIME, McStasCounter as BaseCounter, \
     McStasImage, McStasSimulation as BaseSimulation
 
@@ -88,33 +86,7 @@ class Image(McStasImage):
                             volatile=False, settable=False,
                             default=(0.85, 0.85), unit='mm',
                             category='instrument'),
-        'neutron_section': Param("Section to take 'neutrons' from PSD file",
-                                 type=oneof('Data', 'Events'), mandatory=False,
-                                 default='Events'),
     }
-
-    def _readpsd(self, quality):
-        if self._attached_mcstas._signal_sent or quality == FINAL:
-            try:
-                blocks = 1 if self.neutron_section == 'Events' else 3
-                with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
-                    lines = f.readlines()[-blocks * (self.size[1] + 1):]
-                if lines[0].startswith(f'# {self.neutron_section}') and \
-                   self.mcstasfile in lines[0]:
-                    factor = 1 if blocks == 1 else self._attached_mcstas._getScaleFactor()
-                    buf = factor * np.loadtxt(lines[1:self.size[1] + 1],
-                                              dtype=np.float32)
-                    self._buf = buf.astype(self.image_data_type)
-                    self.readresult = [self._buf.sum()]
-                    self.log.debug('Read result: %s', self.readresult)
-                elif quality != LIVE:
-                    raise OSError('Did not find start line: %s' % lines[0])
-            except OSError:
-                if quality != LIVE:
-                    self.log.exception('Could not read result file', exc=1)
-        else:
-            self.readresult = [0]
-            self._buf = np.zeros(self.size).astype(self.image_data_type)
 
 
 class McStasCounter(BaseCounter):

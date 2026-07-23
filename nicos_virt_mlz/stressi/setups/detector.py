@@ -37,7 +37,6 @@ devices = dict(
     mcstas = device('nicos_virt_mlz.stressi.devices.McStasSimulation',
         description = 'McStas simulation',
         mcstasprog = 'stressi_fast',
-        intensityfactor = 1e15,
         sample = 'Sample',
         xprime = 'psw',
         yprime = 'psh',

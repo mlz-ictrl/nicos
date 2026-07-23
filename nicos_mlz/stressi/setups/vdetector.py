@@ -38,7 +38,6 @@ devices = dict(
             'stressictrl02': 2.7e6,
             'localhost': 1.12e5,
         },
-        intensityfactor = 1e14,
         sample = 'Sample',
         xprime = 'psw',
         yprime = 'psh',
