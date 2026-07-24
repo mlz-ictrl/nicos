@@ -142,13 +142,20 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
                     time = currenttime()
                     if entry.ttl and (entry.time + entry.ttl < time):
                         entry.expired = True
-                        for client in self._server._connected.values():
+                        for client in self._server._connected_clients:
                             client.update(key, OP_TELLOLD, entry.value, time,
                                           None)
 
+        error_logged = False
         while not self._stoprequest:
             sleep(self._long_loop_delay)
-            cleanonce()
+            try:
+                cleanonce()
+                error_logged = False
+            except Exception:
+                if not error_logged:
+                    self.log.exception('error during periodic cleanup')
+                    error_logged = True
 
     def _update_topic(self, key, entry):
         # This method is responsible to communicate and update all the

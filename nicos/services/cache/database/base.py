@@ -219,7 +219,7 @@ class CacheDatabase(Device):
 
         # if no_store flag is set, always send an update
         if real_update or no_store:
-            for client in self._server._connected.values():
+            for client in self._server._connected_clients:
                 if client is not from_client:
                     for cat in newcats:
                         client.update(f'{cat}/{subkey}', OP_TELL,
