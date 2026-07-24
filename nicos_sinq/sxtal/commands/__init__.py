@@ -673,6 +673,8 @@ def LoadRef(filename, reflist=None):
     count = 0
     with open(fname, 'r', encoding='utf-8') as fin:
         for line in fin:
+            if len(line) == 0 or line.isspace():
+                continue
             values = line.split()
             if len(values) < 3:
                 session.log.error('line "%s" not in a recognized format', line)
