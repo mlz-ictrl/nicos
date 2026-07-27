@@ -55,8 +55,8 @@ class F70ColdheadController(NamedDigitalOutput):
 
     _ophours = _p_return = _t_compr = _t_water_in = _t_water_out = None
 
-    def doInit(self,mode):
-        NamedDigitalOutput.doInit(self,mode)
+    def doPreinit(self,mode):
+        NamedDigitalOutput.doPreinit(self,mode)
         # Don't create PyTango device in simulation mode
         if mode != SIMULATION:
             self._ophours     = self._createPyTangoDevice(self.ophours_device)
