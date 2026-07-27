@@ -11,7 +11,7 @@ main_window = docked(
         ('Settings',
             panel('nicos_jcns.seop.gui.seop.SeopSettingsPanel')
         ),
-        ('Ocean HR4000',
+        ('Spectrometers',
             panel('nicos_jcns.seop.gui.seop.SpectrometerPanel')
         ),
     ),

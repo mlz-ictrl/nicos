@@ -19,7 +19,31 @@
      <item>
       <widget class="QPushButton" name="btnStartStop">
        <property name="text">
-        <string>Start/Stop</string>
+        <string>Start</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cmbSpecs">
+       <item>
+        <property name="text">
+         <string>av4096</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>hr4000</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="chkAutoresize">
+       <property name="text">
+        <string>Autoresize</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

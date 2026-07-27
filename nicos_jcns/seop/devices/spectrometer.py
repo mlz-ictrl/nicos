@@ -22,14 +22,25 @@
 # *****************************************************************************
 
 
-from nicos.core import CanDisable, Override
+from nicos.core import CanDisable, Override, Param
 from nicos.devices.entangle import SpectrumInput
 
 
-class OceanSpectrum(CanDisable, SpectrumInput):
+class Spectrometer(CanDisable, SpectrumInput):
 
-    parameters_override = {
-        'xticks': Override(unit='nm'),
+    parameter_overrides = {
+        'xticks': Override(volatile=True, unit='nm'),
+    }
+
+    parameters = {
+        'averages': Param(
+            'Number of scans to average over.',
+            type=int, settable=True, unit='', category='general',
+        ),
+        'integration_time': Param(
+            'Integration time (exposure duration).',
+            type=float, settable=True, unit='', category='general',
+        ),
     }
 
     def doEnable(self, on):
@@ -37,3 +48,29 @@ class OceanSpectrum(CanDisable, SpectrumInput):
             self._dev.On()
         else:
             self._dev.Off()
+
+    def doReadAverages(self):
+        return self._dev.averages
+
+    def doWriteAverages(self, value):
+        self._dev.averages = value
+
+    def doReadIntegration_Time(self):
+        return self._dev.integrationTime
+
+    def doWriteIntegration_Time(self, value):
+        self._dev.integrationTime = value
+
+
+class HR4000(Spectrometer):
+
+    parameter_overrides = {
+        'integration_time': Override(unit='usec'),
+    }
+
+
+class AV4096(Spectrometer):
+
+    parameter_overrides = {
+        'integration_time': Override(unit='ms'),
+    }

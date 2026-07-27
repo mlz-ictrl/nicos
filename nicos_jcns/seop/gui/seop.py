@@ -34,6 +34,7 @@ from numpy import array
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.core import status
 from nicos.guisupport.livewidget import Axes, LiveWidget1D
 from nicos.guisupport.plots import DATEFMT, GRMARKS, TIMEFMT
 from nicos.guisupport.qt import QLayout, QMainWindow, QSizePolicy, \
@@ -329,33 +330,151 @@ class SeopControlButtons(QMainWindow, SeopControl):
         self.log = parent.log.getChild('seop')
 
 
+class SpectrumPlot(SeopPlot):
+
+    def __init__(self, xlabel, ylabel, timeaxis, marker=False, parent=None, **kwds):
+        self.autoresize = True
+        SeopPlot.__init__(self, xlabel, ylabel, timeaxis, marker, parent, **kwds)
+        self.clear()
+
+    def clear(self):
+        self._curves[0].visible = False
+        self.update()
+
+    def setPlotData(self, x, y):
+        self._curves[0].visible = True
+        super().setPlotData(x, y)
+
+    def reset(self):
+        if self.autoresize:
+            SeopPlot.reset(self)
+
+
 class SpectrometerPanel(NicosWidget, Panel):
-    panelName = 'HR4000'
+    panelName = 'Spectrometers'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_jcns/seop/gui/oceanspectrometer.ui'))
-        self.plot = SeopPlot('Wavelength, nm', 'Intensity, cts', None, False, self)
-        self.lytPlot.addWidget(self.plot)
-        self._x = []
-        self._enabled = False
-        self.client.run(f'hr4000.doEnable({self._enabled})')
+        loadUi(self, findResource('nicos_jcns/seop/gui/spectrometers.ui'))
 
+        # Cache wavelength ticks and spectrum values by spectrometer.
+        self._x = {}
+        self._y = {}
+        self._enabled = False
+
+        # init plot area
+        self.plot = SpectrumPlot('Wavelength, nm', 'Intensity, cts', None, False, self)
+        self.plot.autoresize = self.chkAutoresize.isChecked()
+        self.lytPlot.addWidget(self.plot)
+
+        # init NicosWidget to listen on cache
         NicosWidget.__init__(self)
-        self.setClient(self.client)
+        self.setClient(client)
+
+        client.connected.connect(self.on_connected)
+        client.disconnected.connect(self.on_disconnected)
+        self.destroyed.connect(self.on_destroyed)
+        if client.isconnected:
+            self.on_connected()
+
+    def on_destroyed(self):
+        self.client.connected.disconnect(self.on_connected)
+        self.client.disconnected.disconnect(self.on_disconnected)
+
+    def on_connected(self):
+        self._enabled = False
+        devices = set(self.client.getDeviceList())
+        first_available = None
+        for i in range(self.cmbSpecs.count()):
+            spec = self.cmbSpecs.itemText(i)
+            if spec not in devices:
+                continue
+            if first_available is None:
+                first_available = i
+            spec_state = self.client.eval(f'{spec}.status()[0]',
+                                          default=status.UNKNOWN)
+            # Start and Stop enable and disable acquisition on read. An
+            # enabled spectrometer can report OK while idle between reads.
+            if spec_state > status.BUSY:
+                continue
+            if self._enabled:
+                self.client.run(f'{spec}.disable()')
+            else:
+                # Keep _enabled false while the selection handler clears the plot.
+                self.cmbSpecs.setCurrentIndex(i)
+                self._enabled = True
+        if not self._enabled and first_available is not None:
+            self.cmbSpecs.setCurrentIndex(first_available)
+        self.btnStartStop.setText('Stop' if self._enabled else 'Start')
+
+    def on_disconnected(self):
+        self._enabled = False
+        self._x.clear()
+        self._y.clear()
+        self.btnStartStop.setText('Start')
+        self.plot.clear()
 
     def registerKeys(self):
-        for k in ('hr4000/value', 'hr4000/xticks'):
-            self.registerKey(k)
+        for i in range(self.cmbSpecs.count()):
+            spec = self.cmbSpecs.itemText(i)
+            for k in (f'{spec}/value', f'{spec}/xticks'):
+                self.registerKey(k)
 
     def on_keyChange(self, key, value, time, expired):
-        if key == 'hr4000/value':
-            if len(value) == len(self._x):
-                self.plot.setPlotData(self._x, value)
-        elif key == 'hr4000/xticks':
-            self._x = value
+        if value is None or not key.endswith(('/value', '/xticks')) \
+                or len(value) == 0 or expired:
+            return
+        spec, field = key.rsplit('/', 1)
+        if field == 'xticks':
+            self._x[spec] = value
+        else:
+            self._y[spec] = value
+        if spec == self.cmbSpecs.currentText():
+            self._plot_spectrum(spec)
+
+    def _plot_spectrum(self, spec):
+        x = self._x.get(spec, ())
+        y = self._y.get(spec, ())
+        if 0 < len(x) == len(y):
+            self.plot.setPlotData(x, y)
 
     @pyqtSlot()
     def on_btnStartStop_clicked(self):
-        self._enabled = not self._enabled
-        self.client.run(f'hr4000.doEnable({self._enabled})')
+        if not self.client.isconnected:
+            return
+        spec = self.cmbSpecs.currentText()
+        if spec in self.client.getDeviceList():
+            self._enabled = not self._enabled
+            self.client.run(f'{spec}.{"en" if self._enabled else "dis"}able()')
+            self.btnStartStop.setText('Stop' if self._enabled else 'Start')
+
+    @pyqtSlot(int)
+    def on_cmbSpecs_currentIndexChanged(self, index):
+        self.plot.clear()
+        selected = self.cmbSpecs.currentText()
+        self._plot_spectrum(selected)
+        if not self.client.isconnected or not self._enabled:
+            return
+        enabled = False
+        devices = set(self.client.getDeviceList())
+        for i in range(self.cmbSpecs.count()):
+            spec = self.cmbSpecs.itemText(i)
+            if spec not in devices:
+                continue
+            spec_state = self.client.eval(f'{spec}.status()[0]',
+                                          default=status.UNKNOWN)
+            if spec_state == status.UNKNOWN:
+                continue
+            if spec == selected:
+                enabled = (spec_state <= status.BUSY
+                           or spec_state == status.DISABLED)
+                if spec_state == status.DISABLED:
+                    self.client.run(f'{spec}.enable()')
+            elif spec_state <= status.BUSY:
+                self.client.run(f'{spec}.disable()')
+        self._enabled = enabled and self.client.isconnected
+        self.btnStartStop.setText('Stop' if self._enabled else 'Start')
+
+    @pyqtSlot(bool)
+    def on_chkAutoresize_toggled(self, checked):
+        self.plot.autoresize = checked
