@@ -137,9 +137,11 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
         temp = 0
         mf = 0
         for idx, ev in enumerate(evlist):
-            if ev.name in ('Ts', 'temperature'):
+            # In the case of problems communicating with the sample environment
+            # it may be that the evvallist contains None values
+            if ev.name in ('Ts', 'temperature') and evvallist[idx] is not None:
                 temp = evvallist[idx]
-            if ev.name in ('magfield', 'B'):
+            if ev.name in ('magfield', 'B') and evvallist[idx] is not None:
                 mf = evvallist[idx]
 
         modemap = {'omega': 'om', 't2t': 'o2t'}
