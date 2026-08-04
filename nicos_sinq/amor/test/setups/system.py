@@ -9,7 +9,6 @@ devices = dict(
     Exp = device('nicos_sinq.amor.devices.experiment.AmorExperiment',
                  description = 'experiment object',
                  dataroot = 'dummy',
-                 scriptroot = '/dummy',
                  sample = 'Sample',
     ),
 )

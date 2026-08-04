@@ -33,7 +33,6 @@ devices = dict(
     Exp = device('nicos_sinq.amor.devices.experiment.AmorExperiment',
                  description = 'experiment object',
                  dataroot = configdata('config.DATA_PATH'),
-                 scriptroot = configdata('config.SCRIPT_ROOT'),
                  sample = 'Sample',
                  ),
     Space = device('nicos.devices.generic.FreeSpace',

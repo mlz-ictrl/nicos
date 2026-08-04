@@ -22,82 +22,36 @@
 # *****************************************************************************
 
 import subprocess
-import time
-from os import path
 
-from nicos.core import Override, Param, absolute_path
-from nicos.core.data import DataManager
-from nicos.core.errors import InvalidValueError
+from nicos.core import Param, absolute_path
+from nicos.core.data.manager import DataManager
 from nicos.core.params import none_or
 from nicos_sinq.devices.experiment import SinqExperiment
 
 class AmorExperiment(SinqExperiment):
     """Additional experiment parameters for AMOR"""
 
-    parameter_overrides = {
-        'elog': Override(default=False),
-    }
-
     parameters = {
-        'scriptroot': Param('Root for script files',
-                            type=absolute_path, userparam=False),
-        'scriptpath': Param('Path to script files',
-                            type=absolute_path, settable=True),
         'datadir_amordr': Param('Path to raw data on amor-dr.psi.ch',
                                  type=none_or(absolute_path), settable=False, default=None),
-        'pi_user': Param('Principal investigator', type=str, settable=True,
-                                  category='experiment'),
-        'pi_email': Param('Principal investigator', type=str, settable=True,
-                                  category='experiment'),
-        'pi_affiliation': Param('PI user affiliation', type=str, settable=True,
-                                  category='experiment'),
     }
+
+    # To be removed in SD27, when AMOR will be switched to the same counting
+    # mechanism as the other experiment (sicscounter). Until then, the base data
+    # manager is used to avoid enumeration issues in operation.
     datamanager_class = DataManager
-
-    def _newCheckHook(self, proptype, proposal):
-        SinqExperiment._newCheckHook(self, proptype, proposal)
-        try:
-            duoinfo = self._requestDuoProposal(proposal)
-        except InvalidValueError:
-            return
-
-        self.pi_user =  ' '.join([duoinfo['pi_firstname'], duoinfo['pi_lastname']])
-        self.pi_email = duoinfo['pi_email']
-
-        pi_affil = duoinfo['pi_affiliation']
-        name = pi_affil['name']
-        if department := pi_affil.get('department', None):
-            name = ' '.join([name, department])
-        if country := pi_affil.get('country', None):
-            name = ', '.join([name, country])
-        self.pi_affiliation = name
 
     @property
     def allpaths(self):
         """Return a list of all autocreated paths.
 
         Needed to keep track of directory structure upon proposal change.
+        Compared to the overwritten method of nicos_sinq.devices.experiment.Experiment,
+        self.scriptpath is not included in the list, as it is not created on the
+        local machine and therefore the existence check would fail. The script
+        path is created on the machine amor-dr.psi.ch.
         """
         return [self.proposalpath, self.datapath, self.elogpath] + list(self.extrapaths)
-
-    @property
-    def datapath(self):
-        if self.proposal:
-            prop = self.proposal.replace(' ', '')
-        else:
-            prop = self.serviceexp
-        return path.join(self.dataroot, 'amor', 'data', time.strftime('%Y'), prop)
-
-    def getProposalType(self, proposal):
-        proposalstr = proposal
-        if not isinstance(proposalstr, str):
-            proposalstr = str(proposal)
-
-        year = time.strftime('%Y')
-        if proposalstr.startswith(year):
-            return 'user'
-
-        return SinqExperiment.getProposalType(self, proposal)
 
     def doWriteScriptpath(self, scriptpath):
         """
@@ -106,6 +60,11 @@ class AmorExperiment(SinqExperiment):
         """
 
     def createUserPaths(self, scriptdir):
+        """
+        This method is called from the GUI to create the user paths on
+        amor-dr.psi.ch. It uses ssh to create the directories on the remote
+        machine.
+        """
         self._setROParam('datadir_amordr', scriptdir.replace('scripts', 'raw'))
         result = subprocess.run(
             ["ssh", "sinquser@amor-dr", f"mkdir -p {scriptdir} && mkdir -p {self.datadir_amordr}"],
@@ -116,6 +75,10 @@ class AmorExperiment(SinqExperiment):
             self.log.error('Creating user paths failed: %s', result.stderr)
 
     def doFinish(self):
+        """
+        Overridden to set the datadir_amordr and scriptpath parameters to the
+        AMOR-specific default paths.
+        """
         SinqExperiment.doFinish(self)
         self._setROParam('datadir_amordr', '/home/sinquser/service/raw')
         self._setROParam('scriptpath', '/home/sinquser/service/scripts')
