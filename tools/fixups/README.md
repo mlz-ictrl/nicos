@@ -5,7 +5,7 @@ check for various code conventions and fix them, if possible.
 
 To run, install the `ast-grep` package and run from the repository root:
 
-    sg scan -c tools/fixups/config
+    ast-grep scan -c tools/fixups/config
 
 Add `-U` to apply auto-fixes or `-i` to fix interactively.
 
