@@ -237,10 +237,16 @@ class DevicesPanel(Panel):
             value = [value] if isinstance(value, str) else list(value)
             self.param_display[key.lower()] = value
 
-        if not bool(options.get('show_target')):
+        # If show_target of the cached headerstate conflicts with guiconfig.py,
+        # let guiconfig.py take precedence by first applying the cached
+        # headerstate and only then setting the visibility of the "target"
+        # column.
+        self.tree.header().restoreState(self._headerstate)
+        if bool(options.get('show_target')):
+            self.tree.header().showSection(2)
+        else:
             self.tree.header().hideSection(2)
 
-        self.tree.header().restoreState(self._headerstate)
         self.clear()
 
         self.devmenu = QMenu(self)

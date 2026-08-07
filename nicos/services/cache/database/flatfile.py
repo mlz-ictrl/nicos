@@ -341,7 +341,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                             time = currenttime()
                             if entry.ttl and (entry.time + entry.ttl < time):
                                 entry.expired = True
-                                for client in self._server._connected.values():
+                                for client in self._server._connected_clients:
                                     client.update(f'{cat}/{subkey}',
                                                   OP_TELLOLD, entry.value,
                                                   time, None)
@@ -351,9 +351,20 @@ class FlatfileCacheDatabase(CacheDatabase):
                                     self._cat[cat][0] = fd
                                 fd.write(f'{subkey}\t{time}\t-\t-\n')
                                 fd.flush()
+
+        error_logged = False
         while not self._stoprequest:
             sleep(self._long_loop_delay)
-            cleanonce()
+            try:
+                cleanonce()
+                error_logged = False
+            except Exception:
+                # we want to catch all exceptions here, to avoid silent death
+                # of the cleaner thread, but we don't want to spam the log with
+                # repeated exceptions
+                if not error_logged:
+                    self.log.exception('error during periodic cleanup')
+                    error_logged = True
 
     def updateEntries(self, categories, subkey, no_store, entry):
         now = currenttime()

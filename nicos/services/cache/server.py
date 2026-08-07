@@ -338,6 +338,10 @@ class CacheServer(Device):
         self._serversocket_udp = None
         # worker connections
         self._connected = {}
+        # kept in sync with self._connected on every change, so that other
+        # threads can iterate over connected clients without copying the
+        # list themselves or racing with dict mutation
+        self._connected_clients = []
         self._attached_db._server = self
         self._connectionLock = threading.Lock()
 
@@ -404,7 +408,9 @@ class CacheServer(Device):
                     self.log.info('client connection %s closed', addr)
                     client.closedown()
                     client.join()  # wait for threads to end
-                    del self._connected[addr]
+                    with self._connectionLock:
+                        del self._connected[addr]
+                        self._connected_clients = list(self._connected.values())
 
             # now check for additional incoming connections
             # build list of things to check
@@ -429,6 +435,7 @@ class CacheServer(Device):
                     self.log.info('new connection from %s', addr)
                     self._connected[addr] = CacheWorker(
                         self._attached_db, conn, name=addr, loglevel=self.loglevel)
+                    self._connected_clients = list(self._connected.values())
                 elif self._serversocket_udp in res[0]:
                     # UDP data came in
                     data, addr = self._serversocket_udp.recvfrom(3072)
@@ -437,6 +444,7 @@ class CacheServer(Device):
                     self._connected[nice_addr] = CacheUDPWorker(
                         self._attached_db, self._serversocket_udp, name=nice_addr,
                         data=data, remoteaddr=addr, loglevel=self.loglevel)
+                    self._connected_clients = list(self._connected.values())
         if self._serversocket:
             closeSocket(self._serversocket)
         self._serversocket = None
@@ -451,12 +459,12 @@ class CacheServer(Device):
         self._stoprequest = True
         # without locking, the _connected list may not have all clients yet....
         with self._connectionLock:
-            for client in list(self._connected.values()):
+            for client in self._connected_clients:
                 self.log.info('closing client %s', client)
                 if client.is_active():
                     client.closedown()
         with self._connectionLock:
-            for client in list(self._connected.values()):
+            for client in self._connected_clients:
                 self.log.info('waiting for %s', client)
                 client.closedown()  # make sure, the connection closes down
                 client.join()
