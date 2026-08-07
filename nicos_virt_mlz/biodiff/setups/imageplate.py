@@ -30,7 +30,7 @@ devices = dict(
         s2 = 'd_diaphragm2',
         wavelength = 'selector_lambda',
         omega = 'omega_sampletable',
-        intensityfactor = 1e20,
+        neutronspersec = {'localhost': 1.2e6},
         visibility = (),
     ),
     imgplate = device('nicos_virt_mlz.biodiff.devices.detector.McStasImage',
