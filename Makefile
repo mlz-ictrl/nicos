@@ -99,7 +99,7 @@ codespell:
 	codespell .
 
 fixups:
-	sg scan -c tools/fixups/config
+	ast-grep scan -c tools/fixups/config
 
 help:
 	@echo "Important targets:"
