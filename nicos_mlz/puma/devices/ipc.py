@@ -200,7 +200,7 @@ class ReferenceMotor(CanReference, Motor1):
                               default='lower'),
     }
 
-    parameters_override = {
+    parameter_overrides = {
         'timeout': Override(default=600.),
     }
 
