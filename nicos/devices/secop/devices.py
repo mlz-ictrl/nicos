@@ -1432,9 +1432,9 @@ class SecopAcqChannel(Measurable, SecopReadable):
         self._presetname = name
         self._controller = controller
 
-    def doSetPreset(self, **kwds):
-        self._controller.setAllPresets(**kwds)
-        self._lastpreset = kwds
+    def doSetPreset(self, **preset):
+        self._controller.setAllPresets(**preset)
+        self._lastpreset = preset
 
     def doPrepare(self):
         try:
