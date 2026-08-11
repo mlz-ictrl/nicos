@@ -92,6 +92,11 @@ charm_conditions = [
         setup = 'charmbox02',
         message = 'ErwiN/Charm: T3 is too high',
     ),
+    dict(condition = 'charm2_flow_status[0] == WARN',
+        type = 'charm',
+        setup = 'charmbox02',
+        message = 'ErwiN/Charm: Helium flow is out of range',
+    ),
 ]
 
 includes = ['notifiers']
