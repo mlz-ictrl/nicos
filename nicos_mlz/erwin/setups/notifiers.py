@@ -16,12 +16,13 @@ devices = dict(
         sender = 'erwin@frm2.tum.de',
         copies = [
             ('markus.hoelzel@frm2.tum.de', 'all'),   # gets all messages
-            ('anatoliy.senyshyn@frm2.tum.de', 'important'),   # gets only important messages
-            ('josef.pfanzelt@frm2.tum.de', 'important'), # gets only important messages
-            ('christoph.hauf@frm2.tum.de', 'important')
+            # ('anatoliy.senyshyn@frm2.tum.de', 'important'),   # gets only important messages
+            # ('josef.pfanzelt@frm2.tum.de', 'important'), # gets only important messages
+            # ('christoph.hauf@frm2.tum.de', 'important')
         ],
         subject = 'Erwin/Neutron guide',
         mailserver ='mailhost.frm2.tum.de',
+        ratelimit = 3600,
     ),
     # smser = device('nicos.devices.notifiers.SMSer',
     #     server = 'triton.admin.frm2.tum.de',
@@ -45,6 +46,7 @@ devices = dict(
         ],
         subject = 'Erwin/CHARM detector',
         mailserver ='mailhost.frm2.tum.de',
+        ratelimit = 3600,
     ),
     dsms = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2.tum.de',
