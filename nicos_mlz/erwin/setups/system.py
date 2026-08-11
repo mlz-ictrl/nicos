@@ -78,4 +78,10 @@ devices = dict(
         minfree = 0.5,
         visibility = (),
     ),
+    wav = device('nicos.devices.generic.ManualMove',
+        description = 'Selected wavelength',
+        abslimits = (1, 1.6),
+        default = 1.2,
+        unit = 'A',
+    ),
 )
