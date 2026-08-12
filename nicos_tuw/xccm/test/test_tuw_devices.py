@@ -22,9 +22,9 @@
 # *****************************************************************************
 import pytest
 
-session_setup = 'xccm'
-
 from nicos.commands.measure import count
+
+session_setup = 'xccm'
 
 
 class TestCapillarySelector:
@@ -32,7 +32,7 @@ class TestCapillarySelector:
     @pytest.fixture(autouse=True)
     def cs(self, session):
         dev = session.getDevice('capillary_selector')
-        yield dev
+        return dev
 
     @pytest.mark.parametrize('target', [1, 2, 3])
     def test_move(self, cs, target):
@@ -45,8 +45,7 @@ class TestDetector:
     @pytest.fixture(autouse=True)
     def det(self, session):
         dev = session.getDevice('det')
-        yield dev
-
+        return dev
 
     def test_count(self, det):
         count(det, t=0.1)
@@ -57,9 +56,9 @@ class TestOpticToolSwitch:
     @pytest.fixture(autouse=True)
     def ot(self, session):
         dev = session.getDevice('optic_tool_switch')
-        yield dev
+        return dev
 
-    @pytest.mark.parametrize('target', (1, 2, 3, 1))
+    @pytest.mark.parametrize('target', [1, 2, 3, 1])
     def test_move(self, ot, target):
         ot.maw(target)
         assert ot.read(0) == target
