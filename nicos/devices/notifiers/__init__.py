@@ -115,7 +115,7 @@ class Notifier(Device):
 
 
 class Mailer(Notifier):
-    """Sends notifications via e-mail.
+    """Send notifications via e-mail.
 
     If a Mailer is configured as a notifier (the Mailer device is in the list
     of `notifiers` in the `sysconfig` entry), the receiver addresses (not
@@ -168,7 +168,7 @@ class Mailer(Notifier):
 
 
 class HostnameMailer(Mailer):
-    """ Use the hostname as a subject prefix.
+    """Use the hostname as a subject prefix.
 
     This is intended for the seop systems that are running their own instance
     of NICOS with the seop-instrument on their controlling PC.
