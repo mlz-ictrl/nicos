@@ -229,8 +229,8 @@ class TestSinks:
             assert h5['entry/definition'].attrs['version'] == b'v2024.02'
             assert nxs_ds_as_str(h5['entry/sample/name']) == 'mysample'
             assert nxs_ds_as_str(h5['entry/local_contact/role']) == 'local_contact'
-            assert nxs_ds_as_str(h5['entry/local_contact/name']) != ''
-            assert nxs_ds_as_str(h5['entry/local_contact/email']) != ''
+            assert nxs_ds_as_str(h5['entry/local_contact/name'])
+            assert nxs_ds_as_str(h5['entry/local_contact/email'])
             # assert nxs_ds_as_str(h5['entry/local_contact/affiliation']) == ''
             assert nxs_ds_as_str(h5['entry/experiment_identifier']) == 'p1234'
             assert nxs_ds_as_str(h5['entry/program_name']) == 'NICOS'
