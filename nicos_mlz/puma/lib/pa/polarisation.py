@@ -311,7 +311,7 @@ if __name__ == '__main__':
     def read():
         ret = {}
         with open('PolData_In.txt', encoding='utf-8') as f:
-            for line in f.readlines():
+            for line in f:
                 key, value = line.split('=')
                 ret[key.strip()] = float(value.strip())
         return ret

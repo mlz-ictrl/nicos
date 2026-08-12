@@ -519,7 +519,7 @@ class PGAIPanel(Panel):
         if fn:
             try:
                 with open(fn, 'r', encoding='utf-8') as f:
-                    for line in f.readlines():
+                    for line in f:
                         x, y, z = line.split(',')
                         self.addPoint(float(x), float(y), float(z))
             except OSError:

@@ -82,7 +82,7 @@ class TestMultiDetector:
         # read good targets from file
         with open(os.path.join(dirname, 'med_test.txt'),
                   encoding='utf-8') as f:
-            for s in f.readlines():
+            for s in f:
                 # convert stringified list to list avoiding use of 'eval'
                 v = ast.literal_eval(s)
                 assert med.isAllowed(v)[0]
@@ -90,7 +90,7 @@ class TestMultiDetector:
         # read bad targets from file
         with open(os.path.join(dirname, 'med_test_fail.txt'),
                   encoding='utf-8') as f:
-            for s in f.readlines():
+            for s in f:
                 # convert stringified list to list avoiding use of 'eval'
                 v = ast.literal_eval(s)
                 assert not med.isAllowed(v)[0]
