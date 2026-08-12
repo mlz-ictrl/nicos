@@ -20,7 +20,7 @@ devices = dict(
 for i in range(1, 39):
     devices[f'pow{i:02d}'] = \
         device(
-            'nicos_mlz.j_nse.devices.jnse.JNSEPowerSupply',
+            'nicos_mlz.j_nse.devices.power.JNSEPowerSupply',
             description = f'Power Supply Port {i:02d}',
             tangodevice = tango_base + f'supply/pow{i:02d}',
             unit = 'A',
