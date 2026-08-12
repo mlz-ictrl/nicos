@@ -185,7 +185,7 @@ class PolarisationPanel(NicosWidget, Panel):
                   'ra5', 'ra6', 'ra7',
                   'rd5', 'rd6', 'rd7',
                   'rd5_cad', 'rd6_cad', 'rd7_cad',
-                  'rg5', 'rg6', 'rg7'
+                  'rg5', 'rg6', 'rg7',
                   'kf', 'lsa', 'lsd1', 'lsd2', 'lad', 'lpsd', 'slit2.width'):
             self.registerDevice(d)
         for k in ('def1/reflectivity', 'polcol/divergency', 'def1/length',
