@@ -4,6 +4,7 @@ group = 'basic'
 includes = [
     'counter',
     'physics',
+    'shutter',
 ]
 
 sysconfig = dict(
