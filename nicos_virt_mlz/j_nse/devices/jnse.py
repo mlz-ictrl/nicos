@@ -21,9 +21,11 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param
+from nicos.core import Override, Param
+from nicos.devices.abstract import TransformedReadable
 from nicos.devices.generic.virtual import VirtualMotor
 from nicos_mlz.j_nse.devices.power import HasLabel
+from nicos_mlz.stressi.devices.mixins import TransformRead
 
 
 class JNSEVirtualMotor(HasLabel, VirtualMotor):
@@ -39,3 +41,19 @@ class JNSEVirtualMotor(HasLabel, VirtualMotor):
 
     def doReadVoltage(self):
         return (self.curvalue or 0.) * 0.1
+
+
+class Integrator(TransformRead, TransformedReadable):
+    """A device to integrate values over time.
+    """
+
+    parameter_overrides = {
+        'unit': Override(volatile=False),
+    }
+
+    def doInit(self, mode):
+        self._sum = 0
+
+    def doRead(self, maxage=0):
+        self._sum += TransformedReadable.doRead(self, maxage) * self.pollinterval
+        return self._sum
