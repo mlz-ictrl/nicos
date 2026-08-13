@@ -5,7 +5,7 @@ devices = dict(
     UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
          description = 'FRM II user office authentication',
          instrument = 'RESEDA',
-         ghosthost = 'ghost.mlz-garching.de',
+         ghosthost = configdata('ghost.ghosthost'),
          loglevel = 'info',
     ),
     LDAPAuth = device('nicos.services.daemon.auth.ldap.Authenticator',

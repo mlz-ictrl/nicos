@@ -5,7 +5,7 @@ devices = dict(
     UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
          description = 'FRM II user office authentication',
          instrument = 'ANTARES',
-         ghosthost = 'ghost.mlz-garching.de',
+         ghosthost = configdata('ghost.ghosthost'),
          aliases = {
              'ms': ('michael.schulz@frm2.tum.de', 'admin'),
              'tb': ('tobias.neuwirth@frm2.tum.de', 'admin'),

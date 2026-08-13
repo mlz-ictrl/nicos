@@ -6,7 +6,7 @@ devices = dict(
     UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
          description = 'FRM II user office authentication',
          instrument = 'TOFTOF',
-         ghosthost = 'ghost.mlz-garching.de',
+         ghosthost = configdata('ghost.ghosthost'),
          aliases = {
          },
          loglevel = 'info',
