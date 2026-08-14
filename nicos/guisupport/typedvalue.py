@@ -216,25 +216,15 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     if isinstance(typ, params.oneof):
         if allow_buttons and len(typ.vals) <= 3:
             return ButtonWidget(parent, typ.vals)
-        return ComboWidget(parent, typ.vals, curvalue)
+        return ComboWidget(parent, typ, curvalue)
+    elif isinstance(typ, params.oneof_or):
+        return ComboWidget(parent, typ, curvalue, editable=True)
     elif isinstance(typ, params.oneofdict):
         if allow_buttons and len(typ.vals) <= 3:
             return ButtonWidget(parent, list(typ.vals.values()))
-        return ComboWidget(parent, list(typ.vals.values()), curvalue)
+        return ComboWidget(parent, params.oneof(*typ.vals.values()), curvalue)
     elif isinstance(typ, params.oneofdict_or):
-        inner = create(parent, typ.conv, curvalue, fmtstr, unit,
-                       allow_buttons, allow_enter, client, valinfo)
-        if allow_buttons and len(typ.named_vals) <= 3:
-            selector = ButtonWidget(parent, typ.named_vals)
-            return OneofdictOrWidget(parent, inner, selector, buttons=True)
-        else:
-            for (name, value) in typ.named_vals.items():
-                if value == curvalue:
-                    curvalue = name
-                    break
-            selector = ComboWidget(parent, list(typ.named_vals), curvalue,
-                                   add_other=True)
-            return OneofdictOrWidget(parent, inner, selector, buttons=False)
+        return OneofdictOrWidget(parent, typ, curvalue)
     elif isinstance(typ, params.none_or):
         return CheckWidget(parent, typ.conv, curvalue, client)
     elif isinstance(typ, params.nonzero):
@@ -264,7 +254,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif typ in (bool, params.boolean):
         if allow_buttons:
             return ButtonWidget(parent, [True, False])
-        return ComboWidget(parent, [True, False], curvalue)
+        return ComboWidget(parent, params.oneof(True, False), curvalue)
     elif typ == params.vec3:
         return MultiWidget(parent, (float, float, float), curvalue, client,
                            allow_enter=allow_enter)
@@ -423,59 +413,46 @@ class ComboWidget(QComboBox):
     valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
-    def __init__(self, parent, values, curvalue, add_other=False):
+    def __init__(self, parent, valuetype, curvalue, editable=False):
         QComboBox.__init__(self, parent)
-        self._values = values
-        self._textvals = list(map(str, self._values))
-        self._add_other = add_other
-        if add_other:
-            self._values.append(Ellipsis)
-            self._textvals.append('<other value>')
+        self.setEditable(editable)
+        self._conv = valuetype.conv if hasattr(valuetype, 'conv') \
+            else (lambda v: v)
+        self._textvals = [str(k) for k in valuetype.vals]
         self.addItems(self._textvals)
+        self._values = list(valuetype.vals.values()) \
+            if isinstance(valuetype, params.oneofdict_or) else list(valuetype.vals)
         if curvalue in self._values:
             self.setCurrentIndex(self._values.index(curvalue))
-        elif add_other:
-            self.setCurrentIndex(len(self._values) - 1)
-        self.currentIndexChanged['int'].connect(
-            lambda idx: self.valueModified.emit())
-
-    def getValue(self):
-        return self._values[self._textvals.index(self.currentText())]
-
-
-class OneofdictOrWidget(QWidget):
-
-    valueModified = pyqtSignal()
-    valueChosen = pyqtSignal(object)
-
-    def __init__(self, parent, inner, selector, buttons):
-        QWidget.__init__(self, parent)
-        self._inner = inner
-        self._selector = selector
-
-        layout = self._layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        inner.valueModified.connect(self.valueModified)
-        inner.valueChosen.connect(self.valueChosen)
-        if not buttons:
-            selector.valueModified.connect(self.on_selector_valueModified)
-            inner.setVisible(selector.getValue() is Ellipsis)
         else:
-            selector.valueChosen.connect(self.valueChosen)
-        layout.addWidget(selector)
-        layout.addWidget(inner)
-        self.setLayout(layout)
-
-    def on_selector_valueModified(self):
-        val = self._selector.getValue()
-        self._inner.setVisible(val is Ellipsis)
-        self.valueModified.emit()
+            self.setCurrentText(str(curvalue))
+        self.currentTextChanged.connect(
+            lambda t: self.valueModified.emit() if t else None)
+        if editable:
+            self.lineEdit().returnPressed.connect(self.on_returnPressed)
 
     def getValue(self):
-        val = self._selector.getValue()
-        if val is Ellipsis:
-            return self._inner.getValue()
-        return val
+        if self.currentText() in self._textvals:
+            return self._conv(self._values[self._textvals.index(self.currentText())])
+        return self._conv(self.currentText())
+
+    def on_returnPressed(self):
+        try:
+            value = self.getValue()
+        except ValueError:
+            return
+        self.valueChosen.emit(value)
+
+
+class OneofdictOrWidget(ComboWidget):
+
+    def __init__(self, parent, valuetype, curvalue):
+        ComboWidget.__init__(self, parent, valuetype, curvalue, True)
+
+    def getValue(self):
+        if self.currentText() in self._textvals:
+            return self.currentText()
+        return self._conv(self.currentText())
 
 
 class ButtonWidget(QWidget):

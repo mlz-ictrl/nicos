@@ -30,7 +30,7 @@ from nicos.core.errors import ConfigurationError, ProgrammingError
 from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     anytype, boolean, dictof, dictwith, floatrange, host, intrange, ipv4, \
     limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
-    nonemptystring, nonzero, oneof, oneofdict, oneofdict_or, pvname, \
+    nonemptystring, nonzero, oneof, oneof_or, oneofdict, oneofdict_or, pvname, \
     relative_path, secret, setof, string, subdir, tangodev, tupleof, vec3
 from nicos.utils import Secret
 
@@ -298,6 +298,15 @@ def test_oneof():
     pytest.raises(ValueError, oneof(0, 1), '0')
     pytest.raises(ValueError, oneof(0, 1), 2)
     pytest.raises(ValueError, oneof(0, 1), 'x')
+
+
+def test_oneof_or():
+    v = oneof_or([1, 2], floatrange(0, 10))
+    assert v(1) == 1.0
+    assert v(5) == 5.0
+    assert v() == 1.0
+    pytest.raises(ValueError, v, 11)
+    assert oneof_or([], floatrange(0, 10))() is None
 
 
 def test_setof():

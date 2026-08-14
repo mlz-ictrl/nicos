@@ -95,6 +95,13 @@ they return a converter.
 
        Param(..., type=oneof('up', 'down'))
 
+.. function:: oneof_or(vals, basic_converter)
+
+   Create a converter that accepts all values in *vals* plus the values
+   *basic_converter* accepts.  Example::
+
+       Param(..., type=oneof_or([1.1, 1.3], floatrange(0, 10)))
+
 .. function:: listof(element_converter)
 
    Create a converter that accepts only lists with element types given by the
@@ -142,10 +149,10 @@ they return a converter.
 
        Param(..., type=oneofdict({'up': 1, 'down': 0}))
 
-.. function:: oneofdict_or(named_vals, basic_converter)
+.. function:: oneofdict_or(vals, basic_converter)
 
-   Create a converter that accepts all values the *basic_converter* would also
-   accept, plus the strings given as keys in *named_vals*. The mapped values
+   Create a converter that accepts all values the *basic_converter* would
+   accept, plus the strings given as keys in *vals*. The mapped values
    must conform to the *basic_converter*.
 
    Returns only values conforming to the *basic_converter*. Examples::

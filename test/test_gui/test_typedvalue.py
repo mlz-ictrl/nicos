@@ -29,8 +29,8 @@ import pytest
 
 from nicos.core.params import Value, anytype, dictof, dictwith, floatrange, \
     host, intrange, limits, listof, mailaddress, nicosdev, none_or, \
-    nonemptylistof, nonzero, oneof, oneofdict, oneofdict_or, setof, tupleof, \
-    vec3
+    nonemptylistof, nonzero, oneof, oneof_or, oneofdict, oneofdict_or, setof, \
+    tupleof, vec3
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
 from nicos.guisupport.qt import QPushButton, Qt
 from nicos.guisupport.typedvalue import AnnotatedWidget, ButtonWidget, \
@@ -66,9 +66,10 @@ class TestTypedvalue:
             qtbot.keyClicks(widget, str(text))
         assert widget.getValue() == result
 
-    @pytest.mark.parametrize('add_other', [True, False])
-    def test_ComboWidget(self, qtbot, add_other):
-        widget = ComboWidget(None, [1, 2, 4], 2, add_other=add_other)
+    @pytest.mark.parametrize('editable', [True, False])
+    def test_ComboWidget(self, qtbot, editable):
+        widget = ComboWidget(None, oneof_or([1, 2, 4], intrange(0, 50)), 2,
+                             editable=editable)
         qtbot.addWidget(widget)
         widget.show()
 
@@ -78,6 +79,10 @@ class TestTypedvalue:
         assert widget.getValue() == 2
         widget.setCurrentIndex(0)
         assert widget.getValue() == 1
+
+        if editable:
+            widget.setCurrentText('42')
+            assert widget.getValue() == 42
 
     def test_ButtonWidget(self, qtbot):
         widget = ButtonWidget(None, ['in', 'out'])
@@ -299,17 +304,16 @@ class TestTypedvalue:
 
     def test_OneofdictOrWidget(self, qtbot):
         typ = oneofdict_or({'disabled': 1, 'enabled': 0}, intrange(0, 5))
-        widget = create(None, typ, 1, allow_buttons=False,
-                        allow_enter=True)
+        widget = create(None, typ, 1)
         qtbot.addWidget(widget)
         widget.show()
         assert widget.getValue() == 'disabled'
 
-        widget._selector.setCurrentIndex(1)
+        widget.setCurrentIndex(1)
         assert widget.getValue() == 'enabled'
 
-        widget._selector.setCurrentIndex(2)
-        assert widget.getValue() == 1
+        widget.setCurrentText('3')
+        assert widget.getValue() == 3
 
         with qtbot.waitExposed(widget):
             pass
@@ -348,8 +352,6 @@ class TestTypedvalue:
                 'disabled'),
             (oneofdict_or({'disabled': 1, 'enabled': 0}, intrange(0, 5)),
                 1, False, 'disabled'),
-            (oneofdict_or({'disabled': 1, 'enabled': 0}, intrange(0, 5)),
-                1, True, 1),
             (oneofdict_or({'disabled': 1, 'enabled': 0}, intrange(0, 5)),
                 3, False, 3),
             (list, [1, 2], False, [1, 2]),

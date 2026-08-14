@@ -770,6 +770,24 @@ class oneof:
         return val
 
 
+class oneof_or:
+
+    def __init__(self, vals, validator):
+        self.conv = fixup_conv(validator)
+        self.vals = list(vals)
+        for v in self.vals:
+            self.conv(v)
+        self.__doc__ = \
+            f'one of {", ".join(map(repr, self.vals))} or {self.conv.__doc__}'
+
+    def __call__(self, val=None):
+        if val is None:
+            if self.vals:
+                return self.conv(self.vals[0])
+            return None
+        return self.conv(val)
+
+
 class oneofdict:
 
     def __init__(self, vals):
@@ -788,14 +806,14 @@ class oneofdict:
 
 
 class oneofdict_or:
-    def __init__(self, named_vals, validator):
+    def __init__(self, vals, validator):
         self.conv = fixup_conv(validator)
-        self.__doc__ = 'one of ' + ', '.join(map(repr, named_vals)) + \
+        self.__doc__ = 'one of ' + ', '.join(map(repr, vals)) + \
             ', or ' + self.conv.__doc__
-        self.named_vals = {k: self.conv(v) for (k, v) in named_vals.items()}
+        self.vals = {k: self.conv(v) for (k, v) in vals.items()}
 
     def __call__(self, val=None):
-        return self.conv(self.named_vals.get(val, val))
+        return self.conv(self.vals.get(val, val))
 
 
 class none_or:
