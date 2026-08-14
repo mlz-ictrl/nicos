@@ -96,10 +96,10 @@ release:
 	$(PYTHON) setup.py sdist
 
 codespell:
-	codespell .
+	@codespell .
 
 fixups:
-	ast-grep scan -c tools/fixups/config
+	@ast-grep scan -c tools/fixups/config
 
 help:
 	@echo "Important targets:"
@@ -115,5 +115,7 @@ help:
 	@echo "  test-coverage   - run test suite with coverage reporting"
 	@echo "  lint            - check source with pylint"
 	@echo "  changelint      - check source with pylint (only files in last commit)"
+	@echo "  fixups          - check source with ast-grep"
+	@echo "  codespell       - check source with codespell"
 	@echo "  manualrelease   - create tarball for official release (for manual usage)"
 	@echo "  release         - create tarball for official release(jenkins usage)"
