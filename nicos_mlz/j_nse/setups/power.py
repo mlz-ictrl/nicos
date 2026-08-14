@@ -20,11 +20,11 @@ devices = dict(
 for i in range(1, 39):
     devices[f'pow{i:02d}'] = \
         device(
-            'nicos_mlz.j_nse.devices.jnse.JNSEPowerSupply',
+            'nicos_mlz.j_nse.devices.power.JNSEPowerSupply',
             description = f'Power Supply Port {i:02d}',
             tangodevice = tango_base + f'supply/pow{i:02d}',
             unit = 'A',
             precision = 0.002,
-            visibility = ('metadata',) if i in [5, 9, 10, 11, 12] else \
+            visibility = ('metadata', 'namespace') if i in [5, 9, 10, 11, 12] else \
                 ('devlist', 'metadata', 'namespace'),
         )

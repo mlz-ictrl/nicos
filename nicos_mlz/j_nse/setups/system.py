@@ -16,7 +16,6 @@ includes = [
     'coiltemp',
     'reactor',
     'guidehall',
-    'nl2a',
     'memograph',
 ]
 

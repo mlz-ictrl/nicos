@@ -1,22 +1,28 @@
 description = 'Counter card setup'
 group = 'lowlevel'
 
+includes = [
+    'selector',
+]
+
 devices = dict(
-    selector = device(
-        'nicos.devices.generic.virtual.VirtualMotor',
-        description = 'Selector',
-        userlimits = (0, 1000),
-        abslimits = (0, 1000),
-        speed = 100.,
-        unit = 'Hz',
+    selector_cts = device(
+        'nicos_virt_mlz.j_nse.devices.jnse.Integrator',
+        description = 'Selector counter',
+        unit = 'cts',
+        informula = 'x',
+        dev = 'selector_freq',
         fmtstr = '%.0f',
         pollinterval = 0.5,
     ),
-    selector_speed_countercard = device(
-        'nicos.devices.generic.DeviceAlias',
-        alias = 'selector',
-        devclass='nicos.core.device.Readable',
-        visibility = ('metadata',),
+    selector_freq = device(
+        'nicos_mlz.refsans.devices.converters.LinearKorr',
+        description = 'Selector frequency',
+        unit = 'Hz',
+        informula = 'x / 60',
+        dev = 'selector_speed',
+        fmtstr = '%.0f',
+        pollinterval = 0.5,
     ),
     anode_events = device(
         'nicos.devices.generic.VirtualCounter',

@@ -21,39 +21,27 @@
 #
 # *****************************************************************************
 
-from nicos.core import Override, Param
-from nicos.devices.abstract import TransformedReadable
-from nicos.devices.generic.virtual import VirtualMotor
-from nicos_mlz.j_nse.devices.power import HasLabel
-from nicos_mlz.stressi.devices.mixins import TransformRead
+from nicos import session
+from nicos.core import Param
+from nicos.core.mixins import DeviceMixinBase
+from nicos.devices.entangle import PowerSupply
 
 
-class JNSEVirtualMotor(HasLabel, VirtualMotor):
-    """VirtualMotor that stores additional label."""
+class HasLabel(DeviceMixinBase):
+    """For devices that store additional label parameter."""
 
     parameters = {
-        'voltage': Param(
-            'Actual voltage',
-            unit='V', fmtstr='%.3f', internal=True, type=float, settable=False,
-            volatile=True, category='general',
-        ),
+        'label': Param('Device label from NIST table',
+                       type=str, default='', internal=True,),
     }
 
-    def doReadVoltage(self):
-        return (self.curvalue or 0.) * 0.1
+    def doReadLabel(self):
+        try:
+            label = session.instrument.devices.get(self.name, '')
+        except AttributeError:
+            label = ''
+        return label
 
 
-class Integrator(TransformRead, TransformedReadable):
-    """A device to integrate values over time.
-    """
-
-    parameter_overrides = {
-        'unit': Override(volatile=False),
-    }
-
-    def doInit(self, mode):
-        self._sum = 0
-
-    def doRead(self, maxage=0):
-        self._sum += TransformedReadable.doRead(self, maxage) * self.pollinterval
-        return self._sum
+class JNSEPowerSupply(HasLabel, PowerSupply):
+    """PowerSupply that stores additional label."""

@@ -4,15 +4,16 @@ group = 'lowlevel'
 tango_base = 'tango://phys.j-nse.frm2:10000/j-nse/'
 
 devices = dict(
-    selector = device('nicos.devices.entangle.CounterChannel',
+    selector_cts = device('nicos.devices.entangle.CounterChannel',
         description = 'Selector',
         tangodevice = tango_base + 'count/sel',
         type = 'monitor',
+        unit = 'cts',
     ),
-    selector_speed_countercard = device('nicos.devices.entangle.Sensor',
+    selector_freq = device('nicos.devices.entangle.Sensor',
         description = 'Selector frequency according to counter card',
         tangodevice = tango_base + 'count/sel_freq',
-        unit = 'rpm',
+        unit = 'Hz',
         fmtstr = '%.0f',
         visibility = (),
     ),
