@@ -192,7 +192,8 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
                 'email': sessinfo['localcontact_email'],
             }],
             'users': [],
-            'substances': samples['basesamples']
+            'substances': samples['basesamples'],
+            'default_sample': '',
         }
         for s in samples['registeredsamples']:
             for b in info['substances']:
@@ -203,7 +204,8 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
                     s1 = copy.copy(b)
                     s1.update(s)
                     info['samples'].append(s1)
-        info['default_sample'] = info.get('samples', [{'name': ''}])[0]['name']
+        if info['samples']:
+            info['default_sample'] = info['samples'][0]['name']
         for user in sessinfo['userdetails']['sessionteam']:
             info['users'].append({
                 'name': user['name'],
