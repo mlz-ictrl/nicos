@@ -16,6 +16,7 @@ devices = dict(
         description = 'Anode HV current of detector 1',
         device = 'det1_anode',
         parameter = 'current',
+        fmtstr = '%g',
     ),
     det1_drift = device('nicos.devices.entangle.PowerSupply',
         description = 'Drift HV of detector 1',
@@ -28,5 +29,6 @@ devices = dict(
         description = 'Drift HV current of detector 1',
         device = 'det1_drift',
         parameter = 'current',
+        fmtstr = '%g',
     ),
 )
