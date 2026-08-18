@@ -197,6 +197,7 @@ On-line analysis commands
 .. autofunction:: findpeaks
 .. autofunction:: center
 .. autofunction:: checkoffset
+.. autofunction:: ListFitters
 
 Triple-axis commands
 --------------------
