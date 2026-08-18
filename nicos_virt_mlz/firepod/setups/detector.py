@@ -2,6 +2,17 @@ description = 'Virtual FIREPOD detector'
 
 group = 'lowlevel'
 
+includes = [
+    'hv1',
+    'hv2',
+    'hv3',
+    'hv4',
+    'hv5',
+    'hv6',
+    'hv7',
+    'hv8',
+]
+
 devices = dict(
     mon = device('nicos.devices.generic.VirtualCounter',
         description = 'Simulated MON1',
@@ -49,32 +60,6 @@ devices = dict(
     #     description = 'Listmode data written via QMesyDAQ',
     #     image = 'image',
     # ),
-    hv1 = device('nicos.devices.generic.VirtualMotor',
-        description = 'ISEG HV power supply 1',
-        requires = {'level': 'admin'},
-        abslimits = (0, 300),
-        curvalue = 300,
-        jitter = 0.1,
-        speed = 2,
-        fmtstr = '%.1f',
-        unit = 'V',
-    ),
-    hv2 = device('nicos.devices.generic.VirtualMotor',
-        description = 'ISEG HV power supply 2',
-        requires = {'level': 'admin'},
-        abslimits = (0, 1975),
-        curvalue = 1950,
-        jitter = 0.1,
-        speed = 2,
-        fmtstr = '%.1f',
-        unit = 'V',
-    ),
-    detsampledist = device('nicos.devices.generic.ManualMove',
-        description = 'Distance between sample and detector',
-        default = 1.117,
-        abslimits = (1.117, 1.117),
-        unit = 'm',
-    ),
 )
 
 startupcode = '''

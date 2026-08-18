@@ -3,14 +3,15 @@ description = 'Full operation setup'
 group = 'basic'
 
 includes = [
-    'secoptic',
+    'slits',
     'sampletable',
     'rc',
     'detector',
-    'beamstop',
     'reactor',
+    'optic',
+    'distances',
 ]
 
 startupcode = """
-move(rc, 'on', fshutter, 'open', filter, 'in', collchanger, 'in', slit, (20, 30))
+move(rc, 'on', shutter, 'open', filter, 'in', collimator, 'in', slit, (20, 30))
 """

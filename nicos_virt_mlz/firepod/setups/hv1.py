@@ -1,0 +1,38 @@
+description = 'Detector 1 HV devices'
+
+group = 'lowlevel'
+
+devices = dict(
+    det1_anode = device('nicos.devices.generic.VirtualMotor',
+        description = 'Anode HV of detector 1',
+        precision = 2,
+        requires = {'level': 'admin'},
+        abslimits = (0, 2500),
+        curvalue = 0,
+        jitter = 0.1,
+        speed = 2,
+        fmtstr = '%.1f',
+        unit = 'V',
+    ),
+    det1_anode_current = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'Anode HV current of detector 1',
+        device = 'det1_anode',
+        parameter = 'current',
+    ),
+    det1_drift = device('nicos.devices.generic.VirtualMotor',
+        description = 'Drift HV of detector 1',
+        precision = 2,
+        requires = {'level': 'admin'},
+        abslimits = (-1000, 0),
+        curvalue = 0,
+        jitter = 0.1,
+        speed = 2,
+        fmtstr = '%.1f',
+        unit = 'V',
+    ),
+    det1_drift_current = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'Drift HV current of detector 1',
+        device = 'det1_drift',
+        parameter = 'current',
+    ),
+)
