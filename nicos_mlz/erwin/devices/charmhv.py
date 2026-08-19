@@ -93,7 +93,7 @@ class HVSwitch(SequencerMixin, MappedMoveable):
                         mandatory=False, settable=True),
         'onstate': Param('Value indicating the HV is switched on',
                          type=str, default='on'),
-        'offstate': Param('Value indicating the HV is switched on',
+        'offstate': Param('Value indicating the HV is switched off',
                           type=str, default='off'),
         'safestate': Param('Value indicating the HV is switched to safe state',
                            type=str, default='safe'),
