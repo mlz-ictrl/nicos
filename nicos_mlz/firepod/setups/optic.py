@@ -28,6 +28,6 @@ devices = dict(
     shutter = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Instrument fast shutter',
         tangodevice = tango_base + 'shutter',
-        mapping = {'close': 0, 'open': 1},
+        mapping = {'closed': 0, 'open': 1},
     ),
 )
