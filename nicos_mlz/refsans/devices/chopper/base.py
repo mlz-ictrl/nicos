@@ -262,7 +262,7 @@ class ChopperDisc(HasLimits, HasPrecision, DeviceMixinBase):
                            type=floatrange(-360, 360), settable=False,
                            userparam=True),
         'edge': Param('Chopper edge of neutron window',
-                      type=oneof('open', 'close'), settable=False,
+                      type=oneof('open', 'closed'), settable=False,
                       userparam=True),
         'gear': Param('Chopper ratio',
                       type=intrange(-6, 6), settable=False, userparam=True,

@@ -11,7 +11,7 @@ devices = dict(
         description = 'sans1 primary collimation',
         lock = 'instrument_shutter',
         device = 'col_sw',
-        unlockvalue = 'close',
+        unlockvalue = 'closed',
         pollinterval = 15,
         maxage = 60,
     ),

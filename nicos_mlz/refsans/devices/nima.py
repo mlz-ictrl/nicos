@@ -122,7 +122,7 @@ class MoveName(ReadName, Moveable):
 
 class Area(MoveName):
 
-    valuetype = oneof('open', 'close')
+    valuetype = oneof('open', 'closed')
 
     def doStart(self, target):
         self._command(target)
@@ -147,7 +147,7 @@ class Area(MoveName):
             raise ModeError(
                 self, f'closing barrier not allowed in {self._mode} mode')
         if not self._sim_intercept:
-            self.doStart('close')
+            self.doStart('closed')
 
 
 class Press(HasPrecision, HasLimits, MoveName):

@@ -138,7 +138,7 @@ class sc_script(object):
         #atten_target = att_settings[att_index_before][att_index_after][1]
         #self.cond_move(att, atten_target, sync=True)
         #################################### und durch das hier ersetzt
-        self.cond_move(instrument_shutter, 'close')
+        self.cond_move(instrument_shutter, 'closed')
         self.cond_wait(instrument_shutter)
         
         self.cond_move(det1_z, det)
@@ -267,7 +267,7 @@ class sc_script(object):
                         count(scatt_time)
                         self.prev_trans_scatt = 's'
         # when script finishes
-        self.cond_move(instrument_shutter, 'close') #2021
+        self.cond_move(instrument_shutter, 'closed') #2021
         self.beamstop(inbeam=True)
         self.cond_wait(instrument_shutter) #2021
         printinfo("Script finished!")

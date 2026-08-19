@@ -25,7 +25,7 @@ devices = dict(
                     ],
         mapping = {
             'open': [1, 1, 0],
-            'close': [0, 0, 1],
+            'closed': [0, 0, 1],
         },
         fallback = '?',
         fmtstr = '%s',

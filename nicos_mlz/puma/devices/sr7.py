@@ -50,13 +50,13 @@ class SR7Shutter(HasTimeout, Moveable):
         'timeout': Override(mandatory=False, default=5),
     }
 
-    positions = ['close', 'S1', 'S2', 'S3']
+    positions = ['closed', 'S1', 'S2', 'S3']
     valuetype = oneof(*positions)
 
     def doIsAllowed(self, pos):
-        # only shutter close is allowed
-        if pos != 'close':
-            return False, 'can only close shutter from remote'
+        # only shutter closing is allowed
+        if pos != 'closed':
+            return False, 'can only **close** shutter from remote'
         return True, ''
 
     def doStart(self, target):
@@ -71,7 +71,7 @@ class SR7Shutter(HasTimeout, Moveable):
         res = self.doStatus()[0]
         if res == status.OK:
             if self._attached_sr7cl.read(maxage) == 1:
-                return 'close'
+                return 'closed'
             if self._attached_sr7p1.read(maxage) == 1:
                 return 'S1'
             if self._attached_sr7p2.read(maxage) == 1:
