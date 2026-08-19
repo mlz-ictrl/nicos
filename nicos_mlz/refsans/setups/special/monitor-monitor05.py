@@ -600,7 +600,7 @@ _cooling = Column(
     ),
 )
 _chopper_extra = Column(
-    Block('extra, currant! - VSD Enable', [
+    Block('extra, current! - VSD Enable', [
         BlockRow(
             Field(name='Fatal', key='chopper/fatal', width=10),
             Field(name='delay', key='chopper/delay', width=10),
