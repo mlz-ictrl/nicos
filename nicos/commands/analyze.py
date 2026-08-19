@@ -39,7 +39,7 @@ from nicos.utils.fitting import Fit, PolyFit
 __all__ = [
     'center_of_mass', 'fwhm', 'root_mean_square', 'poly', 'gauss', 'sigmoid',
     'lorentz', 'voigt', 'pearson', 'center', 'checkoffset', 'findpeaks',
-    'ListFitters',
+    'ListFitters', 'fit',
 ]
 
 
@@ -196,6 +196,8 @@ class CommandLineFitResult(tuple):
     __display__ = False
 
 
+@usercommand
+@helparglist('fitclass, [[xcol, ]ycol][, kwargs]')
 def fit(fitclass, *columns, **kwargs):
     """Fit the data of the last scan with a given fit function.
 
@@ -254,7 +256,9 @@ def poly(n, *columns):
 
         (coefficients, coeff_errors)
 
-    where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
+    where both *coefficients* and *coeff_errors* are tuples of *n+1* elements
+    and the elements of the second tuple are the estimated standard errors of
+    the fit parameters.
 
     If the fit failed, the result is ``(None, None)``.
     """
@@ -271,15 +275,15 @@ def gauss(*columns):
 
     The return value is a pair of tuples::
 
-        ((x0, ampl, sigma, background), (d_x0, d_ampl, d_sigma, d_back))
+        ((x0, A, fwhm, B), (d_x0, d_A, d_fwhm, d_B))
 
     where the elements of the second tuple are the estimated standard errors of
     the fit parameters.  The fit parameters are:
 
     * x0 - center of the Gaussian
-    * ampl - amplitude
+    * A - amplitude
     * fwhm - FWHM
-    * background
+    * B - background
 
     If the fit failed, the result is ``(None, None)``.
 
@@ -440,8 +444,8 @@ sigmoid.__doc__ += COLHELP.replace('func(', 'sigmoid(')
 def ListFitters():
     """Print a table with all known fitters.
 
-    These fitters are usable for `center()`, `checkoffset()` and related
-    commands.
+    These fitters are usable for `fit()`, `center()`, `checkoffset()` and
+    related commands.
     """
     items = []
     for k, v in FitterRegistry.fitters.items():

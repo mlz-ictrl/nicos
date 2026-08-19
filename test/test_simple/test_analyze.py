@@ -25,8 +25,8 @@
 
 import pytest
 
-from nicos.commands.analyze import ListFitters, center_of_mass, fwhm, gauss, \
-    lorentz, pearson, poly, root_mean_square, voigt
+from nicos.commands.analyze import ListFitters, center_of_mass, fit, fwhm, \
+    gauss, lorentz, pearson, poly, root_mean_square, voigt
 from nicos.core import FINAL
 
 try:
@@ -93,9 +93,19 @@ class TestAnalyzers:
         assert len(result[0]) == 4
         assert result[0][0] == pytest.approx(-0.8735, abs=0.0005)
 
+        result = fit('gauss')
+        assert len(result) == 2
+        assert len(result[0]) == 4
+        assert result[0][0] == pytest.approx(-0.8735, abs=0.0005)
+
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
     def test_lorentz(self, session):
         result = lorentz()
+        assert len(result) == 2
+        assert len(result[0]) == 4
+        assert result[0][0] == pytest.approx(-0.882, abs=0.001)
+
+        result = fit('lorentz')
         assert len(result) == 2
         assert len(result[0]) == 4
         assert result[0][0] == pytest.approx(-0.882, abs=0.001)
@@ -107,12 +117,28 @@ class TestAnalyzers:
         assert len(result[0]) == 5
         assert result[0][2] == pytest.approx(-0.883, abs=0.001)
 
+        result = fit('pseudovoigt')
+        assert len(result) == 2
+        assert len(result[0]) == 5
+        assert result[0][2] == pytest.approx(-0.883, abs=0.001)
+
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
     def test_pearson(self, session):
         result = pearson()
         assert len(result) == 2
         assert len(result[0]) == 5
         assert result[0][2] == pytest.approx(-0.876, abs=0.001)
+
+        result = fit('pearson')
+        assert len(result) == 2
+        assert len(result[0]) == 5
+        assert result[0][2] == pytest.approx(-0.876, abs=0.001)
+
+    @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
+    def test_tc(self, session):
+        result = fit('tc')
+        assert len(result) == 2
+        # assert result == (None, None)  # Not expected to fit!
 
 
 def test_list_fitters(session, log):

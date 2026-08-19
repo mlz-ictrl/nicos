@@ -192,6 +192,7 @@ On-line analysis commands
 .. autofunction:: center_of_mass
 .. autofunction:: root_mean_square
 .. autofunction:: fwhm
+.. autofunction:: fit
 .. autofunction:: poly
 .. autofunction:: gauss
 .. autofunction:: lorentz
