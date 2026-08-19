@@ -194,6 +194,9 @@ On-line analysis commands
 .. autofunction:: fwhm
 .. autofunction:: poly
 .. autofunction:: gauss
+.. autofunction:: lorentz
+.. autofunction:: voigt
+.. autofunction:: pearson
 .. autofunction:: findpeaks
 .. autofunction:: center
 .. autofunction:: checkoffset

@@ -34,11 +34,12 @@ from nicos.commands.scan import cscan
 from nicos.core import NicosError, UsageError
 from nicos.utils import FitterRegistry, printTable
 from nicos.utils.analyze import estimateFWHM
-from nicos.utils.fitting import Fit, GaussFit, PolyFit, SigmoidFit
+from nicos.utils.fitting import Fit, PolyFit
 
 __all__ = [
     'center_of_mass', 'fwhm', 'root_mean_square', 'poly', 'gauss', 'sigmoid',
-    'center', 'checkoffset', 'findpeaks', 'ListFitters',
+    'lorentz', 'voigt', 'pearson', 'center', 'checkoffset', 'findpeaks',
+    'ListFitters',
 ]
 
 
@@ -130,6 +131,7 @@ def _getData(columns=None, dataset=None):
 
 
 COLHELP = """
+
     The data columns to use can be given by the arguments: either only the Y
     column, or both X and Y columns.  If they are not given, then the default X
     column is the first, and the default Y column is the first column of type
@@ -195,14 +197,42 @@ class CommandLineFitResult(tuple):
 
 
 def fit(fitclass, *columns, **kwargs):
+    """Fit the data of the last scan with a given fit function.
+
+    The `fitclass` can be either the name of a fit class (see `ListFitters`
+    command) or an own class (derived from `Fit` class).
+
+    The return value is a pair of tuples::
+
+        (fit_params, fit_params_errors)
+
+    where both *fit_params* and *fit_params_errors* are tuples with the same
+    number of elements and representing the result of the fit.  The elements
+    of the second tuple are the estimated standard errors of the fit result
+    parameters.
+
+    If the fit failed, the result is ``(None, None)``.
+
+    Example::
+
+        qscan(...)
+        values, stderr = fit('voigt', 'h', 'det2')
+        if values:  # if the fit was successful
+            center = values[2]
+            # now work with fitted peak center
+    """
     xs, ys, dys, _, ds = _getData(columns, dataset=kwargs.pop('dataset', None))
-    fit = fitclass(**kwargs)
-    res = fit.run(xs, ys, dys)
+    if isinstance(fitclass, str):
+        fitclass = FitterRegistry.getFitterCls(fitclass)
+    if not issubclass(fitclass, Fit):
+        raise ValueError("'fitclass' must either be a string or a `Fit` class")
+    _fit = fitclass(**kwargs)
+    res = _fit.run(xs, ys, dys)
     if res._failed:
         session.log.info('Fit failed.')
         return CommandLineFitResult((None, None))
-    session.notifyFitCurve(ds, fit.fit_title, res.curve_x, res.curve_y)
-    descrs = fit.fit_p_descr
+    session.notifyFitCurve(ds, _fit.fit_title, res.curve_x, res.curve_y)
+    descrs = _fit.fit_p_descr
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
         vals.append((descr, '%.5g' % par, '+/- %.5g' % err,
@@ -210,6 +240,9 @@ def fit(fitclass, *columns, **kwargs):
     printTable(('parameter', 'value', 'error', 'rel. error'),
                vals, session.log.info)
     return CommandLineFitResult((tuple(res._pars[1]), tuple(res._pars[2])))
+
+
+fit.__doc__ += COLHELP.replace('func(', "fit('gauss', ")
 
 
 @usercommand
@@ -222,6 +255,8 @@ def poly(n, *columns):
         (coefficients, coeff_errors)
 
     where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
+
+    If the fit failed, the result is ``(None, None)``.
     """
     return fit(PolyFit, *columns, n=n)
 
@@ -255,11 +290,120 @@ def gauss(*columns):
         if values:  # if the fit was successful
             center = values[0]
             # now work with fitted peak center
+
+    see also: `lorentz`, `voigt`, `pearson`
     """
-    return fit(GaussFit, *columns)
+    return fit('gauss', *columns)
 
 
 gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
+
+
+@usercommand
+@helparglist('[[xcol, ]ycol]')
+def lorentz(*columns):
+    """Fit a Lorentzian through the data of the last scan.
+
+    The return value is a pair of tuples::
+
+        ((x0, A, fwhm, B), (d_x0, d_A, d_fwhm, d_B))
+
+    where the elements of the second tuple are the estimated standard errors of
+    the fit parameters.  The fit parameters are:
+
+    * x0 - center of the Lorentzian
+    * A - amplitude
+    * fwhm - FWHM
+    * B - background
+
+    If the fit failed, the result is ``(None, None)``.
+
+    Example::
+
+        qscan(...)
+        values, stderr = lorentz('h', 'det2')
+        if values:  # if the fit was successful
+            center = values[0]
+            # now work with fitted peak center
+
+    see also: `gauss`, `voigt`, `pearson`
+    """
+    return fit('lorentzian', *columns)
+
+
+lorentz.__doc__ += COLHELP.replace('func(', 'lorentz(')
+
+
+@usercommand
+@helparglist('[[xcol, ]ycol]')
+def voigt(*columns):
+    """Fit a Pseudo-Voigt through the data of the last scan.
+
+    The return value is a pair of tuples::
+
+        ((B, A, x0, hwhm, eta), (d_B, d_A, d_x0, d_hwhm, d_eta))
+
+    where the elements of the second tuple are the estimated standard errors of
+    the fit parameters.  The fit parameters are:
+
+    * B - background
+    * A - amplitude
+    * x0 - center of the Pseudo-Voigt
+    * hwhm - HWHM
+    * eta - eta
+
+    If the fit failed, the result is ``(None, None)``.
+
+    Example::
+
+        qscan(...)
+        values, stderr = voigt('h', 'det2')
+        if values:  # if the fit was successful
+            center = values[2]
+            # now work with fitted peak center
+
+    see also: `gauss`, `lorentz`, `pearson`
+    """
+    return fit('pseudovoigt', *columns)
+
+
+voigt.__doc__ += COLHELP.replace('func(', 'voigt(')
+
+
+@usercommand
+@helparglist('[[xcol, ]ycol]')
+def pearson(*columns):
+    """Fit a Pearson-VII through the data of the last scan.
+
+    The return value is a pair of tuples::
+
+        ((B, A, x0, hwhm, m), (d_B, d_A, d_x0, d_hwhm, d_m))
+
+    where the elements of the second tuple are the estimated standard errors of
+    the fit parameters.  The fit parameters are:
+
+    * B - background
+    * A - amplitude
+    * x0 - center of the 'Pearson VII'
+    * hwhm - HWHM
+    * m - m
+
+    If the fit failed, the result is ``(None, None)``.
+
+    Example::
+
+        qscan(...)
+        values, stderr = pearson('h', 'det2')
+        if values:  # if the fit was successful
+            center = values[2]
+            # now work with fitted peak center
+
+    see also: `gauss`, `lorentz`, `voigt`
+    """
+    return fit('pearson', *columns)
+
+
+pearson.__doc__ += COLHELP.replace('func(', 'pearson(')
 
 
 @usercommand
@@ -271,33 +415,22 @@ def sigmoid(*columns):
 
         ((a, b, x0, c), (d_a, d_b, d_x0, d_c))
 
-    where the elements of the second tuple are the estimated standard errors of the
-    fit parameters.  The fit parameters are:
+    where the elements of the second tuple are the estimated standard errors of
+    the fit parameters.  The fit parameters are:
 
     * a - amplitude of the Sigmoid
     * b - steepness of the curve
     * x0 - center
     * c - background
 
-    if the fit failed, the result is ``(None, None)``.
+    If the fit failed, the result is ``(None, None)``.
 
     Example::
 
         cscan(...)
         values, stderr = sigmoid('h', 'adet')
     """
-    xs, ys, dys, _, ds = _getData(columns)
-    fit = SigmoidFit()
-    res = fit.run(xs, ys, dys)
-    if res._failed:
-        return None, None
-    session.notifyFitCurve(ds, 'sigmoid', res.curve_x, res.curve_y)
-    descrs = ['amplitude', 'steepness', 'center', 'background']
-    vals = []
-    for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
-        vals.append((descr, '%.4f' % par, '%.4f' % err))
-    printTable(('parameter', 'value', 'error'), vals, session.log.info)
-    return CommandLineFitResult((tuple(res._pars[1]), tuple(res._pars[2])))
+    return fit('sigmoid', *columns)
 
 
 sigmoid.__doc__ += COLHELP.replace('func(', 'sigmoid(')

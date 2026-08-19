@@ -26,14 +26,13 @@
 import pytest
 
 from nicos.commands.analyze import ListFitters, center_of_mass, fwhm, gauss, \
-    poly, root_mean_square
+    lorentz, pearson, poly, root_mean_square, voigt
 from nicos.core import FINAL
 
 try:
     from scipy.optimize import leastsq
 except ImportError:
     leastsq = None
-
 
 
 session_setup = 'scanning'
@@ -77,7 +76,8 @@ class TestAnalyzers:
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
     def test_poly(self, session):
         result1 = poly(1, 1, 3)
-        assert len(result1) == 2 and len(result1[0]) == 2
+        assert len(result1) == 2
+        assert len(result1[0]) == 2
         assert 1.847 < result1[0][0] < 1.848
         result2 = poly(2)
         assert -0.047 < result2[0][2] < -0.046
@@ -89,8 +89,30 @@ class TestAnalyzers:
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
     def test_gauss(self, session):
         result = gauss()
-        assert len(result) == 2 and len(result[0]) == 4
-        assert -0.874 < result[0][0] < -0.873
+        assert len(result) == 2
+        assert len(result[0]) == 4
+        assert result[0][0] == pytest.approx(-0.8735, abs=0.0005)
+
+    @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
+    def test_lorentz(self, session):
+        result = lorentz()
+        assert len(result) == 2
+        assert len(result[0]) == 4
+        assert result[0][0] == pytest.approx(-0.882, abs=0.001)
+
+    @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
+    def test_voigt(self, session):
+        result = voigt()
+        assert len(result) == 2
+        assert len(result[0]) == 5
+        assert result[0][2] == pytest.approx(-0.883, abs=0.001)
+
+    @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
+    def test_pearson(self, session):
+        result = pearson()
+        assert len(result) == 2
+        assert len(result[0]) == 5
+        assert result[0][2] == pytest.approx(-0.876, abs=0.001)
 
 
 def test_list_fitters(session, log):
