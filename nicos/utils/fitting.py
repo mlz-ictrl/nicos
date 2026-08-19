@@ -301,7 +301,7 @@ class CosineFit(PredefinedFit):
     fit_title = 'cosine fit'
     fit_params = ['A', 'f', 'x0', 'B']
     center_index = 2
-    fit_p_descr = fit_params
+    fit_p_descr = ['amplitude', 'frequency', 'center', 'offset']
 
     def fit_model(self, x, A, f, x0, B):
         return B + A * cos(2 * pi * f * (x - x0))
@@ -428,7 +428,7 @@ class PseudoVoigtFit(PredefinedFit):
     names = ['pseudovoigt', 'pseudo-voigt']
     fit_title = 'pseudo-voigt'
     fit_params = ['B', 'A', 'x0', 'hwhm', 'eta']
-    fit_p_descr = fit_params
+    fit_p_descr = ['background', 'amplitude', 'center', 'HWHM', 'eta']
     center_index = 2
 
     def fit_model(self, x, B, A, x0, hwhm, eta):
@@ -464,7 +464,7 @@ class PearsonVIIFit(PredefinedFit):
     center_index = 2
     fit_title = 'pearson-vii'
     fit_params = ['B', 'A', 'x0', 'hwhm', 'm']
-    fit_p_descr = fit_params
+    fit_p_descr = ['background', 'amplitude', 'center', 'HWHM', 'm']
 
     def fit_model(self, x, B, A, x0, hwhm, m):
         return abs(B) + A / (1 + (2 ** (1 / m) - 1) * ((x - x0) / hwhm) ** 2) ** m
@@ -491,7 +491,7 @@ class TcFit(PredefinedFit):
     names = ['tc', 'tcfit']
     fit_title = 'Tc fit'
     fit_params = ['B', 'A', 'Tc', 'alpha']
-    fit_p_descr = fit_params
+    fit_p_descr = ['background', 'amplitude', 'Tc', 'alpha']
     center_index = 2
 
     def fit_model(self, T, B, A, Tc, alpha):
@@ -529,7 +529,7 @@ class SigmoidFit(PredefinedFit):
     names = ['sigmoid']
     fit_title = 'Sigmoid'
     fit_params = ['a', 'b', 'x0', 'c']
-    fit_p_descr = fit_params
+    fit_p_descr = ['amplitude', 'steepness', 'center', 'background']
     center_index = 2
 
     def fit_model(self, x, a, b, x0, c):
