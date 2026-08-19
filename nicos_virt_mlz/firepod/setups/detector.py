@@ -14,6 +14,19 @@ includes = [
 ]
 
 devices = dict(
+    hv = device('nicos_mlz.firepod.devices.detectorhv.DetectorHV',
+        description = 'Detector HV switch',
+        channels = [
+            'det1_hv',
+            'det2_hv',
+            'det3_hv',
+            'det4_hv',
+            'det5_hv',
+            'det6_hv',
+            'det7_hv',
+            'det8_hv',
+        ],
+    ),
     mon = device('nicos.devices.generic.VirtualCounter',
         description = 'Simulated MON1',
         fmtstr = '%d',
@@ -29,7 +42,7 @@ devices = dict(
     image = device('nicos.devices.generic.VirtualImage',
     # image = device('nicos_mlz.spodi.devices.VirtualImage',
         description = 'Image data device',
-    #    datafile='nicos_virt_mlz/firepod/data/run099999.ctxt',
+        # datafile='nicos_virt_mlz/firepod/data/run099999.ctxt',
         fmtstr = '%d',
         pollinterval = None,
         size = (256, 2048),

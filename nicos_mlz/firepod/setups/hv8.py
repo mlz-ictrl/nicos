@@ -31,4 +31,9 @@ devices = dict(
         parameter = 'current',
         fmtstr = '%g',
     ),
+    det8_hv = device('nicos_mlz.firepod.devices.detectorhv.DetectorHVChannelSwitch',
+        description = 'HV switch of detector 8',
+        drift = 'det8_drift',
+        anode = 'det8_anode',
+    ),
 )
