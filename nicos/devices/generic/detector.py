@@ -189,6 +189,9 @@ class PostprocessPassiveChannel(PassiveChannel):
                             internal=True),
     }
 
+    def doPrepare(self):
+        self.readresult = [0] * len(self.valueInfo())
+
     def doRead(self, maxage=0):
         return self.readresult
 
