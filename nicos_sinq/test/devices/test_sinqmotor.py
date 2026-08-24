@@ -174,6 +174,27 @@ class DefTestSinqMotor(DefTest):
         assert motor._has_been_homed() == 1
         assert motor.status(0) == (status.OK, 'at reference position')
 
+    def test_float_status_ext(self, motor):
+        motor.values['status'] = float(int('0100000010000001', 2))
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert motor._has_been_homed()
+
+        motor.values['status'] = float(int('0000000010000000', 2))
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert not motor._has_been_homed()
+
+        motor.values['status'] = float(int('0000000000000000', 2))
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert not motor._has_been_homed()
+
+        motor.values['status'] = 1.5
+        with pytest.raises(ValueError):
+            motor._has_been_homed()
+
+
 class TestSinqmotor1(DefTestSinqMotor):
 
     pass

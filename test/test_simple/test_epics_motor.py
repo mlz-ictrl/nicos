@@ -152,6 +152,7 @@ class DerivedFakeEpicsMotor(FakeEpicsMotor):
     def doPreinit(self, mode):
         self._record_fields = dict(FakeEpicsMotor._record_fields)
         self._record_fields.update({'extra_field': 'XTR'})
+        self.doReset()
         return FakeEpicsMotor.doPreinit(self, mode)
 
 
@@ -667,6 +668,26 @@ class DefTest:
         assert motor.unit == 'mm'
         assert motor.parameters['velocity_move'].unit == 'mm / s'
         assert jogmove.unit == 'mm / s'
+
+    def test_float_status(self, motor):
+        motor.values['status'] = float(int('0100000010000001', 2))
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert motor._at_home()
+
+        motor.values['status'] = float(int('0000000010000000', 2))
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert motor._at_home()
+
+        motor.values['status'] = float(int('0000000000000000', 2))
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert not motor._at_home()
+
+        motor.values['status'] = 1.5
+        with pytest.raises(ValueError):
+            motor._at_home()
 
 
 # This class runs the actual tests

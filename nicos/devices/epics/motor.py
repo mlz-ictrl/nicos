@@ -742,24 +742,30 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
                         'reference_direction', 'precision')
 
     def _at_home(self):
-        """
-        Status bit 7 of the motor record informs whether the motor is currently
-        at its "home" position. In the EPICS motor record documentation, the bit
-        count starts with 1, so bit 7 corresponds to the 8th item in the list of
-        the MSTA status bits. See:
-        https://bcda.xray.aps.anl.gov/synApps/motor/motorRecord.html#Fields_status
-        """
-        return (self._get_pv('status') >> 7) & 1
+        # Status bit 7 of the motor record informs whether the motor is
+        # currently at its "home" position. In the EPICS motor record
+        # documentation, the bit count starts with 1, so bit 7 corresponds to the
+        # 8th item in the list of the MSTA status bits. See:
+        # https://bcda.xray.aps.anl.gov/synApps/motor/motorRecord.html#Fields_status
+        return (self._get_status_int() >> 7) & 1
 
-    def _has_been_homed(self):
+    def _get_status_int(self):
         """
-        Status bit 14 of the motor record informs whether the motor has been
-        homed at some point since the IOC started. In the EPICS motor record
-        documentation, the bit count starts with 1, so bit 14 corresponds to the
-        15th item in the list of the MSTA status bits. See:
-        https://bcda.xray.aps.anl.gov/synApps/motor/motorRecord.html#Fields_status
+        Reads the MSTA field of the motor and makes sure it is an integer.
+
+        This explicit check was introduced to guard against bugs in the EPICS
+        wrappers where this field was returned as a float. For example, this
+        behaviour has been observed in the caproto wrapper. Since this field is
+        later interpreted as a bitfield, it is important to make sure it is an
+        integer.
         """
-        return (self._get_pv('status') >> 14) & 1
+        val = self._get_pv('status')
+        int_val = int(val)
+        if val != int_val:
+            raise ValueError('Status PV %s did not return an integer: %s '
+                             '(type: %s)' % (self._get_pv_name('status'), val,
+                                             type(val)))
+        return int_val
 
     def _check_speed(self, speed):
         """Assert that the given speed is within limits. Raises a LimitError if

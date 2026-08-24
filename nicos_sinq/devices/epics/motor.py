@@ -252,3 +252,11 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         # No need to poll the userlimits - they are adjusted automatically
         # in DynamicUserlimits via a daemon callback mechanism
         self.pollParams('can_disable', 'encoder_type')
+
+    def _has_been_homed(self):
+        # Status bit 14 of the motor record informs whether the motor has been
+        # homed at some point since the IOC started. In the EPICS motor record
+        # documentation, the bit count starts with 1, so bit 14 corresponds to the
+        # 15th item in the list of the MSTA status bits. See:
+        # https://bcda.xray.aps.anl.gov/synApps/motor/motorRecord.html#Fields_status
+        return (self._get_status_int() >> 14) & 1
