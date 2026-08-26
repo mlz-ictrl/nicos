@@ -9,7 +9,7 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         copies = [
             ('jitae.park@frm2.tum.de', 'all'),
-            ('norbert.juenke@frm2.tum.de', 'important'),
+            ('yongjin.kim@frm2.tum.de', 'all'),
         ],
         subject = 'PUMA',
     ),
