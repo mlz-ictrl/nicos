@@ -1,3 +1,4 @@
+# pylint: skip-file
 #################################################################################
 # Script to facilitate switching between geometries on the SANS-1 @ MLZ
 # Idea and initial version by Lukas Karge
@@ -132,7 +133,7 @@ class sc_script(object):
             att_index_after += 1
         if ((coll < 10) and (wl < 8)): # high flux
             att_index_after += 2
-        
+
         #################################### das könnte wohl raus #2021
         ## attenuator during change
         #atten_target = att_settings[att_index_before][att_index_after][1]
@@ -140,7 +141,7 @@ class sc_script(object):
         #################################### und durch das hier ersetzt
         self.cond_move(instrument_shutter, 'closed')
         self.cond_wait(instrument_shutter)
-        
+
         self.cond_move(det1_z, det)
         self.cond_move(selector_lambda, wl)
         #self.cond_move(sa1, '20mm')
