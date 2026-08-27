@@ -1,6 +1,6 @@
 description = 'Sample Slit'
 
-group = 'optional'
+group = 'lowlevel'
 
 devices = dict(
     ss_l = device('nicos.devices.generic.Axis',
