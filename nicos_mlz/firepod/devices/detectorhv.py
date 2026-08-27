@@ -103,6 +103,11 @@ class DetectorHVChannelSwitch(SequencerMixin, MappedMoveable):
                                 f'running (at {self._seq_status[1]})!')
         self._startSequence(self._generateSequence(target))
 
+    def doReset(self):
+        SequencerMixin.doReset(self)
+        for d in self._devices:
+            d.reset()
+
 
 class DetectorHV(Moveable):
     """HV switch for a list of detector modules.
