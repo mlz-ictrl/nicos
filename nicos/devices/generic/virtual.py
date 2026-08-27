@@ -66,7 +66,7 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
                            settable=True, default=(status.OK, 'idle'),
                            no_sim_restore=True),
         'ramp':      Param('Virtual speed of the device', settable=True,
-                           type=floatrange(0, 1e6), unit='main/min',
+                           type=floatrange(0, 6e7), unit='main/min',
                            volatile=True, no_sim_restore=True),
     }
 
