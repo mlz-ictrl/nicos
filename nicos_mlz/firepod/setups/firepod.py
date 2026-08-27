@@ -10,7 +10,3 @@ includes = [
     'distances',
     'optic',
 ]
-
-startupcode = """
-move(rc, 'on', shutter, 'open', filter, 'in', collimator, 'in', slit, (20, 30))
-"""
