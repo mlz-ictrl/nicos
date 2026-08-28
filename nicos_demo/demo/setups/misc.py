@@ -6,7 +6,6 @@ includes = ['system']
 devices = dict(
     m1 = device('nicos.devices.generic.VirtualMotor',
         visibility = (),
-        #loglevel = 'debug',
         abslimits = (-100, 100),
         userlimits = (0, 50),
         speed = 0.5,
@@ -14,7 +13,6 @@ devices = dict(
     ),
     m2 = device('nicos.devices.generic.VirtualMotor',
         visibility = (),
-        loglevel = 'debug',
         abslimits = (-100, 100),
         speed = 1,
         unit = 'deg',
@@ -121,6 +119,5 @@ devices = dict(
         lock = 'a2',
         lockvalue = 10,
         unlockvalue = 20,
-        loglevel = 'debug',
     ),
 )

@@ -7,6 +7,6 @@ devices = dict(
         server = 'localhost:1302',
         simmode = True,
         authenticators = ['Auth'],
-        loglevel = 'debug',
+        loglevel = 'info',
     ),
 )
