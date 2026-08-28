@@ -23,6 +23,7 @@
 
 """Classes to handle the HV of the FirePOD detector."""
 
+from nicos.core import status
 from nicos.core.constants import SIMULATION
 from nicos.core.device import Moveable
 from nicos.core.errors import MoveError, PositionError
@@ -62,7 +63,7 @@ class DetectorHVChannelSwitch(SequencerMixin, MappedMoveable):
     def _generateSequence(self, target):
         seq = [
             SeqParam(dev=dev, paramname='speed', value=self.ramp / 60)
-            for dev in self._devices
+            for dev in self._devices if dev.status(0)[0] != status.ERROR
         ]
         if self.target == 'on':
             seq.extend([
@@ -73,6 +74,7 @@ class DetectorHVChannelSwitch(SequencerMixin, MappedMoveable):
             seq.extend([
                 SeqDev(dev, t, stoppable=True)
                 for dev, t in zip(reversed(self._devices), reversed(target))
+                if dev.status(0)[0] != status.ERROR
             ])
         return seq
 
@@ -105,8 +107,15 @@ class DetectorHVChannelSwitch(SequencerMixin, MappedMoveable):
 
     def doReset(self):
         SequencerMixin.doReset(self)
-        for d in self._devices:
-            d.reset()
+        for dev in self._devices:
+            dev.reset()
+
+    def doIsAllowed(self, target):
+        if target == 'on':
+            st, msg = self.status(0)
+            if st == status.ERROR:
+                return False, msg
+        return True, ''
 
 
 class DetectorHV(Moveable):
@@ -135,3 +144,7 @@ class DetectorHV(Moveable):
         if all(val == pos[0] for val in pos):
             return pos[0]
         return self._attached_channels[0].fallback
+
+    def doReset(self):
+        for dev in self._attached_channels:
+            dev.reset()
