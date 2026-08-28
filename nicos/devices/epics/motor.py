@@ -210,7 +210,7 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
                   mandatory=False,
                   userparam=True,
                   default=1),
-        'cached_status':
+        'cached_status_and_msg':
             Param('Last motor status',
                   type=anytype,
                   category='general',
@@ -218,6 +218,14 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
                   mandatory=False,
                   internal=True,
                   default=(status.OK, '')),
+        'suspend_errors':
+            Param('Whether errors are reported or not',
+                  type=bool,
+                  category='general',
+                  settable=True,
+                  mandatory=False,
+                  internal=True,
+                  default=True),
         'valid_pos_after_reference':
             Param('If true, the motor moves back into the absolute limits ' \
                   'range after a reference run',
@@ -227,7 +235,8 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
                   mandatory=False,
                   default=False),
         'last_move_command':
-            Param('Last motor status',
+            Param('Was the last move command a reference, position or ' \
+                  'velocity move?',
                   type=oneof(REFERENCE, POSITION, VELOCITY),
                   category='general',
                   settable=True,
@@ -474,6 +483,9 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
 
     def doStart(self, value):
 
+        # Disable logging during the startup procedure
+        self.suspend_errors = False
+
         # Needs to be checked because self.doReadTarget is called immediately
         # afterwards when doing a move-and-wait.
         self._put_pv_readback_checked('writepv', value,
@@ -484,14 +496,27 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         start_time = time.time()
         while time.time() < start_time + self.startdelay:
             if self._get_pv('moving') == 1:
+                # Reenable logging
+                self.suspend_errors = True
                 return
             session.delay(self._base_loop_delay)
 
-        if not self.isAtTarget(target=value):
-            # If self is an attached device, the startup routine of the parent
-            # device should be interrupted as well in case starting self fails.
-            raise TimeoutError(f'received start command at {start_time}, did '
-                               f'not start in {self.startdelay} seconds')
+        # Motor did not reach the target and did not start a movement. Check if
+        # an error message is available, which can be used to provide more
+        # information. Otherwise, raise a timeout error. If self is an attached
+        # device, the startup routine of the parent device should be interrupted
+        # as well, therefore we raise (instead of just logging).
+        try:
+            if not self.isAtTarget(target=value):
+                (stat, msg) = self.status()
+                if stat != status.OK:
+                    raise RuntimeError(f'Starting a movement failed: {msg}')
+                raise TimeoutError(f'{self} received start command at '
+                                   f'{start_time:.3f}, did not start in '
+                                   f'{self.startdelay:.3f} seconds')
+        finally:
+            # Reenable logging
+            self.suspend_errors = True
 
     def doReadTarget(self):
         return self._get_pv('writepv')
@@ -509,15 +534,15 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
         raise UsageError('Precision is read directly from the .MRES field of '
                          'the motor record and therefore cannot be set')
 
-    def _log_status_error(self, stat, msg_txt):
+    def _log_status_error(self, stat, msg):
         """
         Logging the status retrieved from _get_status_message is factored out
         into its own method so it can be overloaded in subclasses.
         """
         if stat == status.WARN:
-            self.log.warning('%s', msg_txt)
+            self.log.warning('%s', msg)
         elif stat == status.ERROR:
-            self.log.error('%s', msg_txt)
+            self.log.error('%s', msg)
 
     def _get_status_message(self, force_log=False):
         """
@@ -543,19 +568,21 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
             msg_txt = self._default_errormsg
 
         # Avoid repeating the same error message over and over in the log.
-        (cached_stat, cached_msg_txt) = self.cached_status
+        (cached_stat, cached_msg_txt) = self.cached_status_and_msg
         if force_log or cached_stat != stat or cached_msg_txt != msg_txt:
-            self._log_status_error(stat, msg_txt)
+            if not self.suspend_errors:
+                self._log_status_error(stat, msg_txt)
 
-            # Cache the new motor status
-            self._setROParam('cached_status', (stat, msg_txt))
+                # Cache the new motor status and error message
+                self._setROParam('cached_status_and_msg', (stat, msg_txt))
+
         return stat, msg_txt
 
     def doStatus(self, maxage=0):
         # General error check
         stat, message = self._get_status_message()
         if stat in (status.ERROR, status.WARN):
-            return stat, message or 'Unknown problem'
+            return stat, message or self._default_errormsg
 
         if self._get_pv('donemoving') == 0 or self._get_pv('moving') != 0:
             if not message:

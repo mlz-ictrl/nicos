@@ -67,6 +67,10 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
     # message is reported.
     _max_delay_enabling_disabling = 20
 
+    # No default error message for this motor class (all error messages should
+    # be provided by the driver itself via the errormsgpv)
+    _default_errormsg = None
+
     def _get_pv_parameters(self):
         pvs = CoreEpicsMotor._get_pv_parameters(self)
         for param in self._extension_records.keys():
@@ -112,7 +116,7 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         # If the motor reports an error, report the error rather than the fact
         # that the motor is disabled.
         if not self.enabled:
-            if stat == status.ERROR:
+            if stat == status.ERROR and msg:
                 return (stat, 'Motor is disabled - ' + msg)
             return status.DISABLED, 'Motor is disabled'
 
@@ -122,23 +126,41 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         if self.encoder_type == 'incremental' and stat == status.OK and self._has_been_homed() == 0:
             msg = 'Motor needs to be referenced.'
 
+        # Since the error message is provided by a separate record (and not by
+        # the motor record itself), there can be a slight delay between the
+        # motor reporting an error and the error message being updated. In this
+        # case, we don't want to report an error without an error message, but
+        # rather wait until the error is available. In the meantime, we just
+        # report the last (cached) status.
+        if stat == status.ERROR and not msg:
+            stat = self.cached_status_and_msg[0]
+
         return (stat, msg)
 
-    # Overloaded from CoreEpicsMotor to add a hint if the motor is disabled
-    # and to skip the log completely if the motor is disconnected
-    def _log_status_error(self, stat, msg_txt):
+    def _log_status_error(self, stat, msg):
+        """
+        Overloaded from CoreEpicsMotor to add a hint if the motor is disabled,
+        to skip the log completely if the motor is disconnected and to avoid
+        logging if there is no error message (see comment in doStatus above the
+        "if not msg:" block).
+        """
         if not self.connected:
             return
+
+        # See comment in doStatus above the "if not msg:" block.
+        if not msg:
+            return
+
         if not self.enabled:
             if stat == status.WARN:
-                self.log.warning('Motor is disabled - %s', msg_txt)
+                self.log.warning('Motor is disabled - %s', msg)
             elif stat == status.ERROR:
-                self.log.error('Motor is disabled - %s', msg_txt)
+                self.log.error('Motor is disabled - %s', msg)
         else:
             if stat == status.WARN:
-                self.log.warning(msg_txt)
+                self.log.warning(msg)
             elif stat == status.ERROR:
-                self.log.error(msg_txt)
+                self.log.error(msg)
 
     def doReadEncoder_Type(self, maxage=0):
         encoder_type = self._get_pv('encoder_type', as_string=True)
