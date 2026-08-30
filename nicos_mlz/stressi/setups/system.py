@@ -74,7 +74,7 @@ devices = dict(
         detectors = ['adet'],
         flipimage = True,
     ),
-    nxsink = device('nicos.nexus.NexusSink',
+    nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass='nicos_mlz.stressi.nexus.StressiTemplateProvider',
         device_mapping = {
             'instrument': 'Stressi',

@@ -159,7 +159,7 @@ devices = dict(
         filenametemplate = ['m2%(scancounter)08d.dat'],
         detectors = ['adet'],
     ),
-    nxsink = device('nicos.nexus.NexusSink',
+    nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass='nicos_mlz.stressi.nexus.StressiTemplateProvider',
         device_mapping = {
             'instrument': 'Stressi',

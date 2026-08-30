@@ -256,7 +256,7 @@ devices = dict(
     tofsink = device('nicos_mlz.toftof.datasinks.TofImageSink',
         filenametemplate = ['%(pointcounter)08d_0000.raw'],
     ),
-    nxsink = device('nicos.nexus.NexusSink',
+    nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass = 'nicos_mlz.toftof.datasinks.nexustemplate.LegacyTemplate',
         filenametemplate = ['TOFTOF%(pointcounter)08d.nxs'],
     ),

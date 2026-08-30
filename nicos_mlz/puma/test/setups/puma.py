@@ -264,7 +264,7 @@ devices = dict(
         maxage = 1,
         pollinterval = 1,
     ),
-    nxsink = device('nicos.nexus.NexusSink',
+    nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass = 'nicos_mlz.puma.nexus.templates.PumaTemplateProvider',
         filenametemplate = ['%(scancounter)07d.nxs'],
         settypes = {'scan', 'point'},  # 'subscan', },

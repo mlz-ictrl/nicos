@@ -63,7 +63,7 @@ devices = dict(
         filenametemplate = ['run%(pointcounter)06d.ctxt'],
         detectors = ['adet'],
     ),
-    nxsink = device('nicos.nexus.NexusSink',
+    nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass='nicos_mlz.spodi.nexus.SpodiTemplateProvider',
         device_mapping = {'instrument': 'Spodi'},
         settypes = {'point',},

@@ -6,7 +6,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    nxsink = device('nicos.nexus.NexusSink',
+    nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass = 'nicos_mlz.nexus.template.MLZTemplateProvider',
         filenametemplate = ['%(pointcounter)07d.nxs'],
         settypes = {'point'},
