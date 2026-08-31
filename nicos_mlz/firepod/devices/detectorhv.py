@@ -72,6 +72,10 @@ class DetectorHVChannelSwitch(DetectorHVMixin, SequencerMixin, MappedMoveable):
         'ramp': Param('Change speed of the HV in V/min',
                       type=floatrange(1 * 60, 255 * 60), settable=True,
                       default=5*60),
+        'emergency_ramp': Param('Ramp rate during shutdown applied when a '
+                                'trip was detected',
+                                type=floatrange(1 * 60, 255 * 60),
+                                settable=False, default=255*60),
     }
 
     parameter_overrides = {
@@ -95,8 +99,12 @@ class DetectorHVChannelSwitch(DetectorHVMixin, SequencerMixin, MappedMoveable):
     def _generateSequence(self, target):
         self._wait_devices = tuple(
             d for d in self._devices if d.status(0)[0] != status.ERROR)
+        if set(self._wait_devices) != set(self._devices) and self.target == 'off':
+            ramp = self.emergency_ramp
+        else:
+            ramp = self.ramp
         seq = [
-            SeqParam(dev=dev, paramname='speed', value=self.ramp / 60)
+            SeqParam(dev=dev, paramname='speed', value=ramp / 60)
             for dev in self._wait_devices
         ]
         if self.target == 'on':
