@@ -25,15 +25,42 @@
 
 from nicos.core import status
 from nicos.core.constants import SIMULATION
-from nicos.core.device import Moveable
+from nicos.core.device import Moveable, Waitable
 from nicos.core.errors import MoveError, PositionError
+from nicos.core.mixins import DeviceMixinBase
 from nicos.core.params import Attach, Override, Param, dictof, floatrange, \
     oneof, tupleof
+from nicos.core.utils import formatStatus
 from nicos.devices.abstract import MappedMoveable, Motor
-from nicos.devices.generic.sequence import SeqDev, SeqParam, SequencerMixin
+from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqParam, \
+    SequencerMixin
 
 
-class DetectorHVChannelSwitch(SequencerMixin, MappedMoveable):
+class DetectorHVMixin(DeviceMixinBase):
+    """Implement custom completion test."""
+
+    def doIsCompleted(self):
+        st = self.status(0)
+        if self.loglevel == 'debug':
+            # only read and log the device position if debugging
+            # as this could be expensive and is not needed otherwise
+            try:
+                position = self.read(0)
+            except Exception:
+                self.log.debug('isCompleted: status %r', formatStatus(st))
+            else:
+                self.log.debug('isCompleted: status %r at %s',
+                               formatStatus(st),
+                               self.format(position, unit=True))
+        if st[0] in self.busystates:
+            return False
+        elif st[0] in self.errorstates and self.target != 'off':
+            # raise error only if target isn't moving towards 'off'
+            raise self.errorstates[st[0]](self, st[1])
+        return True
+
+
+class DetectorHVChannelSwitch(DetectorHVMixin, SequencerMixin, MappedMoveable):
     """Single HV switch for one detector module."""
 
     attached_devices = {
@@ -56,14 +83,21 @@ class DetectorHVChannelSwitch(SequencerMixin, MappedMoveable):
                              settable=False),
     }
 
+    _wait_devices = ()
+
     @property
     def _devices(self):
         return (self._attached_drift, self._attached_anode)
 
+    def _clear_wait_devices(self):
+        self._wait_devices = ()
+
     def _generateSequence(self, target):
+        self._wait_devices = tuple(
+            d for d in self._devices if d.status(0)[0] != status.ERROR)
         seq = [
             SeqParam(dev=dev, paramname='speed', value=self.ramp / 60)
-            for dev in self._devices if dev.status(0)[0] != status.ERROR
+            for dev in self._wait_devices
         ]
         if self.target == 'on':
             seq.extend([
@@ -76,6 +110,7 @@ class DetectorHVChannelSwitch(SequencerMixin, MappedMoveable):
                 for dev, t in zip(reversed(self._devices), reversed(target))
                 if dev.status(0)[0] != status.ERROR
             ])
+        seq.append(SeqCall(self._clear_wait_devices))
         return seq
 
     def _is_at_target(self, values, targets):
@@ -117,8 +152,13 @@ class DetectorHVChannelSwitch(SequencerMixin, MappedMoveable):
                 return False, msg
         return True, ''
 
+    def _getWaiters(self):
+        if self._wait_devices:
+            return self._wait_devices
+        return Waitable._getWaiters(self)
 
-class DetectorHV(Moveable):
+
+class DetectorHV(DetectorHVMixin, Moveable):
     """HV switch for a list of detector modules.
 
     The detector module have to be of type `DetectorHVChannelSwitch`.
