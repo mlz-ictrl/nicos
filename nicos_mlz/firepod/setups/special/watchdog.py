@@ -22,6 +22,19 @@ watchlist = [
     ),
 ]
 
+hv_conditions = [
+    dict(condition = f'det{i}_hv_status[0] == ERROR',
+         precondition = f"det{i}_hv_value != 'off' and det{i}_hv_target == 'on'",
+         message = f'Detector HV{i} is probably tripped',
+         type = 'critical',
+         action = f"maw(det{i}_hv, 'off')",
+         actiontimeout = 900,
+         gracetime = 0,
+         precondtime = 1,
+         setup = f'hv{i}')
+    for i in range(1, 9)
+]
+
 includes = [
     'notifiers',
 ]
@@ -39,6 +52,6 @@ devices = dict(
         cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
-        watch = watchlist,
+        watch = watchlist + hv_conditions,
     ),
 )
