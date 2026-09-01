@@ -2,8 +2,6 @@ description = 'setup for the execution daemon'
 
 group = 'special'
 
-import hashlib
-
 devices = dict(
     UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
          description = 'FRM II user office authentication',
@@ -12,14 +10,6 @@ devices = dict(
          aliases = {
          },
          loglevel = 'info',
-    ),
-    Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        hashing = 'sha1',
-        passwd = [
-            ('guest', '', 'guest'),
-            ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
-            ('admin', hashlib.sha1(b'admin').hexdigest(), 'admin'),
-        ],
     ),
     LDAPAuth = device('nicos.services.daemon.auth.ldap.Authenticator',
         uri = [

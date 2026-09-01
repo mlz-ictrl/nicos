@@ -2,8 +2,6 @@ description = 'setup for the execution daemon'
 
 group = 'special'
 
-import hashlib
-
 devices = dict(
     UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
          description = 'FRM II user office authentication',
