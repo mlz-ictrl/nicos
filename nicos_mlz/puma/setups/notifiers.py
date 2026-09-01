@@ -10,6 +10,7 @@ devices = dict(
         copies = [
             ('jitae.park@frm2.tum.de', 'all'),
             ('yongjin.kim@frm2.tum.de', 'all'),
+            ('jana.pasztorova@kit.edu', 'all'),
         ],
         subject = 'PUMA',
     ),
