@@ -124,7 +124,7 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
             if upstream == self._allUpstreamOpen:
                 return status.OK, ''
         else:
-            if self._attached_door.read(maxage) != 'yes':
+            if not self._attached_door.isAtTarget(target='yes', maxage=maxage):
                 return status.WARN, 'door open'
             elif not chains:
                 return status.OK, 'shutter closed'

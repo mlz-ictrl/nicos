@@ -54,6 +54,7 @@ class Slit(Switcher):
         return Switcher._mapReadValue(self, value)
 
     def doStatus(self, maxage=0):
-        if self._attached_table.read(maxage) != self.activeposition:
+        if not self._attached_table.isAtTarget(target=self.activeposition,
+                                               maxage=maxage):
             return multiStatus(self._adevs, maxage)
         return Switcher.doStatus(self, maxage)

@@ -90,7 +90,7 @@ class Doppler(SequencerMixin, MultiSwitcher):
                                                  self._sm_values[-1]))
 
     def doRead(self, maxage=0):
-        if self._attached_switch.read(maxage) == 'off':
+        if self._attached_switch.isAtTarget(target='off', maxage=maxage):
             return 0
         return self._mapReadValue(self._readRaw(maxage))
 
@@ -187,7 +187,7 @@ class Doppler(SequencerMixin, MultiSwitcher):
         acq_speed, acq_ampl = self._attached_acq.read(maxage)
         speed, ampl = self._readRaw()
 
-        if self._attached_switch.read(maxage) == 'off':
+        if self._attached_switch.isAtTarget(target='off', maxage=maxage):
             if not self.withinMargins(acq_speed, 0, SPEED):
                 return (status.WARN, 'detector registers movement of the '
                                      'doppler, although it has been stopped.')

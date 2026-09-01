@@ -97,11 +97,11 @@ class Segment(Moveable):
         self._attached_hand.start(1)
 
     def doRead(self, maxage=0):
-        if self._attached_ble.read(maxage) == 1:
+        if self._attached_ble.isAtTarget(target=1, maxage=maxage):
             return 'ble'
-        if self._attached_nl.read(maxage) == 1:
+        if self._attached_nl.isAtTarget(target=1, maxage=maxage):
             return 'nl'
-        if self._attached_zus.read(maxage) == 1:
+        if self._attached_zus.isAtTarget(target=1, maxage=maxage):
             return 'zus'
         return 'transit'
 
@@ -146,9 +146,9 @@ class Segment(Moveable):
         else:
             if time.time() > self._start_time + 360:
                 return status.ERROR, 'Timeout moving segment'
-            if self._attached_mot_fast.read(maxage) == 1:
+            if self._attached_mot_fast.isAtTarget(target=1, maxage=maxage):
                 return status.BUSY, 'Moving fast'
-            if self._attached_mot_slow.read(maxage) == 1:
+            if self._attached_mot_slow.isAtTarget(target=1, maxage=maxage):
                 return status.BUSY, 'Moving slow'
             return status.BUSY, 'Locking/Unlocking'
 
@@ -169,8 +169,7 @@ class Polariser(Moveable):
     valuetype = oneof('in', 'out')
 
     def doRead(self, maxage=0):
-        pos = self._attached_cols1.read(maxage)
-        if pos == 'zus':
+        if self._attached_cols1.isAtTarget(target='zus', maxage=maxage):
             return 'in'
         return 'out'
 
@@ -210,8 +209,8 @@ class Collimator(Moveable):
         for idx, seg in enumerate(self._attached_segments):
             pos = seg.read(maxage)
             if pos == 'ble':
-                if all(seg.read(maxage) == 'ble' for seg in
-                       self._attached_segments[idx:]):
+                if all(seg.isAtTarget(target='ble', maxage=maxage)
+                       for seg in self._attached_segments[idx:]):
                     return self._steps[idx]
                 return 'unknown position'
             if pos == 'transit':
