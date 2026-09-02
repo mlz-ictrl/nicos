@@ -49,7 +49,7 @@ class TestTemplates:
         """Setup dataroot and generate a dataset by scanning"""
         exp = session.experiment
         exp.new(1234, user='testuser', localcontact=exp.localcontact)
-        exp.sample.new({'name': 'mysample'})
+        exp.sample.new({'samplename': 'mysample'})
 
         SetDetectors('det')
 

@@ -53,7 +53,7 @@ def setup_module(session):
 
     exp._setROParam('dataroot', dataroot)
     exp.new(1234, user='testuser', localcontact=exp.localcontact)
-    exp.sample.new({'name': 'mysample'})
+    exp.sample.new({'samplename': 'mysample'})
     exp.update(title='TomatenOxid')
     assert path.abspath(exp.datapath) == path.abspath(
         path.join(config.nicos_root, datadir, year, 'p1234', 'data'))

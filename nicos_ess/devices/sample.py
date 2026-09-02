@@ -46,4 +46,6 @@ class EssSample(Sample):
     }
 
     def set_samples(self, samples):
-        self.samples = samples
+        self.clear()
+        for idx, sample in samples.items():
+            self.set(idx, sample)

@@ -60,7 +60,7 @@ class TestSinks:
 
         exp._setROParam('dataroot', dataroot)
         exp.new(1234, user='testuser', localcontact=exp.localcontact)
-        exp.sample.new({'name': 'mysample'})
+        exp.sample.new({'samplename': 'mysample'})
         assert Path(exp.datapath).is_absolute() == (
             Path(config.nicos_root) / 'testdata' / year / 'p1234' / 'data'
             ).is_absolute()

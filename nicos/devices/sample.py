@@ -105,7 +105,8 @@ class Sample(Moveable):
         # In this simple base class, we expect the user to use only NewSample,
         # so we remove stored sample information every time to avoid a buildup
         # of unused sample information.
-        self.samples = {0: parameters}
+        self.clear()
+        self.set(0, parameters)
         self.select(0)
 
     def set(self, number, parameters):
@@ -115,7 +116,11 @@ class Sample(Moveable):
         info = self.samples.copy()
         if number in info:
             self.log.warning('overwriting parameters for sample %s (%s)',
-                             number, info[number]['name'])
+                             number, info[number]['samplename'])
+        if 'sampledescription' not in parameters:
+            parameters['sampledescription'] = ''
+        if 'samplename' not in parameters:
+            parameters['samplename'] = f'Sample {number + 1}'
         info[number] = parameters
         self.samples = info
 
@@ -140,7 +145,7 @@ class Sample(Moveable):
         # look by name
         found = []
         for (number, parameters) in self.samples.items():
-            if parameters['name'] == number_or_name:
+            if parameters['samplename'] == number_or_name:
                 found.append(number)
 
         # more the one sample with same name found...
@@ -157,14 +162,14 @@ class Sample(Moveable):
     def _applyParams(self, number, parameters):
         """Apply sample parameters.  Override in subclasses.
 
-        All parameters beside the name should be treated as optional by
+        All parameters beside the 'samplename' should be treated as optional by
         subclasses, since they will not be provided for the empty sample
         created by NewExperiment.
         """
         self.sampledescription = parameters.get('sampledescription', '')
         self.samplenumber = number
-        self.samplename = parameters['name']
-        self._setROParam('target', parameters['name'])
+        self.samplename = parameters['samplename']
+        self._setROParam('target', self.samplename)
 
     def doUpdateSamples(self, info):
-        self.valuetype = oneof(*(info[n]['name'] for n in sorted(info)))
+        self.valuetype = oneof(*(info[n]['samplename'] for n in sorted(info)))

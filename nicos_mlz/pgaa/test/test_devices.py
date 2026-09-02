@@ -80,7 +80,7 @@ class TestSampleChanger:
         push = sc._attached_push
         sample = session.experiment.sample
         for i in range(1, 6):
-            sample.set(i, {'name': f'Sample{i}'})
+            sample.set(i, {'samplename': f'Sample{i}'})
 
         motor.curvalue = 1
         push.maw('down')

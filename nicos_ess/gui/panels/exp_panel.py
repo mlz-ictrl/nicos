@@ -40,7 +40,11 @@ from nicos_ess.gui.panels.panel import PanelBase
 USER_FIELDS = ['name', 'email', 'affiliation']
 CONTACT_FIELDS = ['name', 'email', 'affiliation']
 SAMPLE_FIELDS = ['name', 'formula', 'number of', 'mass/volume', 'density']
-SAMPLE_MAPPINGS = {'number of': 'number_of', 'mass/volume': 'mass_volume'}
+SAMPLE_MAPPINGS = {
+    'number of': 'number_of',
+    'mass/volume': 'mass_volume',
+    'name': 'samplename'
+}
 
 
 class ProposalSettings:
@@ -308,8 +312,8 @@ class ExpPanel(PanelBase):
 
         samples = {}
         for index, sample in enumerate(self.samples_model.raw_data):
-            if not sample.get('name', ''):
-                sample['name'] = f'sample {index + 1}'
+            if not sample.get('samplename', ''):
+                sample['samplename'] = f'sample {index + 1}'
             samples[index] = sample
         self.client.run(f'Exp.sample.set_samples({dict(samples)})')
 

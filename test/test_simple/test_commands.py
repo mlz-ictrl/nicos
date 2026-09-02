@@ -214,17 +214,17 @@ class TestSample:
 
     def test_sample_commands(self, log, sample):
         assert sample.samplename == 'abc'
-        assert sample.samples == {0: {'name': 'abc'}}
+        assert sample.samples == {0: {'samplename': 'abc', 'sampledescription': ''}}
 
         SetSample(1, 'def', param=45)
-        assert sample.samples[1] == {'name': 'def', 'param': 45}
+        assert sample.samples[1] == {'samplename': 'def', 'param': 45, 'sampledescription': ''}
 
         SelectSample(1)
         assert sample.samplename == 'def'
         SelectSample('abc')
         assert sample.samplename == 'abc'
 
-        with log.assert_msg_matches([r'number  sample name  param',
+        with log.assert_msg_matches([r'number  sample name  sample description  param',
                                      r'0 +abc',
                                      r'1 +def +45']):
             ListSamples()

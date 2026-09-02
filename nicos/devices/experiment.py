@@ -705,7 +705,7 @@ class Experiment(Device):
         self.proposalpath = self.proposalpath_of(proposal)
         # newSample also (re-)creates all needed dirs
         # TODO: apply more properties from the sample if present
-        self.sample.new({'name': propinfo.get('default_sample', '')})
+        self.sample.new({'samplename': propinfo.get('default_sample', '')})
 
         # debug output
         self.log.info('experiment directory is now %s', self.proposalpath)
@@ -1319,7 +1319,7 @@ class ImagingExperiment(Experiment):
         self._clearImgPaths()
 
     def newSample(self, parameters):
-        self.sampledir = safeName(parameters.get('name', ''))
+        self.sampledir = safeName(parameters.get('samplename', ''))
         Experiment.newSample(self, parameters)
 
         self.log.debug('new sample path: %s', self.samplepath)

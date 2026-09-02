@@ -69,7 +69,7 @@ def NewSample(name, **parameters):
         It clears the list of existing samples!
 
     """
-    parameters['name'] = name
+    parameters['samplename'] = name
     session.experiment.sample.new(parameters)
 
 
@@ -87,7 +87,7 @@ def SetSample(number, name, **parameters):
 
     see also: `NewSample`, `SelectSample`, `ClearSamples`, `ListSamples`
     """
-    parameters['name'] = name
+    parameters['samplename'] = name
     session.experiment.sample.set(number, parameters)
 
 
@@ -133,18 +133,20 @@ def ListSamples():
     """
     rows = []
     all_cols = set()
-    index = {}
     for info in session.experiment.sample.samples.values():
         all_cols.update(info)
-    all_cols.discard('name')
-    index = {key: i for (i, key) in enumerate(sorted(all_cols), start=2)}
-    index['name'] = 1
+    all_cols.discard('samplename')
+    all_cols.discard('sampledescription')
+    index = {key: i for (i, key) in enumerate(sorted(all_cols), start=3)}
+    index['samplename'] = 1
+    index['sampledescription'] = 2
     for number, info in session.experiment.sample.samples.items():
         star = '*' if session.experiment.sample.samplenumber == number else ' '
-        rows.append([f'{star:2}{number}', info['name']] + [''] * len(all_cols))
+        rows.append([f'{star:2}{number}', info['samplename'],
+                     info['sampledescription']] + [''] * len(all_cols))
         for key in info:
             rows[-1][index[key]] = str(info[key])
-    printTable(['number', 'sample name'] + sorted(all_cols),
+    printTable(['number', 'sample name', 'sample description'] + sorted(all_cols),
                rows, session.log.info)
     printinfo('* Currently used sample')
 

@@ -40,20 +40,22 @@ def test_sample_commands(session, log):
     NewSample('abc', lattice=[60, 40, 30], angles=[90, 90, 90])
     assert sample.samplename == 'abc'
     assert sample.samples == {
-        0: {'name': 'abc', 'lattice': [60, 40, 30], 'angles': [90, 90, 90]}}
+        0: {'samplename': 'abc', 'lattice': [60, 40, 30],
+            'angles': [90, 90, 90], 'sampledescription': ''}}
     assertPos(sample.ubmatrix, [[0.0166, 0, 0],
                                 [0, 0.025, 0],
                                 [0, 0, 0.0333]])
 
     SetSample(1, 'def', a=80, b=80, c=80, alpha=90, beta=90, gamma=90)
     assert sample.samples[1] == {
-        'name': 'def',
+        'samplename': 'def',
         'a': 80,
         'b': 80,
         'c': 80,
         'alpha': 90,
         'beta': 90,
         'gamma': 90,
+        'sampledescription': '',
     }
 
     SelectSample(1)

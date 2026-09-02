@@ -210,7 +210,7 @@ class EssExperiment(Experiment):
             )
             density = f'{sample.density[0]} {sample.density[1]}'.strip()
             samples.append({
-                'name': sample.name,
+                'samplename': sample.name,
                 'formula': sample.formula,
                 'number_of': sample.number,
                 'mass_volume': mass,

@@ -34,5 +34,5 @@ class TestSample:
     def test_set_sample(self, session, sample):
         s = session.getDevice(sample)
         s.clear()
-        s.set(1, {'name': 'abc', 'sampleid': 1})
+        s.set(1, {'samplename': 'abc', 'sampleid': 1})
         s.select(1)

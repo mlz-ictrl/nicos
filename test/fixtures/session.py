@@ -103,7 +103,7 @@ def dataroot(request, session):
 
     exp._setROParam('dataroot', dataroot)
     exp.new(1234, user='testuser')
-    exp.sample.new({'name': 'mysample'})
+    exp.sample.new({'samplename': 'mysample'})
 
     return dataroot
 
