@@ -42,8 +42,9 @@ class HasSampleId(DeviceMixinBase):
     }
 
     def clear(self):
-        """Clear sample tracker information."""
+        """Clear sample tracker information and formula."""
         self.sampleid = None
+        self.formula = ''
 
     def _applyParams(self, number, parameters):
         """Apply sample tracker id."""
