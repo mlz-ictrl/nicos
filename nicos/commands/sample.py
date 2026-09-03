@@ -33,6 +33,7 @@ from numpy import arcsin, degrees, pi, radians, sin, sqrt
 from nicos import session
 from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.analyze import CommandLineFitResult
+from nicos.commands.output import printinfo
 from nicos.core import ConfigurationError, UsageError
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
 from nicos.utils import printTable
@@ -139,11 +140,13 @@ def ListSamples():
     index = {key: i for (i, key) in enumerate(sorted(all_cols), start=2)}
     index['name'] = 1
     for number, info in session.experiment.sample.samples.items():
-        rows.append([str(number), info['name']] + [''] * len(all_cols))
+        star = '*' if session.experiment.sample.samplenumber == number else ' '
+        rows.append([f'{star:2}{number}', info['name']] + [''] * len(all_cols))
         for key in info:
             rows[-1][index[key]] = str(info[key])
     printTable(['number', 'sample name'] + sorted(all_cols),
                rows, session.log.info)
+    printinfo('* Currently used sample')
 
 
 @usercommand
