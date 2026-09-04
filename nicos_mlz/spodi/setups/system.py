@@ -20,8 +20,8 @@ devices = dict(
     Spodi = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
         instrument = 'SPODI',
-        doi = 'http://dx.doi.org/10.17815/jlsrf-1-24',
-        responsible = 'Markus Hoelzel <markus.hoelzel@frm2.tum.de>',
+        doi = 'https://dx.doi.org/10.1016/j.nima.2011.11.070',
+        responsible = 'Anatoliy Senyshyn <anatoliy.senyshyn@frm2.tum.de>',
         website = 'http://www.mlz-garching.de/spodi',
         operators = [
             'Technische Universität München (TUM)',
