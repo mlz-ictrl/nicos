@@ -194,7 +194,8 @@ class ExpPanel(Panel):
         except ValueError:
             QMessageBox.warning(
                 self, 'Error', 'Invalid users list, please specify as\n\n'
-                'First Name <first@email.com>; Second Name <second@email.com>'
+                'First Name <first@email.com> (affiliation 1); '
+                'Second Name <second@email.org> (affiliation 2)'
             )
             raise ConfigurationError from None
         try:
