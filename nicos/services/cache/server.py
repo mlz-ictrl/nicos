@@ -336,6 +336,9 @@ class CacheServer(Device):
         # server sockets for TCP and UDP
         self._serversocket = None
         self._serversocket_udp = None
+        # set up event to signal that server sockets are ready to accept
+        # connections
+        self._ready_evt = threading.Event()
         # worker connections
         self._connected = {}
         # kept in sync with self._connected on every change, so that other
@@ -351,6 +354,10 @@ class CacheServer(Device):
         self._attached_db.initDatabase()
         self.storeSysInfo()
         self._worker = createThread('server', self._server_thread)
+
+    def wait_for_ready(self, timeout=None):
+        """Wait for the server to be ready to accept connections."""
+        return self._ready_evt.wait(timeout=timeout)
 
     def storeSysInfo(self):
         key, res = getSysInfo('cache')
@@ -391,6 +398,7 @@ class CacheServer(Device):
         if not self._serversocket and not self._serversocket_udp:
             self._stoprequest = True
             self.log.error("couldn't bind any sockets, giving up!")
+            self._ready_evt.set()
             return
 
         if not self._boundto:
@@ -398,6 +406,9 @@ class CacheServer(Device):
         else:
             self.log.info('TCP bound to %s:%s',
                           self._boundto[0], self._boundto[1])
+
+        # signal that server sockets are ready to accept connections
+        self._ready_evt.set()
 
         # now enter main serving loop
         while not self._stoprequest:
