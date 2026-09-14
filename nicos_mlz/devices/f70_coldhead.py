@@ -24,8 +24,8 @@
 """Support classes for the CCR compressors"""
 
 from nicos.core import SIMULATION, Param, tangodev
-from nicos.utils import HardwareStub
 from nicos.devices.entangle import NamedDigitalOutput
+from nicos.utils import HardwareStub
 
 
 class F70ColdheadController(NamedDigitalOutput):

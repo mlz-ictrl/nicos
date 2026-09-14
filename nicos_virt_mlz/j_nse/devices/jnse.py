@@ -24,6 +24,7 @@
 from nicos.core import Override, Param
 from nicos.devices.abstract import TransformedReadable
 from nicos.devices.generic.virtual import VirtualMotor
+
 from nicos_mlz.j_nse.devices.power import HasLabel
 from nicos_mlz.stressi.devices.mixins import TransformRead
 

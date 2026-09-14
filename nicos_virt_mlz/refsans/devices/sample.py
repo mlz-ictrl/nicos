@@ -23,7 +23,7 @@
 
 """Virtual Refsans specific sample implementation."""
 
-from nicos.core.params import Param, Override, absolute_path
+from nicos.core.params import Override, Param, absolute_path
 
 from nicos_mlz.refsans.devices.sample import Sample as BaseSample
 

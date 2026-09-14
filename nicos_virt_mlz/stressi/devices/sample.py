@@ -25,6 +25,7 @@
 
 from nicos.core import Override, Param, intrange
 from nicos.devices.sample import Sample as BaseSample
+
 from nicos_mlz.stressi.devices.sample import PowderSampleMixin
 
 

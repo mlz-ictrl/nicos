@@ -24,6 +24,7 @@
 """VTOFTOF sample device."""
 
 from nicos.core import Override, Param, intrange
+
 from nicos_mlz.toftof.devices.sample import Sample as BaseSample
 
 

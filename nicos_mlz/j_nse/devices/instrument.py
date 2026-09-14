@@ -27,7 +27,6 @@ from nicos.core import Param
 from nicos.core.constants import MASTER
 from nicos.devices.instrument import Instrument
 
-
 t_noms = {
     't_act': None,
     'pow01': None, 'pow02': None, 'pow03': None, 'pow04': None, 'pow05': None,

@@ -7,6 +7,7 @@ sysconfig = dict(
 )
 
 from nicos.utils.functioncurves import Curves
+
 from nicos_jcns.moke.utils import generate_intvb
 
 devices = dict(

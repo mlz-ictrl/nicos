@@ -24,7 +24,6 @@
 """REFSANS specific slit devices."""
 
 from nicos import session
-
 from nicos.devices.generic.slit import Gap as BaseGap, \
     TwoAxisSlit as BaseTwoAxisSlit, VerticalGap as BaseVerticalGap
 

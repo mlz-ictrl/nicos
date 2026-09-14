@@ -30,9 +30,9 @@ from pathlib import Path
 import pytest
 
 from nicos import config
+from nicos.commands.measure import SetEnvironment
 from nicos.commands.tas import qcscan
 from nicos.utils import updateFileCounter
-from nicos.commands.measure import SetEnvironment
 
 from test.nexus.utils import nxs_ds_as_str
 

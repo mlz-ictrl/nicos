@@ -23,13 +23,13 @@
 
 import math
 
-from nicos.core import anytype, Attach, dictof, Param, oneof, \
-    Override, status
+from nicos.core import Attach, Override, Param, anytype, dictof, oneof, status
 from nicos.core.constants import MASTER
 from nicos.core.device import Moveable
 from nicos.core.mixins import HasMapping, HasPrecision
 from nicos.core.utils import multiStatus
 from nicos.utils import num_sort
+
 from nicos_mlz.j_nse.devices.instrument import JnseInstrument
 
 

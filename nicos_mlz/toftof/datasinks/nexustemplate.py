@@ -27,8 +27,8 @@
 from nicos.nexus.elements import ConstDataset, DeviceAttribute, \
     DeviceDataset, EndTime, StartTime
 from nicos.nexus.nexussink import NexusTemplateProvider
-from nicos_mlz.nexus import axis1, axis3, signal
 
+from nicos_mlz.nexus import axis1, axis3, signal
 from nicos_mlz.toftof.nexus.elements import ChannelList, DetInfo, Duration, \
     ElasticPeakGuess, EntryIdentifier, ExperimentTitle, FileName, \
     GonioDataset, HVDataset, LVDataset, Mode, MonitorData, MonitorRate, \

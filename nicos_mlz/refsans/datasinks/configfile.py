@@ -25,8 +25,8 @@
 import time
 
 from nicos import session
-from nicos.core import DataSinkHandler, NicosError, Override, Param, listof
-from nicos.core import status as ncstatus
+from nicos.core import DataSinkHandler, NicosError, Override, Param, listof, \
+    status as ncstatus
 from nicos.core.constants import FINAL, POINT
 from nicos.devices.datasinks import FileSink
 from nicos.utils import AutoDefaultODict

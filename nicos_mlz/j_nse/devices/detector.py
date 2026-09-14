@@ -24,7 +24,7 @@
 import math
 
 from nicos import session
-from nicos.core import anytype, Attach, listof, Param, SubscanMeasurable
+from nicos.core import Attach, Param, SubscanMeasurable, anytype, listof
 from nicos.core.constants import MASTER
 from nicos.core.device import Measurable, Readable
 from nicos.core.scan import Scan
