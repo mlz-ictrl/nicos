@@ -31,7 +31,7 @@ import time
 import numpy
 
 from nicos import session
-from nicos.core import POLLER, SIMULATION, ConfigurationError, MAIN, \
+from nicos.core import MAIN, POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, HasPrecision, Moveable, Override, Param, \
     Readable, anytype, dictof, floatrange, none_or, pvname, status
 from nicos.devices.abstract import MappedMoveable, MappedReadable

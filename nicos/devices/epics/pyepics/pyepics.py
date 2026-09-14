@@ -24,9 +24,9 @@
 """
 This module contains some classes for NICOS - EPICS integration.
 """
+import numbers
 import threading
 from time import monotonic
-import numbers
 
 import epics
 

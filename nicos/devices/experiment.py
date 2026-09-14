@@ -49,7 +49,7 @@ from nicos.utils.compression import zipFiles
 from nicos.utils.emails import sendMail
 from nicos.utils.ftp import ftpUpload
 from nicos.utils.loggers import ELogHandler
-from nicos.utils.user import splitUsers, combineUsers
+from nicos.utils.user import combineUsers, splitUsers
 
 
 class Experiment(Device):

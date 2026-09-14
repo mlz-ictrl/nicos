@@ -34,7 +34,7 @@ from threading import Event, Lock
 
 from nicos import session
 from nicos.services.daemon.errors import ScriptError
-from nicos.utils import fixupScript, SCRIPT_PSEUDOFILE
+from nicos.utils import SCRIPT_PSEUDOFILE, fixupScript
 from nicos.utils.loggers import ACTION, recordToMessage
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'

@@ -26,8 +26,7 @@ import time
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, Param, UsageError, oneof, pvname, \
-    status
+from nicos.core import Override, Param, UsageError, oneof, pvname, status
 from nicos.core.constants import MASTER
 from nicos.core.errors import LimitError
 from nicos.core.mixins import CanDisable, HasOffset

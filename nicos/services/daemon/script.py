@@ -46,7 +46,7 @@ from nicos.services.daemon.errors import RequestError, ScriptError
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.utils import ScriptQueue, formatScript, \
     parseScript, splitBlocks, updateLinecache
-from nicos.utils import createThread, fixupScript, SCRIPT_PSEUDOFILE
+from nicos.utils import SCRIPT_PSEUDOFILE, createThread, fixupScript
 from nicos.utils.loggers import INPUT
 
 

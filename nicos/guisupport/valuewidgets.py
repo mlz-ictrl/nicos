@@ -28,12 +28,12 @@ Widget for Qt Monitor that display values graphically.
 from math import cos, log10, pi, sin
 from time import time as currenttime
 
+from nicos.guisupport.display import defaultColorScheme
 from nicos.guisupport.qt import QBrush, QColor, QFontMetrics, \
     QGraphicsDropShadowEffect, QGraphicsScene, QGraphicsView, QLabel, \
     QPainter, QPen, QPointF, QProgressBar, QRadialGradient, QSize, \
     QSizePolicy, Qt, QVBoxLayout, QWidget
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.guisupport.display import defaultColorScheme
 
 
 class AlternativeValueBase(NicosWidget):

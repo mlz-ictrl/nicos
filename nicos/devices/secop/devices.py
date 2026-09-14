@@ -59,8 +59,9 @@ from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
     HasOffset, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, DeviceMetaInfo, \
-    DeviceParInfo, Moveable, Readable, Measurable
-from nicos.core.errors import CommunicationError, ConfigurationError, UsageError
+    DeviceParInfo, Measurable, Moveable, Readable
+from nicos.core.errors import CommunicationError, ConfigurationError, \
+    UsageError
 from nicos.core.params import anytype, dictof, floatrange, intrange, listof
 from nicos.core.utils import formatStatus
 from nicos.devices.secop.validators import get_validator

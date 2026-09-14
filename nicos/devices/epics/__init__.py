@@ -21,10 +21,10 @@
 #
 # *****************************************************************************
 
-from nicos.devices.epics.base import EpicsDevice, EpicsReadable, \
-    EpicsStringReadable, EpicsMoveable, EpicsStringMoveable, \
-    EpicsAnalogMoveable, EpicsDigitalMoveable, EpicsMappedMoveable, \
-    EpicsMappedReadable, EpicsBoolMoveable, EpicsBoolReadable
+from nicos.devices.epics.base import EpicsAnalogMoveable, EpicsBoolMoveable, \
+    EpicsBoolReadable, EpicsDevice, EpicsDigitalMoveable, \
+    EpicsMappedMoveable, EpicsMappedReadable, EpicsMoveable, EpicsReadable, \
+    EpicsStringMoveable, EpicsStringReadable
 from nicos.devices.epics.motor import EpicsMotor
 
 __all__ = [

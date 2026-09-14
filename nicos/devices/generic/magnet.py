@@ -35,7 +35,7 @@ from scipy.special import erf
 from nicos import session
 from nicos.core import Attach, CanDisable, HasLimits, LimitError, NicosError, \
     Readable, status, usermethod
-from nicos.core.params import Param, oneof, dictof, tupleof
+from nicos.core.params import Param, dictof, oneof, tupleof
 from nicos.core.sessions.utils import MASTER
 from nicos.core.utils import multiStop
 from nicos.devices.abstract import Magnet
