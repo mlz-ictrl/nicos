@@ -37,7 +37,6 @@ from nicos.core import SIMULATION
 
 from nicos_ess.devices.datasinks.file_writer import FileWriterController, \
     JobRecord
-
 from nicos_ess.test.test_devices.test_filewriter_status import \
     create_status_message, create_stop_message_with_error, no_op, \
     prepare_filewriter_status
