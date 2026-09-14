@@ -21,10 +21,11 @@
 #   Leonardo J. Ibáñez <leonardoibanez@cnea.gob.ar>
 # *****************************************************************************
 
-from nicos.nexus.elements import ConstDataset, DetectorDataset, DeviceDataset, \
-    ImageDataset, NXLink, NXTime
-from nicos.nexus.nexussink import NexusTemplateProvider
 from nicos import session
+from nicos.nexus.elements import ConstDataset, DetectorDataset, \
+    DeviceDataset, ImageDataset, NXLink, NXTime
+from nicos.nexus.nexussink import NexusTemplateProvider
+
 from nicos_lahn.commands.secoplist import ListSecopDevices
 
 sample_entry = {

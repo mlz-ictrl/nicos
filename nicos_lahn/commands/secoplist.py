@@ -19,9 +19,10 @@
 # Module authors:
 # Facundo Silberstein <facundosilberstein@cnea.gob.ar>
 # *****************************************************************************
-from nicos.commands import parallel_safe, usercommand
-from nicos import session
 import os
+
+from nicos import session
+from nicos.commands import parallel_safe, usercommand
 
 __all__ = ['CreateConfigSecop']
 
