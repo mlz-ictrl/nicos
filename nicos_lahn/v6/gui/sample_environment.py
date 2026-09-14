@@ -20,15 +20,15 @@
 #   Facundo Silberstein <facundosilberstein@cnea.gob.ar>
 #   Leonardo J. Ibáñez <leonardoibanez@cnea.gob.ar>
 # *****************************************************************************
-from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, ScriptExecQuestion
-from nicos.utils import findResource
-from nicos.guisupport.qt import QIcon, pyqtSlot, QMessageBox
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSlider, QDoubleSpinBox, QPushButton, QButtonGroup
-from nicos.utils.files import iterSetups
-from nicos.core.sessions.setups import make_configdata
 import os
+
+from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.utils import ScriptExecQuestion, loadUi
+from nicos.core.sessions.setups import make_configdata
+from nicos.guisupport.qt import QButtonGroup, QDoubleSpinBox, QHBoxLayout, \
+    QIcon, QLabel, QMessageBox, QPushButton, QSlider, Qt, pyqtSlot
+from nicos.utils import findResource
+from nicos.utils.files import iterSetups
 
 
 class Sample_Environment(Panel):

@@ -24,11 +24,12 @@
 '''
 A panel to enter sample names for every position of the SampleSwitcher device.
 '''
-from PyQt5.QtWidgets import QDoubleSpinBox
 
 from nicos.clients.gui.panels import Panel
-from nicos.guisupport.qt import QWidget, QVBoxLayout,  QLabel,  QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QScrollArea, Qt
-from nicos.protocols.cache import cache_load, OP_TELL, cache_dump
+from nicos.guisupport.qt import QDoubleSpinBox, QHBoxLayout, QLabel, \
+    QLineEdit, QPushButton, QScrollArea, QSizePolicy, Qt, QVBoxLayout, \
+    QWidget
+from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 
 
 class SampleChangerPanel(Panel):
