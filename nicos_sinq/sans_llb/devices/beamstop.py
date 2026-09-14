@@ -31,6 +31,7 @@ from nicos.core import SIMULATION, Attach, Device, IsController, Moveable, \
 from nicos.devices.epics import EpicsDevice
 from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 
+
 class Beamstop(EpicsDevice, Moveable):
     """
     EPICS device for changing Beamstop at SANS-LLB

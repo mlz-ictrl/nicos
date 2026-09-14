@@ -23,13 +23,15 @@
 # *****************************************************************************
 
 from os import path
+
 import yaml
 
 from nicos import session
-from nicos.utils import printTable
 from nicos.core.device import DeviceMetaInfo, DeviceParInfo, Param
 from nicos.core.params import anytype, dictof
 from nicos.devices.sample import Sample
+from nicos.utils import printTable
+
 
 def to_mutable(obj):
     if isinstance(obj, dict):

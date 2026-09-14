@@ -36,7 +36,6 @@ pytest.importorskip('flatbuffers')
 from nicos_sinq.devices.fbschemas.hs00 import Array, EventHistogram
 from nicos_sinq.devices.kafka.area_detector import \
     HistogramFlatbuffersDeserializer
-
 from nicos_sinq.test.utils import create_hs00
 
 session_setup = 'area_detector'

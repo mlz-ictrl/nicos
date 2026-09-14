@@ -29,6 +29,7 @@ from nicos.core.errors import UsageError
 from nicos.core.params import Override, none_or, oneof, pvname
 from nicos.devices.epics.motor import EpicsMotor as CoreEpicsMotor
 from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
+
 from nicos_sinq.devices.dynamic_userlimits import DynamicUserlimits
 
 

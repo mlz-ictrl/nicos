@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
+from nicos_sinq.amor.nexus.placeholder import UserEmailPlaceholder
 from nicos_sinq.nexus import DeviceAttribute, DeviceDataset, EventStream, \
     NXDataset, NXLink
-from nicos_sinq.amor.nexus.placeholder import UserEmailPlaceholder
 
 metaMod = "f144"
 metaTopic = "AMOR_nicosForwarder"

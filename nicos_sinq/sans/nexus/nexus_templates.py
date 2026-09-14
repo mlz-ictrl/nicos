@@ -4,10 +4,9 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
-from nicos_sinq.sans.nexus.NexusImageManipulation import SliceTofImage
-
 from nicos_sinq.nexus.specialelements import AbsoluteTime, FixedArray, \
     OptionalDeviceDataset, SaveSampleEnv
+from nicos_sinq.sans.nexus.NexusImageManipulation import SliceTofImage
 
 sans_detector = {
         'count_mode': DetectorDataset('mode', 'string'),

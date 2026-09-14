@@ -24,11 +24,14 @@
 A sketch display of a SANS beamline, displaying current status.
 '''
 from nicos.clients.gui.panels import Panel
-from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, WARN
-from nicos.guisupport.qt import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsPolygonItem, \
-    QGraphicsItemGroup, QVBoxLayout, QGraphicsEllipseItem, QGraphicsRectItem, QBrush, \
-    QColor, QGraphicsSimpleTextItem, Qt, QFont, QTimer, QGraphicsLineItem, QPen, QPolygonF, QPointF
-from nicos.protocols.cache import cache_load, OP_TELL, cache_dump
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
+    WARN
+from nicos.guisupport.qt import QBrush, QColor, QFont, QGraphicsEllipseItem, \
+    QGraphicsItem, QGraphicsItemGroup, QGraphicsLineItem, \
+    QGraphicsPolygonItem, QGraphicsRectItem, QGraphicsScene, \
+    QGraphicsSimpleTextItem, QGraphicsView, QPen, QPointF, QPolygonF, Qt, \
+    QTimer, QVBoxLayout
+from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 
 STATUS_COLORS = {
     OK: QColor(0, 255, 0),

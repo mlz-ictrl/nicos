@@ -33,17 +33,17 @@ from datetime import datetime, timedelta
 from enum import Enum
 from os import path
 from time import time as currenttime
+
 from confluent_kafka import TopicPartition
 from streaming_data_types import deserialise_answ, deserialise_pl72, \
     deserialise_wrdn, deserialise_x5f2, serialise_6s4t, serialise_pl72
-from streaming_data_types.utils import get_schema
 from streaming_data_types.fbschemas.action_response_answ.ActionOutcome import \
     ActionOutcome
 from streaming_data_types.fbschemas.action_response_answ.ActionType import \
     ActionType
+from streaming_data_types.utils import get_schema
 
 from nicos import session
-from nicos.protocols.daemon import BREAK_IMMEDIATE
 from nicos.core import ADMIN, MASTER, Attach, Param, ScanDataset, host, \
     listof, status
 from nicos.core.constants import INTERRUPTED, POINT, SIMULATION
@@ -51,6 +51,7 @@ from nicos.core.data.sink import DataSinkHandler
 from nicos.core.device import DeviceMetaInfo, DeviceParInfo
 from nicos.core.params import Override, anytype
 from nicos.devices.datasinks.file import FileSink
+from nicos.protocols.daemon import BREAK_IMMEDIATE
 from nicos.utils import printTable
 
 from nicos_sinq.devices.datasinks.nexus_structure import NexusStructureProvider

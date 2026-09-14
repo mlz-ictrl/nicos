@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 from nicos.core import Attach, Moveable, Param
+
 from nicos_sinq.devices.epics.sinqmotor_deprecated import SinqMotor
 
 

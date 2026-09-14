@@ -24,7 +24,7 @@
 import pytest
 
 from nicos.commands.device import adjust, resetlimits
-from nicos.core import ConfigurationError, Override, HasOffset
+from nicos.core import ConfigurationError, HasOffset, Override
 from nicos.core.errors import LimitError
 from nicos.devices.generic.manual import ManualMove
 

@@ -24,7 +24,9 @@ from enum import IntEnum
 
 from nicos.core import Override, Param, listof, pvname, status, tupleof
 from nicos.devices.epics.base import EpicsDigitalMoveable, EpicsMoveable
+
 from nicos_sinq.devices.velocity_selector import VSForbiddenMoveable
+
 
 class IocStates(IntEnum):
     # needs to be updated, if IOC changes state enum

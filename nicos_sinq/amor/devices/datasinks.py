@@ -23,9 +23,9 @@
 # *****************************************************************************
 
 import copy
-from datetime import datetime, timezone
 import json
 import time
+from datetime import datetime, timezone
 from os import path
 
 import numpy
@@ -36,12 +36,12 @@ from nicos.core.data import DataSink, DataSinkHandler
 from nicos.core.device import DeviceParInfo
 from nicos.utils import byteBuffer, safeName
 
-from nicos_sinq.devices.datasinks.nexus_structure import NexusStructureTemplate
-from nicos_sinq.nexus.converter import NexusTemplateConverter
 from nicos_sinq.amor.commands import synchronize_daq
+from nicos_sinq.devices.datasinks.nexus_structure import NexusStructureTemplate
 from nicos_sinq.devices.datasinks.sinq_datasinks import SinqNexusFileSink
 from nicos_sinq.devices.imagesink import ImageKafkaDataSink, \
     ImageKafkaDataSinkHandler
+from nicos_sinq.nexus.converter import NexusTemplateConverter
 
 
 class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):

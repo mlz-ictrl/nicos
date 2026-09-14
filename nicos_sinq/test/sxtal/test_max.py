@@ -25,7 +25,6 @@ import pytest
 
 from nicos_sinq.sxtal.commands import Center, Max
 
-
 session_setup = 'sxtal'
 
 

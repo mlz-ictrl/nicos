@@ -20,10 +20,12 @@
 #   Alexander Söderqvist <alexander.soederqvist@psi.ch>
 #
 # *****************************************************************************
+from unittest import mock
+
 import pytest
 
 from nicos.core.errors import InvalidValueError
-from unittest import mock
+
 session_setup = 'experiment'
 
 # pylint: disable=line-too-long

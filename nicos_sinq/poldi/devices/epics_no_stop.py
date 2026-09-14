@@ -24,6 +24,7 @@
 from nicos.core import status
 from nicos.devices.epics.pyepics import EpicsDigitalMoveable
 
+
 class EpicsDigitalMoveableNoStop(EpicsDigitalMoveable):
     """
     This adds a doStatus() Method to the core

@@ -23,10 +23,9 @@
 
 from logging import WARNING
 
-from nicos.guisupport.qt import QTabWidget
-
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QTabWidget
 from nicos.utils import findResource
 
 from nicos_sinq.amor.devices.selene import ACTIVE, INACTIVE, NARROW, WIDE

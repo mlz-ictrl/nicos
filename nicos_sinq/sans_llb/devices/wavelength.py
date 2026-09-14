@@ -20,9 +20,11 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
+from numpy import nan
+
 from nicos.core.device import Attach, Moveable, Param
 from nicos.devices.abstract import TransformedMoveable
-from numpy import nan
+
 
 class SANSWL(TransformedMoveable):
     """

@@ -22,9 +22,9 @@
 # *****************************************************************************
 
 import os.path
-from time import time
-from subprocess import Popen, PIPE, TimeoutExpired
+from subprocess import PIPE, Popen, TimeoutExpired
 from threading import Thread
+from time import time
 
 from nicos.core import DataSinkHandler, Param
 from nicos.devices.datasinks import FileSink

@@ -30,6 +30,7 @@ import subprocess
 from nicos import session
 from nicos.commands import usercommand
 
+
 @usercommand
 def synchronize_daq():
     """Synchronize the time on the data acquisition computer with that of the

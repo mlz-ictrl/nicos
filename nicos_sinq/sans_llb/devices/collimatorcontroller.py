@@ -20,8 +20,9 @@
 #   Artur Glavic <artur.glavic@psi.ch>
 #
 # *****************************************************************************
-from nicos.core import oneof, Override
+from nicos.core import Override, oneof
 from nicos.devices.generic.switcher import MultiSwitcher
+
 
 class CollimationChangeble(MultiSwitcher):
     parameter_overrides = {

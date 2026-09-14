@@ -42,8 +42,6 @@ from nicos.utils import findResource
 
 from nicos_sinq.sxtal.commands import AddAuxRef, AddRef, CalcUB, getSampleInst
 
-
-
 logbookTitles = ['File No.', 'Ei', 's2t', 'a3 start', 'a3 stop',
                  'a3 steps', 'a3 step', 'Monitor', 'Temp', 'Mag field']
 logbookTitlesFormats = ['{:>10}']*len(logbookTitles)

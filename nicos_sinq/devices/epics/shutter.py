@@ -29,6 +29,7 @@ from nicos.core import SIMULATION, Moveable, Override, Param, oneof, pvname, \
 from nicos.devices.epics import EpicsDevice
 from nicos.devices.epics.status import EPICS_TIMEOUT_MSG
 
+
 class Shutter(EpicsDevice, Moveable):
     """
     Interface to Epics Based Sinq Shutter Control

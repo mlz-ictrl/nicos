@@ -22,7 +22,7 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import Param, limits, MASTER, POLLER, MAIN
+from nicos.core import MAIN, MASTER, POLLER, Param, limits
 from nicos.core.mixins import HasLimits, HasOffset
 
 

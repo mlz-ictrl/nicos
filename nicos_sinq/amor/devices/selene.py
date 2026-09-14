@@ -31,9 +31,9 @@ from nicos.core.utils import multiStatus
 from nicos.devices.abstract import Motor
 from nicos.devices.epics.base import EpicsDevice, EpicsDigitalMoveable, \
     EpicsReadable
-from nicos_sinq.devices.epics.motor import SinqMotor
 
 from nicos_sinq.devices.epics.extensions import EpicsCommandReply
+from nicos_sinq.devices.epics.motor import SinqMotor
 
 # pitch
 UNSELECTED = -3000

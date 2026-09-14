@@ -42,7 +42,6 @@ from nicos.core import CommunicationError, status
 from nicos.core.constants import LIVE
 
 from nicos_sinq.devices.epics.status import ADKafkaStatus
-
 from nicos_sinq.test.utils import create_hs00
 
 session_setup = 'area_detector'

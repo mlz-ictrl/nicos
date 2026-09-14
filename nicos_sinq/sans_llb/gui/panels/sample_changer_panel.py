@@ -21,9 +21,9 @@
 #   Artur Glavic <artur.glavic@psi.ch>
 #
 # *****************************************************************************
-'''
+"""
 A panel to enter sample names for every position of the SampleSwitcher device.
-'''
+"""
 
 from nicos.clients.gui.panels import Panel
 from nicos.guisupport.qt import QDoubleSpinBox, QHBoxLayout, QLabel, \
@@ -70,7 +70,7 @@ class SampleChangerPanel(Panel):
     def apply_names(self):
         names = []
         data = []
-        for i,entry in enumerate(self._sample_entries):
+        for i, entry in enumerate(self._sample_entries):
             names.append(str(entry.text()))
             data.append({'thickness': self._sample_thicknesses[i].value()})
         self.client.tell('exec', f'schanger.sample_names = {names!r};schanger.sample_data = {data!r};schanger(schanger.read())')
@@ -87,8 +87,8 @@ class SampleChangerPanel(Panel):
 
         vbox = QVBoxLayout()
         sw.setLayout(vbox)
-        self._sample_entries=[]
-        self._sample_thicknesses=[]
+        self._sample_entries = []
+        self._sample_thicknesses = []
         for i in range(length):
             hbox = QHBoxLayout()
             btn = QPushButton('Move to ')
@@ -113,11 +113,11 @@ class SampleChangerPanel(Panel):
         self.active_sample()
 
     def set_sample_names(self, name_list):
-        for i,name in enumerate(name_list):
+        for i, name in enumerate(name_list):
             self._sample_entries[i].setText(name)
 
     def set_sample_data(self, data_list):
-        for i,data in enumerate(data_list):
+        for i, data in enumerate(data_list):
             self._sample_thicknesses[i].setValue(data.get('thickness', 0.))
 
     def move_to_sample(self, index):
@@ -129,11 +129,11 @@ class SampleChangerPanel(Panel):
             entry.setStyleSheet("QLineEdit{background: white;}")
         for entry in self._sample_thicknesses:
             entry.setStyleSheet("background: white;")
-        if self._active_sample>=0 and len(self._sample_entries)>0:
+        if self._active_sample >= 0 and len(self._sample_entries) > 0:
             self._sample_entries[self._active_sample].setStyleSheet("QLineEdit{background: lightgreen;}")
             self._sample_thicknesses[self._active_sample].setStyleSheet("background: lightgreen;")
             self._target = -1
-        elif self._target>=0:
+        elif self._target >= 0:
             self._sample_entries[self._target].setStyleSheet("QLineEdit{background: lightyellow;}")
             self._sample_thicknesses[self._target].setStyleSheet("background: lightyellow;")
 
@@ -152,12 +152,12 @@ class SampleChangerPanel(Panel):
                 self.active_sample()
             elif subkey == 'sample_names':
                 value = cache_load(value)
-                if len(value)!=len(self._sample_entries):
+                if len(value) != len(self._sample_entries):
                     self.build_sample_lines(len(value))
                 self.set_sample_names(value)
-            elif subkey=='sample_data':
+            elif subkey == 'sample_data':
                 value = cache_load(value)
-                if len(value)!=len(self._sample_entries):
+                if len(value) != len(self._sample_entries):
                     self.build_sample_lines(len(value))
                 self.set_sample_data(value)
             elif subkey == 'current_holder':

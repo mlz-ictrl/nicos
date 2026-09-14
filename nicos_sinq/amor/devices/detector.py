@@ -22,20 +22,22 @@
 # *****************************************************************************
 
 import time
-from confluent_kafka import TopicPartition
+
 import streaming_data_types
+from confluent_kafka import TopicPartition
 
 from nicos import session
 from nicos.core import status
 from nicos.core.constants import POLLER
 from nicos.core.device import Readable
-from nicos.core.params import Attach, Override, Param, floatrange, nonzero, oneof
+from nicos.core.params import Attach, Override, Param, floatrange, nonzero, \
+    oneof
 from nicos.devices.generic import Switcher
 from nicos.devices.generic.manual import ManualMove
 
 from nicos_sinq.devices.datasinks.file_writer import FileWriterControlSink
-from nicos_sinq.devices.kafka.consumer import KafkaSubscriber
 from nicos_sinq.devices.epics.sinqdaq import DAQPreset, SinqDetector
+from nicos_sinq.devices.kafka.consumer import KafkaSubscriber
 
 MONITORPRESET = 'm'
 TIMEPRESET = 't'

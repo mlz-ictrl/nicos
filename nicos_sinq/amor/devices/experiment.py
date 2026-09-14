@@ -29,7 +29,9 @@ from nicos.core import Override, Param, absolute_path
 from nicos.core.data import DataManager
 from nicos.core.errors import InvalidValueError
 from nicos.core.params import none_or
+
 from nicos_sinq.devices.experiment import SinqExperiment
+
 
 class AmorExperiment(SinqExperiment):
     """Additional experiment parameters for AMOR"""

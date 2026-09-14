@@ -26,6 +26,7 @@
 from nicos.core import Override
 from nicos.devices.generic.manual import ManualSwitch
 
+
 class ManualSettableSwitch(ManualSwitch):
     """A settable version of the Manual switch.
 

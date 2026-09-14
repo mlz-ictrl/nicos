@@ -22,8 +22,7 @@
 # *****************************************************************************
 
 from nicos.core import status
-from nicos.devices.epics.pyepics import \
-    EpicsReadable as EpicsCoreReadable
+from nicos.devices.epics.pyepics import EpicsReadable as EpicsCoreReadable
 
 
 class EpicsReadable(EpicsCoreReadable):

@@ -21,7 +21,8 @@
 #
 # *****************************************************************************
 from nicos import session
-from nicos.core import Moveable, Override, Param, PositionError,  dictof, listof, status, usermethod
+from nicos.core import Moveable, Override, Param, PositionError, dictof, \
+    listof, status, usermethod
 from nicos.core.constants import SLAVE
 from nicos.core.params import Attach, oneof
 from nicos.devices.abstract import MappedMoveable, MappedReadable

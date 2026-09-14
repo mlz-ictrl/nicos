@@ -23,8 +23,8 @@
 # *****************************************************************************
 
 import os
-import time
 import re
+import time
 from os import path
 
 import requests
@@ -32,8 +32,8 @@ import requests
 from nicos import session
 from nicos.core import MASTER, Override, Param, absolute_path
 from nicos.core.data import DataManager
-from nicos.devices.experiment import Experiment as CoreExperiment
 from nicos.core.errors import InvalidValueError
+from nicos.devices.experiment import Experiment as CoreExperiment
 from nicos.utils import readFile, writeFile
 
 SERVICE_EXP = 'Service'

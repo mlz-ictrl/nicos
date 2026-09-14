@@ -22,7 +22,9 @@
 # *****************************************************************************
 from nicos.core import HasMapping, oneof, status
 from nicos.core.device import Attach, Moveable, Param
-from nicos_sinq.sans_llb.devices.collimatorcontroller import CollimationChangeble
+
+from nicos_sinq.sans_llb.devices.collimatorcontroller import \
+    CollimationChangeble
 
 
 class PolarizationSwitcher(HasMapping, Moveable):

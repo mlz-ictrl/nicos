@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from nicos.core import Attach, Override, Param, Waitable, LimitError
+from nicos.core import Attach, LimitError, Override, Param, Waitable
 from nicos.core.device import Moveable
 from nicos.core.mixins import HasLimits
 

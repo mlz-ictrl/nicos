@@ -23,6 +23,7 @@
 from nicos.core import Param, listof, tupleof
 from nicos.devices.epics.base import EpicsDigitalMoveable
 
+
 class VSForbiddenMoveable(EpicsDigitalMoveable):
     """
     Velocity selectors have forbidden regions in which they are

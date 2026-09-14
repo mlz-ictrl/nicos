@@ -30,7 +30,7 @@
 
 from time import time as currenttime
 
-from nicos.core import MASTER, Device, Param, status, Override
+from nicos.core import MASTER, Device, Override, Param, status
 from nicos.core.constants import SIMULATION
 from nicos.devices.epics.pyepics import PVMonitor, pvget
 from nicos.devices.epics.pyepics.motor import EpicsMotor as EssEpicsMotor

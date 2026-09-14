@@ -23,7 +23,6 @@
 
 from nicos.core.constants import SIMULATION
 
-
 session_setup = 'sinq_daq'
 
 def test_simulated_setup(session):

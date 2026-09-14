@@ -22,7 +22,6 @@
 # *****************************************************************************
 
 from nicos.core import Param
-
 from nicos.core.params import floatrange
 from nicos.devices.sample import Sample
 

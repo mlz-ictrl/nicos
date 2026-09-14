@@ -24,10 +24,11 @@
 import pytest
 
 from nicos.core import status
-
 from nicos.core.errors import UsageError
+
 from nicos_sinq.devices.epics.motor import SinqMotor
-from test.test_simple.test_epics_motor import FakeEpicsMotor, DefTest
+
+from test.test_simple.test_epics_motor import DefTest, FakeEpicsMotor
 
 session_setup = 'sinqmotor'
 

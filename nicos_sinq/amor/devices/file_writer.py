@@ -27,6 +27,7 @@ from os import path
 
 from nicos import session
 from nicos.core.params import Override
+
 from nicos_sinq.devices.datasinks.file_writer import FileWriterControlSink, \
     FileWriterSinkHandler
 

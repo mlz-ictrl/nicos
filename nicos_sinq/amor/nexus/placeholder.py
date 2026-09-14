@@ -21,9 +21,9 @@
 #
 # *****************************************************************************
 
+from nicos.core.device import DeviceParInfo
 from nicos.core.errors import ConfigurationError
 from nicos.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
-from nicos.core.device import DeviceParInfo
 
 
 class DistancesPlaceholder(PlaceholderBase):

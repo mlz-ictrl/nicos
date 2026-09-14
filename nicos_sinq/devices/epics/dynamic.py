@@ -36,14 +36,12 @@ if they are connected or not. This can be via:
    support for detecting if individual axes are connected.
 """
 from nicos import session
-from nicos.core import DeviceMixinBase, status
-from nicos.core import Readable
-from nicos.core import Param, MASTER, Override
-from nicos.core.errors import ProgrammingError
-from nicos.core.params import listof, dictof, tupleof, anytype, nicosdev
+from nicos.core import MASTER, DeviceMixinBase, Override, Param, Readable, \
+    status
+from nicos.core.errors import ConfigurationError, ProgrammingError
+from nicos.core.params import anytype, dictof, listof, nicosdev, tupleof
 from nicos.devices.epics.base import EpicsDevice, EpicsReadable
 from nicos.devices.epics.tools import epics_get
-from nicos.core.errors import ConfigurationError
 
 
 class DynamicMixin(DeviceMixinBase):

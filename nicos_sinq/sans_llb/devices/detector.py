@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from nicos.core import Attach, listof, Override, Param, Value
+from nicos.core import Attach, Override, Param, Value, listof
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
 from nicos_sinq.devices.imagesink import HistogramDesc, HistogramDimDesc

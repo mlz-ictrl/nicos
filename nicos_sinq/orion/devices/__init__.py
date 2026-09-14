@@ -24,6 +24,7 @@
 from nicos.core import Override, dictof
 from nicos.devices.generic import Switcher
 
+
 class MonoSwitcher(Switcher):
     """Mono Switcher
     Provide a mapping from monochromator wavelength to rotation.

@@ -24,7 +24,8 @@ from nicos import session
 from nicos.core import Attach, Readable, status
 from nicos.core.params import Param, oneof
 from nicos.devices.abstract import Motor
-from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, SeqParam
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
+    SeqParam
 
 # ATTENTION: This device is on life-support, it's possible to improve it in
 # several ways, but from  broader perspective it makes sense to spend as little

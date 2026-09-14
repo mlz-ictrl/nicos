@@ -20,10 +20,12 @@
 #   Artur Glavic <artur.glavic@psi.ch>
 #
 # *****************************************************************************
-from nicos.core import Attach, floatrange, LimitError, Moveable, Param, PositionError
+from nicos.core import Attach, LimitError, Moveable, Param, PositionError, \
+    floatrange
+from nicos.core.status import NOTREACHED, OK
 from nicos.devices.generic import BaseSequencer
-from nicos.devices.generic.sequence import SeqWait, SequenceItem, SeqNOP
-from nicos.core.status import OK, NOTREACHED
+from nicos.devices.generic.sequence import SeqNOP, SequenceItem, SeqWait
+
 
 class SeqMove(SequenceItem):
     """
