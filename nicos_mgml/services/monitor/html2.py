@@ -39,7 +39,7 @@ from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
-from nicos.utils import checkSetupSpec, parseKeyExpression, number_types, \
+from nicos.utils import checkSetupSpec, number_types, parseKeyExpression, \
     safeWriteFile
 
 from .chartjs import DEFAULT_BLACK, DEFAULT_BLUE, DEFAULT_GREEN, DEFAULT_RED, \
