@@ -134,6 +134,7 @@ class Switcher(MappedMoveable):
     def doStop(self):
         self._attached_moveable.stop()
 
+
 class ReadonlySwitcher(MappedReadable):
     """Same as the `Switcher`, but for read-only underlying devices."""
 
