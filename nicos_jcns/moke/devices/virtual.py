@@ -21,10 +21,11 @@
 #
 # *****************************************************************************
 
-from nicos.core import Attach, Override, Param, Readable, SLAVE, status
+from nicos.core import SLAVE, Attach, Override, Param, Readable, status
 from nicos.devices.abstract import TransformedReadable
 from nicos.devices.generic import VirtualMotor
 from nicos.utils.functioncurves import Curves
+
 from nicos_jcns.moke.devices.moke import MokeMagnet
 
 

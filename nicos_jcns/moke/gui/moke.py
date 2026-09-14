@@ -26,15 +26,15 @@ import math
 import os
 
 import gr
-from gr.pygr import CoordConverter, ErrorBar, RegionOfInterest, Text
 import numpy
+from gr.pygr import CoordConverter, ErrorBar, RegionOfInterest, Text
 from qtgr.events import LegendEvent, MouseEvent, ROIEvent
 # pylint: disable=import-error
 from uncertainties.core import AffineScalarFunc
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRMARKS
 from nicos.guisupport.qt import QDate, QFont, QMessageBox, QStandardItem, \

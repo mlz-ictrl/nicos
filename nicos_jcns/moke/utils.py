@@ -22,8 +22,8 @@
 # *****************************************************************************
 
 import math
-from random import randint
 import re
+from random import randint
 
 import numpy
 import scipy
