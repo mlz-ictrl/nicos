@@ -23,7 +23,8 @@
 
 import math
 
-from nicos.core import Attach, Override, Param, anytype, dictof, oneof, status
+from nicos.core import anytype, Attach, dictof, floatrange, Param, oneof_or, \
+    Override, status
 from nicos.core.constants import MASTER
 from nicos.core.device import Moveable
 from nicos.core.mixins import HasMapping, HasPrecision
@@ -49,8 +50,7 @@ class Basic(HasPrecision, Moveable):
         return self.curvalue
 
     def doStart(self, target):
-        if self._mode == MASTER:
-            self.curvalue = target
+        self.curvalue = target
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
@@ -93,18 +93,19 @@ class NestMapped(HasMapping, Basic):
     }
 
     def doInit(self, mode):
-        if mode == MASTER:
-            self.valuetype = oneof(*sorted(self.mapping, key=num_sort))
+        self.valuetype = oneof_or(sorted(self.mapping, key=num_sort),
+                                  floatrange(min(self.mapping), max(self.mapping)))
 
     def doStart(self, target):
-        if self._mode == MASTER:
+        if target in self.mapping:
             for node in self._attached_nextnodes:
                 node.mapping = self.mapping[target][node.name]
-                node.valuetype = oneof(*sorted(node.mapping, key=num_sort))
+                node.valuetype = oneof_or(sorted(node.mapping, key=num_sort),
+                                          floatrange(min(node.mapping), max(node.mapping)))
             for dev in self._attached_controlled:
                 dev.start(self.mapping[target][dev.name])
-            if self._attached_aliased is not None:
-                self._attached_aliased.start(target)
+        if self._attached_aliased is not None:
+            self._attached_aliased.start(target)
         Basic.doStart(self, target)
 
     def doStatus(self, maxage=0):
@@ -119,6 +120,9 @@ class NestMapped(HasMapping, Basic):
             if msg:
                 curstatus = status.WARN, ', '.join(msg)
         return curstatus
+
+    def doIsAllowed(self, target):
+        return True, ''
 
 
 class NestHead(NestMapped):
@@ -142,5 +146,4 @@ class NestHead(NestMapped):
             self.mapping = {fn: self._attached_instrument.table}
             for node in self._attached_nextnodes:
                 node.mapping = self.mapping[fn][node.name]
-            NestMapped.doInit(self, mode)
             self.start(fn)
