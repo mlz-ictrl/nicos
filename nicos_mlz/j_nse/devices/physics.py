@@ -96,6 +96,11 @@ class NestMapped(HasMapping, Basic):
         self.valuetype = oneof_or(sorted(self.mapping, key=num_sort),
                                   floatrange(min(self.mapping), max(self.mapping)))
 
+    def doRead(self, maxage=0):
+        if self._attached_aliased is not None:
+            return self._attached_aliased.read(maxage)
+        return Basic.doRead(self, maxage)
+
     def doStart(self, target):
         if target in self.mapping:
             for node in self._attached_nextnodes:
@@ -109,14 +114,20 @@ class NestMapped(HasMapping, Basic):
         Basic.doStart(self, target)
 
     def doStatus(self, maxage=0):
-        curstatus = multiStatus(self._attached_controlled, maxage)
+        devices = list(self._attached_controlled)
+        if self._attached_aliased is not None:
+            devices.append(self._attached_aliased)
+        curstatus = multiStatus(devices, maxage)
         if curstatus[0] == status.OK:
             msg = []
-            for dev in self._attached_controlled:
-                target = self.mapping[self.curvalue][dev.name]
-                tol = getattr(dev, 'precision', None) or 0.0
-                if not math.isclose(dev.read(maxage), target, abs_tol=tol):
-                    msg.append(f'{dev.name} != {target} {dev.unit}')
+            if self.curvalue in self.mapping:
+                for dev in self._attached_controlled:
+                    target = self.mapping[self.curvalue][dev.name]
+                    tol = getattr(dev, 'precision', None) or 0.0
+                    if not math.isclose(dev.read(maxage), target, abs_tol=tol):
+                        msg.append(f'{dev.name} != {target} {dev.unit}')
+            else:
+                msg.append(f'non-predefined value {self.curvalue} {self.unit}')
             if msg:
                 curstatus = status.WARN, ', '.join(msg)
         return curstatus
