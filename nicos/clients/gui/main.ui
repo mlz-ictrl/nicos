@@ -58,6 +58,7 @@
     </property>
     <addaction name="actionNicosHelp"/>
     <addaction name="actionNicosDocu"/>
+    <addaction name="actionInstrumentWebsite"/>
     <addaction name="separator"/>
     <addaction name="actionDebugConsole"/>
     <addaction name="separator"/>
@@ -185,6 +186,14 @@
   <action name="actionNicosHelp">
    <property name="text">
     <string>NICOS online &amp;help</string>
+   </property>
+  </action>
+  <action name="actionInstrumentWebsite">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Instrument &amp;home page</string>
    </property>
   </action>
   <action name="actionNicosDocu">

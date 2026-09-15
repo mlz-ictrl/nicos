@@ -146,6 +146,8 @@ class MainWindow(DlgUtils, QMainWindow):
 
         # state members
         self.current_status = None
+        self.instrument_name = ''
+        self.instrument_website = ''
 
         # connect the client's events
         self.client = NicosGuiClient(self, self.log)
@@ -581,6 +583,14 @@ class MainWindow(DlgUtils, QMainWindow):
 
         self.actionViewOnly.setChecked(self.client.viewonly)
         self.actionExpert.setChecked(self.conndata.expertmode)
+        self.instrument_name, self.instrument_website = self.client.eval(
+            '(session.instrument.instrument, session.instrument.website)',
+            ('', ''))
+        self.instrument_name = self.instrument_name or ''
+        self.instrument_website = self.instrument_website or ''
+        name = self.instrument_name.replace('&', '&&') or 'Instrument'
+        self.actionInstrumentWebsite.setText('%s &home page' % name)
+        self.actionInstrumentWebsite.setEnabled(bool(self.instrument_website))
 
         # set focus to command input, if present
         for panel in self.panels:
@@ -602,6 +612,10 @@ class MainWindow(DlgUtils, QMainWindow):
         self.adminLabel.setVisible(False)
         self.setStatus('disconnected')
         self.actionViewOnly.setChecked(True)
+        self.instrument_name = ''
+        self.instrument_website = ''
+        self.actionInstrumentWebsite.setText('Instrument &home page')
+        self.actionInstrumentWebsite.setEnabled(False)
 
     def on_client_showhelp(self, data):
         if not HelpWindow:
@@ -778,6 +792,22 @@ class MainWindow(DlgUtils, QMainWindow):
         dlg = WebsiteTool(
             self, self.client,
             url='https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/')
+        dlg.setWindowModality(Qt.WindowModality.NonModal)
+        dlg.show()
+
+    @pyqtSlot()
+    def on_actionInstrumentWebsite_triggered(self):
+        if not QWebEngineView:
+            self.showError('Cannot open instrument website: Qt web extension '
+                           'is not available on your system.')
+            return
+        if not self.instrument_website:
+            self.showError('There is no connection to NICOS or the current '
+                           'instrument does not have a home page configured.')
+            return
+        from nicos.clients.gui.tools.website import WebsiteTool
+
+        dlg = WebsiteTool(self, self.client, url=self.instrument_website)
         dlg.setWindowModality(Qt.WindowModality.NonModal)
         dlg.show()
 
