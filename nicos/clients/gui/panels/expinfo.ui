@@ -14,7 +14,16 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -35,7 +44,7 @@
    <item>
     <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0" columnminimumwidth="0,0,0">
      <item row="2" column="1">
-      <widget class="ValueLabel" name="valueLabel_3">
+      <widget class="ValueLabel" name="usersLabel">
        <property name="key" stdset="0">
         <string>exp.users</string>
        </property>
@@ -77,6 +86,9 @@
        </property>
        <property name="text">
         <string>Users</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
       </widget>
      </item>

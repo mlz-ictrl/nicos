@@ -78,6 +78,9 @@ class ExpInfoPanel(Panel):
             lambda value, strvalue: ', '.join(sorted(value)))
         self.envLabel.setFormatCallback(
             lambda value, strvalue: ', '.join(sorted(value)))
+        self.usersLabel.setFormatCallback(
+            lambda value, strvalue: '\n'.join([v.strip()
+                                               for v in value.split(';')]))
 
         self._sample_panel = options.get('sample_panel', GenericSamplePanel)
         self._new_exp_panel = options.get('new_exp_panel', ExpPanel)
