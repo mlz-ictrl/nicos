@@ -11,7 +11,7 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    NSE = device('nicos_mlz.j_nse.devices.instrument.JnseInstrument',
+    NSE = device('nicos_mlz.j_nse.devices.JnseInstrument',
         description = 'instrument object',
         instrument = 'VJNSE',
         responsible = 'O. Holderer <o.holderer@fz-juelich.de>',

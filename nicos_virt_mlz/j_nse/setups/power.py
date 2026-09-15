@@ -6,7 +6,7 @@ devices = dict()
 for i in range(1, 39):
     devices[f'pow{i:02d}'] = \
         device(
-            'nicos_virt_mlz.j_nse.devices.jnse.JNSEVirtualMotor',
+            'nicos_virt_mlz.j_nse.devices.JNSEVirtualPowerSupply',
             description = f'Power Supply Port {i:02d}',
             userlimits = (-250, 250),
             abslimits = (-250, 250),

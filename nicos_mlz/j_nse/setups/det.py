@@ -69,7 +69,7 @@ devices = dict(
         liveinterval = 1,
     ),
     nsedet = device(
-        'nicos_mlz.j_nse.devices.detector.ScanningDetector',
+        'nicos_mlz.j_nse.devices.ScanningDetector',
         description = 'High-level JNSE detector',
         detector = 'det',
         lmbda = 'Lambda',

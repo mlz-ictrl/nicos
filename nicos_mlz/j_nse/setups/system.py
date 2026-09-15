@@ -20,7 +20,7 @@ includes = [
 ]
 
 devices = dict(
-    NSE = device('nicos_mlz.j_nse.devices.instrument.JnseInstrument',
+    NSE = device('nicos_mlz.j_nse.devices.JnseInstrument',
         description = 'instrument object',
         instrument = 'JNSE',
         responsible = 'O. Holderer <o.holderer@fz-juelich.de>',

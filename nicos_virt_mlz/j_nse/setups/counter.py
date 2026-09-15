@@ -7,7 +7,7 @@ includes = [
 
 devices = dict(
     selector_cts = device(
-        'nicos_virt_mlz.j_nse.devices.jnse.Integrator',
+        'nicos_virt_mlz.j_nse.devices.Integrator',
         description = 'Selector counter',
         unit = 'cts',
         informula = 'x',
