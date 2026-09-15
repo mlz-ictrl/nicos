@@ -224,6 +224,10 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
             return ButtonWidget(parent, list(typ.vals.values()))
         return ComboWidget(parent, params.oneof(*typ.vals.values()), curvalue)
     elif isinstance(typ, params.oneofdict_or):
+        if isinstance(typ.conv, (params.listof, params.setof, params.tupleof)):
+            inner = create(parent, typ.conv, curvalue, fmtstr, unit,
+                           allow_buttons, allow_enter, client, valinfo)
+            return OneofdictOrTupleWidget(parent, typ, inner, curvalue)
         return OneofdictOrWidget(parent, typ, curvalue)
     elif isinstance(typ, params.none_or):
         return CheckWidget(parent, typ.conv, curvalue, client)
@@ -453,6 +457,50 @@ class OneofdictOrWidget(ComboWidget):
         if self.currentText() in self._textvals:
             return self.currentText()
         return self._conv(self.currentText())
+
+
+class OneofdictOrTupleWidget(QWidget):
+
+    valueModified = pyqtSignal()
+    valueChosen = pyqtSignal(object)
+
+    def __init__(self, parent, valuetype, inner, curvalue):
+        QWidget.__init__(self, parent)
+        self._names = list(valuetype.vals)
+        self._inner = inner
+        self._selector = QComboBox(self)
+        self._selector.addItems(self._names + ['<other value>'])
+        idx = len(self._names)
+        for i, value in enumerate(valuetype.vals.values()):
+            if value == curvalue:
+                idx = i
+                break
+        self._selector.setCurrentIndex(idx)
+        inner.setVisible(idx == len(self._names))
+
+        layout = self._layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._selector)
+        layout.addWidget(inner)
+        self.setLayout(layout)
+
+        self._selector.currentIndexChanged['int'].connect(
+            self.on_selector_currentIndexChanged)
+        inner.valueModified.connect(self.valueModified)
+        inner.valueChosen.connect(self.valueChosen)
+
+    def on_selector_currentIndexChanged(self, idx):
+        self._inner.setVisible(idx == len(self._names))
+        self.valueModified.emit()
+
+    def getValue(self):
+        idx = self._selector.currentIndex()
+        if idx < len(self._names):
+            return self._names[idx]
+        return self._inner.getValue()
+
+    def setFocus(self):
+        self._selector.setFocus()
 
 
 class ButtonWidget(QWidget):

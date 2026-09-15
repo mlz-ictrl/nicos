@@ -318,6 +318,34 @@ class TestTypedvalue:
         with qtbot.waitExposed(widget):
             pass
 
+    def test_OneofdictOrTupleWidget(self, qtbot):
+        typ = oneofdict_or({'a': (0, 1), 'b': (2, 3)},
+                           tupleof(intrange(0, 5), intrange(0, 5)))
+        widget = create(None, typ, (2, 3), valinfo=[Value('x'), Value('y')])
+        qtbot.addWidget(widget)
+        widget.show()
+        assert widget.getValue() == 'b'
+        assert not widget._inner.isVisible()
+
+        widget._selector.setCurrentIndex(0)
+        assert widget.getValue() == 'a'
+
+        widget._selector.setCurrentIndex(2)
+        assert widget._inner.isVisible()
+        assert widget.getValue() == (2, 3)
+        widget._inner._widgets[0]._inner.setValue(4)
+        assert widget.getValue() == (4, 3)
+
+        # a value not in the mapping starts on the "<other value>" entry
+        widget = create(None, typ, (1, 1))
+        qtbot.addWidget(widget)
+        widget.show()
+        assert widget._selector.currentIndex() == 2
+        assert widget.getValue() == (1, 1)
+
+        with qtbot.waitExposed(widget):
+            pass
+
     @pytest.mark.parametrize(
         ('typ', 'curvalue', 'allow_buttons', 'res'),
         [
