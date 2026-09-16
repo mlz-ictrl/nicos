@@ -98,7 +98,8 @@ class Attenuator(HasLimits, Moveable):
             self.log.info('new attenuation: %s %s', self.read(), self.unit)
 
     def doRead(self, maxage=0):
-        if self.doStatus()[0] == status.OK:
+        st, msg = self.doStatus(maxage)
+        if st == status.OK:
             result = 0
             fil = 0
             readvalue = self._attached_io_status.read(maxage)
@@ -108,7 +109,7 @@ class Attenuator(HasLimits, Moveable):
                 if fil == 1:
                     result += self._filterlist[i]
             return result
-        raise NicosError(self, 'device undefined; check it!')
+        raise NicosError(self, msg)
 
     def doReset(self):
         self.start(0)
@@ -120,7 +121,7 @@ class Attenuator(HasLimits, Moveable):
         stat3 = checkstatus[0]
         if (abs(stat1 - stat3) == 0) and stat2 == 31:
             return (status.OK, 'idle')
-        return (status.ERROR, 'device undefined, please check')
+        return (status.ERROR, 'device is in an undefined position, please check it')
 
     def _checkstatus(self, maxage=0):
         stat1 = self._attached_io_status.read(maxage)
