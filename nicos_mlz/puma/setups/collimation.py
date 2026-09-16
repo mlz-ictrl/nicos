@@ -21,7 +21,7 @@ devices = dict(
             '20': 6,
             'PE/120': 7,
         },
-        unit = 'min',
+        unit = 'arcmin',
         fallback = 'undefined',
     ),
     alpha3 = device('nicos.devices.generic.ReadonlySwitcher',
@@ -40,7 +40,7 @@ devices = dict(
             '60': 6,
             '120': 7,
         },
-        unit = 'min',
+        unit = 'arcmin',
         fallback = 'undefined',
     ),
 )
