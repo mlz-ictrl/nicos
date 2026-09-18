@@ -23,5 +23,5 @@
 
 from .detector import ScanningDetector
 from .instrument import JnseInstrument
-from .physics import Basic, NestMapped, NestHead
+from .physics import Basic, NestHead, NestMapped, NestTransform
 from .power import HasLabel, JNSEPowerSupply
