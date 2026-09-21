@@ -31,7 +31,7 @@ devices = dict(
 )
 
 startupcode = '''
-printinfo("Disabling deamonsink for subscans")
+printinfo("Disabling daemonsink for subscans")
 dmnsink._setROParam('settypes',frozenset({'scan'}))
 '''
 
