@@ -835,7 +835,7 @@ class SpectrumInput(VectorInput):
 
     parameters = {
         'xticks': Param(
-            'X axis values for corresponding value data.',
+            'X axis values for corresponding value data',
             type=listof(float), unit='', category='general',
         ),
     }
