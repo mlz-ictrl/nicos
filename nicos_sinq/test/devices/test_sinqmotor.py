@@ -167,7 +167,12 @@ class DefTestSinqMotor(DefTest):
         motor.values['status'] = int('0000000000000000', 2) # Motor is not referenced
         assert motor._get_pv('status') == 0
         assert motor._has_been_homed() == 0
+
+        motor.reference_warning = True
         assert motor.status(0) == (status.OK, 'Motor needs to be referenced.')
+
+        motor.reference_warning = False
+        assert motor.status(0) == (status.OK, '')
 
         motor.values['status'] = int('0100000010000000', 2) # Motor is not referenced
         assert motor._get_pv('status') == 16512
