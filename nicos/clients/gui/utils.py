@@ -24,6 +24,7 @@
 """NICOS GUI utilities."""
 
 import logging
+import time
 from os import path
 
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
@@ -340,12 +341,16 @@ class DebugHandler(logging.Handler):
             self.mainwindow.debugConsole.addLogMsg(msg)
 
 
+def next_midnight(t):
+    local = time.localtime(t)
+    return time.mktime((local[0], local[1], local[2] + 1, 0, 0, 0, 0, 0, -1))
+
+
 def split_query(fromtime, totime, interval, func):
-    # if requested period is longer than 1 day it will be sequenced
-    maxquery = 3600 * 24
+    # if requested period crosses midnight it will be split
     history = []
-    while fromtime < totime - maxquery:
-        history.extend(func(fromtime, fromtime + maxquery, interval))
-        fromtime += maxquery
+    while (next_mn := next_midnight(fromtime)) < totime:
+        history.extend(func(fromtime, next_mn, interval))
+        fromtime = next_mn
     history.extend(func(fromtime, totime, interval))
     return history
