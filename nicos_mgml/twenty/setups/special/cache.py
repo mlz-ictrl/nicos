@@ -9,7 +9,7 @@ devices = dict(
     ),
     Server = device('nicos.services.cache.server.CacheServer',
         db = 'DB',
-        server = 'kfes64.troja.mff.cuni.cz:14869',
+        server = '20t.mgml:14869',
         #server = 'localhost',
         loglevel = 'info',
     ),

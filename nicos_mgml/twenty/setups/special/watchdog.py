@@ -54,7 +54,7 @@ includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = 'kfes64.troja.mff.cuni.cz:14869',
+        cache = '20t.mgml:14869',
         notifiers = {'default': ['slacker'],
                      'critical': ['slacker']},
         watch = watchlist,

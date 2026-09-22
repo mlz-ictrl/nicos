@@ -10,6 +10,6 @@ devices = dict(
     Logbook = device('nicos.services.elog.Logbook',
         handlers = ['LogbookHtml', 'LogbookText'],
         prefix = 'logbook/',
-        cache = 'kfes64.troja.mff.cuni.cz:14869',
+        cache = '20t.mgml:14869',
     ),
 )

@@ -7,7 +7,7 @@ includes = [
            ]
 
 sysconfig = dict(
-    cache = 'kfes64.troja.mff.cuni.cz:14869',
+    cache = '20t.mgml:14869',
     instrument = 'magnet20t',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'dmnsink'],
@@ -54,9 +54,9 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
-    LogSpace = device('nicos.devices.generic.FreeSpace',
-        description = 'Space on log drive',
-        path = 'log',
+    SystemSpace = device('nicos.devices.generic.FreeSpace',
+        description = 'Space on system drive',
+        path = '/',
         warnlimits = (.5, None),
         minfree = 0.5,
         visibility = (),
