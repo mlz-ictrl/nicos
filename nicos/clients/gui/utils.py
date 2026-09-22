@@ -344,10 +344,8 @@ def split_query(fromtime, totime, interval, func):
     # if requested period is longer than 1 day it will be sequenced
     maxquery = 3600 * 24
     history = []
-    if totime - fromtime > maxquery:
-        for sequence in range(int((totime - fromtime) // maxquery)):
-            if sequence:
-                fromtime += maxquery
-            history.extend(func(fromtime, fromtime+maxquery, interval))
+    while fromtime < totime - maxquery:
+        history.extend(func(fromtime, fromtime + maxquery, interval))
+        fromtime += maxquery
     history.extend(func(fromtime, totime, interval))
     return history
