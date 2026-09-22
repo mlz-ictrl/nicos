@@ -21,15 +21,23 @@
 #
 # *****************************************************************************
 
-"""Allows to measure in delta mode of K6221 with switcher K7001."""
+"""Allows to measure in delta mode of K6221 with switcher."""
 
 import time
+from enum import Enum
 
 import numpy as np
 
-from nicos.core import SIMULATION, Attach, Measurable, Override, Param, status
+from nicos.core import SIMULATION, Attach, HardwareError, Measurable, \
+    Override, Param, status
 from nicos.core.params import Value, floatrange, listof
 from nicos.devices.entangle import StringIO
+
+
+class SwitcherType(Enum):
+    NONE = 0
+    K7001 = 1
+    DAQ970 = 2
 
 
 class Deltameter(Measurable):
@@ -50,14 +58,15 @@ class Deltameter(Measurable):
 
     attached_devices = {
         'k6221': Attach('Keithley to measure using delta method', StringIO),
-        'k7001': Attach('Keithley to switch channels', StringIO,
-                        optional=True),
+        'switcher': Attach('Keithley or Keysight to switch channels', StringIO,
+                           optional=True),
     }
 
     _values = []
     _currentChannel = 0
     _lastStatus = (status.OK, 'idle')
     _statusCounter = 0
+    _switcher = SwitcherType.NONE
 
     parameter_overrides = {
         'unit':         Override(mandatory=False, default='mOhm'),
@@ -76,13 +85,13 @@ class Deltameter(Measurable):
         return None     # no ACK means nothing good!
 
     def commSwitcher(self, cmd, response=False):
-        if self._attached_k7001:
+        if self._attached_switcher:
             self.log.debug('commS: %r', cmd)
             if response:
-                resp = self._attached_k7001.communicate(cmd)
+                resp = self._attached_switcher.communicate(cmd)
                 self.log.debug('  ->: %r', resp)
                 return resp
-            self._attached_k7001.writeLine(cmd)
+            self._attached_switcher.writeLine(cmd)
         return None     # no ACK means nothing good!
 
     def commVoltage(self, cmd, response=False):
@@ -98,6 +107,15 @@ class Deltameter(Measurable):
     def doInit(self, mode):
         self._statusCounter = 0
         if mode != SIMULATION:
+            # detect switcher
+            if self._attached_switcher:
+                idnstring = self.commSwitcher('*IDN?', True)
+                if "DAQ970A" in idnstring:
+                    self._switcher = SwitcherType.DAQ970
+                elif "MODEL 7001" in idnstring:
+                    self._switcher = SwitcherType.K7001
+                else:
+                    raise HardwareError(f'Switcher with IDN {idnstring} is not supported. Only DAQ970 and K7001 are possible.')
             self.commCurrent('*CLS;:TRAC:CLE')
             time.sleep(0.1)
             self.commCurrent(':SOUR:DELTA:DELAY 0.062')
@@ -152,9 +170,15 @@ class Deltameter(Measurable):
     def _setChannel(self, n):
         if n > len(self.channels):
             raise ValueError('Channel %d does not exist!' % n)
-        self.commSwitcher(':OPEN ALL')
-        self.commSwitcher(':CLOS (@%s)' % self.channels[n - 1])
-        time.sleep(0.1)
+        ch = self.channels[n - 1]
+        if self._switcher == SwitcherType.K7001:
+            self.commSwitcher(':OPEN ALL')
+            self.commSwitcher(':CLOS (@%s)' % ch)
+            time.sleep(0.1)
+        elif self._switcher == SwitcherType.DAQ970:
+            self.commSwitcher(':ROUT:CLOS:EXCL (@%s)' % ch)
+            self.commSwitcher(':ROUT:CLOS (@%s)' % ch)
+            time.sleep(0.4)
         # self.commSwitcher('*OPC?', response=True)
         # self.commSwitcher(':CLOS:STATE?', response=True)
 
@@ -256,6 +280,12 @@ class Deltameter(Measurable):
         if (oper & (1 << 1)) != 0:  # done
             if self._currentChannel == len(self.channels):
                 # finished
+                if not self.keeparmed:
+                    self._disarm(False)
+                self._lastStatus = (status.OK, 'done')
+                return self._lastStatus
+            elif self._switcher == SwitcherType.NONE:
+                self.log.warning("There is no switcher defined, can't switch channel.")
                 if not self.keeparmed:
                     self._disarm(False)
                 self._lastStatus = (status.OK, 'done')

@@ -1,8 +1,9 @@
 description = 'setup for the electronic logbook'
 group = 'special'
 
-# If you want to use the electronic logbook, make sure the "system" setup has
-# also a cache configured.
+sysconfig = dict(
+    cache = None,
+)
 
 devices = dict(
     LogbookHtml = device('nicos.services.elog.handler.html.Handler'),

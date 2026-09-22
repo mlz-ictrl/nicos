@@ -16,6 +16,6 @@ devices = dict(
         description = 'Deltameter',
         fmtstr = '%.8f',
         k6221 = 'busk6221',
-        k7001 = 'busk7001',
+        switcher = 'busk7001',
     ),
 )
