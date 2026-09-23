@@ -28,7 +28,8 @@ from nicos.clients.gui.panels.setup_panel import DetEnvPanel, ExpPanel, \
     GenericSamplePanel, SetupsPanel
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core.utils import ADMIN
-from nicos.guisupport.qt import QMessageBox, QPushButton, QTimer, pyqtSlot
+from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, QPushButton, \
+    QTimer, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 
 
@@ -161,6 +162,12 @@ class ExpInfoPanel(Panel):
     @pyqtSlot()
     def on_remarkBtn_clicked(self):
         dlg = dialogFromUi(self, 'panels/expinfo_remark.ui')
+        btns = dlg.buttonBox.standardButtons()
+        if self.client.viewonly:
+            btns &= ~QDialogButtonBox.StandardButton.Ok
+        else:
+            btns |= QDialogButtonBox.StandardButton.Ok
+        dlg.buttonBox.setStandardButtons(btns)
 
         def callback():
             self.showInfo('The remark will be added to the logbook as a '
@@ -170,6 +177,5 @@ class ExpInfoPanel(Panel):
         for ch in dlg.findChildren(NicosWidget):
             ch.setClient(self.client)
         dlg.remarkEdit.setFocus()
-        if not dlg.exec():
-            return
-        self.client.run('Remark(%r)' % dlg.remarkEdit.getValue())
+        if dlg.exec():
+            self.client.run('Remark(%r)' % dlg.remarkEdit.getValue())
