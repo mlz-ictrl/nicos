@@ -171,11 +171,13 @@ class ExpPanel(Panel):
         else:
             self.queryDBButton.setVisible(False)
             self.propLabel.setText('Enter a proposal number or name:')
-        if self.client.viewonly:
-            self.finishButton.setVisible(False)
+        self.setViewOnly(self.client.viewonly)
+
+    def setViewOnly(self, viewonly):
+        self.finishButton.setVisible(not viewonly)
+        if viewonly:
             self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         else:
-            self.finishButton.setVisible(True)
             self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
                                               QDialogButtonBox.StandardButton.Close)
 
@@ -495,6 +497,7 @@ class SetupsPanel(Panel):
     def on_client_disconnected(self):
         self.basicSetup.clear()
         self.optSetups.clear()
+        self.aliasGroup.hide()
         self.setViewOnly(True)
 
     def setViewOnly(self, viewonly):
@@ -680,7 +683,10 @@ class DetEnvPanel(Panel):
 
         if client.isconnected:
             self.on_client_connected()
+        else:
+            self.on_client_disconnected()
         client.connected.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
 
     def on_client_connected(self):
@@ -716,7 +722,15 @@ class DetEnvPanel(Panel):
             item.setCheckState(
                 Qt.CheckState.Checked if devname in self._orig_envlist
                 else Qt.CheckState.Unchecked)
-        if self.client.viewonly:
+        self.setViewOnly(self.client.viewonly)
+
+    def on_client_disconnected(self):
+        self.detectors.clear()
+        self.sampleenv.clear()
+        self.setViewOnly(True)
+
+    def setViewOnly(self, viewonly):
+        if viewonly:
             self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         else:
             self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
@@ -772,7 +786,10 @@ class GenericSamplePanel(Panel):
         loadUi(self, self.uiName)
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)
-        if self.client.viewonly:
+        self.setViewOnly(self.client.viewonly)
+
+    def setViewOnly(self, viewonly):
+        if viewonly:
             self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         else:
             self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
