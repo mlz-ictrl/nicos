@@ -175,11 +175,12 @@ class ExpPanel(Panel):
 
     def setViewOnly(self, viewonly):
         self.finishButton.setVisible(not viewonly)
+        btns = self.buttonBox.standardButtons()
         if viewonly:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
+            btns &= ~QDialogButtonBox.StandardButton.Apply
         else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
-                                              QDialogButtonBox.StandardButton.Close)
+            btns |= QDialogButtonBox.StandardButton.Apply
+        self.buttonBox.setStandardButtons(btns)
 
     def on_client_disconnected(self):
         self.setViewOnly(True)
@@ -501,14 +502,15 @@ class SetupsPanel(Panel):
         self.setViewOnly(True)
 
     def setViewOnly(self, viewonly):
+        btns = self.buttonBox.standardButtons()
         if viewonly:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
             self.buttonBox.removeButton(self._reload_btn)
+            btns &= ~QDialogButtonBox.StandardButton.Apply
         else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
-                                              QDialogButtonBox.StandardButton.Close)
+            btns |= QDialogButtonBox.StandardButton.Apply
             self.buttonBox.addButton(self._reload_btn,
                                      QDialogButtonBox.ButtonRole.ResetRole)
+        self.buttonBox.setStandardButtons(btns)
 
     def on_basicSetup_currentItemChanged(self, item, old):
         if item and item.text() != '<keep current>':
@@ -730,11 +732,12 @@ class DetEnvPanel(Panel):
         self.setViewOnly(True)
 
     def setViewOnly(self, viewonly):
+        btns = self.buttonBox.standardButtons()
         if viewonly:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
+            btns &= ~QDialogButtonBox.StandardButton.Apply
         else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
-                                              QDialogButtonBox.StandardButton.Close)
+            btns |= QDialogButtonBox.StandardButton.Apply
+        self.buttonBox.setStandardButtons(btns)
 
     @pyqtSlot()
     def on_envHelpBtn_clicked(self):
@@ -789,11 +792,12 @@ class GenericSamplePanel(Panel):
         self.setViewOnly(self.client.viewonly)
 
     def setViewOnly(self, viewonly):
+        btns = self.buttonBox.standardButtons()
         if viewonly:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
+            btns &= ~QDialogButtonBox.StandardButton.Apply
         else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Apply |
-                                              QDialogButtonBox.StandardButton.Close)
+            btns |= QDialogButtonBox.StandardButton.Apply
+        self.buttonBox.setStandardButtons(btns)
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
