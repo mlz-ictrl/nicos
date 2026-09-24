@@ -1102,6 +1102,8 @@ class ViewPlot(NicosGrPlot):
     def __init__(self, parent, window, view):
         self.view = view
         self.series2curve = {}
+        self.showMinilog = True
+        self.minilogtypeenabled = {}
         NicosGrPlot.__init__(self, parent, window, timeaxis=True)
         self.setSymbols(False)
         self.setDetailsVisibility()
@@ -1192,6 +1194,9 @@ class ViewPlot(NicosGrPlot):
             self._axes.addCurves(plotcurve)
         InteractiveGRWidget.update(self)
 
+    def eventAdded(self):
+        InteractiveGRWidget.update(self)
+
     def setSlidingWindow(self, window):
         self._axes.slidingwindow = window
 
@@ -1239,6 +1244,83 @@ class ViewPlot(NicosGrPlot):
 
     def notickCallBack(self, x, y, _svalue, value):
         pass  # don't show any ticks
+
+    def setShowMinilog(self, on):
+        self.showMinilog = on
+        self.update()
+
+    def setTypeEnabled(self, ty, on):
+        self.minilogtypeenabled[ty] = on
+        self.update()
+
+    def getTypeEnabled(self, ty):
+        return self.minilogtypeenabled.get(ty, True)
+
+    def _getWCBoundingBox(self, coord, text):
+        tbx, tby = text.getBoundingBox()
+        x, y = [], []
+        for nxi, nyi in zip(tbx, tby):
+            coord.setNDC(nxi, nyi)
+            pt = coord.getWC(self._axes.viewport)
+            x.append(pt.x)
+            y.append(pt.y)
+        return x, y
+
+    def drawMinilog(self):
+        """Draw Minilog messages in Plot if enabled."""
+        if not self.showMinilog:
+            return
+        if not self.view:
+            return
+        window = self._axes.getWindow()
+        linecolor = gr.inqlinecolorind()
+        linetype = gr.inqlinetype()
+
+        ends = []
+        coord = CoordConverter(self._axes.sizex, self._axes.sizey, window)
+        # calculate width for underline
+        spacer = Text(window[0], window[3] - 0.03 * (window[3] - window[2]),
+                      " ", self._axes, .014, hideviewport=False)
+        sx, _ = self._getWCBoundingBox(coord, spacer)
+        wspacer = sx[1] - sx[0]
+        for timestamp, (evtype, value) in self.view.minilog:
+            if not window[0] < timestamp < window[1]:
+                continue
+            if not self.minilogtypeenabled.get(evtype, True):
+                continue
+            if value == '':
+                continue
+            gr.setlinecolorind(86)
+            gr.setlinetype(2)
+            gr.polyline([timestamp, timestamp], window[2:4])
+            # Check length with intermediate text
+            _t = Text(timestamp, window[3] - 0.03 * (window[3] - window[2]),
+                      " " + value, self._axes, .014, hideviewport=False)
+            _x, _y = self._getWCBoundingBox(coord, _t)
+            height = 1.1 * abs(_y[3] - _y[0])
+            lvl = 0
+            for i, end in enumerate(ends):
+                lvl = i
+                if end < _x[0]:
+                    ends[i] = _x[1]
+                    break
+            else:
+                ends.append(_x[1])
+                lvl = len(ends) - 1
+            t = Text(timestamp, window[3] - 0.03 * (window[3] - window[2]) - lvl * height,
+                     " " + value, self._axes, .014, hideviewport=False)
+            t.drawGR()
+            # Decorative underline
+            x, y = self._getWCBoundingBox(coord, t)
+            gr.setlinecolorind(1)
+            gr.setlinetype(1)
+            gr.polyline([timestamp, timestamp + wspacer, x[1]], [y[0] - height*0.3, y[0], y[1]])
+        gr.setlinecolorind(linecolor)
+        gr.setlinetype(linetype)
+
+    def draw(self):
+        NicosGrPlot.draw(self)
+        self.drawMinilog()
 
 
 def convertXCol(fmtno, x, *ys):

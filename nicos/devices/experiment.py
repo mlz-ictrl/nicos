@@ -40,7 +40,7 @@ from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     dictof, listof, mailaddress, none_or, oneof, usermethod
 from nicos.core.acquire import DevStatistics
 from nicos.core.data import DataManager
-from nicos.core.params import expanded_path, nonemptystring, subdir
+from nicos.core.params import expanded_path, nonemptystring, subdir, tupleof
 from nicos.devices.sample import Sample
 from nicos.utils import DEFAULT_FILE_MODE, createThread, disableDirectory, \
     enableDirectory, ensureDirectory, expandTemplate, grp, lazy_property, \
@@ -107,6 +107,9 @@ class Experiment(Device):
         'elog_hidden':    Param('True if the events sent to the electronic '
                                 'logbook should be hidden by default',
                                 type=bool, default=False, settable=True),
+        'minilog':        Param('Condensed representation of important elog '
+                                'events. Tuple of (event, short message).',
+                                type=tupleof(str, str), settable=True),
         'scripts':        Param('Stack of currently executed scripts',
                                 type=listof(str), settable=True, internal=True,
                                 no_sim_restore=True),

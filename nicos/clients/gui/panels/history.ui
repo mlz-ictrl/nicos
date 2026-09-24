@@ -411,6 +411,61 @@
     <string>Pick starting points for fit</string>
    </property>
   </action>
+  <action name="actionShowMinilog">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Experiment Events</string>
+   </property>
+   <property name="toolTip">
+    <string>Show all experiment events in current Plot</string>
+   </property>
+  </action>
+  <action name="actionShowExperimentEvents">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Experiment/Sample Events</string>
+   </property>
+   <property name="toolTip">
+    <string>Show events regarding proposal changes and sample selection</string>
+   </property>
+  </action>
+  <action name="actionShowRemark">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Remarks</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Remark events</string>
+   </property>
+  </action>
+  <action name="actionShowScriptEvents">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Script Events</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Script starts and stops</string>
+   </property>
+  </action>
+  <action name="actionShowScanEvents">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Scan Events</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Scan starts</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

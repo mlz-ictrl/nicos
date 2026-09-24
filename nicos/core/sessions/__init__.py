@@ -1429,11 +1429,13 @@ class Session:
         .. note:: The simulation mode is disconnected from cache, therefore no
                   elog events will be sent in simulation mode.
         """
-        if self.cache and self.experiment and self.experiment._elog_enabled:
-            if store:
-                self.cache.put_raw(f'logbook/{eventtype}', data)
-            else:
-                self.cache.put_raw(f'logbook/{eventtype}{FLAG_NO_STORE}', data)
+        if self.cache and self.experiment:
+            self._setMinilog(eventtype, data)
+            if self.experiment._elog_enabled:
+                if store:
+                    self.cache.put_raw(f'logbook/{eventtype}', data)
+                else:
+                    self.cache.put_raw(f'logbook/{eventtype}{FLAG_NO_STORE}', data)
 
     def scriptEvent(self, eventtype, data):
         """Call this when a command/script event happens.
@@ -1465,6 +1467,23 @@ class Session:
                     guessCorrectCommand(self._script_text, True)
             except Exception:
                 pass
+
+    def _setMinilog(self, eventtype, data):
+        if eventtype == 'newexperiment':
+            msg = f"New Proposal {data[0]}"
+        elif eventtype == 'remark':
+            msg = data
+        elif eventtype == 'sample':
+            msg = f"Selected sample {data}"
+        elif eventtype == 'scriptbegin':
+            msg = f"Script {path.basename(data)} started"
+        elif eventtype == 'scriptend' and data != 'setting up NICOS':
+            msg = f"Script {path.basename(data)} ended"
+        elif eventtype == 'scanbegin':
+            msg = f"Started Scan {data.counter}"
+        else:
+            return
+        self.cache.put(self.experiment, 'minilog', (eventtype, msg))
 
     # -- Action logging -------------------------------------------------------
 

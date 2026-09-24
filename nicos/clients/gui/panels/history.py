@@ -41,10 +41,10 @@ from nicos.core import ConfigurationError, Param, listof
 from nicos.devices.cacheclient import CacheClient
 from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QCursor, QDateTime, \
-    QDialog, QFont, QFrame, QHBoxLayout, QLineEdit, QListWidgetItem, \
+    QDialog, QEvent, QFont, QFrame, QHBoxLayout, QLineEdit, QListWidgetItem, \
     QMainWindow, QMenu, QMessageBox, QObject, QSettings, QSizePolicy, \
     QStatusBar, QStringListModel, QStyledItemDelegate, Qt, QTimer, QToolBar, \
-    QWidgetAction, pyqtSignal, pyqtSlot
+    QToolButton, QWidgetAction, pyqtSignal, pyqtSlot
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
@@ -100,6 +100,22 @@ class CommaSeparatedCompleter(QCompleter):
         return [to_be_completed]
 
 
+class MultiCheckableMenu(QMenu):
+    """Menu that stays open if a checkable action is clicked."""
+
+    def __init__(self, parent=None):
+        QMenu.__init__(self, parent=parent)
+        self.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.MouseButtonRelease:
+            if (active := self.activeAction()) is not None and active.isCheckable():
+                active.trigger()
+                event.accept()
+                return True
+        return QMenu.eventFilter(self, obj, event)
+
+
 def float_with_default(s, d):
     try:
         return float(s)
@@ -124,6 +140,7 @@ def get_time_and_interval(intv):
 
 class View(QObject):
     timeSeriesUpdate = pyqtSignal(object)
+    minilogUpdate = pyqtSignal()
 
     def __init__(self, widget, name, keys, exprs, descs, interval, fromtime,
                  totime, yfrom, yto, window, meta, dlginfo, query_func):
@@ -140,6 +157,7 @@ class View(QObject):
         self._key_exprs = {}
         self.uniq_keys = set()
         self.series = OrderedDict()
+        self.minilog = []
         self.timer = None
 
         # + 60 seconds: get all values, also those added while querying
@@ -194,6 +212,9 @@ class View(QObject):
                     series.initEmpty()
             self._key_exprs.setdefault(key, []).extend(real_exprs)
 
+        minilog = query_func('exp/minilog', self.fromtime, hist_totime, None)
+        self.minilog = minilog if isinstance(minilog, list) else []
+
         self.listitem = None
         self.plot = None
         if self.totime is None:
@@ -204,6 +225,7 @@ class View(QObject):
             self.timer.start()
 
         self.timeSeriesUpdate.connect(self.on_timeSeriesUpdate)
+        self.minilogUpdate.connect(self.on_minilogUpdate)
 
     def cleanup(self):
         self.plot.cleanup()
@@ -212,6 +234,7 @@ class View(QObject):
             self.timer.stop()
         for series in self.series.values():
             series.signal_obj = None
+        self.minilogUpdate.disconnect()
 
     def on_timer_timeout(self):
         for series in self.series.values():
@@ -221,8 +244,16 @@ class View(QObject):
         if self.plot:
             self.plot.pointsAdded(series)
 
+    def on_minilogUpdate(self):
+        if self.plot:
+            self.plot.eventAdded()
+
     def newValue(self, vtime, key, op, value):
         if op != '=':
+            return
+        if key == "exp/minilog":
+            self.minilog.append((vtime, value))
+            self.minilogUpdate.emit()
             return
         for expr in self._key_exprs[key]:
             series = self.series[key, expr]
@@ -548,6 +579,11 @@ class BaseHistoryWindow:
         self.actionFitSigmoid.triggered.connect(self.on__actionFitSigmoid_triggered)
         self.actionFitLinear.triggered.connect(self.on__actionFitLinear_triggered)
         self.actionFitExponential.triggered.connect(self.on__actionFitExponential_triggered)
+        self.actionShowMinilog.triggered.connect(self.on__actionShowMinilog_triggered)
+        self.actionShowExperimentEvents.triggered.connect(self.on__actionShowExperimentEvents_triggered)
+        self.actionShowRemark.triggered.connect(self.on__actionShowRemark_triggered)
+        self.actionShowScriptEvents.triggered.connect(self.on__actionShowScriptEvents_triggered)
+        self.actionShowScanEvents.triggered.connect(self.on__actionShowScanEvents_triggered)
 
     def getMenus(self):
         menu = QMenu('&History viewer', self)
@@ -596,8 +632,15 @@ class BaseHistoryWindow:
         menu.addAction(self.actionFitArby)
         menu.addSeparator()
         menu.addAction(self.actionClose)
+        minilogmenu = QMenu('&Experiment Events', self)
+        minilogmenu.addAction(self.actionShowMinilog)
+        minilogmenu.addSeparator()
+        minilogmenu.addAction(self.actionShowExperimentEvents)
+        minilogmenu.addAction(self.actionShowRemark)
+        minilogmenu.addAction(self.actionShowScriptEvents)
+        minilogmenu.addAction(self.actionShowScanEvents)
         self._refresh_presets()
-        return [menu, self.presetmenu]
+        return [menu, self.presetmenu, minilogmenu]
 
     def getToolbars(self):
         if not self.bar:
@@ -656,6 +699,24 @@ class BaseHistoryWindow:
             bar.addAction(wa)
             bar.addSeparator()
             bar.addAction(self.actionFitArby)
+
+            self.minilogButton = QToolButton(bar)
+            self.minilogButton.setDefaultAction(self.actionShowMinilog)
+            self.minilogButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+            self.minilogButtonMenu = MultiCheckableMenu(bar)
+            self.minilogButtonMenu.addAction(self.actionShowExperimentEvents)
+            self.minilogButtonMenu.addAction(self.actionShowRemark)
+            self.minilogButtonMenu.addAction(self.actionShowScriptEvents)
+            self.minilogButtonMenu.addAction(self.actionShowScanEvents)
+            self.minilogButton.setMenu(self.minilogButtonMenu)
+            mla = QWidgetAction(bar)
+            mllayout = QHBoxLayout()
+            mllayout.addWidget(self.minilogButton)
+            mlframe = QFrame(bar)
+            mlframe.setLayout(mllayout)
+            mla.setDefaultWidget(mlframe)
+            bar.addAction(mla)
+
             self.bar = bar
             self.actionFitLinear.trigger()
 
@@ -784,6 +845,9 @@ class BaseHistoryWindow:
             self.actionDeleteView, self.actionResetView, self.actionUnzoom,
             self.actionLogScale, self.actionLegend, self.actionSymbols,
             self.actionLines, self.actionFitPeak, self.actionFitArby,
+            self.actionShowMinilog, self.actionShowExperimentEvents,
+            self.actionShowRemark, self.actionShowScriptEvents,
+            self.actionShowScanEvents
         ]:
             action.setEnabled(on)
 
@@ -897,6 +961,7 @@ class BaseHistoryWindow:
         if view.totime is None:
             for key in view.uniq_keys:
                 self.keyviews.setdefault(key, []).append(view)
+            self.keyviews.setdefault('exp/minilog', []).append(view)
         return view
 
     def _getMetainfo(self, keys):
@@ -976,6 +1041,13 @@ class BaseHistoryWindow:
             self.actionLegend.setChecked(view.plot.isLegendEnabled())
             self.actionSymbols.setChecked(view.plot.hasSymbols)
             self.actionLines.setChecked(view.plot.hasLines)
+            self.actionShowMinilog.setChecked(view.plot.showMinilog)
+            self.actionShowExperimentEvents.setChecked(
+                view.plot.getTypeEnabled('newexperiment'))
+            self.actionShowRemark.setChecked(view.plot.getTypeEnabled('remark'))
+            self.actionShowScriptEvents.setChecked(view.plot.getTypeEnabled('scriptbegin'))
+            self.actionShowScanEvents.setChecked(view.plot.getTypeEnabled('scanbegin'))
+
             self.plotLayout.addWidget(view.plot)
             if view.plot.HAS_AUTOSCALE:
                 from gr.pygr import PlotAxes
@@ -1038,7 +1110,7 @@ class BaseHistoryWindow:
         row = self.viewList.row(view.listitem)
         self.viewList.takeItem(row)
         if view.totime is None:
-            for key in view.uniq_keys:
+            for key in view.uniq_keys.union(["exp/minilog"]):
                 self.keyviews[key].remove(view)
         view.cleanup()
         return row
@@ -1133,6 +1205,23 @@ class BaseHistoryWindow:
         # no second argument: the "arbitrary" action is not checkable
         self.currentPlot.beginFit(ArbitraryFitter, None,
                                   self.fitPickCheckbox.isChecked())
+
+    def on__actionShowMinilog_triggered(self, on):
+        self.currentPlot.setShowMinilog(on)
+
+    def on__actionShowExperimentEvents_triggered(self, on):
+        self.currentPlot.setTypeEnabled('newexperiment', on)
+        self.currentPlot.setTypeEnabled('sample', on)
+
+    def on__actionShowRemark_triggered(self, on):
+        self.currentPlot.setTypeEnabled('remark', on)
+
+    def on__actionShowScriptEvents_triggered(self, on):
+        self.currentPlot.setTypeEnabled('scriptbegin', on)
+        self.currentPlot.setTypeEnabled('scriptend', on)
+
+    def on__actionShowScanEvents_triggered(self, on):
+        self.currentPlot.setTypeEnabled('scanbegin', on)
 
 
 class HistoryPanel(BaseHistoryWindow, PlotPanel):
@@ -1296,6 +1385,7 @@ class BareHistoryPanel(BaseHistoryWindow, PlotPanel):
         plot.setMouseSelectionEnabled(False)
         plot.setMouseTracking(False)
         plot.setMousePanEnabled(False)
+        plot.setShowMinilog(False)
         self.showPlotDetails(self.shouldDisplayDetails(self.width(), self.height()))
 
     def shouldDisplayDetails(self, width, height):
