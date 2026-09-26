@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 import h5py
+import copy
 
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
@@ -30,7 +31,7 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
 from nicos.nexus.nexussink import NexusTemplateProvider, copy_nexus_template
 
 from nicos_sinq.nexus.specialelements import AbsoluteTime, TimeBinConfArray
-
+from nicos_sinq.sinq_shared.nexus.nexus_redpitaya_tof_template import redpitaya_tof_nexus_template_base
 
 class CaminiFileList(NexusElementBase):
 
@@ -95,7 +96,7 @@ class BOATemplateProvider(NexusTemplateProvider):
                                       }, }
     _tables = ['Table2', 'Table3', 'Table4', 'Table5', 'Table6']
     _detectors = ['embl_detector', 'andor', 'single_el737', 'ccdwww',
-                  'andorccd', 'camini', 'andorccd-l', 'fastcomtec']
+                  'andorccd', 'camini', 'andorccd-l', 'fastcomtec', 'boa_redpitaya_tof']
     _excluded_devices = ['slit1', 'slit2', 'dslit', 'ccdwww_connector',
                          'ccd_cooler']
     _detector = None
@@ -167,6 +168,8 @@ class BOATemplateProvider(NexusTemplateProvider):
         elif name == 'fastcomtec':
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
+        elif name == 'boa_redpitaya_tof':
+            content = copy.deepcopy(redpitaya_tof_nexus_template_base)
         return name, content
 
     def makeData(self, name):
