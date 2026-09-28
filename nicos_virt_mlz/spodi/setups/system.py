@@ -43,7 +43,7 @@ devices = dict(
         ),
         forcescandata = False,
     ),
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'The currently used sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
