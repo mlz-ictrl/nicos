@@ -70,10 +70,10 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         except ghostapi.errors.GhostApiException:
             # no access means: we are not local contact
             pass
-        session.log.debug('user is local contact? %s', self.is_local_contact)
+        session.log.debug('user is local contact? %s', self.isLocalContact())
         # we are a normal user => if configured, check that a proposal
         # is scheduled for us today
-        if not self.is_local_contact and strict:
+        if not self.isLocalContact() and strict:
             self.strictUserCheck(email)
         # get user's real name for display in daemon
         userdata = self.getUserData(email)
@@ -115,7 +115,7 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
 
     def canStartProposal(self, proposal):
         """Check if current user may start this proposal."""
-        if self.is_local_contact:
+        if self.isLocalContact():
             return True
         try:
             return any(ses['proposal_number'] == proposal
@@ -138,14 +138,14 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         try:
             sessions = self.getTodaysSessions()
         except Exception:
-            if not self.is_local_contact:
+            if not self.isLocalContact():
                 session.log.warning(
                     "error querying today's sessions from GhOST", exc=1)
                 return []
         if proposal is not None:
             sessions = [ses for ses in sessions
                         if ses['proposal_number'] == proposal]
-        if not sessions and proposal and self.is_local_contact:
+        if not sessions and proposal and self.isLocalcontact():
             session.log.debug('querying all exps for proposal %r', proposal)
             try:
                 sessions = self.getExperimentsForProposal(proposal)
