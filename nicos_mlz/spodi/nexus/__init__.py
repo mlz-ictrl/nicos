@@ -21,4 +21,4 @@
 #
 # *****************************************************************************
 
-from nicos_mlz.spodi.nexus.template import SpodiTemplateProvider
+from nicos_mlz.spodi.nexus.templates import SpodiTemplateProvider
