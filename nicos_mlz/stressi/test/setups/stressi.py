@@ -162,7 +162,7 @@ devices = dict(
     nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass='nicos_mlz.stressi.nexus.StressiTemplateProvider',
         device_mapping = {
-            'instrument': 'Stressi',
+            'instrument': 'stressi',
             'detector': 'image',
         },
         settypes = {'point',},

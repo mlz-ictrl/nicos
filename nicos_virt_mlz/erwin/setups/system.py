@@ -35,7 +35,7 @@ devices = dict(
     livesink = device('nicos_mlz.erwin.datasinks.LiveViewSink'),
     nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass='nicos_mlz.nexus.templates.PowderTemplateProvider',
-        device_mapping = {'instrument': 'ErWIN'},
+        device_mapping = {'instrument': 'erwin'},
         settypes = {'point',},
         filenametemplate = ['erwin%(pointcounter)08d.nxs'],
     ),
