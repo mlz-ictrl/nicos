@@ -46,7 +46,8 @@ def is_connected(logbook):
 
 
 class ElogPanel(Panel):
-    panelName = 'Console'
+    panelName = 'ElogPanel'
+
     ui = path.join(uipath, 'panels', 'ui_files', 'elog.ui')
 
     def __init__(self, parent, client, options):
