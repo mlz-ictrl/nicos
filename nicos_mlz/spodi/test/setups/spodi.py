@@ -26,7 +26,7 @@ name = 'test_spodi setup'
 includes = ['stdsystem']
 
 sysconfig = dict(
-    datasinks = ['spodisink', 'spodilivesink'],
+    datasinks = ['spodisink', 'spodilivesink', 'nxsink', ],
 )
 
 devices = dict(
@@ -71,6 +71,15 @@ devices = dict(
     ),
     spodilivesink = device('nicos_mlz.spodi.datasinks.LiveViewSink',
         correctionfile = 'nicos_mlz/spodi/data/detcorrection.dat',
+    ),
+    nxsink = device('nicos.nexus.NexusSink',
+        templateclass='nicos_mlz.spodi.nexus.SpodiTemplateProvider',
+        device_mapping = {
+            'instrument': 'spodi',
+            'ysd': 'detsampledist',
+        },
+        settypes = {'point',},
+        filenametemplate = ['m1%(pointcounter)08d.nxs'],
     ),
     detsampledist = device('nicos.devices.generic.ManualMove',
         description = 'Distance between sample and detector',

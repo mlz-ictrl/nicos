@@ -27,7 +27,7 @@ from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
     NXLink
 
 from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, \
-    TimerMonitor, axis1, signal
+    TimerMonitor, counts, signal
 
 
 class PowderTemplateProvider(MLZTemplateProvider):
@@ -40,6 +40,7 @@ class PowderTemplateProvider(MLZTemplateProvider):
         self.wav = kwargs.get('wav', 'wav')
         self.tths = kwargs.get('tths', 'tths')
         self.omgs = kwargs.get('omgs', 'omgs')
+        self.ysd = kwargs.get('ysd', 'ysd')
         self.detector = kwargs.get('detector', 'adet')
         self.monitor = kwargs.get('monitor', 'mon')
         self.timer = kwargs.get('timer', 'tim1')
@@ -55,8 +56,10 @@ class PowderTemplateProvider(MLZTemplateProvider):
     def updateDetector(self):
         MLZTemplateProvider.updateDetector(self)
         self._det.update({
-            'polar_angle': DeviceDataset(self.tths, axis=axis1),
-            'data': ImageDataset(0, 0, dtype=int, signal=signal),
+            'polar_angle': DeviceDataset(self.tths),
+            'data': ImageDataset(0, 0, signal=signal, units=counts),
+            'distance': DeviceDataset(self.ysd),  # units=mm),
+            'description': DeviceDataset(self.detector, 'description'),
         })
         self._entry.update({
             f'{self.monitor}:NXmonitor': CounterMonitor(self.monitor),

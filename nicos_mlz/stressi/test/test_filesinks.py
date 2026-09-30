@@ -34,6 +34,7 @@ exp_dataroot = 'stressidata'
 
 h5py = pytest.importorskip('h5py', reason='h5py module is missing')
 
+
 @pytest.fixture(scope='class', autouse=True)
 def prepare(session, dataroot):
     """Prepare a dataset for StressSpec"""

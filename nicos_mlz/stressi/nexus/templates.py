@@ -24,9 +24,9 @@
 import re
 
 from nicos import session
-from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset
+from nicos.nexus.elements import ConstDataset, DeviceDataset
 
-from nicos_mlz.nexus import Slit, grams, mass_density, mm, signal
+from nicos_mlz.nexus import Slit, grams, mass_density, mm
 # from nicos_mlz.nexus.structures import SollerCollimator
 from nicos_mlz.nexus.templates import PowderTemplateProvider
 from nicos_mlz.stressi.devices import PreciseManualSwitch
@@ -149,17 +149,13 @@ class StressiTemplateProvider(PowderTemplateProvider):
     def updateDetector(self):
         PowderTemplateProvider.updateDetector(self)
         self._det.update({
-            'polar_angle': DeviceDataset(self.tths),
-            'data': ImageDataset(0, 0, signal=signal, units='counts'),
             'type': ConstDataset('He3 PSD', 'string'),
             'layout': ConstDataset('area', 'string'),
             'acquisition_mode': ConstDataset('histogrammed', 'string'),
-            'description': DeviceDataset(self.detector, 'description'),
             'x_pixel_size': DeviceDataset(
-                'image', 'pixel_size[0]', 'float', 0.85, units=mm),
+                self.detector, 'pixel_size[0]', 'float', 0.85, units=mm),
             'y_pixel_size': DeviceDataset(
-                'image', 'pixel_size[1]', 'float', 0.85, units=mm),
-            'distance': DeviceDataset('ysd'),  # units=mm),
+                self.detector, 'pixel_size[1]', 'float', 0.85, units=mm),
             # 'efficiency': ,
             # 'wavelength': ,
             # 'dead_time': ,

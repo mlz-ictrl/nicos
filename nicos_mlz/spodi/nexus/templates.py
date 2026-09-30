@@ -33,3 +33,11 @@ class SpodiTemplateProvider(PowderTemplateProvider):
         self._sample.update({
             'type': ConstDataset('sample+can', 'string'),
         })
+
+    def updateDetector(self):
+        PowderTemplateProvider.updateDetector(self)
+        self._det.update({
+            'type': ConstDataset('He3 PSD', 'string'),
+            'layout': ConstDataset('area', 'string'),
+            'acquisition_mode': ConstDataset('histogrammed', 'string'),
+        })
