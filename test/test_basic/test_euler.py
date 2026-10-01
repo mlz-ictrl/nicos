@@ -32,7 +32,7 @@ session_setup = 'euler'
 
 class TestEulerian:
 
-    @pytest.fixture()
+    @pytest.fixture
     def eulerian(self, session):
         ec = session.getDevice('ec')
         session.getDevice('Sample').clear()
@@ -42,7 +42,7 @@ class TestEulerian:
         ec.angles2 = [180, 45, 45, 60]
         yield ec
 
-    @pytest.fixture()
+    @pytest.fixture
     def not_init_eulerian(self, session):
         ec = session.getDevice('ec')
         ec.reflex1 = [0, 0, 0]

@@ -79,7 +79,7 @@ class ScriptSessionTest(ScriptSession):
             self.log.removeHandler(h)
 
 
-@pytest.fixture()
+@pytest.fixture
 def session(request):
     """Script test session fixture"""
 

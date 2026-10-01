@@ -35,7 +35,7 @@ session_setup = 'multiwait'
 
 class TestMultiWait:
 
-    @pytest.fixture()
+    @pytest.fixture
     def devices(self, session):
         dev1 = session.getDevice('dev1')
         dev1._value = 1

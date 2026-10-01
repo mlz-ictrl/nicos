@@ -209,7 +209,7 @@ def test_retryOnExcept():
     assert x == 0
 
 
-@pytest.fixture()
+@pytest.fixture
 def serversocket():
     """Create a server socket."""
 
