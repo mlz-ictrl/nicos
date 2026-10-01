@@ -59,7 +59,8 @@ devices = dict(
         templateclass='nicos_mlz.nexus.templates.PowderTemplateProvider',
         device_mapping = {
             'instrument': 'erwin',
-            'detector': 'image',
+            'ysd': 'detsampledist',
+            'detector': 'det',
             'monitor': 'mon1',
             'timer': 'timer',
         },
