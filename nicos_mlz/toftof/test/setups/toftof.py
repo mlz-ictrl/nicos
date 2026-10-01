@@ -26,7 +26,7 @@ name = 'test_toftof setup'
 includes = ['stdsystem']
 
 sysconfig = dict(
-    datasinks = ['tofsink', 'livesink', 'nxsink',],
+    datasinks = ['tofsink', 'livesink', 'nxsink', 'legacy_nxsink'],
 )
 
 devices = dict(
@@ -256,9 +256,14 @@ devices = dict(
     tofsink = device('nicos_mlz.toftof.datasinks.TofImageSink',
         filenametemplate = ['%(pointcounter)08d_0000.raw'],
     ),
-    nxsink = device('nicos_mlz.nexus.NexusSink',
+    legacy_nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass = 'nicos_mlz.toftof.datasinks.nexustemplate.LegacyTemplate',
         filenametemplate = ['TOFTOF%(pointcounter)08d.nxs'],
+    ),
+    nxsink = device('nicos_mlz.nexus.NexusSink',
+        templateclass = 'nicos_mlz.toftof.nexus.templates.TofTofTemplate',
+        filenametemplate = ['N_TOFTOF%(pointcounter)08d.nxs'],
+        settypes = {'point', },
     ),
     livesink = device('nicos_mlz.toftof.datasinks.LiveViewSink'),
 )
