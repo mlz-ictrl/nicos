@@ -10,4 +10,5 @@ includes = [
     'rc',
     'reactor',
     'monochromator',
+    'detector',
 ]

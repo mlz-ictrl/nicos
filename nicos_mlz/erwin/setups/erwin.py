@@ -10,4 +10,5 @@ includes = [
     'nguide',
     'rc',
     'monochromator',
+    'detector',
 ]
