@@ -50,6 +50,12 @@ devices = dict(
         subdir = 'list',
         filenametemplate = ['%(pointcounter)08d.mdat'],
     ),
+    detsampledist = device('nicos.devices.generic.ManualMove',
+        description = 'Distance between sample and detector',
+        default = 800,
+        abslimits = (800, 800),
+        unit = 'mm',
+    ),
 )
 
 startupcode = """
