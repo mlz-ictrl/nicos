@@ -1,24 +1,24 @@
-description = 'Monochromator devices'
+description = 'ErwiN monochromator devices'
 
-group = 'optional'
-
-tango_base = 'tango://motorbox03.erwin.frm2.tum.de:10000/box/'
+group = 'lowlevel'
 
 devices = dict(
-    mtz = device('nicos.devices.entangle.Motor',
+    mtz = device('nicos.devices.generic.VirtualMotor',
         description = 'z translation motor of monochromator system',
-        tangodevice = tango_base + 'channel1/motor',
-        # visibility = (),
+        unit = 'mm',
+        abslimits = [0, 92],
+        speed = 1,
+        curvalue = 90,
+        visibility = (),
     ),
-    mom = device('nicos.devices.entangle.Motor',
+    mom = device('nicos.devices.generic.VirtualMotor',
         description = 'omega motor of monochromator system',
-        tangodevice = tango_base + 'channel2/motor',
-        # visibility = (),
+        unit = 'deg',
+        abslimits = [-51.5, -42.5],
+        speed = 0.1,
+        curvalue = -43,
+        visibility = (),
     ),
-
-# XXX: attocubes?
-
-# multiswitcher for mono selection
     mono_select = device('nicos.devices.generic.MultiSwitcher',
         description = 'Mono changer',
         moveables = ['mom', 'mtz'],

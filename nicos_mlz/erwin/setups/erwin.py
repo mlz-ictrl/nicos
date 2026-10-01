@@ -9,4 +9,5 @@ includes = [
     'charmbox02',
     'nguide',
     'rc',
+    'monochromator',
 ]

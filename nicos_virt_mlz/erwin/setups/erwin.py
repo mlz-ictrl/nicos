@@ -9,4 +9,5 @@ includes = [
     'nguide',
     'rc',
     'reactor',
+    'monochromator',
 ]
