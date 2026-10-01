@@ -51,3 +51,7 @@ devices = dict(
         filenametemplate = ['%(pointcounter)08d.mdat'],
     ),
 )
+
+startupcode = """
+SetDetectors(det)
+"""
