@@ -31,7 +31,7 @@ import numpy as np
 from nicos import session
 from nicos.nexus.elements import ImageDataset, NexusElementBase, NXAttribute
 
-from nicos_mlz.nexus import axis1
+from nicos_mlz.nexus import axis1, seconds
 from nicos_mlz.toftof.lib import calculations as calc
 
 
@@ -486,7 +486,7 @@ class TimeOfFlight(NexusElementBase):
     def __init__(self, **attrs):
         NexusElementBase.__init__(self, **attrs)
         self.attrs = {}
-        for key, val in (attrs | {'axis': axis1, 'units': 's'}).items():
+        for key, val in (attrs | {'axis': axis1, 'units': seconds}).items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
