@@ -9,6 +9,7 @@ devices = dict(
         unit = 'N',
         fmtstr = '%.2f',
         jitter = 5,
+        precision = 5,
     ),
     tepos = device('nicos.devices.generic.VirtualMotor',
         description = 'position value of the tensile machine',
