@@ -60,16 +60,15 @@ class SR7Shutter(HasTimeout, Moveable):
         return True, ''
 
     def doStart(self, target):
-        if target == self.read(0):
+        if self.isAtTarget(target=target):
             return
         self._attached_sr7set.start(self.positions.index(target))
-        if self.wait() != target:
+        if not self.isAtTarget(self.wait(), target):
             raise PositionError(self, 'device returned wrong position')
         self.log.info('SR7: %s', target)
 
     def doRead(self, maxage=0):
-        res = self.doStatus()[0]
-        if res == status.OK:
+        if self.doStatus(maxage)[0] == status.OK:
             if self._attached_sr7cl.read(maxage) == 1:
                 return 'closed'
             if self._attached_sr7p1.read(maxage) == 1:
@@ -78,15 +77,15 @@ class SR7Shutter(HasTimeout, Moveable):
                 return 'S2'
             if self._attached_sr7p3.read(maxage) == 1:
                 return 'S3'
-        else:
-            raise PositionError(self, 'SR7 shutter moving or undefined')
+        raise PositionError(self, 'SR7 shutter moving or undefined')
 
     def doStatus(self, maxage=0):
-        cl, p1, p2, p3 = self._attached_sr7cl.read(maxage), \
-            self._attached_sr7p1.read(maxage), self._attached_sr7p2.read(maxage), \
-            self._attached_sr7p3.read(maxage)
-        if p1 == 1 and p2 == 1 and p3 == 1:
+        cl, p1, p2, p3 = (self._attached_sr7cl.read(maxage),
+                          self._attached_sr7p1.read(maxage),
+                          self._attached_sr7p2.read(maxage),
+                          self._attached_sr7p3.read(maxage))
+        if all(v == 1 for v in (p1, p2, p3)):
             return status.BUSY, 'moving'
-        if cl == 1 or p1 == 1 or p2 == 1 or p3 == 1:
+        if any(v == 1 for v in (cl, p1, p2, p3)):
             return status.OK, 'idle'
         return status.ERROR, 'undefined position'
