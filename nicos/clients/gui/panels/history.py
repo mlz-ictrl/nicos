@@ -146,13 +146,10 @@ class View(QObject):
         hist_totime = self.totime or currenttime() + 60
         hist_cache = {}
 
-        if fromtime is not None:
-            iterator = enumerateWithProgress(zip(keys, exprs, descs),
-                                             'Querying history...',
-                                             force_display=True,
-                                             total=len(keys))
-        else:
-            iterator = enumerate(zip(keys, exprs, descs))
+        iterator = enumerateWithProgress(zip(keys, exprs, descs),
+                                         'Querying history...',
+                                         force_display=True,
+                                         total=len(keys))
 
         for _, (key, expr, desc) in iterator:
             real_exprs = [expr]
@@ -160,33 +157,31 @@ class View(QObject):
             history = None
             self.uniq_keys.add(key)
 
-            if fromtime is not None:
-                if key not in hist_cache:
-                    history = query_func(key, self.fromtime, hist_totime,
-                                         interval)
-                    if not history:
-                        from nicos.clients.gui.main import log
-                        if log is None:
-                            from __main__ import \
-                                log  # pylint: disable=no-name-in-module
-                        log.error('Error getting history for %s.', key)
-                        QMessageBox.warning(widget, 'Error',
-                                            'Could not get history for %s, '
-                                            'there are no values to show.\n'
-                                            'Is it spelled correctly?' % key)
-                        history = []
-                    hist_cache[key] = history
-                else:
-                    history = hist_cache[key]
-                # if the value is a list/tuple and we don't have an index
-                # specified, add a plot for each item
-                if history:
-                    first_value = history[0][1]
-                    if not expr and isinstance(first_value, (list, tuple)):
-                        _, real_exprs, _ = parseKeyExpression(
-                            ', '.join('x[%d]' % i for i in range(len(first_value))),
-                            multiple=True)
-                        added_index = True
+            if key not in hist_cache:
+                history = query_func(key, self.fromtime, hist_totime, interval)
+                if not history:
+                    from nicos.clients.gui.main import log
+                    if log is None:
+                        from __main__ import log  # pylint: disable=no-name-in-module
+                    log.error('Error getting history for %s.', key)
+                    QMessageBox.warning(widget, 'Error',
+                                        'Could not get history for %s, '
+                                        'there are no values to show.\n'
+                                        'Is it spelled correctly?' % key)
+                    history = []
+                hist_cache[key] = history
+            else:
+                history = hist_cache[key]
+            # if the value is a list/tuple and we don't have an index
+            # specified, add a plot for each item
+            if history:
+                first_value = history[0][1]
+                if not expr and isinstance(first_value, (list, tuple)):
+                    _, real_exprs, _ = parseKeyExpression(
+                        ', '.join('x[%d]' % i for i in range(len(first_value))),
+                        multiple=True)
+                    added_index = True
+
             for (i, expr) in enumerate(real_exprs):
                 name = f'{desc}[{i}]' if added_index else desc
                 series = TimeSeries(name, interval, expr, window,
@@ -242,7 +237,7 @@ class NewViewDialog(DlgUtils, QDialog):
         loadUi(self, 'panels/history_new.ui')
         self.client = client
 
-        self.fromdate.setDateTime(QDateTime.currentDateTime())
+        self.fromdate.setDateTime(QDateTime.currentDateTime().addDays(-1))
         self.todate.setDateTime(QDateTime.currentDateTime())
 
         self.customY.toggled.connect(self.toggleCustomY)
@@ -250,7 +245,6 @@ class NewViewDialog(DlgUtils, QDialog):
 
         self.simpleTime.toggled.connect(self.toggleSimpleExt)
         self.extTime.toggled.connect(self.toggleSimpleExt)
-        self.frombox.toggled.connect(self.toggleSimpleExt)
         self.tobox.toggled.connect(self.toggleSimpleExt)
         self.toggleSimpleExt(True)
 
@@ -279,7 +273,6 @@ class NewViewDialog(DlgUtils, QDialog):
             self.simpleTimeSpec.setText(info['simpleTimeSpec'])
             self.slidingWindow.setChecked(info['slidingWindow'])
             self.extTime.setChecked(not info['simpleTime'])
-            self.frombox.setChecked(info['frombox'])
             self.tobox.setChecked(info['tobox'])
             self.fromdate.setDateTime(QDateTime
                                       .fromSecsSinceEpoch(info['fromdate']))
@@ -434,8 +427,7 @@ class NewViewDialog(DlgUtils, QDialog):
         on = self.simpleTime.isChecked()
         self.simpleTimeSpec.setEnabled(on)
         self.slidingWindow.setEnabled(on)
-        self.frombox.setEnabled(not on)
-        self.fromdate.setEnabled(not on and self.frombox.isChecked())
+        self.fromdate.setEnabled(not on)
         self.tobox.setEnabled(not on)
         self.todate.setEnabled(not on and self.tobox.isChecked())
 
@@ -474,7 +466,6 @@ class NewViewDialog(DlgUtils, QDialog):
             simpleTime = self.simpleTime.isChecked(),
             simpleTimeSpec = self.simpleTimeSpec.text(),
             slidingWindow = self.slidingWindow.isChecked(),
-            frombox = self.frombox.isChecked(),
             tobox = self.tobox.isChecked(),
             fromdate = self.fromdate.dateTime().toSecsSinceEpoch(),
             todate = self.todate.dateTime().toSecsSinceEpoch(),
@@ -729,7 +720,6 @@ class BaseHistoryWindow:
                 simpleTime = True,
                 simpleTimeSpec = timespec,
                 slidingWindow = True,
-                frombox = False,
                 tobox = False,
                 fromdate = 0,
                 todate = 0,
@@ -875,10 +865,7 @@ class BaseHistoryWindow:
             if info['slidingWindow']:
                 window = itime
         else:
-            if info['frombox']:
-                fromtime = mktime(localtime(info['fromdate']))
-            else:
-                fromtime = None
+            fromtime = mktime(localtime(info['fromdate']))
             if info['tobox']:
                 totime = mktime(localtime(info['todate']))
             else:

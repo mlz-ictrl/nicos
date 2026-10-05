@@ -180,18 +180,8 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QCheckBox" name="frombox">
-       <property name="text">
-        <string>From:</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="2">
       <widget class="QDateTimeEdit" name="fromdate">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
        <property name="displayFormat">
         <string>yyyy-MM-dd HH:mm</string>
        </property>
@@ -227,6 +217,13 @@
        </property>
        <property name="wordWrap">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>From:</string>
        </property>
       </widget>
      </item>
@@ -338,7 +335,6 @@
   <tabstop>simpleHelpButton</tabstop>
   <tabstop>slidingWindow</tabstop>
   <tabstop>extTime</tabstop>
-  <tabstop>frombox</tabstop>
   <tabstop>fromdate</tabstop>
   <tabstop>tobox</tabstop>
   <tabstop>todate</tabstop>
