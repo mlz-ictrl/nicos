@@ -6,7 +6,7 @@ devices = dict(
     # alpha1 = device('nicos.devices.generic.ManualSwitch',
     #     description = 'Primary collimator',
     #     states = ['closed', '120', '60', '40', '20', ],
-    #     unit = 'min',
+    #     unit = 'arcmin',
     # ),
     erbium = device('nicos.devices.generic.ManualSwitch',
         description = 'Erbium filter',
