@@ -246,11 +246,8 @@ class TimeSeries:
                 new_data = lttb.downsample(data[data[:, 0].argsort()],
                                            n_out=arrsize // 2)
                 n = self.n = self.real_n = new_data.shape[0]
-                # can resize in place here
-                new_data.resize(self.data, (n * 2, 2))
-                self.data = new_data
+                self.data = np.resize(new_data, (self.maxsize, 2))
             else:
-                # can't resize in place
                 self.data = np.resize(self.data, (2 * arrsize, 2))
         # fill next entry
         if not real and real_n < n - 1:
