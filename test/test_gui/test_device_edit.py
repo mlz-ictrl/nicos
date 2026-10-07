@@ -28,14 +28,11 @@ import pytest
 from nicos.guisupport.qt import QWidget
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 
+from test.test_gui.utils import load_setup
+
 pytest.importorskip('pytestqt')
 
-
 session_setup = 'guitest'
-
-
-def load_setup(client, setup):
-    client.run_and_wait("NewSetup('%s')" % setup)
 
 
 class TestDeviceEdit:

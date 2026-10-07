@@ -34,10 +34,11 @@ from nicos.core.params import Value, anytype, dictof, dictwith, floatrange, \
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
 from nicos.guisupport.qt import QPushButton, Qt
 from nicos.guisupport.typedvalue import AnnotatedWidget, ButtonWidget, \
-    CheckWidget, ComboWidget, DeviceComboWidget, DictOfWidget, \
-    DictWithWidget, EditWidget, ExprWidget, LimitsWidget, ListOfWidget, \
-    MissingWidget, MultiWidget, NonzeroWidget, SetOfWidget, SpinBoxWidget, \
-    TableWidget, create
+    CheckWidget, DeviceComboWidget, DictOfWidget, DictWithWidget, EditWidget, \
+    ExprWidget, LimitsWidget, ListOfWidget, MissingWidget, MultiWidget, \
+    NonzeroWidget, SetOfWidget, SpinBoxWidget, TableWidget, create
+
+from test.test_gui.utils import load_setup
 
 pytest.importorskip('pytestqt')
 
@@ -66,10 +67,9 @@ class TestTypedvalue:
             qtbot.keyClicks(widget, str(text))
         assert widget.getValue() == result
 
-    @pytest.mark.parametrize('editable', [True, False])
-    def test_ComboWidget(self, qtbot, editable):
-        widget = ComboWidget(None, oneof_or([1, 2, 4], intrange(0, 50)), 2,
-                             editable=editable)
+    def test_OneOfWidget(self, qtbot):
+        typ = oneof(1, 2, 4)
+        widget = create(None, typ, 2)
         qtbot.addWidget(widget)
         widget.show()
 
@@ -80,9 +80,27 @@ class TestTypedvalue:
         widget.setCurrentIndex(0)
         assert widget.getValue() == 1
 
-        if editable:
-            widget.setCurrentText('42')
-            assert widget.getValue() == 42
+    def test_OneOf_Or_Widget(self, qtbot):
+        typ = oneof_or([1, 2, 4], intrange(0, 50))
+        widget = create(None, typ, 2)
+        qtbot.addWidget(widget)
+        widget.show()
+
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == 2
+        widget.setCurrentIndex(0)
+        assert widget.getValue() == 1
+
+        widget.setCurrentText('42')
+        qtbot.keyPress(widget.lineEdit(), Qt.Key_Return)
+        assert widget.getValue() == 42
+
+        widget.setCurrentText('')
+        qtbot.keyPress(widget.lineEdit(), Qt.Key_Return)
+
+        pytest.raises(ValueError, widget.getValue)
 
     def test_ButtonWidget(self, qtbot):
         widget = ButtonWidget(None, ['in', 'out'])
@@ -228,6 +246,18 @@ class TestTypedvalue:
                 qtbot.mouseClick(pb[-1], Qt.MouseButton.LeftButton)
         assert not widget.items
 
+    def test_None_In_ListOfWidget(self, qtbot):
+        typ = listof(str)
+        widget = ListOfWidget(None, typ.conv, (None,), None,
+                              allow_enter=True)
+
+        qtbot.addWidget(widget)
+        widget.show()
+        with qtbot.waitExposed(widget):
+            pass
+
+        assert widget.getValue() == ['']
+
     def test_MultiWidget(self, qtbot):
         typ = tupleof(int, int, int, int, int, int)
         valinfo = [Value('1'), Value('2'), Value('3'), Value('4'), Value('5'),
@@ -243,13 +273,13 @@ class TestTypedvalue:
         assert widget.getValue() == (0, 1, 2, 4, 8, 16)
 
     def test_LimitsWidget(self, qtbot):
-        widget = LimitsWidget(None, limits((0, 1)), None, allow_enter=True)
+        widget = LimitsWidget(None, limits((1, 10)), None, allow_enter=True)
         qtbot.addWidget(widget)
         widget.show()
         with qtbot.waitExposed(widget):
             pass
 
-        assert widget.getValue() == (0, 1)
+        assert widget.getValue() == (1, 10)
 
     def test_SetOfWidget(self, qtbot):
         typ = setof('metadata', 'namespace', 'devlist')
@@ -283,13 +313,17 @@ class TestTypedvalue:
             assert widget.getValue() is None
 
     def test_DeviceComboWidget(self, guiclient, qtbot):
-        widget = DeviceComboWidget(None, 'device', guiclient, allow_enter=True)
-        qtbot.addWidget(widget)
-        widget.show()
-        with qtbot.waitExposed(widget):
-            pass
-
-        assert widget.getValue() == 'device'
+        load_setup(guiclient, 'guitest')
+        for device, exist in zip(['device', 'gax'], [False, True]):
+            widget = DeviceComboWidget(None, device, guiclient, allow_enter=True)
+            qtbot.addWidget(widget)
+            widget.show()
+            with qtbot.waitExposed(widget):
+                pass
+            assert widget.getValue() == device
+            assert widget.count()
+            assert (exist and widget.findText(device) >= 0) or \
+                   (not exist and widget.findText(device) == -1)
 
     @pytest.mark.parametrize('curvalue', [1, 0])
     def test_NonzeroWidget(self, qtbot, curvalue):
@@ -322,8 +356,10 @@ class TestTypedvalue:
         typ = oneofdict_or({'a': (0, 1), 'b': (2, 3)},
                            tupleof(intrange(0, 5), intrange(0, 5)))
         widget = create(None, typ, (2, 3), valinfo=[Value('x'), Value('y')])
+
         qtbot.addWidget(widget)
         widget.show()
+        widget.setFocus()
         assert widget.getValue() == 'b'
         assert not widget._inner.isVisible()
 
@@ -351,7 +387,6 @@ class TestTypedvalue:
         [
             (oneof('in', 'out'), 'in', False, 'in'),
             (oneof('in', 'out'), 'in', True, Ellipsis),
-            (none_or(int), 1, False, 1),
             (tupleof(int, int), (1, 2), False, (1, 2)),
             (limits, (0, 1), False, (0, 1)),
             (floatrange(0, 1), 0, False, 0),

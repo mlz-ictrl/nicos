@@ -32,14 +32,11 @@ from nicos.clients.gui.cmdlets.tomo import Tomo
 from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import Qt
 
+from test.test_gui.utils import load_setup
+
 pytest.importorskip('pytestqt')
 
-
 session_setup = 'guitest'
-
-
-def load_setup(client, setup):
-    client.run_and_wait("NewSetup('%s')" % setup)
 
 
 class CmdletTester:
