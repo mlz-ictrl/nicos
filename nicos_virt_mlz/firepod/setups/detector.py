@@ -39,8 +39,8 @@ devices = dict(
         unit = 's',
         visibility = (),
     ),
-    image = device('nicos.devices.generic.VirtualImage',
     # image = device('nicos_mlz.spodi.devices.VirtualImage',
+    image = device('nicos.devices.generic.VirtualImage',
         description = 'Image data device',
         # datafile='nicos_virt_mlz/firepod/data/run099999.ctxt',
         fmtstr = '%d',
@@ -75,6 +75,6 @@ devices = dict(
     # ),
 )
 
-startupcode = '''
+startupcode = """
 SetDetectors(basedet)
-'''
+"""

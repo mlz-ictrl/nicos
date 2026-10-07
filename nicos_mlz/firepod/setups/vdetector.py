@@ -2,6 +2,8 @@ description = 'Virtual FIREPOD detector'
 
 group = 'lowlevel'
 
+excludes = ['detector']
+
 devices = dict(
     mon = device('nicos.devices.generic.VirtualCounter',
         description = 'Simulated MON1',
