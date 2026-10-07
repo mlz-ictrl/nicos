@@ -32,7 +32,6 @@ devices = {
         fmtstr = '%.1f',
         controlled = ['dlambda', 'phase_deg_perA1', 'phase_deg_perA2',],
         nextnodes = ['Q',],
-        pollinterval = 1,
         dev = 'selector_speed',
         informula = '124096.72 / x + 0.00440399 * x ** 0.5266 - 0.529403',
         outformula = '16000.0 * 8.0 / x * (0.96151 + 4.877865 / x ** 2.43012)',
@@ -45,7 +44,6 @@ devices = {
         precision = 0.005,
         controlled = ['mophi', 'mogamma', 'mobeta', 'mopsi',],
         nextnodes = ['t_nom',],
-        pollinterval = 1,
     ),
     't_nom': device(
         'nicos_mlz.j_nse.devices.NestMapped',
@@ -55,7 +53,6 @@ devices = {
         controlled = [f'pow{i:02d}' for i in range(1, 39)
                       if i not in [14, 15, 31]] + ['dum1', 'dum2', 'dum3',
                                                    't_act', 'countscale', 'J',],
-        pollinterval = 1,
     ),
 }
 
@@ -67,7 +64,6 @@ for dev in devs:
         'nicos_mlz.j_nse.devices.Basic',
         visibility = ('metadata', ),
         description = f'{dev}',
-        pollinterval = 1,
         unit = '',
     )
 
@@ -77,7 +73,6 @@ for i in range(1, 4):
         'nicos_mlz.j_nse.devices.Basic',
         visibility = ('metadata', ),
         description = f'Virtual coil dum{i}',
-        pollinterval = 1,
         unit = 'A',
     )
 

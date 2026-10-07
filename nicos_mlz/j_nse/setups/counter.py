@@ -35,7 +35,6 @@ devices = dict(
     mon1rate = device('nicos.devices.entangle.AnalogInput',
         description = 'Instantaneous rate of monitor 1',
         tangodevice = tango_base + 'count/mon1rate',
-        pollinterval = 1.0,
         fmtstr = '%.1f',
     ),
     timer = device('nicos_mlz.jcns.devices.fpga.FPGATimerChannel',

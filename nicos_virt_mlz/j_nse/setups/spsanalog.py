@@ -10,7 +10,6 @@ devices = dict(
         speed = 20.,
         unit = 'degC',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     cc1r2 = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -20,7 +19,6 @@ devices = dict(
         speed = 20.,
         unit = 'degC',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     cc3r1 = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -30,7 +28,6 @@ devices = dict(
         speed = 20.,
         unit = 'degC',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     cc3r2 = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -40,7 +37,6 @@ devices = dict(
         speed = 20.,
         unit = 'degC',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     HeMon = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -50,7 +46,6 @@ devices = dict(
         speed = 20.,
         unit = '%',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagB1x = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -60,7 +55,6 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagB1y = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -70,7 +64,6 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagB1z = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -80,7 +73,6 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagB2x = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -90,7 +82,6 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagB2y = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -100,7 +91,6 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagB2z = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -110,7 +100,6 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagBx = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -120,7 +109,6 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagBy = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -130,7 +118,6 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
     MagBz = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -140,6 +127,5 @@ devices = dict(
         speed = 4.,
         unit = 'G',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
 )

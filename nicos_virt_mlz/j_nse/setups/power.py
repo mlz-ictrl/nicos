@@ -12,7 +12,7 @@ for i in range(1, 39):
             abslimits = (-250, 250),
             speed = 100.,
             unit = 'A',
-            pollinterval = 0.5,
+            precision = 0.002,
             visibility = ('metadata', 'namespace') if i in [5, 9, 10, 11, 12] \
                 else ('metadata', 'namespace', 'devlist'),
         )

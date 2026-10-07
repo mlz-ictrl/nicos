@@ -9,6 +9,5 @@ devices = dict(
         speed = 20.,
         unit = 'degC',
         fmtstr = '%.3g',
-        pollinterval = 0.5,
     ),
 )

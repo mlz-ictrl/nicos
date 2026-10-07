@@ -10,7 +10,6 @@ devices = dict(
         speed = 1.,
         unit = 'mm',
         fmtstr = '%.6f',
-        pollinterval = 0.5,
     ),
     mo_cc11b = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -20,7 +19,6 @@ devices = dict(
         speed = 1.,
         unit = 'mm',
         fmtstr = '%.6f',
-        pollinterval = 0.5,
     ),
     mo_cc12a = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -30,7 +28,6 @@ devices = dict(
         speed = 1.,
         unit = 'mm',
         fmtstr = '%.6f',
-        pollinterval = 0.5,
     ),
     mo_cc12b = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -40,7 +37,6 @@ devices = dict(
         speed = 1.,
         unit = 'mm',
         fmtstr = '%.6f',
-        pollinterval = 0.5,
     ),
     mo_cc21a = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -90,7 +86,6 @@ devices = dict(
         speed = 1.,
         unit = 'mm',
         fmtstr = '%.6f',
-        pollinterval = 0.5,
     ),
     mo_cc31b = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -100,7 +95,6 @@ devices = dict(
         speed = 1.,
         unit = 'mm',
         fmtstr = '%.6f',
-        pollinterval = 0.5,
     ),
     mo_cc32a = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -110,7 +104,6 @@ devices = dict(
         speed = 1.,
         unit = 'mm',
         fmtstr = '%.6f',
-        pollinterval = 0.5,
     ),
     mo_cc32b = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -120,6 +113,5 @@ devices = dict(
         speed = 1.,
         unit = 'mm',
         fmtstr = '%.6f',
-        pollinterval = 0.5,
     ),
 )

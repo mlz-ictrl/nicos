@@ -9,7 +9,6 @@ devices = dict(
         abslimits = (0, 87),
         speed = 10.,
         unit = 'deg',
-        pollinterval = 0.5,
     ),
     mopsi = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -18,7 +17,6 @@ devices = dict(
         abslimits = (-160, -16),
         speed = 10.,
         unit = 'deg',
-        pollinterval = 0.5,
     ),
     moana = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -27,7 +25,6 @@ devices = dict(
         abslimits = (0, 7),
         speed = 1.,
         unit = 'cm',
-        pollinterval = 0.5,
     ),
     mo_z = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -36,7 +33,6 @@ devices = dict(
         abslimits = (0, 210),
         speed = 50.,
         unit = 'mm',
-        pollinterval = 0.5,
     ),
     mobeta = device(
         'nicos.devices.generic.virtual.VirtualMotor',
@@ -63,6 +59,5 @@ devices = dict(
         abslimits = (0, 360),
         speed = 60.,
         unit = 'deg',
-        pollinterval = 0.5,
     ),
 )

@@ -9,7 +9,7 @@ devices = dict(
         userlimits = (3100, 31000),
         speed = 5000,
         unit = 'rpm',
+        precision = 10,
         fmtstr = '%.0f',
-        pollinterval = 0.5,
     ),
 )
