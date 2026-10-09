@@ -432,6 +432,8 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     _channel_callback = None
 
+    _last_preset_type = None
+
     def doPreinit(self, mode):
         DAQEpicsDevice.doPreinit(self, mode)
 
@@ -522,13 +524,15 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
     def _update_value_callback(self, channel):
         if session.sessiontype != POLLER:
 
+            if channel == self._last_preset_type:
+                return # Already have the correct subscription
+
             if self._channel_callback:
                 self._epics_wrapper.close_subscription(self._channel_callback)
                 self._channel_callback = None
 
-            pvname = channel._get_pv_name('readpv')
-            self._channel_callback = channel._subscribe(
-                    self.value_change_callback, pvname, 'readpv')
+            self._channel_callback = channel._subscribe_params(['readpv'], self.value_change_callback)
+            self._last_preset_type = channel
 
     def doStart(self):
         if self.used_preset or not (self.hardware_time or self.hardware_count):
