@@ -32,6 +32,10 @@ from nicos.utils.functioncurves import Curve2D, Curves, ufloat
 from nicos.utils.functioncurves.calcs import mean
 
 
+class AutoFitError(ValueError):
+    """An automatic saturation fit has insufficient data."""
+
+
 def fit_curve(curve, fittype):
     """MOKE-specific fitting function.
     It filters values on a curve of ``_/‾`` shape from min or max horizontal
@@ -51,9 +55,13 @@ def fit_curve(curve, fittype):
         Curve2D([p for p in curve
                  if numpy.nansum([p.y.n, p.y.s]) < numpy.nansum([m.y.n, -m.y.s])])
     c = curve_min if fittype == 'min' else curve_max
-    e = mean(c.y)
-    _filter = (lambda y: y < e) if fittype == 'min' else (lambda y: y > e)
-    c = Curve2D([p for p in c if _filter(p.y)])
+    if c:
+        e = mean(c.y)
+        _filter = (lambda y: y < e) if fittype == 'min' else (lambda y: y > e)
+        c = Curve2D([p for p in c if _filter(p.y)])
+    if not c or c.xmin.n == c.xmax.n:
+        raise AutoFitError(f'The automatic {fittype} fit needs saturation points '
+                           'with distinct magnetic field values.')
     return c.lsm()
 
 
@@ -208,7 +216,7 @@ def generate_output(measurement, angle=None, ext=None, fit_min=None, fit_max=Non
             output += f'Canting angle: {angle / (1.5 / 25 / 180 * math.pi * 1e6)} (SKT)' \
                       f' {angle / 1000:.3f} (mrad)\n'
             output += f'Extinction: {ext} (mV)\n'
-            output += f'Kerr angle: {kerr} (µrad)\n\n'
+            output += f'Kerr angle: {kerr:.3f} (µrad)\n\n'
             output += 'Mean intensity and ellipticity curves:\n'
             data = [['I (A)', 'B (mT)', 'dB (mT)', 'Int (mV)', 'dInt (mV)',
                      'Int_subtracted (mV)', 'dInt_subtracted (mV)',

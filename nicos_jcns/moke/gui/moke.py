@@ -28,7 +28,7 @@ import os
 import gr
 from gr.pygr import CoordConverter, ErrorBar, RegionOfInterest, Text
 import numpy
-from qtgr.events import LegendEvent, MouseEvent, ROIEvent
+from qtgr.events import LegendEvent, MouseEvent
 # pylint: disable=import-error
 from uncertainties.core import AffineScalarFunc
 
@@ -44,7 +44,8 @@ from nicos.protocols.daemon import BREAK_AFTER_STEP, BREAK_NOW
 from nicos.utils import findResource
 from nicos.utils.functioncurves import Curve2D, Curves
 
-from nicos_jcns.moke.utils import calculate, fix_filename, generate_output
+from nicos_jcns.moke.utils import AutoFitError, calculate, fix_filename, \
+    generate_output
 
 
 class MokePlotCurve(NicosPlotCurve):
@@ -85,25 +86,35 @@ class MokePlotCurve(NicosPlotCurve):
     def errorBar1(self):
         return self._e1 if self._show_error_bars else None
 
+    @errorBar1.setter
+    def errorBar1(self, value):
+        self._e1 = value
+
     @property
     def errorBar2(self):
         return self._e2 if self._show_error_bars else None
+
+    @errorBar2.setter
+    def errorBar2(self, value):
+        self._e2 = value
 
 
 class LiveWidget1DWithMarkers(LiveWidget1D):
     """Extends LiveWidget1D with support for interactive draggable markers.
 
-    Markers can be added to the plot and repositioned by clicking on them
-    and moving the mouse. A second click releases the marker at its new
-    position.
+    A marker is grabbed by pressing the left mouse button on it, follows the
+    mouse while the button is held and is dropped on release.
     """
 
     def __init__(self, parent=None, **kwds):
         LiveWidget1D.__init__(self, parent, **kwds)
-        self.gr.cbm.addHandler(ROIEvent.ROI_CLICKED, self.on_markerClicked, ROIEvent)
+        self.gr.cbm.addHandler(MouseEvent.MOUSE_PRESS, self.on_mousePress)
         self.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
+        self.gr.cbm.addHandler(MouseEvent.MOUSE_RELEASE, self.on_mouseRelease)
         self._move_marker = False
         self._current_marker_roi = None
+        self._drag_start = None
+        self._cursor = None
 
     def _rescale(self):
         for roi in self.plot._rois:
@@ -125,29 +136,78 @@ class LiveWidget1DWithMarkers(LiveWidget1D):
         self._roi_update(roi)
         self.plot.addROI(roi)
 
+    def clear_markers(self):
+        self.plot._rois = []
+        self._move_marker = False
+        self._current_marker_roi = None
+        self._set_cursor(None)
+
     def _redraw_with_marker(self, marker_roi):
         """Implement in derived classes to redraw something related to the
         dragged marker.
         """
 
-    @property
-    def is_marker_moving(self):
-        return self._move_marker
+    def _marker_dropped(self, marker_roi):
+        """Implement in derived classes to act on a marker dropped at a new
+        position.
+        """
 
-    def on_markerClicked(self, event):
+    def _marker_at(self, ndc):
+        """Return the ROI of a visible marker at ``ndc`` or None."""
+        roi = self.plot.getROI(ndc)
+        # legend click can hide markers, if so they should not be grabbed
+        if roi in self.plot._rois and roi.reference.visible:
+            return roi
+        return None
+
+    def _set_cursor(self, shape):
+        if shape != self._cursor:
+            self._cursor = shape
+            if shape is None:
+                self.gr.unsetCursor()
+            else:
+                self.gr.setCursor(shape)
+
+    def on_mousePress(self, event):
         if event.getButtons() & MouseEvent.LEFT_BUTTON:
-            self._move_marker = not self._move_marker
+            roi = self._marker_at(event.getNDC())
+            self._move_marker = roi is not None
             if self._move_marker:
-                self._current_marker_roi = event.roi
+                self._current_marker_roi = roi
+                self._drag_start = (roi.reference.x, roi.reference.y)
+                self._set_cursor(Qt.CursorShape.ClosedHandCursor)
+            # zoom box (select gesture) uses the left button as well; its
+            # events are queued, so it has to be disabled already on press
+            self.gr.setMouseSelectionEnabled(not self._move_marker)
+
+    def on_mouseRelease(self, event):
+        if self._move_marker:
+            self._move_marker = False
+            marker = self._current_marker_roi.reference
+            if (marker.x, marker.y) != self._drag_start:
+                self._marker_dropped(self._current_marker_roi)
+            self._set_cursor(Qt.CursorShape.OpenHandCursor
+                             if self._marker_at(event.getNDC()) else None)
 
     def on_mouseMove(self, event):
         if self._move_marker:
-            wc = event.getWC(self.plot.viewport)
-            self._current_marker_roi.reference._x = wc.x
-            self._current_marker_roi.reference._y = wc.y
+            window = self.axes.getWindow()
+            if not window:
+                return
+            ndc = event.getNDC()
+            coord = CoordConverter(self.axes.sizex, self.axes.sizey, window,
+                                   self.axes.scale)
+            wc = coord.setNDC(ndc.x, ndc.y).getWC(self.axes.viewport)
+            xmin, xmax, ymin, ymax = window
+            marker = self._current_marker_roi.reference
+            marker.x = min(max(wc.x, xmin), xmax)
+            marker.y = min(max(wc.y, ymin), ymax)
             self._roi_update(self._current_marker_roi)
             self._redraw_with_marker(self._current_marker_roi)
             self.gr.update()
+        elif not event.getButtons():
+            self._set_cursor(Qt.CursorShape.OpenHandCursor
+                             if self._marker_at(event.getNDC()) else None)
 
 
 class MokeLiveWidget(LiveWidget1DWithMarkers):
@@ -167,6 +227,7 @@ class MokeLiveWidget(LiveWidget1DWithMarkers):
                                self.on_legendItemClicked, LegendEvent)
 
     def clear(self):
+        self.clear_markers()
         self.axes.resetCurves()
         self._curves = []
         self._update()
@@ -280,7 +341,7 @@ class MokePlot(MokeLiveWidget):
                 _y = _y.n
             self.add_marker(
                 Text(
-                    _x, _y, '✕', charheight=.027, textcolor=2, font=101,
+                    _x, _y, '✕', charheight=.04, textcolor=2,
                     halign=gr.TEXT_HALIGN_CENTER, valign=gr.TEXT_VALIGN_HALF,
                 ),
                 self._curves[-1]
@@ -290,14 +351,19 @@ class MokePlot(MokeLiveWidget):
     def _redraw_with_marker(self, marker_roi):
         for _, curve in self.fits.items():
             if marker_roi.reference in curve.dependent:
-                curve.x = [marker.x for marker in curve.dependent]
-                curve.y = [marker.y for marker in curve.dependent]
+                # disable autoscale to not resize the graph while moving markers
+                autoscale = self.axes.autoscale
+                self.axes.autoscale = 0
+                try:
+                    curve.x = [marker.x for marker in curve.dependent]
+                    curve.y = [marker.y for marker in curve.dependent]
+                finally:
+                    self.axes.autoscale = autoscale
+                curve.errorBar1 = curve.errorBar2 = None
                 self.redraw_marker.emit()
 
-    def on_markerClicked(self, event):
-        LiveWidget1DWithMarkers.on_markerClicked(self, event)
-        if not self.is_marker_moving:
-            self.redraw_marker_finished.emit(True)
+    def _marker_dropped(self, marker_roi):
+        self.redraw_marker_finished.emit(True)
 
 
 class MokeBase(Panel):
@@ -325,18 +391,34 @@ class MokeBase(Panel):
             QMessageBox.information(None, '', 'The measurement is not yet finished')
             return
 
-        self.plot_IntvB.clear()
         try:
-            fit_min, fit_max, IntvB = self._recalculate(save=True)
+            marker_x = None
+            if not self.plot_IntvB.fits:
+                marker_x = (0.9 * float(self.m['Bmin']), 0.9 * float(self.m['Bmax']))
+            if marker_x is not None and math.isclose(*marker_x, abs_tol=1e-6):
+                result = None
+            else:
+                result = self._recalculate(save=True)
+        except AutoFitError as e:
+            QMessageBox.information(None, '', str(e))
+            return
         except Exception as e:
             QMessageBox.information(None, '', f'Calculation has failed:\n{e}')
             return
+        if result is None:
+            QMessageBox.information(None, '',
+                                    'Fit markers need distinct x coordinates.')
+            return
+        if marker_x is None:
+            return  # Keep the existing fit lines and marker positions.
+        fit_min, fit_max, IntvB = result
+        self.plot_IntvB.clear()
         self.plot_IntvB.add_curve(IntvB, legend='Mean')
-        x = numpy.array([float(self.m['Bmin']), float(self.m['Bmax'])]) * 0.9
-        self.plot_IntvB.add_fit(*x, fit_min, 'fit min')
-        self.plot_IntvB.add_fit(*x, fit_max, 'fit max')
+        self.plot_IntvB.add_fit(*marker_x, fit_min, 'fit min')
+        self.plot_IntvB.add_fit(*marker_x, fit_max, 'fit max')
 
     def _recalculate(self, save=False):
+        """Return both fits and the intensity curve, or None for aligned markers."""
         IntvB = Curve2D(self.m['IntvB'])
         int_mean = IntvB.series_to_curves().mean().yvx(0)
         IntvB = self._subtract_baseline(IntvB)
@@ -346,14 +428,19 @@ class MokeBase(Panel):
         ext = float(self.ln_extinction.text())  # mV
         fit_min, fit_max = None, None
         if self.plot_IntvB.fits:
-            fit_min, fit_max = [Curve2D.from_x_y(self.plot_IntvB.fits[fit].x,
-                                                 self.plot_IntvB.fits[fit].y).lsm()
-                                for fit in ['fit min', 'fit max']]
-        fit_min, fit_max, IntvB, EvB, kerr = calculate(IntvB, int_mean.y, angle, ext, fit_min, fit_max)
+            fits = [self.plot_IntvB.fits[label] for label in ('fit min', 'fit max')]
+            if any(math.isclose(fit.x[0], fit.x[1], abs_tol=1e-6) for fit in fits):
+                self.plot_EvB.clear()
+                self.ln_kerr.clear()
+                self.txt_rawdata.clear()
+                return None
+            fit_min, fit_max = [Curve2D.from_x_y(fit.x, fit.y).lsm() for fit in fits]
+        fit_min, fit_max, IntvB, EvB, kerr = \
+            calculate(IntvB, int_mean.y, angle, ext, fit_min, fit_max)
         self.plot_EvB.clear()
 
         self.plot_EvB.add_curve(EvB, legend=self.m['name'])
-        self.ln_kerr.setText(str(kerr))
+        self.ln_kerr.setText(f'{kerr:.3f}')
 
         output = generate_output(self.m, angle, ext, fit_min, fit_max)
         self.display_rawdata(output)
