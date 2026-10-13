@@ -236,4 +236,4 @@ class ExpInfoPanel(DefaultExpInfoPanel):
             new_exp_panel=self._new_exp_panel,
             finish_exp_panel=self._finish_exp_panel,
         )
-        dlg.exec_()
+        dlg.exec()
