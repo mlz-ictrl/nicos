@@ -104,10 +104,6 @@ SINQ classes
 .. autoclass:: S5Bit
 .. autoclass:: SpsReadable
 
-.. module:: nicos_sinq.devices.s7_switch
-.. autoclass:: S7Switch
-.. autoclass:: S7Shutter
-
 .. module:: nicos_sinq.devices.sinqasciisink
 .. autoclass:: SINQAsciiSinkHandler
 .. autoclass:: SINQAsciiSink
