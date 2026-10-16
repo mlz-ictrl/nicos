@@ -45,13 +45,15 @@ class ClientTransport(BaseClientTransport):
 
     def connect(self, conndata):
         self.client_id = uuid.uuid1().bytes
-        self.sock = tcpSocket(conndata.host, conndata.port, timeout=30.0)
+        self.sock = tcpSocket(conndata.host, conndata.port, timeout=30.0,
+                              keepalive=10)
         # write client identification: we are a new client
         self.sock.sendall(self.client_id)
 
     def connect_events(self, conndata):
         # connect to event port
-        self.event_sock = tcpSocket(conndata.host, conndata.port)
+        self.event_sock = tcpSocket(conndata.host, conndata.port,
+                                    keepalive=10)
 
         # write client id to ensure we get registered as event connection
         self.event_sock.sendall(self.client_id)
