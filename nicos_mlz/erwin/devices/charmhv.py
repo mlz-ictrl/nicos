@@ -29,9 +29,10 @@ from nicos import session
 from nicos.core import Attach, Override, Param, dictof, floatrange, listof, \
     nonzero, oneof, status, tupleof
 from nicos.core.constants import POLLER, SIMULATION
-from nicos.core.device import Moveable, Readable
+from nicos.core.device import Moveable, Readable, requires
 from nicos.core.errors import ConfigurationError, ModeError, MoveError, \
     NicosError, PositionError
+from nicos.core.utils import ADMIN, multiStatus
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.generic.sequence import SeqDev, SeqParam, SeqSleep, \
     SequencerMixin
@@ -150,33 +151,46 @@ class HVSwitch(SequencerMixin, MappedMoveable):
                     self, f'Parameter "{value}state" not in {list(self.mapping)}')
 
         if session.sessiontype != POLLER:
-            for d in self._devices.values():
-                d.enable()
+            self._checkTrip()
+            if not self.tripped:
+                for d in self._devices.values():
+                    d.enable()
 
     def doStatus(self, maxage=0):
         stat, statmsg = SequencerMixin.doStatus(self, maxage)
-        if stat == status.ERROR:
-            if not self.tripped and 'tripped' in statmsg:
-                self._setROParam('tripped', True)
-        elif stat == status.WARN and self.target != self.onstate:
-            return status.OK, 'idle'
+        if stat == status.WARN:
+            if not self.tripped:
+                self._checkTrip(maxage)
+            if self.tripped:
+                return status.ERROR, 'Tripped'
+            if self.target != self.onstate:
+                return status.OK, 'idle'
         return stat, statmsg
 
     def doIsAllowed(self, target):
-        ok = not self.tripped
-        return ok, '' if ok else 'hardware is tripped'
+        if self.tripped:
+            return False, 'hardware is tripped'
+        if target == self.onstate:
+            stat, msg = multiStatus(self._devices)
+            if stat in (status.ERROR, status.DISABLED):
+                return False, msg
+        return True, ''
 
     def doStop(self):
         if self.tripped:
             raise ModeError(self, "can't be stopped, device is tripped.")
         SequencerMixin.doStop(self)
 
+    @requires(level=ADMIN)
     def doReset(self):
-        if self.tripped:
-            if self.doStatus(0)[0] == status.BUSY or self.tripped:
-                raise ModeError(self, "can't reset device. Hardware is tripped")
         SequencerMixin.doReset(self)
-        self._setROParam('tripped', False)
+        if self.tripped:
+            self.log.warning('Hardware was tripped!')
+            for d in self._devices.values():
+                d.reset()
+            while multiStatus(self._devices, 0)[0] == status.BUSY:
+                session.delay(self._base_loop_delay)
+            self._setROParam('tripped', False)
 
     def _is_at_target(self, pos, target):
         # if values are exact the same
@@ -282,6 +296,11 @@ class HVSwitch(SequencerMixin, MappedMoveable):
             self.lasthv = currenttime()
         return val
 
+    def _checkTrip(self, maxage=None):
+        state, text = multiStatus(self._devices)
+        if state == status.WARN and 'tripped' in text:
+            self._setROParam('tripped', True)
+
 
 class HVOffDuration(Readable):
 
@@ -308,35 +327,11 @@ class HVOffDuration(Readable):
         return ''
 
     def doStatus(self, maxage=0):
-        stat, statmsg = self._attached_hv_supply.status(maxage)
-        if stat == status.WARN:
+        try:
+            _, _ = self._attached_hv_supply.status(maxage)
             return status.OK, ''
-        return stat, statmsg
+        except NicosError:
+            return status.ERROR, 'HV device not reachable'
 
     def doReset(self):
         self._attached_hv_supply.lasthv = 0
-
-
-class HVTrip(Readable):
-
-    hardware_access = False
-
-    attached_devices = {
-        'hv_supply': Attach('HV Device', HVSwitch),
-    }
-
-    parameter_overrides = {
-        'unit': Override(mandatory=False, volatile=True),
-    }
-
-    def doRead(self, maxage=0):
-        return 'Tripped' if self._attached_hv_supply.tripped else ''
-
-    def doReadUnit(self):
-        return ''
-
-    def doStatus(self, maxage=0):
-        stat, statmsg = self._attached_hv_supply.status(maxage)
-        if stat == status.WARN:
-            return status.OK, ''
-        return stat, statmsg

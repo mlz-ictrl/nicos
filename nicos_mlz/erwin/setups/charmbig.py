@@ -9,7 +9,7 @@ tango_base = f'tango://{tango_host}:10000/erwin/bcharm/'
 
 # erwin/bcharm/window
 devices = dict(
-    b_window = device('nicos.devices.entangle.PowerSupply',
+    b_window = device('nicos_mlz.erwin.devices.powersupply.HVPowerSupply',
         description = 'Window HV',
         tangodevice = tango_base + 'window',
         fmtstr = '%.1f',
@@ -117,18 +117,12 @@ devices = dict(
         maxage = 120,
         pollinterval = 15,
     ),
-    b_trip = device('nicos_mlz.erwin.devices.charmhv.HVTrip',
-        hv_supply = 'b_hv',
-        maxage = 120,
-        pollinterval = 15,
-        visibility = (),
-    ),
 )
 
 # erwin/bcharm/cathode1
 # erwin/bcharm/cathode2
 for i in range(1, 3):
-    devices[f'b_edge{i}'] = device('nicos.devices.entangle.PowerSupply',
+    devices[f'b_edge{i}'] = device('nicos_mlz.erwin.devices.powersupply.HVPowerSupply',
         description = f'Edge cathode {i}',
         tangodevice = tango_base + f'cathode{i}',
         fmtstr = '%.1f',
@@ -155,7 +149,7 @@ for i in range(1, 3):
 # erwin/bcharm/anode7
 # erwin/bcharm/anode8
 for i in range(1, 10):
-    devices[f'b_anode{i}'] = device('nicos.devices.entangle.PowerSupply',
+    devices[f'b_anode{i}'] = device('nicos_mlz.erwin.devices.powersupply.HVPowerSupply',
         description = f'Anode {i} HV',
         tangodevice = tango_base + f'anode{i - 1}',
         fmtstr = '%.1f',
@@ -182,7 +176,7 @@ for i in range(1, 10):
 # erwin/bcharm/banode7
 # not in use erwin/bcharm/banode8
 for i in range(1, 9):
-    devices[f'b_banode{i}'] = device('nicos.devices.entangle.PowerSupply',
+    devices[f'b_banode{i}'] = device('nicos_mlz.erwin.devices.powersupply.HVPowerSupply',
         description = f'Boundary anode {i} HV',
         tangodevice = tango_base + f'banode{i - 1}',
         fmtstr = '%.1f',

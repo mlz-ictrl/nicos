@@ -73,12 +73,6 @@ devices = dict(
         maxage = 120,
         pollinterval = 15,
     ),
-    s_trip = device('nicos_mlz.erwin.devices.charmhv.HVTrip',
-        hv_supply = 's_hv',
-        maxage = 120,
-        pollinterval = 15,
-        visibility = (),
-    ),
 )
 
 for i in (1, 2):
