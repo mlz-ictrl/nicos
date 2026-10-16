@@ -30,13 +30,19 @@ from nicos_mlz.stressi.devices.sample import PowderSampleMixin
 
 
 class Sample(PowderSampleMixin, BaseSample):
+    """Class to handle sample for virtual instrument.
+
+    The sample parameters could only be set in the configuration file.  The
+    simulation process (McStas) needs some special information about the sample
+    and there are (at the moment) only 3 different samples implemented.
+    """
 
     parameters = {
-        'sampletype': Param('Sample type: '
-                            '1 - Abs experiment FoPra '
-                            '2 - Strain experiment FoPra E-Mod 211 '
-                            '3 - Strain experiment FoPra E-Mod 200 ',
-                            # '4 - fully flexible sample',
+        'sampletype': Param('Sample type:'
+                            ' 1 - Abs experiment FoPra'
+                            ' 2 - Strain experiment FoPra E-Mod 211'
+                            ' 3 - Strain experiment FoPra E-Mod 200',
+                            # ' 4 - fully flexible sample',
                             type=intrange(1, 3), userparam=True,
                             settable=True),
         'formula': Param('Chemical formula',
@@ -46,6 +52,15 @@ class Sample(PowderSampleMixin, BaseSample):
     parameter_overrides = {
         'samples': Override(mandatory=True, settable=False, internal=False),
     }
+
+    def clear(self):
+        self.log.warning("Sample list can't be cleared")
+
+    def new(self, parameters):
+        self.log.warning('The list of samples can be modified only in the setup')
+
+    def set(self, number, parameters):
+        self.log.warning('The list of samples can be modified only in the setup')
 
     def _applyParams(self, number, parameters):
         BaseSample._applyParams(self, number, parameters)

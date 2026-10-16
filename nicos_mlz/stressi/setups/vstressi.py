@@ -18,7 +18,7 @@ devices = dict(
         description = 'Simulation sample',
         samples = {
             1: {
-                'name': 'Sample 1',
+                'samplename': 'Sample 1',
                 'sampledescription': 'Absorption experiment FoPra',
                 'sampletype': 1,
                 'lattice': [2.886, 2.886, 2.886],
@@ -29,7 +29,7 @@ devices = dict(
                 'mass': 1275,
                 },
             2: {
-                'name': 'Sample 2',
+                'samplename': 'Sample 2',
                 'sampledescription': 'Strain experiment FoPra E-Mod 211',
                 'sampletype': 2,
                 'lattice': [2.886, 2.886, 2.886],
@@ -40,7 +40,7 @@ devices = dict(
                 'mass': 15.6,
                 },
             3: {
-                'name': 'Sample 3',
+                'samplename': 'Sample 3',
                 'sampledescription': 'Strain experiment FoPra E-Mod 200',
                 'sampletype': 3,
                 'lattice': [2.886, 2.886, 2.886],
@@ -51,7 +51,7 @@ devices = dict(
                 'mass': 15.6,
                 },
             # 4: {
-            #     'name': 'Sample 4',
+            #     'samplename': 'Sample 4',
             #     'sampledescription': 'Fully flexible sample',
             #     'sampletype': 4,
             #     },
