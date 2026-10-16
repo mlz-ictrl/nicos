@@ -3,17 +3,15 @@
 main_window = tabbed(
     ('Instrument', docked(
         vsplit(
-            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-                  ),
+            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
                   eta=True,
                   ),
-            # panel('nicos.clients.gui.panels.watch.WatchPanel'),
             panel('nicos.clients.gui.panels.console.ConsolePanel',
                   watermark='nicos_mlz/reseda/gui/watermark.png',
                   hasinput=False,
                   ),
-         ),
+        ),
         ('NICOS devices',
          panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
                dockpos='right',
@@ -41,13 +39,21 @@ main_window = tabbed(
     ('Mieze display',
      panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',
            setups='det_cascade',
-           columns=3, rows=2, foils=[0, 1, 2, 5, 6, 7])
+           columns=3, rows=2, foils=[5, 4, 3, 0, 1, 2]),
+    ),
+    ('Mieze display (Reseda II)',
+     panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',
+           setups='det_cascade2',
+           columns=4, rows=2, foils=[6, 5, 4, 3, 2, 1, 0])
     ),
 )
 
 windows = [
     window('Editor', 'editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel')),
+        vsplit(
+           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+           panel('nicos.clients.gui.panels.editor.EditorPanel',
+           ))),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel',
                  fit_functions={

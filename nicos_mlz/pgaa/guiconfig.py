@@ -64,13 +64,13 @@ windows = [
            setups='tomo'),
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                 xscale='decimal'),
+           setups='not (tomo or pgaa)'),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  xscale='decimal',
                  filetypes=['chn', 'mca'],),
            setups='pgaa'),
-    window('Live data', 'live',
-           panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                 xscale='decimal'),
-           setups='not (tomo or pgaa)'),
 ]
 
 tools = [

@@ -42,6 +42,8 @@ windows = [
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  xscale='decimal', yscale='decimal')),
+    window('Watchdog', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [

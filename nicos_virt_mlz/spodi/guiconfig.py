@@ -2,12 +2,10 @@
 
 main_window = docked(
     vsplit(
-        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-        ),
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
               eta=True,
               ),
-        # panel('nicos.clients.gui.panels.watch.WatchPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel',
               watermark='nicos_demo/demo/gui/nicos-watermark.png',
               hasinput=False,
@@ -35,7 +33,10 @@ main_window = docked(
 
 windows = [
     window('Editor', 'editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel')),
+        vsplit(
+           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+           panel('nicos.clients.gui.panels.editor.EditorPanel',
+           ))),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',

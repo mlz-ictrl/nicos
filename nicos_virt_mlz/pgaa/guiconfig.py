@@ -3,7 +3,7 @@
 main_window = docked(
    tabbed(
         ('PGAA',
-         panel('nicos_mlz.pgaa.gui.panels.PGAAPanel', setups='pgaa',)
+         panel('nicos_mlz.pgaa.gui.panels.PGAAPanel', setups='*pgaa',)
         ),
         ('Tomography',
          panel('nicos_mlz.pgaa.gui.panels.TomographyPanel', setups='tomo',),
@@ -13,17 +13,15 @@ main_window = docked(
         ),
         ('Expert mode',
          vsplit(
-            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
-            ),
+            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
                   eta=True,
                   ),
-            # panel('nicos.clients.gui.panels.watch.WatchPanel'),
             panel('nicos.clients.gui.panels.console.ConsolePanel',
                   watermark='nicos_demo/demo/gui/nicos-watermark.png',
                   hasinput=False,
                   ),
-            ),
+         ),
         ),
         ('Shutter/Attenuators',
          panel('nicos.clients.gui.panels.generic.GenericPanel',
@@ -45,7 +43,10 @@ main_window = docked(
 
 windows = [
     window('Editor', 'editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel')),
+       vsplit(
+           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+           panel('nicos.clients.gui.panels.editor.EditorPanel',
+           ))),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel'),
            setups='not tomo and not pgaa and not pgai'),

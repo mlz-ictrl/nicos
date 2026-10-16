@@ -2,14 +2,14 @@
 
 main_window = docked(
     vsplit(
-            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
-            panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
-                  eta=True,
-                  ),
-            panel('nicos.clients.gui.panels.console.ConsolePanel',
-                  watermark='nicos_demo/demo/gui/nicos-watermark.png',
-                  hasinput=False,
-                  ),
+        panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+        panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
+              eta=True,
+              ),
+        panel('nicos.clients.gui.panels.console.ConsolePanel',
+              watermark='nicos_demo/demo/gui/nicos-watermark.png',
+              hasinput=False,
+              ),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
@@ -26,7 +26,7 @@ main_window = docked(
                 panel('nicos.clients.gui.panels.setup_panel.GenericSamplePanel',
                       setups='not samplechanger'),
                 ),
-            ),
+           ),
       ),
     ),
 )
@@ -50,6 +50,8 @@ windows = [
     window('Live data', 'live',
            panel('nicos_mlz.spodi.gui.panels.live.LiveDataPanel',
                  filetypes=['ctxt'])),
+    window('Watchdog', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [
