@@ -35,9 +35,9 @@ class Sample(PowderSampleMixin, BaseSample):
         'sampletype': Param('Sample type: '
                             '1 - Abs experiment FoPra '
                             '2 - Strain experiment FoPra E-Mod 211 '
-                            '3 - Strain experiment FoPra E-Mod 200 '
-                            '4 - fully flexible sample',
-                            type=intrange(1, 4), userparam=True,
+                            '3 - Strain experiment FoPra E-Mod 200 ',
+                            # '4 - fully flexible sample',
+                            type=intrange(1, 3), userparam=True,
                             settable=True),
         'formula': Param('Chemical formula',
                          type=str, settable=True, category='sample'),
