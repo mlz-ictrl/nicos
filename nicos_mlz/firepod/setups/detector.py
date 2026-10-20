@@ -10,7 +10,7 @@ sysconfig = dict(
     datasinks = ['histogram', ],  # 'listmode'],
 )
 
-tango_host = 'firepoddet.erwin.frm2.tum.de'
+tango_host = 'firepoddet.firepod.frm2.tum.de'
 
 tango_base = f'tango://{tango_host}:10000/qm/qmesydaq/'
 
