@@ -12,24 +12,30 @@ sysconfig = dict(
     datasinks = ['histogram', 'listmode'],
 )
 
+TANGO_TIMEOUT = 5.0
+
 devices = dict(
     mon1 = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
         description = 'Monitor 1 at big charm detector',
         tangodevice = tango_base + 'counter0',
+        tangotimeout = TANGO_TIMEOUT,
         type = 'monitor',
     ),
     events = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
         description = 'Event counter at big charm detector',
         tangodevice = tango_base + 'events',
+        tangotimeout = TANGO_TIMEOUT,
         type = 'other',
     ),
     image = device('nicos.devices.vendor.qmesydaq.tango.ImageChannel',
         description = 'Image at big charm detector',
         tangodevice = tango_base + 'image',
+        tangotimeout = TANGO_TIMEOUT,
     ),
     timer = device('nicos.devices.vendor.qmesydaq.tango.TimerChannel',
         description = 'Timer at big charm detector',
         tangodevice = tango_base + 'timer',
+        tangotimeout = TANGO_TIMEOUT,
     ),
     det = device('nicos.devices.generic.Detector',
         description = 'Big charm detector',
