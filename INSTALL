@@ -113,8 +113,8 @@ where 'distro' stands for:
 
      - focal (Ubuntu 20.04)
      - jammy (Ubuntu 22.04)
-     - bullseye (Debian 11)
      - bookworm (Debian 12)
+     - trixie (Debian 13)
 
 * Basic system::
 
@@ -146,7 +146,7 @@ where 'distro' stands for:
      apt-get install gpg curl
 
 
-Debian 11/12 (Bullseye/Bookworm)
+Debian 12/13 (Bookworm/Trixie)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 An additional plugin for pytest is required (which was formerly included).
