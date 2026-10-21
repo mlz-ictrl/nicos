@@ -59,19 +59,21 @@ this.pipissues = []
 
 // ************* Function defs ***/
 
+
 def checkoutSource() {
     echo(GERRIT_PROJECT)
     deleteDir()
     gerrit_checkout()
-    sh 'git describe'
+    sh "git describe"
 }
 
 def publishGerrit(name, value) {
-    def map = [(-1): 'FAILED', 0: 'RUNNING', 1: 'SUCCESSFUL']
+    def map = [(-1): "FAILED", 0: "RUNNING", 1: "SUCCESSFUL"]
     gerritPostCheck(["jenkins:${name}": map[value]])
 }
 
-def refreshVenv(info='' , venv='$NICOS3VENV', checkupdates=false) {
+
+def refreshVenv(info="" , venv='$NICOS3VENV', checkupdates=false) {
     try {
         sh "./ciscripts/run_venvupdate.sh $venv $info"
     } catch (all) {
@@ -79,7 +81,7 @@ def refreshVenv(info='' , venv='$NICOS3VENV', checkupdates=false) {
     }
 
     if (info?.trim()) {
-        archiveArtifacts([allowEmptyArchive: true, artifacts: 'pip-*.log'])
+        archiveArtifacts([allowEmptyArchive: true, artifacts: "pip-*.log"])
     }
     if (checkupdates) {
         // currently only core requirements are checked
@@ -101,13 +103,13 @@ def refreshVenv(info='' , venv='$NICOS3VENV', checkupdates=false) {
 def runPylint(info='', venv='$NICOS3VENV') {
     def idtag = "pylint-$info".toString()
     verifyresult.put(idtag, 0)
-    publishGerrit(idtag, verifyresult[idtag])
+    publishGerrit(idtag,verifyresult[idtag])
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
             try {
                 refreshVenv("$idtag", venv)
             } catch (all) {
-                echo 'refreshVenv failed'
+                echo "refreshVenv failed"
             }
 
             sh "./ciscripts/run_pylint.sh $venv"
@@ -116,7 +118,7 @@ def runPylint(info='', venv='$NICOS3VENV') {
         }
     }
     catch (all) {
-        verifyresult.put(idtag, -1)
+        verifyresult.put(idtag,-1)
     }
 
     try {
@@ -127,13 +129,13 @@ else
     touch ${idtag}.txt
 fi"""
     } catch (all) {
-        echo 'Move failed?'
+        echo "Move failed?"
     }
-    echo '********************'
+    echo "********************"
     echo "${idtag}: result=" + verifyresult[idtag]
-    echo '********************'
+    echo "********************"
 
-    publishGerrit(idtag, verifyresult[idtag])
+    publishGerrit(idtag,verifyresult[idtag])
     archiveArtifacts([allowEmptyArchive: true,
                           artifacts: 'pylint-*.txt'])
     recordIssues([enabledForFailure: true,
@@ -143,13 +145,14 @@ fi"""
                   healthy: 1,
                   failedTotalAll: 1])
 
+
     if (verifyresult[idtag] < 0) {
         error("Failure in $idtag")
     }
 }
 
 def runIsort() {
-    verifyresult.put('isort', 0)
+    verifyresult.put('isort',0)
     publishGerrit('isort', verifyresult['isort'])
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
@@ -162,9 +165,9 @@ def runIsort() {
         }
     }
     catch (all) {
-        verifyresult.put('isort', -1)
+        verifyresult.put('isort',-1)
     }
-    archiveArtifacts([allowEmptyArchive: true, artifacts: 'isort_all.txt'])
+    archiveArtifacts([allowEmptyArchive: true, artifacts: "isort_all.txt"])
     // echo "isort: result=" + verifyresult['isort']
     publishGerrit('isort', verifyresult['isort'])
     recordIssues([enabledForFailure: true,
@@ -178,8 +181,8 @@ def runIsort() {
 
     if (verifyresult['isort'] < 0) {
         // currently only warn, but do not fail the job
-        echo('Imports are incorrectly sorted')
-        echo('To fix the isort errors run:')
+        echo("Imports are incorrectly sorted")
+        echo("To fix the isort errors run:")
         echo("git diff HEAD^ --name-only --diff-filter d '*.py' | xargs isort")
         // error('Failure in isort')
     }
@@ -201,8 +204,8 @@ def runSetupcheck() {
     catch (all) {
         verifyresult.put('sc', -1)
     }
-    echo 'setupcheck: result=' + verifyresult['sc']
-    publishGerrit('setupcheck', verifyresult['sc'])
+    echo "setupcheck: result=" + verifyresult['sc']
+    publishGerrit('setupcheck',verifyresult['sc'])
     archiveArtifacts([allowEmptyArchive: true,
                       artifacts: 'setupcheck.log'])
 
@@ -242,23 +245,24 @@ addopts = --tb=short
   --cov-report=term
 
 """ : "")
-    sh '''
+    sh """
      [ -f pytest.ini ] || echo "[pytest]" > pytest.ini
-    cat pytest_ini.add >> pytest.ini'''
+    cat pytest_ini.add >> pytest.ini"""
+
 
     verifyresult.put(pyver, 0)
-    publishGerrit('pytest-' + pyver, verifyresult[pyver])
+    publishGerrit('pytest-'+pyver, verifyresult[pyver])
     try {
         timeout(14) {
             sh "./ciscripts/run_pytest.sh $venv"
             verifyresult.put(pyver, 1)
         } // timeout
-    } catch (all) {
+    } catch(all) {
         verifyresult.put(pyver, -1)
     }
 
     echo "Test $pyver: result=" + verifyresult[pyver]
-    publishGerrit('pytest-' + pyver, verifyresult[pyver])
+    publishGerrit('pytest-'+pyver, verifyresult[pyver])
 
     junit([allowEmptyResults: true,
            keepLongStdio: true,
@@ -285,7 +289,7 @@ def runDocTest() {
     verifyresult.put('doc', 0)
     publishGerrit('doc', verifyresult['doc'])
     try {
-        refreshVenv('', '$NICOS3VENV')
+        refreshVenv('','$NICOS3VENV')
         sh './ciscripts/run_doctest.sh'
         archiveArtifacts([allowEmptyArchive: true,
                           artifacts: 'doc/build/latex/NICOS.*'])
@@ -298,9 +302,9 @@ def runDocTest() {
 
         verifyresult.put('doc', 1)
     } catch (all) {
-        verifyresult.put('doc', -1)
+        verifyresult.put('doc',-1 )
     }
-    echo 'Docs: result=' + verifyresult['doc']
+    echo "Docs: result=" + verifyresult['doc']
     publishGerrit('doc', verifyresult['doc'])
 
     if (verifyresult['doc'] < 0) {
@@ -308,163 +312,153 @@ def runDocTest() {
     }
 }
 
-
-def runRedmineUpdate() {
-    sh  '''\
-        #!/bin/bash
-        export PYTHONIOENCODING=utf-8
-        ~/tools2/bin/mlzrmupdater
-    '''.stripIndent()
-}
-
 // ************* End Function defs ***/
 
 // ************* Start main script ***/
-
 timestamps {
-    node('dockerhost') {
-        stage(name: 'checkout code: ' + GERRIT_PROJECT) {
-            checkoutSource()
-        }
 
-        def buildimage_deb = null
-        def buildimage_bookworm = null
-        def buildimage_trixie = null
-        def buildimage_rocky = null
+node('dockerhost') {
+    stage(name: 'checkout code: ' + GERRIT_PROJECT) {
+        checkoutSource()
+    }
 
-        stage('docker setup') {
-            buildimage_deb = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:trixie')
-            buildimage_deb.pull()
+    def buildimage_deb = null;
+    def buildimage_bullseye = null;
+    def buildimage_bookworm = null;
+    def buildimage_trixie = null;
+    def buildimage_rocky = null;
 
-            buildimage_bookworm = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bookworm-debonly')
-            buildimage_bookworm.pull()
+    stage('docker setup') {
+        buildimage_deb = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye')
+        buildimage_deb.pull()
 
-            buildimage_trixie = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:trixie-debonly')
-            buildimage_trixie.pull()
+        buildimage_bullseye = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bullseye-debonly')
+        buildimage_bullseye.pull()
 
-            buildimage_rocky = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:rockylinux9')
-            buildimage_rocky.pull()
-        }
+        buildimage_bookworm = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bookworm-debonly')
+        buildimage_bookworm.pull()
 
-        stage(name: 'prepare') {
-            withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
+        buildimage_trixie = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:trixie-debonly')
+        buildimage_trixie.pull()
+
+        buildimage_rocky = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:rockylinux9')
+        buildimage_rocky.pull()
+    }
+
+    stage(name: 'prepare') {
+        withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
                          string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
-                buildimage_deb.inside() {
-                    runRedmineUpdate()
+           buildimage_deb.inside() {
+                sh  '''\
+#!/bin/bash
+export PYTHONIOENCODING=utf-8
+~/tools2/bin/mlzrmupdater
+'''
             } // image.inside
         } // credentials
+    } // stage
+
+
+try {
+    parallel pylint: {
+        stage(name: 'pylint') {
+            ws {
+                checkoutSource()
+                buildimage_deb.inside('-v /home/git:/home/git') {
+                    runPylint('py3')
+                }
+            } // ws
         } // stage
-
-        try {
-            parallel(
-                pylint: {
-                    stage(name: 'pylint') {
-                        ws {
-                            checkoutSource()
-                            buildimage_deb.inside('-v /home/git:/home/git') {
-                                runPylint('py3')
-                            }
-                        } // ws
-                    } // stage
-                },
-                isort: {
-                    stage(name: 'isort') {
-                        buildimage_deb.inside('-v /home/git:/home/git') {
-                            runIsort()
-                        }
-                    } // stage
-                },
-                setup_check: {
-                    stage(name: 'Nicos Setup check') {
-                        buildimage_deb.inside('-v /home/git:/home/git') {
-                            timeout(5) {
-                                runSetupcheck()
-                            }
-                        }
-                    } // stage
-                },
-                test_rocky: {
-                    stage(name: 'Test on RockyLinux') {
-                        ws {
-                            checkoutSource()
-                            buildimage_rocky.inside('-v /home/git:/home/git') {
-                                runTests('$NICOS3VENV', 'python3-rocky', false, true, true)
-                            } // image.inside
-                        } // ws
-                    } // stage
-                },
-                test_bookworm: {
-                    stage(name: 'Tests on Debian Bookworm') {
-                        ws {
-                            checkoutSource()
-                            buildimage_bookworm.inside('-v /home/git:/home/git') {
-                                runTests('$NICOS3VENV', 'python3-bookworm', false, true, true)
-                            } // image.inside
-                        } // ws
-                    } // stage
-                },
-                test_trixie: {
-                    stage(name: 'Tests on Debian Trixie') {
-                        ws {
-                            checkoutSource()
-                            buildimage_trixie.inside('-v /home/git:/home/git') {
-                                runTests('$NICOS3VENV', 'python3-trixie', false, true, true)
-                            } // image.inside
-                        } // ws
-                    } // stage
-                },
-                test_all: {
-                    stage(name: 'Tests on Debian, with all dependencies') {
-                        ws {
-                            checkoutSource()
-                            def kafkaversion = '4.0.0'
-                            docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/kafka:${kafkaversion}").withRun() { kafka ->
-                                def influxdbversion = '2.7.12'
-                                docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/influxdb:${influxdbversion}").withRun() { influxdb ->
-                                    def args = [
-                                                "-v",
-                                                "/home/git:/home/git",
-                                                "-e",
-                                                "KAFKA_URI=kafka:9092",
-                                                "-e",
-                                                "INFLUXDB2_URI=http://influxdb:8086",
-                                                "--link",
-                                                "${kafka.id}:kafka",
-                                                "--link",
-                                                "${influxdb.id}:influxdb"
-                                                ]
-
-                                    buildimage_deb.inside(args.join(" ")) {
-                                        sh """
-                                        . \$NICOS3VENV/bin/activate
-                                        ./bin/nicos-keystore add influxdb2 --storagepw nicos --password token
-                                        """
-                                        runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
-                                    } // image.inside
-                                } // influxdb.WithRun
-                            } // kafka.WithRun
-                        } // ws
-                    } // stage
-                },
-                test_docs: {
-                    stage(name: 'Test docs') {
-                        docimage = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs')
-                        docimage.pull()
-                        docimage.inside() {
-                            runDocTest()
-                        } // image.inside
-                    } // stage
-                },
-                failFast: false
-                )
-        } finally {
-            // set final vote
-            if (this.pipissues) {
-                publishIssues(issues: this.pipissues,
-                    ignoreFailedBuilds: false,
-                    ignoreQualityGate: true)
+    }, isort: {
+        stage(name: 'isort') {
+            buildimage_deb.inside('-v /home/git:/home/git') {
+                runIsort()
             }
-            setGerritReview()
-        } // finally
-    } // node
+        } // stage
+    }, setup_check: {
+        stage(name: 'Nicos Setup check') {
+            buildimage_deb.inside('-v /home/git:/home/git') {
+                timeout(5) {
+                    runSetupcheck()
+                }
+            }
+        } // stage
+    }, test_rocky: {
+        stage(name: 'Test on RockyLinux') {
+            ws {
+                checkoutSource()
+                buildimage_rocky.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3-rocky', false, true, true)
+                } // image.inside
+            } // ws
+        } // stage
+    }, test_bullseye: {
+        stage(name: 'Tests on Debian Bullseye') {
+            ws {
+                checkoutSource()
+                buildimage_bullseye.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3-bullseye', false, true, true)
+                } // image.inside
+            } // ws
+        } // stage
+    }, test_bookworm: {
+        stage(name: 'Tests on Debian Bookworm') {
+            ws {
+                checkoutSource()
+                buildimage_bookworm.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3-bookworm', false, true, true)
+                } // image.inside
+            } // ws
+        } // stage
+    }, test_trixie: {
+        if (GERRIT_BRANCH == 'master')
+	{
+            stage(name: 'Tests on Debian Trixie') {
+                ws {
+                    checkoutSource()
+                    buildimage_trixie.inside('-v /home/git:/home/git') {
+                        runTests('$NICOS3VENV', 'python3-trixie', false, true, true)
+                    } // image.inside
+                } // ws
+            } // stage
+        } // if
+    }, test_all: {
+	stage(name: 'Tests on Debian, with all dependencies') {
+            ws {
+                checkoutSource()
+                def kafkaversion="4.0.0"
+                docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/kafka:${kafkaversion}").withRun() { kafka ->
+                    def influxdbversion = "2.7.12"
+                    docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/influxdb:${influxdbversion}").withRun() { influxdb ->
+                        buildimage_deb.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 -e INFLUXDB2_URI=http://influxdb:8086 --link ${kafka.id}:kafka --link ${influxdb.id}:influxdb") {
+                            sh """
+                            . \$NICOS3VENV/bin/activate
+                            ./bin/nicos-keystore add influxdb2 --storagepw nicos --password token
+                            """
+                            runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
+                        } // image.inside
+                    } // influxdb.WithRun
+                } // kafka.WithRun
+            } // ws
+        } // stage
+    }, test_docs: {
+        stage(name: 'Test docs') {
+            docimage = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs')
+            docimage.pull()
+            docimage.inside() {
+                runDocTest()
+            } // image.inside
+        } // stage
+    },
+    failFast: false
+} finally {
+    // set final vote
+    if (this.pipissues) {
+        publishIssues(issues: this.pipissues,
+                      ignoreFailedBuilds: false,
+                      ignoreQualityGate: true)
+    }
+    setGerritReview()
+} // finally
+} // node
 } // timestamps
