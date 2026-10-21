@@ -443,7 +443,7 @@ try {
         } // stage
     }, test_docs: {
         stage(name: 'Test docs') {
-            docimage = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs')
+            def docimage = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs')
             docimage.pull()
             docimage.inside() {
                 runDocTest()
