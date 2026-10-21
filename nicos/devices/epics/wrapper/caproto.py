@@ -26,9 +26,11 @@ from caproto import CaprotoTimeoutError, ChannelType
 from caproto.sync.client import read, write
 from caproto.threading.client import Context
 
+from nicos import session
 from nicos.commands import helparglist, hiddenusercommand
 from nicos.core import CommunicationError, anytype, status
 from nicos.devices.epics.status import SEVERITY_TO_STATUS
+
 
 FTYPE_TO_TYPE = {
     ChannelType.STRING: str,
@@ -120,6 +122,7 @@ class CaprotoWrapper:
         self._choices = {}
         self._callbacks = {}
         self._timeout = timeout
+        self.log = session.getLogger('caproto-wrapper')
 
     def connect_pv(self, pvname):
         if pvname in self._pvs:
@@ -148,7 +151,7 @@ class CaprotoWrapper:
         try:
             # response is a ReadResponse objects with the fields:
             # - data: a scalar or an array depending on the record type
-            # - metada: Control metadata such as limits, units, etc.
+            # - metadata: Control metadata such as limits, units, etc.
             # - status: Record status
             # - severity: Error severity
             # - timestamp: Read timestamp
@@ -276,44 +279,64 @@ class CaprotoWrapper:
         :param connection_callback: The function to call when the connection
             status changes.
         :param as_string: Whether to return the value as a string.
-        :return: the subscription object.
+        :return: a tuple of the subscription object and the callback id, to be
+            passed to :meth:`close_subscription` during shutdown.
         """
 
-        conn_callback = partial(self._conn_callback, pvname, pvparam,
-                           connection_callback)
+        conn_callback = self._create_conn_callback(pvname, pvparam,
+                            connection_callback)
 
-        value_callback = partial(self._callback, pvname, pvparam, change_callback,
-                           as_string)
+        value_callback = self._create_value_callback(pvname, pvparam,
+                             change_callback, as_string)
 
         self._create_pv(pvname, conn_callback)
 
         sub = self._pvs[pvname].subscribe(data_type='control')
-        sub.add_callback(value_callback)
+        cb_id = sub.add_callback(value_callback)
 
-        # Store a reference to the callbacks, so that GC doesn't clean them up
-        self._callbacks[sub] = (conn_callback, value_callback)
+        # Store a reference to the callbacks, so that GC doesn't clean them up.
+        callback_key = (sub, cb_id)
+        self._callbacks[callback_key] = (conn_callback, value_callback)
 
-        return sub
+        return callback_key
 
-    def _callback(self, pvname, pvparam, change_callback, as_string, sub,
-                  response):
-        value = self._convert_value(pvname, response, as_string)
-        units = self._get_units(response.metadata, '')
-        severity, message = self._extract_alarm_info(response)
-        change_callback(pvname, pvparam, value, units, severity, message)
+    def _create_value_callback(self, pvname, pvparam, change_callback,
+                               as_string):
+        def safe_callback(pvname, pvparam, change_callback, as_string, sub,
+                          response):
+            try:
+                value = self._convert_value(pvname, response, as_string)
+                units = self._get_units(response.metadata, '')
+                severity, message = self._extract_alarm_info(response)
+                change_callback(pvname, pvparam, value, units, severity,
+                                message)
+            except Exception:
+                self.log.exception("Exception in EPICS change_callback for %r",
+                                   pvname)
+        return partial(safe_callback, pvname, pvparam, change_callback,
+                       as_string)
 
-    def _conn_callback(self, pvname, pvparam, connection_callback, pv, state):
-        connection_callback(pvname, pvparam, state == 'connected')
+    def _create_conn_callback(self, pvname, pvparam, connection_callback):
+        def safe_callback(pvname, pvparam, connection_callback, pv, state):
+            try:
+                connection_callback(pvname, pvparam, state == 'connected')
+            except Exception:
+                self.log.exception(
+                        "Exception in EPICS connection_callback for %r",
+                        pvname)
+        return partial(safe_callback, pvname, pvparam, connection_callback)
 
     def _extract_alarm_info(self, values):
-        # The EPICS 'severity' matches to the NICOS `status` and the message has
-        # a short description of the alarm details.
+        # The EPICS 'severity' matches to the NICOS `status` and the message
+        # has a short description of the alarm details.
         if hasattr(values, 'severity'):
             severity = SEVERITY_TO_STATUS[values.severity]
             message = STATUS_TO_MESSAGE[values.status]
             return severity, '' if message == 'NO_ALARM' else message
         return status.UNKNOWN, 'alarm information unavailable'
 
-    def close_subscription(self, subscription):
-        del self._callbacks[subscription]
-        subscription.clear() # This calls remove_callback on all associated callbacks
+    def close_subscription(self, callback_key):
+        del self._callbacks[callback_key]
+        # Mask out subscription and clear it,
+        # remove_callback on all associated callbacks
+        callback_key[0].clear()
