@@ -101,6 +101,16 @@ devices = dict(
         description = 'pressure at sample space',
         tangodevice = tango_base + 'leybold/ch2',
     ),
+    ccm12v_coldhead = device('nicos_mlz.devices.f70_coldhead.F70ColdheadController',
+        description = 'F-70 compressor for the pulse tube (should be ON)',
+        tangodevice = tango_base + 'f70/compressor',
+        mapping = {'on': 1, 'off': 0},
+        ophours_device = tango_base + 'f70/ophours',
+        p_return_device = tango_base + 'f70/p_return',
+        t_compr_device = tango_base + 'f70/t_helium',
+        t_water_in_device = tango_base + 'f70/t_water_in',
+        t_water_out_device = tango_base + 'f70/t_water_out',
+    ),
 )
 
 alias_config = {
