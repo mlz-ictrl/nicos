@@ -5,7 +5,7 @@ group = 'lowlevel'
 devices = dict(
     det4_anode = device('nicos.devices.generic.VirtualMotor',
         description = 'Anode HV of detector 4',
-        precision = 2,
+        precision = 5,
         requires = {'level': 'admin'},
         abslimits = (0, 3600),
         curvalue = 0,
@@ -24,7 +24,7 @@ devices = dict(
     ),
     det4_drift = device('nicos.devices.generic.VirtualMotor',
         description = 'Drift HV of detector 4',
-        precision = 2,
+        precision = 5,
         requires = {'level': 'admin'},
         abslimits = (-1500, 0),
         curvalue = 0,
