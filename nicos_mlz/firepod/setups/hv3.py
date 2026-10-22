@@ -39,6 +39,7 @@ devices = dict(
         description = 'HV switch of detector 3',
         drift = 'det3_drift',
         anode = 'det3_anode',
+        mapping = {'off': (0, 0), 'on': (-1000, 2695)},
         visibility = {'namespace', 'metadata'},
     ),
 )
