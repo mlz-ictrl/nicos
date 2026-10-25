@@ -374,11 +374,11 @@ def test_parse_key_expression():
     assert parseKeyExpression('dev.key', False, normalize=lambda s: s)[0] == \
         'dev.key'
 
-    key, expr, _ =  parseKeyExpression('dev.key[0]')
+    key, expr, _ = parseKeyExpression('dev.key[0]')
     assert key == 'dev/key'
     assert eval(expr, {}, {'x': [0]}) == 0
 
-    key, expr, _ =  parseKeyExpression('dev.key[1]')
+    key, expr, _ = parseKeyExpression('dev.key[1]')
     assert key == 'dev/key'
     assert eval(expr, {}, {'x': [0, 1]}) == 1
 
