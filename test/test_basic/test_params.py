@@ -301,12 +301,24 @@ def test_oneof():
 
 
 def test_oneof_or():
-    v = oneof_or([1, 2], floatrange(0, 10))
+    v = oneof_or([1, 2], floatrange(5, 10))
     assert v(1) == 1.0
     assert v(5) == 5.0
+    pytest.raises(ValueError, v, 4)
     assert v() == 1.0
     pytest.raises(ValueError, v, 11)
-    assert oneof_or([], floatrange(0, 10))() is None
+
+    v = oneof_or([], floatrange(1, 10))
+    assert v() == 1.
+    assert v(1) == 1.
+    pytest.raises(ValueError, v, 0)
+
+    v = oneof_or(['a', 'b'], intrange(1, 10))
+    assert v() == 'a'
+    assert v('b') == 'b'
+    pytest.raises(ValueError, v, 'c')
+    assert v(1) == 1
+    pytest.raises(ValueError, v, 0)
 
 
 def test_setof():

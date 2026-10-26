@@ -774,17 +774,17 @@ class oneof_or:
 
     def __init__(self, vals, validator):
         self.conv = fixup_conv(validator)
-        self.vals = list(vals)
-        for v in self.vals:
-            self.conv(v)
+        self.vals = vals
         self.__doc__ = \
             f'one of {", ".join(map(repr, self.vals))} or {self.conv.__doc__}'
 
     def __call__(self, val=None):
         if val is None:
             if self.vals:
-                return self.conv(self.vals[0])
-            return None
+                return self.vals[0]
+            return self.conv(val)
+        if val in self.vals:
+            return val
         return self.conv(val)
 
 
