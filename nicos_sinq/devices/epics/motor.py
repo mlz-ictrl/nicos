@@ -70,8 +70,9 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
     _max_delay_enabling_disabling = 20
 
     # No default error message for this motor class (all error messages should
-    # be provided by the driver itself via the errormsgpv)
-    _default_errormsg = None
+    # be provided by the driver itself via the errormsgpv). This message needs
+    # to be a string, None cannot be used because the message is concatenated.
+    _default_errormsg = ''
 
     def _get_pv_parameters(self):
         pvs = CoreEpicsMotor._get_pv_parameters(self)

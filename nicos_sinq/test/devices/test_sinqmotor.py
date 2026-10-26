@@ -199,6 +199,19 @@ class DefTestSinqMotor(DefTest):
         with pytest.raises(ValueError):
             motor._has_been_homed()
 
+    def test_default_errormsg(self, motor):
+        # If there is no explicit error message, no error is reported for a SinqMotor
+        motor.values['alarm_severity'] = 2
+
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert stat[1] == SinqMotor._default_errormsg
+
+        motor.values['errormsgpv'] = "Some error"
+
+        stat = motor.status()
+        assert stat[0] == status.ERROR
+        assert stat[1] == "Some error"
 
 class TestSinqmotor1(DefTestSinqMotor):
 
