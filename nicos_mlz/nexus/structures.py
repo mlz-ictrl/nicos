@@ -45,6 +45,15 @@ mass_density = NXAttribute('g/cm^3', 'string')
 grams = NXAttribute('g', 'string')
 
 
+def BeamStop(device):
+    return {
+        'description': ConstDataset('rectangular', 'string'),
+        'x': DeviceDataset(f'{device}_xax'),
+        'y': DeviceDataset(f'{device}_yax'),
+        # 'status': DeviceDataset('bs1'),
+    }
+
+
 def LocalContact():
     """Create local contact structure."""
     user = splitUsers(session.experiment.localcontact)[0]

@@ -21,29 +21,30 @@
 #
 # *****************************************************************************
 
-from nicos import session
-from nicos.nexus.elements import ConstDataset, DeviceDataset, ImageDataset, \
-    NXAttribute, NXLink
+from nicos.nexus.elements import ConstDataset, DeviceDataset, NXLink
 
-from nicos_mlz.nexus import CounterMonitor, MLZTemplateProvider, Polarizer, \
-    Selector, SollerCollimator, TimerMonitor, signal
-
-
-def BeamStop():
-    return {
-        'description': ConstDataset('rectangular', 'string'),
-        'x': DeviceDataset('bs1_xax'),
-        'y': DeviceDataset('bs1_xax'),
-        # 'status': DeviceDataset('bs1'),
-    }
+from nicos_mlz.nexus import BeamStop, CounterMonitor, Polarizer, Selector, \
+    deg, mm
+from nicos_mlz.nexus.templates import SansTemplateProvider
 
 
-class SANSTemplateProvider(MLZTemplateProvider):
+class SANSTemplateProvider(SansTemplateProvider):
 
-    # entry = 'entry1'
-    definition = 'NXsas'
+    def init(self, **kwargs):
+        SansTemplateProvider.init(self, **kwargs)
+        # self.instrument = kwargs.get('instrument', 'instrument')
+        # self.wav = kwargs.get('wav', 'wav')
+        # self.tths = kwargs.get('tths', 'tths')
+        # self.omgs = kwargs.get('omgs', 'omgs')
+        # self.ysd = kwargs.get('ysd', 'ysd')
+        self.mon2 = kwargs.get('mon2', 'mon2')
+        self.mon3 = kwargs.get('mon3', 'mon3')
+        self.att = kwargs.get('att', 'att')
+        self.bs = kwargs.get('bs', 'bs1')
+        self._monitors.extend([self.mon2, self.mon3])
 
     def updateInstrument(self):
+        SansTemplateProvider.updateInstrument(self)
         self._inst.update({
             'monochromator:NXmonochromator': {
                 'wavelength': NXLink(
@@ -54,70 +55,41 @@ class SANSTemplateProvider(MLZTemplateProvider):
                     'selector_rpm', 'selector_lambda', 'selector_delta_lambda',
                     'selector_tilt'),
             },
-            'collimator:NXcollimator': SollerCollimator('col'),
             'attenuator:NXattenuator': {
-                'attenuator_transmission': DeviceDataset('att'),
+                'attenuator_transmission': DeviceDataset(self.att),
             },
-            'beam_stop:NXbeam_stop': BeamStop(),
+            'beam_stop:NXbeam_stop': BeamStop(self.bs),
             'polarizer:NXpolarizer': Polarizer(reflection=0.99),
         })
 
     def updateDetector(self):
+        self._entry.update({
+            f'{self.mon2}:NXmonitor': CounterMonitor(self.mon2),
+            # f'{self.mon3}:NXmonitor': CounterMonitor(self.mon3),
+        })
+
+        SansTemplateProvider.updateDetector(self)
         self._det.update({
-            'data': ImageDataset(0, 0, dtype=int, signal=signal),
-            'distance': DeviceDataset('det1_x'),
-            'x_pixel_size': ConstDataset(
-                8, 'float', units=NXAttribute('mm', 'string')),
-            'y_pixel_size': ConstDataset(
-                8, 'float', units=NXAttribute('mm', 'string')),
-            'polar_angle': ConstDataset(
-                0, 'float', units=NXAttribute('degree', 'string')),
-            'azimuthal_angle': ConstDataset(
-                0, 'float', units=NXAttribute('degree', 'string')),
-            'rotation_angle': ConstDataset(
-                0, 'float', units=NXAttribute('degree', 'string')),
-            'aequatorial_angle': ConstDataset(
-                0, 'float', units=NXAttribute('degree', 'string')),
-            'beam_center_x': ConstDataset(
-                0, 'float', units=NXAttribute('mm', 'string')),
-            'beam_center_y': ConstDataset(
-                0, 'float', units=NXAttribute('mm', 'string')),
+            'x_pixel_size': ConstDataset(8, 'float', units=mm),
+            'y_pixel_size': ConstDataset(8, 'float', units=mm),
+
+            'polar_angle': ConstDataset(0, 'float', units=deg),
+            'azimuthal_angle': ConstDataset(0, 'float', units=deg),
+            'rotation_angle': ConstDataset(0, 'float', units=deg),
+            'aequatorial_angle': ConstDataset(0, 'float', units=deg),
+
+            'beam_center_x': ConstDataset(0, 'float', units=mm),
+            'beam_center_y': ConstDataset(0, 'float', units=mm),
+
             'type': ConstDataset('He3 PSD', 'string'),
             'layout': ConstDataset('area', 'string'),
-            'diameter': ConstDataset(
-                8, 'float', units=NXAttribute('mm', 'string')),
+            'diameter': ConstDataset(8, 'float', units=mm),
             # TODO: find out how to set the correct value for tisane
             'acquisition_mode': ConstDataset('histogrammed', 'string'),
         })
 
-        self._entry.update({
-            'monitor1:NXmonitor': CounterMonitor('det1_mon1'),
-            'monitor2:NXmonitor': CounterMonitor('det1_mon2'),
-            # 'monitor3:NXmonitor': CounterMonitor('det1_mon3'),
-            'timer:NXmonitor': TimerMonitor('det1_timer'),
-        })
-        preset = session.getDevice('det1').preset()
-        if preset.get('det1_mon1'):
-            monitor = 'monitor1'
-        elif preset.get('det1_mon2'):
-            monitor = 'monitor2'
-        elif preset.get('det1_mon3'):
-            monitor = 'monitor3'
-        else:
-            monitor = 'timer'
-        monitor_link = f'/{self.entry}/{monitor}/'
-        self._entry.update({'control:NXmonitor': {
-            'mode': NXLink(f'{monitor_link}/mode'),
-            'preset': NXLink(f'{monitor_link}/preset'),
-            'integral': NXLink(f'{monitor_link}/integral'),
-        }})
-        if monitor != 'timer':
-            self._entry['control:NXmonitor'].update({
-                'type': NXLink(f'{monitor_link}/type'),
-            })
-
     def completeTemplate(self):
-        MLZTemplateProvider.completeTemplate(self)
+        SansTemplateProvider.completeTemplate(self)
         self._entry.update({
             'entry': f'{self.entry}',
         })

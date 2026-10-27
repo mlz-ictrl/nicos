@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 from nicos_mlz.nexus.templates.powder import PowderTemplateProvider
+from nicos_mlz.nexus.templates.sas import SansTemplateProvider
 from nicos_mlz.nexus.templates.scan import ScanTemplateProvider
 from nicos_mlz.nexus.templates.tas import TasTemplateProvider
 from nicos_mlz.nexus.templates.tomo import TomoTemplateProvider
