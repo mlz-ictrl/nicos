@@ -176,6 +176,26 @@ class DefTest:
         yield m
         m.reset()
 
+    def test_preinit(self, motor):
+        assert motor.usermin == -110
+        assert motor.usermax == 110
+
+        motor.offset = 200
+        assert motor.usermin == -310
+        assert motor.usermax == -90
+
+        # Simulates the cache
+        cached_userlimits = (motor.usermin, motor.usermax)
+
+        # Simulation of a NICOS restart where the userlimits are taken from the "cache"
+        (usermin, usermax) = motor._adjust_userlimits_at_preinit(cached_userlimits)
+
+        # In _adjust_userlimits_at_preinit, the values are ever so slightly
+        # to avoid initialization issues. Therefore, we need to test for
+        # approximate equality here.
+        assert abs(usermin - -310) < 1e-4
+        assert abs(usermax - -90) < 1e-4
+
     def test_optional_pvs(self, motor, motor_no_opt_pv):
         assert motor.errormsgpv
         assert motor.reseterrorpv
