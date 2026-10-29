@@ -30,7 +30,8 @@ import numpy as np
 
 from nicos.core.device import Readable
 from nicos.core.params import tupleof
-from nicos.nexus.elements import DeviceDataset, NexusElementBase
+from nicos.nexus.elements import DeviceDataset, NexusElementBase, \
+    NexusSampleEnv
 
 from nicos_mlz.nexus.structures import nounit
 
@@ -80,7 +81,7 @@ class ExperimentDescription(NexusElementBase):
         dset[0] = np.array(value, dtype=dtype)
 
 
-class SampleEnv(NexusElementBase):
+class SampleEnv(NexusSampleEnv):
     """Placeholder for storing sample environment data.
 
     It looks at the dataset.environment field and creates a NXlog structure
@@ -94,9 +95,7 @@ class SampleEnv(NexusElementBase):
                           'minimum_value', 'maximum_value')
 
     def __init__(self, devices, update_interval=10):
-        NexusElementBase.__init__(self)
-        self._update_interval = update_interval
-        self._last_update = {}
+        NexusSampleEnv.__init__(self, update_interval)
         self._devices = devices or []
 
     def createNXlog(self, h5parent, devname, value, unit):
@@ -172,9 +171,6 @@ class SampleEnv(NexusElementBase):
                 dset = loggroup[name]
                 dset[0] = val
 
-    def update(self, name, h5parent, sinkhandler, values):
-        self.updatelog(h5parent, sinkhandler.dataset)
-
     def results(self, name, h5parent, sinkhandler, results):
-        self.updatelog(h5parent, sinkhandler.dataset)
+        NexusSampleEnv.results(self, name, h5parent, sinkhandler, results)
         self.updateStatistics(h5parent, sinkhandler.dataset)
