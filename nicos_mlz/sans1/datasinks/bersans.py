@@ -399,7 +399,7 @@ class BerSANSImageFileReader(ImageFileReader):
     def fromfile(cls, filename):
         cts_found = False
         linenr = 0
-        data = np.zeros(shape=(128, 128), dtype='int16')
+        data = np.zeros(shape=(128, 128), dtype='int32')
         with open(filename, 'r', encoding='utf-8') as f:
             for line in f:
                 if line.startswith('%Counts'):
