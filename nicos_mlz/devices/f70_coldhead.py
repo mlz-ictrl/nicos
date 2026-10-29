@@ -37,9 +37,9 @@ class F70ColdheadController(NamedDigitalOutput):
                         type=tangodev, mandatory=True, preinit=True, userparam=False),
         't_compr_device': Param('coldhead compressor temperature device',
                         type=tangodev, mandatory=True, preinit=True, userparam=False),
-        't_water_in_device': Param('coldhead compressor water outlet temperature device',
+        't_water_in_device': Param('coldhead compressor water inlet temperature device',
                         type=tangodev, mandatory=True, preinit=True, userparam=False),
-        't_water_out_device': Param('coldhead compressor water inlet temperature device',
+        't_water_out_device': Param('coldhead compressor water outlet temperature device',
                         type=tangodev, mandatory=True, preinit=True, userparam=False),
         'ophours': Param('coldhead compressor operation hours',
                         type=float,userparam=True, volatile=True),
@@ -47,9 +47,9 @@ class F70ColdheadController(NamedDigitalOutput):
                         type=float,userparam=True, volatile=True),
         't_compr': Param('coldhead compressor temperature',
                         type=float,userparam=True, volatile=True),
-        't_water_in': Param('coldhead compressor water outlet temperature',
+        't_water_in': Param('coldhead compressor water inlet temperature',
                         type=float,userparam=True, volatile=True),
-        't_water_out': Param('coldhead compressor water inlet temperature',
+        't_water_out': Param('coldhead compressor water outlet temperature',
                         type=float,userparam=True, volatile=True),
     }
 
