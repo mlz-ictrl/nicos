@@ -12,6 +12,7 @@ devices = dict(
         maxage = 60,
         precision = 0.1,
         fmtstr = '%s',
+        unit = '',
     ),
     att_m = device('nicos.devices.generic.VirtualMotor',
         description = 'Attenuator motor',

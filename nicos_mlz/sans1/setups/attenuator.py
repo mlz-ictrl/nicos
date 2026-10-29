@@ -20,6 +20,7 @@ devices = dict(
         maxage = 60,
         precision = 0.1,
         fmtstr = '%s',
+        unit = '',
     ),
     att_a = device('nicos.devices.generic.Axis',
         description = 'Attenuator axis',
