@@ -55,7 +55,7 @@ devices = dict(
     nxsink = device('nicos_mlz.nexus.NexusSink',
         templateclass = 'nicos_mlz.sans1.nexus.templates.SANSTemplateProvider',
         settypes = {'scan', 'point', 'subscan'},
-        filenametemplate = ['%(scancounter)07d.nxs'],
+        filenametemplate = ['%(proposal)s_%(scancounter)07d.nxs'],
         device_mapping = {
             'detector': 'det1',
             'mon1': 'det1_mon1',
