@@ -42,6 +42,9 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
         'encoder_type': Param('Encoder type', default=None, settable=False,
                               type=none_or(oneof('absolute', 'incremental')),
                               userparam=True, volatile=True),
+        'reference_warning': Param("Warn if the motor hasn't been referenced",
+                                   type=bool, mandatory=False, settable=True,
+                                   userparam=True, default=False),
     }
 
     parameter_overrides = {
@@ -69,8 +72,9 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
     _max_delay_enabling_disabling = 20
 
     # No default error message for this motor class (all error messages should
-    # be provided by the driver itself via the errormsgpv)
-    _default_errormsg = None
+    # be provided by the driver itself via the errormsgpv). This message needs
+    # to be a string, None cannot be used because the message is concatenated.
+    _default_errormsg = ''
 
     def _get_pv_parameters(self):
         pvs = CoreEpicsMotor._get_pv_parameters(self)
@@ -121,11 +125,13 @@ class SinqMotor(DynamicUserlimits, CoreEpicsMotor):
                 return (stat, 'Motor is disabled - ' + msg)
             return status.DISABLED, 'Motor is disabled'
 
-        # If there is no error, but the motor is not referenced, inform the user
-        # that the motor needs to be referenced and the reported position value
-        # cannot be trusted.
-        if self.encoder_type == 'incremental' and stat == status.OK and self._has_been_homed() == 0:
-            msg = 'Motor needs to be referenced.'
+        # If there is no error, but the motor is not referenced and the
+        # reference_warning parameter is set to True, inform the user that the
+        # motor needs to be referenced and the reported position value cannot be
+        # trusted.
+        if (self.reference_warning and self.encoder_type == 'incremental' and
+            stat == status.OK and self._has_been_homed() == 0):
+            return (stat, 'Motor needs to be referenced.')
 
         # Since the error message is provided by a separate record (and not by
         # the motor record itself), there can be a slight delay between the

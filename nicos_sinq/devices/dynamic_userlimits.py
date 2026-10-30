@@ -22,12 +22,12 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import MAIN, MASTER, POLLER, Param, limits
+from nicos.core import MAIN, MASTER, POLLER, Param, limits, tupleof
 from nicos.core.mixins import HasLimits, HasOffset
 
 
 class DynamicUserlimits(HasLimits):
-    '''
+    """
     Extension of `HasLimits` which automatically adjusts the `userlimits` if the
     `abslimits` change.
 
@@ -61,7 +61,7 @@ class DynamicUserlimits(HasLimits):
     of the absolute limits within the cache. Therefore, the absolute limits
     themselves can be polled normally (read from the poller process and
     then put into the cache).
-    '''
+    """
 
     parameters = {
         'userlim_follow_abslim': Param('Set userlimit behavior in case of '
@@ -73,8 +73,9 @@ class DynamicUserlimits(HasLimits):
                              category='limits', fmtstr='main',
                              mandatory=False),
         'delta_limits': Param('Internal parameter = abslimits - userlimits',
-                              type=limits, mandatory=False, settable=True,
-                              userparam=False, default=(0.0, 0.0), internal=True),
+                              type=tupleof(float, float), mandatory=False,
+                              settable=True, userparam=False,
+                              default=(0.0, 0.0), internal=True),
     }
 
     parameters['userlim_follow_abslim'].ext_desc = """
@@ -118,12 +119,12 @@ class DynamicUserlimits(HasLimits):
     def doInit(self, mode):
         if mode == MASTER and session.sessiontype == MAIN:
 
-            # At NICOS startup, the deltas are calculated based on the current
-            # values for absolute limits and the cached user limits
+            # At device initialization, the deltas are calculated based on the
+            # current values for absolute limits and the cached user limits
             self.delta_limits = (self._absmin() - self.usermin,
                                  self._absmax() - self.usermax)
 
-            # At NICOS startup, inputlimits equal cached userlimits
+            # At device initialization, inputlimits equal cached userlimits
             self.inputlimits = self.userlimits
 
             # Add a callback in the daemon which adjusts the userlimits

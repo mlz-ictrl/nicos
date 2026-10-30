@@ -119,7 +119,7 @@ class CaprotoWrapper:
     def __init__(self, timeout=3.0):
         self._pvs = {}
         self._choices = {}
-        self._callbacks = set()
+        self._callbacks = {}
         self._timeout = timeout
 
     def connect_pv(self, pvname):
@@ -279,32 +279,22 @@ class CaprotoWrapper:
         :param as_string: Whether to return the value as a string.
         :return: the subscription object.
         """
-        conn_callback = self._create_connection_callback(pvname, pvparam,
-                                                         connection_callback)
+
+        conn_callback = partial(self._conn_callback, pvname, pvparam,
+                           connection_callback)
+
+        value_callback = partial(self._callback, pvname, pvparam, change_callback,
+                           as_string)
+
         self._create_pv(pvname, conn_callback)
 
-        value_callback = self._create_value_callback(pvname, pvparam,
-                                                     change_callback, as_string)
         sub = self._pvs[pvname].subscribe(data_type='control')
         sub.add_callback(value_callback)
+
+        # Store a reference to the callbacks, so that GC doesn't clean them up
+        self._callbacks[sub] = (conn_callback, value_callback)
+
         return sub
-
-    def _create_value_callback(self, pvname, pvparam, change_callback,
-                               as_string):
-        callback = partial(self._callback, pvname, pvparam, change_callback,
-                           as_string)
-        self._store_callback(callback)
-        return callback
-
-    def _create_connection_callback(self, pvname, pvparam, connection_callback):
-        callback = partial(self._conn_callback, pvname, pvparam,
-                           connection_callback)
-        self._store_callback(callback)
-        return callback
-
-    def _store_callback(self, callback):
-        # Must keep a reference to callbacks to avoid garbage collection!
-        self._callbacks.add(callback)
 
     def _callback(self, pvname, pvparam, change_callback, as_string, sub,
                   response):
@@ -326,4 +316,5 @@ class CaprotoWrapper:
         return status.UNKNOWN, 'alarm information unavailable'
 
     def close_subscription(self, subscription):
-        subscription.clear()
+        del self._callbacks[subscription]
+        subscription.clear() # This calls remove_callback on all associated callbacks
