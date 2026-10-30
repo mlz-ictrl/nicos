@@ -53,7 +53,7 @@ devices = dict(
     ),
     roi = device('nicos.devices.generic.RectROIChannel',
         description = 'ROI',
-        roi = (122, 50, 12, 140),
+        roi = (165, 1, 30, 253),
     ),
     adet = device('nicos.devices.generic.Detector',
         description = 'Classical detector with single channels',
