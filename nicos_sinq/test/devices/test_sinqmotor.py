@@ -46,6 +46,7 @@ class FakeSinqMotor(FakeEpicsMotor, SinqMotor):
         self.values['can_disable'] = 1
         self.values['encoder_type'] = 'incremental'
         self.values['fixifnothomed'] = 0
+        self.values['reference_warning'] = False
         self.inputlimits = self.doReadAbslimits()
         self.delta_limits = (0, 0)
 
@@ -168,14 +169,16 @@ class DefTestSinqMotor(DefTest):
         # Motor is not homed, but also not fixed if it hasn't been homed
         motor.values['fixifnothomed'] = 0
         stat = motor.status()
+        assert motor.encoder_type == 'incremental'
+        assert not motor.reference_warning
         assert stat[0] == status.OK
-        assert stat[1] == 'Motor needs to be referenced.'
+        assert not stat[1]
 
         # Now motor is fixed within the EPICS driver if it hasn't been homed yet
         motor.values['fixifnothomed'] = 1
         stat = motor.status()
         assert stat[0] == status.OK
-        assert stat[1] == 'Motor needs to be referenced.'
+        assert not stat[1]
 
         # Set the "homed" bit in the status PV - warning disappears
         motor.values['status'] = int('0100000000000010', 2)
@@ -188,12 +191,21 @@ class DefTestSinqMotor(DefTest):
         motor.values['status'] = int('0000000000000010', 2) # Motor is not referenced
         assert motor._get_pv('status') == 2
         assert motor._has_been_homed() == 0
+
+        motor.reference_warning = True
         assert motor.status(0) == (status.OK, 'Motor needs to be referenced.')
 
         motor.values['status'] = int('0100000010000010', 2) # Motor is not referenced
         assert motor._get_pv('status') == 16514
+
+        motor.reference_warning = False
+        assert motor.status(0) == (status.OK, 'at reference position')
+
         assert motor._has_been_homed() == 1
         assert motor.status(0) == (status.OK, 'at reference position')
+
+        motor.values['status'] = int('0100000010000000', 2) # Motor is not referenced
+        assert motor._get_pv('status') == 16512
 
     def test_float_status_ext(self, motor):
         motor.values['status'] = float(int('0100000010000001', 2))
@@ -215,6 +227,19 @@ class DefTestSinqMotor(DefTest):
         with pytest.raises(ValueError):
             motor._has_been_homed()
 
+    def test_default_errormsg(self, motor):
+        # If there is no explicit error message, no error is reported for a SinqMotor
+        motor.values['alarm_severity'] = 2
+
+        stat = motor.status()
+        assert stat[0] == status.OK
+        assert stat[1] == SinqMotor._default_errormsg
+
+        motor.values['errormsgpv'] = "Some error"
+
+        stat = motor.status()
+        assert stat[0] == status.ERROR
+        assert stat[1] == "Some error"
 
 class TestSinqmotor1(DefTestSinqMotor):
 

@@ -21,5 +21,5 @@ DETECTOR_RATE_TOPIC = 'amor_detector_rate'
 MONITOR_EVENTS_TOPIC = 'amor_beam_monitor'
 CHOPPER_TRIGGER_TOPIC = 'amor_chopper_trigger'
 
-DATA_PATH = os.environ.get('NICOSDUMP', '.')
+DATA_PATH = os.environ.get('NICOSDUMP', '.') + '/amor/'
 SCRIPT_ROOT = "/home/sinquser"
