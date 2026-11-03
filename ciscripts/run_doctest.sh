@@ -5,7 +5,7 @@ echo $PATH
 set -x
 export doc_changed=$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//' | grep doc)
 if [[ -n "$doc_changed" ]]; then
-
+    export NO_COLOR=1
     cd doc
     make html
     make latexpdf
