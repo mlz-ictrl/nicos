@@ -10,6 +10,7 @@ devices = dict(
             ('al.weber@fz-juelich.de', 'all'),
             ('d.vujevic@fz-juelich.de', 'all'),
             ('h.korb@fz-juelich.de', 'all'),
+            ('d.sholokhov@fz-juelich.de', 'all'),
         ],
         subject = '[NICOS] SE',
     ),
