@@ -5,6 +5,7 @@ group = 'basic'
 includes = [
     'standard',
     'sampletable',
+    'sampletable_alias',
 ]
 
 sysconfig = dict(
@@ -24,7 +25,7 @@ devices = dict(
         fmtstr = '%.2f',
         visibility = (),
     ),
-    chis = device('nicos.devices.generic.Axis',
+    chis_n = device('nicos.devices.generic.Axis',
         description = 'Eulerian Newport CHIS',
         motor = 'chis_m',
         coder = 'chis_c',
@@ -35,9 +36,14 @@ devices = dict(
         fmtstr = '%.2f',
         visibility = (),
     ),
-    phis = device('nicos.devices.generic.Axis',
+    phis_n = device('nicos.devices.generic.Axis',
         description = 'Eulerian Newport PHIS',
         motor = 'phis_m',
         precision = 0.01,
     ),
 )
+
+alias_config = {
+    'chis': {'chis_n': 100,},
+    'phis': {'phis_n': 100,},
+}

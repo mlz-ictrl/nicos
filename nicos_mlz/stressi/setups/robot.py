@@ -4,6 +4,7 @@ group = 'basic'
 
 includes = [
     'standard',
+    'sampletable_alias',
 ]
 
 modules = ['nicos_mlz.stressi.commands']
@@ -21,14 +22,6 @@ toolpath = '/opt/caress'
 
 
 devices = dict(
-    tths = device('nicos.devices.generic.DeviceAlias'),
-    omgs = device('nicos.devices.generic.DeviceAlias'),
-    xt = device('nicos.devices.generic.DeviceAlias'),
-    yt = device('nicos.devices.generic.DeviceAlias'),
-    zt = device('nicos.devices.generic.DeviceAlias'),
-    chis = device('nicos.devices.generic.DeviceAlias'),
-    phis = device('nicos.devices.generic.DeviceAlias'),
-
     dummyO = device('nicos.devices.vendor.caress.EKFMotor',
         description = 'OMGS feedback device for the robot',
         fmtstr = '%.2f',

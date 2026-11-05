@@ -2,6 +2,8 @@ description = 'sample table devices'
 
 group = 'lowlevel'
 
+includes = ['sampletable_alias']
+
 excludes = ['robot']
 
 tangobase = 'tango://motorbox02.stressi.frm2.tum.de:10000/box/'
@@ -17,7 +19,7 @@ devices = dict(
         tangodevice = tangobase + 'channel1/coder',
         visibility = (),
     ),
-    tths = device('nicos.devices.generic.Axis',
+    tths_s = device('nicos.devices.generic.Axis',
         description = 'TTHS',
         motor = 'tths_m',
         coder = 'tths_c',
@@ -33,7 +35,7 @@ devices = dict(
         tangodevice = tangobase + 'channel2/coder',
         visibility = (),
     ),
-    omgs = device('nicos.devices.generic.Axis',
+    omgs_s = device('nicos.devices.generic.Axis',
         description = 'OMGS',
         motor = 'omgs_m',
         coder = 'omgs_c',
@@ -49,7 +51,7 @@ devices = dict(
         tangodevice = tangobase + 'channel5/coder',
         visibility = (),
     ),
-    xt = device('nicos.devices.generic.Axis',
+    xt_s = device('nicos.devices.generic.Axis',
         description = 'XT',
         motor = 'xt_m',
         coder = 'xt_c',
@@ -65,7 +67,7 @@ devices = dict(
         tangodevice = tangobase + 'channel6/coder',
         visibility = (),
     ),
-    yt = device('nicos.devices.generic.Axis',
+    yt_s = device('nicos.devices.generic.Axis',
         description = 'YT',
         motor = 'yt_m',
         coder = 'yt_c',
@@ -81,10 +83,18 @@ devices = dict(
         tangodevice = tangobase + 'channel7/coder',
         visibility = (),
     ),
-    zt = device('nicos.devices.generic.Axis',
+    zt_s = device('nicos.devices.generic.Axis',
         description = 'ZT',
         motor = 'zt_m',
         coder = 'zt_c',
         precision = 0.01,
     ),
 )
+
+alias_config = {
+    'tths': {'tths_s': 100,},
+    'omgs': {'omgs_s': 100,},
+    'xt': {'xt_s': 100,},
+    'yt': {'yt_s': 100,},
+    'zt': {'zt_s': 100,},
+}

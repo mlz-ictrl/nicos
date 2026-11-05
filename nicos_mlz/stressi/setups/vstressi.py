@@ -5,6 +5,7 @@ group = 'basic'
 includes = [
     'vstandard',
     'sampletable',
+    'sampletable_alias',
 ]
 
 sysconfig = dict(
@@ -67,7 +68,7 @@ devices = dict(
         fmtstr = '%.2f',
         visibility = (),
     ),
-    chis = device('nicos.devices.generic.Axis',
+    chis_v = device('nicos.devices.generic.Axis',
         description = 'Eulerian Huber CHIS',
         motor = 'chis_m',
         coder = 'chis_c',
@@ -84,13 +85,18 @@ devices = dict(
         fmtstr = '%.2f',
         visibility = (),
     ),
-    phis = device('nicos.devices.generic.Axis',
+    phis_v = device('nicos.devices.generic.Axis',
         description = 'Eulerian Huber PHIS',
         motor = 'phis_m',
         coder = 'phis_c',
         precision = 0.01,
     ),
 )
+
+alias_config = {
+    'phis': {'phis_v': 100,},
+    'chis': {'chis_v': 100,},
+}
 
 startupcode = """
 SelectSample(1)
