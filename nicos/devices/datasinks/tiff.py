@@ -21,9 +21,9 @@
 #
 # *****************************************************************************
 
-import numpy
+import numpy as np
 
-from nicos.core import NicosError, Override, Param
+from nicos.core import NicosError, Override, Param, oneof
 from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
     SingleFileSinkHandler
 
@@ -42,7 +42,14 @@ class TIFFImageSinkHandler(SingleFileSinkHandler):
     accept_final_images_only = True
 
     def writeData(self, fp, image):
-        Image.fromarray(numpy.array(image), self.sink.mode).save(fp, 'TIFF')
+        if self.sink.mode == 'I;16':
+            uii = np.iinfo(np.uint16)
+            Image.fromarray(
+                np.clip(np.array(image), uii.min, uii.max).astype(np.uint16)
+            ).save(fp, 'TIFF')
+        else:
+            Image.fromarray(
+                np.array(image).astype(np.uint32)).save(fp, 'TIFF')
 
 
 class TIFFImageSink(ImageSink):
@@ -52,7 +59,8 @@ class TIFFImageSink(ImageSink):
     """
 
     parameters = {
-        'mode': Param('Image mode (PIL format)', type=str, default='I;16',
+        'mode': Param('Image mode (PIL format)',
+                      type=oneof('I;16', 'I'), default='I;16',
                       settable=True),
     }
 
@@ -88,5 +96,5 @@ class TIFFFileReader(ImageFileReader):
                              'and in your PYTHONPATH' % _import_error)
         with Image.open(filename) as im:
             if im.getbands() in ('I', ('I',)):  # single band == gray picture
-                return numpy.asarray(im)
+                return np.asarray(im)
             raise NicosError('Only monochrome pictures supported')
