@@ -5,7 +5,7 @@ devices = dict(
     UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
          description = 'FRM II user office authentication',
          instrument = 'MIRA',
-         ghosthost = configdata('ghost.ghosthost'),
+         ghosthost = 'ghost.mlz-garching.de',
          aliases = {
             'robertg': ('robert.georgii@frm2.tum.de', 'admin'),
          },
@@ -39,7 +39,7 @@ devices = dict(
         }
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = 'miractrl.mira.frm2.tum.de',
+        server = '',
         loglevel = 'info',
         authenticators = ['UserDBAuth', 'LDAPAuth', 'LDAPAuthBU',],
     ),

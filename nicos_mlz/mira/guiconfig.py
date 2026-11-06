@@ -12,7 +12,8 @@ main_window = tabbed(
          panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
                dockpos='right')),
         ('Experiment info',
-         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
+         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+               sample_panel='nicos.clients.gui.panels.setup_panel.TasSamplePanel')
         ),
       ),
     ),

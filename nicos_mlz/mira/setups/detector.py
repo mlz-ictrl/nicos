@@ -40,6 +40,7 @@ devices = dict(
         timers = ['timer'],
         monitors = ['mon1', 'mon2'],
         counters = ['ctr1', 'ctr2'],
+        # fmtstr = 'timer %s, mon1 %s, mon2 %s, ctr1 %s, ctr2 %s',
         maxage = 2,
         pollinterval = 0.5,
     ),

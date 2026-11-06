@@ -37,6 +37,7 @@ devices = dict(
     att = device('nicos_mlz.mira.devices.stargate.ATT',
         description = 'analyzer two-theta angle',
         stargate = 'stargate',
+        # abslimits = (-90 - 135, -90 + 135),
         motor = 'mo_att',
         coder = 'co_att',
         startdelay = 1,
