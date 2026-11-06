@@ -91,7 +91,8 @@ def main(argv):
 
     sys.excepthook = log_unhandled
 
-    app = QApplication(argv, organizationName='nicos', applicationName='gui')
+    app = QApplication(argv, organizationName='nicos', applicationName='gui',
+                       desktopFileName='nicos-gui')
 
     opts = parseargs()
 
