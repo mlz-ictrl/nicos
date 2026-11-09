@@ -14,7 +14,10 @@ main_window = docked(
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
            dockpos='right',
-           param_display={'Exp': ['lastpoint', 'lastscan']},
+           param_display={
+               'Exp': ['lastpoint', 'lastscan'],
+               'pump': ['frequency', 'temperature', 'power'],
+           },
            filters=[('Detector', 'det'),
                     ('Temperatures', '^T'),
                    ],
