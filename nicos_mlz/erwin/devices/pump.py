@@ -33,7 +33,23 @@ class Pump(NamedDigitalOutput):
         'frequency': Param('Rotation frequency of the pump',
                            type=floatrange(125, 190), settable=True, unit='Hz',
                            userparam=True, volatile=True, preinit=True),
+        'power': Param('Output power',
+                       settable=False, unit='W', userparam=True,
+                       volatile=True),
+        'temperature': Param('Motor temperature',
+                             settable=False, unit='degC', userparam=True,
+                             volatile=True),
     }
+
+    def doReadTemperature(self):
+        if hasattr(self, '_dev'):
+            return self._dev.motor_temperature
+        return 0
+
+    def doReadPower(self):
+        if hasattr(self, '_dev'):
+            return self._dev.power
+        return 0
 
     def doReadFrequency(self):
         if hasattr(self, '_dev'):
