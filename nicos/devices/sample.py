@@ -176,4 +176,5 @@ class Sample(Moveable):
         self._setROParam('target', self.samplename)
 
     def doUpdateSamples(self, info):
-        self.valuetype = oneof(*(info[n]['samplename'] for n in sorted(info)))
+        self.valuetype = oneof(*(info[n].get('samplename', '')
+                                 for n in sorted(info)))

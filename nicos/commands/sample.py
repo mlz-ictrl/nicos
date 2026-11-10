@@ -137,13 +137,19 @@ def ListSamples():
         all_cols.update(info)
     all_cols.discard('samplename')
     all_cols.discard('sampledescription')
+    all_cols.discard('name')
     index = {key: i for (i, key) in enumerate(sorted(all_cols), start=3)}
     index['samplename'] = 1
     index['sampledescription'] = 2
     for number, info in session.experiment.sample.samples.items():
         star = '*' if session.experiment.sample.samplenumber == number else ' '
-        rows.append([f'{star:2}{number}', info['samplename'],
-                     info['sampledescription']] + [''] * len(all_cols))
+        rows.append([f'{star:2}{number}', info.get('samplename', ''),
+                     info.get('sampledescription', '')] + [''] * len(all_cols))
+        if 'name' in info:
+            info = dict(info)
+            name = info.pop('name')
+            if 'samplename' not in info:
+                info['samplename'] = name
         for key in info:
             rows[-1][index[key]] = str(info[key])
     printTable(['number', 'sample name', 'sample description'] + sorted(all_cols),
