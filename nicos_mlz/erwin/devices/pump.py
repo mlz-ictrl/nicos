@@ -58,3 +58,6 @@ class Pump(NamedDigitalOutput):
 
     def doWriteFrequency(self, value):
         self._dev.target_frequency = value
+
+    def doPoll(self, n, maxage):
+        self.pollParams()
