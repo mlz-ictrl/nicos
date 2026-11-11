@@ -191,6 +191,8 @@ class Experiment(Device):
 
     _proposal_thds = {}  # mapping of proposal => FinishExperiment thread
 
+    _elog_enabled = False
+
     def doPreinit(self, mode):
         self.__dict__['data'] = self.datamanager_class()
 
