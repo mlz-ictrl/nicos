@@ -239,7 +239,7 @@ def activation(formula=None, instrument=None,
         raise UsageError('Please specify an instrument or flux')
     if mass is None:
         try:
-            formula = session.experiment.sample.mass
+            mass = session.experiment.sample.mass
         except (ConfigurationError, AttributeError):
             pass
     if mass is None:
