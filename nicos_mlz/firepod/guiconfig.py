@@ -8,7 +8,7 @@ main_window = docked(
             ),
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel', eta=True),
             panel('nicos.clients.gui.panels.console.ConsolePanel',
-                  watermark='nicos_demo/demo/gui/nicos-watermark.png', hasinput=False),
+                  watermark='nicos_mlz/firepod/gui/watermark.png', hasinput=False),
          ),
         ),
     ),
