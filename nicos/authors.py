@@ -90,6 +90,7 @@ Instrument-specific code was contributed by:
 * Holger Gibhardt <hgibhar@gwdg.de>
 * Artur Glavic <artur.glavic@psi.ch>
 * Jose Gomez <Jose.Gomez@frm2.tum.de>
+* Christoph Hauf <christoph.hauf@frm2.tum.de>
 * Martin Haese <martin.haese@hereon.de>
 * Christoph Herb <christoph.herb@frm2.tum.de>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
