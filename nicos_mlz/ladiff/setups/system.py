@@ -2,8 +2,8 @@ description = 'system setup only'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'miractrl.mira.frm2.tum.de',
-    instrument = 'mira',
+    cache = 'hw2026.ladiff.frm2.tum.de',
+    instrument = 'ladiff',
     experiment = 'Exp',
     notifiers = ['email', 'smser'],
     datasinks = ['conssink', 'filesink', 'dmnsink'],
@@ -14,7 +14,7 @@ modules = ['nicos.commands.standard']
 includes = ['notifiers']
 
 devices = dict(
-    Exp = device('nicos_mlz.mira.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.ladiff.devices.experiment.Experiment',
         description = 'experiment object',
         sample = 'Sample',
         dataroot = '/data',
@@ -25,13 +25,13 @@ devices = dict(
     Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'sample object',
     ),
-    mira = device('nicos.devices.instrument.Instrument',
+    ladiff = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
-        instrument = 'MIRA',
-        doi = 'http://dx.doi.org/10.17815/jlsrf-1-21',
+        instrument = 'LaDiff',
+        # doi = 'http://dx.doi.org/10.17815/jlsrf-1-21',
         responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
         operators = ['Technische Universität München (TUM)'],
-        website = 'http://www.mlz-garching.de/mira',
+        website = 'https://mlz-garching.de/englisch/instruments/spectroscopy/ladiff.html',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
     ),
@@ -42,6 +42,7 @@ devices = dict(
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'free space on data share',
         minfree = 10,
+        path = '/data',
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',

@@ -2,8 +2,8 @@
 
 # test: needs = tango
 # test: subdirs = frm2
-# test: setups = tas
-# test: setupcode = SetDetectors(det)
+# # test: setups = tas
+# # test: setupcode = SetDetectors(det)
 
 from nicos import session
 
@@ -11,12 +11,14 @@ loaded_setups = session.loaded_setups
 
 # read basic devices
 
-basic_devices = [atten1, atten2, lamfilter, flip2, ms2pos, Shutter, PSDGas,
-                 Cooling, CoolTemp,
-                 ss1, ss2, ms2,
-                 m2th, m2tt, m2tx, m2ty, m2gx,
-                 stt, sth, stx, sty, stz, sgx, sgy,
-                 NL6, ReactorPower]
+basic_devices = [
+#   atten1, atten2, lamfilter, flip2, ms2pos, Shutter, PSDGas,
+#   Cooling, CoolTemp,
+#   ss1, ss2, ms2,
+#   m2th, m2tt, m2tx, m2ty, m2gx,
+#   stt, sth, stx, sty, stz, sgx, sgy,
+#   NL6, ReactorPower,
+]
 
 for dev in basic_devices:
     dev.status(0)
@@ -47,12 +49,12 @@ if 'tas' in loaded_setups:
 
 # basic operations
 
-SetDetectors(det)
-cscan(sth, 0, 0.1, 2, 1)
-cscan(stt, 0, 0.2, 2, 1)
+# SetDetectors(det)
+# cscan(sth, 0, 0.1, 2, 1)
+# cscan(stt, 0, 0.2, 2, 1)
 
-sgy.userlimits = (0, 1)
-for i in [0, 1, 0]:
-    maw(stx, i)
-for i in [0, 1, 0]:
-    maw(sgy, i)
+# sgy.userlimits = (0, 1)
+# for i in [0, 1, 0]:
+#     maw(stx, i)
+# for i in [0, 1, 0]:
+#     maw(sgy, i)

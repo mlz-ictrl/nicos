@@ -15,10 +15,10 @@ devices = dict(
         virtual_host = '/',
         username = 'guest',
         password = secret('eln_rabbitmq_password', default='guest'),
-        static_queue = 'mira-workbench',
+        static_queue = 'ladiff-workbench',
     ),
     Logbook = device('nicos.services.elog.Logbook',
         handlers = ['LogbookHtml', 'LogbookText', 'LogbookWorkbench'],
-        cache = 'miractrl.mira.frm2.tum.de',
+        cache = 'ctrl.ladiff.frm2.tum.de',
     ),
 )

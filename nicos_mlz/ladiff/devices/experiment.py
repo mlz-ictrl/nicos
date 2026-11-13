@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""NICOS MIRA Experiment."""
+"""NICOS LaDiff Experiment."""
 
 from nicos.core import Override
 
@@ -29,7 +29,7 @@ from nicos_mlz.devices.experiment import Experiment as MLZExperiment
 
 
 class Experiment(MLZExperiment):
-    """Experiment object customization for MIRA.
+    """Experiment object customization for LaDiff.
 
     Currently only the template path is set by default.
     """

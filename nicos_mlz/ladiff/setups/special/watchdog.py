@@ -20,7 +20,7 @@ watch_conditions = [
     dict(
         condition = 'cooltemp_value > 25',
         message =
-        'Cooling water temperature exceeds 25C, clean filter or check FAK40 or MIRA Leckmon!',
+        'Cooling water temperature exceeds 25C, clean filter or check FAK40 or LaDiff Leakage monitor!',
         type = 'critical',
     ),
     dict(
@@ -39,7 +39,7 @@ includes = ['notifiers']
 
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
-        cache = 'miractrl.mira.frm2.tum.de:14869',
+        cache = 'ctrl.ladiff.frm2.tum.de:14869',
         notifiers = {
             'default': ['email'],
             'critical': ['email', 'smser'],
