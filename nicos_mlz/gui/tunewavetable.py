@@ -740,7 +740,7 @@ class TunewaveTablePanel(Panel):
         storage and display it in the table widget."""
         table = self.client.eval(
             '%s.getTable("%s", %s)' % (self._dev, self.measurement_mode,
-                                       self.wavelength))
+                                       self.wavelength), default={})
 
         # Disable table sorting while filling to avoid jumping rows
         self.tableWidget.setSortingEnabled(False)
