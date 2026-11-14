@@ -5,7 +5,7 @@ VSTRESS-SPEC
 
 .. autoclass:: McStasSimulation()
 .. autoclass:: Image()
-.. autoclass:: class McStasCounter()
+.. autoclass:: McStasCounter()
 
 .. module:: nicos_virt_mlz.stressi.devices.sample
 
