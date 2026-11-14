@@ -14,9 +14,6 @@
 .. module:: nicos_mlz.mira.devices.center
 .. autoclass:: CrappySensor()
 
-.. module:: nicos_mlz.mira.devices.experiment
-.. autoclass:: Experiment()
-
 .. module:: nicos_mlz.mira.devices.iseg
 .. autoclass:: CascadeIsegHV()
 
