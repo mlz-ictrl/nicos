@@ -1,5 +1,5 @@
-`KWS-2 <http://www.mlz-garching.de/kws-2>`_
-===========================================
+`KWS-3 <https://www.mlz-garching.de/kws-3>`_
+============================================
 
 .. module:: nicos_mlz.kws3.devices.daq
 .. autoclass:: DetSwitcher()

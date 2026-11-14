@@ -27,7 +27,7 @@ devices = dict(
         description = 'The WOnderful New Instrument',
         instrument = 'WONI',
         responsible = 'R. Esponsible <r.esponsible@hynes.org>',
-        website = 'http://www.hynes.org/woni',
+        website = 'https://www.hynes.org/woni',
         operators = ['HYNES'],
         facility = 'HYNES',
     ),

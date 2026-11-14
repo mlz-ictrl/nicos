@@ -1,5 +1,5 @@
-`SANS-1 <http://www.mlz-garching.de/sans-1>`_
-=============================================
+`SANS-1 <https://www.mlz-garching.de/sans-1>`_
+==============================================
 
 
 .. module:: nicos_mlz.sans1.devices.collimator.slit

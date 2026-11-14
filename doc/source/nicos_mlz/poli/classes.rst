@@ -1,5 +1,5 @@
-`POLI <http://www.mlz-garching.de/poli>`_
-=========================================
+`POLI <https://www.mlz-garching.de/poli>`_
+==========================================
 
 .. module:: nicos_mlz.poli.devices.mono
 

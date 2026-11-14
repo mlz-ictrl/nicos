@@ -1,5 +1,5 @@
-`RESEDA <http://www.mlz-garching.de/reseda>`_
-=============================================
+`RESEDA <https://www.mlz-garching.de/reseda>`_
+==============================================
 
 
 .. module:: nicos_mlz.reseda.devices.astrium

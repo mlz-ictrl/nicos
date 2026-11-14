@@ -1,5 +1,5 @@
-`SPHERES <http://www.mlz-garching.de/spheres>`_
-===============================================
+`SPHERES <https://www.mlz-garching.de/spheres>`_
+================================================
 
 .. module:: nicos_mlz.spheres.devices.sisdetector
 .. autoclass:: SISDetector()

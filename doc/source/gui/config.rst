@@ -43,7 +43,7 @@ A small example configuration file looks like this:
    tools = [
        tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
        tool('Report NICOS bug', 'nicos.clients.gui.tools.website.WebsiteTool',
-            url='http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'),
+            url='https://forge.frm2.tum.de/redmine/projects/nicos/issues/new'),
    ]
 
    options = {

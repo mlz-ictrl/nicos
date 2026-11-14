@@ -1,5 +1,5 @@
-`FRM II <http://www.frm2.tum.de>`_
-==================================
+`FRM II <https://www.frm2.tum.de>`_
+===================================
 
 .. module:: nicos_mlz.devices.ghost
 .. autoclass:: Authenticator()

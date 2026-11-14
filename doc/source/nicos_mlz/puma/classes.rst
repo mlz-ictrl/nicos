@@ -1,5 +1,5 @@
-`PUMA <http://www.mlz-garching.de/puma>`_
-=========================================
+`PUMA <https://www.mlz-garching.de/puma>`_
+==========================================
 
 
 .. module:: nicos_mlz.puma.devices.attenuator
