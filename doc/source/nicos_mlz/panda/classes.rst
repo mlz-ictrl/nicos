@@ -1,5 +1,5 @@
-`PANDA <http://www.mlz-garching.de/panda>`_
-===========================================
+`PANDA <https://www.mlz-garching.de/panda>`_
+============================================
 
 .. toctree::
     :maxdepth: 1

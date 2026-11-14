@@ -1,5 +1,5 @@
-`ErwiN <http://www.mlz-garching.de/erwin>`_
-===========================================
+`ErwiN <https://www.mlz-garching.de/erwin>`_
+============================================
 
 High voltage system
 -------------------

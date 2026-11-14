@@ -1,5 +1,5 @@
-`KWS-2 <http://www.mlz-garching.de/kws-2>`_
-===========================================
+`KWS-2 <https://www.mlz-garching.de/kws-2>`_
+============================================
 
 .. module:: nicos_mlz.kws2.devices.attenuator
 .. autoclass:: Attenuator()

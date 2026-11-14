@@ -1,5 +1,5 @@
-`KWS-1 <http://www.mlz-garching.de/kws-1>`_
-===========================================
+`KWS-1 <https://www.mlz-garching.de/kws-1>`_
+============================================
 
 .. module:: nicos_mlz.kws1.devices.chopper
 .. autoclass:: ChopperFrequency()

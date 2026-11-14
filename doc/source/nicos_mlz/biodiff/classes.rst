@@ -1,5 +1,5 @@
-`BIODIFF <http://www.mlz-garching.de/biodiff>`_
-===============================================
+`BIODIFF <https://www.mlz-garching.de/biodiff>`_
+================================================
 
 .. module:: nicos_mlz.biodiff.devices.detector
 

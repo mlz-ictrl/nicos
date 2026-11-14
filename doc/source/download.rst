@@ -15,9 +15,9 @@ Pip
 
 Using pip NICOS can be installed::
 
-    pip install -i http://forge.frm2.tum.de/simple nicos
+    pip install -i https://forge.frm2.tum.de/simple nicos
 
-where ``http://forge.frm2.tum.de/simple/`` is a FRM II local pip repository.
+where ``https://forge.frm2.tum.de/simple/`` is a FRM II local pip repository.
 
 
 .. _clone-git:

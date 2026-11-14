@@ -1,5 +1,5 @@
-`REFSANS <http://www.mlz-garching.de/refsans>`_
-===============================================
+`REFSANS <https://www.mlz-garching.de/refsans>`_
+================================================
 
 
 .. module:: nicos_mlz.refsans.devices.nok_support

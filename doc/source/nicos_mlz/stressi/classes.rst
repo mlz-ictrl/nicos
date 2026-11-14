@@ -1,5 +1,5 @@
-`STRESS-SPEC <http://www.mlz-garching.de/stress-spec>`_
-=======================================================
+`STRESS-SPEC <https://www.mlz-garching.de/stress-spec>`_
+========================================================
 
 Data formats
 ------------

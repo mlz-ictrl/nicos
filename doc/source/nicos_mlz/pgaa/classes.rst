@@ -1,5 +1,5 @@
-`PGAA <http://www.mlz-garching.de/pgaa>`_
-=========================================
+`PGAA <https://www.mlz-garching.de/pgaa>`_
+==========================================
 
 .. module:: nicos_mlz.pgaa.devices.pilz
 .. autoclass:: Switch()

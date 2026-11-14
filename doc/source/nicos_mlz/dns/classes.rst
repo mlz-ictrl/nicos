@@ -1,5 +1,5 @@
-`DNS <http://www.mlz-garching.de/dns>`_
-=======================================
+`DNS <https://www.mlz-garching.de/dns>`_
+========================================
 
 .. module:: nicos_mlz.dns.devices.detector
 .. autoclass:: TofChannel()

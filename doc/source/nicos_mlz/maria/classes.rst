@@ -1,5 +1,5 @@
-`MARIA <http://www.mlz-garching.de/maria>`_
-===========================================
+`MARIA <https://www.mlz-garching.de/maria>`_
+============================================
 
 
 .. module:: nicos_mlz.maria.devices.detector
