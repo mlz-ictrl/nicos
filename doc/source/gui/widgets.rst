@@ -82,7 +82,7 @@ Widget interface
 This section describes the interface of the NicosWidget class, which methods
 and attributes you can use and override when you implement your own widget.
 
-.. module:: nicos.clients.gui.widget
+.. module:: nicos.guisupport.widget
 
 .. class:: NicosWidget
 

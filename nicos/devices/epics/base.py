@@ -67,6 +67,11 @@ class EpicsDevice(DeviceMixinBase):
     _epics_wrapper = None
     _record_fields = {}
     _pvs = {}
+    ###  CAPROTO ###
+    # Callbacks on subscriptions are weak references in caproto.
+    # So they need to be kept as long as the device exist.
+    # This is a list of a 2-element-tuple, 0th index subscription,
+    # 1st index callback id. In p4p it's a list of subscriptions.
     _epics_subscriptions = []
     _cache_relations = {'readpv': 'value'}
 
@@ -122,8 +127,8 @@ class EpicsDevice(DeviceMixinBase):
     def _subscribe_params(self, pvparams, change_callback):
         for pvparam in pvparams:
             pvname = self._get_pv_name(pvparam)
-            subscription = self._subscribe(change_callback, pvname, pvparam)
-            self._epics_subscriptions.append(subscription)
+            callback_key = self._subscribe(change_callback, pvname, pvparam)
+            self._epics_subscriptions.append(callback_key)
 
     def _subscribe(self, change_callback, pvname, pvparam):
         """
@@ -168,8 +173,8 @@ class EpicsDevice(DeviceMixinBase):
         return set(self._cache_relations.keys())
 
     def doShutdown(self):
-        for sub in self._epics_subscriptions:
-            self._epics_wrapper.close_subscription(sub)
+        for callback_key in self._epics_subscriptions:
+            self._epics_wrapper.close_subscription(callback_key)
 
     def _get_pv_parameters(self):
         return set(self._record_fields.keys())
