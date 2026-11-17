@@ -36,7 +36,7 @@ except ImportError:
 from nicos.guisupport.qt import QApplication, QMainWindow
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger, initLoggers
 
-mail_server = 'mailhost.fmr2.tum.de'
+mail_server = 'mailhost.frm2.tum.de'
 mail_receiver = 'useroffice@mlz-garching.de'
 
 parser = argparse.ArgumentParser()
