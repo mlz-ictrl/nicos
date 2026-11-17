@@ -1273,6 +1273,8 @@ class ViewPlot(NicosGrPlot):
         if not self.view:
             return
         window = self._axes.getWindow()
+        if not window:
+            return
         linecolor = gr.inqlinecolorind()
         linetype = gr.inqlinetype()
 
