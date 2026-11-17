@@ -6,11 +6,11 @@ includes = ['base']
 tango_base = 'tango://miractrl.mira.frm2.tum.de:10000/mira/'
 
 devices = dict(
-    M = device('nicos_mlz.mira.devices.sr850.Amplifier',
+    M = device('nicos_mlz.devices.sr850.Amplifier',
         description = 'SR850 lock-in amplifier',
         tangodevice = tango_base + 'sr850/io',
     ),
-    M2 = device('nicos_mlz.mira.devices.sr850.Amplifier',
+    M2 = device('nicos_mlz.devices.sr850.Amplifier',
         description = 'SR850 lock-in amplifier',
         tangodevice = tango_base + 'sr850/io2',
     ),

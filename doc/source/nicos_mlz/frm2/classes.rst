@@ -58,3 +58,6 @@
 
 .. module:: nicos_mlz.devices.axes
 .. autoclass:: HoveringAxis()
+
+.. module:: nicos_mlz.devices.sr850
+.. autoclass:: Amplifier()

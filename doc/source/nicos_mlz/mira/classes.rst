@@ -30,9 +30,6 @@
 .. module:: nicos_mlz.mira.devices.spectro
 .. autoclass:: MIRA()
 
-.. module:: nicos_mlz.mira.devices.sr850
-.. autoclass:: Amplifier()
-
 .. module:: nicos_mlz.mira.devices.stargate
 .. autoclass:: Stargate()
 .. autoclass:: ATT()
