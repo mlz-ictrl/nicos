@@ -7,10 +7,14 @@ sysconfig = dict(
     datasinks = [
         # 'tiffformat',
         'rawfile',
-        'caresssink'
+        'caresssink',
         # 'textsink',
     ],
 )
+
+includes = [
+    'shutter',
+]
 
 devices = dict(
     timer = device('nicos.devices.entangle.TimerChannel',
@@ -36,11 +40,14 @@ devices = dict(
         abslimits = (50, 400),
         requires = {'level': 'admin'},
     ),
-    det = device('nicos.devices.generic.Detector',
+    det = device('nicos.devices.generic.GatedDetector',
         description = 'Merge detector infos',
         timers = ['timer'],
         images = ['image'],
         counters = ['roi1', 'roi2'],
+        gates = ['t_shutter'],
+        enablevalues = ['open'],
+        disablevalues = ['closed'],
         postprocess = [
             ('roi1', 'image'),
             ('roi2', 'image'),
