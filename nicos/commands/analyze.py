@@ -238,7 +238,7 @@ def fit(fitclass, *columns, **kwargs):
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
         vals.append((descr, '%.5g' % par, '+/- %.5g' % err,
-                     '+/- {:.1%}'.format(err / par) if par else '-'))
+                     f'+/- {abs(err / par):.1%}' if par else '-'))
     printTable(('parameter', 'value', 'error', 'rel. error'),
                vals, session.log.info)
     return CommandLineFitResult((tuple(res._pars[1]), tuple(res._pars[2])))
