@@ -63,11 +63,21 @@ class TestAnalyzers:
         result = fwhm(1, 3)
         assert result == (2.75, -1, 30, 1)
 
-    def test_center_of_mass(self, session):
+    def test_center_of_mass(self, session, log):
         result1 = center_of_mass()
-        assert -0.840 < result1 < -0.839
+        assert result1 == pytest.approx(-0.8395, abs=0.0005)
         result2 = center_of_mass(4)  # center of mass from values*2 should be same
         assert result1 == result2
+
+        with log.assert_msg_matches([
+            r'parameter       value     error  rel. error',
+            r'==============  ========  =====  ==========',
+            r'Center of mass  -0.83962  \+/- 0  \+/- 0.0%',
+            ]):
+            result = fit('center_of_mass')
+        assert len(result) == 2
+        assert len(result[0]) == 1
+        assert result[0][0] == pytest.approx(-0.83962, abs=0.00001)
 
     def test_root_mean_square(self, session):
         result = root_mean_square()
@@ -87,52 +97,89 @@ class TestAnalyzers:
         assert result4 == result3
 
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
-    def test_gauss(self, session):
-        result = gauss()
+    def test_gauss(self, session, log):
+        msgs = [
+            r'parameter   value     error         rel. error',
+            r'==========  ========  ============  ==========',
+            r'center      -0.87383  \+/- 0.069174  \+/- 7.9%',
+            r'amplitude   28.267    \+/- 2.0151    \+/- 7.1%',
+            r'FWHM        2.6351    \+/- 0.13556   \+/- 5.1%',
+            r'background  1.2998    \+/- 0.16555   \+/- 12.7%',
+        ]
+        with log.assert_msg_matches(msgs):
+            result = gauss()
         assert len(result) == 2
         assert len(result[0]) == 4
         assert result[0][0] == pytest.approx(-0.8735, abs=0.0005)
+        assert result[0][1] == pytest.approx(28.267, abs=0.0005)
+        assert result[0][2] == pytest.approx(2.6351, abs=0.0005)
+        assert result[0][3] == pytest.approx(1.2998, abs=0.0005)
 
-        result = fit('gauss')
-        assert len(result) == 2
-        assert len(result[0]) == 4
-        assert result[0][0] == pytest.approx(-0.8735, abs=0.0005)
+        with log.assert_msg_matches(msgs):
+            result1 = fit('gauss')
+        assert result == result1
 
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
-    def test_lorentz(self, session):
-        result = lorentz()
+    def test_lorentz(self, session, log):
+        msgs = [
+            r'parameter   value     error        rel. error',
+            r'==========  ========  ===========  ==========',
+            r'center      -0.88226  \+/- 0.1103   \+/- 12.5%',
+            r'amplitude   32.372    \+/- 3.755    \+/- 11.6%',
+            r'FWHM        1.9455    \+/- 0.24488  \+/- 12.6%',
+            r'background  0.37567   \+/- 0.31561  \+/- 84.0%',
+        ]
+        with log.assert_msg_matches(msgs):
+            result = lorentz()
         assert len(result) == 2
         assert len(result[0]) == 4
         assert result[0][0] == pytest.approx(-0.882, abs=0.001)
 
-        result = fit('lorentz')
-        assert len(result) == 2
-        assert len(result[0]) == 4
-        assert result[0][0] == pytest.approx(-0.882, abs=0.001)
+        with log.assert_msg_matches(msgs):
+            result1 = fit('lorentz')
+        assert result == result1
 
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
-    def test_voigt(self, session):
-        result = voigt()
+    def test_voigt(self, session, log):
+        msgs = [
+            r'parameter   value     error         rel. error',
+            r'==========  ========  ============  ==========',
+            r'background  1.0312    \+/- 0.29389   \+/- 28.5%',
+            r'amplitude   29.35     \+/- 2.3687    \+/- 8.1%',
+            r'center      -0.88388  \+/- 0.069641  \+/- 7.9%',
+            r'HWHM        1.2644    \+/- 0.093241  \+/- 7.4%',
+            r'eta         0.19805   \+/- 0.18698   \+/- 94.4%',
+        ]
+        with log.assert_msg_matches(msgs):
+            result = voigt()
         assert len(result) == 2
         assert len(result[0]) == 5
         assert result[0][2] == pytest.approx(-0.883, abs=0.001)
 
-        result = fit('pseudovoigt')
-        assert len(result) == 2
-        assert len(result[0]) == 5
-        assert result[0][2] == pytest.approx(-0.883, abs=0.001)
+        with log.assert_msg_matches(msgs):
+            result1 = fit('pseudovoigt')
+        assert result == result1
 
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
-    def test_pearson(self, session):
-        result = pearson()
+    def test_pearson(self, session, log):
+        msgs = [
+            r'parameter   value     error         rel. error',
+            r'==========  ========  ============  ==========',
+            r'background  1.2915    \+/- 0.17981   \+/- 13.9%',
+            r'amplitude   28.415    \+/- 2.447[ 1]    \+/- 8.6%',
+            r'center      -0.87607  \+/- 0.071994  \+/- 8.2%',
+            r'HWHM        1.3057    \+/- 0.11813   \+/- 9.0%',
+            r'm           35.9[7-9][ 0-9]    \+/- 251.[5-7][0-9]    \+/- 699.[1-3]%',
+        ]
+        with log.assert_msg_matches(msgs):
+            result = pearson()
         assert len(result) == 2
         assert len(result[0]) == 5
         assert result[0][2] == pytest.approx(-0.876, abs=0.001)
 
-        result = fit('pearson')
-        assert len(result) == 2
-        assert len(result[0]) == 5
-        assert result[0][2] == pytest.approx(-0.876, abs=0.001)
+        with log.assert_msg_matches(msgs):
+            result1 = fit('pearson')
+        assert result == result1
 
     @pytest.mark.skipif(not leastsq, reason='scipy leastsq not available')
     def test_tc(self, session):
