@@ -34,6 +34,7 @@ nounit = NXAttribute('', 'string')
 aa = NXAttribute('AA', 'string')
 mm = NXAttribute('mm', 'string')
 deg = NXAttribute('deg', 'string')
+hz = NXAttribute('Hz', 'string')
 
 signal = NXAttribute(1, 'int')
 axis0 = NXAttribute(0, 'int')
