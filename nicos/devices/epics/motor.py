@@ -338,6 +338,13 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
 
         return getattr(self, pvparam)
 
+    def _get_status_parameters(self):
+        params = EpicsAnalogMoveable._get_status_parameters(self)
+        # Reread the status whenever the moving state of the motor changes
+        params.add('moving')
+        params.add('donemoving')
+        return params
+
     def doPreinit(self, mode):
         EpicsAnalogMoveable.doPreinit(self, mode)
 
