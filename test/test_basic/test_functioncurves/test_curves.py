@@ -25,7 +25,9 @@
 Tests for the functioncurve Curves class
 """
 
+import math
 import pickle
+import random
 from random import randint
 
 import pytest
@@ -79,3 +81,80 @@ def test_mean():
     assert curves.mean() is not None
     assert curves.mean().y[1].n is not None
     assert curves.mean().y[1].s is not None
+
+
+def test_copy():
+    curves1 = Curves([[(1, 1)]])
+    curves2 = Curves(curves1)
+    curves2.append(Curve2D([(2, 2)]))
+    assert len(curves1) == 1 and len(curves2) == 2
+
+
+def test_append_curve_as_list():
+    curves = Curves()
+    curves.append([(1, 1), (2, 2)])
+    curves.append([[(1, 1)], Curve2D([(2, 2)])])
+    curves.append([])
+    assert [len(curve) for curve in curves] == [2, 1, 1]
+
+
+def test_increasing_decreasing_skip_short_curves():
+    curves = Curves([[], [(1, 1)], [(1, 1), (2, 2)], [(2, 2), (1, 1)]])
+    assert len(curves.increasing()) == len(curves.decreasing()) == 1
+
+
+def test_series_to_curves_many_short_sweeps():
+    series = []
+    for _ in range(10):
+        series += [(i, i) for i in range(-10, 10)]
+        series += [(i, i) for i in range(10, -10, -1)]
+    curves = Curves.from_series(series)
+    assert len(curves) == 20
+    # turning points are shared by adjacent curves
+    assert [len(curve) for curve in curves] == [21] * 19 + [20]
+    assert len(curves.mean()) == 21
+
+
+def test_series_to_curves_plateau():
+    series = [(x, i) for i, x in enumerate([0, 1, 2, 3, 3, 3, 2, 1, 0])]
+    curves = Curves.from_series(series)
+    assert [curve.x for curve in curves] == [[0, 1, 2, 3], [3, 2, 1, 0]]
+    assert [curve.y for curve in curves] == [[0, 1, 2, 3], [5, 6, 7, 8]]
+    # plateau in the middle of a sweep doesn't split the curve
+    series = [(x, 0) for x in [0, 1, 1, 2, 3, 2, 1, 0]]
+    assert len(Curves.from_series(series)) == 2
+
+
+def test_series_to_curves_noise():
+    rnd = random.Random(1)
+    series = []
+    for _ in range(5):
+        sweep = [-1 + i / 100 for i in range(200)]
+        series += [(x + rnd.gauss(0, 0.01), x) for x in sweep + sweep[::-1]]
+    curves = Curves.from_series(series)
+    assert len(curves.increasing()) == len(curves.decreasing()) == 5
+
+
+def test_series_to_curves_meta():
+    series = [(i, i) for i in range(10)]
+    curves = Curves.from_series(series, meta=[5, 5])
+    assert [len(curve) for curve in curves] == [5, 5]
+    # interrupted series
+    curves = Curves.from_series(series, meta=[5, 8, 5])
+    assert [len(curve) for curve in curves] == [5, 5]
+    with pytest.raises(ValueError):
+        Curves.from_series(series, meta=[3, 3])
+
+
+def test_mean_edge_cases():
+    assert math.isnan(mean([]).n)
+    assert mean([5]).n == 5 and math.isnan(mean([5]).s)
+    assert mean([ufloat(5, 0.2)]).s == pytest.approx(0.2)
+    # zero errors are not usable as weights
+    m = mean([ufloat(1, 0), ufloat(2, 0.1)])
+    assert m.n == pytest.approx(1.5) and math.isfinite(m.s)
+    assert mean([ufloat(1, 0.1), 2.0]).n == pytest.approx(1.5)
+    curve = Curve2D([(1, 1), (2, 2)])
+    mean_curve = Curves([curve]).mean()
+    assert mean_curve is not curve and mean_curve.y == curve.y
+    assert len(Curves().mean()) == 0

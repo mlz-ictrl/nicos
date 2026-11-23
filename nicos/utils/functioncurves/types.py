@@ -24,9 +24,36 @@
 from math import nan
 
 
+def _unknown_error_result(name):
+    operation = getattr(float, name)
+
+    def method(self, *args):
+        result = operation(self, *args)
+        if isinstance(result, float):
+            return FloatWithStdError(result)
+        return result
+
+    method.__name__ = name
+    return method
+
+
 class FloatWithStdError(float):
-    """Class to replace AffineScalarFunc when uncertainties module is not
-    available only to handle nominal value `.n` and standard error `.s` calls.
+    """Represent a number with a standard error when uncertainties is unavailable.
+
+    The ``.n`` attribute gives the numeric value, and ``.s`` gives its
+    standard error. If no standard error is supplied, ``.s`` is NaN.
+
+    Operations such as addition and multiplication return a new
+    FloatWithStdError. They calculate the numeric result using normal
+    float arithmetic. The fallback does not calculate the resulting
+    standard error, so the result's ``.s`` is NaN.
+
+    >>> reading = FloatWithStdError(2.0, 0.1)
+    >>> adjusted = reading + 1.0
+    >>> adjusted.n
+    3.0
+    >>> adjusted.s
+    nan
     """
 
     def __new__(cls, nominal_value, std_error=nan):
@@ -41,3 +68,11 @@ class FloatWithStdError(float):
     @property
     def s(self):
         return self._s
+
+    for _name in ('__abs__', '__add__', '__mod__', '__mul__', '__neg__',
+                  '__pos__', '__pow__', '__radd__', '__rmod__', '__rmul__',
+                  '__rpow__', '__rsub__', '__rtruediv__', '__sub__',
+                  '__truediv__'):
+        locals()[_name] = _unknown_error_result(_name)
+
+    del _name
