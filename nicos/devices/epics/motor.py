@@ -337,52 +337,66 @@ class EpicsMotor(CanReference, HasOffset, CanDisable, EpicsAnalogMoveable, Motor
 
         return getattr(self, pvparam)
 
+    def _get_status_parameters(self):
+        params = EpicsAnalogMoveable._get_status_parameters(self)
+        # Reread the status whenever the moving state of the motor changes
+        params.add('moving')
+        params.add('donemoving')
+        return params
+
     def doPreinit(self, mode):
         EpicsAnalogMoveable.doPreinit(self, mode)
 
         if mode == MASTER:
-            # As the absolute limits and offset are managed by Epics, may be
-            # the case, that these change while Nicos is not running, meaning
-            # that the user limits are no longer within the absolute limits. As
-            # a result, it is no longer possible for devices of this type to be
-            # created, due to exceptions thrown by the `_checkLimits` method in
-            # the `HasLimits` mixin. For this reason, we override the user
-            # limits during startup if they are outside the absolute limits.
+            userlimits = self._cache.get(self._name, "userlimits", default=None)
+            userlimits = self._adjust_userlimits_at_preinit(userlimits)
+            self._cache.put(self._name, "userlimits", userlimits)
 
-            absmin = self._get_pv('lowlimit')
-            absmax = self._get_pv('highlimit')
-            epicsoffset = self._get_pv('offset')
+    def _adjust_userlimits_at_preinit(self, userlimits=None):
+        """
+        Factored out part of doPreinit. Not intended to be used outside
+        EpicsMotor.doPreinit or unit tests!
 
-            default_userlimits = (absmin - epicsoffset, absmax - epicsoffset)
+        As the absolute limits and offset are managed by Epics, may be
+        the case, that these change while Nicos is not running, meaning
+        that the user limits are no longer within the absolute limits. As
+        a result, it is no longer possible for devices of this type to be
+        created, due to exceptions thrown by the `_checkLimits` method in
+        the `HasLimits` mixin. For this reason, we override the user
+        limits during startup if they are outside the absolute limits.
 
-            userlimits = self._cache.get(self._name, "userlimits",
-                                         default=(absmin - epicsoffset, absmax - epicsoffset))
+        This function has been factored out of EpicsMotor.doPreinit to make it
+        unit-testable.
+        """
 
-            if userlimits == (0., 0.):
-                userlimits = default_userlimits
+        absmin = self._get_pv('lowlimit')
+        absmax = self._get_pv('highlimit')
 
-            # in HasLimits we have _checkLimits(self, limits)
-            # umin < amin - abs(amin * 1e-12)
-            # and
-            # umax > amax + abs(amax * 1e-12)
-            # So perhaps this is a little too large a change
-            usermin, usermax = userlimits
-            usermin = max(absmin - epicsoffset + abs(absmin * 1e-10), usermin)
-            usermax = min(absmax - epicsoffset - abs(absmax * 1e-10), usermax)
+        if userlimits is None or userlimits == (0., 0.):
+            userlimits = (absmin, absmax)
 
-            if userlimits != (usermin, usermax):
-                # if the change is major (> 10 %), inform the user, otherwise
-                # just log it in debug. The denominator is the delta between
-                # the calculated "new" userlimits.
-                denom = usermax - usermin
-                if (abs((userlimits[0] - usermin) / denom) > 0.1 or
-                    abs((userlimits[1] - usermax) / denom) > 0.1):
-                    logfn = self.log.warning
-                else:
-                    logfn = self.log.debug
-                logfn('User limits are outside absolute limits %s - was: %s, now: %s',
-                                (absmin, absmax), userlimits, (usermin, usermax))
-                self._cache.put(self._name, "userlimits", (usermin, usermax))
+        # in HasLimits we have _checkLimits(self, limits)
+        # umin < amin - abs(amin * 1e-12)
+        # and
+        # umax > amax + abs(amax * 1e-12)
+        # So perhaps this is a little too large a change
+        usermin, usermax = userlimits
+        usermin = max(absmin + abs(absmin * 1e-10), usermin)
+        usermax = min(absmax - abs(absmax * 1e-10), usermax)
+
+        if userlimits != (usermin, usermax):
+            # if the change is major (> 10 %), inform the user, otherwise
+            # just log it in debug. The denominator is the delta between
+            # the calculated "new" userlimits.
+            denom = usermax - usermin
+            if (abs((userlimits[0] - usermin) / denom) > 0.1 or
+                abs((userlimits[1] - usermax) / denom) > 0.1):
+                logfn = self.log.warning
+            else:
+                logfn = self.log.debug
+            logfn('User limits are outside absolute limits %s - was: %s, now: %s',
+                            (absmin, absmax), userlimits, (usermin, usermax))
+        return (usermin, usermax)
 
     def doReadSpeed(self):
         return self._get_pv('speed')

@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from nicos.core import Attach, Override, Param, Value, listof
+from nicos.core import Attach, Override, Param, Value, nonemptylistof
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
 from nicos_sinq.devices.imagesink import HistogramDesc, HistogramDimDesc
@@ -49,8 +49,11 @@ class RotateCutImage(ImageChannelMixin, PassiveChannel):
         'raw_image': Attach('image to cut data from', devclass=JustBinItImage),
     }
     parameter_overrides = {
-        'readresult': Override(type=listof(int)),
+        'readresult': Override(type=nonemptylistof(int), default=[0]),
     }
+
+    def doPrepare(self):
+        self.readresult = [0]
 
     def doReadArray(self, quality):
         raw_data = self._attached_raw_image.doReadArray(quality)
@@ -95,8 +98,11 @@ class CutImage(ImageChannelMixin, PassiveChannel):
         'raw_image': Attach('image to cut data from', devclass=JustBinItImage),
     }
     parameter_overrides = {
-        'readresult': Override(type=listof(int)),
+        'readresult': Override(type=nonemptylistof(int), default=[0]),
     }
+
+    def doPrepare(self):
+        self.readresult = [0]
 
     def doReadArray(self, quality):
         raw_data = self._attached_raw_image.doReadArray(quality)

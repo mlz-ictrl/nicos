@@ -30,6 +30,7 @@ This replaces the following files:
 """
 
 import math
+from time import time as currenttime
 
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, HasPrecision, Moveable, \
@@ -183,7 +184,7 @@ class DAQChannel(DAQChannelEpicsDevice, CounterChannelMixin, PassiveChannel):
                                message, **kwargs):
         if not value:
             self._setROParam('preparing', False)
-        self._setROParam('status', self.doStatus())
+        self._cache.put(self._name, 'status', self.doStatus(), currenttime())
 
     def doStatus(self, maxage=0):
         try:
@@ -267,7 +268,7 @@ class DAQTime(DAQEpicsDevice, TimerChannelMixin, HasPrecision, PassiveChannel):
                                message, **kwargs):
         if not value:
             self._setROParam('preparing', False)
-        self._setROParam('status', self.doStatus())
+        self._cache.put(self._name, 'status', self.doStatus(), currenttime())
 
     def doStatus(self, maxage=0):
         try:
@@ -500,7 +501,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def value_change_callback(self, name, param, value, units, severity,
                               message, **kwargs):
-        self._setROParam('value', self.doRead())
+        self._cache.put(self._name, 'value', self.doRead(), currenttime())
 
     def doReadMonitor_Channel(self):
         channel = self._get_pv('monitorchannelrbvpv')
@@ -598,7 +599,7 @@ class DAQPreset(DAQEpicsDevice, ActiveChannel):
 
     def status_change_callback(self, name, param, value, units, severity,
                                message, **kwargs):
-        self._setROParam('status', self.doStatus())
+        self._cache.put(self._name, 'status', self.doStatus(), currenttime())
 
     def doStatus(self, maxage=0):
         try:
