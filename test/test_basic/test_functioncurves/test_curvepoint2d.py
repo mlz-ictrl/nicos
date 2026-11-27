@@ -28,7 +28,11 @@ Tests for the functioncurve CurvePoint2D class
 import math
 import pickle
 
+import numpy
+import pytest
+
 from nicos.utils.functioncurves import CurvePoint2D, ufloat
+from nicos.utils.functioncurves.types import FloatWithStdError
 
 
 def test_init():
@@ -109,3 +113,74 @@ def test_interpolate():
     p2 = CurvePoint2D.interpolate(p1, p3, x=2)
     assert p2.eq_x(2)
     assert p2.eq_y(2)
+
+
+def test_interpolate_segments_parallel_to_axes():
+    # vertical segment interpolated by y
+    p = CurvePoint2D.interpolate((1, 0), (1, 2), y=1)
+    assert p.eq_x(1) and p.eq_y(1)
+    # horizontal segment interpolated by x
+    p = CurvePoint2D.interpolate((0, 1), (2, 1), x=1)
+    assert p.eq_x(1) and p.eq_y(1)
+    with pytest.raises(ValueError):
+        CurvePoint2D.interpolate((1, 0), (1, 2), x=2)
+    with pytest.raises(ValueError):
+        CurvePoint2D.interpolate((0, 1), (2, 1), y=2)
+
+
+def test_interpolate_arguments():
+    p = CurvePoint2D.interpolate((0, 0), (2, 2), x=0)
+    assert p.eq_x(0) and p.eq_y(0)
+    with pytest.raises(ValueError):
+        CurvePoint2D.interpolate((0, 0), (2, 2), x=0, y=5)
+    with pytest.raises(ValueError):
+        CurvePoint2D.interpolate((0, 0), (2, 2))
+
+
+def test_interpolate_uncertainties():
+    p1 = CurvePoint2D(ufloat(0, 0), ufloat(0, 0.1))
+    p2 = CurvePoint2D(ufloat(2, 0), ufloat(2, 0.1))
+    p = CurvePoint2D.interpolate(p1, p2, x=1)
+    assert p.y.n == pytest.approx(1)
+    if ufloat is FloatWithStdError:
+        assert math.isnan(p.y.s)
+    else:
+        assert p.y.s == pytest.approx(0.1 / 2 ** 0.5)
+
+
+def test_comparison_with_other_types():
+    p = CurvePoint2D(1, 2)
+    assert p != None  # pylint: disable=singleton-comparison
+    assert p not in [None, 'text']
+    assert p == (1, 2) and p == [1, 2] and p != (2, 2)
+    with pytest.raises(TypeError):
+        assert p < None
+
+def test_arithmetic_with_ufloat():
+    p = CurvePoint2D(1, ufloat(2, 0.1))
+    assert (p + ufloat(1, 0.1)).y.n == (ufloat(1, 0.1) + p).y.n == 3
+    product = p * ufloat(2, 0)
+    assert product.y.n == 4
+    if ufloat is FloatWithStdError:
+        assert math.isnan(product.y.s)
+    else:
+        assert product.y.s == pytest.approx(0.2)
+
+
+def test_numpy_scalars():
+    p = CurvePoint2D(1, 2)
+    for v in (numpy.float64(3), numpy.int64(3)):
+        for result in (p + v, v + p, p * v, v * p, v - p, v / p):
+            assert isinstance(result, CurvePoint2D)
+            assert result.eq_x(1)
+    assert (numpy.int64(3) - p).eq_y(1)
+
+
+def test_fallback_arithmetic():
+    v = FloatWithStdError(2, 0.1)
+    for result in (v + 1, 1 + v, v - 1, 1 - v, v * 2, 2 * v, v / 2, 2 / v,
+                   -v, abs(v), v ** 2):
+        assert isinstance(result, FloatWithStdError)
+        assert math.isnan(result.s)
+    assert (v + v).n == 4
+    assert pickle.loads(pickle.dumps(v)).s == 0.1

@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 import math
+import warnings
 
 import numpy
 from scipy.optimize import curve_fit
@@ -29,30 +30,45 @@ from scipy.optimize import curve_fit
 from .imports import AffineScalarFunc, ufloat
 
 
-def mean(x, dx=None):
-    """Uncertainties-friendly weighted mean calculation algorithm.
-    x: python list of measurement points (nominal values or values with uncertainties)
-    dx: optional python list of error values related to nominal values of
-    measurement points in x
+def _nominals_and_errors(values, errors=None):
+    """Convert measurements and standard errors to two floating-point arrays.
+
+    Explicit errors take precedence. Otherwise, use the errors attached to
+    the measurements and represent unknown errors as NaN.
     """
-    if isinstance(x[0], AffineScalarFunc):
-        dx = [i.s for i in x]
-        x = [i.n for i in x]
-    x = numpy.array(x)
-    dx = numpy.array(dx)
-    mn = er = 0
+    nominals = [v.n if isinstance(v, AffineScalarFunc) else v for v in values]
+    if errors is None:
+        errors = [v.s if isinstance(v, AffineScalarFunc) else math.nan
+                  for v in values]
+    return numpy.array(nominals, dtype=float), numpy.array(errors, dtype=float)
+
+
+def _usable_as_weights(errors):
+    return bool(numpy.all(numpy.isfinite(errors)) and numpy.all(errors > 0))
+
+
+def mean(x, dx=None):
+    """Return the mean and standard error of a sequence of measurements.
+
+    Supply standard errors in `dx` or attach them to the values in `x`.
+    For multiple measurements with finite, positive errors, weight by
+    inverse variance. Otherwise, use the arithmetic mean and estimate its
+    standard error from the sample scatter.
+
+    A single measurement retains its standard error, which may be NaN.
+    An empty sequence yields NaN for both the mean and its error.
+    """
+    x, dx = _nominals_and_errors(x, dx)
     n = len(x)
-    if n:
-        mn = x[0]
-        er = dx[0] if dx.any() else 0
-    if n > 1:
-        if dx.any() and not numpy.any(numpy.isnan(dx)):
-            mn = numpy.sum(x / dx ** 2) / numpy.sum(1 / dx ** 2)
-            er = (1 / numpy.sum(1 / dx ** 2)) ** 0.5
-        else:
-            mn = numpy.mean(x)
-            er = numpy.std(x, ddof=1) / n ** 0.5
-    return ufloat(mn, er)
+    if not n:
+        return ufloat(math.nan, math.nan)
+    if n == 1:
+        return ufloat(x[0], dx[0])
+    if _usable_as_weights(dx):
+        weights = 1 / dx ** 2
+        return ufloat(numpy.sum(weights * x) / numpy.sum(weights),
+                      numpy.sum(weights) ** -0.5)
+    return ufloat(numpy.mean(x), numpy.std(x, ddof=1) / n ** 0.5)
 
 
 def _lsm(x, y):
@@ -96,6 +112,8 @@ def _lsm_dx_dy(x, y, dx, dy):
     w = numpy.zeros_like(x)
     beta = numpy.zeros_like(x)
     x_bar = y_bar = 0.0
+    # slope scale of the data keeps the tolerance meaningful for k close to 0
+    tolerance = 1e-12 * max(numpy.abs(k), numpy.ptp(y) / numpy.ptp(x))
     for _ in range(200):
         w = wx * wy / (k ** 2 * wy + wx)
         x_bar = numpy.sum(w * x) / numpy.sum(w)
@@ -104,10 +122,13 @@ def _lsm_dx_dy(x, y, dx, dy):
         vi = y - y_bar
         beta = w * (ui / wy + k * vi / wx)
         k_new = numpy.sum(w * beta * vi) / numpy.sum(w * beta * ui)
-        if numpy.abs(k_new - k) < 1e-15 * numpy.abs(k_new):
-            k = k_new
-            break
+        converged = numpy.abs(k_new - k) <= tolerance
         k = k_new
+        if converged:
+            break
+    else:
+        warnings.warn('Weighted total least-squares did not converge',
+                      RuntimeWarning)
     b = y_bar - k * x_bar
     x_adj_bar = numpy.sum(w * (x_bar + beta)) / numpy.sum(w)
     u = (x_bar + beta) - x_adj_bar
@@ -117,30 +138,32 @@ def _lsm_dx_dy(x, y, dx, dy):
 
 
 def lsm(x, y, dx=None, dy=None):
-    """Uncertainties-friendly least squares algorithm."""
+    """Fit Y = slope * X + intercept and return (slope, intercept).
 
-    if isinstance(y[0], AffineScalarFunc):
-        if isinstance(x[0], AffineScalarFunc):
-            dx = [i.s for i in x]
-            x = [i.n for i in x]
-        dy = [i.s for i in y]
-        y = [i.n for i in y]
+    Supply paired coordinates with attached standard errors, or pass
+    explicit errors in `dx` and `dy`. With three or more points, use a York
+    fit when both error arrays are finite and positive, Y-weighted least
+    squares when only the Y errors qualify, and ordinary least squares
+    otherwise. The ordinary fit estimates errors from residual scatter.
 
-    x = numpy.array(x)
-    y = numpy.array(y)
-    dx = numpy.array(dx)
-    dy = numpy.array(dy)
+    Two distinct X values define a line directly, with errors propagated
+    from the endpoints when uncertainties is available. If fewer than two
+    distinct X values are supplied, return two values with NaN nominals and
+    standard errors.
+    """
+    x, dx = _nominals_and_errors(x, dx)
+    y, dy = _nominals_and_errors(y, dy)
 
-    if len(x) == 1:
-        return ufloat(0, 0), ufloat(y, dy if dy.any() else math.nan)
+    if len(x) < 2 or numpy.all(x == x[0]):
+        # a single point or points with equal X don't define a line y(x)
+        return ufloat(math.nan, math.nan), ufloat(math.nan, math.nan)
     if len(x) == 2:
-        dx0, dx1 = (dx[0], dx[1]) if dx.any() else (math.nan, math.nan)
-        dy0, dy1 = (dy[0], dy[1]) if dy.any() else (math.nan, math.nan)
-        x0, x1, y0, y1 = x[0], x[1], y[0], y[1]
-        k = (ufloat(y1, dy1) - ufloat(y0, dy0)) / (ufloat(x1, dx1) - ufloat(x0, dx0))
+        x0, x1 = ufloat(x[0], dx[0]), ufloat(x[1], dx[1])
+        y0, y1 = ufloat(y[0], dy[0]), ufloat(y[1], dy[1])
+        k = (y1 - y0) / (x1 - x0)
         return k, y1 - k * x1
-    if all([math.isnan(dx[0]), math.isnan(dy[0])]):
-        return _lsm(x, y)
-    elif math.isnan(dx[0]):
+    if _usable_as_weights(dy):
+        if _usable_as_weights(dx):
+            return _lsm_dx_dy(x, y, dx, dy)
         return _lsm_dy(x, y, dy)
-    return _lsm_dx_dy(x, y, dx, dy)
+    return _lsm(x, y)
